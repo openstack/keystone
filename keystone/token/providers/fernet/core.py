@@ -153,7 +153,7 @@ class Provider(common.BaseProvider):
 
         """
         group_ids = [x['id'] for x in federated_dict['group_ids']]
-        self.v3_token_data_helper.populate_roles_for_groups(
+        self.v3_token_data_helper.populate_roles_for_federated_user(
             token_dict, group_ids, project_id, domain_id, user_id)
 
     def _extract_v2_token_data(self, token_data):

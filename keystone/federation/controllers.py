@@ -429,8 +429,8 @@ class DomainV3(controller.V3Controller):
         self.get_member_from_driver = self.resource_api.get_domain
 
     @controller.protected()
-    def list_domains_for_groups(self, request):
-        """List all domains available to an authenticated user's groups.
+    def list_domains_for_user(self, request):
+        """List all domains available to an authenticated user.
 
         :param context: request context
         :returns: list of accessible domains
@@ -440,6 +440,10 @@ class DomainV3(controller.V3Controller):
         auth_context = env[authorization.AUTH_CONTEXT_ENV]
         domains = self.assignment_api.list_domains_for_groups(
             auth_context['group_ids'])
+        domains = domains + self.assignment_api.list_domains_for_user(
+            auth_context['user_id'])
+        # remove duplicates
+        domains = [dict(t) for t in set([tuple(d.items()) for d in domains])]
         return DomainV3.wrap_collection(request.context_dict, domains)
 
 
@@ -453,8 +457,8 @@ class ProjectAssignmentV3(controller.V3Controller):
         self.get_member_from_driver = self.resource_api.get_project
 
     @controller.protected()
-    def list_projects_for_groups(self, request):
-        """List all projects available to an authenticated user's groups.
+    def list_projects_for_user(self, request):
+        """List all projects available to an authenticated user.
 
         :param context: request context
         :returns: list of accessible projects
@@ -464,6 +468,10 @@ class ProjectAssignmentV3(controller.V3Controller):
         auth_context = env[authorization.AUTH_CONTEXT_ENV]
         projects = self.assignment_api.list_projects_for_groups(
             auth_context['group_ids'])
+        projects = projects + self.assignment_api.list_projects_for_user(
+            auth_context['user_id'])
+        # remove duplicates
+        projects = [dict(t) for t in set([tuple(d.items()) for d in projects])]
         return ProjectAssignmentV3.wrap_collection(request.context_dict,
                                                    projects)
 

@@ -2637,6 +2637,258 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         user_id2 = r.json_body['token']['user']['id']
         self.assertEqual(user_id, user_id2)
 
+    def test_user_role_assignment(self):
+        # create project and role
+        project_ref = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+
+        # authenticate via saml get back a user id
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # exchange an unscoped token for a scoped token; resulting in
+        # unauthorized because the user doesn't have any role assignments
+        v3_scope_request = self._scope_request(unscoped_token, 'project',
+                                               project_ref['id'])
+        r = self.v3_create_token(v3_scope_request,
+                                 expected_status=http_client.UNAUTHORIZED)
+
+        # assign project role to federated user
+        self.assignment_api.add_role_to_user_and_project(
+            user_id, project_ref['id'], role_ref['id'])
+
+        # exchange an unscoped token for a scoped token
+        r = self.v3_create_token(v3_scope_request,
+                                 expected_status=http_client.CREATED)
+        scoped_token = r.headers['X-Subject-Token']
+
+        # ensure user can access resource based on role assignment
+        path = '/projects/%(project_id)s' % {'project_id': project_ref['id']}
+        r = self.v3_request(path=path, method='GET',
+                            expected_status=http_client.OK,
+                            token=scoped_token)
+        self.assertValidProjectResponse(r, project_ref)
+
+        # create a 2nd project
+        project_ref2 = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        self.resource_api.create_project(project_ref2['id'], project_ref2)
+
+        # ensure the user cannot access the 2nd resource (forbidden)
+        path = '/projects/%(project_id)s' % {'project_id': project_ref2['id']}
+        r = self.v3_request(path=path, method='GET',
+                            expected_status=http_client.FORBIDDEN,
+                            token=scoped_token)
+
+    def test_domain_scoped_user_role_assignment(self):
+        # create domain and role
+        domain_ref = unit.new_domain_ref()
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+
+        # authenticate via saml get back a user id
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # exchange an unscoped token for a scoped token; resulting in
+        # unauthorized because the user doesn't have any role assignments
+        v3_scope_request = self._scope_request(unscoped_token, 'domain',
+                                               domain_ref['id'])
+        r = self.v3_create_token(v3_scope_request,
+                                 expected_status=http_client.UNAUTHORIZED)
+
+        # assign domain role to user
+        self.assignment_api.create_grant(role_ref['id'],
+                                         user_id=user_id,
+                                         domain_id=domain_ref['id'])
+
+        # exchange an unscoped token for domain scoped token and test
+        r = self.v3_create_token(v3_scope_request,
+                                 expected_status=http_client.CREATED)
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+        token_resp = r.result['token']
+        self.assertIn('domain', token_resp)
+
+    def test_auth_projects_matches_federation_projects(self):
+        # create project and role
+        project_ref = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+
+        # authenticate via saml get back a user id
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # assign project role to federated user
+        self.assignment_api.add_role_to_user_and_project(
+            user_id, project_ref['id'], role_ref['id'])
+
+        # get auth projects
+        r = self.get('/auth/projects', token=unscoped_token)
+        auth_projects = r.result['projects']
+
+        # get federation projects
+        r = self.get('/OS-FEDERATION/projects', token=unscoped_token)
+        fed_projects = r.result['projects']
+
+        # compare
+        self.assertItemsEqual(auth_projects, fed_projects)
+
+    def test_auth_projects_matches_federation_projects_with_group_assign(self):
+        # create project, role, group
+        domain_id = CONF.identity.default_domain_id
+        project_ref = unit.new_project_ref(domain_id=domain_id)
+        self.resource_api.create_project(project_ref['id'], project_ref)
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+        group_ref = unit.new_group_ref(domain_id=domain_id)
+        group_ref = self.identity_api.create_group(group_ref)
+
+        # authenticate via saml get back a user id
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # assign role to group at project
+        self.assignment_api.create_grant(role_ref['id'],
+                                         group_id=group_ref['id'],
+                                         project_id=project_ref['id'],
+                                         domain_id=domain_id)
+
+        # add user to group
+        self.identity_api.add_user_to_group(user_id=user_id,
+                                            group_id=group_ref['id'])
+
+        # get auth projects
+        r = self.get('/auth/projects', token=unscoped_token)
+        auth_projects = r.result['projects']
+
+        # get federation projects
+        r = self.get('/OS-FEDERATION/projects', token=unscoped_token)
+        fed_projects = r.result['projects']
+
+        # compare
+        self.assertItemsEqual(auth_projects, fed_projects)
+
+    def test_auth_domains_matches_federation_domains(self):
+        # create domain and role
+        domain_ref = unit.new_domain_ref()
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+
+        # authenticate via saml get back a user id and token
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # assign domain role to user
+        self.assignment_api.create_grant(role_ref['id'],
+                                         user_id=user_id,
+                                         domain_id=domain_ref['id'])
+
+        # get auth domains
+        r = self.get('/auth/domains', token=unscoped_token)
+        auth_domains = r.result['domains']
+
+        # get federation domains
+        r = self.get('/OS-FEDERATION/domains', token=unscoped_token)
+        fed_domains = r.result['domains']
+
+        # compare
+        self.assertItemsEqual(auth_domains, fed_domains)
+
+    def test_auth_domains_matches_federation_domains_with_group_assign(self):
+        # create role, group, and domain
+        domain_ref = unit.new_domain_ref()
+        self.resource_api.create_domain(domain_ref['id'], domain_ref)
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+        group_ref = unit.new_group_ref(domain_id=domain_ref['id'])
+        group_ref = self.identity_api.create_group(group_ref)
+
+        # authenticate via saml get back a user id and token
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # assign domain role to group
+        self.assignment_api.create_grant(role_ref['id'],
+                                         group_id=group_ref['id'],
+                                         domain_id=domain_ref['id'])
+
+        # add user to group
+        self.identity_api.add_user_to_group(user_id=user_id,
+                                            group_id=group_ref['id'])
+
+        # get auth domains
+        r = self.get('/auth/domains', token=unscoped_token)
+        auth_domains = r.result['domains']
+
+        # get federation domains
+        r = self.get('/OS-FEDERATION/domains', token=unscoped_token)
+        fed_domains = r.result['domains']
+
+        # compare
+        self.assertItemsEqual(auth_domains, fed_domains)
+
+    def test_list_domains_for_user_duplicates(self):
+        # create role
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+
+        # authenticate via saml get back a user id and token
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # get federation group domains
+        r = self.get('/OS-FEDERATION/domains', token=unscoped_token)
+        group_domains = r.result['domains']
+        domain_from_group = group_domains[0]
+
+        # assign group domain and role to user, this should create a
+        # duplicate domain
+        self.assignment_api.create_grant(role_ref['id'],
+                                         user_id=user_id,
+                                         domain_id=domain_from_group['id'])
+
+        # get user domains and test for duplicates
+        r = self.get('/OS-FEDERATION/domains', token=unscoped_token)
+        user_domains = r.result['domains']
+        user_domain_ids = []
+        for domain in user_domains:
+            self.assertNotIn(domain['id'], user_domain_ids)
+            user_domain_ids.append(domain['id'])
+
+    def test_list_projects_for_user_duplicates(self):
+        # create role
+        role_ref = unit.new_role_ref()
+        self.role_api.create_role(role_ref['id'], role_ref)
+
+        # authenticate via saml get back a user id and token
+        user_id, unscoped_token = self._authenticate_via_saml()
+
+        # get federation group projects
+        r = self.get('/OS-FEDERATION/projects', token=unscoped_token)
+        group_projects = r.result['projects']
+        project_from_group = group_projects[0]
+
+        # assign group project and role to user, this should create a
+        # duplicate project
+        self.assignment_api.add_role_to_user_and_project(
+            user_id, project_from_group['id'], role_ref['id'])
+
+        # get user projects and test for duplicates
+        r = self.get('/OS-FEDERATION/projects', token=unscoped_token)
+        user_projects = r.result['projects']
+        user_project_ids = []
+        for project in user_projects:
+            self.assertNotIn(project['id'], user_project_ids)
+            user_project_ids.append(project['id'])
+
+    def _authenticate_via_saml(self):
+        r = self._issue_unscoped_token()
+        unscoped_token = r.headers['X-Subject-Token']
+        token_resp = r.json_body['token']
+        self.assertValidMappedUser(token_resp)
+        return token_resp['user']['id'], unscoped_token
+
 
 class JsonHomeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     JSON_HOME_DATA = {

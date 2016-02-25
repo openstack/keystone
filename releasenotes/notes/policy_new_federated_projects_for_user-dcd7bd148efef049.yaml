@@ -1,0 +1,7 @@
+---
+upgrade:
+  - In the policy.json file, we changed `identity:list_projects_for_groups`
+    to `identity:list_projects_for_user`. Likewise, we changed
+    `identity:list_domains_for_groups` to `identity:list_domains_for_user`. If
+    you have customized the policy.json file, you will need to make these
+    changes. This was done to better support new features around federation.
