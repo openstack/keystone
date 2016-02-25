@@ -34,7 +34,6 @@ from keystone.common.ldap import core as common_ldap_core
 from keystone import exception
 from keystone import identity
 from keystone.identity.mapping_backends import mapping as map
-from keystone.resource.backends import base as resource
 from keystone.tests import unit
 from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit import default_fixtures
@@ -1038,7 +1037,11 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
     def test_list_domains(self):
         domains = self.resource_api.list_domains()
-        self.assertEqual([resource.calc_default_domain()], domains)
+        default_domain = unit.new_domain_ref(
+            description=u'The default domain',
+            id=CONF.identity.default_domain_id,
+            name=u'Default')
+        self.assertEqual([default_domain], domains)
 
     def test_configurable_allowed_project_actions(self):
         domain = self._get_domain_fixture()
@@ -2298,7 +2301,11 @@ class LdapIdentityWithMapping(
 
     def test_list_domains(self):
         domains = self.resource_api.list_domains()
-        self.assertEqual([resource.calc_default_domain()], domains)
+        default_domain = unit.new_domain_ref(
+            description=u'The default domain',
+            id=CONF.identity.default_domain_id,
+            name=u'Default')
+        self.assertEqual([default_domain], domains)
 
 
 class BaseMultiLDAPandSQLIdentity(object):
@@ -2375,8 +2382,10 @@ class BaseMultiLDAPandSQLIdentity(object):
             domain = 'domain%s' % x
             self.domains[domain] = create_domain(
                 {'id': uuid.uuid4().hex, 'name': domain})
-        self.domains['domain_default'] = create_domain(
-            resource.calc_default_domain())
+        self.domains['domain_default'] = create_domain(unit.new_domain_ref(
+            description='The default domain',
+            id=CONF.identity.default_domain_id,
+            name='Default'))
 
     def test_authenticate_to_each_domain(self):
         """Test that a user in each domain can authenticate."""
