@@ -184,14 +184,6 @@ def cleanup():
     _main_context_manager = None
 
 
-def get_engine():
-    return _get_main_context_manager().get_legacy_facade().get_engine()
-
-
-def get_session():
-    return _get_main_context_manager().get_legacy_facade().get_session()
-
-
 _CONTEXT = threading.local()
 
 
