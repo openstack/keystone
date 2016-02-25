@@ -143,8 +143,7 @@ ROLE_ASSIGNMENTS = [
 ]
 
 DOMAINS = [{'description':
-            (u'Owns users and tenants (i.e. projects)'
-                ' available on Identity API v2.'),
+            (u'The default domain'),
             'enabled': True,
             'id': DEFAULT_DOMAIN_ID,
             'name': u'Default'}]
