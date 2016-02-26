@@ -23,7 +23,7 @@ import six
 from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
-from keystone.common import models
+from keystone.common.ldap import models
 from keystone import exception
 from keystone.i18n import _
 from keystone import identity
