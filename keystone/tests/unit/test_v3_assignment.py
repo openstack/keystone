@@ -2542,6 +2542,7 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         """Call ``GET /role_assignments`` with implied role grant.
 
         Test Plan:
+
         - Create a domain with a user and a project
         - Create 3 roles
         - Role 0 implies role 1 and role 1 implies role 2
