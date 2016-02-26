@@ -22,9 +22,8 @@ Setup
 -----
 
 Get your development environment set up according to
-:doc:`devref/development.environment`. The instructions from here will assume
-that you have installed Keystone into a virtualenv. If you chose not to, simply
-exclude "tools/with_venv.sh" from the example commands below.
+:doc:`devref/development.environment`. It is recommended that you install
+Keystone into a virtualenv.
 
 
 Configuring Keystone
@@ -48,7 +47,7 @@ To run the Keystone Admin and API server instances, use:
 
 .. code-block:: bash
 
-    $ tools/with_venv.sh keystone-all
+    $ keystone-all
 
 This runs Keystone with the configuration the etc/ directory of the project.
 See :doc:`configuration` for details on how Keystone is configured. By default,
@@ -199,7 +198,7 @@ data for use with keystone:
 
 .. code-block:: bash
 
-    $ OS_TOKEN=ADMIN tools/with_venv.sh tools/sample_data.sh
+    $ OS_TOKEN=ADMIN tools/sample_data.sh
 
 Notice it requires a service token read from an environment variable for
 authentication.  The default value "ADMIN" is from the ``admin_token``
@@ -210,13 +209,13 @@ Once run, you can see the sample data that has been created by using the
 
 .. code-block:: bash
 
-    $ tools/with_venv.sh openstack --os-token ADMIN --os-url http://127.0.0.1:35357/v2.0/ user list
+    $ openstack --os-token ADMIN --os-url http://127.0.0.1:35357/v2.0/ user list
 
 The `openstackclient`_ can be installed using the following:
 
 .. code-block:: bash
 
-    $ tools/with_venv.sh pip install python-openstackclient
+    $ pip install python-openstackclient
 
 Filtering responsibilities between controllers and drivers
 ----------------------------------------------------------
