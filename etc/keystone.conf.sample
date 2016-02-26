@@ -470,17 +470,17 @@
 
 # Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
 # Headers. (list value)
-#expose_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+#expose_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token
 
 # Maximum cache age of CORS preflight requests. (integer value)
 #max_age = 3600
 
 # Indicate which methods can be used during the actual request. (list value)
-#allow_methods = GET,POST,PUT,DELETE,OPTIONS
+#allow_methods = GET,PUT,POST,DELETE,PATCH
 
 # Indicate which header field names may be used during the actual request.
 # (list value)
-#allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+#allow_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token,X-Project-Id,X-Project-Name,X-Project-Domain-Id,X-Project-Domain-Name,X-Domain-Id,X-Domain-Name
 
 
 [cors.subdomain]
@@ -498,17 +498,17 @@
 
 # Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
 # Headers. (list value)
-#expose_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+#expose_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token
 
 # Maximum cache age of CORS preflight requests. (integer value)
 #max_age = 3600
 
 # Indicate which methods can be used during the actual request. (list value)
-#allow_methods = GET,POST,PUT,DELETE,OPTIONS
+#allow_methods = GET,PUT,POST,DELETE,PATCH
 
 # Indicate which header field names may be used during the actual request.
 # (list value)
-#allow_headers = Content-Type,Cache-Control,Content-Language,Expires,Last-Modified,Pragma
+#allow_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token,X-Project-Id,X-Project-Name,X-Project-Domain-Id,X-Project-Domain-Name,X-Domain-Id,X-Domain-Name
 
 
 [credential]

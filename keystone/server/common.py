@@ -31,6 +31,7 @@ def configure(version=None, config_files=None,
     config.configure()
     sql.initialize()
     config.set_default_for_default_log_levels()
+    config.set_middleware_defaults()
 
     CONF(project='keystone', version=version,
          default_config_files=config_files)
