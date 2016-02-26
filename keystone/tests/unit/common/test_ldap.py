@@ -289,12 +289,19 @@ class LDAPDeleteTreeTest(unit.TestCase):
 class MultiURLTests(unit.TestCase):
     """Tests for setting multiple LDAP URLs."""
 
-    def test_multiple_urls_with_comma(self):
+    def test_multiple_urls_with_comma_no_conn_pool(self):
         urls = 'ldap://localhost,ldap://backup.localhost'
-        self.config_fixture.config(group='ldap', url=urls)
+        self.config_fixture.config(group='ldap', url=urls, use_pool=False)
         base_ldap = ks_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
         self.assertEqual(urls, ldap_connection.conn.conn._uri)
+
+    def test_multiple_urls_with_comma_with_conn_pool(self):
+        urls = 'ldap://localhost,ldap://backup.localhost'
+        self.config_fixture.config(group='ldap', url=urls, use_pool=True)
+        base_ldap = ks_ldap.BaseLdap(CONF)
+        ldap_connection = base_ldap.get_connection()
+        self.assertEqual(urls, ldap_connection.conn.conn_pool.uri)
 
 
 class SslTlsTest(unit.TestCase):

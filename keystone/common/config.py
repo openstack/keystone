@@ -765,7 +765,7 @@ FILE_OPTIONS = {
                    choices=['demand', 'never', 'allow'],
                    help='Specifies what checks to perform on client '
                         'certificates in an incoming TLS session.'),
-        cfg.BoolOpt('use_pool', default=False,
+        cfg.BoolOpt('use_pool', default=True,
                     help='Enable LDAP connection pooling.'),
         cfg.IntOpt('pool_size', default=10,
                    help='Connection pool size.'),
@@ -779,7 +779,7 @@ FILE_OPTIONS = {
                         'indefinite wait for response.'),
         cfg.IntOpt('pool_connection_lifetime', default=600,
                    help='Connection lifetime in seconds.'),
-        cfg.BoolOpt('use_auth_pool', default=False,
+        cfg.BoolOpt('use_auth_pool', default=True,
                     help='Enable LDAP connection pooling for end user '
                          'authentication. If use_pool is disabled, then this '
                          'setting is meaningless and is not used at all.'),

@@ -1,0 +1,8 @@
+---
+upgrade:
+  - >
+    The configuration options for LDAP connection pooling, `[ldap] use_pool`
+    and `[ldap] use_auth_pool`, are now both enabled by default. Only
+    deployments using LDAP drivers are affected. Additional configuration
+    options are available in the `[ldap]` section to tune connection pool size,
+    etc.
