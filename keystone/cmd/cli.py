@@ -63,10 +63,17 @@ class BootStrap(BaseApp):
         self.load_backends()
         self.project_id = uuid.uuid4().hex
         self.role_id = uuid.uuid4().hex
+        self.service_id = None
+        self.service_name = None
         self.username = None
         self.project_name = None
         self.role_name = None
         self.password = None
+        self.public_url = None
+        self.internal_url = None
+        self.admin_url = None
+        self.region_id = None
+        self.endpoints = {}
 
     @classmethod
     def add_argument_parser(cls, subparsers):
@@ -88,6 +95,31 @@ class BootStrap(BaseApp):
                             metavar='OS_BOOTSTRAP_ROLE_NAME',
                             help=('The initial role-name created during the '
                                   'keystone bootstrap process.'))
+        parser.add_argument('--bootstrap-service-name', default='keystone',
+                            metavar='OS_BOOTSTRAP_SERVICE_NAME',
+                            help=('The initial name for the initial identity '
+                                  'service created during the keystone '
+                                  'bootstrap process.'))
+        parser.add_argument('--bootstrap-admin-url',
+                            metavar='OS_BOOTSTRAP_ADMIN_URL',
+                            help=('The initial identity admin url created '
+                                  'during the keystone bootstrap process. '
+                                  'e.g. http://127.0.0.1:35357/v2.0'))
+        parser.add_argument('--bootstrap-public-url',
+                            metavar='OS_BOOTSTRAP_PUBLIC_URL',
+                            help=('The initial identity public url created '
+                                  'during the keystone bootstrap process. '
+                                  'e.g. http://127.0.0.1:5000/v2.0'))
+        parser.add_argument('--bootstrap-internal-url',
+                            metavar='OS_BOOTSTRAP_INTERNAL_URL',
+                            help=('The initial identity internal url created '
+                                  'during the keystone bootstrap process. '
+                                  'e.g. http://127.0.0.1:5000/v2.0'))
+        parser.add_argument('--bootstrap-region-id',
+                            metavar='OS_BOOTSTRAP_REGION_ID',
+                            help=('The initial region_id endpoints will be '
+                                  'placed in during the keystone bootstrap '
+                                  'process.'))
         return parser
 
     def load_backends(self):
@@ -95,6 +127,7 @@ class BootStrap(BaseApp):
         self.resource_manager = drivers['resource_api']
         self.identity_manager = drivers['identity_api']
         self.assignment_manager = drivers['assignment_api']
+        self.catalog_manager = drivers['catalog_api']
         self.role_manager = drivers['role_api']
 
     def _get_config(self):
@@ -110,6 +143,21 @@ class BootStrap(BaseApp):
         self.password = (
             os.environ.get('OS_BOOTSTRAP_PASSWORD') or
             CONF.command.bootstrap_password)
+        self.service_name = (
+            os.environ.get('OS_BOOTSTRAP_SERVICE_NAME') or
+            CONF.command.bootstrap_service_name)
+        self.admin_url = (
+            os.environ.get('OS_BOOTSTRAP_ADMIN_URL') or
+            CONF.command.bootstrap_admin_url)
+        self.public_url = (
+            os.environ.get('OS_BOOTSTRAP_PUBLIC_URL') or
+            CONF.command.bootstrap_public_url)
+        self.internal_url = (
+            os.environ.get('OS_BOOTSTRAP_INTERNAL_URL') or
+            CONF.command.bootstrap_internal_url)
+        self.region_id = (
+            os.environ.get('OS_BOOTSTRAP_REGION_ID') or
+            CONF.command.bootstrap_region_id)
 
     def do_bootstrap(self):
         """Perform the bootstrap actions.
@@ -214,6 +262,80 @@ class BootStrap(BaseApp):
                      {'username': self.username,
                       'role': self.role_name,
                       'project': self.project_name})
+
+        if self.region_id:
+            try:
+                self.catalog_manager.create_region(
+                    region_ref={'id': self.region_id}
+                )
+                LOG.info(_LI('Created Region %s'), self.region_id)
+            except exception.Conflict:
+                LOG.info(_LI('Region %s exists, skipping creation.'),
+                         self.region_id)
+
+        if self.public_url or self.admin_url or self.internal_url:
+            hints = driver_hints.Hints()
+            hints.add_filter('type', 'identity')
+            services = self.catalog_manager.list_services(hints)
+
+            if services:
+                service_ref = services[0]
+
+                hints = driver_hints.Hints()
+                hints.add_filter('service_id', service_ref['id'])
+                if self.region_id:
+                    hints.add_filter('region_id', self.region_id)
+
+                endpoints = self.catalog_manager.list_endpoints(hints)
+            else:
+                service_ref = {'id': uuid.uuid4().hex,
+                               'name': self.service_name,
+                               'type': 'identity',
+                               'enabled': True}
+
+                self.catalog_manager.create_service(
+                    service_id=service_ref['id'],
+                    service_ref=service_ref)
+
+                endpoints = []
+
+            self.service_id = service_ref['id']
+
+            available_interfaces = {e['interface']: e for e in endpoints}
+            expected_endpoints = {'public': self.public_url,
+                                  'internal': self.internal_url,
+                                  'admin': self.admin_url}
+
+            for interface, url in expected_endpoints.items():
+                if not url:
+                    # not specified to bootstrap command
+                    continue
+
+                try:
+                    endpoint_ref = available_interfaces[interface]
+                except KeyError:
+                    endpoint_ref = {'id': uuid.uuid4().hex,
+                                    'interface': interface,
+                                    'url': url,
+                                    'service_id': self.service_id,
+                                    'enabled': True}
+
+                    if self.region_id:
+                        endpoint_ref['region_id'] = self.region_id
+
+                    self.catalog_manager.create_endpoint(
+                        endpoint_id=endpoint_ref['id'],
+                        endpoint_ref=endpoint_ref)
+
+                    LOG.info(_LI('Created %(interface)s endpoint %(url)s'),
+                             {'interface': interface, 'url': url})
+                else:
+                    # NOTE(jamielennox): electing not to update existing
+                    # endpoints here. There may be call to do so in future.
+                    LOG.info(_LI('Skipping %s endpoint as already created'),
+                             interface)
+
+                self.endpoints[interface] = endpoint_ref['id']
 
     @classmethod
     def main(cls):
