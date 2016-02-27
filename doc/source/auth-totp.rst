@@ -15,9 +15,8 @@
 Time-based One-time Password (TOTP)
 ===================================
 
-----------------
 Configuring TOTP
-----------------
+================
 
 TOTP is not enabled in Keystone by default.  To enable it add the ``totp``
 authentication method to the ``[auth]`` section in ``keystone.conf``:
@@ -101,18 +100,14 @@ In Google Authenticator app click on 'Set up account' and then click on 'Scan
 a barcode', and then scan the 'totp.png' image.  This should create a new TOTP
 entry in the application.
 
-----------------------
 Authenticate with TOTP
-----------------------
+======================
 
 Google Authenticator will generate a 6 digit PIN (passcode) every few seconds.
 Use the passcode and your user ID to authenticate using the ``totp`` method.
 
 Tokens
-======
-
-Default scope
--------------
+------
 
 Get a token with default scope (may be unscoped) using totp:
 
