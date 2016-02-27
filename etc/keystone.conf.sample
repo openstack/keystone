@@ -159,15 +159,6 @@
 # is set. (boolean value)
 #use_syslog = false
 
-# Enables or disables syslog rfc5424 format for logging. If enabled, prefixes
-# the MSG part of the syslog message with APP-NAME (RFC5424). This option is
-# ignored if log_config_append is set. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-# Reason: The format without the APP-NAME is deprecated in Kilo, and will be
-# removed in Mitaka, along with this option.
-#use_syslog_rfc_format = true
-
 # Syslog facility to receive log lines. This option is ignored if
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
@@ -225,6 +216,7 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
+# Allowed values: redis, dummy
 #rpc_zmq_matchmaker = redis
 
 # Type of concurrency used. Either "native" or "eventlet" (string value)
@@ -310,8 +302,8 @@
 
 # Enable eventlet backdoor, using the provided path as a unix socket that can
 # receive connections. This option is mutually exclusive with 'backdoor_port'
-# in that only one should be be provided. If both are provided then the
-# existence of this option overrides the usage of that option. (string value)
+# in that only one should be provided. If both are provided then the existence
+# of this option overrides the usage of that option. (string value)
 #backdoor_socket = <None>
 
 # Enables or disables logging values of all registered options when starting a
@@ -330,8 +322,11 @@
 #
 
 # Entrypoint for the assignment backend driver in the keystone.assignment
-# namespace. Only an SQL driver is supplied. (string value)
-#driver = sql
+# namespace. Only an SQL driver is supplied. If an assignment driver is not
+# specified, the identity driver will choose the assignment driver (driver
+# selection based on `[identity]/driver` option is deprecated and will be
+# removed in the "O" release). (string value)
+#driver = <None>
 
 # A list of role names which are prohibited from being an implied role. (list
 # value)
@@ -592,7 +587,7 @@
 # If set, use this value for max_overflow with SQLAlchemy. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_overflow
 # Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
-#max_overflow = <None>
+#max_overflow = 50
 
 # Verbosity of SQL debugging information: 0=None, 100=Everything. (integer
 # value)
@@ -1176,7 +1171,7 @@
 #tls_req_cert = demand
 
 # Enable LDAP connection pooling. (boolean value)
-#use_pool = false
+#use_pool = true
 
 # Connection pool size. (integer value)
 #pool_size = 10
@@ -1198,7 +1193,7 @@
 # Enable LDAP connection pooling for end user authentication. If use_pool is
 # disabled, then this setting is meaningless and is not used at all. (boolean
 # value)
-#use_auth_pool = false
+#use_auth_pool = true
 
 # End user auth connection pool size. (integer value)
 #auth_pool_size = 100
@@ -1513,8 +1508,12 @@
 # Deprecated group/name - [DEFAULT]/rabbit_max_retries
 #rabbit_max_retries = 0
 
-# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
-# must wipe the RabbitMQ database. (boolean value)
+# Try to use HA queues in RabbitMQ (x-ha-policy: all). If you change this
+# option, you must wipe the RabbitMQ database. In RabbitMQ 3.0, queue mirroring
+# is no longer controlled by the x-ha-policy argument when declaring a queue.
+# If you just want to make sure that all queues (except  those with auto-
+# generated names) are mirrored across all nodes, run: "rabbitmqctl set_policy
+# HA '^(?!amq\.).*' '{"ha-mode": "all"}' " (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_ha_queues
 #rabbit_ha_queues = false
 
@@ -1540,6 +1539,104 @@
 # Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
 # Deprecated group/name - [DEFAULT]/fake_rabbit
 #fake_rabbit = false
+
+# Maximum number of channels to allow (integer value)
+#channel_max = <None>
+
+# The maximum byte size for an AMQP frame (integer value)
+#frame_max = <None>
+
+# How often to send heartbeats for consumer's connections (integer value)
+#heartbeat_interval = 1
+
+# Enable SSL (boolean value)
+#ssl = <None>
+
+# Arguments passed to ssl.wrap_socket (dict value)
+#ssl_options = <None>
+
+# Set socket timeout in seconds for connection's socket (floating point value)
+#socket_timeout = 0.25
+
+# Set TCP_USER_TIMEOUT in seconds for connection's socket (floating point
+# value)
+#tcp_user_timeout = 0.25
+
+# Set delay for reconnection to some host which has connection error (floating
+# point value)
+#host_connection_reconnect_delay = 0.25
+
+# Maximum number of connections to keep queued. (integer value)
+#pool_max_size = 10
+
+# Maximum number of connections to create above `pool_max_size`. (integer
+# value)
+#pool_max_overflow = 0
+
+# Default number of seconds to wait for a connections to available (integer
+# value)
+#pool_timeout = 30
+
+# Lifetime of a connection (since creation) in seconds or None for no
+# recycling. Expired connections are closed on acquire. (integer value)
+#pool_recycle = 600
+
+# Threshold at which inactive (since release) connections are considered stale
+# in seconds or None for no staleness. Stale connections are closed on acquire.
+# (integer value)
+#pool_stale = 60
+
+# Persist notification messages. (boolean value)
+#notification_persistence = false
+
+# Exchange name for for sending notifications (string value)
+#default_notification_exchange = ${control_exchange}_notification
+
+# Max number of not acknowledged message which RabbitMQ can send to
+# notification listener. (integer value)
+#notification_listener_prefetch_count = 100
+
+# Reconnecting retry count in case of connectivity problem during sending
+# notification, -1 means infinite retry. (integer value)
+#default_notification_retry_attempts = -1
+
+# Reconnecting retry delay in case of connectivity problem during sending
+# notification message (floating point value)
+#notification_retry_delay = 0.25
+
+# Time to live for rpc queues without consumers in seconds. (integer value)
+#rpc_queue_expiration = 60
+
+# Exchange name for sending RPC messages (string value)
+#default_rpc_exchange = ${control_exchange}_rpc
+
+# Exchange name for receiving RPC replies (string value)
+#rpc_reply_exchange = ${control_exchange}_rpc_reply
+
+# Max number of not acknowledged message which RabbitMQ can send to rpc
+# listener. (integer value)
+#rpc_listener_prefetch_count = 100
+
+# Max number of not acknowledged message which RabbitMQ can send to rpc reply
+# listener. (integer value)
+#rpc_reply_listener_prefetch_count = 100
+
+# Reconnecting retry count in case of connectivity problem during sending
+# reply. -1 means infinite retry during rpc_timeout (integer value)
+#rpc_reply_retry_attempts = -1
+
+# Reconnecting retry delay in case of connectivity problem during sending
+# reply. (floating point value)
+#rpc_reply_retry_delay = 0.25
+
+# Reconnecting retry count in case of connectivity problem during sending RPC
+# message, -1 means infinite retry. If actual retry attempts in not 0 the rpc
+# request could be processed more then one time (integer value)
+#default_rpc_retry_attempts = -1
+
+# Reconnecting retry delay in case of connectivity problem during sending RPC
+# message (floating point value)
+#rpc_retry_delay = 0.25
 
 
 [oslo_middleware]
