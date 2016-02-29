@@ -85,7 +85,7 @@ extension, PyPi) cannot satisfy. These dependencies should be installed
 prior to using `pip`, and the installation method may vary depending on
 your platform.
 
-Ubuntu 14.04:
+Ubuntu 14.04, 15.10:
 
 .. code-block:: bash
 
