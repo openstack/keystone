@@ -5472,7 +5472,7 @@ class TrustTests(object):
     def create_sample_trust(self, new_id, remaining_uses=None):
         self.trustor = self.user_foo
         self.trustee = self.user_two
-        expires_at = datetime.datetime.utcnow().replace(year=2031)
+        expires_at = datetime.datetime.utcnow().replace(year=2032)
         trust_data = (self.trust_api.create_trust
                       (new_id,
                        {'trustor_user_id': self.trustor['id'],
@@ -5607,7 +5607,7 @@ class TrustTests(object):
                       'trustee_user_id': self.user_two['id'],
                       'project_id': self.tenant_bar['id'],
                       'expires_at': timeutils.parse_isotime(
-                          '2031-02-18T18:10:00Z'),
+                          '2032-02-18T18:10:00Z'),
                       'impersonation': True,
                       'remaining_uses': None}
         roles = [{"id": "member"},
