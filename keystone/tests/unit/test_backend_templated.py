@@ -159,6 +159,22 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
     def test_service_filtering(self):
         self.skipTest("Templated backend doesn't support filtering")
 
+    def test_list_services_with_hints(self):
+        hints = {}
+        services = self.catalog_api.list_services(hints=hints)
+        exp_services = [
+            {'type': 'compute',
+             'description': '',
+             'enabled': True,
+             'name': "'Compute Service'",
+             'id': 'compute'},
+            {'type': 'identity',
+             'description': '',
+             'enabled': True,
+             'name': "'Identity Service'",
+             'id': 'identity'}]
+        self.assertItemsEqual(exp_services, services)
+
     # NOTE(dstanek): the following methods have been overridden
     # from test_backend.CatalogTests
 
