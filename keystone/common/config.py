@@ -1251,3 +1251,9 @@ def set_middleware_defaults():
                                     'DELETE',
                                     'PATCH']
                      )
+
+
+def set_config_defaults():
+    """Override all configuration default values for keystone."""
+    set_default_for_default_log_levels()
+    set_middleware_defaults()
