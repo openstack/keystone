@@ -159,6 +159,29 @@ class TokenAPITests(object):
             project_id=self.project_id)
         return self._make_auth_request(auth_data)
 
+    def _get_trust_scoped_token(self, trustee_user, trust):
+        auth_data = self.build_authentication_request(
+            user_id=trustee_user['id'],
+            password=trustee_user['password'],
+            trust_id=trust['id'])
+        return self._make_auth_request(auth_data)
+
+    def _create_trust(self, impersonation=False):
+        # Create a trustee user
+        trustee_user = unit.create_user(self.identity_api,
+                                        domain_id=self.domain_id)
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee_user['id'],
+            project_id=self.project_id,
+            impersonation=impersonation,
+            role_ids=[self.role_id])
+
+        # Create a trust
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+        return (trustee_user, trust)
+
     def _validate_token(self, token, expected_status=http_client.OK):
         return self.get(
             '/auth/tokens',
@@ -356,6 +379,112 @@ class TokenAPITests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           project_scoped_token)
+
+    def test_rescope_unscoped_token_with_trust(self):
+        trustee_user, trust = self._create_trust()
+        self._get_trust_scoped_token(trustee_user, trust)
+
+    def test_validate_a_trust_scoped_token(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+    def test_validate_a_trust_scoped_token_impersonated(self):
+        trustee_user, trust = self._create_trust(impersonation=True)
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+    def test_revoke_trust_scoped_token(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+        self._revoke_token(trust_scoped_token)
+        self._validate_token(trust_scoped_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_trust_scoped_token_is_invalid_after_disabling_trustee(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+        # Disable trustee
+        trustee_update_ref = dict(enabled=False)
+        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_invalid_after_changing_trustee_password(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+        # Change trustee's password
+        trustee_update_ref = dict(password='Password1')
+        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
+        # Ensure updating trustee's password revokes existing tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+        # Disable the trustor
+        trustor_update_ref = dict(enabled=False)
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_invalid_after_changing_trustor_password(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+        # Change trustor's password
+        trustor_update_ref = dict(password='Password1')
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure updating trustor's password revokes existing user's tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_trust_scoped_token_invalid_after_disabled_trustor_domain(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        self._validate_token(trust_scoped_token)
+
+        # Disable trustor's domain
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+
+        trustor_update_ref = dict(password='Password1')
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure updating trustor's password revokes existing user's tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          trust_scoped_token)
+
+    def test_v2_validate_trust_scoped_token(self):
+        # Test that validating an trust scoped token in v2.0 returns
+        # unauthorized.
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api.validate_v2_token,
+                          trust_scoped_token)
 
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
@@ -4587,23 +4716,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self._validate_token(tampered_token,
                              expected_status=http_client.NOT_FOUND)
 
-    def test_rescope_unscoped_token_with_trust(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        self.assertLess(len(trust_scoped_token), 255)
-
-    def test_validate_a_trust_scoped_token(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-
-    def test_validate_a_trust_scoped_token_impersonated(self):
-        trustee_user, trust = self._create_trust(impersonation=True)
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-
     def test_validate_tampered_trust_scoped_token_fails(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
@@ -4612,99 +4724,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
                           trust_scoped_token[50 + 32:])
         self._validate_token(tampered_token,
                              expected_status=http_client.NOT_FOUND)
-
-    def test_revoke_trust_scoped_token(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-        self._revoke_token(trust_scoped_token)
-        self._validate_token(trust_scoped_token,
-                             expected_status=http_client.NOT_FOUND)
-
-    def test_trust_scoped_token_is_invalid_after_disabling_trustee(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-
-        # Disable trustee
-        trustee_update_ref = dict(enabled=False)
-        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
-
-    def test_trust_scoped_token_invalid_after_changing_trustee_password(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-        # Change trustee's password
-        trustee_update_ref = dict(password='Password1')
-        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
-        # Ensure updating trustee's password revokes existing tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
-
-    def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-
-        # Disable the trustor
-        trustor_update_ref = dict(enabled=False)
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
-
-    def test_trust_scoped_token_invalid_after_changing_trustor_password(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-
-        # Change trustor's password
-        trustor_update_ref = dict(password='Password1')
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
-        # Ensure updating trustor's password revokes existing user's tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
-
-    def test_trust_scoped_token_invalid_after_disabled_trustor_domain(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
-
-        # Disable trustor's domain
-        self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
-
-        trustor_update_ref = dict(password='Password1')
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
-        # Ensure updating trustor's password revokes existing user's tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
-
-    def test_v2_validate_trust_scoped_token(self):
-        """Test raised exception when validating a trust scoped token.
-
-        Test that validating an trust scoped token in v2.0 returns
-        unauthorized.
-        """
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        self.assertRaises(exception.Unauthorized,
-                          self.token_provider_api.validate_v2_token,
-                          trust_scoped_token)
 
 
 class TestTrustAuthPKITokenProvider(TrustAPIBehavior, TestTrustChain):
