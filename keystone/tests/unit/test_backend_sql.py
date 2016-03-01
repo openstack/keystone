@@ -611,44 +611,6 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests):
         _exercise_project_api(uuid.uuid4().hex)
         _exercise_project_api(resource.NULL_DOMAIN_ID)
 
-    def test_hidden_domain_root_is_really_hidden(self):
-        """Ensure we cannot access the hidden root of all domains.
-
-        Calling any of the driver methods should result in the same as
-        would be returned if we passed a domain that does not exist. We don't
-        test create_domain, since we do not allow a caller of our API to
-        specify their own ID for a new entity.
-
-        """
-        def _exercise_domain_api(ref_id):
-            driver = self.resource_api.driver
-            self.assertRaises(exception.DomainNotFound,
-                              driver.get_domain,
-                              ref_id)
-
-            self.assertRaises(exception.DomainNotFound,
-                              driver.get_domain_by_name,
-                              resource.NULL_DOMAIN_ID)
-
-            domain_ids = [x['id'] for x in
-                          driver.list_domains(driver_hints.Hints())]
-            self.assertNotIn(ref_id, domain_ids)
-
-            domains = driver.list_domains_from_ids([ref_id])
-            self.assertThat(domains, matchers.HasLength(0))
-
-            self.assertRaises(exception.DomainNotFound,
-                              driver.update_domain,
-                              ref_id,
-                              {})
-
-            self.assertRaises(exception.DomainNotFound,
-                              driver.delete_domain,
-                              ref_id)
-
-        _exercise_domain_api(uuid.uuid4().hex)
-        _exercise_domain_api(resource.NULL_DOMAIN_ID)
-
 
 class SqlTrust(SqlTests, test_backend.TrustTests):
     pass
