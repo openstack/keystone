@@ -930,83 +930,6 @@ class ResourceDriverBase(object):
     def _get_list_limit(self):
         return CONF.resource.list_limit or CONF.list_limit
 
-    # domain crud
-    @abc.abstractmethod
-    def create_domain(self, domain_id, domain):
-        """Creates a new domain.
-
-        :raises keystone.exception.Conflict: if the domain_id or domain name
-                                             already exists
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_domains(self, hints):
-        """List domains in the system.
-
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of domain_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_domains_from_ids(self, domain_ids):
-        """List domains for the provided list of ids.
-
-        :param domain_ids: list of ids
-
-        :returns: a list of domain_refs.
-
-        This method is used internally by the assignment manager to bulk read
-        a set of domains given their ids.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_domain(self, domain_id):
-        """Get a domain by ID.
-
-        :returns: domain_ref
-        :raises keystone.exception.DomainNotFound: if domain_id does not exist
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_domain_by_name(self, domain_name):
-        """Get a domain by name.
-
-        :returns: domain_ref
-        :raises keystone.exception.DomainNotFound: if domain_name does not
-                                                   exist
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_domain(self, domain_id, domain):
-        """Updates an existing domain.
-
-        :raises keystone.exception.DomainNotFound: if domain_id does not exist
-        :raises keystone.exception.Conflict: if domain name already exists
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_domain(self, domain_id):
-        """Deletes an existing domain.
-
-        :raises keystone.exception.DomainNotFound: if domain_id does not exist
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
     # project crud
     @abc.abstractmethod
     def create_project(self, project_id, project):
@@ -1196,6 +1119,83 @@ class ResourceDriverV8(ResourceDriverBase):
             return [self._set_default_domain(x) for x in ref]
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
+
+    # domain crud
+    @abc.abstractmethod
+    def create_domain(self, domain_id, domain):
+        """Creates a new domain.
+
+        :raises keystone.exception.Conflict: if the domain_id or domain name
+                                             already exists
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_domains(self, hints):
+        """List domains in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of domain_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_domains_from_ids(self, domain_ids):
+        """List domains for the provided list of ids.
+
+        :param domain_ids: list of ids
+
+        :returns: a list of domain_refs.
+
+        This method is used internally by the assignment manager to bulk read
+        a set of domains given their ids.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_domain(self, domain_id):
+        """Get a domain by ID.
+
+        :returns: domain_ref
+        :raises keystone.exception.DomainNotFound: if domain_id does not exist
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_domain_by_name(self, domain_name):
+        """Get a domain by name.
+
+        :returns: domain_ref
+        :raises keystone.exception.DomainNotFound: if domain_name does not
+                                                   exist
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_domain(self, domain_id, domain):
+        """Updates an existing domain.
+
+        :raises keystone.exception.DomainNotFound: if domain_id does not exist
+        :raises keystone.exception.Conflict: if domain name already exists
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_domain(self, domain_id):
+        """Deletes an existing domain.
+
+        :raises keystone.exception.DomainNotFound: if domain_id does not exist
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
 
 
 class ResourceDriverV9(ResourceDriverBase):
