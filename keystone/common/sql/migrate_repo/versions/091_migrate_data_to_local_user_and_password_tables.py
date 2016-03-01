@@ -12,6 +12,7 @@
 
 import migrate
 import sqlalchemy as sql
+from sqlalchemy import func
 
 
 def upgrade(migrate_engine):
@@ -25,9 +26,16 @@ def upgrade(migrate_engine):
     # migrate data to local_user table
     local_user_values = []
     for row in user_table.select().execute():
-        local_user_values.append({'user_id': row['id'],
-                                  'domain_id': row['domain_id'],
-                                  'name': row['name']})
+        # skip the row that already exists in `local_user`, this could
+        # happen if run into a partially-migrated table due to the
+        # bug #1549705.
+        filter_by = local_user_table.c.user_id == row['id']
+        user_count = sql.select([func.count()]).select_from(
+            local_user_table).where(filter_by).execute().fetchone()[0]
+        if user_count == 0:
+            local_user_values.append({'user_id': row['id'],
+                                      'domain_id': row['domain_id'],
+                                      'name': row['name']})
     if local_user_values:
         local_user_table.insert().values(local_user_values).execute()
 
@@ -40,8 +48,9 @@ def upgrade(migrate_engine):
     user_rows = sel.execute()
     password_values = []
     for row in user_rows:
-        password_values.append({'local_user_id': row['local_user_id'],
-                                'password': row['user_password']})
+        if row['user_password']:
+            password_values.append({'local_user_id': row['local_user_id'],
+                                    'password': row['user_password']})
     if password_values:
         password_table.insert().values(password_values).execute()
 

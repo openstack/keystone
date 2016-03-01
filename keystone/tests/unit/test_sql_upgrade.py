@@ -805,6 +805,53 @@ class SqlUpgradeTests(SqlMigrateBase):
                                          password_table)
         self.assertListEqual(expected_users, actual_users)
 
+    def test_migrate_user_with_null_password_to_password_tables(self):
+        USER_TABLE_NAME = 'user'
+        LOCAL_USER_TABLE_NAME = 'local_user'
+        PASSWORD_TABLE_NAME = 'password'
+        self.upgrade(90)
+        user_ref = unit.new_user_ref(uuid.uuid4().hex)
+        user_ref.pop('password')
+        # pop extra attribute which doesn't recognized by SQL expression
+        # layer.
+        user_ref.pop('email')
+        session = self.Session()
+        self.insert_dict(session, USER_TABLE_NAME, user_ref)
+        self.metadata.clear()
+        self.upgrade(91)
+        # migration should be successful.
+        self.assertTableCountsMatch(USER_TABLE_NAME, LOCAL_USER_TABLE_NAME)
+        # no new entry was added to the password table because the
+        # user doesn't have a password.
+        password_table = self.select_table(PASSWORD_TABLE_NAME)
+        rows = session.execute(password_table.count()).scalar()
+        self.assertEqual(0, rows)
+
+    def test_migrate_user_skip_user_already_exist_in_local_user(self):
+        USER_TABLE_NAME = 'user'
+        LOCAL_USER_TABLE_NAME = 'local_user'
+        self.upgrade(90)
+        user1_ref = unit.new_user_ref(uuid.uuid4().hex)
+        # pop extra attribute which doesn't recognized by SQL expression
+        # layer.
+        user1_ref.pop('email')
+        user2_ref = unit.new_user_ref(uuid.uuid4().hex)
+        user2_ref.pop('email')
+        session = self.Session()
+        self.insert_dict(session, USER_TABLE_NAME, user1_ref)
+        self.insert_dict(session, USER_TABLE_NAME, user2_ref)
+        user_id = user1_ref.pop('id')
+        user_name = user1_ref.pop('name')
+        domain_id = user1_ref.pop('domain_id')
+        local_user_ref = {'user_id': user_id, 'name': user_name,
+                          'domain_id': domain_id}
+        self.insert_dict(session, LOCAL_USER_TABLE_NAME, local_user_ref)
+        self.metadata.clear()
+        self.upgrade(91)
+        # migration should be successful and user2_ref has been migrated to
+        # `local_user` table.
+        self.assertTableCountsMatch(USER_TABLE_NAME, LOCAL_USER_TABLE_NAME)
+
     def test_implied_roles_fk_on_delete_cascade(self):
         if self.engine.name == 'sqlite':
             self.skipTest('sqlite backend does not support foreign keys')
