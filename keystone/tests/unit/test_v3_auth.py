@@ -145,6 +145,13 @@ class TokenAPITests(object):
             password=self.user['password'])
         return self._make_auth_request(auth_data)
 
+    def _get_domain_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain_id)
+        return self._make_auth_request(auth_data)
+
     def _validate_token(self, token, expected_status=http_client.OK):
         return self.get(
             '/auth/tokens',
@@ -223,6 +230,79 @@ class TokenAPITests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           unscoped_token)
+
+    def test_validate_domain_scoped_token(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        resp = self._validate_token(domain_scoped_token)
+        resp_json = json.loads(resp.body)
+        self.assertIsNotNone(resp_json['token']['catalog'])
+        self.assertIsNotNone(resp_json['token']['roles'])
+        self.assertIsNotNone(resp_json['token']['domain'])
+
+    def test_domain_scoped_token_is_invalid_after_disabling_user(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(domain_scoped_token)
+        # Disable user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          domain_scoped_token)
+
+    def test_domain_scoped_token_is_invalid_after_deleting_grant(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(domain_scoped_token)
+        # Delete access to domain
+        self.assignment_api.delete_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          domain_scoped_token)
+
+    def test_domain_scoped_token_invalid_after_disabling_domain(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        domain_scoped_token = self._get_domain_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(domain_scoped_token)
+        # Disable domain
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+        # Ensure validating a token for a disabled domain fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          domain_scoped_token)
+
+    def test_v2_validate_domain_scoped_token_returns_unauthorized(self):
+        # Test that validating a domain scoped token in v2.0 returns
+        # unauthorized.
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+
+        scoped_token = self._get_domain_scoped_token()
+        self.assertRaises(exception.Unauthorized,
+                          self.token_provider_api.validate_v2_token,
+                          scoped_token)
 
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
@@ -4451,18 +4531,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         project_scoped_token = self._get_project_scoped_token()
         self._validate_token(project_scoped_token)
 
-    def test_validate_domain_scoped_token(self):
-        # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
-        domain_scoped_token = self._get_domain_scoped_token()
-        resp = self._validate_token(domain_scoped_token)
-        resp_json = json.loads(resp.body)
-        self.assertIsNotNone(resp_json['token']['catalog'])
-        self.assertIsNotNone(resp_json['token']['roles'])
-        self.assertIsNotNone(resp_json['token']['domain'])
-
     def test_validate_tampered_project_scoped_token_fails(self):
         project_scoped_token = self._get_project_scoped_token()
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
@@ -4488,38 +4556,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
                           self.token_provider_api.validate_token,
                           project_scoped_token)
 
-    def test_domain_scoped_token_is_invalid_after_disabling_user(self):
-        # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
-        domain_scoped_token = self._get_domain_scoped_token()
-        # Make sure the token is valid
-        self._validate_token(domain_scoped_token)
-        # Disable user
-        self._set_user_enabled(self.user, enabled=False)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          domain_scoped_token)
-
-    def test_domain_scoped_token_is_invalid_after_deleting_grant(self):
-        # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
-        domain_scoped_token = self._get_domain_scoped_token()
-        # Make sure the token is valid
-        self._validate_token(domain_scoped_token)
-        # Delete access to domain
-        self.assignment_api.delete_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          domain_scoped_token)
-
     def test_project_scoped_token_invalid_after_changing_user_password(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
@@ -4543,22 +4579,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           project_scoped_token)
-
-    def test_domain_scoped_token_invalid_after_disabling_domain(self):
-        # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
-        domain_scoped_token = self._get_domain_scoped_token()
-        # Make sure the token is valid
-        self._validate_token(domain_scoped_token)
-        # Disable domain
-        self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
-        # Ensure validating a token for a disabled domain fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          domain_scoped_token)
 
     def test_rescope_unscoped_token_with_trust(self):
         trustee_user, trust = self._create_trust()
@@ -4666,22 +4686,6 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           trust_scoped_token)
-
-    def test_v2_validate_domain_scoped_token_returns_unauthorized(self):
-        """Test raised exception when validating a domain scoped token.
-
-        Test that validating an domain scoped token in v2.0
-        returns unauthorized.
-        """
-        # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
-
-        scoped_token = self._get_domain_scoped_token()
-        self.assertRaises(exception.Unauthorized,
-                          self.token_provider_api.validate_v2_token,
-                          scoped_token)
 
     def test_v2_validate_trust_scoped_token(self):
         """Test raised exception when validating a trust scoped token.
