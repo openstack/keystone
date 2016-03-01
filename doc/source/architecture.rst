@@ -165,10 +165,18 @@ The corresponding drivers for the services are:
 * :mod:`keystone.assignment.core.AssignmentDriverV8`
 * :mod:`keystone.assignment.core.RoleDriverV8`
 * :mod:`keystone.catalog.core.CatalogDriverV8`
+* :mod:`keystone.credential.core.CredentialDriverV8`
+* :mod:`keystone.endpoint_policy.core.EndpointPolicyDriverV8`
+* :mod:`keystone.federation.core.FederationDriverV8`
 * :mod:`keystone.identity.core.IdentityDriverV8`
+* :mod:`keystone.identity.core.MappingDriverV8`
+* :mod:`keystone.oauth1.core.Oauth1DriverV8`
 * :mod:`keystone.policy.core.PolicyDriverV8`
+* :mod:`keystone.resource.core.DomainConfigDriverV8`
 * :mod:`keystone.resource.core.ResourceDriverV8`
+* :mod:`keystone.revoke.core.RevokeDriverV8`
 * :mod:`keystone.token.core.TokenDriverV8`
+* :mod:`keystone.trust.core.TrustDriverV8`
 
 If you implement a backend driver for one of the Keystone services, you're
 expected to subclass from these classes.
