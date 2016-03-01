@@ -18,6 +18,9 @@ from dogpile.cache import api
 from oslo_cache import core as cache
 from oslo_config import cfg
 
+from keystone.common.cache import _context_cache
+
+
 CONF = cfg.CONF
 CACHE_REGION = cache.create_region()
 
@@ -25,7 +28,15 @@ CACHE_REGION = cache.create_region()
 def configure_cache(region=None):
     if region is None:
         region = CACHE_REGION
+    # NOTE(morganfainberg): running cache.configure_cache_region()
+    # sets region.is_configured, this must be captured before
+    # cache.configure_cache_region is called.
+    configured = region.is_configured
     cache.configure_cache_region(CONF, region)
+    # Only wrap the region if it was not configured. This should be pushed
+    # to oslo_cache lib somehow.
+    if not configured:
+        region.wrap(_context_cache._ResponseCacheProxy)
 
 
 def get_memoization_decorator(group, expiration_group=None, region=None):

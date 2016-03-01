@@ -21,7 +21,7 @@ from testtools import matchers
 
 from keystone.common import utils
 from keystone import exception
-from keystone.revoke import model
+from keystone.models import revoke_model
 from keystone.tests import unit
 from keystone.tests.unit import test_backend_sql
 from keystone.token import provider
@@ -46,7 +46,7 @@ def _past_time():
 def _sample_blank_token():
     issued_delta = datetime.timedelta(minutes=-2)
     issued_at = timeutils.utcnow() + issued_delta
-    token_data = model.blank_token_data(issued_at)
+    token_data = revoke_model.blank_token_data(issued_at)
     return token_data
 
 
@@ -134,7 +134,7 @@ class RevokeTests(object):
         user_id = 1
         self.revoke_api.revoke_by_expiration(user_id, _future_time())
         self.assertEqual(1, len(self.revoke_api.list_events()))
-        event = model.RevokeEvent()
+        event = revoke_model.RevokeEvent()
         event.revoked_at = _past_time()
         self.revoke_api.revoke(event)
         self.assertEqual(1, len(self.revoke_api.list_events()))
@@ -194,7 +194,7 @@ class RevokeTreeTests(unit.TestCase):
     def setUp(self):
         super(RevokeTreeTests, self).setUp()
         self.events = []
-        self.tree = model.RevokeTree()
+        self.tree = revoke_model.RevokeTree()
         self._sample_data()
 
     def _sample_data(self):
@@ -248,20 +248,20 @@ class RevokeTreeTests(unit.TestCase):
 
     def _revoke_by_user(self, user_id):
         return self.tree.add_event(
-            model.RevokeEvent(user_id=user_id))
+            revoke_model.RevokeEvent(user_id=user_id))
 
     def _revoke_by_audit_id(self, audit_id):
         event = self.tree.add_event(
-            model.RevokeEvent(audit_id=audit_id))
+            revoke_model.RevokeEvent(audit_id=audit_id))
         self.events.append(event)
         return event
 
     def _revoke_by_audit_chain_id(self, audit_chain_id, project_id=None,
                                   domain_id=None):
         event = self.tree.add_event(
-            model.RevokeEvent(audit_chain_id=audit_chain_id,
-                              project_id=project_id,
-                              domain_id=domain_id)
+            revoke_model.RevokeEvent(audit_chain_id=audit_chain_id,
+                                     project_id=project_id,
+                                     domain_id=domain_id)
         )
         self.events.append(event)
         return event
@@ -269,46 +269,47 @@ class RevokeTreeTests(unit.TestCase):
     def _revoke_by_expiration(self, user_id, expires_at, project_id=None,
                               domain_id=None):
         event = self.tree.add_event(
-            model.RevokeEvent(user_id=user_id,
-                              expires_at=expires_at,
-                              project_id=project_id,
-                              domain_id=domain_id))
+            revoke_model.RevokeEvent(user_id=user_id,
+                                     expires_at=expires_at,
+                                     project_id=project_id,
+                                     domain_id=domain_id))
         self.events.append(event)
         return event
 
     def _revoke_by_grant(self, role_id, user_id=None,
                          domain_id=None, project_id=None):
         event = self.tree.add_event(
-            model.RevokeEvent(user_id=user_id,
-                              role_id=role_id,
-                              domain_id=domain_id,
-                              project_id=project_id))
+            revoke_model.RevokeEvent(user_id=user_id,
+                                     role_id=role_id,
+                                     domain_id=domain_id,
+                                     project_id=project_id))
         self.events.append(event)
         return event
 
     def _revoke_by_user_and_project(self, user_id, project_id):
         event = self.tree.add_event(
-            model.RevokeEvent(project_id=project_id,
-                              user_id=user_id))
+            revoke_model.RevokeEvent(project_id=project_id,
+                                     user_id=user_id))
         self.events.append(event)
         return event
 
     def _revoke_by_project_role_assignment(self, project_id, role_id):
         event = self.tree.add_event(
-            model.RevokeEvent(project_id=project_id,
-                              role_id=role_id))
+            revoke_model.RevokeEvent(project_id=project_id,
+                                     role_id=role_id))
         self.events.append(event)
         return event
 
     def _revoke_by_domain_role_assignment(self, domain_id, role_id):
         event = self.tree.add_event(
-            model.RevokeEvent(domain_id=domain_id,
-                              role_id=role_id))
+            revoke_model.RevokeEvent(domain_id=domain_id,
+                                     role_id=role_id))
         self.events.append(event)
         return event
 
     def _revoke_by_domain(self, domain_id):
-        event = self.tree.add_event(model.RevokeEvent(domain_id=domain_id))
+        event = self.tree.add_event(
+            revoke_model.RevokeEvent(domain_id=domain_id))
         self.events.append(event)
 
     def _user_field_test(self, field_name):
