@@ -17,6 +17,7 @@
 import abc
 import functools
 import os
+import threading
 import uuid
 
 from oslo_config import cfg
@@ -99,6 +100,7 @@ class DomainConfigs(dict):
     configured = False
     driver = None
     _any_sql = False
+    lock = threading.Lock()
 
     def _load_driver(self, domain_config):
         return manager.load_driver(Manager.driver_namespace,
@@ -314,7 +316,6 @@ class DomainConfigs(dict):
 
     def setup_domain_drivers(self, standard_driver, resource_api):
         # This is called by the api call wrapper
-        self.configured = True
         self.driver = standard_driver
 
         if CONF.identity.domain_configurations_from_database:
@@ -323,6 +324,7 @@ class DomainConfigs(dict):
         else:
             self._setup_domain_drivers_from_files(standard_driver,
                                                   resource_api)
+        self.configured = True
 
     def get_domain_driver(self, domain_id):
         self.check_config_and_reload_domain_driver_if_required(domain_id)
@@ -420,8 +422,14 @@ def domains_configured(f):
     def wrapper(self, *args, **kwargs):
         if (not self.domain_configs.configured and
                 CONF.identity.domain_specific_drivers_enabled):
-            self.domain_configs.setup_domain_drivers(
-                self.driver, self.resource_api)
+            # If domain specific driver has not been configured, acquire the
+            # lock and proceed with loading the driver.
+            with self.domain_configs.lock:
+                # Check again just in case some other thread has already
+                # completed domain config.
+                if not self.domain_configs.configured:
+                    self.domain_configs.setup_domain_drivers(
+                        self.driver, self.resource_api)
         return f(self, *args, **kwargs)
     return wrapper
 
