@@ -534,7 +534,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def head(self, path, expected_status=http_client.NO_CONTENT, **kwargs):
         r = self.v3_request(path, method='HEAD',
                             expected_status=expected_status, **kwargs)
-        self.assertEqual('', r.body)
+        self.assertEqual(b'', r.body)
         return r
 
     def post(self, path, expected_status=http_client.CREATED, **kwargs):
@@ -1339,7 +1339,7 @@ class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
     def _middleware_request(self, token, extra_environ=None):
 
         def application(environ, start_response):
-            body = 'body'
+            body = b'body'
             headers = [('Content-Type', 'text/html; charset=utf8'),
                        ('Content-Length', str(len(body)))]
             start_response('200 OK', headers)
@@ -1381,7 +1381,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
     def _middleware_request(self, token, extra_environ=None):
 
         def application(environ, start_response):
-            body = 'body'
+            body = b'body'
             headers = [('Content-Type', 'text/html; charset=utf8'),
                        ('Content-Length', str(len(body)))]
             start_response('200 OK', headers)
@@ -1390,7 +1390,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         app = webtest.TestApp(middleware.AuthContextMiddleware(application),
                               extra_environ=extra_environ)
         resp = app.get('/', headers={middleware.AUTH_TOKEN_HEADER: token})
-        self.assertEqual('body', resp.text)  # just to make sure it worked
+        self.assertEqual(b'body', resp.body)  # just to make sure it worked
         return resp.request
 
     def test_auth_context_build_by_middleware(self):
