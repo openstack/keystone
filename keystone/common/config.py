@@ -133,7 +133,7 @@ FILE_OPTIONS = {
                          'with an HTTP 403 Forbidden error. If set to false, '
                          'passwords are automatically truncated to the '
                          'maximum length.'),
-        cfg.StrOpt('secure_proxy_ssl_header', default="HTTP_X_FORWARDED_PROTO",
+        cfg.StrOpt('secure_proxy_ssl_header', default='HTTP_X_FORWARDED_PROTO',
                    help='The HTTP header used to determine the scheme for the '
                         'original request, even if it was removed by an SSL '
                         'terminating proxy.'),
