@@ -34,7 +34,7 @@ class TestSimpleCert(BaseTestCase):
                                 expected_status=http_client.OK)
 
         self.assertEqual(content_type, response.content_type.lower())
-        self.assertIn('---BEGIN', response.body)
+        self.assertIn(b'---BEGIN', response.body)
 
         return response
 
