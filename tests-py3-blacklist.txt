@@ -2,7 +2,6 @@ keystone.tests.unit.common.test_ldap
 keystone.tests.unit.common.test_notifications
 keystone.tests.unit.test_backend_ldap
 keystone.tests.unit.test_backend_ldap_pool
-keystone.tests.unit.test_ipv6
 keystone.tests.unit.test_v2
 keystone.tests.unit.test_v3_auth
 keystone.tests.unit.test_v3_credential
