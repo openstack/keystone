@@ -43,8 +43,13 @@ class Tenant(controller.V2Controller):
         if 'name' in context['query_string']:
             return self._get_project_by_name(context['query_string']['name'])
 
-        tenant_refs = self.resource_api.list_projects_in_domain(
-            CONF.identity.default_domain_id)
+        try:
+            tenant_refs = self.resource_api.list_projects_in_domain(
+                CONF.identity.default_domain_id)
+        except exception.DomainNotFound:
+            # If the default domain doesn't exist then there are no V2
+            # projects.
+            tenant_refs = []
         tenant_refs = [self.v3_to_v2_project(tenant_ref)
                        for tenant_ref in tenant_refs
                        if not tenant_ref.get('is_domain')]
@@ -91,6 +96,9 @@ class Tenant(controller.V2Controller):
             raise exception.ValidationError(message=msg)
 
         self.assert_admin(context)
+
+        self.resource_api.ensure_default_domain_exists()
+
         tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
         initiator = notifications._get_request_audit_info(context)
         tenant = self.resource_api.create_project(
