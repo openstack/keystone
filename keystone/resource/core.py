@@ -1303,27 +1303,6 @@ class V9ResourceWrapperForV8Driver(ResourceDriverV9):
         else:
             return self.driver.get_project_by_name(project_name, domain_id)
 
-    def create_domain(self, domain_id, domain):
-        return self.driver.create_domain(domain_id, domain)
-
-    def list_domains(self, hints):
-        return self.driver.list_domains(hints)
-
-    def list_domains_from_ids(self, domain_ids):
-        return self.driver.list_domains_from_ids(domain_ids)
-
-    def get_domain(self, domain_id):
-        return self.driver.get_domain(domain_id)
-
-    def get_domain_by_name(self, domain_name):
-        return self.driver.get_domain_by_name(domain_name)
-
-    def update_domain(self, domain_id, domain):
-        return self.driver.update_domain(domain_id, domain)
-
-    def delete_domain(self, domain_id):
-        self.driver.delete_domain(domain_id)
-
     def create_project(self, project_id, project):
         if project['is_domain']:
             new_domain = self._get_domain_from_project(project)
