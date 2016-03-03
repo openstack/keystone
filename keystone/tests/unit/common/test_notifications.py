@@ -290,13 +290,17 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self._audits = []
 
         def fake_notify(operation, resource_type, resource_id,
-                        public=True):
+                        actor_dict=None, public=True):
             note = {
                 'resource_id': resource_id,
                 'operation': operation,
                 'resource_type': resource_type,
                 'send_notification_called': True,
                 'public': public}
+            if actor_dict:
+                note['actor_id'] = actor_dict.get('id')
+                note['actor_type'] = actor_dict.get('type')
+                note['actor_operation'] = actor_dict.get('actor_operation')
             self._notifications.append(note)
 
         self.useFixture(mockpatch.PatchObject(
@@ -326,7 +330,9 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self.useFixture(mockpatch.PatchObject(
             notifications, '_send_audit_notification', fake_audit))
 
-    def _assert_last_note(self, resource_id, operation, resource_type):
+    def _assert_last_note(self, resource_id, operation, resource_type,
+                          actor_id=None, actor_type=None,
+                          actor_operation=None):
         # NOTE(stevemar): If 'basic' format is not used, then simply
         # return since this assertion is not valid.
         if CONF.notification_format != 'basic':
@@ -337,6 +343,10 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self.assertEqual(resource_id, note['resource_id'])
         self.assertEqual(resource_type, note['resource_type'])
         self.assertTrue(note['send_notification_called'])
+        if actor_id:
+            self.assertEqual(actor_id, note['actor_id'])
+            self.assertEqual(actor_type, note['actor_type'])
+            self.assertEqual(actor_operation, note['actor_operation'])
 
     def _assert_last_audit(self, resource_id, operation, resource_type,
                            target_uri):
