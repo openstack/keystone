@@ -27,7 +27,6 @@ import eventlet.wsgi
 import greenlet
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import loggers
 from oslo_service import service
 
 from keystone.i18n import _LE, _LI
@@ -46,15 +45,16 @@ LOG = log.getLogger(__name__)
 POOL_SIZE = 1
 
 
-class EventletFilteringLogger(loggers.WritableLogger):
+class EventletFilteringLogger(object):
     # NOTE(morganfainberg): This logger is designed to filter out specific
     # Tracebacks to limit the amount of data that eventlet can log. In the
     # case of broken sockets (EPIPE and ECONNRESET), we are seeing a huge
     # volume of data being written to the logs due to ~14 lines+ per traceback.
     # The traceback in these cases are, at best, useful for limited debugging
     # cases.
-    def __init__(self, *args, **kwargs):
-        super(EventletFilteringLogger, self).__init__(*args, **kwargs)
+    def __init__(self, logger, level=log.INFO):
+        self.logger = logger
+        self.level = level
         self.regex = re.compile(r'errno (%d|%d)' %
                                 (errno.EPIPE, errno.ECONNRESET), re.IGNORECASE)
 
