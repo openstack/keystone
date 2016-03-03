@@ -143,7 +143,7 @@ class Catalog(core.Driver):
                 }
 
     def list_services(self, hints):
-        return list(self._list_services())
+        return list(self._list_services(hints=None))
 
     def get_service(self, service_id):
         for service in self._list_services(hints=None):
