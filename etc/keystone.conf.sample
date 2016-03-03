@@ -28,8 +28,9 @@
 # found on a different server. (string value)
 #admin_endpoint = <None>
 
-# Maximum depth of the project hierarchy. WARNING: setting it to a large value
-# may adversely impact performance. (integer value)
+# Maximum depth of the project hierarchy, excluding the project acting as a
+# domain at the top of the hierarchy. WARNING: setting it to a large value may
+# adversely impact  performance. (integer value)
 #max_project_tree_depth = 5
 
 # Limit the sizes of user & project ID/names. (integer value)
@@ -1883,6 +1884,17 @@
 # The prefix to use for the RelayState SAML attribute, used when generating ECP
 # wrapped assertions. (string value)
 #relay_state_prefix = ss:mem:
+
+
+[shadow_users]
+
+#
+# From keystone
+#
+
+# Entrypoint for the shadow users backend driver in the
+# keystone.identity.shadow_users namespace. (string value)
+#driver = sql
 
 
 [signing]
