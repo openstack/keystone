@@ -1061,7 +1061,7 @@ class Manager(manager.Manager):
 
     @domains_configured
     @exception_translated('group')
-    def add_user_to_group(self, user_id, group_id):
+    def add_user_to_group(self, user_id, group_id, initiator=None):
         @exception_translated('user')
         def get_entity_info_for_user(public_id):
             return self._get_domain_driver_and_entity_id(public_id)
@@ -1081,10 +1081,12 @@ class Manager(manager.Manager):
         # Invalidate user role assignments cache region, as it may now need to
         # include role assignments from the specified group to its users
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        notifications.Audit.added_to(self._GROUP, group_id, self._USER,
+                                     user_id, initiator)
 
     @domains_configured
     @exception_translated('group')
-    def remove_user_from_group(self, user_id, group_id):
+    def remove_user_from_group(self, user_id, group_id, initiator=None):
         @exception_translated('user')
         def get_entity_info_for_user(public_id):
             return self._get_domain_driver_and_entity_id(public_id)
@@ -1105,6 +1107,8 @@ class Manager(manager.Manager):
         # Invalidate user role assignments cache region, as it may be caching
         # role assignments expanded from this group to this user
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        notifications.Audit.removed_from(self._GROUP, group_id, self._USER,
+                                         user_id, initiator)
 
     @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
     def emit_invalidate_user_token_persistence(self, user_id):
