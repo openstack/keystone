@@ -1,0 +1,11 @@
+---
+features:
+  - Domains are now represented as top level projects with the attribute
+    ``is_domain`` set to true. Such projects will appears as parents for any
+    previous top level projects. Projects acting as domains can be created,
+    read, update and deleted via either the project API or the domain API.
+upgrade:
+  - The contents of the sql domain table are migrated to the sql project
+    table. Although the domain table (and its contents) are not removed in this
+    upgrade, they are no longer referenced. They will be removed in a future
+    upgrade.
