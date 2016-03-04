@@ -704,12 +704,11 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
                           user_id=user['id'],
                           password=None)
 
-    # TODO(samueldmq): Bug is marked as won't fix. Update note below.
-    # (spzala)The group and domain crud tests below override the standard ones
-    # in unit.identity.test_backends.py so that we can exclude the update name
-    # test, since we do not yet support the update of either group or domain
-    # names with LDAP. In the tests below, the update is demonstrated by
-    # updating description. Refer to bug 1136403 for more detail.
+    # The group and domain CRUD tests below override the standard ones in
+    # unit.identity.test_backends.py so that we can exclude the update name
+    # test, since we do not (and will not) support the update of either group
+    # or domain names with LDAP. In the tests below, the update is tested by
+    # updating description.
     @mock.patch.object(versionutils, 'report_deprecated_feature')
     def test_group_crud(self, mock_deprecator):
         # NOTE(stevemar): As of the Mitaka release, we now check for calls that
