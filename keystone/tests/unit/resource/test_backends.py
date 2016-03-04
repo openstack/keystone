@@ -1590,6 +1590,39 @@ class ResourceTests(object):
         project_ref = self.resource_api.get_project(project['id'])
         self.assertDictEqual(updated_project_ref, project_ref)
 
+    @test_utils.wip('waiting for fix to bug #1523369')
+    def test_delete_project_clears_default_project_id(self):
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id,
+                                 project_id=project['id'])
+        self.resource_api.create_project(project['id'], project)
+        user = self.identity_api.create_user(user)
+        user = self.identity_api.get_user(user['id'])
+        self.assertIsNotNone(user['default_project_id'])
+
+        self.resource_api.delete_project(project['id'])
+        user = self.identity_api.get_user(user['id'])
+        self.assertIsNone(user['default_project_id'])
+
+    @test_utils.wip('waiting for fix to bug #1523369')
+    def test_delete_project_with_roles_clears_default_project_id(self):
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id,
+                                 project_id=project['id'])
+        self.resource_api.create_project(project['id'], project)
+        user = self.identity_api.create_user(user)
+        role = unit.new_role_ref()
+        self.role_api.create_role(role['id'], role)
+        self.assignment_api.create_grant(user_id=user['id'],
+                                         project_id=project['id'],
+                                         role_id=role['id'])
+
+        self.resource_api.delete_project(project['id'])
+        user = self.identity_api.get_user(user['id'])
+        self.assertIsNone(user['default_project_id'])
+
 
 class ResourceDriverTests(object):
     """Tests for the resource driver.
