@@ -35,6 +35,7 @@ from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit.policy import test_backends as policy_tests
 from keystone.tests.unit.resource import test_backends as resource_tests
 from keystone.tests.unit import test_backend
 from keystone.tests.unit.token import test_backends as token_tests
@@ -817,7 +818,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
                           region['id'])
 
 
-class SqlPolicy(SqlTests, test_backend.PolicyTests):
+class SqlPolicy(SqlTests, policy_tests.PolicyTests):
     pass
 
 

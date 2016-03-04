@@ -15,10 +15,10 @@
 
 from keystone import exception
 from keystone.tests import unit
-from keystone.tests.unit import test_backend
+from keystone.tests.unit.policy import test_backends as policy_tests
 
 
-class RulesPolicy(unit.TestCase, test_backend.PolicyTests):
+class RulesPolicy(unit.TestCase, policy_tests.PolicyTests):
     def setUp(self):
         super(RulesPolicy, self).setUp()
         self.load_backends()
