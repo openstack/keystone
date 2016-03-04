@@ -301,7 +301,6 @@ class Manager(manager.Manager):
         if not project.get('enabled', True):
             raise AssertionError(_('Project is disabled: %s') % project_id)
 
-    @notifications.disabled(_PROJECT, public=False)
     def _disable_project(self, project_id):
         """Emit a notification to the callback system project is been disabled.
 
@@ -312,7 +311,7 @@ class Manager(manager.Manager):
         :param project_id: project identifier
         :type project_id: string
         """
-        pass
+        notifications.Audit.disabled(self._PROJECT, project_id, public=False)
 
     def _assert_all_parents_are_enabled(self, project_id):
         parents_list = self.list_project_parents(project_id)
@@ -770,7 +769,6 @@ class Manager(manager.Manager):
                    for project in projects]
         return domains
 
-    @notifications.disabled(_DOMAIN, public=False)
     def _disable_domain(self, domain_id):
         """Emit a notification to the callback system domain is been disabled.
 
@@ -781,7 +779,7 @@ class Manager(manager.Manager):
         :param domain_id: domain identifier
         :type domain_id: string
         """
-        pass
+        notifications.Audit.disabled(self._DOMAIN, domain_id, public=False)
 
     def update_domain(self, domain_id, domain, initiator=None):
         # TODO(henry-nash): We shouldn't have to check for the federated domain
