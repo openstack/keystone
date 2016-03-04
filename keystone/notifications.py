@@ -183,6 +183,18 @@ class Audit(object):
         cls._emit(ACTIONS.updated, target_type, target_id, initiator, public,
                   actor_dict=actor_dict)
 
+    @classmethod
+    def internal(cls, resource_type, resource_id):
+        # NOTE(lbragstad): Internal notifications are never public and have
+        # never used the initiator variable, but the _emit() method expects
+        # them. Let's set them here but not expose them through the method
+        # signature - that way someone can not do something like send an
+        # internal notification publicly.
+        initiator = None
+        public = False
+        cls._emit(ACTIONS.internal, resource_type, resource_id, initiator,
+                  public)
+
 
 class ManagerNotificationWrapper(object):
     """Send event notifications for ``Manager`` methods.

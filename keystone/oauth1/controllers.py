@@ -34,14 +34,15 @@ from keystone.oauth1 import validator
 CONF = cfg.CONF
 
 
-@notifications.internal(notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
-                        resource_id_arg_index=0)
 def _emit_user_oauth_consumer_token_invalidate(payload):
     # This is a special case notification that expect the payload to be a dict
     # containing the user_id and the consumer_id. This is so that the token
     # provider can invalidate any tokens in the token persistence if
     # token persistence is enabled
-    pass
+    notifications.Audit.internal(
+        notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
+        payload,
+    )
 
 
 @dependency.requires('oauth_api', 'token_provider_api')
