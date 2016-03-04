@@ -21,10 +21,10 @@ from keystone.common import utils
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
-from keystone.tests.unit import test_backend
+from keystone.tests.unit.token import test_backends as token_tests
 
 
-class KvsToken(unit.TestCase, test_backend.TokenTests):
+class KvsToken(unit.TestCase, token_tests.TokenTests):
     def setUp(self):
         super(KvsToken, self).setUp()
         self.load_backends()
@@ -101,7 +101,7 @@ class KvsToken(unit.TestCase, test_backend.TokenTests):
 
 
 class KvsTokenCacheInvalidation(unit.TestCase,
-                                test_backend.TokenCacheInvalidation):
+                                token_tests.TokenCacheInvalidation):
     def setUp(self):
         super(KvsTokenCacheInvalidation, self).setUp()
         self.useFixture(database.Database(self.sql_driver_version_overrides))
