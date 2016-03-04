@@ -19,16 +19,16 @@ from six.moves import zip
 
 from keystone import catalog
 from keystone.tests import unit
+from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
-from keystone.tests.unit import test_backend
 
 
 BROKEN_WRITE_FUNCTIONALITY_MSG = ("Templated backend doesn't correctly "
                                   "implement write operations")
 
 
-class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
+class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
 
     DEFAULT_FIXTURE = {
         'RegionOne': {
@@ -178,7 +178,7 @@ class TestTemplatedCatalog(unit.TestCase, test_backend.CatalogTests):
         self.assertItemsEqual(exp_services, services)
 
     # NOTE(dstanek): the following methods have been overridden
-    # from test_backend.CatalogTests
+    # from unit.catalog.test_backends.CatalogTests.
 
     def test_region_crud(self):
         self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
