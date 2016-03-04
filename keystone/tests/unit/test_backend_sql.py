@@ -37,6 +37,7 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.resource import test_backends as resource_tests
 from keystone.tests.unit import test_backend
 from keystone.tests.unit.token import test_backends as token_tests
+from keystone.tests.unit.trust import test_backends as trust_tests
 from keystone.token.persistence.backends import sql as token_sql
 
 
@@ -617,7 +618,7 @@ class SqlIdentity(SqlTests, test_backend.IdentityTests,
         _exercise_project_api(resource.NULL_DOMAIN_ID)
 
 
-class SqlTrust(SqlTests, test_backend.TrustTests):
+class SqlTrust(SqlTests, trust_tests.TrustTests):
     pass
 
 
