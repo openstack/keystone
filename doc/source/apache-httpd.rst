@@ -107,6 +107,13 @@ Keystone's primary configuration file (``etc/keystone.conf``) and the
 PasteDeploy configuration file (``etc/keystone-paste.ini``) must be readable to
 HTTPD in one of the default locations described in :doc:`configuration`.
 
+Configuration file location can be customized using the ``OS_KEYSTONE_CONFIG_DIR``
+environment variable: if this is set, the ``keystone.conf`` file will be searched
+inside this directory. Arbitrary configuration file locations can be specified
+using ``OS_KEYSTONE_CONFIG_FILES`` variable as semicolon separated entries,
+representing either configuration directory based relative paths or absolute
+paths.
+
 Enable the site by creating a symlink from the file in ``sites-available`` to
 ``sites-enabled``, for example, on Debian/Ubuntu systems
 (not required on Red Hat based systems)::
