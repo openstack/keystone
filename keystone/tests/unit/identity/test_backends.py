@@ -987,6 +987,53 @@ class IdentityTests(object):
         user_ref = self.identity_api.get_user(user['id'])
         self.assertDictEqual(updated_user_ref, user_ref)
 
+    @unit.skip_if_no_multiple_domains_support
+    def test_list_domains_filtered_and_limited(self):
+        # The test is designed for multiple domains only
+        def create_domains(domain_count, domain_name_prefix):
+            for _ in range(domain_count):
+                domain_name = '%s-%s' % (domain_name_prefix, uuid.uuid4().hex)
+                domain = unit.new_domain_ref(name=domain_name)
+                self.domain_list[domain_name] = \
+                    self.resource_api.create_domain(domain['id'], domain)
+
+        def clean_up_domains():
+            for _, domain in self.domain_list.items():
+                domain['enabled'] = False
+                self.resource_api.update_domain(domain['id'], domain)
+                self.resource_api.delete_domain(domain['id'])
+
+        self.domain_list = {}
+        create_domains(2, 'domaingroup1')
+        create_domains(3, 'domaingroup2')
+
+        self.addCleanup(clean_up_domains)
+        unfiltered_domains = self.resource_api.list_domains()
+
+        # Should get back just 4 entities
+        self.config_fixture.config(list_limit=4)
+        hints = driver_hints.Hints()
+        entities = self.resource_api.list_domains(hints=hints)
+        self.assertThat(entities, matchers.HasLength(hints.limit['limit']))
+        self.assertTrue(hints.limit['truncated'])
+
+        # Get one exact item from the list
+        hints = driver_hints.Hints()
+        hints.add_filter('name', unfiltered_domains[3]['name'])
+        entities = self.resource_api.list_domains(hints=hints)
+        self.assertThat(entities, matchers.HasLength(1))
+        self.assertEqual(entities[0], unfiltered_domains[3])
+
+        # Get 2 entries
+        hints = driver_hints.Hints()
+        hints.add_filter('name', 'domaingroup1', comparator='startswith')
+        entities = self.resource_api.list_domains(hints=hints)
+        self.assertThat(entities, matchers.HasLength(2))
+        self.assertThat(entities[0]['name'],
+                        matchers.StartsWith('domaingroup1'))
+        self.assertThat(entities[1]['name'],
+                        matchers.StartsWith('domaingroup1'))
+
 
 class FilterTests(filtering.FilterTests):
     def test_list_entities_filtered(self):

@@ -3137,6 +3137,12 @@ class DomainSpecificLDAPandSQLIdentity(
         base = super(BaseLDAPIdentity, self)
         base.test_create_project_with_domain_id_mismatch_to_parent_domain()
 
+    def test_list_domains_filtered_and_limited(self):
+        # With this restricted multi LDAP class, tests that use multiple
+        # domains and identity, are still not supported
+        self.skipTest(
+            'Restricted multi LDAP class does not support multiple domains')
+
 
 class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
     """Class to test simplest use of domain-specific SQL driver.
