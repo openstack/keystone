@@ -301,18 +301,6 @@ class Manager(manager.Manager):
         if not project.get('enabled', True):
             raise AssertionError(_('Project is disabled: %s') % project_id)
 
-    def _disable_project(self, project_id):
-        """Emit a notification to the callback system project is been disabled.
-
-        This method, and associated callback listeners, removes the need for
-        making direct calls to other managers to take action (e.g. revoking
-        project scoped tokens) when a project is disabled.
-
-        :param project_id: project identifier
-        :type project_id: string
-        """
-        notifications.Audit.disabled(self._PROJECT, project_id, public=False)
-
     def _assert_all_parents_are_enabled(self, project_id):
         parents_list = self.list_project_parents(project_id)
         for project in parents_list:
@@ -414,7 +402,8 @@ class Manager(manager.Manager):
                       'subtree contains enabled projects.')
                     % {'project_id': project_id})
 
-            self._disable_project(project_id)
+            notifications.Audit.disabled(self._PROJECT, project_id,
+                                         public=False)
         if cascade:
             self._only_allow_enabled_to_update_cascade(project,
                                                        original_project)
@@ -468,7 +457,8 @@ class Manager(manager.Manager):
                 # Does not in fact disable the project, only emits a
                 # notification that it was disabled. The actual disablement
                 # is done in the next line.
-                self._disable_project(child['id'])
+                notifications.Audit.disabled(self._PROJECT, child['id'],
+                                             public=False)
 
             self.driver.update_project(child['id'], child)
 
