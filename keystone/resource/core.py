@@ -422,7 +422,8 @@ class Manager(manager.Manager):
             # If the domain is being disabled, issue the disable notification
             # as well
             if original_project_enabled and not project_enabled:
-                self._disable_domain(project_id)
+                notifications.Audit.disabled(self._DOMAIN, project_id,
+                                             public=False)
 
         self.get_project.invalidate(self, project_id)
         self.get_project_by_name.invalidate(self, original_project['name'],
@@ -758,18 +759,6 @@ class Manager(manager.Manager):
         domains = [self._get_domain_from_project(project)
                    for project in projects]
         return domains
-
-    def _disable_domain(self, domain_id):
-        """Emit a notification to the callback system domain is been disabled.
-
-        This method, and associated callback listeners, removes the need for
-        making direct calls to other managers to take action (e.g. revoking
-        domain scoped tokens) when a domain is disabled.
-
-        :param domain_id: domain identifier
-        :type domain_id: string
-        """
-        notifications.Audit.disabled(self._DOMAIN, domain_id, public=False)
 
     def update_domain(self, domain_id, domain, initiator=None):
         # TODO(henry-nash): We shouldn't have to check for the federated domain
