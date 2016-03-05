@@ -224,24 +224,9 @@ class ManagerNotificationWrapper(object):
         return wrapper
 
 
-def created(*args, **kwargs):
-    """Decorator to send notifications for ``Manager.create_*`` methods."""
-    return ManagerNotificationWrapper(ACTIONS.created, *args, **kwargs)
-
-
-def updated(*args, **kwargs):
-    """Decorator to send notifications for ``Manager.update_*`` methods."""
-    return ManagerNotificationWrapper(ACTIONS.updated, *args, **kwargs)
-
-
 def disabled(*args, **kwargs):
     """Decorator to send notifications when an object is disabled."""
     return ManagerNotificationWrapper(ACTIONS.disabled, *args, **kwargs)
-
-
-def deleted(*args, **kwargs):
-    """Decorator to send notifications for ``Manager.delete_*`` methods."""
-    return ManagerNotificationWrapper(ACTIONS.deleted, *args, **kwargs)
 
 
 def internal(*args, **kwargs):
