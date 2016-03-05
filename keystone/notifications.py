@@ -224,11 +224,6 @@ class ManagerNotificationWrapper(object):
         return wrapper
 
 
-def disabled(*args, **kwargs):
-    """Decorator to send notifications when an object is disabled."""
-    return ManagerNotificationWrapper(ACTIONS.disabled, *args, **kwargs)
-
-
 def internal(*args, **kwargs):
     """Decorator to send notifications for internal notifications only."""
     kwargs['public'] = False
