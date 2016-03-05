@@ -36,6 +36,7 @@ from keystone import identity
 from keystone.identity.mapping_backends import mapping as map
 from keystone import resource
 from keystone.tests import unit
+from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import identity_mapping as mapping_sql
 from keystone.tests.unit.ksfixtures import database
@@ -120,7 +121,8 @@ def create_group_container(identity_api):
                     ('ou', ['Groups'])])
 
 
-class BaseLDAPIdentity(test_backend.IdentityTests):
+class BaseLDAPIdentity(test_backend.IdentityTests,
+                       assignment_tests.AssignmentTests):
 
     def setUp(self):
         super(BaseLDAPIdentity, self).setUp()
@@ -1660,9 +1662,9 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
-        # is defined in test_backend.py.  It omits both domain and
-        # group grants. since neither of these are yet supported by
-        # the ldap backend.
+        # is defined in unit.assignment.test_backends.py.  It omits
+        # both domain and group grants. since neither of these are
+        # yet supported by the ldap backend.
 
         role_list = []
         for _ in range(2):
