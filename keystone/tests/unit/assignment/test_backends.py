@@ -1766,10 +1766,8 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project['id'], 'member')
         self.resource_api.delete_project(project['id'])
-        # TODO(samueldmq): Check NotFound by calling list_user_ids_for_project,
-        # making this method consistent with the approach in the 2 tests above.
-        self.assertRaises(exception.NotFound,
-                          self.resource_api.get_project,
+        self.assertRaises(exception.ProjectNotFound,
+                          self.assignment_api.list_user_ids_for_project,
                           project['id'])
 
     def test_delete_role_check_role_grant(self):
