@@ -34,10 +34,10 @@ from keystone.tests import unit
 from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
+from keystone.tests.unit.identity import test_backends as identity_tests
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.policy import test_backends as policy_tests
 from keystone.tests.unit.resource import test_backends as resource_tests
-from keystone.tests.unit import test_backend
 from keystone.tests.unit.token import test_backends as token_tests
 from keystone.tests.unit.trust import test_backends as trust_tests
 from keystone.token.persistence.backends import sql as token_sql
@@ -197,7 +197,7 @@ class SqlModels(SqlTests):
         self.assertExpectedSchema('user_group_membership', cols)
 
 
-class SqlIdentity(SqlTests, test_backend.IdentityTests,
+class SqlIdentity(SqlTests, identity_tests.IdentityTests,
                   assignment_tests.AssignmentTests,
                   resource_tests.ResourceTests):
     def test_password_hashed(self):
@@ -836,7 +836,7 @@ class SqlTokenCacheInvalidation(SqlTests, token_tests.TokenCacheInvalidation):
         self._create_test_data()
 
 
-class SqlFilterTests(SqlTests, test_backend.FilterTests):
+class SqlFilterTests(SqlTests, identity_tests.FilterTests):
 
     def clean_up_entities(self):
         """Clean up entity test data from Filter Test Cases."""
@@ -851,9 +851,10 @@ class SqlFilterTests(SqlTests, test_backend.FilterTests):
         del self.domain1
 
     def test_list_entities_filtered_by_domain(self):
-        # NOTE(henry-nash): This method is here rather than in test_backend
-        # since any domain filtering with LDAP is handled by the manager
-        # layer (and is already tested elsewhere) not at the driver level.
+        # NOTE(henry-nash): This method is here rather than in
+        # unit.identity.test_backends since any domain filtering with LDAP is
+        # handled by the manager layer (and is already tested elsewhere) not at
+        # the driver level.
         self.addCleanup(self.clean_up_entities)
         self.domain1 = unit.new_domain_ref()
         self.resource_api.create_domain(self.domain1['id'], self.domain1)
@@ -907,10 +908,10 @@ class SqlFilterTests(SqlTests, test_backend.FilterTests):
         self.assertTrue(len(groups) > 0)
 
 
-class SqlLimitTests(SqlTests, test_backend.LimitTests):
+class SqlLimitTests(SqlTests, identity_tests.LimitTests):
     def setUp(self):
         super(SqlLimitTests, self).setUp()
-        test_backend.LimitTests.setUp(self)
+        identity_tests.LimitTests.setUp(self)
 
 
 class FakeTable(sql.ModelBase):
