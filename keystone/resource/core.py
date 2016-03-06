@@ -930,16 +930,6 @@ class ResourceDriverBase(object):
 
     # project crud
     @abc.abstractmethod
-    def create_project(self, project_id, project):
-        """Creates a new project.
-
-        :raises keystone.exception.Conflict: if project_id or project name
-                                             already exists
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def list_projects(self, hints):
         """List projects in the system.
 
@@ -1093,6 +1083,45 @@ class ResourceDriverV8(ResourceDriverBase):
     """
 
     @abc.abstractmethod
+    def create_project(self, tenant_id, tenant):
+        """Creates a new project.
+
+        :param tenant_id: This parameter can be ignored.
+        :param dict tenant: The new project
+
+        Project schema::
+
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                domain_id:
+                    type: string
+                description:
+                    type: string
+                enabled:
+                    type: boolean
+                parent_id:
+                    type: string
+                is_domain:
+                    type: boolean
+            required: [id, name, domain_id]
+            additionalProperties: true
+
+        If project doesn't match the schema the behavior is undefined.
+
+        The driver can impose requirements such as the maximum length of a
+        field. If these requirements are not met the behavior is undefined.
+
+        :raises keystone.exception.Conflict: if the project id already exists
+            or the name already exists for the domain_id.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
     def get_project_by_name(self, tenant_name, domain_id):
         """Get a tenant by name.
 
@@ -1203,6 +1232,45 @@ class ResourceDriverV9(ResourceDriverBase):
     this class.
 
     """
+
+    @abc.abstractmethod
+    def create_project(self, project_id, project):
+        """Creates a new project.
+
+        :param project_id: This parameter can be ignored.
+        :param dict project: The new project
+
+        Project schema::
+
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                domain_id:
+                    type: [string, null]
+                description:
+                    type: string
+                enabled:
+                    type: boolean
+                parent_id:
+                    type: string
+                is_domain:
+                    type: boolean
+            required: [id, name, domain_id]
+            additionalProperties: true
+
+        If the project doesn't match the schema the behavior is undefined.
+
+        The driver can impose requirements such as the maximum length of a
+        field. If these requirements are not met the behavior is undefined.
+
+        :raises keystone.exception.Conflict: if the project id already exists
+            or the name already exists for the domain_id.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def get_project_by_name(self, project_name, domain_id):

@@ -10,6 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
+
+from keystone.resource.V8_backends import sql
+from keystone.tests import unit
+from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit.resource import test_backends
 from keystone.tests.unit import test_backend_sql
 
 
@@ -43,3 +49,23 @@ class SqlIdentityV8(test_backend_sql.SqlIdentity):
 
     def test_hidden_project_domain_root_is_really_hidden(self):
         self.skipTest('Operation not supported in v8 and earlier drivers')
+
+
+class TestSqlResourceDriverV8(unit.BaseTestCase,
+                              test_backends.ResourceDriverTests):
+    def setUp(self):
+        super(TestSqlResourceDriverV8, self).setUp()
+
+        version_specifiers = {
+            'keystone.resource': {
+                'versionless_backend': 'backends',
+                'versioned_backend': 'V8_backends'
+            }
+        }
+        self.useFixture(database.Database(version_specifiers))
+
+        self.driver = sql.Resource()
+
+    @unittest.skip('Null domain not allowed.')
+    def test_create_project_null_domain(self):
+        pass
