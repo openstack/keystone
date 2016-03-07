@@ -87,6 +87,30 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             user['id'],
             bootstrap.password)
 
+        if bootstrap.region_id:
+            region = bootstrap.catalog_manager.get_region(bootstrap.region_id)
+            self.assertEqual(self.region_id, region['id'])
+
+        if bootstrap.service_id:
+            svc = bootstrap.catalog_manager.get_service(bootstrap.service_id)
+            self.assertEqual(self.service_name, svc['name'])
+
+            self.assertEqual(set(['admin', 'public', 'internal']),
+                             set(bootstrap.endpoints))
+
+            urls = {'public': self.public_url,
+                    'internal': self.internal_url,
+                    'admin': self.admin_url}
+
+            for interface, url in urls.items():
+                endpoint_id = bootstrap.endpoints[interface]
+                endpoint = bootstrap.catalog_manager.get_endpoint(endpoint_id)
+
+                self.assertEqual(self.region_id, endpoint['region_id'])
+                self.assertEqual(url, endpoint['url'])
+                self.assertEqual(svc['id'], endpoint['service_id'])
+                self.assertEqual(interface, endpoint['interface'])
+
     def test_bootstrap_is_idempotent(self):
         # NOTE(morganfainberg): Ensure we can run bootstrap multiple times
         # without erroring.
@@ -107,6 +131,11 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         self.username = uuid.uuid4().hex
         self.project_name = uuid.uuid4().hex
         self.role_name = uuid.uuid4().hex
+        self.service_name = uuid.uuid4().hex
+        self.public_url = uuid.uuid4().hex
+        self.internal_url = uuid.uuid4().hex
+        self.admin_url = uuid.uuid4().hex
+        self.region_id = uuid.uuid4().hex
         self.default_domain = {
             'id': CONF.identity.default_domain_id,
             'name': 'Default',
@@ -123,6 +152,21 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         self.useFixture(
             fixtures.EnvironmentVariable('OS_BOOTSTRAP_ROLE_NAME',
                                          newvalue=self.role_name))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_SERVICE_NAME',
+                                         newvalue=self.service_name))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_PUBLIC_URL',
+                                         newvalue=self.public_url))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_INTERNAL_URL',
+                                         newvalue=self.internal_url))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_ADMIN_URL',
+                                         newvalue=self.admin_url))
+        self.useFixture(
+            fixtures.EnvironmentVariable('OS_BOOTSTRAP_REGION_ID',
+                                         newvalue=self.region_id))
 
     def test_assignment_created_with_user_exists(self):
         # test assignment can be created if user already exists.
@@ -153,6 +197,43 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
                                                  self.default_domain)
         role = unit.new_role_ref(name=self.role_name)
         bootstrap.role_manager.create_role(role['id'], role)
+        self._do_test_bootstrap(bootstrap)
+
+    def test_assignment_created_with_region_exists(self):
+        # test assignment can be created if role already exists.
+        bootstrap = cli.BootStrap()
+        bootstrap.resource_manager.create_domain(self.default_domain['id'],
+                                                 self.default_domain)
+        region = unit.new_region_ref(id=self.region_id)
+        bootstrap.catalog_manager.create_region(region)
+        self._do_test_bootstrap(bootstrap)
+
+    def test_endpoints_created_with_service_exists(self):
+        # test assignment can be created if role already exists.
+        bootstrap = cli.BootStrap()
+        bootstrap.resource_manager.create_domain(self.default_domain['id'],
+                                                 self.default_domain)
+        service = unit.new_service_ref(name=self.service_name)
+        bootstrap.catalog_manager.create_service(service['id'], service)
+        self._do_test_bootstrap(bootstrap)
+
+    def test_endpoints_created_with_endpoint_exists(self):
+        # test assignment can be created if role already exists.
+        bootstrap = cli.BootStrap()
+        bootstrap.resource_manager.create_domain(self.default_domain['id'],
+                                                 self.default_domain)
+        service = unit.new_service_ref(name=self.service_name)
+        bootstrap.catalog_manager.create_service(service['id'], service)
+
+        region = unit.new_region_ref(id=self.region_id)
+        bootstrap.catalog_manager.create_region(region)
+
+        endpoint = unit.new_endpoint_ref(interface='public',
+                                         service_id=service['id'],
+                                         url=self.public_url,
+                                         region_id=self.region_id)
+        bootstrap.catalog_manager.create_endpoint(endpoint['id'], endpoint)
+
         self._do_test_bootstrap(bootstrap)
 
 
