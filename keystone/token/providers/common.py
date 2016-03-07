@@ -70,7 +70,8 @@ class V2TokenDataHelper(object):
             # v3 token_data does not contain all tenant attributes
             tenant = self.resource_api.get_project(
                 v3_token['project']['id'])
-            token['tenant'] = common_controller.V2Controller.filter_domain_id(
+            # Drop domain specific fields since v2 calls are not domain-aware.
+            token['tenant'] = common_controller.V2Controller.v3_to_v2_project(
                 tenant)
         token_data['token'] = token
 
@@ -93,6 +94,7 @@ class V2TokenDataHelper(object):
         user['roles'] = []
         role_ids = []
         for role in v3_token.get('roles', []):
+            role_ids.append(role.pop('id'))
             user['roles'].append(role)
         user['roles_links'] = []
 

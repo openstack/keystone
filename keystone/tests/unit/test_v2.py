@@ -23,9 +23,11 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
+from keystone.common.validation import validators
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
+from keystone.tests.unit import schema
 
 
 CONF = cfg.CONF
@@ -1420,6 +1422,34 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         super(TestFernetTokenProviderV2, self).setUp()
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
+        # Add catalog data
+        self.region = unit.new_region_ref()
+        self.region_id = self.region['id']
+        self.catalog_api.create_region(self.region)
+
+        self.service = unit.new_service_ref()
+        self.service_id = self.service['id']
+        self.catalog_api.create_service(self.service_id, self.service.copy())
+
+        self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
+                                              interface='public',
+                                              region_id=self.region_id)
+        self.endpoint_id = self.endpoint['id']
+        self.catalog_api.create_endpoint(self.endpoint_id,
+                                         self.endpoint.copy())
+
+    def assertValidUnscopedTokenResponse(self, r):
+        token = r.json['access']
+        validator_object = validators.SchemaValidator(
+            schema.unscoped_token_v2_schema)
+        validator_object.validate(token)
+
+    def assertValidScopedTokenResponse(self, r):
+        token = r.json['access']
+        validator_object = validators.SchemaValidator(
+            schema.scoped_token_v2_schema)
+        validator_object.validate(token)
+
     # Used by RestfulTestCase
     def _get_token_id(self, r):
         return r.result['access']['token']['id']
@@ -1450,11 +1480,12 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         admin_token = self.get_scoped_token(tenant_id=project_ref['id'])
         unscoped_token = self.get_unscoped_token()
         path = ('/v2.0/tokens/%s' % unscoped_token)
-        self.admin_request(
+        resp = self.admin_request(
             method='GET',
             path=path,
             token=admin_token,
             expected_status=http_client.OK)
+        self.assertValidUnscopedTokenResponse(resp)
 
     def test_authenticate_scoped_token(self):
         project_ref = self.new_project_ref()
@@ -1480,11 +1511,12 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         path = ('/v2.0/tokens/%s?belongsTo=%s' % (member_token,
                 project2_ref['id']))
         # Validate token belongs to project
-        self.admin_request(
+        resp = self.admin_request(
             method='GET',
             path=path,
             token=admin_token,
             expected_status=http_client.OK)
+        self.assertValidScopedTokenResponse(resp)
 
     def test_token_authentication_and_validation(self):
         """Test token authentication for Fernet token provider.
@@ -1514,11 +1546,12 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         token_id = self._get_token_id(r)
         path = ('/v2.0/tokens/%s?belongsTo=%s' % (token_id, project_ref['id']))
         # Validate token belongs to project
-        self.admin_request(
+        resp = self.admin_request(
             method='GET',
             path=path,
             token=self.get_admin_token(),
             expected_status=http_client.OK)
+        self.assertValidScopedTokenResponse(resp)
 
     def test_rescoped_tokens_maintain_original_expiration(self):
         project_ref = self.new_project_ref()
@@ -1560,3 +1593,4 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         rescoped_expiration = resp.result['access']['token']['expires']
         self.assertNotEqual(original_token, rescoped_token)
         self.assertEqual(original_expiration, rescoped_expiration)
+        self.assertValidScopedTokenResponse(resp)
