@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b2.dev256\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-01-18 06:05+0000\n"
+"POT-Creation-Date: 2016-03-08 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
 
-#: keystone/assignment/core.py:159
+#: keystone/assignment/core.py:188
 #, python-format
 msgid "Creating the default role %s because it does not exist."
 msgstr ""
 
-#: keystone/assignment/core.py:167
+#: keystone/assignment/core.py:196
 #, python-format
 msgid "Creating the default role %s failed because it was already created"
 msgstr ""
@@ -34,83 +34,108 @@ msgid ""
 " the earliest value."
 msgstr ""
 
-#: keystone/cmd/cli.py:133
+#: keystone/cmd/cli.py:188
 #, python-format
 msgid "Created domain %s"
 msgstr ""
 
-#: keystone/cmd/cli.py:136
+#: keystone/cmd/cli.py:191
 #, python-format
 msgid "Domain %s already exists, skipping creation."
 msgstr ""
 
-#: keystone/cmd/cli.py:149
+#: keystone/cmd/cli.py:204
 #, python-format
 msgid "Created project %s"
 msgstr ""
 
-#: keystone/cmd/cli.py:151
+#: keystone/cmd/cli.py:206
 #, python-format
 msgid "Project %s already exists, skipping creation."
 msgstr ""
 
-#: keystone/cmd/cli.py:163
+#: keystone/cmd/cli.py:221
 #, python-format
 msgid "Created user %s"
 msgstr ""
 
-#: keystone/cmd/cli.py:165
+#: keystone/cmd/cli.py:223
 #, python-format
 msgid "User %s already exists, skipping creation."
 msgstr ""
 
-#: keystone/cmd/cli.py:177
+#: keystone/cmd/cli.py:235
 #, python-format
 msgid "Created Role %s"
 msgstr ""
 
-#: keystone/cmd/cli.py:179
+#: keystone/cmd/cli.py:237
 #, python-format
 msgid "Role %s exists, skipping creation."
 msgstr ""
 
-#: keystone/cmd/cli.py:189
+#: keystone/cmd/cli.py:254
 #, python-format
 msgid "Granted %(role)s on %(project)s to user %(username)s."
 msgstr ""
 
-#: keystone/cmd/cli.py:195
+#: keystone/cmd/cli.py:260
 #, python-format
 msgid "User %(username)s already has %(role)s on %(project)s."
 msgstr ""
 
-#: keystone/common/openssl.py:79
+#: keystone/cmd/cli.py:271
+#, python-format
+msgid "Created Region %s"
+msgstr ""
+
+#: keystone/cmd/cli.py:273
+#, python-format
+msgid "Region %s exists, skipping creation."
+msgstr ""
+
+#: keystone/cmd/cli.py:330
+#, python-format
+msgid "Created %(interface)s endpoint %(url)s"
+msgstr ""
+
+#: keystone/cmd/cli.py:335
+#, python-format
+msgid "Skipping %s endpoint as already created"
+msgstr ""
+
+#: keystone/cmd/cli.py:639
+#, python-format
+msgid "Scanning %r for domain config files"
+msgstr ""
+
+#: keystone/common/openssl.py:80
 #, python-format
 msgid "Running command - %s"
 msgstr ""
 
-#: keystone/common/wsgi.py:79
+#: keystone/common/wsgi.py:80
 msgid "No bind information present in token"
 msgstr ""
 
-#: keystone/common/wsgi.py:86
+#: keystone/common/wsgi.py:87
 #, python-format
 msgid "Named bind mode %s not in bind information"
 msgstr ""
 
-#: keystone/common/wsgi.py:93
+#: keystone/common/wsgi.py:94
 msgid "Kerberos credentials required and not present"
 msgstr ""
 
-#: keystone/common/wsgi.py:97
+#: keystone/common/wsgi.py:98
 msgid "Kerberos credentials do not match those in bind"
 msgstr ""
 
-#: keystone/common/wsgi.py:101
+#: keystone/common/wsgi.py:102
 msgid "Kerberos bind authentication successful"
 msgstr ""
 
-#: keystone/common/wsgi.py:108
+#: keystone/common/wsgi.py:109
 #, python-format
 msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr ""
@@ -120,46 +145,46 @@ msgstr ""
 msgid "Starting %(arg0)s on %(host)s:%(port)s"
 msgstr ""
 
-#: keystone/common/kvs/core.py:154
+#: keystone/common/kvs/core.py:159
 #, python-format
 msgid "Adding proxy '%(proxy)s' to KVS %(name)s."
 msgstr ""
 
-#: keystone/common/kvs/core.py:204
+#: keystone/common/kvs/core.py:209
 #, python-format
 msgid "Using %(func)s as KVS region %(name)s key_mangler"
 msgstr ""
 
-#: keystone/common/kvs/core.py:216
+#: keystone/common/kvs/core.py:221
 #, python-format
 msgid ""
 "Using default keystone.common.kvs.sha1_mangle_key as KVS region %s "
 "key_mangler"
 msgstr ""
 
-#: keystone/common/kvs/core.py:226
+#: keystone/common/kvs/core.py:231
 #, python-format
 msgid "KVS region %s key_mangler disabled."
 msgstr ""
 
-#: keystone/middleware/auth.py:128
+#: keystone/middleware/auth.py:172
 #, python-format
 msgid "Cannot find client issuer in env by the issuer attribute - %s."
 msgstr ""
 
-#: keystone/middleware/auth.py:136
+#: keystone/middleware/auth.py:180
 #, python-format
 msgid ""
 "The client issuer %(client_issuer)s does not match with the trusted "
 "issuer %(trusted_issuer)s"
 msgstr ""
 
-#: keystone/token/persistence/backends/sql.py:290
+#: keystone/token/persistence/backends/sql.py:286
 #, python-format
 msgid "Total expired tokens removed: %d"
 msgstr ""
 
-#: keystone/token/providers/fernet/token_formatters.py:173
+#: keystone/token/providers/fernet/token_formatters.py:174
 #, python-format
 msgid ""
 "Fernet token created with length of %d characters, which exceeds 255 "

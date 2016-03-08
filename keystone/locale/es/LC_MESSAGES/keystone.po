@@ -14,9 +14,9 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-02-07 08:20+0000\n"
+"POT-Creation-Date: 2016-03-07 18:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -909,10 +909,6 @@ msgstr ""
 "El proveedor de señales configurado no da soporte a la autenticación de "
 "enlaces."
 
-msgid "The creation of projects acting as domains is not allowed yet."
-msgstr ""
-"La creación de proyectos que actúa como dominios aún no está permitido."
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -960,13 +956,6 @@ msgstr "Solo puede haber parámetros de oauth"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Esta no es una versión de carga útil Fernet reconocida: %s"
-
-msgid ""
-"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
-"tokens."
-msgstr ""
-"Esta no es una señal v2.0 Fernet. Utilice v3 para señales de confianza, "
-"dominio o federadas ."
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -1202,26 +1191,6 @@ msgstr ""
 "No se puede crear un proyecto en una rama que contiene un proyecto "
 "inhabilitado: %s"
 
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr ""
-"no se puede suprimir un dominio que está habilitado, inhabilítelo primero."
-
-#, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr ""
-"No se puede suprimir el proyecto %s, ya que no es una hoja en la jerarquía."
-
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr ""
-"No se puede inhabilitar el proyecto %s, ya que su subárbol contiene "
-"proyectos habilitados"
-
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr ""
-"No se puede habilitar el proyecto %s, ya que tiene padres inhabilitados"
-
 #, python-format
 msgid "group %(group)s"
 msgstr "grupo %(group)s"
@@ -1236,10 +1205,6 @@ msgstr ""
 #, python-format
 msgid "invalid date format %s"
 msgstr "formato de fecha no válido %s"
-
-#, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr "Se ha alcanzado la profundidad máxima de jerarquía en la rama %s."
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
