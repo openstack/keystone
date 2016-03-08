@@ -118,7 +118,7 @@ useful to keep a clean environment for working on Keystone.
 
 .. code-block:: bash
 
-    $ tox -e venv
+    $ tox -e venv --notest
 
 This will create a local virtual environment in the directory ``.tox``.
 Once created, you can activate this virtualenv for your current shell using:
