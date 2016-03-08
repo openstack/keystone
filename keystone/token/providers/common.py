@@ -139,7 +139,7 @@ class V2TokenDataHelper(object):
 
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,
-                                  'issued_at': utils.strtime(),
+                                  'issued_at': utils.isotime(subsecond=True),
                                   'audit_ids': audit_info
                                   },
                         'user': {'id': user_ref['id'],
