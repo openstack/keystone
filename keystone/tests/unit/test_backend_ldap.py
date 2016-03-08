@@ -2689,13 +2689,13 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
     def test_list_role_assignment_by_domain(self):
         # With multi LDAP this method should work, so override the override
         # from BaseLDAPIdentity
-        super(BaseLDAPIdentity, self).test_list_role_assignment_by_domain
+        super(BaseLDAPIdentity, self).test_list_role_assignment_by_domain()
 
     def test_list_role_assignment_by_user_with_domain_group_roles(self):
         # With multi LDAP this method should work, so override the override
         # from BaseLDAPIdentity
         super(BaseLDAPIdentity, self).\
-            test_list_role_assignment_by_user_with_domain_group_roles
+            test_list_role_assignment_by_user_with_domain_group_roles()
 
     def test_list_role_assignment_using_sourced_groups_with_domains(self):
         # With SQL Assignment this method should work, so override the override
@@ -2707,13 +2707,13 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # With multi LDAP this method should work, so override the override
         # from BaseLDAPIdentity
         super(BaseLDAPIdentity, self).\
-            test_create_project_with_domain_id_and_without_parent_id
+            test_create_project_with_domain_id_and_without_parent_id()
 
     def test_create_project_with_domain_id_mismatch_to_parent_domain(self):
         # With multi LDAP this method should work, so override the override
         # from BaseLDAPIdentity
         super(BaseLDAPIdentity, self).\
-            test_create_project_with_domain_id_mismatch_to_parent_domain
+            test_create_project_with_domain_id_mismatch_to_parent_domain()
 
 
 class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
