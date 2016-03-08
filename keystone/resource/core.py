@@ -206,7 +206,7 @@ class Manager(manager.Manager):
                      'within a domain with the same name : %s'
                      ) % project['name']
 
-    def _create_project(self, project_id, project, initiator=None):
+    def create_project(self, project_id, project, initiator=None):
         project = project.copy()
 
         if (CONF.resource.project_name_url_safe != 'off' and
@@ -250,11 +250,6 @@ class Manager(manager.Manager):
             self.get_project_by_name.set(ret, self, ret['name'],
                                          ret['domain_id'])
         return ret
-
-    def create_project(self, project_id, project, initiator=None):
-        project = self._create_project(project_id, project, initiator)
-
-        return project
 
     def assert_domain_enabled(self, domain_id, domain=None):
         """Assert the Domain is enabled.
@@ -748,7 +743,7 @@ class Manager(manager.Manager):
                 utils.is_not_url_safe(domain['name'])):
             self._raise_reserved_character_exception('Domain', domain['name'])
         project_from_domain = _get_project_from_domain(domain)
-        is_domain_project = self._create_project(
+        is_domain_project = self.create_project(
             domain_id, project_from_domain, initiator)
 
         return self._get_domain_from_project(is_domain_project)
