@@ -794,7 +794,6 @@ class Manager(manager.Manager):
         self._delete_project(domain_id, initiator)
         # Delete any database stored domain config
         self.domain_config_api.delete_config_options(domain_id)
-        self.domain_config_api.delete_config_options(domain_id, sensitive=True)
         self.domain_config_api.release_registration(domain_id)
         # TODO(henry-nash): Although the controller will ensure deletion of
         # all users & groups within the domain (which will cause all
@@ -1555,18 +1554,16 @@ class DomainConfigManager(manager.Manager):
         return option in self.sensitive_options[group]
 
     def _config_to_list(self, config):
-        """Build whitelisted and sensitive lists for use by backend drivers."""
-        whitelisted = []
-        sensitive = []
+        """Build list of options for use by backend drivers."""
+        option_list = []
         for group in config:
             for option in config[group]:
-                the_list = (sensitive if self._is_sensitive(group, option)
-                            else whitelisted)
-                the_list.append({
+                option_list.append({
                     'group': group, 'option': option,
-                    'value': config[group][option]})
+                    'value': config[group][option],
+                    'sensitive': self._is_sensitive(group, option)})
 
-        return whitelisted, sensitive
+        return option_list
 
     def _list_to_config(self, whitelisted, sensitive=None, req_option=None):
         """Build config dict from a list of option dicts.
@@ -1626,23 +1623,13 @@ class DomainConfigManager(manager.Manager):
 
         """
         self._assert_valid_config(config)
-        whitelisted, sensitive = self._config_to_list(config)
-        # Delete any existing config
-        self.delete_config_options(domain_id)
-        self.delete_config_options(domain_id, sensitive=True)
-        # ...and create the new one
-        for option in whitelisted:
-            self.create_config_option(
-                domain_id, option['group'], option['option'], option['value'])
-        for option in sensitive:
-            self.create_config_option(
-                domain_id, option['group'], option['option'], option['value'],
-                sensitive=True)
+        option_list = self._config_to_list(config)
+        self.create_config_options(domain_id, option_list)
         # Since we are caching on the full substituted config, we just
         # invalidate here, rather than try and create the right result to
         # cache.
         self.get_config_with_sensitive_info.invalidate(self, domain_id)
-        return self._list_to_config(whitelisted)
+        return self._list_to_config(self.list_config_options(domain_id))
 
     def get_config(self, domain_id, group=None, option=None):
         """Get config, or partial config, for a domain
@@ -1769,17 +1756,6 @@ class DomainConfigManager(manager.Manager):
                         raise exception.DomainConfigNotFound(
                             domain_id=domain_id, group_or_option=msg)
 
-        def _update_or_create(domain_id, option, sensitive):
-            """Update the option, if it doesn't exist then create it."""
-            try:
-                self.create_config_option(
-                    domain_id, option['group'], option['option'],
-                    option['value'], sensitive=sensitive)
-            except exception.Conflict:
-                self.update_config_option(
-                    domain_id, option['group'], option['option'],
-                    option['value'], sensitive=sensitive)
-
         update_config = config
         if group and option:
             # The config will just be a dict containing the option and
@@ -1789,12 +1765,8 @@ class DomainConfigManager(manager.Manager):
 
         _assert_valid_update(domain_id, update_config, group, option)
 
-        whitelisted, sensitive = self._config_to_list(update_config)
-
-        for new_option in whitelisted:
-            _update_or_create(domain_id, new_option, sensitive=False)
-        for new_option in sensitive:
-            _update_or_create(domain_id, new_option, sensitive=True)
+        option_list = self._config_to_list(update_config)
+        self.update_config_options(domain_id, option_list)
 
         self.get_config_with_sensitive_info.invalidate(self, domain_id)
         return self.get_config(domain_id)
@@ -1836,7 +1808,6 @@ class DomainConfigManager(manager.Manager):
                     domain_id=domain_id, group_or_option=msg)
 
         self.delete_config_options(domain_id, group, option)
-        self.delete_config_options(domain_id, group, option, sensitive=True)
         self.get_config_with_sensitive_info.invalidate(self, domain_id)
 
     def _get_config_with_sensitive_info(self, domain_id, group=None,
@@ -1969,18 +1940,28 @@ class DomainConfigDriverV8(object):
     """Interface description for a Domain Config driver."""
 
     @abc.abstractmethod
-    def create_config_option(self, domain_id, group, option, value,
-                             sensitive=False):
-        """Creates a config option for a domain.
+    def create_config_options(self, domain_id, option_list):
+        """Creates config options for a domain.
+
+        Any existing config options will first be deleted.
 
         :param domain_id: the domain for this option
-        :param group: the group name
-        :param option: the option name
-        :param value: the value to assign to this option
-        :param sensitive: whether the option is sensitive
+        :param option_list: a list of dicts, each one specifying an option
 
-        :returns: dict containing group, option and value
-        :raises keystone.exception.Conflict: when the option already exists
+        Option schema::
+
+            type: dict
+            properties:
+                group:
+                    type: string
+                option:
+                    type: string
+                value:
+                    type: depends on the option
+                sensitive:
+                    type: boolean
+            required: [group, option, value, sensitive]
+            additionalProperties: false
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -2018,26 +1999,17 @@ class DomainConfigDriverV8(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def update_config_option(self, domain_id, group, option, value,
-                             sensitive=False):
-        """Updates a config option for a domain.
+    def update_config_options(self, domain_id, option_list):
+        """Updates config options for a domain.
 
         :param domain_id: the domain for this option
-        :param group: the group option name
-        :param option: the option name
-        :param value: the value to assign to this option
-        :param sensitive: whether the option is sensitive
-
-        :returns: dict containing updated group, option and value
-        :raises keystone.exception.DomainConfigNotFound: the option doesn't
-                                                         exist.
+        :param option_list: a list of dicts, each one specifying an option
 
         """
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def delete_config_options(self, domain_id, group=None, option=None,
-                              sensitive=False):
+    def delete_config_options(self, domain_id, group=None, option=None):
         """Deletes config options for a domain.
 
         Allows deletion of all options for a domain, all options in a group
@@ -2048,7 +2020,9 @@ class DomainConfigDriverV8(object):
         :param group: optional group option name
         :param option: optional option name. If group is None, then this
                        parameter is ignored
-        :param sensitive: whether the option is sensitive
+
+        The option is uniquely defined by domain_id, group and option,
+        irrespective of whether it is sensistive ot not.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
