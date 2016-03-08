@@ -14,9 +14,9 @@
 # Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-02-07 08:20+0000\n"
+"POT-Creation-Date: 2016-03-07 18:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -809,9 +809,6 @@ msgstr ""
 msgid "The configured token provider does not support bind authentication."
 msgstr "所配置的令牌提供者不支持绑定认证。"
 
-msgid "The creation of projects acting as domains is not allowed yet."
-msgstr "尚不允许创建充当域的项目。"
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -852,11 +849,6 @@ msgstr "不应该存在任何非 oauth 参数"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "这不是可识别的 Fernet 有效内容版本：%s"
-
-msgid ""
-"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
-"tokens."
-msgstr "这不是 V2.0 Fernet 令牌。请将 V3 用于信任、域或联合的令牌。"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -1073,21 +1065,6 @@ msgstr "授权用户没有必需的角色"
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "无法在包含已禁用项目的分支中创建项目：%s"
 
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr "无法删除已启用的域，请先禁用该域。"
-
-#, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr "无法删除项目 %s，因为它不是层次结构中的叶。"
-
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr "无法禁用项目 %s，因为其子树包含已启用的项目"
-
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr "无法启用项目 %s，因为它具有已禁用的父代"
-
 #, python-format
 msgid "group %(group)s"
 msgstr "组 %(group)s"
@@ -1102,10 +1079,6 @@ msgstr ""
 #, python-format
 msgid "invalid date format %s"
 msgstr "日期格式 %s 无效"
-
-#, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr "对于 %s 分支，已达到最大层次结构深度。"
 
 #, python-format
 msgid "option %(option)s in group %(group)s"

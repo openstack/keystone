@@ -5,17 +5,18 @@
 # Translators:
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# Jennifer <cristxu@tw.ibm.com>, 2016. #zanata
 # Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-02-07 08:20+0000\n"
+"POT-Creation-Date: 2016-03-07 18:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-02-03 07:03+0000\n"
-"Last-Translator: Lucas Palm <lapalm@us.ibm.com>\n"
+"PO-Revision-Date: 2016-03-08 02:30+0000\n"
+"Last-Translator: Jennifer <cristxu@tw.ibm.com>\n"
 "Language: zh-TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -25,6 +26,15 @@ msgstr ""
 #, python-format
 msgid "%(detail)s"
 msgstr "%(detail)s"
+
+#, python-format
+msgid "%(driver)s is not supported driver version"
+msgstr "%(driver)s 不是受支援的驅動程式版本"
+
+#, python-format
+msgid ""
+"%(entity)s name cannot contain the following reserved characters: %(chars)s"
+msgstr "%(entity)s 名稱不能包含下列保留字元：%(chars)s"
 
 #, python-format
 msgid ""
@@ -48,6 +58,10 @@ msgstr ""
 "錄。"
 
 #, python-format
+msgid "%(prior_role_id)s does not imply %(implied_role_id)s"
+msgstr "%(prior_role_id)s 不暗示 %(implied_role_id)s"
+
+#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s 不能少於 %(min_length)s 個字元。"
 
@@ -58,6 +72,10 @@ msgstr "%(property_name)s 不是 %(display_expected_type)s"
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr "%(property_name)s 不應超過 %(max_length)s 個字元。"
+
+#, python-format
+msgid "%(role_id)s cannot be an implied roles"
+msgstr "%(role_id)s 不能是隱含角色"
 
 #, python-format
 msgid "%s cannot be empty."
@@ -74,6 +92,18 @@ msgstr "%s 欄位是必要欄位，因此不能是空的"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s 欄位不能是空的"
+
+#, python-format
+msgid ""
+"%s for the LDAP identity backend has been deprecated in the Mitaka release "
+"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
+"release."
+msgstr ""
+"LDAP 身分後端的 %s 在 Mitaka 版本中已予以淘汰，以支援唯讀身分 LDAP 存取。它將"
+"在 \"O\" 版本中予以移除。"
+
+msgid "(Disable insecure_debug mode to suppress these details.)"
+msgstr "（停用 insecure_debug 模式，以暫停這些詳細資料。）"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all 選項不能與其他選項混合"
@@ -118,6 +148,16 @@ msgstr "必須提供至少一個選項，請使用 --all 或 --domain-name"
 msgid "At least one role should be specified."
 msgstr "應該至少指定一個角色。"
 
+#, python-format
+msgid ""
+"Attempted automatic driver selection for assignment based upon "
+"[identity]\\driver option failed since driver %s is not found. Set "
+"[assignment]/driver to a valid driver in keystone config."
+msgstr ""
+"針對基於 [identity]\\driver 選項的指派，嘗試自動選取驅動程式失敗，因為找不到"
+"驅動程式 %s。請在 Keystone 配置中，將 [assignment]/driver 設為有效的驅動程"
+"式。"
+
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "已嘗試使用不支援的方法進行鑑別。"
 
@@ -161,6 +201,53 @@ msgstr "無法建立具有無效 URL %(url)s 的端點"
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "無法建立具有母項的專案：%(project_id)s"
 
+#, python-format
+msgid ""
+"Cannot create project, since it specifies its owner as domain %(domain_id)s, "
+"but specifies a parent in a different domain (%(parent_domain_id)s)."
+msgstr ""
+"無法建立專案，因為它指定自己的擁有者作為網域 %(domain_id)s，但卻指定了位於不"
+"同網域 (%(parent_domain_id)s) 中的母項。"
+
+#, python-format
+msgid ""
+"Cannot create project, since its parent (%(domain_id)s) is acting as a "
+"domain, but project's specified parent_id (%(parent_id)s) does not match "
+"this domain_id."
+msgstr ""
+"無法建立專案，因為它的母項 (%(domain_id)s) 正在充當網域，但專案的指定 "
+"parent_id (%(parent_id)s) 與此 domain_id 不符。"
+
+msgid "Cannot delete a domain that is enabled, please disable it first."
+msgstr "無法刪除已啟用的網域，請先停用該網域。"
+
+#, python-format
+msgid ""
+"Cannot delete project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr "無法刪除專案 %(project_id)s，因為它的子樹狀結構包含已啟用的專案。"
+
+#, python-format
+msgid ""
+"Cannot delete the project %s since it is not a leaf in the hierarchy. Use "
+"the cascade option if you want to delete a whole subtree."
+msgstr ""
+"無法刪除專案 %s，因為它不是階層中的葉節點。如果要刪除整個子樹狀結構，請使用重"
+"疊顯示選項。"
+
+#, python-format
+msgid ""
+"Cannot disable project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr "無法停用專案 %(project_id)s，因為它的子樹狀結構包含已啟用的專案。"
+
+#, python-format
+msgid "Cannot enable project %s since it has disabled parents"
+msgstr "無法啟用專案 %s，因為它具有已停用的母項"
+
+msgid "Cannot list assignments sourced from groups and filtered by user ID."
+msgstr "無法列出由群組提供且依使用者 ID 進行過濾的指派。"
+
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "無法列出含有透過委派發出之記號的要求記號。"
 
@@ -177,6 +264,9 @@ msgid ""
 "self "
 msgstr "屬性 limit 不在 hints 清單時，無法截斷驅動程式呼叫"
 
+msgid "Cannot update domain_id of a project that has children."
+msgstr "無法更新包含子項之專案的 domain_id。"
+
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
 msgstr "無法同時使用 parents_as_list 與 parents_as_ids查詢參數。"
@@ -184,6 +274,9 @@ msgstr "無法同時使用 parents_as_list 與 parents_as_ids查詢參數。"
 msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same time."
 msgstr "無法同時使用 subtree_as_list 與 subtree_as_ids 查詢參數。"
+
+msgid "Cascade update is only allowed for enabled attribute."
+msgstr "只容許對已啟用的屬性進行重疊顯示更新。"
 
 msgid ""
 "Combining effective and group filter will always result in an empty list."
@@ -333,6 +426,25 @@ msgstr "無法驗證存取記號"
 msgid "Credential belongs to another user"
 msgstr "認證屬於另一個使用者"
 
+msgid "Credential signature mismatch"
+msgstr "認證簽章不符"
+
+#, python-format
+msgid ""
+"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
+"of its entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"不建議直接匯入鑑別外掛程式 %(name)r，因為 Liberty 支援它在 %(namespace)r 中的"
+"進入點且可能在 N 中予以移除。"
+
+#, python-format
+msgid ""
+"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
+"entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"不建議直接匯入驅動程式 %(name)r，因為 Liberty 支援它在 %(namespace)r 中的進入"
+"點且可能在 N 中予以移除。"
+
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr "正在停用配置已忽略其 'enable' 屬性的實體。"
@@ -353,8 +465,14 @@ msgstr "網域不能具有 ID %s"
 msgid "Domain is disabled: %s"
 msgstr "已停用網域：%s"
 
+msgid "Domain name cannot contain reserved characters."
+msgstr "網域名稱不能包含保留字元。"
+
 msgid "Domain scoped token is not supported"
 msgstr "不支援網域範圍的記號"
+
+msgid "Domain specific roles are not supported in the V8 role driver"
+msgstr "網域專屬角色在第 8 版角色驅動程式中不受支援"
 
 #, python-format
 msgid ""
@@ -370,8 +488,26 @@ msgid "Duplicate ID, %s."
 msgstr "重複的 ID，%s。"
 
 #, python-format
+msgid "Duplicate entry: %s"
+msgstr "重複項目：%s"
+
+#, python-format
 msgid "Duplicate name, %s."
 msgstr "重複的名稱，%s。"
+
+#, python-format
+msgid "Duplicate remote ID: %s"
+msgstr "重複的遠端 ID：%s"
+
+msgid "EC2 access key not found."
+msgstr "找不到 EC2 存取金鑰。"
+
+msgid "EC2 signature not supplied."
+msgstr "未提供 EC2 簽章。"
+
+msgid ""
+"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
+msgstr "必須設定 --bootstrap-password 引數或 OS_BOOTSTRAP_PASSWORD。"
 
 msgid "Enabled field must be a boolean"
 msgstr "「已啟用」欄位必須是布林值"
@@ -414,6 +550,14 @@ msgid "Error while reading metadata file, %(reason)s"
 msgstr "讀取 meta 資料檔時發生錯誤，%(reason)s"
 
 #, python-format
+msgid ""
+"Exceeded attempts to register domain %(domain)s to use the SQL driver, the "
+"last domain that appears to have had it is %(last_domain)s, giving up"
+msgstr ""
+"已超過嘗試登錄網域 %(domain)s 以使用 SQL 驅動程式的次數，似乎已經具有它的最後"
+"一個網域是 %(last_domain)s，將放棄"
+
+#, python-format
 msgid "Expected dict or list: %s"
 msgstr "預期字典或清單：%s"
 
@@ -452,6 +596,10 @@ msgid "Found invalid token: scoped to both project and domain."
 msgstr "找到無效記號：已將範圍限定為專案及網域。"
 
 #, python-format
+msgid "Group  %s not found in config"
+msgstr "在配置中找不到群組 %s"
+
+#, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "網域特定配置不支援群組 %(group)s"
 
@@ -481,6 +629,9 @@ msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
 msgstr "送入的身分提供者 ID 未包括在接受的 ID 中。"
+
+msgid "Invalid EC2 signature."
+msgstr "無效的 EC2 簽章。"
 
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
@@ -547,6 +698,9 @@ msgstr "無效的簽章"
 msgid "Invalid user / password"
 msgstr "無效的使用者/密碼"
 
+msgid "Invalid username or TOTP passcode"
+msgstr "無效的使用者名稱或 TOTP 密碼"
+
 msgid "Invalid username or password"
 msgstr "無效的使用者名稱或密碼"
 
@@ -570,6 +724,18 @@ msgstr "LDAP %s 刪除"
 msgid "LDAP %s update"
 msgstr "LDAP %s 更新"
 
+msgid ""
+"Length of transformable resource id > 64, which is max allowed characters"
+msgstr "可轉換資源 ID 的長度大於 64（這是所容許的字元數目上限）"
+
+#, python-format
+msgid ""
+"Local section in mapping %(mapping_id)s refers to a remote match that "
+"doesn't exist (e.g. {0} in a local section)."
+msgstr ""
+"對映 %(mapping_id)s 中的本端區段參照了一個不存在的遠端相符項（例如，本端區段"
+"中的 '{0}'）。"
+
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
 msgstr "金鑰 %(target)s 發生鎖定逾時"
@@ -584,6 +750,10 @@ msgstr "端點 URL (%(endpoint)s) 的格式不正確，請參閱錯誤日誌以�
 
 msgid "Marker could not be found"
 msgstr "找不到標記"
+
+#, python-format
+msgid "Max hierarchy depth reached for %s branch."
+msgstr "已達到 %s 分支的階層深度上限。"
 
 #, python-format
 msgid "Maximum lock attempts on %s occurred."
@@ -645,6 +815,9 @@ msgstr "沒有原則與端點 %(endpoint_id)s 相關聯。"
 msgid "No remaining uses for trust: %(trust_id)s"
 msgstr "沒有信任 %(trust_id)s 的剩餘使用情形"
 
+msgid "No token in the request"
+msgstr "要求中沒有記號"
+
 msgid "Non-default domain is not supported"
 msgstr "不支援非預設網域"
 
@@ -678,8 +851,16 @@ msgstr "專案欄位是必要的，不能是空的。"
 msgid "Project is disabled: %s"
 msgstr "已停用專案：%s"
 
+msgid "Project name cannot contain reserved characters."
+msgstr "專案名稱不能包含保留字元。"
+
 msgid "Query string is not UTF-8 encoded"
 msgstr "查詢字串未使用 UTF-8 進行編碼"
+
+#, python-format
+msgid ""
+"Reading the default for option %(option)s in group %(group)s is not supported"
+msgstr "不支援讀取群組 %(group)s 中選項 %(option)s 的預設值"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "僅委派為信任時，才容許重新委派"
@@ -690,6 +871,70 @@ msgid ""
 "of [0..%(max_count)d]"
 msgstr ""
 "剩餘的重新委派深度 %(redelegation_depth)d 超出容許的範圍 [0..%(max_count)d]"
+
+msgid ""
+"Remove admin_crud_extension from the paste pipeline, the admin_crud "
+"extension is now always available. Updatethe [pipeline:admin_api] section in "
+"keystone-paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"從貼上 Pipeline 中移除 admin_crud_extension，admin_crud 延伸現在將一律可用。"
+"相應地更新 keystone-paste.ini 中的 [pipeline:admin_api] 區段，因為它在 O 版本"
+"中將予以移除。"
+
+msgid ""
+"Remove endpoint_filter_extension from the paste pipeline, the endpoint "
+"filter extension is now always available. Update the [pipeline:api_v3] "
+"section in keystone-paste.ini accordingly as it will be removed in the O "
+"release."
+msgstr ""
+"從貼上 Pipeline 中移除 endpoint_filter_extension，端點過濾器延伸現在將一律可"
+"用。相應地更新 keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版"
+"本中將予以移除。"
+
+msgid ""
+"Remove federation_extension from the paste pipeline, the federation "
+"extension is now always available. Update the [pipeline:api_v3] section in "
+"keystone-paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"從貼上 Pipeline 中移除 federation_extension，聯合延伸現在將一律可用。相應地更"
+"新 keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移"
+"除。"
+
+msgid ""
+"Remove oauth1_extension from the paste pipeline, the oauth1 extension is now "
+"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"從貼上 Pipeline 中移除 oauth1_extension，oauth1 延伸現在將一律可用。相應地更"
+"新 keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移"
+"除。"
+
+msgid ""
+"Remove revoke_extension from the paste pipeline, the revoke extension is now "
+"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"從貼上 Pipeline 中移除 revoke_extension，撤銷延伸現在將一律可用。相應地更新 "
+"keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移除。"
+
+msgid ""
+"Remove simple_cert from the paste pipeline, the PKI and PKIz token providers "
+"are now deprecated and simple_cert was only used insupport of these token "
+"providers. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"從貼上 Pipeline 中移除 simple_cert，PKI 和 PKIz 記號提供者現在已予以淘汰，並"
+"且使用 simple_cert 的目的只是為了支援這些記號提供者。相應地更新 keystone-"
+"paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移除。"
+
+msgid ""
+"Remove user_crud_extension from the paste pipeline, the user_crud extension "
+"is now always available. Updatethe [pipeline:public_api] section in keystone-"
+"paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"從貼上 Pipeline 中移除 user_crud_extension，user_crud 延伸現在將一律可用。相"
+"應地更新 keystone-paste.ini 中的 [pipeline:public_api] 區段，因為它在 O 版本"
+"中將予以移除。"
 
 msgid "Request Token does not have an authorizing user id"
 msgstr "要求記號不具有授權使用者 ID"
@@ -766,6 +1011,18 @@ msgstr ""
 "已超出字串長度。字串 '%(string)s' 的長度已超出直欄 %(type)s 的限制 "
 "(CHAR(%(length)d))。"
 
+msgid "Tenant name cannot contain reserved characters."
+msgstr "租戶名稱不能包含保留字元。"
+
+#, python-format
+msgid ""
+"The %s extension has been moved into keystone core and as such its "
+"migrations are maintained by the main keystone database control. Use the "
+"command: keystone-manage db_sync"
+msgstr ""
+"%s 延伸已移到 Keystone 核心內，因此它的移轉將由主要 Keystone 資料庫控制進行維"
+"護。請使用指令：keystone-manage db_sync"
+
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -805,8 +1062,8 @@ msgstr ""
 msgid "The configured token provider does not support bind authentication."
 msgstr "所配置的記號提供者不支援連結鑑別。"
 
-msgid "The creation of projects acting as domains is not allowed yet."
-msgstr "尚未容許建立專案以充當網域。"
+msgid "The creation of projects acting as domains is not allowed in v2."
+msgstr "在第 2 版中，不容許建立專案以充當網域。"
 
 #, python-format
 msgid ""
@@ -849,10 +1106,9 @@ msgstr "不應該具有任何 non-oauth 參數"
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "這不是已辨識的 Fernet 內容版本：%s"
 
-msgid ""
-"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
-"tokens."
-msgstr "這不是 2.0 版 Fernet 記號。請對信任、網域或聯合記號使用第 3 版。"
+#, python-format
+msgid "This is not a recognized Fernet token %s"
+msgstr "這不是已辨識的 Fernet 記號 %s"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -924,6 +1180,9 @@ msgid ""
 "associated endpoints."
 msgstr "無法刪除區域 %(region_id)s，因為此區域或其子區域具有相關聯的端點。"
 
+msgid "Unable to downgrade schema"
+msgstr "無法將綱目降級"
+
 #, python-format
 msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr "使用對映 %(mapping_id)s 時找不到有效的群組"
@@ -986,14 +1245,32 @@ msgstr "不明的記號版本 %s"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "已取消登錄 %(targets)s 的相依關係：%(name)s"
 
+msgid "Update of `domain_id` is not allowed."
+msgstr "不容許更新 'domain_id'。"
+
 msgid "Update of `is_domain` is not allowed."
 msgstr "不容許更新 `is_domain`。"
 
 msgid "Update of `parent_id` is not allowed."
 msgstr "不容許更新 'parent_id'。"
 
+msgid "Update of domain_id is only allowed for root projects."
+msgstr "只容許更新根專案的 domain_id。"
+
+msgid "Update of domain_id of projects acting as domains is not allowed."
+msgstr "不容許更新正在充當網域之專案的 domain_id。"
+
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr "嘗試建立 SAML 主張時，使用專案範圍的記號"
+
+msgid ""
+"Use of the identity driver config to automatically configure the same "
+"assignment driver has been deprecated, in the \"O\" release, the assignment "
+"driver will need to be expicitly configured if different than the default "
+"(SQL)."
+msgstr ""
+"不建議使用身分驅動程式配置來自動配置相同的指派驅動程式，在 \"O\" 版本中，如果"
+"指派驅動程式與預設值 (SQL) 不同，則需要明確配置指派驅動程式。"
 
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
@@ -1038,6 +1315,9 @@ msgstr "使用者不是受託人。"
 msgid "User not found"
 msgstr "找不到使用者"
 
+msgid "User not valid for tenant."
+msgstr "使用者不是有效的承租人。"
+
 msgid "User roles not supported: tenant_id required"
 msgstr "使用者角色不受支援：需要 tenant_id"
 
@@ -1051,6 +1331,14 @@ msgstr "您未獲授權來執行所要求的動作。"
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s"
 msgstr "您未獲授權來執行所要求的動作：%(action)s"
+
+msgid ""
+"You have tried to create a resource using the admin token. As this token is "
+"not within a domain you must explicitly include a domain for this resource "
+"to belong to."
+msgstr ""
+"您已嘗試使用管理者記號建立資源。因為此記號不在網域內，所以您必須明確包含某個"
+"網域，以讓此資源屬於該網域。"
 
 msgid "`key_mangler` functions must be callable."
 msgstr "`key_mangler` 函數必須可呼叫。"
@@ -1071,20 +1359,11 @@ msgstr "授權使用者不具有必要的角色"
 msgid "cannot create a project in a branch containing a disabled project: %s"
 msgstr "無法在包含已停用專案的分支中建立專案：%s"
 
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr "無法刪除已啟用的網域，請先停用該網域。"
-
 #, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr "無法刪除專案 %s，因為它不是階層中的葉節點。"
-
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr "無法停用專案 %s，因為其子樹狀結構包含已啟用的專案"
-
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr "無法啟用專案 %s，因為它具有已停用的母項"
+msgid ""
+"cannot delete an enabled project acting as a domain. Please disable the "
+"project %s first."
+msgstr "無法刪除已啟用且正在充當網域的專案。請先停用專案 %s。"
 
 #, python-format
 msgid "group %(group)s"
@@ -1100,8 +1379,19 @@ msgid "invalid date format %s"
 msgstr "無效的日期格式 %s"
 
 #, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr "已達到 %s 分支的最大階層深度。"
+msgid ""
+"it is not permitted to have two projects acting as domains with the same "
+"name: %s"
+msgstr "不允許包含兩個具有相同名稱且充當網域的專案：%s"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects within a domain with the same "
+"name : %s"
+msgstr "在一個網域內，不允許包含兩個具有相同名稱的專案：%s"
+
+msgid "only root projects are allowed to act as domains."
+msgstr "只容許根專案充當網域。"
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
@@ -1132,6 +1422,13 @@ msgid "rescope a scoped token"
 msgstr "重新劃定已限定範圍之記號的範圍"
 
 #, python-format
+msgid "role %s is not defined"
+msgstr "未定義角色 %s"
+
+msgid "scope.project.id must be specified if include_subtree is also specified"
+msgstr "如果也指定了 include_subtree，則必須指定 scope.project.id"
+
+#, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr "tls_cacertdir %s 找不到，或者不是目錄"
 
@@ -1142,6 +1439,10 @@ msgstr "tls_cacertfile %s 找不到，或者不是檔案"
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "記號參照必須是 KeystoneToken 類型，但卻取得：%s"
+
+msgid ""
+"update of domain_id is deprecated as of Mitaka and will be removed in O."
+msgstr "不建議更新 domain_id，因為 Mitaka 將在 O 版本中予以移除。"
 
 #, python-format
 msgid ""

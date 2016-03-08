@@ -10,9 +10,9 @@
 # Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-02-07 08:20+0000\n"
+"POT-Creation-Date: 2016-03-07 18:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -848,9 +848,6 @@ msgstr ""
 msgid "The configured token provider does not support bind authentication."
 msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
 
-msgid "The creation of projects acting as domains is not allowed yet."
-msgstr "도메인 역할을 수행하는 프로젝트의 작성은 아직 허용되지 않습니다. "
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -893,13 +890,6 @@ msgstr "non-oauth 매개변수가 없어야 함"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "인식되는 Fernet 페이로드 버전이 아님: %s"
-
-msgid ""
-"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
-"tokens."
-msgstr ""
-"이는 v2.0 Fernet 토큰이 아닙니다. 신뢰, 도메인 또는 연합 토큰의 경우 v3를 사"
-"용하십시오."
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -1126,25 +1116,6 @@ msgstr ""
 "사용 안함으로 설정된 프로젝트가 포함된 분기에 프로젝트를 작성할 수 없습니다. "
 "%s"
 
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr ""
-"사용으로 설정된 도메인을 삭제할 수 없습니다. 먼저 해당 도메인을 사용 안함으"
-"로 설정하십시오."
-
-#, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr "계층 내의 리프가 아니므로 프로젝트 %s을(를) 삭제할 수 없습니다."
-
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr ""
-"서브트리에 사용 설정된 프로젝트가 있어서 프로젝트 %s을(를) 사용 안함으로 설정"
-"할 수 없음"
-
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr "프로젝트 %s에 사용 안함으로 설정된 상위가 있어서 이를 사용할 수 없음"
-
 #, python-format
 msgid "group %(group)s"
 msgstr "%(group)s 그룹"
@@ -1158,10 +1129,6 @@ msgstr ""
 #, python-format
 msgid "invalid date format %s"
 msgstr "올바르지 않은 날짜 형식 %s"
-
-#, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr "%s 분기에 대한 최대 계층 깊이에 도달했습니다."
 
 #, python-format
 msgid "option %(option)s in group %(group)s"

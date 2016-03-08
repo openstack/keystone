@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-02-08 06:29+0000\n"
+"POT-Creation-Date: 2016-03-08 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,21 +42,21 @@ msgid ""
 "will be unscoped rather than scoped to the project."
 msgstr ""
 
-#: keystone/cmd/cli.py:327
+#: keystone/cmd/cli.py:455
 msgid ""
 "keystone-manage pki_setup is deprecated as of Mitaka in favor of not "
 "using PKI tokens and may be removed in 'O' release."
 msgstr ""
 
-#: keystone/cmd/cli.py:330
+#: keystone/cmd/cli.py:458
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 
-#: keystone/cmd/cli.py:349
+#: keystone/cmd/cli.py:477
 msgid "keystone-manage ssl_setup is not recommended for production use."
 msgstr ""
 
-#: keystone/cmd/cli.py:654
+#: keystone/cmd/cli.py:650
 #, python-format
 msgid "Ignoring file (%s) while scanning domain config directory"
 msgstr ""
@@ -65,20 +65,20 @@ msgstr ""
 msgid "RBAC: Invalid user data in token"
 msgstr ""
 
-#: keystone/common/controller.py:102 keystone/middleware/auth.py:58
+#: keystone/common/controller.py:102 keystone/middleware/auth.py:102
 msgid "RBAC: Invalid token"
 msgstr ""
 
 #: keystone/common/controller.py:127 keystone/common/controller.py:246
-#: keystone/common/controller.py:797
+#: keystone/common/controller.py:799
 msgid "RBAC: Bypassing authorization"
 msgstr ""
 
-#: keystone/common/controller.py:733
+#: keystone/common/controller.py:735
 msgid "No domain information specified as part of list request"
 msgstr ""
 
-#: keystone/common/controller.py:769
+#: keystone/common/controller.py:771
 msgid ""
 "Not specifying a domain during a create user, group or project call, and "
 "relying on falling back to the default domain, is deprecated as of "
@@ -86,20 +86,20 @@ msgid ""
 "explicitly or use a domain-scoped token"
 msgstr ""
 
-#: keystone/common/openssl.py:73
+#: keystone/common/openssl.py:74
 msgid "Failed to invoke ``openssl version``, assuming is v1.0 or newer"
 msgstr ""
 
-#: keystone/common/utils.py:127
+#: keystone/common/utils.py:129
 #, python-format
 msgid "Truncating user password to %d characters."
 msgstr ""
 
-#: keystone/common/utils.py:550
+#: keystone/common/utils.py:552
 msgid "Couldn't find the auth context."
 msgstr ""
 
-#: keystone/common/wsgi.py:250
+#: keystone/common/wsgi.py:252
 #, python-format
 msgid "Authorization failed. %(exception)s from %(remote_addr)s"
 msgstr ""
@@ -109,7 +109,7 @@ msgstr ""
 msgid "%s is not a dogpile.proxy.ProxyBackend"
 msgstr ""
 
-#: keystone/common/kvs/core.py:426
+#: keystone/common/kvs/core.py:428
 #, python-format
 msgid "KVS lock released (timeout reached) for: %s"
 msgstr ""
@@ -162,44 +162,69 @@ msgid ""
 "%(endpoint_id)s not found."
 msgstr ""
 
-#: keystone/federation/utils.py:593
+#: keystone/federation/utils.py:601
 msgid "Ignoring user name"
 msgstr ""
 
-#: keystone/identity/controllers.py:143
+#: keystone/identity/controllers.py:145
 #, python-format
 msgid "Unable to remove user %(user)s from %(tenant)s."
 msgstr ""
 
-#: keystone/identity/controllers.py:162
+#: keystone/identity/controllers.py:164
 #, python-format
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr ""
 
-#: keystone/identity/core.py:128
+#: keystone/identity/core.py:129
 #, python-format
 msgid "Invalid domain name (%s) found in config file name"
 msgstr ""
 
-#: keystone/identity/core.py:166
+#: keystone/identity/core.py:167
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr ""
 
-#: keystone/identity/core.py:682
+#: keystone/identity/core.py:683
 #, python-format
 msgid ""
 "Found multiple domains being mapped to a driver that does not support "
 "that (e.g. LDAP) - Domain ID: %(domain)s, Default Driver: %(driver)s"
 msgstr ""
 
-#: keystone/middleware/auth.py:151
+#: keystone/middleware/auth.py:81
+msgid ""
+"build_auth_context middleware checking for the admin token is deprecated "
+"as of the Mitaka release and will be removed in the O release. If your "
+"deployment requires use of the admin token, update keystone-paste.ini so "
+"that admin_token_auth is before build_auth_context in the paste "
+"pipelines, otherwise remove the admin_token_auth middleware from the "
+"paste pipelines."
+msgstr ""
+
+#: keystone/middleware/auth.py:195
 msgid ""
 "Auth context already exists in the request environment; it will be used "
 "for authorization instead of creating a new one."
 msgstr ""
 
-#: keystone/resource/core.py:1516
+#: keystone/middleware/core.py:63
+msgid ""
+"The admin_token_auth middleware presents a security risk and should be "
+"removed from the [pipeline:api_v3], [pipeline:admin_api], and "
+"[pipeline:public_api] sections of your paste ini file."
+msgstr ""
+
+#: keystone/resource/core.py:904
+msgid ""
+"The default domain was created automatically to contain V2 resources. "
+"This is deprecated in the M release and will not be supported in the O "
+"release. Create the default domain manually or use the keystone-manage "
+"bootstrap command."
+msgstr ""
+
+#: keystone/resource/core.py:1885
 #, python-format
 msgid ""
 "Found what looks like an unmatched config option substitution reference -"
@@ -208,7 +233,7 @@ msgid ""
 "added?"
 msgstr ""
 
-#: keystone/resource/core.py:1523
+#: keystone/resource/core.py:1892
 #, python-format
 msgid ""
 "Found what looks like an incorrectly constructed config option "
@@ -216,7 +241,12 @@ msgid ""
 "%(option)s, value: %(value)s."
 msgstr ""
 
-#: keystone/server/common.py:42
+#: keystone/resource/backends/sql.py:222
+#, python-format
+msgid "Project %s does not exist and was not deleted."
+msgstr ""
+
+#: keystone/server/common.py:43
 msgid "insecure_debug is enabled so responses may include sensitive information."
 msgstr ""
 
@@ -234,12 +264,12 @@ msgid ""
 "instead."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:205
+#: keystone/token/persistence/backends/kvs.py:207
 #, python-format
 msgid "Token `%s` is expired, not adding to the revocation list."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:248
+#: keystone/token/persistence/backends/kvs.py:250
 #, python-format
 msgid ""
 "Removing `%s` from revocation list due to invalid expires data in "
@@ -271,7 +301,7 @@ msgid ""
 "key."
 msgstr ""
 
-#: keystone/version/service.py:75
+#: keystone/version/service.py:77
 msgid "'local conf' from PasteDeploy INI is being ignored."
 msgstr ""
 

@@ -11,9 +11,9 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b3.dev143\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-02-07 08:20+0000\n"
+"POT-Creation-Date: 2016-03-07 18:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -906,11 +906,6 @@ msgstr ""
 "Der konfigurierte Token-Provider unterstützt die Bindungsauthentifizierung "
 "nicht."
 
-msgid "The creation of projects acting as domains is not allowed yet."
-msgstr ""
-"Die Erstellung von Projekten die als Domänen agieren, ist noch nicht "
-"zulässig."
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -960,13 +955,6 @@ msgstr "Es sollten keine non-oauth-Parameter vorhanden sein"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Dies ist keine anerkannte Fernet-Nutzdatenversion: %s"
-
-msgid ""
-"This is not a v2.0 Fernet token. Use v3 for trust, domain, or federated "
-"tokens."
-msgstr ""
-"Dies ist kein v2.0-Fernet-Token. Verwenden Sie v3 für Vertrauensbeziehungs-, "
-"Domänen- oder föderierte Tokens."
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -1205,29 +1193,6 @@ msgstr ""
 "kann kein Projekt in einer Niederlassung erstellen, die ein inaktiviertes "
 "Projekt enthält: %s"
 
-msgid "cannot delete a domain that is enabled, please disable it first."
-msgstr ""
-"Eine aktivierte Domäne kann nicht gelöscht werden; inaktivieren Sie sie "
-"zuerst."
-
-#, python-format
-msgid "cannot delete the project %s since it is not a leaf in the hierarchy."
-msgstr ""
-"kann das Projekt %s nicht löschen, da es kein Blattelement in der Hierarchie "
-"darstellt."
-
-#, python-format
-msgid "cannot disable project %s since its subtree contains enabled projects"
-msgstr ""
-"kann Projekt %s nicht inaktivieren, da die zugehörige untergeordnete "
-"Baumstruktur aktivierte Projekte enthält"
-
-#, python-format
-msgid "cannot enable project %s since it has disabled parents"
-msgstr ""
-"kann Projekt %s nicht aktivieren, da es über inaktivierte übergeordnete "
-"Projekte verfügt"
-
 #, python-format
 msgid "group %(group)s"
 msgstr "Gruppe %(group)s"
@@ -1242,10 +1207,6 @@ msgstr ""
 #, python-format
 msgid "invalid date format %s"
 msgstr "ungültiges Datumsformat %s"
-
-#, python-format
-msgid "max hierarchy depth reached for %s branch."
-msgstr "für die %s-Niederlassung wurde die maximale Hierarchietiefe erreicht."
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
