@@ -13,7 +13,7 @@
 
 from keystone.common import sql
 from keystone.tests.unit.backend import core_sql
-from keystone.tests.unit.backend.domain_config import core
+from keystone.tests.unit.resource import test_core
 
 
 class SqlDomainConfigModels(core_sql.BaseBackendSqlModels):
@@ -33,9 +33,10 @@ class SqlDomainConfigModels(core_sql.BaseBackendSqlModels):
         self.assertExpectedSchema('sensitive_config', cols)
 
 
-class SqlDomainConfig(core_sql.BaseBackendSqlTests, core.DomainConfigTests):
+class SqlDomainConfig(core_sql.BaseBackendSqlTests,
+                      test_core.DomainConfigTests):
     def setUp(self):
         super(SqlDomainConfig, self).setUp()
-        # core.DomainConfigTests is effectively a mixin class, so make sure we
-        # call its setup
-        core.DomainConfigTests.setUp(self)
+        # test_core.DomainConfigTests is effectively a mixin class, so make
+        # sure we call its setup
+        test_core.DomainConfigTests.setUp(self)
