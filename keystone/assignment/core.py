@@ -29,7 +29,7 @@ from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _
-from keystone.i18n import _LI, _LE
+from keystone.i18n import _LI, _LE, _LW
 from keystone import notifications
 
 
@@ -49,6 +49,7 @@ MEMOIZE_COMPUTED_ASSIGNMENTS = cache.get_memoization_decorator(
     region=COMPUTED_ASSIGNMENTS_REGION)
 
 
+@notifications.listener
 @dependency.provider('assignment_api')
 @dependency.requires('credential_api', 'identity_api', 'resource_api',
                      'revoke_api', 'role_api')
@@ -98,6 +99,17 @@ class Manager(manager.Manager):
             self.driver = V9AssignmentWrapperForV8Driver(self.driver)
         elif not isinstance(self.driver, AssignmentDriverV9):
             raise exception.UnsupportedDriverVersion(driver=assignment_driver)
+
+        self.event_callbacks = {
+            notifications.ACTIONS.deleted: {
+                'domain': [self._delete_domain_assignments],
+            },
+        }
+
+    def _delete_domain_assignments(self, service, resource_type, operations,
+                                   payload):
+        domain_id = payload['resource_info']
+        self.driver.delete_domain_assignments(domain_id)
 
     def _get_group_ids_for_user_id(self, user_id):
         # TODO(morganfainberg): Implement a way to get only group_ids
@@ -1340,7 +1352,10 @@ class AssignmentDriverV9(AssignmentDriverBase):
 
     """
 
-    pass
+    @abc.abstractmethod
+    def delete_domain_assignments(self, domain_id):
+        """Deletes all assignments for a domain."""
+        raise exception.NotImplemented()
 
 
 class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
@@ -1372,6 +1387,14 @@ class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
         remove_in=+2)
     def __init__(self, wrapped_driver):
         self.driver = wrapped_driver
+
+    def delete_domain_assignments(self, domain_id):
+        """Deletes all assignments for a domain."""
+        msg = _LW('delete_domain_assignments method not found in custom '
+                  'assignment driver. Domain assignments for domain (%s) to '
+                  'users from other domains will not be removed. This was '
+                  'added in V9 of the assignment driver.')
+        LOG.warning(msg, domain_id)
 
     def default_role_driver(self):
         return self.driver.default_role_driver()
