@@ -23,12 +23,10 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
-from keystone.common.validation import validators
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
-from keystone.tests.unit import schema
-
+from keystone.tests.unit.schema import v2
 
 CONF = cfg.CONF
 
@@ -1429,26 +1427,19 @@ class TestFernetTokenProviderV2(RestfulTestCase):
 
         self.service = unit.new_service_ref()
         self.service_id = self.service['id']
-        self.catalog_api.create_service(self.service_id, self.service.copy())
+        self.catalog_api.create_service(self.service_id, self.service)
 
         self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
                                               interface='public',
                                               region_id=self.region_id)
         self.endpoint_id = self.endpoint['id']
-        self.catalog_api.create_endpoint(self.endpoint_id,
-                                         self.endpoint.copy())
+        self.catalog_api.create_endpoint(self.endpoint_id, self.endpoint)
 
     def assertValidUnscopedTokenResponse(self, r):
-        token = r.json['access']
-        validator_object = validators.SchemaValidator(
-            schema.unscoped_token_v2_schema)
-        validator_object.validate(token)
+        v2.unscoped_validator.validate(r.json['access'])
 
     def assertValidScopedTokenResponse(self, r):
-        token = r.json['access']
-        validator_object = validators.SchemaValidator(
-            schema.scoped_token_v2_schema)
-        validator_object.validate(token)
+        v2.scoped_validator.validate(r.json['access'])
 
     # Used by RestfulTestCase
     def _get_token_id(self, r):

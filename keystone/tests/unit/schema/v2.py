@@ -15,16 +15,17 @@ import copy
 
 from keystone.common import validation
 from keystone.common.validation import parameter_types
+from keystone.common.validation import validators
 
 
-_project_v2_properties = {
+_project_properties = {
     'id': parameter_types.id_string,
     'name': parameter_types.name,
     'enabled': parameter_types.boolean,
     'description': validation.nullable(parameter_types.description),
 }
 
-_token_v2_properties = {
+_token_properties = {
     'audit_ids': {
         'type': 'array',
         'items': {
@@ -38,17 +39,17 @@ _token_v2_properties = {
     'issued_at': {'type': 'string'},
     'tenant': {
         'type': 'object',
-        'properties': _project_v2_properties,
+        'properties': _project_properties,
         'required': ['id', 'name', 'enabled'],
         'additionalProperties': False,
     },
 }
 
-_role_v2_properties = {
+_role_properties = {
     'name': parameter_types.name,
 }
 
-_user_v2_properties = {
+_user_properties = {
     'id': parameter_types.id_string,
     'name': parameter_types.name,
     'username': parameter_types.name,
@@ -56,7 +57,7 @@ _user_v2_properties = {
         'type': 'array',
         'items': {
             'type': 'object',
-            'properties': _role_v2_properties,
+            'properties': _role_properties,
             'required': ['name'],
             'additionalProperties': False,
         },
@@ -67,7 +68,7 @@ _user_v2_properties = {
     },
 }
 
-_metadata_v2_properties = {
+_metadata_properties = {
     'is_admin': {'type': 'integer'},
     'roles': {
         'type': 'array',
@@ -75,7 +76,7 @@ _metadata_v2_properties = {
     },
 }
 
-_endpoint_v2_properties = {
+_endpoint_properties = {
     'id': {'type': 'string'},
     'adminURL': parameter_types.url,
     'internalURL': parameter_types.url,
@@ -83,7 +84,7 @@ _endpoint_v2_properties = {
     'region': {'type': 'string'},
 }
 
-_service_v2_properties = {
+_service_properties = {
     'type': {'type': 'string'},
     'name': parameter_types.name,
     'endpoints_links': {
@@ -95,17 +96,17 @@ _service_v2_properties = {
         'minItems': 1,
         'items': {
             'type': 'object',
-            'properties': _endpoint_v2_properties,
+            'properties': _endpoint_properties,
             'required': ['id', 'publicURL'],
             'additionalProperties': False,
         },
     },
 }
 
-_base_access_v2_properties = {
+_base_access_properties = {
     'metadata': {
         'type': 'object',
-        'properties': _metadata_v2_properties,
+        'properties': _metadata_properties,
         'required': ['is_admin', 'roles'],
         'additionalProperties': False,
     },
@@ -113,44 +114,48 @@ _base_access_v2_properties = {
         'type': 'array',
         'items': {
             'type': 'object',
-            'properties': _service_v2_properties,
+            'properties': _service_properties,
             'required': ['name', 'type', 'endpoints_links', 'endpoints'],
             'additionalProperties': False,
         },
     },
     'token': {
         'type': 'object',
-        'properties': _token_v2_properties,
+        'properties': _token_properties,
         'required': ['audit_ids', 'id', 'expires', 'issued_at'],
         'additionalProperties': False,
     },
     'user': {
         'type': 'object',
-        'properties': _user_v2_properties,
+        'properties': _user_properties,
         'required': ['id', 'name', 'username', 'roles', 'roles_links'],
         'additionalProperties': False,
     },
 }
 
-_unscoped_access_v2_properties = copy.deepcopy(_base_access_v2_properties)
-unscoped_metadata = _unscoped_access_v2_properties['metadata']
+_unscoped_access_properties = copy.deepcopy(_base_access_properties)
+unscoped_metadata = _unscoped_access_properties['metadata']
 unscoped_metadata['properties']['roles']['maxItems'] = 0
-_unscoped_access_v2_properties['user']['properties']['roles']['maxItems'] = 0
-_unscoped_access_v2_properties['serviceCatalog']['maxItems'] = 0
+_unscoped_access_properties['user']['properties']['roles']['maxItems'] = 0
+_unscoped_access_properties['serviceCatalog']['maxItems'] = 0
 
-_scoped_access_v2_properties = copy.deepcopy(_base_access_v2_properties)
-_scoped_access_v2_properties['metadata']['properties']['roles']['minItems'] = 1
-_scoped_access_v2_properties['serviceCatalog']['minItems'] = 1
-_scoped_access_v2_properties['user']['properties']['roles']['minItems'] = 1
+_scoped_access_properties = copy.deepcopy(_base_access_properties)
+_scoped_access_properties['metadata']['properties']['roles']['minItems'] = 1
+_scoped_access_properties['serviceCatalog']['minItems'] = 1
+_scoped_access_properties['user']['properties']['roles']['minItems'] = 1
 
-base_token_v2_schema = {
+base_token_schema = {
     'type': 'object',
     'required': ['metadata', 'user', 'serviceCatalog', 'token'],
     'additionalProperties': False,
 }
 
-unscoped_token_v2_schema = copy.deepcopy(base_token_v2_schema)
-unscoped_token_v2_schema['properties'] = _unscoped_access_v2_properties
+unscoped_token_schema = copy.deepcopy(base_token_schema)
+unscoped_token_schema['properties'] = _unscoped_access_properties
 
-scoped_token_v2_schema = copy.deepcopy(base_token_v2_schema)
-scoped_token_v2_schema['properties'] = _scoped_access_v2_properties
+scoped_token_schema = copy.deepcopy(base_token_schema)
+scoped_token_schema['properties'] = _scoped_access_properties
+
+# Validator objects
+unscoped_validator = validators.SchemaValidator(unscoped_token_schema)
+scoped_validator = validators.SchemaValidator(scoped_token_schema)
