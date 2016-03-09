@@ -4637,6 +4637,16 @@ class TestTrustAuthPKITokenProvider(TrustAPIBehavior, TestTrustChain):
                                    enabled=True)
 
 
+class TestTrustAuthPKIZTokenProvider(TrustAPIBehavior, TestTrustChain):
+    def config_overrides(self):
+        super(TestTrustAuthPKIZTokenProvider, self).config_overrides()
+        self.config_fixture.config(group='token',
+                                   provider='pkiz',
+                                   revoke_by_id=False)
+        self.config_fixture.config(group='trust',
+                                   enabled=True)
+
+
 class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
     def config_overrides(self):
         super(TestTrustAuthFernetTokenProvider, self).config_overrides()
