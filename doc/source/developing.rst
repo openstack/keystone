@@ -71,7 +71,7 @@ place:
 
 .. code-block:: bash
 
-    $ bin/keystone-manage db_sync
+    $ keystone-manage db_sync
 
 .. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
 .. _`openstackclient`: https://git.openstack.org/cgit/openstack/python-openstackclient
