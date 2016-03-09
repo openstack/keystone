@@ -95,48 +95,36 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
                           self.resource_api.ensure_default_domain_exists)
 
 
-class DomainConfigTests(object):
-
-    def setUp(self):
-        self.domain = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domain['id'], self.domain)
-        self.addCleanup(self.clean_up_domain)
-
-    def clean_up_domain(self):
-        # NOTE(henry-nash): Deleting the domain will also delete any domain
-        # configs for this domain.
-        self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
-        self.resource_api.delete_domain(self.domain['id'])
-        del self.domain
+class DomainConfigDriverTests(object):
 
     def _domain_config_crud(self, sensitive):
+        domain = uuid.uuid4().hex
         group = uuid.uuid4().hex
         option = uuid.uuid4().hex
         value = uuid.uuid4().hex
-        self.domain_config_api.create_config_option(
-            self.domain['id'], group, option, value, sensitive)
-        res = self.domain_config_api.get_config_option(
-            self.domain['id'], group, option, sensitive)
+        self.driver.create_config_option(
+            domain, group, option, value, sensitive)
+        res = self.driver.get_config_option(
+            domain, group, option, sensitive)
         config = {'group': group, 'option': option, 'value': value}
         self.assertEqual(config, res)
 
         value = uuid.uuid4().hex
-        self.domain_config_api.update_config_option(
-            self.domain['id'], group, option, value, sensitive)
-        res = self.domain_config_api.get_config_option(
-            self.domain['id'], group, option, sensitive)
+        self.driver.update_config_option(
+            domain, group, option, value, sensitive)
+        res = self.driver.get_config_option(
+            domain, group, option, sensitive)
         config = {'group': group, 'option': option, 'value': value}
         self.assertEqual(config, res)
 
-        self.domain_config_api.delete_config_options(
-            self.domain['id'], group, option, sensitive)
+        self.driver.delete_config_options(
+            domain, group, option, sensitive)
         self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.get_config_option,
-                          self.domain['id'], group, option, sensitive)
+                          self.driver.get_config_option,
+                          domain, group, option, sensitive)
         # ...and silent if we try to delete it again
-        self.domain_config_api.delete_config_options(
-            self.domain['id'], group, option, sensitive)
+        self.driver.delete_config_options(
+            domain, group, option, sensitive)
 
     def test_whitelisted_domain_config_crud(self):
         self._domain_config_crud(sensitive=False)
@@ -153,28 +141,30 @@ class DomainConfigTests(object):
                    'value': uuid.uuid4().hex}
         config3 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                    'value': 100}
+        domain = uuid.uuid4().hex
+
         for config in [config1, config2, config3]:
-            self.domain_config_api.create_config_option(
-                self.domain['id'], config['group'], config['option'],
+            self.driver.create_config_option(
+                domain, config['group'], config['option'],
                 config['value'], sensitive)
 
         # Try listing all items from a domain
-        res = self.domain_config_api.list_config_options(
-            self.domain['id'], sensitive=sensitive)
+        res = self.driver.list_config_options(
+            domain, sensitive=sensitive)
         self.assertThat(res, matchers.HasLength(3))
         for res_entry in res:
             self.assertIn(res_entry, [config1, config2, config3])
 
         # Try listing by domain and group
-        res = self.domain_config_api.list_config_options(
-            self.domain['id'], group=config1['group'], sensitive=sensitive)
+        res = self.driver.list_config_options(
+            domain, group=config1['group'], sensitive=sensitive)
         self.assertThat(res, matchers.HasLength(2))
         for res_entry in res:
             self.assertIn(res_entry, [config1, config2])
 
         # Try listing by domain, group and option
-        res = self.domain_config_api.list_config_options(
-            self.domain['id'], group=config2['group'],
+        res = self.driver.list_config_options(
+            domain, group=config2['group'],
             option=config2['option'], sensitive=sensitive)
         self.assertThat(res, matchers.HasLength(1))
         self.assertEqual(config2, res[0])
@@ -196,35 +186,37 @@ class DomainConfigTests(object):
                    'value': uuid.uuid4().hex}
         config4 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                    'value': uuid.uuid4().hex}
+        domain = uuid.uuid4().hex
+
         for config in [config1, config2, config3, config4]:
-            self.domain_config_api.create_config_option(
-                self.domain['id'], config['group'], config['option'],
+            self.driver.create_config_option(
+                domain, config['group'], config['option'],
                 config['value'], sensitive)
 
         # Try deleting by domain, group and option
-        res = self.domain_config_api.delete_config_options(
-            self.domain['id'], group=config2['group'],
+        res = self.driver.delete_config_options(
+            domain, group=config2['group'],
             option=config2['option'], sensitive=sensitive)
-        res = self.domain_config_api.list_config_options(
-            self.domain['id'], sensitive=sensitive)
+        res = self.driver.list_config_options(
+            domain, sensitive=sensitive)
         self.assertThat(res, matchers.HasLength(3))
         for res_entry in res:
             self.assertIn(res_entry, [config1, config3, config4])
 
         # Try deleting by domain and group
-        res = self.domain_config_api.delete_config_options(
-            self.domain['id'], group=config4['group'], sensitive=sensitive)
-        res = self.domain_config_api.list_config_options(
-            self.domain['id'], sensitive=sensitive)
+        res = self.driver.delete_config_options(
+            domain, group=config4['group'], sensitive=sensitive)
+        res = self.driver.list_config_options(
+            domain, sensitive=sensitive)
         self.assertThat(res, matchers.HasLength(2))
         for res_entry in res:
             self.assertIn(res_entry, [config1, config3])
 
         # Try deleting all items from a domain
-        res = self.domain_config_api.delete_config_options(
-            self.domain['id'], sensitive=sensitive)
-        res = self.domain_config_api.list_config_options(
-            self.domain['id'], sensitive=sensitive)
+        res = self.driver.delete_config_options(
+            domain, sensitive=sensitive)
+        res = self.driver.list_config_options(
+            domain, sensitive=sensitive)
         self.assertThat(res, matchers.HasLength(0))
 
     def test_delete_whitelisted_domain_configs(self):
@@ -237,13 +229,14 @@ class DomainConfigTests(object):
         """Test conflict error thrown if create the same option twice."""
         config = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
                   'value': uuid.uuid4().hex}
+        domain = uuid.uuid4().hex
 
-        self.domain_config_api.create_config_option(
-            self.domain['id'], config['group'], config['option'],
+        self.driver.create_config_option(
+            domain, config['group'], config['option'],
             config['value'], sensitive=sensitive)
         self.assertRaises(exception.Conflict,
-                          self.domain_config_api.create_config_option,
-                          self.domain['id'], config['group'], config['option'],
+                          self.driver.create_config_option,
+                          domain, config['group'], config['option'],
                           config['value'], sensitive=sensitive)
 
     def test_create_whitelisted_domain_config_twice(self):
@@ -252,40 +245,21 @@ class DomainConfigTests(object):
     def test_create_sensitive_domain_config_twice(self):
         self._create_domain_config_twice(True)
 
-    def test_delete_domain_deletes_configs(self):
-        """Test domain deletion clears the domain configs."""
-        domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        config1 = {'group': uuid.uuid4().hex, 'option': uuid.uuid4().hex,
-                   'value': uuid.uuid4().hex}
-        # Put config2 in the same group as config1
-        config2 = {'group': config1['group'], 'option': uuid.uuid4().hex,
-                   'value': uuid.uuid4().hex}
-        self.domain_config_api.create_config_option(
-            domain['id'], config1['group'], config1['option'],
-            config1['value'])
-        self.domain_config_api.create_config_option(
-            domain['id'], config2['group'], config2['option'],
-            config2['value'], sensitive=True)
-        res = self.domain_config_api.list_config_options(
-            domain['id'])
-        self.assertThat(res, matchers.HasLength(1))
-        res = self.domain_config_api.list_config_options(
-            domain['id'], sensitive=True)
-        self.assertThat(res, matchers.HasLength(1))
 
-        # Now delete the domain
-        domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
-        self.resource_api.delete_domain(domain['id'])
+class DomainConfigTests(object):
 
-        # Check domain configs have also been deleted
-        res = self.domain_config_api.list_config_options(
-            domain['id'])
-        self.assertThat(res, matchers.HasLength(0))
-        res = self.domain_config_api.list_config_options(
-            domain['id'], sensitive=True)
-        self.assertThat(res, matchers.HasLength(0))
+    def setUp(self):
+        self.domain = unit.new_domain_ref()
+        self.resource_api.create_domain(self.domain['id'], self.domain)
+        self.addCleanup(self.clean_up_domain)
+
+    def clean_up_domain(self):
+        # NOTE(henry-nash): Deleting the domain will also delete any domain
+        # configs for this domain.
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+        self.resource_api.delete_domain(self.domain['id'])
+        del self.domain
 
     def test_create_domain_config_including_sensitive_option(self):
         config = {'ldap': {'url': uuid.uuid4().hex,
@@ -299,7 +273,7 @@ class DomainConfigTests(object):
         config_whitelisted = copy.deepcopy(config)
         config_whitelisted['ldap'].pop('password')
         self.assertEqual(config_whitelisted, res)
-        res = self.domain_config_api.get_config_option(
+        res = self.domain_config_api.driver.get_config_option(
             self.domain['id'], 'ldap', 'password', sensitive=True)
         self.assertEqual(config['ldap']['password'], res['value'])
 
@@ -618,6 +592,33 @@ class DomainConfigTests(object):
             {},
             self.domain_config_api.get_config_with_sensitive_info(
                 self.domain['id']))
+
+    def test_delete_domain_deletes_configs(self):
+        """Test domain deletion clears the domain configs."""
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        config = {'ldap': {'url': uuid.uuid4().hex,
+                           'user_tree_dn': uuid.uuid4().hex,
+                           'password': uuid.uuid4().hex}}
+        self.domain_config_api.create_config(domain['id'], config)
+
+        # Now delete the domain
+        domain['enabled'] = False
+        self.resource_api.update_domain(domain['id'], domain)
+        self.resource_api.delete_domain(domain['id'])
+
+        # Check domain configs have also been deleted
+        self.assertRaises(
+            exception.DomainConfigNotFound,
+            self.domain_config_api.get_config,
+            domain['id'])
+
+        # The get_config_with_sensitive_info does not throw an exception if
+        # the config is empty, it just returns an empty dict
+        self.assertDictEqual(
+            {},
+            self.domain_config_api.get_config_with_sensitive_info(
+                domain['id']))
 
     def test_config_registration(self):
         type = uuid.uuid4().hex
