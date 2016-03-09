@@ -109,7 +109,8 @@ class Audit(object):
     """
 
     @classmethod
-    def _emit(cls, operation, resource_type, resource_id, initiator, public):
+    def _emit(cls, operation, resource_type, resource_id, initiator, public,
+              actor_dict=None):
         """Directly send an event notification.
 
         :param operation: one of the values from ACTIONS
@@ -120,6 +121,8 @@ class Audit(object):
         :param public: If True (default), the event will be sent to the
                        notifier API.  If False, the event will only be sent via
                        notify_event_callbacks to in process listeners
+        :param actor_dict: dictionary of actor information in the event of
+                           assignment notification
         """
         # NOTE(stevemar): the _send_notification function is
         # overloaded, it's used to register callbacks and to actually
@@ -130,6 +133,7 @@ class Audit(object):
             operation,
             resource_type,
             resource_id,
+            actor_dict,
             public=public)
 
         if CONF.notification_format == 'cadf' and public:
@@ -160,6 +164,24 @@ class Audit(object):
                 public=True):
         cls._emit(ACTIONS.deleted, resource_type, resource_id, initiator,
                   public)
+
+    @classmethod
+    def added_to(cls, target_type, target_id, actor_type, actor_id,
+                 initiator=None, public=True):
+        actor_dict = {'id': actor_id,
+                      'type': actor_type,
+                      'actor_operation': 'added'}
+        cls._emit(ACTIONS.updated, target_type, target_id, initiator, public,
+                  actor_dict=actor_dict)
+
+    @classmethod
+    def removed_from(cls, target_type, target_id, actor_type, actor_id,
+                     initiator=None, public=True):
+        actor_dict = {'id': actor_id,
+                      'type': actor_type,
+                      'actor_operation': 'removed'}
+        cls._emit(ACTIONS.updated, target_type, target_id, initiator, public,
+                  actor_dict=actor_dict)
 
 
 class ManagerNotificationWrapper(object):
@@ -430,7 +452,8 @@ def _create_cadf_payload(operation, resource_type, resource_id,
                              target, event_type, **audit_kwargs)
 
 
-def _send_notification(operation, resource_type, resource_id, public=True):
+def _send_notification(operation, resource_type, resource_id, actor_dict=None,
+                       public=True):
     """Send notification to inform observers about the affected resource.
 
     This method doesn't raise an exception when sending the notification fails.
@@ -438,12 +461,18 @@ def _send_notification(operation, resource_type, resource_id, public=True):
     :param operation: operation being performed (created, updated, or deleted)
     :param resource_type: type of resource being operated on
     :param resource_id: ID of resource being operated on
+    :param actor_dict: a dictionary containing the actor's ID and type
     :param public:  if True (default), the event will be sent
                     to the notifier API.
                     if False, the event will only be sent via
                     notify_event_callbacks to in process listeners.
     """
     payload = {'resource_info': resource_id}
+
+    if actor_dict:
+        payload['actor_id'] = actor_dict['id']
+        payload['actor_type'] = actor_dict['type']
+        payload['actor_operation'] = actor_dict['actor_operation']
 
     notify_event_callbacks(SERVICE, resource_type, operation, payload)
 
