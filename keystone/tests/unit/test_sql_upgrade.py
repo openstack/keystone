@@ -985,6 +985,22 @@ class SqlUpgradeTests(SqlMigrateBase):
                                  'unique_id',
                                  'display_name'])
 
+    def test_add_int_pkey_to_revocation_event_table(self):
+        meta = sqlalchemy.MetaData()
+        meta.bind = self.engine
+        REVOCATION_EVENT_TABLE_NAME = 'revocation_event'
+        self.upgrade(94)
+        revocation_event_table = sqlalchemy.Table(REVOCATION_EVENT_TABLE_NAME,
+                                                  meta, autoload=True)
+        # assert id column is a string (before)
+        self.assertEqual('VARCHAR(64)', str(revocation_event_table.c.id.type))
+        self.upgrade(95)
+        meta.clear()
+        revocation_event_table = sqlalchemy.Table(REVOCATION_EVENT_TABLE_NAME,
+                                                  meta, autoload=True)
+        # assert id column is an integer (after)
+        self.assertEqual('INTEGER', str(revocation_event_table.c.id.type))
+
 
 class VersionTests(SqlMigrateBase):
 
