@@ -255,7 +255,8 @@ class UserV3(controller.V3Controller):
 
     @controller.protected(callback=_check_user_and_group_protection)
     def add_user_to_group(self, context, user_id, group_id):
-        self.identity_api.add_user_to_group(user_id, group_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.identity_api.add_user_to_group(user_id, group_id, initiator)
 
     @controller.protected(callback=_check_user_and_group_protection)
     def check_user_in_group(self, context, user_id, group_id):
@@ -263,7 +264,8 @@ class UserV3(controller.V3Controller):
 
     @controller.protected(callback=_check_user_and_group_protection)
     def remove_user_from_group(self, context, user_id, group_id):
-        self.identity_api.remove_user_from_group(user_id, group_id)
+        initiator = notifications._get_request_audit_info(context)
+        self.identity_api.remove_user_from_group(user_id, group_id, initiator)
 
     @controller.protected()
     def delete_user(self, context, user_id):

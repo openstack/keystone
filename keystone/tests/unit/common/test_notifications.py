@@ -644,6 +644,28 @@ class NotificationsForEntities(BaseNotificationTest):
         # No audit event should have occurred
         self.assertEqual(0, len(self._audits))
 
+    def test_add_user_to_group(self):
+        user_ref = unit.new_user_ref(domain_id=self.domain_id)
+        user_ref = self.identity_api.create_user(user_ref)
+        group_ref = unit.new_group_ref(domain_id=self.domain_id)
+        group_ref = self.identity_api.create_group(group_ref)
+        self.identity_api.add_user_to_group(user_ref['id'], group_ref['id'])
+        self._assert_last_note(group_ref['id'], UPDATED_OPERATION, 'group',
+                               actor_id=user_ref['id'], actor_type='user',
+                               actor_operation='added')
+
+    def test_remove_user_from_group(self):
+        user_ref = unit.new_user_ref(domain_id=self.domain_id)
+        user_ref = self.identity_api.create_user(user_ref)
+        group_ref = unit.new_group_ref(domain_id=self.domain_id)
+        group_ref = self.identity_api.create_group(group_ref)
+        self.identity_api.add_user_to_group(user_ref['id'], group_ref['id'])
+        self.identity_api.remove_user_from_group(user_ref['id'],
+                                                 group_ref['id'])
+        self._assert_last_note(group_ref['id'], UPDATED_OPERATION, 'group',
+                               actor_id=user_ref['id'], actor_type='user',
+                               actor_operation='removed')
+
 
 class CADFNotificationsForEntities(NotificationsForEntities):
 
