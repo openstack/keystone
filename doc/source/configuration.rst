@@ -653,7 +653,6 @@ For more information about the different backends (and configuration options):
 .. _`dogpile.cache.backends.redis`: http://dogpilecache.readthedocs.org/en/latest/api.html#redis-backends
 .. _`dogpile.cache.backends.file`: http://dogpilecache.readthedocs.org/en/latest/api.html#file-backends
 .. _`ProxyBackends`: http://dogpilecache.readthedocs.org/en/latest/api.html#proxy-backends
-.. _`PyMongo API`: http://api.mongodb.org/python/current/api/pymongo/index.html
 
 
 Certificates for PKI
@@ -932,13 +931,13 @@ Logging
 -------
 
 Logging is configured externally to the rest of Keystone. Configure the path to
-your logging configuration file using the ``[DEFAULT] log_config`` option of
-``keystone.conf``. If you wish to route all your logging through syslog, set
-the ``[DEFAULT] use_syslog`` option.
+your logging configuration file using the ``[DEFAULT] log_config_append``
+option of ``keystone.conf``. If you wish to route all your logging through
+syslog, set the ``[DEFAULT] use_syslog`` option.
 
-A sample ``log_config`` file is included with the project at
+A sample ``log_config_append`` file is included with the project at
 ``etc/logging.conf.sample``. Like other OpenStack projects, Keystone uses the
-`Python logging module`, which includes extensive configuration options for
+`Python logging module`_, which includes extensive configuration options for
 choosing the output levels and formats.
 
 .. _Paste: http://pythonpaste.org/
@@ -1222,11 +1221,11 @@ status code will still be 200 (OK), but the ``truncated`` attribute in the
 collection will be set to ``true``.
 
 
-Url safe naming of projects and domains
+URL safe naming of projects and domains
 ---------------------------------------
 
 In the future, keystone may offer the ability to identify a project in a
-hierarchy via a url style of naming from the root of the hierarchy (for example
+hierarchy via a URL style of naming from the root of the hierarchy (for example
 specifying 'projectA/projectB/projectC' as the project name in an
 authentication request). In order to prepare for this, keystone supports the
 optional ability to ensure both projects and domains are named without
@@ -1242,7 +1241,7 @@ configuration options:
     project_name_url_safe = off
     domain_name_url_safe = off
 
-When set to ``off`` (which is the default), no checking is done on the url
+When set to ``off`` (which is the default), no checking is done on the URL
 safeness of names. When set to ``new``, an attempt to create a new project or
 domain with an unsafe name (or update the name of a project or domain to be
 unsafe) will cause a status code of 400 (Bad Request) to be returned. Setting
@@ -1264,6 +1263,7 @@ files for each Server application.
 * ``etc/keystone-paste.ini``
 * ``etc/logging.conf.sample``
 * ``etc/default_catalog.templates``
+* ``etc/sso_callback_template.html``
 
 .. _`API protection with RBAC`:
 
