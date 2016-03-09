@@ -943,8 +943,8 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         # just need to make sure the non fraction part agrees
         self.assertIn(v2_token['access']['token']['expires'][:-1],
                       token_data['token']['expires_at'])
-        self.assertEqual(v2_token['access']['user']['roles'][0]['id'],
-                         token_data['token']['roles'][0]['id'])
+        self.assertEqual(v2_token['access']['user']['roles'][0]['name'],
+                         token_data['token']['roles'][0]['name'])
 
 
 class TestPKIZTokenAPIs(TestPKITokenAPIs):
