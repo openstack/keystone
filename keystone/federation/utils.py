@@ -29,6 +29,13 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
+class UserType(object):
+    """User mapping type."""
+
+    EPHEMERAL = 'ephemeral'
+    LOCAL = 'local'
+
+
 MAPPING_SCHEMA = {
     "type": "object",
     "required": ['rules'],
@@ -60,6 +67,11 @@ MAPPING_SCHEMA = {
                                                 "name": {"type": "string"}
                                             },
                                             "additionalProperties": False,
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "enum": [UserType.EPHEMERAL,
+                                                     UserType.LOCAL]
                                         }
                                     },
                                     "additionalProperties": False
@@ -410,13 +422,6 @@ def get_assertion_params_from_env(context):
         if not isinstance(v, six.text_type) and getattr(v, 'decode', False):
             v = v.decode('ISO-8859-1')
         yield (k, v)
-
-
-class UserType(object):
-    """User mapping type."""
-
-    EPHEMERAL = 'ephemeral'
-    LOCAL = 'local'
 
 
 class RuleProcessor(object):
