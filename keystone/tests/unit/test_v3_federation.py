@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import os
 import random
 from testtools import matchers
@@ -1530,6 +1531,35 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
         mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_AND_BLACKLIST
         self.put(url, expected_status=http_client.BAD_REQUEST,
                  body={'mapping': mapping})
+
+    def test_create_mapping_with_local_user_and_local_domain(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        resp = self.put(
+            url,
+            body={
+                'mapping': mapping_fixtures.MAPPING_LOCAL_USER_LOCAL_DOMAIN
+            },
+            expected_status=http_client.CREATED)
+        self.assertValidMappingResponse(
+            resp, mapping_fixtures.MAPPING_LOCAL_USER_LOCAL_DOMAIN)
+
+    def test_create_mapping_with_ephemeral(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        resp = self.put(
+            url,
+            body={'mapping': mapping_fixtures.MAPPING_EPHEMERAL_USER},
+            expected_status=http_client.CREATED)
+        self.assertValidMappingResponse(
+            resp, mapping_fixtures.MAPPING_EPHEMERAL_USER)
+
+    def test_create_mapping_with_bad_user_type(self):
+        url = self.MAPPING_URL + uuid.uuid4().hex
+        # get a copy of a known good map
+        bad_mapping = copy.deepcopy(mapping_fixtures.MAPPING_EPHEMERAL_USER)
+        # now sabotage the user type
+        bad_mapping['rules'][0]['local'][0]['user']['type'] = uuid.uuid4().hex
+        self.put(url, expected_status=http_client.BAD_REQUEST,
+                 body={'mapping': bad_mapping})
 
 
 class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
