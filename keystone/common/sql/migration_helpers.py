@@ -26,7 +26,6 @@ import six
 import sqlalchemy
 
 from keystone.common import sql
-from keystone.common.sql import migrate_repo
 from keystone import contrib
 from keystone import exception
 from keystone.i18n import _
@@ -129,12 +128,34 @@ def find_migrate_repo(package=None, repo_name='migrate_repo'):
 
 def _sync_common_repo(version):
     abs_path = find_migrate_repo()
-    init_version = migrate_repo.DB_INIT_VERSION
+    init_version = get_init_version()
     with sql.session_for_write() as session:
         engine = session.get_bind()
         _assert_not_schema_downgrade(version=version)
         migration.db_sync(engine, abs_path, version=version,
                           init_version=init_version, sanity_check=False)
+
+
+def get_init_version(abs_path=None):
+    """Get the initial version of a migrate repository
+
+    :param abs_path: Absolute path to migrate repository.
+    :return:         initial version number or None, if DB is empty.
+    """
+    if abs_path is None:
+        abs_path = find_migrate_repo()
+
+    repo = migrate.versioning.repository.Repository(abs_path)
+
+    # Sadly, Repository has a `latest` but not an `oldest`.
+    # The value is a VerNum object which needs to be converted into an int.
+    oldest = int(min(repo.versions.versions))
+
+    if oldest < 1:
+        return None
+
+    # The initial version is one less
+    return oldest - 1
 
 
 def _assert_not_schema_downgrade(extension=None, version=None):
@@ -154,7 +175,6 @@ def _sync_extension_repo(extension, version):
     if extension in MIGRATED_EXTENSIONS:
         raise exception.MigrationMovedFailure(extension=extension)
 
-    init_version = 0
     with sql.session_for_write() as session:
         engine = session.get_bind()
 
@@ -179,6 +199,8 @@ def _sync_extension_repo(extension, version):
 
         _assert_not_schema_downgrade(extension=extension, version=version)
 
+        init_version = get_init_version(abs_path=abs_path)
+
         migration.db_sync(engine, abs_path, version=version,
                           init_version=init_version, sanity_check=False)
 
@@ -200,7 +222,7 @@ def get_db_version(extension=None):
         with sql.session_for_write() as session:
             return migration.db_version(session.get_bind(),
                                         find_migrate_repo(),
-                                        migrate_repo.DB_INIT_VERSION)
+                                        get_init_version())
 
     try:
         package_name = '.'.join((contrib.__name__, extension))
