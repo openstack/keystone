@@ -100,3 +100,9 @@ class ServiceProviderTestsV8(
     def config_overrides(self):
         super(ServiceProviderTestsV8, self).config_overrides()
         self.useV8driver()
+
+    def test_filter_list_sp_by_id(self):
+        self.skipTest('Operation not supported in v8 and earlier drivers')
+
+    def test_filter_list_sp_by_enabled(self):
+        self.skipTest('Operation not supported in v8 and earlier drivers')

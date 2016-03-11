@@ -376,16 +376,6 @@ class FederationDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_sps(self):
-        """List all service providers.
-
-        :returns: List of service provider ref objects
-        :rtype: list of dicts
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def get_sp(self, sp_id):
         """Get a service provider.
 
@@ -459,6 +449,16 @@ class FederationDriverV8(FederationDriverBase):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
+    @abc.abstractmethod
+    def list_sps(self):
+        """List all service providers.
+
+        :returns: List of service provider ref objects
+        :rtype: list of dicts
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
 
 class FederationDriverV9(FederationDriverBase):
     """New or redefined methods from V8.
@@ -478,6 +478,21 @@ class FederationDriverV9(FederationDriverBase):
         :rtype: list of dicts
 
         :raises keystone.exception.IdentityProviderNotFound: If the IdP
+            doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_sps(self, hints):
+        """List all service providers.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+        :returns: List of service provider ref objects
+        :rtype: list of dicts
+
+        :raises keystone.exception.ServiceProviderNotFound: If the SP
             doesn't exist.
 
         """
@@ -576,7 +591,11 @@ class V9FederationWrapperForV8Driver(FederationDriverV9):
     def delete_sp(self, sp_id):
         self.driver.delete_sp(sp_id)
 
-    def list_sps(self):
+    # NOTE(davechen): The hints is ignored here to support legacy drivers,
+    # but the filters in hints will be remain unsatisfied and V3Controller
+    # wrapper will apply these filters at the end. So that the result get
+    # returned for list SPs will still be filtered with the legacy drivers.
+    def list_sps(self, hints):
         return self.driver.list_sps()
 
     def get_sp(self, sp_id):

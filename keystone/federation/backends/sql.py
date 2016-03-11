@@ -358,9 +358,10 @@ class Federation(core.FederationDriverV9):
             raise exception.ServiceProviderNotFound(sp_id=sp_id)
         return sp_ref
 
-    def list_sps(self):
+    def list_sps(self, hints=None):
         with sql.session_for_read() as session:
-            sps = session.query(ServiceProviderModel)
+            query = session.query(ServiceProviderModel)
+            sps = sql.filter_limit_query(ServiceProviderModel, query, hints)
             sps_list = [sp.to_dict() for sp in sps]
             return sps_list
 
