@@ -34,6 +34,7 @@ oslo_i18n.enable_lazy()
 
 from keystone.common import config
 from keystone.common import environment
+from keystone.common import profiler
 from keystone.common import utils
 from keystone.i18n import _
 from keystone.server import common
@@ -65,6 +66,7 @@ def create_server(conf, name, host, port, workers):
     server = environment.Server(app, host=host, port=port,
                                 keepalive=CONF.eventlet_server.tcp_keepalive,
                                 keepidle=CONF.eventlet_server.tcp_keepidle)
+    profiler.setup(name, host)
     if CONF.eventlet_server_ssl.enable:
         server.set_ssl(CONF.eventlet_server_ssl.certfile,
                        CONF.eventlet_server_ssl.keyfile,
