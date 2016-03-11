@@ -152,6 +152,13 @@ class TokenAPITests(object):
             domain_id=self.domain_id)
         return self._make_auth_request(auth_data)
 
+    def _get_project_scoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project_id)
+        return self._make_auth_request(auth_data)
+
     def _validate_token(self, token, expected_status=http_client.OK):
         return self.get(
             '/auth/tokens',
@@ -303,6 +310,52 @@ class TokenAPITests(object):
         self.assertRaises(exception.Unauthorized,
                           self.token_provider_api.validate_v2_token,
                           scoped_token)
+
+    def test_validate_project_scoped_token(self):
+        project_scoped_token = self._get_project_scoped_token()
+        self._validate_token(project_scoped_token)
+
+    def test_revoke_project_scoped_token(self):
+        project_scoped_token = self._get_project_scoped_token()
+        self._validate_token(project_scoped_token)
+        self._revoke_token(project_scoped_token)
+        self._validate_token(project_scoped_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_project_scoped_token_is_invalid_after_disabling_user(self):
+        project_scoped_token = self._get_project_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(project_scoped_token)
+        # Disable the user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
+
+    def test_project_scoped_token_invalid_after_changing_user_password(self):
+        project_scoped_token = self._get_project_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(project_scoped_token)
+        # Update user's password
+        self.user['password'] = 'Password1'
+        self.identity_api.update_user(self.user['id'], self.user)
+        # Ensure updating user's password revokes existing tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
+
+    def test_project_scoped_token_invalid_after_disabling_project(self):
+        project_scoped_token = self._get_project_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(project_scoped_token)
+        # Disable project
+        self.project['enabled'] = False
+        self.resource_api.update_project(self.project['id'], self.project)
+        # Ensure validating a token for a disabled project fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
 
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
@@ -4527,58 +4580,12 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         self._validate_token(tampered_token,
                              expected_status=http_client.NOT_FOUND)
 
-    def test_validate_project_scoped_token(self):
-        project_scoped_token = self._get_project_scoped_token()
-        self._validate_token(project_scoped_token)
-
     def test_validate_tampered_project_scoped_token_fails(self):
         project_scoped_token = self._get_project_scoped_token()
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
         self._validate_token(tampered_token,
                              expected_status=http_client.NOT_FOUND)
-
-    def test_revoke_project_scoped_token(self):
-        project_scoped_token = self._get_project_scoped_token()
-        self._validate_token(project_scoped_token)
-        self._revoke_token(project_scoped_token)
-        self._validate_token(project_scoped_token,
-                             expected_status=http_client.NOT_FOUND)
-
-    def test_project_scoped_token_is_invalid_after_disabling_user(self):
-        project_scoped_token = self._get_project_scoped_token()
-        # Make sure the token is valid
-        self._validate_token(project_scoped_token)
-        # Disable the user
-        self._set_user_enabled(self.user, enabled=False)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
-
-    def test_project_scoped_token_invalid_after_changing_user_password(self):
-        project_scoped_token = self._get_project_scoped_token()
-        # Make sure the token is valid
-        self._validate_token(project_scoped_token)
-        # Update user's password
-        self.user['password'] = 'Password1'
-        self.identity_api.update_user(self.user['id'], self.user)
-        # Ensure updating user's password revokes existing tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
-
-    def test_project_scoped_token_invalid_after_disabling_project(self):
-        project_scoped_token = self._get_project_scoped_token()
-        # Make sure the token is valid
-        self._validate_token(project_scoped_token)
-        # Disable project
-        self.project['enabled'] = False
-        self.resource_api.update_project(self.project['id'], self.project)
-        # Ensure validating a token for a disabled project fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
 
     def test_rescope_unscoped_token_with_trust(self):
         trustee_user, trust = self._create_trust()
