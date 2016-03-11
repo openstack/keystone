@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev83\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-08 06:03+0000\n"
+"POT-Creation-Date: 2016-03-11 06:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,14 @@ msgstr ""
 
 #: keystone/exception.py:66
 msgid "missing exception kwargs (programmer error)"
+msgstr ""
+
+#: keystone/assignment/core.py:1393
+#, python-format
+msgid ""
+"delete_domain_assignments method not found in custom assignment driver. "
+"Domain assignments for domain (%s) to users from other domains will not "
+"be removed. This was added in V9 of the assignment driver."
 msgstr ""
 
 #: keystone/auth/controllers.py:468
@@ -162,7 +170,7 @@ msgid ""
 "%(endpoint_id)s not found."
 msgstr ""
 
-#: keystone/federation/utils.py:601
+#: keystone/federation/utils.py:606
 msgid "Ignoring user name"
 msgstr ""
 
@@ -176,17 +184,17 @@ msgstr ""
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr ""
 
-#: keystone/identity/core.py:129
+#: keystone/identity/core.py:131
 #, python-format
 msgid "Invalid domain name (%s) found in config file name"
 msgstr ""
 
-#: keystone/identity/core.py:167
+#: keystone/identity/core.py:169
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr ""
 
-#: keystone/identity/core.py:683
+#: keystone/identity/core.py:691
 #, python-format
 msgid ""
 "Found multiple domains being mapped to a driver that does not support "
@@ -216,7 +224,7 @@ msgid ""
 "[pipeline:public_api] sections of your paste ini file."
 msgstr ""
 
-#: keystone/resource/core.py:904
+#: keystone/resource/core.py:899
 msgid ""
 "The default domain was created automatically to contain V2 resources. "
 "This is deprecated in the M release and will not be supported in the O "
@@ -224,7 +232,7 @@ msgid ""
 "bootstrap command."
 msgstr ""
 
-#: keystone/resource/core.py:1885
+#: keystone/resource/core.py:1948
 #, python-format
 msgid ""
 "Found what looks like an unmatched config option substitution reference -"
@@ -233,7 +241,7 @@ msgid ""
 "added?"
 msgstr ""
 
-#: keystone/resource/core.py:1892
+#: keystone/resource/core.py:1955
 #, python-format
 msgid ""
 "Found what looks like an incorrectly constructed config option "
