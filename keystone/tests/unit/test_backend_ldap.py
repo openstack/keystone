@@ -2212,8 +2212,13 @@ class LDAPPosixGroupsTest(unit.TestCase):
         conn = group_api.get_connection()
         conn.modify_s(group_ref['dn'], [mod])
 
+        # Testing the case "the group contains a user"
         user_refs = self.identity_api.list_users_in_group(new_group['id'])
         self.assertIn(new_user['id'], (x['id'] for x in user_refs))
+
+        # Testing the case "the user is a member of a group"
+        group_refs = self.identity_api.list_groups_for_user(new_user['id'])
+        self.assertIn(new_group['id'], (x['id'] for x in group_refs))
 
 
 class LdapIdentityWithMapping(
