@@ -134,6 +134,96 @@ class TokenAPITests(object):
         self.v3_token = r.headers.get('X-Subject-Token')
         self.headers = {'X-Subject-Token': r.headers.get('X-Subject-Token')}
 
+    def _make_auth_request(self, auth_data):
+        resp = self.post('/auth/tokens', body=auth_data)
+        token = resp.headers.get('X-Subject-Token')
+        return token
+
+    def _get_unscoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        return self._make_auth_request(auth_data)
+
+    def _validate_token(self, token, expected_status=http_client.OK):
+        return self.get(
+            '/auth/tokens',
+            headers={'X-Subject-Token': token},
+            expected_status=expected_status)
+
+    def _revoke_token(self, token, expected_status=http_client.NO_CONTENT):
+        return self.delete(
+            '/auth/tokens',
+            headers={'x-subject-token': token},
+            expected_status=expected_status)
+
+    def _set_user_enabled(self, user, enabled=True):
+        user['enabled'] = enabled
+        self.identity_api.update_user(user['id'], user)
+
+    def test_validate_unscoped_token(self):
+        unscoped_token = self._get_unscoped_token()
+        self._validate_token(unscoped_token)
+
+    def test_revoke_unscoped_token(self):
+        unscoped_token = self._get_unscoped_token()
+        self._validate_token(unscoped_token)
+        self._revoke_token(unscoped_token)
+        self._validate_token(unscoped_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_unscoped_token_is_invalid_after_disabling_user(self):
+        unscoped_token = self._get_unscoped_token()
+        # Make sure the token is valid
+        self._validate_token(unscoped_token)
+        # Disable the user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
+    def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
+        unscoped_token = self._get_unscoped_token()
+        # Make sure the token is valid
+        self._validate_token(unscoped_token)
+        # Disable the user
+        self._set_user_enabled(self.user, enabled=False)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+        # Enable the user
+        self._set_user_enabled(self.user)
+        # Ensure validating a token for a re-enabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
+    def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
+        unscoped_token = self._get_unscoped_token()
+        # Make sure the token is valid
+        self._validate_token(unscoped_token)
+        # Disable the user's domain
+        self.domain['enabled'] = False
+        self.resource_api.update_domain(self.domain['id'], self.domain)
+        # Ensure validating a token for a disabled user fails
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
+    def test_unscoped_token_is_invalid_after_changing_user_password(self):
+        unscoped_token = self._get_unscoped_token()
+        # Make sure the token is valid
+        self._validate_token(unscoped_token)
+        # Change user's password
+        self.user['password'] = 'Password1'
+        self.identity_api.update_user(self.user['id'], self.user)
+        # Ensure updating user's password revokes existing user's tokens
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          unscoped_token)
+
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
 
@@ -983,6 +1073,11 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
     def setUp(self):
         super(TestFernetTokenAPIs, self).setUp()
         self.doSetUp()
+
+    def _make_auth_request(self, auth_data):
+        token = super(TestFernetTokenAPIs, self)._make_auth_request(auth_data)
+        self.assertLess(len(token), 255)
+        return token
 
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
@@ -4267,18 +4362,21 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         super(TestFernetTokenProvider, self).setUp()
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _make_auth_request(self, auth_data):
         resp = self.post('/auth/tokens', body=auth_data)
         token = resp.headers.get('X-Subject-Token')
         self.assertLess(len(token), 255)
         return token
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _get_unscoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'])
         return self._make_auth_request(auth_data)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _get_project_scoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -4286,6 +4384,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
             project_id=self.project_id)
         return self._make_auth_request(auth_data)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _get_domain_scoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -4293,6 +4392,7 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
             domain_id=self.domain_id)
         return self._make_auth_request(auth_data)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _get_trust_scoped_token(self, trustee_user, trust):
         auth_data = self.build_authentication_request(
             user_id=trustee_user['id'],
@@ -4300,22 +4400,26 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
             trust_id=trust['id'])
         return self._make_auth_request(auth_data)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _validate_token(self, token, expected_status=http_client.OK):
         return self.get(
             '/auth/tokens',
             headers={'X-Subject-Token': token},
             expected_status=expected_status)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _revoke_token(self, token, expected_status=http_client.NO_CONTENT):
         return self.delete(
             '/auth/tokens',
             headers={'X-Subject-Token': token},
             expected_status=expected_status)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _set_user_enabled(self, user, enabled=True):
         user['enabled'] = enabled
         self.identity_api.update_user(user['id'], user)
 
+    # TODO(lbragstad): Remove this once its no longer referenced in this class.
     def _create_trust(self, impersonation=False):
         # Create a trustee user
         trustee_user = unit.create_user(self.identity_api,
@@ -4336,75 +4440,12 @@ class TestFernetTokenProvider(test_v3.RestfulTestCase):
         super(TestFernetTokenProvider, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
 
-    def test_validate_unscoped_token(self):
-        unscoped_token = self._get_unscoped_token()
-        self._validate_token(unscoped_token)
-
     def test_validate_tampered_unscoped_token_fails(self):
         unscoped_token = self._get_unscoped_token()
         tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
                           unscoped_token[50 + 32:])
         self._validate_token(tampered_token,
                              expected_status=http_client.NOT_FOUND)
-
-    def test_revoke_unscoped_token(self):
-        unscoped_token = self._get_unscoped_token()
-        self._validate_token(unscoped_token)
-        self._revoke_token(unscoped_token)
-        self._validate_token(unscoped_token,
-                             expected_status=http_client.NOT_FOUND)
-
-    def test_unscoped_token_is_invalid_after_disabling_user(self):
-        unscoped_token = self._get_unscoped_token()
-        # Make sure the token is valid
-        self._validate_token(unscoped_token)
-        # Disable the user
-        self._set_user_enabled(self.user, enabled=False)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
-
-    def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
-        unscoped_token = self._get_unscoped_token()
-        # Make sure the token is valid
-        self._validate_token(unscoped_token)
-        # Disable the user
-        self._set_user_enabled(self.user, enabled=False)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
-        # Enable the user
-        self._set_user_enabled(self.user)
-        # Ensure validating a token for a re-enabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
-
-    def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
-        unscoped_token = self._get_unscoped_token()
-        # Make sure the token is valid
-        self._validate_token(unscoped_token)
-        # Disable the user's domain
-        self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
-        # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
-
-    def test_unscoped_token_is_invalid_after_changing_user_password(self):
-        unscoped_token = self._get_unscoped_token()
-        # Make sure the token is valid
-        self._validate_token(unscoped_token)
-        # Change user's password
-        self.user['password'] = 'Password1'
-        self.identity_api.update_user(self.user['id'], self.user)
-        # Ensure updating user's password revokes existing user's tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
 
     def test_validate_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
