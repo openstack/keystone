@@ -47,19 +47,28 @@ Getting Started
 .. toctree::
     :maxdepth: 1
 
-    devref/development.environment
     installing
     configuration
+    apache-httpd
     policy_mapping
-    configure_federation
-    mapping_combinations
-    mapping_schema
-    configure_tokenless_x509
-    auth-totp
     configuringservices
     extensions
     key_terms
     community
+
+Advanced Topics
+===============
+
+.. toctree::
+   :maxdepth: 1
+
+   configure_federation
+   mapping_combinations
+   mapping_schema
+   configure_tokenless_x509
+   auth-totp
+   event_notifications
+   external-auth
 
 Man Pages
 =========
@@ -75,15 +84,13 @@ Developers Documentation
 .. toctree::
    :maxdepth: 1
 
+   devref/development.environment
    developing
    developing_drivers
    architecture
    middlewarearchitecture
    http-api
    api_curl_examples
-   apache-httpd
-   external-auth
-   event_notifications
    services
    online_schema_migration_examples
 
