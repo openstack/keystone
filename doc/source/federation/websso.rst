@@ -1,5 +1,3 @@
-:orphan:
-
 ..
       Licensed under the Apache License, Version 2.0 (the "License"); you may
       not use this file except in compliance with the License. You may obtain
@@ -13,12 +11,12 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-===============================
-Keystone Federation and Horizon
-===============================
+Setup Web Single Sign-On (SSO)
+==============================
 
+----------------
 Keystone Changes
-================
+----------------
 
 1. Update `trusted_dashboard` in keystone.conf.
 
@@ -208,8 +206,9 @@ Or by using the `OpenStackClient CLI`_:
 .. _`OpenStackClient CLI`: http://docs.openstack.org/developer/python-openstackclient/command-objects/identity-provider.html#identity-provider-set
 .. _`OS-FEDERATION API`: http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#update-identity-provider
 
+---------------
 Horizon Changes
-===============
+---------------
 
 .. NOTE::
 

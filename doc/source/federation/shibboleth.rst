@@ -1,5 +1,3 @@
-:orphan:
-
 ..
       Licensed under the Apache License, Version 2.0 (the "License"); you may
       not use this file except in compliance with the License. You may obtain
@@ -13,12 +11,12 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-================
 Setup Shibboleth
 ================
 
+-----------------------------------------
 Configure Apache HTTPD for mod_shibboleth
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------
 
 Follow the steps outlined at: `Running Keystone in HTTPD`_.
 
@@ -88,8 +86,9 @@ Restart Apache, for example:
 
     $ service apache2 restart
 
+---------------------------
 Configuring shibboleth2.xml
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 Once you have your Keystone vhost (virtual host) ready, it's then time to
 configure Shibboleth and upload your Metadata to the Identity Provider.

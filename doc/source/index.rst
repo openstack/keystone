@@ -60,11 +60,13 @@ Advanced Topics
 ===============
 
 .. toctree::
+   :maxdepth: 2
+
+   federation/federated_identity
+
+.. toctree::
    :maxdepth: 1
 
-   configure_federation
-   mapping_combinations
-   mapping_schema
    configure_tokenless_x509
    auth-totp
    event_notifications

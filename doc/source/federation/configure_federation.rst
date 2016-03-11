@@ -11,7 +11,6 @@
     License for the specific language governing permissions and limitations
     under the License.
 
-===================================
 Configuring Keystone for Federation
 ===================================
 
