@@ -1341,6 +1341,29 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         self.assertLess(len(token), 255)
         return token
 
+    def test_validate_tampered_unscoped_token_fails(self):
+        unscoped_token = self._get_unscoped_token()
+        tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
+                          unscoped_token[50 + 32:])
+        self._validate_token(tampered_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_validate_tampered_project_scoped_token_fails(self):
+        project_scoped_token = self._get_project_scoped_token()
+        tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
+                          project_scoped_token[50 + 32:])
+        self._validate_token(tampered_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_validate_tampered_trust_scoped_token_fails(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Get a trust scoped token
+        tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
+                          trust_scoped_token[50 + 32:])
+        self._validate_token(tampered_token,
+                             expected_status=http_client.NOT_FOUND)
+
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     """Test token revoke using v3 Identity API by token owner and admin."""
@@ -4617,113 +4640,6 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         r = self.get('/auth/domains')
         self.assertThat(r.json['domains'], matchers.HasLength(1))
         self.assertValidDomainListResponse(r)
-
-
-class TestFernetTokenProvider(test_v3.RestfulTestCase):
-    def setUp(self):
-        super(TestFernetTokenProvider, self).setUp()
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _make_auth_request(self, auth_data):
-        resp = self.post('/auth/tokens', body=auth_data)
-        token = resp.headers.get('X-Subject-Token')
-        self.assertLess(len(token), 255)
-        return token
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _get_unscoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        return self._make_auth_request(auth_data)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _get_project_scoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project_id)
-        return self._make_auth_request(auth_data)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _get_domain_scoped_token(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_id=self.domain_id)
-        return self._make_auth_request(auth_data)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _get_trust_scoped_token(self, trustee_user, trust):
-        auth_data = self.build_authentication_request(
-            user_id=trustee_user['id'],
-            password=trustee_user['password'],
-            trust_id=trust['id'])
-        return self._make_auth_request(auth_data)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _validate_token(self, token, expected_status=http_client.OK):
-        return self.get(
-            '/auth/tokens',
-            headers={'X-Subject-Token': token},
-            expected_status=expected_status)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _revoke_token(self, token, expected_status=http_client.NO_CONTENT):
-        return self.delete(
-            '/auth/tokens',
-            headers={'X-Subject-Token': token},
-            expected_status=expected_status)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _set_user_enabled(self, user, enabled=True):
-        user['enabled'] = enabled
-        self.identity_api.update_user(user['id'], user)
-
-    # TODO(lbragstad): Remove this once its no longer referenced in this class.
-    def _create_trust(self, impersonation=False):
-        # Create a trustee user
-        trustee_user = unit.create_user(self.identity_api,
-                                        domain_id=self.domain_id)
-        ref = unit.new_trust_ref(
-            trustor_user_id=self.user_id,
-            trustee_user_id=trustee_user['id'],
-            project_id=self.project_id,
-            impersonation=impersonation,
-            role_ids=[self.role_id])
-
-        # Create a trust
-        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
-        trust = self.assertValidTrustResponse(r)
-        return (trustee_user, trust)
-
-    def config_overrides(self):
-        super(TestFernetTokenProvider, self).config_overrides()
-        self.config_fixture.config(group='token', provider='fernet')
-
-    def test_validate_tampered_unscoped_token_fails(self):
-        unscoped_token = self._get_unscoped_token()
-        tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
-                          unscoped_token[50 + 32:])
-        self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
-
-    def test_validate_tampered_project_scoped_token_fails(self):
-        project_scoped_token = self._get_project_scoped_token()
-        tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
-                          project_scoped_token[50 + 32:])
-        self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
-
-    def test_validate_tampered_trust_scoped_token_fails(self):
-        trustee_user, trust = self._create_trust()
-        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        # Get a trust scoped token
-        tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
-                          trust_scoped_token[50 + 32:])
-        self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
 
 
 class TestTrustAuthPKITokenProvider(TrustAPIBehavior, TestTrustChain):
