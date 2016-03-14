@@ -3,4 +3,5 @@ other:
   - >
     ``keystone-manage db_sync`` will no longer create the Default domain. This
     domain is used as the domain for any users created using the legacy v2.0
-    API. A default domain is created by ``keystone-manage bootstrap``.
+    API. A default domain is created by ``keystone-manage bootstrap`` and when
+    a user or project is created using the legacy v2.0 API.

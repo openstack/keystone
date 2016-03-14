@@ -2,13 +2,13 @@
 upgrade:
   - >
     [`bug 1473553 <https://bugs.launchpad.net/keystone/+bug/1473553>`_]
-    The ``keystone-paste.ini`` must be updated to put the ``admin_token_auth``
+    The `keystone-paste.ini` must be updated to put the ``admin_token_auth``
     middleware before ``build_auth_context``. See the sample
-    ``keystone-paste.ini`` for the correct ``pipeline`` value. Having
+    `keystone-paste.ini` for the correct `pipeline` value. Having
     ``admin_token_auth`` after ``build_auth_context`` is deprecated and will
     not be supported in a future release.
 deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
     The ``admin_token_auth`` filter must now be placed before the
-    ``build_auth_context`` filter in ``keystone-paste.ini``.
+    ``build_auth_context`` filter in `keystone-paste.ini`.

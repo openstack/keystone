@@ -1,7 +1,7 @@
 ---
 upgrade:
   - >
-    The ``keystone-paste.ini`` file must be updated to remove extension
+    The `keystone-paste.ini` file must be updated to remove extension
     filters, and their use in ``[pipeline:api_v3]``.
     Remove the following filters: ``[filter:oauth1_extension]``,
     ``[filter:federation_extension]``, ``[filter:endpoint_filter_extension]``,
@@ -9,7 +9,7 @@ upgrade:
     <https://git.openstack.org/cgit/openstack/keystone/tree/etc/keystone-paste.ini>`_
     file for guidance.
   - >
-    The ``keystone-paste.ini`` file must be updated to remove extension filters,
+    The `keystone-paste.ini` file must be updated to remove extension filters,
     and their use in ``[pipeline:public_api]`` and ``[pipeline:admin_api]`` pipelines.
     Remove the following filters: ``[filter:user_crud_extension]``,
     ``[filter:crud_extension]``. See the sample `keystone-paste.ini

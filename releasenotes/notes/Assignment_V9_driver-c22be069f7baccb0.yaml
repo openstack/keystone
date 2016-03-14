@@ -1,16 +1,13 @@
 ---
-features:
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
+    The V8 Assignment driver interface is deprecated. Support for the V8
+    Assignment driver interface is planned to be removed in the 'O' release of
+    OpenStack.
+other:
   - The list_project_ids_for_user(), list_domain_ids_for_user(),
     list_user_ids_for_project(), list_project_ids_for_groups(),
     list_domain_ids_for_groups(), list_role_ids_for_groups_on_project() and
     list_role_ids_for_groups_on_domain() methods have been removed from the
     V9 version of the Assignment driver.
-upgrade:
-  - The V8 Assignment driver interface is deprecated, but still supported in
-    this release, so any custom drivers based on the V8 interface should still
-    work.
-deprecations:
-  - >
-    [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
-    Support for the V8 Assignment driver interface is planned to be removed in
-    the 'O' release of OpenStack.

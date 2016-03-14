@@ -1,10 +1,6 @@
 ---
-upgrade:
-  - The V8 Role driver interface is deprecated, but still supported in
-    this release, so any custom drivers based on the V8 interface should still
-    work.
 deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
-    Support for the V8 Role driver interface is planned to be removed in
-    the 'O' release of OpenStack.
+    The V8 Role driver interface is deprecated. Support for the V8 Role driver
+    interface is planned to be removed in the 'O' release of OpenStack.

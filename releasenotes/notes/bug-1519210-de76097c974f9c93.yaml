@@ -3,5 +3,5 @@ features:
   - >
     [`bug 1519210 <https://bugs.launchpad.net/keystone/+bug/1519210>`_]
     A user may now opt-out of notifications by specifying a list of
-    `event_types` using the ``notification_opt_out`` option in `keystone.conf`.
+    event types using the `notification_opt_out` option in `keystone.conf`.
     These events are never sent to a messaging service.

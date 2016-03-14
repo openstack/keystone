@@ -4,4 +4,4 @@ features:
     [`bug 1500222 <https://bugs.launchpad.net/keystone/+bug/1500222>`_]
     Added information such as: user ID, project ID, and domain ID to log
     entries. As a side effect of this change, both the user's domain ID and
-    project's domain ID are now included in ``auth_context``.
+    project's domain ID are now included in the auth context.

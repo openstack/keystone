@@ -1,9 +1,9 @@
 ---
 upgrade:
   - >
-    Keystone now uses oslo.cache. Update the ``[cache]`` section of
-    ``keystone.conf`` to point to oslo.cache backends:
-    ``oslo_cache.memcache_pool`` or ``oslo_cache.mongo``, refer to the
+    Keystone now uses oslo.cache. Update the `[cache]` section of
+    `keystone.conf` to point to oslo.cache backends:
+    ``oslo_cache.memcache_pool`` or ``oslo_cache.mongo``. Refer to the
     sample configuration file for examples. See `oslo.cache
     <http://docs.openstack.org/developer/oslo.cache>`_ for additional
     documentation.
