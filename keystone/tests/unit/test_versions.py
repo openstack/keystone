@@ -74,9 +74,9 @@ v3_MEDIA_TYPES = [
 ]
 
 v3_EXPECTED_RESPONSE = {
-    "id": "v3.5",
+    "id": "v3.6",
     "status": "stable",
-    "updated": "2015-09-15T00:00:00Z",
+    "updated": "2016-04-04T00:00:00Z",
     "links": [
         {
             "rel": "self",
