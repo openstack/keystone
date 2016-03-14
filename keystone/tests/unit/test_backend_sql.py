@@ -28,7 +28,7 @@ from testtools import matchers
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
-from keystone.identity.backends import sql as identity_sql
+from keystone.identity.backends import sql_model as identity_sql
 from keystone.resource.backends import base as resource
 from keystone.tests import unit
 from keystone.tests.unit.assignment import test_backends as assignment_tests

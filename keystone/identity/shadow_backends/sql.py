@@ -15,7 +15,7 @@ import uuid
 from keystone.common import sql
 from keystone import exception
 from keystone.identity.backends import base as identity_base
-from keystone.identity.backends import sql as model
+from keystone.identity.backends import sql_model as model
 from keystone.identity.shadow_backends import base
 
 
