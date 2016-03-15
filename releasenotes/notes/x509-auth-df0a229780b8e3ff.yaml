@@ -2,5 +2,5 @@
 features:
   - >
    [`blueprint x509-ssl-client-cert-authn <https://blueprints.launchpad.net/keystone/+spec/x509-ssl-client-cert-authn>`_]
-   Support tokenless client SSL x.509 certificate authentication and
-   authorization.
+   Keystone now supports tokenless client SSL x.509 certificate authentication
+   and authorization.

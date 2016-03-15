@@ -1,7 +1,7 @@
 ---
 upgrade:
-  - A new config option, ``insecure_debug``, is added to control whether debug
+  - A new config option, `insecure_debug`, is added to control whether debug
     information is returned to clients. This used to be controlled by the
-    ``debug`` option. If you'd like to return extra information to clients
+    `debug` option. If you'd like to return extra information to clients
     set the value to ``true``. This extra information may help an attacker.
 

@@ -4,9 +4,9 @@ features:
    [`blueprint implied-roles <https://blueprints.launchpad.net/keystone/+spec/implied-roles>`_]
    Keystone now supports creating implied roles. Role inference rules can now
    be added to indicate when the assignment of one role implies the assignment
-   of another. The rules are of the form ``prior_role`` implies
-   ``implied_role``. At token generation time, user/group assignments of roles
+   of another. The rules are of the form `prior_role` implies
+   `implied_role`. At token generation time, user/group assignments of roles
    that have implied roles will be expanded to also include such roles in the
    token. The expansion of implied roles is controlled by the
-   ``prohibited_implied_role`` option in the ``[assignment]``
+   `prohibited_implied_role` option in the `[assignment]`
    section of `keystone.conf`.

@@ -3,8 +3,8 @@ features:
   - >
     [`blueprint domain-specific-roles <https://blueprints.launchpad.net/keystone/+spec/domain-specific-roles>`_]
     Roles can now be optionally defined as domain specific. Domain specific
-    roles are not references in policy files, rather they can be used to allow
-    a domain to build their own private inference rules with implies roles. A
+    roles are not referenced in policy files, rather they can be used to allow
+    a domain to build their own private inference rules with implied roles. A
     domain specific role can be assigned to a domain or project within its
     domain, and any subset of global roles it implies will appear in a token
     scoped to the respective domain or project. The domain specific role

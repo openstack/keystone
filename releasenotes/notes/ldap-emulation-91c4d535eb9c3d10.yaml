@@ -2,7 +2,7 @@
 features:
   - >
     [`bug 1515302 <https://bugs.launchpad.net/keystone/+bug/1515302>`_]
-    Two new configuration options have been added to the ``[ldap]`` section.
-    ``user_enabled_emulation_use_group_config`` and
-    ``project_enabled_emulation_use_group_config``, which allow deployers to
+    Two new configuration options have been added to the `[ldap]` section.
+    `user_enabled_emulation_use_group_config` and
+    `project_enabled_emulation_use_group_config`, which allow deployers to
     choose if they want to override the default group LDAP schema option.

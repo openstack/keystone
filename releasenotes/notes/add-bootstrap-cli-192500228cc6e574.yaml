@@ -1,6 +1,8 @@
 ---
 features:
-  - keystone-manage now supports the bootstrap command
+  - >
+    [`blueprint bootstrap <https://blueprints.launchpad.net/keystone/+spec/bootstrap>`_]
+    keystone-manage now supports the bootstrap command
     on the CLI so that a keystone install can be
     initialized without the need of the admin_token
     filter in the paste-ini.
@@ -9,7 +11,7 @@ security:
     to the use of a proper username/password. Historically
     the admin_token filter has been left enabled in
     Keystone after initialization due to the way CMS
-    systems work. Moving to an out-of-band initialization
-    will eliminate the security concerns around a static
-    shared string that conveys admin access to Keystone
+    systems work. Moving to an out-of-band initialization using
+    ``keystone-manage bootstrap`` will eliminate the security concerns around
+    a static shared string that conveys admin access to keystone
     and therefore to the entire installation.
