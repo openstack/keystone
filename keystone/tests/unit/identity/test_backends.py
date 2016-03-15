@@ -1086,8 +1086,7 @@ class FilterTests(filtering.FilterTests):
             self.identity_api.add_user_to_group(user_list[1]['id'],
                                                 group_list[group]['id'])
 
-        hints = driver_hints.Hints()
-        return group_list, user_list, hints
+        return group_list, user_list
 
     def test_groups_for_user_inexact_filtered(self):
         """Test use of filtering doesn't break groups_for_user listing.
@@ -1106,7 +1105,18 @@ class FilterTests(filtering.FilterTests):
           name, both restrictions have been enforced on what is returned.
 
         """
-        group_list, user_list, hints = self._groups_for_user_data()
+        group_list, user_list = self._groups_for_user_data()
+
+        hints = driver_hints.Hints()
+        hints.add_filter('name', 'Ministry', comparator='contains')
+        groups = self.identity_api.list_groups_for_user(
+            user_list[0]['id'], hints=hints)
+        # We should only get back one group, since of the two that contain
+        # 'Ministry' the user only belongs to one.
+        self.assertThat(len(groups), matchers.Equals(1))
+        self.assertEqual(group_list[6]['id'], groups[0]['id'])
+
+        hints = driver_hints.Hints()
         hints.add_filter('name', 'The', comparator='startswith')
         groups = self.identity_api.list_groups_for_user(
             user_list[0]['id'], hints=hints)
@@ -1115,12 +1125,22 @@ class FilterTests(filtering.FilterTests):
         self.assertThat(len(groups), matchers.Equals(2))
         self.assertIn(group_list[5]['id'], [groups[0]['id'], groups[1]['id']])
         self.assertIn(group_list[6]['id'], [groups[0]['id'], groups[1]['id']])
+
+        hints.add_filter('name', 'The', comparator='endswith')
+        groups = self.identity_api.list_groups_for_user(
+            user_list[0]['id'], hints=hints)
+        # We should only get back one group since it is the only one that
+        # ends with 'The'
+        self.assertThat(len(groups), matchers.Equals(1))
+        self.assertEqual(group_list[5]['id'], groups[0]['id'])
+
         self._delete_test_data('user', user_list)
         self._delete_test_data('group', group_list)
 
     def test_groups_for_user_exact_filtered(self):
         """Test exact filters doesn't break groups_for_user listing."""
-        group_list, user_list, hints = self._groups_for_user_data()
+        group_list, user_list = self._groups_for_user_data()
+        hints = driver_hints.Hints()
         hints.add_filter('name', 'The Ministry', comparator='equals')
         groups = self.identity_api.list_groups_for_user(
             user_list[0]['id'], hints=hints)
@@ -1182,21 +1202,37 @@ class FilterTests(filtering.FilterTests):
             self.identity_api.add_user_to_group(user_list[i]['id'],
                                                 group['id'])
 
-        hints = driver_hints.Hints()
-        return user_list, group, hints
+        return user_list, group
 
     def test_list_users_in_group_inexact_filtered(self):
-        user_list, group, hints = self._list_users_in_group_data()
+        user_list, group = self._list_users_in_group_data()
+
+        hints = driver_hints.Hints()
+        hints.add_filter('name', 'Arthur', comparator='contains')
+        users = self.identity_api.list_users_in_group(group['id'], hints=hints)
+        self.assertThat(len(users), matchers.Equals(2))
+        self.assertIn(user_list[1]['id'], [users[0]['id'], users[1]['id']])
+        self.assertIn(user_list[3]['id'], [users[0]['id'], users[1]['id']])
+
+        hints = driver_hints.Hints()
         hints.add_filter('name', 'Arthur', comparator='startswith')
         users = self.identity_api.list_users_in_group(group['id'], hints=hints)
         self.assertThat(len(users), matchers.Equals(2))
         self.assertIn(user_list[1]['id'], [users[0]['id'], users[1]['id']])
         self.assertIn(user_list[3]['id'], [users[0]['id'], users[1]['id']])
+
+        hints = driver_hints.Hints()
+        hints.add_filter('name', 'Doyle', comparator='endswith')
+        users = self.identity_api.list_users_in_group(group['id'], hints=hints)
+        self.assertThat(len(users), matchers.Equals(1))
+        self.assertEqual(user_list[1]['id'], users[0]['id'])
+
         self._delete_test_data('user', user_list)
         self._delete_entity('group')(group['id'])
 
     def test_list_users_in_group_exact_filtered(self):
-        user_list, group, hints = self._list_users_in_group_data()
+        hints = driver_hints.Hints()
+        user_list, group = self._list_users_in_group_data()
         hints.add_filter('name', 'Arthur Rimbaud', comparator='equals')
         users = self.identity_api.list_users_in_group(group['id'], hints=hints)
         self.assertEqual(1, len(users))
