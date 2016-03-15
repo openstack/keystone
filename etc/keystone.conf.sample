@@ -1522,7 +1522,7 @@
 # Queues which are unused for the duration of the TTL are automatically
 # deleted. The parameter affects only reply and fanout queues. (integer value)
 # Minimum value: 1
-#rabbit_transient_queues_ttl = 600
+#rabbit_transient_queues_ttl = 1800
 
 # Specifies the number of messages to prefetch. Setting to zero allows
 # unlimited messages. (integer value)
