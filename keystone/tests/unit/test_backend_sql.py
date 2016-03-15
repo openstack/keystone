@@ -196,6 +196,22 @@ class SqlModels(SqlTests):
                 ('user_id', sql.String, 64))
         self.assertExpectedSchema('user_group_membership', cols)
 
+    def test_revocation_event_model(self):
+        cols = (('id', sql.Integer, None),
+                ('domain_id', sql.String, 64),
+                ('project_id', sql.String, 64),
+                ('user_id', sql.String, 64),
+                ('role_id', sql.String, 64),
+                ('trust_id', sql.String, 64),
+                ('consumer_id', sql.String, 64),
+                ('access_token_id', sql.String, 64),
+                ('issued_before', sql.DateTime, None),
+                ('expires_at', sql.DateTime, None),
+                ('revoked_at', sql.DateTime, None),
+                ('audit_id', sql.String, 32),
+                ('audit_chain_id', sql.String, 32))
+        self.assertExpectedSchema('revocation_event', cols)
+
 
 class SqlIdentity(SqlTests, identity_tests.IdentityTests,
                   assignment_tests.AssignmentTests,

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
-
 from keystone.common import sql
 from keystone.models import revoke_model
 from keystone import revoke
@@ -23,7 +21,7 @@ class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
 
     # The id field is not going to be exposed to the outside world.
     # It is, however, necessary for SQLAlchemy.
-    id = sql.Column(sql.String(64), primary_key=True)
+    id = sql.Column(sql.Integer, primary_key=True, nullable=False)
     domain_id = sql.Column(sql.String(64))
     project_id = sql.Column(sql.String(64))
     user_id = sql.Column(sql.String(64))
@@ -96,7 +94,6 @@ class Revoke(revoke.RevokeDriverV8):
         kwargs = dict()
         for attr in revoke_model.REVOKE_KEYS:
             kwargs[attr] = getattr(event, attr)
-        kwargs['id'] = uuid.uuid4().hex
         record = RevocationEvent(**kwargs)
         with sql.session_for_write() as session:
             session.add(record)
