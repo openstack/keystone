@@ -15,13 +15,13 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev101\n"
+"Project-Id-Version: keystone 9.0.0.0b4.dev109\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-13 16:58+0000\n"
+"POT-Creation-Date: 2016-03-15 05:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-13 06:27+0000\n"
+"PO-Revision-Date: 2016-03-14 07:26+0000\n"
 "Last-Translator: Martine Marin <mmarin@fr.ibm.com>\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -68,6 +68,10 @@ msgstr ""
 "référentiel de migration %(path)s n'existe pas ou n'est pas un répertoire."
 
 #, python-format
+msgid "%(prior_role_id)s does not imply %(implied_role_id)s"
+msgstr "%(prior_role_id)s n'implique pas %(implied_role_id)s"
+
+#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr ""
 "%(property_name)s ne peut pas contenir moins de %(min_length)s caractères."
@@ -80,6 +84,10 @@ msgstr "%(property_name)s n'est pas du type %(display_expected_type)s"
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr ""
 "%(property_name)s ne doit pas contenir plus de %(max_length)s caractères."
+
+#, python-format
+msgid "%(role_id)s cannot be an implied roles"
+msgstr "%(role_id)s ne peut pas être un rôle  impliqué"
 
 #, python-format
 msgid "%s cannot be empty."
@@ -1143,9 +1151,9 @@ msgid ""
 "migrations are maintained by the main keystone database control. Use the "
 "command: keystone-manage db_sync"
 msgstr ""
-"L'extension  %s a été déplacée vers keystone core et ses migrations sont "
-"donc gérées par le contrôle de la base de données keystone principale. "
-"Utilisez la commande : keystone-manage db_sync"
+"L'extension  %s a été déplacée vers le service keystone de base et ses "
+"migrations sont donc gérées par le contrôle de la base de données keystone "
+"principale. Utilisez la commande : keystone-manage db_sync"
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
