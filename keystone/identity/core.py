@@ -1118,7 +1118,6 @@ class Manager(manager.Manager):
         notifications.Audit.removed_from(self._GROUP, group_id, self._USER,
                                          user_id, initiator)
 
-    @notifications.internal(notifications.INVALIDATE_USER_TOKEN_PERSISTENCE)
     def emit_invalidate_user_token_persistence(self, user_id):
         """Emit a notification to the callback system to revoke user tokens.
 
@@ -1128,10 +1127,10 @@ class Manager(manager.Manager):
         :param user_id: user identifier
         :type user_id: string
         """
-        pass
+        notifications.Audit.internal(
+            notifications.INVALIDATE_USER_TOKEN_PERSISTENCE, user_id
+        )
 
-    @notifications.internal(
-        notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE)
     def emit_invalidate_grant_token_persistence(self, user_project):
         """Emit a notification to the callback system to revoke grant tokens.
 
@@ -1141,7 +1140,10 @@ class Manager(manager.Manager):
         :param user_project: {'user_id': user_id, 'project_id': project_id}
         :type user_project: dict
         """
-        pass
+        notifications.Audit.internal(
+            notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE,
+            user_project
+        )
 
     @domains_configured
     @exception_translated('user')
