@@ -83,7 +83,7 @@ class Hints(object):
     * ``name``: the name of the attribute being matched
     * ``value``: the value against which it is being matched
     * ``comparator``: the operation, which can be one of ``equals``,
-                      ``startswith`` or ``endswith``
+                      ``contains``, ``startswith`` or ``endswith``
     * ``case_sensitive``: whether any comparison should take account of
                           case
     * ``type``: will always be 'filter'
