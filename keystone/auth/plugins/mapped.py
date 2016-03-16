@@ -135,9 +135,14 @@ def handle_unscoped_token(context, auth_payload, auth_context,
     user_id = None
 
     try:
-        mapped_properties, mapping_id = apply_mapping_filter(
-            identity_provider, protocol, assertion, resource_api,
-            federation_api, identity_api)
+        try:
+            mapped_properties, mapping_id = apply_mapping_filter(
+                identity_provider, protocol, assertion, resource_api,
+                federation_api, identity_api)
+        except exception.ValidationError as e:
+            # if mapping is either invalid or yield no valid identity,
+            # it is considered a failed authentication
+            raise exception.Unauthorized(e)
 
         if is_ephemeral_user(mapped_properties):
             unique_id, display_name = (
