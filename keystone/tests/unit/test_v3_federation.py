@@ -1698,7 +1698,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     def test_issue_unscoped_token_with_remote_unavailable(self):
         self.config_fixture.config(group='federation',
                                    remote_id_attribute=self.REMOTE_ID_ATTR)
-        self.assertRaises(exception.ValidationError,
+        self.assertRaises(exception.Unauthorized,
                           self._issue_unscoped_token,
                           idp=self.IDP_WITH_REMOTE,
                           environment={
