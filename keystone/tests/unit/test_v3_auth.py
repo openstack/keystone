@@ -4458,7 +4458,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
             'trust_id': self.trust_chain[0]['id']})
 
         # Verify the two remaining trust have been deleted
-        for i in xrange(len(self.user_list) - 1):
+        for i in range(len(self.user_list) - 1):
             auth_data = self.build_authentication_request(
                 user_id=self.user_list[i]['id'],
                 password=self.user_list[i]['password'])
@@ -4479,7 +4479,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
         )
 
         # Verify that users are not allowed to authenticate with trust
-        for i in xrange(len(self.user_list[1:])):
+        for i in range(len(self.user_list[1:])):
             trustee = self.user_list[i]
             auth_data = self.build_authentication_request(
                 user_id=trustee['id'],
