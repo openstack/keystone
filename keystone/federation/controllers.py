@@ -480,11 +480,12 @@ class ServiceProvider(_ControllerBase):
         response = ServiceProvider.wrap_member(context, sp_ref)
         return wsgi.render_response(body=response, status=('201', 'Created'))
 
-    @controller.protected()
-    def list_service_providers(self, context):
-        ref = self.federation_api.list_sps()
+    @controller.filterprotected('id', 'enabled')
+    def list_service_providers(self, context, filters):
+        hints = self.build_driver_hints(context, filters)
+        ref = self.federation_api.list_sps(hints=hints)
         ref = [self.filter_params(x) for x in ref]
-        return ServiceProvider.wrap_collection(context, ref)
+        return ServiceProvider.wrap_collection(context, ref, hints=hints)
 
     @controller.protected()
     def get_service_provider(self, context, sp_id):

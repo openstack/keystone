@@ -4,3 +4,7 @@ features:
     [`bug 1525317 <https://bugs.launchpad.net/keystone/+bug/1525317>`_]
     Enable filtering of identity providers based on `id`, and `enabled`
     attributes.
+  - >
+    [`bug 1555830 <https://bugs.launchpad.net/keystone/+bug/1555830>`_]
+    Enable filtering of service providers based on `id`, and `enabled`
+    attributes.

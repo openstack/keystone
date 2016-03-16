@@ -3264,6 +3264,15 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
             return '/OS-FEDERATION/service_providers/' + str(suffix)
         return '/OS-FEDERATION/service_providers'
 
+    def _create_default_sp(self, body=None):
+        """Create default Service Provider."""
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        if body is None:
+            body = self.sp_ref()
+        resp = self.put(url, body={'service_provider': body},
+                        expected_status=http_client.CREATED)
+        return resp
+
     def test_get_service_provider(self):
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         resp = self.get(url)
@@ -3412,6 +3421,56 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
     def test_delete_service_provider_returns_not_found(self):
         url = self.base_url(suffix=uuid.uuid4().hex)
         self.delete(url, expected_status=http_client.NOT_FOUND)
+
+    def test_filter_list_sp_by_id(self):
+        def get_id(resp):
+            sp = resp.result.get('service_provider')
+            return sp.get('id')
+
+        sp1_id = get_id(self._create_default_sp())
+        sp2_id = get_id(self._create_default_sp())
+
+        # list the SP, should get SPs.
+        url = self.base_url()
+        resp = self.get(url)
+        sps = resp.result.get('service_providers')
+        entities_ids = [e['id'] for e in sps]
+        self.assertIn(sp1_id, entities_ids)
+        self.assertIn(sp2_id, entities_ids)
+
+        # filter the SP by 'id'. Only SP1 should appear.
+        url = self.base_url() + '?id=' + sp1_id
+        resp = self.get(url)
+        sps = resp.result.get('service_providers')
+        entities_ids = [e['id'] for e in sps]
+        self.assertIn(sp1_id, entities_ids)
+        self.assertNotIn(sp2_id, entities_ids)
+
+    def test_filter_list_sp_by_enabled(self):
+        def get_id(resp):
+            sp = resp.result.get('service_provider')
+            return sp.get('id')
+
+        sp1_id = get_id(self._create_default_sp())
+        sp2_ref = self.sp_ref()
+        sp2_ref['enabled'] = False
+        sp2_id = get_id(self._create_default_sp(body=sp2_ref))
+
+        # list the SP, should get two SPs.
+        url = self.base_url()
+        resp = self.get(url)
+        sps = resp.result.get('service_providers')
+        entities_ids = [e['id'] for e in sps]
+        self.assertIn(sp1_id, entities_ids)
+        self.assertIn(sp2_id, entities_ids)
+
+        # filter the SP by 'enabled'. Only SP1 should appear.
+        url = self.base_url() + '?enabled=True'
+        resp = self.get(url)
+        sps = resp.result.get('service_providers')
+        entities_ids = [e['id'] for e in sps]
+        self.assertIn(sp1_id, entities_ids)
+        self.assertNotIn(sp2_id, entities_ids)
 
 
 class WebSSOTests(FederatedTokenTests):
