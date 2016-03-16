@@ -211,6 +211,11 @@ class BootStrap(BaseApp):
 
         # NOTE(morganfainberg): Do not create the user if it already exists.
         try:
+            user = self.identity_manager.get_user_by_name(self.username,
+                                                          default_domain['id'])
+            LOG.info(_LI('User %s already exists, skipping creation.'),
+                     self.username)
+        except exception.UserNotFound:
             user = self.identity_manager.create_user(
                 user_ref={'name': self.username,
                           'enabled': True,
@@ -219,11 +224,6 @@ class BootStrap(BaseApp):
                           }
             )
             LOG.info(_LI('Created user %s'), self.username)
-        except exception.Conflict:
-            LOG.info(_LI('User %s already exists, skipping creation.'),
-                     self.username)
-            user = self.identity_manager.get_user_by_name(self.username,
-                                                          default_domain['id'])
 
         # NOTE(morganfainberg): Do not create the role if it already exists.
         try:
