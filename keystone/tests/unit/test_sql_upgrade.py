@@ -38,10 +38,9 @@ import mock
 from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import migration
-from oslo_db.sqlalchemy import session as db_session
+from oslo_db.sqlalchemy import test_base
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
-from sqlalchemy import schema
 from testtools import matchers
 
 from keystone.common import sql
@@ -178,7 +177,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
             self.assertEqual(initial_version, version)
 
 
-class SqlMigrateBase(unit.BaseTestCase):
+class SqlMigrateBase(test_base.DbTestCase):
     # override this in subclasses. The default of zero covers tests such
     # as extensions upgrades.
     _initial_db_version = 0
@@ -192,72 +191,27 @@ class SqlMigrateBase(unit.BaseTestCase):
 
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
-        database.initialize_sql_session()
-        conn_str = CONF.database.connection
-        if (conn_str != unit.IN_MEM_DB_CONN_STRING and
-                conn_str.startswith('sqlite') and
-                conn_str[10:] == unit.DEFAULT_TEST_DB_FILE):
-            # Override the default with a DB that is specific to the migration
-            # tests only if the DB Connection string is the same as the global
-            # default. This is required so that no conflicts occur due to the
-            # global default DB already being under migrate control. This is
-            # only needed if the DB is not-in-memory
-            db_file = unit.dirs.tmp('keystone_migrate_test.db')
-            self.config_fixture.config(
-                group='database',
-                connection='sqlite:///%s' % db_file)
 
-        # create and share a single sqlalchemy engine for testing
-        with sql.session_for_write() as session:
-            self.engine = session.get_bind()
-            self.addCleanup(self.cleanup_instance('engine'))
-        self.Session = db_session.get_maker(self.engine, autocommit=False)
-        self.addCleanup(sqlalchemy.orm.session.Session.close_all)
+        # Set keystone's connection URL to be the test engine's url.
+        database.initialize_sql_session(self.engine.url)
+
+        # Override keystone's context manager to be oslo.db's global context
+        # manager.
+        sql.core._TESTING_USE_GLOBAL_CONTEXT_MANAGER = True
+        self.addCleanup(setattr,
+                        sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
+        self.addCleanup(sql.cleanup)
 
         self.initialize_sql()
         self.repo_path = migration_helpers.find_migrate_repo(
             self.repo_package())
-        self.schema = versioning_api.ControlledSchema.create(
+        self.schema_ = versioning_api.ControlledSchema.create(
             self.engine,
             self.repo_path,
             self._initial_db_version)
 
         # auto-detect the highest available schema version in the migrate_repo
-        self.max_version = self.schema.repository.version().version
-
-        self.addCleanup(sql.cleanup)
-
-        # drop tables and FKs.
-        self.addCleanup(self._cleanupDB)
-
-    def _cleanupDB(self):
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-        meta.reflect(self.engine)
-
-        with self.engine.begin() as conn:
-            inspector = reflection.Inspector.from_engine(self.engine)
-            metadata = schema.MetaData()
-            tbs = []
-            all_fks = []
-
-            for table_name in inspector.get_table_names():
-                fks = []
-                for fk in inspector.get_foreign_keys(table_name):
-                    if not fk['name']:
-                        continue
-                    fks.append(
-                        schema.ForeignKeyConstraint((), (), name=fk['name']))
-                table = schema.Table(table_name, metadata, *fks)
-                tbs.append(table)
-                all_fks.extend(fks)
-
-            for fkc in all_fks:
-                if self.engine.name != 'sqlite':
-                    conn.execute(schema.DropConstraint(fkc))
-
-            for table in tbs:
-                conn.execute(schema.DropTable(table))
+        self.max_version = self.schema_.repository.version().version
 
     def select_table(self, name):
         table = sqlalchemy.Table(name,
@@ -294,7 +248,7 @@ class SqlMigrateBase(unit.BaseTestCase):
             table2 = self.select_table(table2_name)
         except sqlalchemy.exc.NoSuchTableError:
             raise AssertionError('Table "%s" does not exist' % table2_name)
-        session = self.Session()
+        session = self.sessionmaker()
         table1_count = session.execute(table1.count()).scalar()
         table2_count = session.execute(table2.count()).scalar()
         if table1_count != table2_count:
@@ -309,16 +263,16 @@ class SqlMigrateBase(unit.BaseTestCase):
                  current_schema=None):
         repository = repository or self.repo_path
         err = ''
-        version = versioning_api._migrate_version(self.schema,
+        version = versioning_api._migrate_version(self.schema_,
                                                   version,
                                                   not downgrade,
                                                   err)
         if not current_schema:
-            current_schema = self.schema
+            current_schema = self.schema_
         changeset = current_schema.changeset(version)
         for ver, change in changeset:
-            self.schema.runchange(ver, change, changeset.step)
-        self.assertEqual(self.schema.version, version)
+            self.schema_.runchange(ver, change, changeset.step)
+        self.assertEqual(self.schema_.version, version)
 
     def assertTableColumns(self, table_name, expected_cols):
         """Asserts that the table contains the expected set of columns."""
@@ -363,7 +317,6 @@ class SqlUpgradeTests(SqlMigrateBase):
             this_table = table
         insert = this_table.insert().values(**d)
         session.execute(insert)
-        session.commit()
 
     def test_kilo_squash(self):
         self.upgrade(67)
@@ -414,7 +367,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertFalse(self.does_pk_exist(ASSIGNMENT_TABLE_NAME,
                                             INHERITED_COLUMN_NAME))
 
-        session = self.Session()
+        session = self.sessionmaker()
 
         role = {'id': uuid.uuid4().hex,
                 'name': uuid.uuid4().hex}
@@ -448,7 +401,7 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         self.upgrade(73)
 
-        session = self.Session()
+        session = self.sessionmaker()
         self.metadata.clear()
 
         # Check that the 'inherited' column is now part of the PK
@@ -708,7 +661,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         NULL_DOMAIN_ID = '<<null>>'
 
         self.upgrade(87)
-        session = self.Session()
+        session = self.sessionmaker()
         role_table = sqlalchemy.Table('role', self.metadata, autoload=True)
         # Add a role before we upgrade, so we can check that its new domain_id
         # attribute is handled correctly
@@ -719,7 +672,7 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         self.upgrade(88)
 
-        session = self.Session()
+        session = self.sessionmaker()
         self.metadata.clear()
         self.assertTableColumns('role', ['id', 'name', 'domain_id', 'extra'])
         # Check the domain_id has been added to the uniqueness constraint
@@ -741,7 +694,7 @@ class SqlUpgradeTests(SqlMigrateBase):
     def test_add_root_of_all_domains(self):
         NULL_DOMAIN_ID = '<<keystone.domain.root>>'
         self.upgrade(89)
-        session = self.Session()
+        session = self.sessionmaker()
 
         domain_table = sqlalchemy.Table(
             'domain', self.metadata, autoload=True)
@@ -867,7 +820,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         # pop extra attribute which doesn't recognized by SQL expression
         # layer.
         user_ref.pop('email')
-        session = self.Session()
+        session = self.sessionmaker()
         self.insert_dict(session, USER_TABLE_NAME, user_ref)
         self.metadata.clear()
         self.upgrade(91)
@@ -889,7 +842,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         user1_ref.pop('email')
         user2_ref = unit.new_user_ref(uuid.uuid4().hex)
         user2_ref.pop('email')
-        session = self.Session()
+        session = self.sessionmaker()
         self.insert_dict(session, USER_TABLE_NAME, user1_ref)
         self.insert_dict(session, USER_TABLE_NAME, user2_ref)
         user_id = user1_ref.pop('id')
@@ -1014,7 +967,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         NULL_DOMAIN_ID = '<<keystone.domain.root>>'
         self.upgrade(92)
 
-        session = self.Session()
+        session = self.sessionmaker()
 
         _populate_domain_and_project_tables(session)
 

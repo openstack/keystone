@@ -42,13 +42,13 @@ def run_once(f):
 
 # NOTE(I159): Every execution all the options will be cleared. The method must
 # be called at the every fixture initialization.
-def initialize_sql_session():
+def initialize_sql_session(connection_str=unit.IN_MEM_DB_CONN_STRING):
     # Make sure the DB is located in the correct location, in this case set
     # the default value, as this should be able to be overridden in some
     # test cases.
     db_options.set_defaults(
         CONF,
-        connection=unit.IN_MEM_DB_CONN_STRING)
+        connection=connection_str)
 
 
 @run_once
