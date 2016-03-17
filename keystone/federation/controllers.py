@@ -16,7 +16,6 @@ import string
 
 from oslo_config import cfg
 from oslo_log import log
-import six
 from six.moves import urllib
 import webob
 
@@ -373,9 +372,10 @@ class Auth(auth_controllers.Auth):
         return (response, service_provider)
 
     def _build_response_headers(self, service_provider):
+        # URLs in header are encoded into bytes
         return [('Content-Type', 'text/xml'),
-                ('X-sp-url', six.binary_type(service_provider['sp_url'])),
-                ('X-auth-url', six.binary_type(service_provider['auth_url']))]
+                ('X-sp-url', service_provider['sp_url'].encode('utf-8')),
+                ('X-auth-url', service_provider['auth_url'].encode('utf-8'))]
 
     @validation.validated(schema.saml_create, 'auth')
     def create_saml_assertion(self, context, auth):

@@ -534,7 +534,9 @@ class FederatedUnscopedPayload(BasePayload):
         (is_stored_as_bytes, idp_id) = payload[3]
         if is_stored_as_bytes:
             idp_id = cls.convert_uuid_bytes_to_hex(idp_id)
-        protocol_id = payload[4]
+        else:
+            idp_id = idp_id.decode('utf-8')
+        protocol_id = payload[4].decode('utf-8')
         expires_at_str = cls._convert_float_to_time_string(payload[5])
         audit_ids = list(map(provider.base64_encode, payload[6]))
         federated_info = dict(group_ids=group_ids, idp_id=idp_id,
