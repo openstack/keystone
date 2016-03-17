@@ -988,6 +988,37 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         self.assertEqual(sorted(body['remote_ids']),
                          sorted(returned_idp.get('remote_ids')))
 
+    def test_update_idp_remote_repeated(self):
+        """Update an IdentityProvider entity reusing a remote_id.
+
+        A remote_id is the same for both so the second IdP is not
+        updated because of the uniqueness of the remote_ids.
+
+        Expect HTTP 409 Conflict code for the latter call.
+
+        """
+        # Create first identity provider
+        body = self.default_body.copy()
+        repeated_remote_id = uuid.uuid4().hex
+        body['remote_ids'] = [uuid.uuid4().hex,
+                              repeated_remote_id]
+        self._create_default_idp(body=body)
+
+        # Create second identity provider (without remote_ids)
+        body = self.default_body.copy()
+        default_resp = self._create_default_idp(body=body)
+        default_idp = self._fetch_attribute_from_response(default_resp,
+                                                          'identity_provider')
+        idp_id = default_idp.get('id')
+        url = self.base_url(suffix=idp_id)
+
+        body['remote_ids'] = [repeated_remote_id]
+        resp = self.patch(url, body={'identity_provider': body},
+                          expected_status=http_client.CONFLICT)
+        resp_data = jsonutils.loads(resp.body)
+        self.assertIn('Duplicate remote ID',
+                      resp_data['error']['message'])
+
     def test_list_idps(self, iterations=5):
         """Lists all available IdentityProviders.
 
