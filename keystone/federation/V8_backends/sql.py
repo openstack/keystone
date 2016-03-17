@@ -12,12 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
 from oslo_serialization import jsonutils
+import six
 from sqlalchemy import orm
 
 from keystone.common import sql
 from keystone import exception
 from keystone.federation import core
+from keystone.i18n import _
+
+
+LOG = log.getLogger(__name__)
 
 
 class FederationProtocolModel(sql.ModelBase, sql.DictBase):
@@ -157,6 +163,20 @@ class ServiceProviderModel(sql.ModelBase, sql.DictBase):
 
 class Federation(core.FederationDriverV8):
 
+    _CONFLICT_LOG_MSG = 'Conflict %(conflict_type)s: %(details)s'
+
+    def _handle_idp_conflict(self, e):
+        conflict_type = 'identity_provider'
+        details = six.text_type(e)
+        LOG.debug(self._CONFLICT_LOG_MSG, {'conflict_type': conflict_type,
+                                           'details': details})
+        if 'remote_id' in details:
+            msg = _('Duplicate remote ID: %s')
+        else:
+            msg = _('Duplicate entry: %s')
+        msg = msg % e.value
+        raise exception.Conflict(type=conflict_type, details=msg)
+
     # Identity Provider CRUD
     @sql.handle_conflicts(conflict_type='identity_provider')
     def create_idp(self, idp_id, idp):
@@ -203,14 +223,17 @@ class Federation(core.FederationDriverV8):
             return ref.to_dict()
 
     def update_idp(self, idp_id, idp):
-        with sql.session_for_write() as session:
-            idp_ref = self._get_idp(session, idp_id)
-            old_idp = idp_ref.to_dict()
-            old_idp.update(idp)
-            new_idp = IdentityProviderModel.from_dict(old_idp)
-            for attr in IdentityProviderModel.mutable_attributes:
-                setattr(idp_ref, attr, getattr(new_idp, attr))
-            return idp_ref.to_dict()
+        try:
+            with sql.session_for_write() as session:
+                idp_ref = self._get_idp(session, idp_id)
+                old_idp = idp_ref.to_dict()
+                old_idp.update(idp)
+                new_idp = IdentityProviderModel.from_dict(old_idp)
+                for attr in IdentityProviderModel.mutable_attributes:
+                    setattr(idp_ref, attr, getattr(new_idp, attr))
+                return idp_ref.to_dict()
+        except sql.DBDuplicateEntry as e:
+            self._handle_idp_conflict(e)
 
     # Protocol CRUD
     def _get_protocol(self, session, idp_id, protocol_id):
