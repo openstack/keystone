@@ -178,7 +178,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
             self.assertEqual(initial_version, version)
 
 
-class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
+class SqlMigrateBase(unit.BaseTestCase):
     # override this in subclasses. The default of zero covers tests such
     # as extensions upgrades.
     _initial_db_version = 0
@@ -187,17 +187,11 @@ class SqlMigrateBase(unit.SQLDriverOverrides, unit.TestCase):
         self.metadata = sqlalchemy.MetaData()
         self.metadata.bind = self.engine
 
-    def config_files(self):
-        config_files = super(SqlMigrateBase, self).config_files()
-        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
-        return config_files
-
     def repo_package(self):
         return sql
 
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
-        self.load_backends()
         database.initialize_sql_session()
         conn_str = CONF.database.connection
         if (conn_str != unit.IN_MEM_DB_CONN_STRING and
@@ -406,8 +400,8 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         # In 067 the role ID index was removed from the assignment table
         if self.engine.name == "mysql":
-            self.assertFalse(self._does_index_exist('assignment',
-                                                    'assignment_role_id_fkey'))
+            self.assertFalse(self.does_index_exist('assignment',
+                                                   'assignment_role_id_fkey'))
 
     def test_insert_assignment_inherited_pk(self):
         ASSIGNMENT_TABLE_NAME = 'assignment'

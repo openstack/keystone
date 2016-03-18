@@ -545,6 +545,10 @@ class BaseTestCase(testtools.TestCase):
                     delattr(self, name)
         return cleanup
 
+    def skip_if_env_not_set(self, env_var):
+        if not os.environ.get(env_var):
+            self.skipTest('Env variable %s is not set.' % env_var)
+
 
 class TestCase(BaseTestCase):
 
@@ -871,10 +875,6 @@ class TestCase(BaseTestCase):
     def skip_if_no_ipv6(self):
         if not self.ipv6_enabled:
             raise self.skipTest("IPv6 is not enabled in the system")
-
-    def skip_if_env_not_set(self, env_var):
-        if not os.environ.get(env_var):
-            self.skipTest('Env variable %s is not set.' % env_var)
 
 
 class SQLDriverOverrides(object):
