@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1501698 <https://bugs.launchpad.net/keystone/+bug/1501698>`_]
+    Support parameter `list_limit` when LDAP is used as
+    identity backend.
