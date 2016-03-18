@@ -8,17 +8,18 @@
 # Reik Keutterling <spielkind@gmail.com>, 2015
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
+# Frank Kloeker <eumel@arcor.de>, 2016. #zanata
 # Monika Wolf <vcomas3@de.ibm.com>, 2016. #zanata
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev109\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev1\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-15 05:12+0000\n"
+"POT-Creation-Date: 2016-03-16 22:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-14 11:14+0000\n"
+"PO-Revision-Date: 2016-03-16 06:48+0000\n"
 "Last-Translator: Monika Wolf <vcomas3@de.ibm.com>\n"
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -189,7 +190,7 @@ msgstr ""
 "Sie v3- Authentifizierung"
 
 msgid "Authentication plugin error."
-msgstr "Authentifizierung-Plug-in-Fehler"
+msgstr "Authentifizierung-Plugin-Fehler"
 
 #, python-format
 msgid ""
@@ -1268,7 +1269,7 @@ msgid ""
 "request since it is either malformed or otherwise incorrect. The client is "
 "assumed to be in error."
 msgstr ""
-"Zeitmarke nicht im erwarteten Format. Der Server konnte der Anforderung "
+"Zeitstempel nicht im erwarteten Format. Der Server konnte der Anforderung "
 "nicht nachkommen, da ein fehlerhaftes Format oder ein anderer Fehler "
 "vorliegt. Es wird angenommen, dass der Fehler beim Client liegt."
 
@@ -1500,7 +1501,7 @@ msgstr "Benutzertyp %s nicht unterstützt"
 
 msgid "You are not authorized to perform the requested action."
 msgstr ""
-"Sie sind nicht dazu autorisiert, die angeforderte Aktion durchzuführen."
+"Sie sind nicht dazu authorisiert, die angeforderte Aktion durchzuführen."
 
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s"
