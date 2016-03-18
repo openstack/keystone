@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev1\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-08 06:03+0000\n"
+"POT-Creation-Date: 2016-03-18 06:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
 
-#: keystone/assignment/core.py:188
+#: keystone/assignment/core.py:200
 #, python-format
 msgid "Creating the default role %s because it does not exist."
 msgstr ""
 
-#: keystone/assignment/core.py:196
+#: keystone/assignment/core.py:208
 #, python-format
 msgid "Creating the default role %s failed because it was already created"
 msgstr ""
@@ -54,14 +54,14 @@ msgstr ""
 msgid "Project %s already exists, skipping creation."
 msgstr ""
 
-#: keystone/cmd/cli.py:221
-#, python-format
-msgid "Created user %s"
-msgstr ""
-
-#: keystone/cmd/cli.py:223
+#: keystone/cmd/cli.py:216
 #, python-format
 msgid "User %s already exists, skipping creation."
+msgstr ""
+
+#: keystone/cmd/cli.py:226
+#, python-format
+msgid "Created user %s"
 msgstr ""
 
 #: keystone/cmd/cli.py:235
