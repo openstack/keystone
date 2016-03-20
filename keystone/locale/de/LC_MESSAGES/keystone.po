@@ -6,20 +6,16 @@
 # Ettore Atalan <atalanttore@googlemail.com>, 2014
 # Robert Simai, 2014
 # Reik Keutterling <spielkind@gmail.com>, 2015
-# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
-# Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
 # Frank Kloeker <eumel@arcor.de>, 2016. #zanata
-# Monika Wolf <vcomas3@de.ibm.com>, 2016. #zanata
-# Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0rc2.dev1\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev4\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-16 22:54+0000\n"
+"POT-Creation-Date: 2016-03-18 19:18+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-16 06:48+0000\n"
+"PO-Revision-Date: 2016-03-20 06:01+0000\n"
 "Last-Translator: Monika Wolf <vcomas3@de.ibm.com>\n"
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -118,7 +114,7 @@ msgstr "--all-Option kann nicht zusammen mit anderen Optionen verwendet werden"
 
 msgid "A project-scoped token is required to produce a service catalog."
 msgstr ""
-"Ein projektorientiertes Token ist zum Produzieren eines Servicekatalogs "
+"Ein projektorientiertes Token ist zum Produzieren eines Dienstekatalogs "
 "erforderlich."
 
 msgid "Access token is expired"
@@ -251,7 +247,7 @@ msgstr ""
 
 msgid "Cannot delete a domain that is enabled, please disable it first."
 msgstr ""
-"Eine aktivierte Domäne kann nicht gelöscht werden. Inaktivieren Sie sie "
+"Eine aktivierte Domäne kann nicht gelöscht werden. Deaktivieren Sie sie "
 "zuerst."
 
 #, python-format
@@ -276,7 +272,7 @@ msgid ""
 "Cannot disable project %(project_id)s since its subtree contains enabled "
 "projects."
 msgstr ""
-"Kann Projekt %(project_id)s nicht inaktivieren, da die zugehörige "
+"Kann Projekt %(project_id)s nicht deaktivieren, da die zugehörige "
 "untergeordnete Baumstruktur aktivierte Projekte enthält."
 
 #, python-format
@@ -457,7 +453,7 @@ msgstr "Rolle %(role_id)s konnte nicht gefunden werden"
 
 #, python-format
 msgid "Could not find service: %(service_id)s"
-msgstr "Service %(service_id)s konnte nicht gefunden werden"
+msgstr "Dienst %(service_id)s konnte nicht gefunden werden"
 
 #, python-format
 msgid "Could not find token: %(token_id)s"
@@ -780,7 +776,7 @@ msgid ""
 "%(service_id)s, Region: %(region_id)s"
 msgstr ""
 "Ungültige Mischung von Entitäten für Richtlinienzuordnung - nur Endpunkt, "
-"Service oder Region+Service zulässig. Anforderung war - Endpunkt: "
+"Dienst oder Region+Dienst zulässig. Anforderung war - Endpunkt: "
 "%(endpoint_id)s, Service: %(service_id)s, Region: %(region_id)s"
 
 #, python-format
@@ -900,7 +896,7 @@ msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
 msgstr ""
-"Keine Autorisierungskopfzeilen gefunden, zu OAuth zugehörige Aufrufe können "
+"Keine Authorisierungskopfzeilen gefunden, zu OAuth zugehörige Aufrufe können "
 "nicht fortgesetzt werden. Stellen Sie bei Ausführung unter HTTPd oder Apache "
 "sicher, dass WSGIPassAuthorization auf 'On' gesetzt ist."
 
@@ -931,7 +927,7 @@ msgid "Non-default domain is not supported"
 msgstr "Nicht-Standard-Domäne wird nicht unterstützt"
 
 msgid "One of the trust agents is disabled or deleted"
-msgstr "Einer der Vertrauensagenten wurde inaktiviert oder gelöscht"
+msgstr "Einer der Vertrauensagenten wurde deaktiviert oder gelöscht"
 
 #, python-format
 msgid ""
@@ -1202,7 +1198,7 @@ msgstr ""
 
 msgid "The configured token provider does not support bind authentication."
 msgstr ""
-"Der konfigurierte Token-Provider unterstützt die Bindungsauthentifizierung "
+"Der konfigurierte Token-Anbieter unterstützt die Bindungsauthentifizierung "
 "nicht."
 
 msgid "The creation of projects acting as domains is not allowed in v2."
@@ -1234,7 +1230,7 @@ msgstr ""
 
 msgid "The service you have requested is no longer available on this server."
 msgstr ""
-"Der Service, den Sie angefordert haben, ist auf diesem Server nicht mehr "
+"Den Dienst, den Sie angefordert haben, ist auf diesem Server nicht mehr "
 "verfügbar."
 
 #, python-format
@@ -1296,7 +1292,7 @@ msgid "Trustee has no delegated roles."
 msgstr "Trustee hat keine beauftragten Rollen."
 
 msgid "Trustor is disabled."
-msgstr "Trustor ist inaktiviert."
+msgstr "Trustor ist deaktiviert."
 
 #, python-format
 msgid ""
@@ -1478,7 +1474,7 @@ msgstr ""
 
 #, python-format
 msgid "User is disabled: %s"
-msgstr "Benutzer ist inaktiviert: %s"
+msgstr "Benutzer ist deaktiviert: %s"
 
 msgid "User is not a member of the requested project"
 msgstr "Benutzer ist kein Mitglied des angeforderten Projekts"
