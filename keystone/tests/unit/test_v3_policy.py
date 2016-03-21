@@ -15,6 +15,8 @@
 import json
 import uuid
 
+from six.moves import http_client
+
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
@@ -38,16 +40,20 @@ class PolicyTestCase(test_v3.RestfulTestCase):
         r = self.post('/policies', body={'policy': ref})
         return self.assertValidPolicyResponse(r, ref)
 
-    def test_list_policies(self):
-        """Call ``GET /policies``."""
-        r = self.get('/policies')
+    def test_list_head_policies(self):
+        """Call ``GET & HEAD /policies``."""
+        resource_url = '/policies'
+        r = self.get(resource_url)
         self.assertValidPolicyListResponse(r, ref=self.policy)
+        self.head(resource_url, expected_status=http_client.OK)
 
-    def test_get_policy(self):
-        """Call ``GET /policies/{policy_id}``."""
-        r = self.get(
-            '/policies/%(policy_id)s' % {'policy_id': self.policy_id})
+    def test_get_head_policy(self):
+        """Call ``GET & HEAD /policies/{policy_id}``."""
+        resource_url = ('/policies/%(policy_id)s' %
+                        {'policy_id': self.policy_id})
+        r = self.get(resource_url)
         self.assertValidPolicyResponse(r, self.policy)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_policy(self):
         """Call ``PATCH /policies/{policy_id}``."""

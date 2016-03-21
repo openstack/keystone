@@ -44,12 +44,12 @@ class Router(wsgi.ComposableRouter):
             collection_path,
             controller=self.controller,
             action=self.method_template % 'list_%s' % self.collection_key,
-            conditions=dict(method=['GET']))
+            conditions=dict(method=['GET', 'HEAD']))
         mapper.connect(
             entity_path,
             controller=self.controller,
             action=self.method_template % 'get_%s' % self.key,
-            conditions=dict(method=['GET']))
+            conditions=dict(method=['GET', 'HEAD']))
         mapper.connect(
             entity_path,
             controller=self.controller,

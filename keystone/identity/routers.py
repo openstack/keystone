@@ -50,7 +50,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, user_controller,
             path='/groups/{group_id}/users',
-            get_action='list_users_in_group',
+            get_head_action='list_users_in_group',
             rel=json_home.build_v3_resource_relation('group_users'),
             path_vars={
                 'group_id': json_home.Parameters.GROUP_ID,
@@ -77,7 +77,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, group_controller,
             path='/users/{user_id}/groups',
-            get_action='list_groups_for_user',
+            get_head_action='list_groups_for_user',
             rel=json_home.build_v3_resource_relation('user_groups'),
             path_vars={
                 'user_id': json_home.Parameters.USER_ID,
