@@ -855,7 +855,7 @@ class SqlUpgradeTests(SqlMigrateBase):
                                           autoload=True)
         actual_users = get_users_from_db(user_table, local_user_table,
                                          password_table)
-        self.assertListEqual(expected_users, actual_users)
+        self.assertItemsEqual(expected_users, actual_users)
 
     def test_migrate_user_with_null_password_to_password_tables(self):
         USER_TABLE_NAME = 'user'
