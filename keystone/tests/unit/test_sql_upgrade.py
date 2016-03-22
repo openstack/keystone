@@ -861,25 +861,52 @@ class SqlUpgradeTests(SqlMigrateBase):
 
         self.upgrade(92)
 
+        session = self.sessionmaker()
+
+        ROLE_TABLE_NAME = 'role'
+        role_table = sqlalchemy.Table(ROLE_TABLE_NAME, self.metadata,
+                                      autoload=True)
+        IMPLIED_ROLE_TABLE_NAME = 'implied_role'
+        implied_role_table = sqlalchemy.Table(
+            IMPLIED_ROLE_TABLE_NAME, self.metadata, autoload=True)
+
         def _create_three_roles():
             id_list = []
             for _ in range(3):
-                role = unit.new_role_ref()
-                self.role_api.create_role(role['id'], role)
-                id_list.append(role['id'])
+                new_role_fields = {
+                    'id': uuid.uuid4().hex,
+                    'name': uuid.uuid4().hex,
+                }
+                self.insert_dict(session, ROLE_TABLE_NAME, new_role_fields,
+                                 table=role_table)
+                id_list.append(new_role_fields['id'])
             return id_list
 
         role_id_list = _create_three_roles()
-        self.role_api.create_implied_role(role_id_list[0], role_id_list[1])
-        self.role_api.create_implied_role(role_id_list[0], role_id_list[2])
+        implied_role_fields = {
+            'prior_role_id': role_id_list[0],
+            'implied_role_id': role_id_list[1],
+        }
+        self.insert_dict(session, IMPLIED_ROLE_TABLE_NAME, implied_role_fields,
+                         table=implied_role_table)
+
+        implied_role_fields = {
+            'prior_role_id': role_id_list[0],
+            'implied_role_id': role_id_list[2],
+        }
+        self.insert_dict(session, IMPLIED_ROLE_TABLE_NAME, implied_role_fields,
+                         table=implied_role_table)
 
         # assert that there are two roles implied by role 0.
-        implied_roles = self.role_api.list_implied_roles(role_id_list[0])
+        implied_roles = session.query(implied_role_table).filter_by(
+            prior_role_id=role_id_list[0]).all()
         self.assertThat(implied_roles, matchers.HasLength(2))
 
-        self.role_api.delete_role(role_id_list[0])
+        session.execute(
+            role_table.delete().where(role_table.c.id == role_id_list[0]))
         # assert the cascade deletion is effective.
-        implied_roles = self.role_api.list_implied_roles(role_id_list[0])
+        implied_roles = session.query(implied_role_table).filter_by(
+            prior_role_id=role_id_list[0]).all()
         self.assertThat(implied_roles, matchers.HasLength(0))
 
     def test_domain_as_project_upgrade(self):
