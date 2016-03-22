@@ -239,18 +239,17 @@ class SqlMigrateBase(test_base.DbTestCase):
         else:
             raise AssertionError('Table "%s" already exists' % table_name)
 
-    def assertTableCountsMatch(self, table1_name, table2_name):
-        try:
-            table1 = self.select_table(table1_name)
-        except sqlalchemy.exc.NoSuchTableError:
-            raise AssertionError('Table "%s" does not exist' % table1_name)
-        try:
-            table2 = self.select_table(table2_name)
-        except sqlalchemy.exc.NoSuchTableError:
-            raise AssertionError('Table "%s" does not exist' % table2_name)
+    def calc_table_row_count(self, table_name):
+        """Returns the number of rows in the table."""
+        t = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         session = self.sessionmaker()
-        table1_count = session.execute(table1.count()).scalar()
-        table2_count = session.execute(table2.count()).scalar()
+        row_count = session.query(
+            sqlalchemy.func.count('*')).select_from(t).scalar()
+        return row_count
+
+    def assertTableCountsMatch(self, table1_name, table2_name):
+        table1_count = self.calc_table_row_count(table1_name)
+        table2_count = self.calc_table_row_count(table2_name)
         if table1_count != table2_count:
             raise AssertionError('Table counts do not match: {0} ({1}), {2} '
                                  '({3})'.format(table1_name, table1_count,
@@ -828,8 +827,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertTableCountsMatch(USER_TABLE_NAME, LOCAL_USER_TABLE_NAME)
         # no new entry was added to the password table because the
         # user doesn't have a password.
-        password_table = self.select_table(PASSWORD_TABLE_NAME)
-        rows = session.execute(password_table.count()).scalar()
+        rows = self.calc_table_row_count(PASSWORD_TABLE_NAME)
         self.assertEqual(0, rows)
 
     def test_migrate_user_skip_user_already_exist_in_local_user(self):
