@@ -5,16 +5,17 @@
 # Translators:
 # Tomoyuki KATO <tomo@dream.daynight.jp>, 2012-2013
 # Akihiro Motoki <amotoki@gmail.com>, 2015. #zanata
+# 笹原 昌美 <ebb0de1@jp.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev5\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-07 18:22+0000\n"
+"POT-Creation-Date: 2016-03-21 10:57+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-10-08 03:20+0000\n"
-"Last-Translator: Akihiro Motoki <amotoki@gmail.com>\n"
+"PO-Revision-Date: 2016-03-22 06:17+0000\n"
+"Last-Translator: 笹原 昌美 <ebb0de1@jp.ibm.com>\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -24,6 +25,10 @@ msgstr ""
 #, python-format
 msgid "%(detail)s"
 msgstr "%(detail)s"
+
+#, python-format
+msgid "%(driver)s is not supported driver version"
+msgstr "%(driver)s はサポートされるドライバーバージョンではありません"
 
 #, python-format
 msgid ""
@@ -50,6 +55,10 @@ msgstr ""
 "ずれかです。"
 
 #, python-format
+msgid "%(prior_role_id)s does not imply %(implied_role_id)s"
+msgstr "%(prior_role_id)s は %(implied_role_id)s を暗黙的に示しません"
+
+#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s は %(min_length)s 文字より短くできません。"
 
@@ -60,6 +69,10 @@ msgstr "%(property_name)s が %(display_expected_type)s ではありません。
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr "%(property_name)s は %(max_length)s 文字より長くできません。"
+
+#, python-format
+msgid "%(role_id)s cannot be an implied roles"
+msgstr "%(role_id)s は暗黙的ロールにできません"
 
 #, python-format
 msgid "%s cannot be empty."
@@ -76,6 +89,9 @@ msgstr "フィールド %s は必須フィールドであるため、空にで�
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "フィールド %s を空にすることはできません"
+
+msgid "(Disable insecure_debug mode to suppress these details.)"
+msgstr "(これらの詳細を抑制するには、insecure_debug モードを無効にします。)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all オプションを他のオプションと組み合わせて使用することはできません"
@@ -157,6 +173,10 @@ msgstr "ユーザー ID を変更できません"
 msgid "Cannot change user name"
 msgstr "ユーザー名を変更できません"
 
+#, python-format
+msgid "Cannot create an endpoint with an invalid URL: %(url)s"
+msgstr "以下の無効な URL を持つエンドポイントを作成できません: %(url)s"
+
 #, fuzzy, python-format
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "親を持つプロジェクトを作成できません: %(project_id)s"
@@ -226,6 +246,14 @@ msgid ""
 msgstr ""
 "ターゲット %(target)s の変更不可の属性 '%(attributes)s' を変更できませんでし"
 "た"
+
+#, python-format
+msgid ""
+"Could not determine Identity Provider ID. The configuration option "
+"%(issuer_attribute)s was not found in the request environment."
+msgstr ""
+"認証プロバイダー ID を判別できませんでした。設定オプション "
+"%(issuer_attribute)s が要求された環境内で見つかりませんでした。"
 
 #, python-format
 msgid ""
@@ -791,6 +819,25 @@ msgstr ""
 "文字列が長過ぎます。文字列 %(string)s' の長さが列 %(type)s(CHAR(%(length)d)) "
 "の制限を超えました。"
 
+#, python-format
+msgid ""
+"The %s extension has been moved into keystone core and as such its "
+"migrations are maintained by the main keystone database control. Use the "
+"command: keystone-manage db_sync"
+msgstr ""
+"%s 拡張が keystone コアに移動されているため、そのマイグレーションはメインの "
+"keystone データベース制御によって維持されます。次のコマンドを使用します: "
+"keystone-manage db_sync"
+
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"'expires_at' は現時点以前であってはなりません。要求の形式が誤っているか、要求"
+"が正しくないために、サーバーはこの要求に応じることが出来ませんでした。クライ"
+"アントでエラーが発生していると考えられます。"
+
 msgid "The --all option cannot be used with the --domain-name option"
 msgstr "--all オプションを --domain-name オプションと併用することはできません"
 
@@ -890,6 +937,9 @@ msgstr "トークンが別のユーザーに属しています"
 
 msgid "Token does not belong to specified tenant."
 msgstr "トークンが指定されたテナントに所属していません。"
+
+msgid "Token version is unrecognizable or unsupported."
+msgstr "トークンバージョンが認識できないかサポートされません。"
 
 #, fuzzy
 msgid "Trustee has no delegated roles."
@@ -1015,6 +1065,16 @@ msgstr ""
 "SAML アサーションの作成を行うときは、プロジェクトにスコープが設定されたトーク"
 "ンを使用してください"
 
+msgid ""
+"Use of the identity driver config to automatically configure the same "
+"assignment driver has been deprecated, in the \"O\" release, the assignment "
+"driver will need to be expicitly configured if different than the default "
+"(SQL)."
+msgstr ""
+"同一の割り当てドライバーを自動的に設定するための ID ドライバー設定の使用"
+"は、\"O\" リリースでは提供を終了しました。デフォルト (SQL) 以外の場合は割り当"
+"てドライバーを明示的に設定する必要があります。"
+
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "ユーザー %(u_id)s はテナント %(t_id)s のアクセス権限がありません。"
@@ -1054,6 +1114,9 @@ msgstr "ユーザーは受託者ではありません。"
 
 msgid "User not found"
 msgstr "ユーザーが見つかりません"
+
+msgid "User roles not supported: tenant_id required"
+msgstr "ユーザーロールがサポートされません: tenant_id が必要です"
 
 #, fuzzy, python-format
 msgid "User type %s not supported"
@@ -1134,6 +1197,10 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "スコープが設定されたトークンのスコープを設定し直します"
+
+msgid "scope.project.id must be specified if include_subtree is also specified"
+msgstr ""
+"include_subtree も指定される場合、scope.project.id を指定する必要があります。"
 
 #, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
