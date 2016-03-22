@@ -1032,6 +1032,14 @@ class SqlUpgradeTests(SqlMigrateBase):
         self.assertIsInstance(revocation_event_table.c.id.type, sql.Integer)
 
 
+class MySQLOpportunisticUpgradeTestCase(SqlUpgradeTests):
+    FIXTURE = test_base.MySQLOpportunisticFixture
+
+
+class PostgreSQLOpportunisticUpgradeTestCase(SqlUpgradeTests):
+    FIXTURE = test_base.PostgreSQLOpportunisticFixture
+
+
 class VersionTests(SqlMigrateBase):
 
     _initial_db_version = migration_helpers.get_init_version()
