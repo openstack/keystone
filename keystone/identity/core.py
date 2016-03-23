@@ -14,7 +14,6 @@
 
 """Main entry point into the Identity service."""
 
-import abc
 import functools
 import os
 import threading
@@ -23,7 +22,6 @@ import uuid
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
-import six
 
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
 from keystone.common import cache
@@ -34,7 +32,10 @@ from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _, _LW
+from keystone.identity.backends import base as identity_interface
+from keystone.identity.mapping_backends import base as mapping_interface
 from keystone.identity.mapping_backends import mapping
+from keystone.identity.shadow_backends import base as shadow_interface
 from keystone import notifications
 
 
@@ -54,29 +55,6 @@ REGISTRATION_ATTEMPTS = 10
 
 # Config Registration Types
 SQL_DRIVER = 'SQL'
-
-
-def filter_user(user_ref):
-    """Filter out private items in a user dict.
-
-    'password', 'tenants' and 'groups' are never returned.
-
-    :returns: user_ref
-
-    """
-    if user_ref:
-        user_ref = user_ref.copy()
-        user_ref.pop('password', None)
-        user_ref.pop('tenants', None)
-        user_ref.pop('groups', None)
-        user_ref.pop('domains', None)
-        try:
-            user_ref['extra'].pop('password', None)
-            user_ref['extra'].pop('tenants', None)
-        except KeyError:  # nosec
-            # ok to not have extra in the user_ref.
-            pass
-    return user_ref
 
 
 @dependency.requires('domain_config_api', 'resource_api')
@@ -1253,238 +1231,15 @@ class Manager(manager.Manager):
         return user_dict
 
 
-@six.add_metaclass(abc.ABCMeta)
-class IdentityDriverV8(object):
-    """Interface description for an Identity driver."""
-
-    def _get_conf(self):
-        try:
-            return self.conf or CONF
-        except AttributeError:
-            return CONF
-
-    def _get_list_limit(self):
-        conf = self._get_conf()
-        # use list_limit from domain-specific config. If list_limit in
-        # domain-specific config is not set, look it up in the default config
-        return (conf.identity.list_limit or conf.list_limit or
-                CONF.identity.list_limit or CONF.list_limit)
-
-    def is_domain_aware(self):
-        """Indicates if Driver supports domains."""
-        return True
-
-    def default_assignment_driver(self):
-        # TODO(morganfainberg): To be removed when assignment driver based
-        # upon [identity]/driver option is removed in the "O" release.
-        return 'sql'
-
-    @property
-    def is_sql(self):
-        """Indicates if this Driver uses SQL."""
-        return False
-
-    @property
-    def multiple_domains_supported(self):
-        return (self.is_domain_aware() or
-                CONF.identity.domain_specific_drivers_enabled)
-
-    def generates_uuids(self):
-        """Indicates if Driver generates UUIDs as the local entity ID."""
-        return True
-
-    @abc.abstractmethod
-    def authenticate(self, user_id, password):
-        """Authenticate a given user and password.
-
-        :returns: user_ref
-        :raises AssertionError: If user or password is invalid.
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    # user crud
-
-    @abc.abstractmethod
-    def create_user(self, user_id, user):
-        """Creates a new user.
-
-        :raises keystone.exception.Conflict: If a duplicate user exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_users(self, hints):
-        """List users in the system.
-
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of user_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_users_in_group(self, group_id, hints):
-        """List users in a group.
-
-        :param group_id: the group in question
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of user_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_user(self, user_id):
-        """Get a user by ID.
-
-        :returns: user_ref
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_user(self, user_id, user):
-        """Updates an existing user.
-
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-        :raises keystone.exception.Conflict: If a duplicate user exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def add_user_to_group(self, user_id, group_id):
-        """Adds a user to a group.
-
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def check_user_in_group(self, user_id, group_id):
-        """Checks if a user is a member of a group.
-
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def remove_user_from_group(self, user_id, group_id):
-        """Removes a user from a group.
-
-        :raises keystone.exception.NotFound: If the entity not found.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_user(self, user_id):
-        """Deletes an existing user.
-
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_user_by_name(self, user_name, domain_id):
-        """Get a user by name.
-
-        :returns: user_ref
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    # group crud
-
-    @abc.abstractmethod
-    def create_group(self, group_id, group):
-        """Creates a new group.
-
-        :raises keystone.exception.Conflict: If a duplicate group exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_groups(self, hints):
-        """List groups in the system.
-
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of group_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_groups_for_user(self, user_id, hints):
-        """List groups a user is in
-
-        :param user_id: the user in question
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of group_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_group(self, group_id):
-        """Get a group by ID.
-
-        :returns: group_ref
-        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_group_by_name(self, group_name, domain_id):
-        """Get a group by name.
-
-        :returns: group_ref
-        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_group(self, group_id, group):
-        """Updates an existing group.
-
-        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
-        :raises keystone.exception.Conflict: If a duplicate group exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_group(self, group_id):
-        """Deletes an existing group.
-
-        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    # end of identity
-
-
-Driver = manager.create_legacy_driver(IdentityDriverV8)
+@versionutils.deprecated(
+    versionutils.deprecated.MITAKA,
+    what='keystone.identity.IdentityDriverV8',
+    in_favor_of='keystone.identity.backends.base.IdentityDriverV8',
+    remove_in=+1)
+class IdentityDriverV8(identity_interface.IdentityDriverV8):
+    pass
+
+Driver = manager.create_legacy_driver(identity_interface.IdentityDriverV8)
 
 
 @dependency.provider('id_mapping_api')
@@ -1497,69 +1252,16 @@ class MappingManager(manager.Manager):
         super(MappingManager, self).__init__(CONF.identity_mapping.driver)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class MappingDriverV8(object):
-    """Interface description for an ID Mapping driver."""
-
-    @abc.abstractmethod
-    def get_public_id(self, local_entity):
-        """Returns the public ID for the given local entity.
-
-        :param dict local_entity: Containing the entity domain, local ID and
-                                  type ('user' or 'group').
-        :returns: public ID, or None if no mapping is found.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_id_mapping(self, public_id):
-        """Returns the local mapping.
-
-        :param public_id: The public ID for the mapping required.
-        :returns dict: Containing the entity domain, local ID and type. If no
-                       mapping is found, it returns None.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def create_id_mapping(self, local_entity, public_id=None):
-        """Create and store a mapping to a public_id.
-
-        :param dict local_entity: Containing the entity domain, local ID and
-                                  type ('user' or 'group').
-        :param public_id: If specified, this will be the public ID.  If this
-                          is not specified, a public ID will be generated.
-        :returns: public ID
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_id_mapping(self, public_id):
-        """Deletes an entry for the given public_id.
-
-        :param public_id: The public ID for the mapping to be deleted.
-
-        The method is silent if no mapping is found.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def purge_mappings(self, purge_filter):
-        """Purge selected identity mappings.
-
-        :param dict purge_filter: Containing the attributes of the filter that
-                                  defines which entries to purge. An empty
-                                  filter means purge all mappings.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
+@versionutils.deprecated(
+    versionutils.deprecated.MITAKA,
+    what='keystone.identity.MappingDriverV8',
+    in_favor_of='keystone.identity.mapping_backends.base.MappingDriverV8',
+    remove_in=+1)
+class MappingDriverV8(mapping_interface.MappingDriverV8):
+    pass
 
 
-MappingDriver = manager.create_legacy_driver(MappingDriverV8)
+MappingDriver = manager.create_legacy_driver(mapping_interface.MappingDriverV8)
 
 
 @dependency.provider('shadow_users_api')
@@ -1572,42 +1274,10 @@ class ShadowUsersManager(manager.Manager):
         super(ShadowUsersManager, self).__init__(CONF.shadow_users.driver)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ShadowUsersDriverV9(object):
-    """Interface description for an Shadow Users driver."""
-
-    @abc.abstractmethod
-    def create_federated_user(self, federated_dict):
-        """Create a new user with the federated identity
-
-        :param dict federated_dict: Reference to the federated user
-        :param user_id: user ID for linking to the federated identity
-        :returns dict: Containing the user reference
-
-        """
-        raise exception.NotImplemented()
-
-    @abc.abstractmethod
-    def get_federated_user(self, idp_id, protocol_id, unique_id):
-        """Returns the found user for the federated identity
-
-        :param idp_id: The identity provider ID
-        :param protocol_id: The federation protocol ID
-        :param unique_id: The unique ID for the user
-        :returns dict: Containing the user reference
-
-        """
-        raise exception.NotImplemented()
-
-    @abc.abstractmethod
-    def update_federated_user_display_name(self, idp_id, protocol_id,
-                                           unique_id, display_name):
-        """Updates federated user's display name if changed
-
-        :param idp_id: The identity provider ID
-        :param protocol_id: The federation protocol ID
-        :param unique_id: The unique ID for the user
-        :param display_name: The user's display name
-
-        """
-        raise exception.NotImplemented()
+@versionutils.deprecated(
+    versionutils.deprecated.MITAKA,
+    what='keystone.identity.ShadowUsersDriverV9',
+    in_favor_of='keystone.identity.shadow_backends.base.ShadowUsersDriverV9',
+    remove_in=+1)
+class ShadowUsersDriverV9(shadow_interface.ShadowUsersDriverV9):
+    pass
