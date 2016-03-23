@@ -1051,7 +1051,7 @@ class SqlUpgradeTests(SqlMigrateBase):
         revocation_event_table = sqlalchemy.Table(REVOCATION_EVENT_TABLE_NAME,
                                                   meta, autoload=True)
         # assert id column is an integer (after)
-        self.assertEqual('INTEGER', str(revocation_event_table.c.id.type))
+        self.assertIsInstance(revocation_event_table.c.id.type, sql.Integer)
 
 
 class VersionTests(SqlMigrateBase):
