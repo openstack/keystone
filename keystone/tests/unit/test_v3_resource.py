@@ -129,18 +129,21 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.assertValidDomainResponse(r)
         self.assertIsNotNone(r.result['domain'])
 
-    def test_list_domains(self):
-        """Call ``GET /domains``."""
+    def test_list_head_domains(self):
+        """Call ``GET & HEAD /domains``."""
         resource_url = '/domains'
         r = self.get(resource_url)
         self.assertValidDomainListResponse(r, ref=self.domain,
                                            resource_url=resource_url)
+        self.head(resource_url, expected_status=http_client.OK)
 
-    def test_get_domain(self):
+    def test_get_head_domain(self):
         """Call ``GET /domains/{domain_id}``."""
-        r = self.get('/domains/%(domain_id)s' % {
-            'domain_id': self.domain_id})
+        resource_url = '/domains/%(domain_id)s' % {
+            'domain_id': self.domain_id}
+        r = self.get(resource_url)
         self.assertValidDomainResponse(r, self.domain)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_domain(self):
         """Call ``PATCH /domains/{domain_id}``."""
@@ -541,12 +544,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
     # Project CRUD tests
 
-    def test_list_projects(self):
-        """Call ``GET /projects``."""
+    def test_list_head_projects(self):
+        """Call ``GET & HEAD /projects``."""
         resource_url = '/projects'
         r = self.get(resource_url)
         self.assertValidProjectListResponse(r, ref=self.project,
                                             resource_url=resource_url)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_create_project(self):
         """Call ``POST /projects``."""
@@ -752,12 +756,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         """Call ``POST /projects``."""
         self._create_projects_hierarchy()
 
-    def test_get_project(self):
-        """Call ``GET /projects/{project_id}``."""
-        r = self.get(
-            '/projects/%(project_id)s' % {
-                'project_id': self.project_id})
+    def test_get_head_project(self):
+        """Call ``GET & HEAD /projects/{project_id}``."""
+        resource_url = '/projects/%(project_id)s' % {
+            'project_id': self.project_id}
+        r = self.get(resource_url)
         self.assertValidProjectResponse(r, self.project)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_get_project_with_parents_as_list_with_invalid_id(self):
         """Call ``GET /projects/{project_id}?parents_as_list``."""

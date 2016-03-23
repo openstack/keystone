@@ -161,10 +161,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             body={'region': ref},
             expected_status=http_client.BAD_REQUEST)
 
-    def test_list_regions(self):
-        """Call ``GET /regions``."""
-        r = self.get('/regions')
+    def test_list_head_regions(self):
+        """Call ``GET & HEAD /regions``."""
+        resource_url = '/regions'
+        r = self.get(resource_url)
         self.assertValidRegionListResponse(r, ref=self.region)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def _create_region_with_parent_id(self, parent_id=None):
         ref = unit.new_region_ref(parent_region_id=parent_id)
@@ -185,11 +187,13 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         for region in r.result['regions']:
             self.assertEqual(parent_id, region['parent_region_id'])
 
-    def test_get_region(self):
-        """Call ``GET /regions/{region_id}``."""
-        r = self.get('/regions/%(region_id)s' % {
-            'region_id': self.region_id})
+    def test_get_head_region(self):
+        """Call ``GET & HEAD /regions/{region_id}``."""
+        resource_url = '/regions/%(region_id)s' % {
+            'region_id': self.region_id}
+        r = self.get(resource_url)
         self.assertValidRegionResponse(r, self.region)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_region(self):
         """Call ``PATCH /regions/{region_id}``."""
@@ -308,10 +312,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.post('/services', body={'service': ref},
                   expected_status=http_client.BAD_REQUEST)
 
-    def test_list_services(self):
-        """Call ``GET /services``."""
-        r = self.get('/services')
+    def test_list_head_services(self):
+        """Call ``GET & HEAD /services``."""
+        resource_url = '/services'
+        r = self.get(resource_url)
         self.assertValidServiceListResponse(r, ref=self.service)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def _create_random_service(self):
         ref = unit.new_service_ref()
@@ -354,11 +360,13 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         filtered_service = filtered_service_list[0]
         self.assertEqual(target_ref['name'], filtered_service['name'])
 
-    def test_get_service(self):
-        """Call ``GET /services/{service_id}``."""
-        r = self.get('/services/%(service_id)s' % {
-            'service_id': self.service_id})
+    def test_get_head_service(self):
+        """Call ``GET & HEAD /services/{service_id}``."""
+        resource_url = '/services/%(service_id)s' % {
+            'service_id': self.service_id}
+        r = self.get(resource_url)
         self.assertValidServiceResponse(r, self.service)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_service(self):
         """Call ``PATCH /services/{service_id}``."""
@@ -376,10 +384,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     # endpoint crud tests
 
-    def test_list_endpoints(self):
-        """Call ``GET /endpoints``."""
-        r = self.get('/endpoints')
+    def test_list_head_endpoints(self):
+        """Call ``GET & HEAD /endpoints``."""
+        resource_url = '/endpoints'
+        r = self.get(resource_url)
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def _create_random_endpoint(self, interface='public',
                                 parent_region_id=None):
@@ -591,12 +601,13 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.post('/endpoints', body={'endpoint': ref},
                   expected_status=http_client.BAD_REQUEST)
 
-    def test_get_endpoint(self):
-        """Call ``GET /endpoints/{endpoint_id}``."""
-        r = self.get(
-            '/endpoints/%(endpoint_id)s' % {
-                'endpoint_id': self.endpoint_id})
+    def test_get_head_endpoint(self):
+        """Call ``GET & HEAD /endpoints/{endpoint_id}``."""
+        resource_url = '/endpoints/%(endpoint_id)s' % {
+            'endpoint_id': self.endpoint_id}
+        r = self.get(resource_url)
         self.assertValidEndpointResponse(r, self.endpoint)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_endpoint(self):
         """Call ``PATCH /endpoints/{endpoint_id}``."""

@@ -219,12 +219,13 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.post('/users', body={'user': {}},
                   expected_status=http_client.BAD_REQUEST)
 
-    def test_list_users(self):
-        """Call ``GET /users``."""
+    def test_list_head_users(self):
+        """Call ``GET & HEAD /users``."""
         resource_url = '/users'
         r = self.get(resource_url)
         self.assertValidUserListResponse(r, ref=self.user,
                                          resource_url=resource_url)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_list_users_with_multiple_backends(self):
         """Call ``GET /users`` when multiple backends is enabled.
@@ -291,11 +292,13 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidUserListResponse(r, ref=user,
                                          resource_url=resource_url)
 
-    def test_get_user(self):
-        """Call ``GET /users/{user_id}``."""
-        r = self.get('/users/%(user_id)s' % {
-            'user_id': self.user['id']})
+    def test_get_head_user(self):
+        """Call ``GET & HEAD /users/{user_id}``."""
+        resource_url = '/users/%(user_id)s' % {
+            'user_id': self.user['id']}
+        r = self.get(resource_url)
         self.assertValidUserResponse(r, self.user)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_get_user_with_default_project(self):
         """Call ``GET /users/{user_id}`` making sure of default_project_id."""
@@ -310,8 +313,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
-    def test_list_groups_for_user(self):
-        """Call ``GET /users/{user_id}/groups``."""
+    def test_list_head_groups_for_user(self):
+        """Call ``GET & HEAD /users/{user_id}/groups``."""
         user1 = unit.create_user(self.identity_api,
                                  domain_id=self.domain['id'])
         user2 = unit.create_user(self.identity_api,
@@ -331,6 +334,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get(resource_url, auth=auth)
         self.assertValidGroupListResponse(r, ref=self.group,
                                           resource_url=resource_url)
+        self.head(resource_url, auth=auth, expected_status=http_client.OK)
 
         # Administrator is allowed to list others' groups
         resource_url = ('/users/%(user_id)s/groups' %
@@ -338,14 +342,18 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.get(resource_url)
         self.assertValidGroupListResponse(r, ref=self.group,
                                           resource_url=resource_url)
+        self.head(resource_url, expected_status=http_client.OK)
 
         # Ordinary users should not be allowed to list other's groups
         auth = self.build_authentication_request(
             user_id=user2['id'],
             password=user2['password'])
-        r = self.get('/users/%(user_id)s/groups' % {
-            'user_id': user1['id']}, auth=auth,
-            expected_status=exception.ForbiddenAction.code)
+        resource_url = '/users/%(user_id)s/groups' % {
+            'user_id': user1['id']}
+        self.get(resource_url, auth=auth,
+                 expected_status=exception.ForbiddenAction.code)
+        self.head(resource_url, auth=auth,
+                  expected_status=exception.ForbiddenAction.code)
 
     def test_check_user_in_group(self):
         """Call ``HEAD /groups/{group_id}/users/{user_id}``."""
@@ -354,8 +362,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.head('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
-    def test_list_users_in_group(self):
-        """Call ``GET /groups/{group_id}/users``."""
+    def test_list_head_users_in_group(self):
+        """Call ``GET & HEAD /groups/{group_id}/users``."""
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
         resource_url = ('/groups/%(group_id)s/users' %
@@ -365,6 +373,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
                                          resource_url=resource_url)
         self.assertIn('/groups/%(group_id)s/users' % {
             'group_id': self.group_id}, r.result['links']['self'])
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_remove_user_from_group(self):
         """Call ``DELETE /groups/{group_id}/users/{user_id}``."""
@@ -515,18 +524,21 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.post('/groups', body={'group': {}},
                   expected_status=http_client.BAD_REQUEST)
 
-    def test_list_groups(self):
-        """Call ``GET /groups``."""
+    def test_list_head_groups(self):
+        """Call ``GET & HEAD /groups``."""
         resource_url = '/groups'
         r = self.get(resource_url)
         self.assertValidGroupListResponse(r, ref=self.group,
                                           resource_url=resource_url)
+        self.head(resource_url, expected_status=http_client.OK)
 
-    def test_get_group(self):
-        """Call ``GET /groups/{group_id}``."""
-        r = self.get('/groups/%(group_id)s' % {
-            'group_id': self.group_id})
+    def test_get_head_group(self):
+        """Call ``GET & HEAD /groups/{group_id}``."""
+        resource_url = '/groups/%(group_id)s' % {
+            'group_id': self.group_id}
+        r = self.get(resource_url)
         self.assertValidGroupResponse(r, self.group)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_group(self):
         """Call ``PATCH /groups/{group_id}``."""

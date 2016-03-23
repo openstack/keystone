@@ -51,18 +51,21 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.post('/roles', body={'role': {}},
                   expected_status=http_client.BAD_REQUEST)
 
-    def test_list_roles(self):
-        """Call ``GET /roles``."""
+    def test_list_head_roles(self):
+        """Call ``GET & HEAD /roles``."""
         resource_url = '/roles'
         r = self.get(resource_url)
         self.assertValidRoleListResponse(r, ref=self.role,
                                          resource_url=resource_url)
+        self.head(resource_url, expected_status=http_client.OK)
 
-    def test_get_role(self):
-        """Call ``GET /roles/{role_id}``."""
-        r = self.get('/roles/%(role_id)s' % {
-            'role_id': self.role_id})
+    def test_get_head_role(self):
+        """Call ``GET & HEAD /roles/{role_id}``."""
+        resource_url = '/roles/%(role_id)s' % {
+            'role_id': self.role_id}
+        r = self.get(resource_url)
         self.assertValidRoleResponse(r, self.role)
+        self.head(resource_url, expected_status=http_client.OK)
 
     def test_update_role(self):
         """Call ``PATCH /roles/{role_id}``."""
@@ -115,11 +118,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertValidRoleListResponse(r, ref=role,
                                          resource_url=collection_url,
                                          expected_length=2)
+        self.head(collection_url, expected_status=http_client.OK)
 
         self.delete(member_url)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=self.role, expected_length=1)
         self.assertIn(collection_url, r.result['links']['self'])
+        self.head(collection_url, expected_status=http_client.OK)
 
     def test_crud_user_project_role_grants_no_user(self):
         """Grant role on a project to a user that doesn't exist.
@@ -153,11 +158,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=self.role,
                                          resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
 
         self.delete(member_url)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0,
                                          resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
 
     def test_crud_user_domain_role_grants_no_user(self):
         """Grant role on a domain to a user that doesn't exist.
@@ -191,11 +198,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=self.role,
                                          resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
 
         self.delete(member_url)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0,
                                          resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
 
     def test_crud_group_project_role_grants_no_group(self):
         """Grant role on a project to a group that doesn't exist.
@@ -230,11 +239,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=self.role,
                                          resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
 
         self.delete(member_url)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0,
                                          resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
 
     def test_crud_group_domain_role_grants_no_group(self):
         """Grant role on a domain to a group that doesn't exist.
@@ -457,8 +468,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     # Role Assignments tests
 
-    def test_get_role_assignments(self):
-        """Call ``GET /role_assignments``.
+    def test_get_head_role_assignments(self):
+        """Call ``GET & HEAD /role_assignments``.
 
         The sample data set up already has a user, group and project
         that is part of self.domain. We use these plus a new user
@@ -493,6 +504,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(r,
                                                    resource_url=collection_url)
+        self.head(collection_url, expected_status=http_client.OK)
         existing_assignments = len(r.result.get('role_assignments'))
 
         # Now add one of each of the four types of assignment, making sure
@@ -507,6 +519,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             expected_length=existing_assignments + 1,
             resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity)
+        self.head(collection_url, expected_status=http_client.OK)
 
         ud_entity = self.build_role_assignment_entity(domain_id=self.domain_id,
                                                       user_id=user1['id'],
@@ -518,6 +531,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             expected_length=existing_assignments + 2,
             resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, ud_entity)
+        self.head(collection_url, expected_status=http_client.OK)
 
         gp_entity = self.build_role_assignment_entity(
             project_id=self.project_id, group_id=self.group_id,
@@ -529,6 +543,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             expected_length=existing_assignments + 3,
             resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gp_entity)
+        self.head(collection_url, expected_status=http_client.OK)
 
         up_entity = self.build_role_assignment_entity(
             project_id=self.project_id, user_id=user1['id'],
@@ -540,6 +555,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             expected_length=existing_assignments + 4,
             resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, up_entity)
+        self.head(collection_url, expected_status=http_client.OK)
 
         # Now delete the four we added and make sure they are removed
         # from the collection.
@@ -557,6 +573,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentNotInListResponse(r, ud_entity)
         self.assertRoleAssignmentNotInListResponse(r, gp_entity)
         self.assertRoleAssignmentNotInListResponse(r, up_entity)
+        self.head(collection_url, expected_status=http_client.OK)
 
     def test_get_effective_role_assignments(self):
         """Call ``GET /role_assignments?effective``.
@@ -2808,7 +2825,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             self.roles.append(role)
             self.users.append(user)
 
-    def test_list_all(self):
+    def test_list_head_all(self):
         for i in range(len(self.users)):
             user = self.users[i]
             auth = self.auths[i]
@@ -2818,6 +2835,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             projects_result = result.json['projects']
             self.assertEqual(1, len(projects_result))
             self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
+            self.head(url, auth=auth, expected_status=http_client.OK)
 
     def test_list_enabled(self):
         for i in range(len(self.users)):

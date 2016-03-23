@@ -63,7 +63,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, project_controller,
             path='/users/{user_id}/projects',
-            get_action='list_user_projects',
+            get_head_action='list_user_projects',
             rel=json_home.build_v3_resource_relation('user_projects'),
             path_vars={
                 'user_id': json_home.Parameters.USER_ID,
@@ -137,7 +137,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, grant_controller,
             path='/projects/{project_id}/users/{user_id}/roles',
-            get_action='list_grants',
+            get_head_action='list_grants',
             rel=json_home.build_v3_resource_relation('project_user_roles'),
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
@@ -146,7 +146,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, grant_controller,
             path='/projects/{project_id}/groups/{group_id}/roles',
-            get_action='list_grants',
+            get_head_action='list_grants',
             rel=json_home.build_v3_resource_relation('project_group_roles'),
             path_vars={
                 'group_id': json_home.Parameters.GROUP_ID,
@@ -179,7 +179,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, grant_controller,
             path='/domains/{domain_id}/users/{user_id}/roles',
-            get_action='list_grants',
+            get_head_action='list_grants',
             rel=json_home.build_v3_resource_relation('domain_user_roles'),
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
@@ -188,7 +188,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, grant_controller,
             path='/domains/{domain_id}/groups/{group_id}/roles',
-            get_action='list_grants',
+            get_head_action='list_grants',
             rel=json_home.build_v3_resource_relation('domain_group_roles'),
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
@@ -198,7 +198,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, controllers.RoleAssignmentV3(),
             path='/role_assignments',
-            get_action='list_role_assignments_wrapper',
+            get_head_action='list_role_assignments_wrapper',
             rel=json_home.build_v3_resource_relation('role_assignments'))
 
         if CONF.os_inherit.enabled:
