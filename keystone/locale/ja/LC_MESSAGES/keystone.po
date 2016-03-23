@@ -8,13 +8,13 @@
 # 笹原 昌美 <ebb0de1@jp.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0rc2.dev5\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev6\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-21 10:57+0000\n"
+"POT-Creation-Date: 2016-03-22 15:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-22 06:17+0000\n"
+"PO-Revision-Date: 2016-03-23 05:01+0000\n"
 "Last-Translator: 笹原 昌美 <ebb0de1@jp.ibm.com>\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -29,6 +29,11 @@ msgstr "%(detail)s"
 #, python-format
 msgid "%(driver)s is not supported driver version"
 msgstr "%(driver)s はサポートされるドライバーバージョンではありません"
+
+#, python-format
+msgid ""
+"%(entity)s name cannot contain the following reserved characters: %(chars)s"
+msgstr "%(entity)s 名に以下の予約済み文字を含めることはできません: %(chars)s"
 
 #, python-format
 msgid ""
@@ -90,6 +95,16 @@ msgstr "フィールド %s は必須フィールドであるため、空にで�
 msgid "%s field(s) cannot be empty"
 msgstr "フィールド %s を空にすることはできません"
 
+#, python-format
+msgid ""
+"%s for the LDAP identity backend has been deprecated in the Mitaka release "
+"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
+"release."
+msgstr ""
+"LDAP ID バックエンドの %s は Mitaka リリースにおいて読み取り専用の ID LDAP ア"
+"クセスを選択したため、提供を終了しています。これは \"O\" リリースで削除される"
+"予定です。"
+
 msgid "(Disable insecure_debug mode to suppress these details.)"
 msgstr "(これらの詳細を抑制するには、insecure_debug モードを無効にします。)"
 
@@ -142,6 +157,16 @@ msgstr ""
 msgid "At least one role should be specified."
 msgstr "少なくとも 1 つのロールを指定する必要があります。"
 
+#, python-format
+msgid ""
+"Attempted automatic driver selection for assignment based upon "
+"[identity]\\driver option failed since driver %s is not found. Set "
+"[assignment]/driver to a valid driver in keystone config."
+msgstr ""
+"[identity]\\driver オプションに基づく割り当て用にドライバーの自動選択を試みま"
+"したが、ドライバー %s が見つからなかったため失敗しました。[assignment]/"
+"driver を Keystone 設定の有効なドライバーに設定してください。"
+
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "サポートされていないメソッドを使用して認証を行おうとしました。"
 
@@ -154,6 +179,14 @@ msgstr ""
 
 msgid "Authentication plugin error."
 msgstr "認証プラグインエラー。"
+
+#, python-format
+msgid ""
+"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
+"%(backend_list)s"
+msgstr ""
+"バックエンド `%(backend)s` は有効な memcached バックエンドではありません。有"
+"効なバックエンド: %(backend_list)s"
 
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
@@ -181,6 +214,63 @@ msgstr "以下の無効な URL を持つエンドポイントを作成できま�
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "親を持つプロジェクトを作成できません: %(project_id)s"
 
+#, python-format
+msgid ""
+"Cannot create project, since it specifies its owner as domain %(domain_id)s, "
+"but specifies a parent in a different domain (%(parent_domain_id)s)."
+msgstr ""
+"プロジェクトでその所有者をドメイン %(domain_id)s として指定しているが、別のド"
+"メイン (%(parent_domain_id)s) に親を指定しているため、そのプロジェクトを作成"
+"できません。"
+
+#, python-format
+msgid ""
+"Cannot create project, since its parent (%(domain_id)s) is acting as a "
+"domain, but project's specified parent_id (%(parent_id)s) does not match "
+"this domain_id."
+msgstr ""
+"プロジェクトの親  (%(domain_id)s) がドメインとして動作しているが、プロジェク"
+"トで指定される parent_id (%(parent_id)s) がこの domain_id と一致しないため、"
+"そのプロジェクトを作成できません。"
+
+msgid "Cannot delete a domain that is enabled, please disable it first."
+msgstr ""
+"有効になっているドメインは削除できません。最初にそのドメインを無効にしてくだ"
+"さい。"
+
+#, python-format
+msgid ""
+"Cannot delete project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr ""
+"プロジェクト %(project_id)s はそのサブツリーに有効になっているプロジェクトが"
+"含まれているため削除できません。"
+
+#, python-format
+msgid ""
+"Cannot delete the project %s since it is not a leaf in the hierarchy. Use "
+"the cascade option if you want to delete a whole subtree."
+msgstr ""
+"プロジェクト %s は階層内の末端ではないため、削除できません。サブツリー全体を"
+"削除する場合、カスケードオプションを使用してください。"
+
+#, python-format
+msgid ""
+"Cannot disable project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr ""
+"プロジェクト %(project_id)s はそのサブツリーに有効になっているプロジェクトが"
+"含まれているため、無効にできません。"
+
+#, python-format
+msgid "Cannot enable project %s since it has disabled parents"
+msgstr "親が無効になっているプロジェクト %s は有効にできません"
+
+msgid "Cannot list assignments sourced from groups and filtered by user ID."
+msgstr ""
+"グループから取得し、ユーザー ID でフィルター処理した割り当てをリストできませ"
+"ん。"
+
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
 "委任によって発行されたトークンを使用して要求トークンをリストすることはできま"
@@ -202,6 +292,9 @@ msgstr ""
 "セルフの後に最初のパラメーターとしてヒントリストなしでドライバー呼び出しを切"
 "り捨てることはできません"
 
+msgid "Cannot update domain_id of a project that has children."
+msgstr "子を持つプロジェクトの domain_id を更新できません。"
+
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
 msgstr ""
@@ -213,6 +306,9 @@ msgid ""
 msgstr ""
 "問い合わせパラメーター subtree_as_list と subtree_as_ids を同時に使用すること"
 "はできません。"
+
+msgid "Cascade update is only allowed for enabled attribute."
+msgstr "カスケード更新は有効になっている属性にのみ許可されます。"
 
 #, fuzzy
 msgid ""
@@ -227,6 +323,10 @@ msgid ""
 msgstr ""
 "有効フィルター、ドメインフィルター、および継承フィルターの組み合わせは常に空"
 "のリストになります。"
+
+#, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "/domains/%s/config の Config API エンティティー"
 
 #, python-format
 msgid "Conflict occurred attempting to store %(type)s - %(details)s"
@@ -253,7 +353,7 @@ msgid ""
 "%(issuer_attribute)s was not found in the request environment."
 msgstr ""
 "認証プロバイダー ID を判別できませんでした。設定オプション "
-"%(issuer_attribute)s が要求された環境内で見つかりませんでした。"
+"%(issuer_attribute)s が要求環境内で見つかりませんでした。"
 
 #, python-format
 msgid ""
@@ -357,12 +457,49 @@ msgstr "バージョン %(version)s が見つかりませんでした"
 msgid "Could not find: %(target)s"
 msgstr "%(target)s が見つかりませんでした"
 
+msgid ""
+"Could not map any federated user properties to identity values. Check debug "
+"logs or the mapping used for additional details."
+msgstr ""
+"フェデレーションしたユーザープロパティーのいずれも ID 値にマップすることがで"
+"きませんでした。デバッグログまたは追加の詳細に使用したマッピングを確認してく"
+"ださい。"
+
+msgid ""
+"Could not map user while setting ephemeral user identity. Either mapping "
+"rules must specify user id/name or REMOTE_USER environment variable must be "
+"set."
+msgstr ""
+"一時的なユーザー ID の設定中にユーザーをマップすることができませんでした。"
+"マッピング規則によってユーザー ID/ユーザー名を指定するか、REMOTE_USER 環境変"
+"数を設定するか、いずれかを行う必要があります。"
+
 msgid "Could not validate the access token"
 msgstr "アクセストークンを検証できませんでした"
 
 #, fuzzy
 msgid "Credential belongs to another user"
 msgstr "資格情報が別のユーザーに属しています"
+
+msgid "Credential signature mismatch"
+msgstr "クレデンシャルのシグニチャーが一致しません"
+
+#, python-format
+msgid ""
+"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
+"of its entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"認証プラグイン %(name)r の直接インポートは、Liberty の時点で %(namespace)r の"
+"エンドポイントを選択したため、提供を終了しました。N では削除される予定です。"
+
+#, python-format
+msgid ""
+"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
+"entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"ドライバー %(name)r の直接インポートは、Liberty の時点で %(namespace)r からの"
+"エントリーポイントを選択したため、 提供を終了しました。N では削除される予定で"
+"す。"
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -385,8 +522,14 @@ msgstr "ドメインに %s という ID を付けることはできません"
 msgid "Domain is disabled: %s"
 msgstr "ドメイン %s が無効になっています"
 
+msgid "Domain name cannot contain reserved characters."
+msgstr "ドメイン名に予約済み文字が含まれていてはなりません。"
+
 msgid "Domain scoped token is not supported"
 msgstr "ドメインをスコープにしたトークンはサポートされていません"
+
+msgid "Domain specific roles are not supported in the V8 role driver"
+msgstr "ドメイン固有のロールは、V8 のロールドライバーではサポートされません"
 
 #, python-format
 msgid ""
@@ -404,8 +547,28 @@ msgid "Duplicate ID, %s."
 msgstr "重複した ID、%s。"
 
 #, python-format
+msgid "Duplicate entry: %s"
+msgstr "重複する項目: %s"
+
+#, python-format
 msgid "Duplicate name, %s."
 msgstr "重複した名前、%s。"
+
+#, python-format
+msgid "Duplicate remote ID: %s"
+msgstr "重複するリモート ID: %s"
+
+msgid "EC2 access key not found."
+msgstr "EC2 アクセスキーが見つかりません。"
+
+msgid "EC2 signature not supplied."
+msgstr "EC2 の署名が提供されていません。"
+
+msgid ""
+"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
+msgstr ""
+"--bootstrap-password 引数または OS_BOOTSTRAP_PASSWORD いずれかを設定する必要"
+"があります。"
 
 msgid "Enabled field must be a boolean"
 msgstr "「有効」フィールドはブール値でなければなりません"
@@ -433,6 +596,18 @@ msgid ""
 "Error parsing configuration file for domain: %(domain)s, file: %(file)s."
 msgstr ""
 "ドメイン: %(domain)s、ファイル: %(file)s の設定ファイルの構文解析エラー。"
+
+#, python-format
+msgid "Error while opening file %(path)s: %(err)s"
+msgstr "ファイル %(path)s のオープン中にエラーが発生しました: %(err)s"
+
+#, python-format
+msgid "Error while parsing line: '%(line)s': %(err)s"
+msgstr "行: '%(line)s' の解析中にエラーが発生しました: %(err)s"
+
+#, python-format
+msgid "Error while parsing rules %(path)s: %(err)s"
+msgstr "ルール %(path)s の解析中にエラーが発生しました: %(err)s"
 
 #, python-format
 msgid "Error while reading metadata file, %(reason)s"
@@ -484,6 +659,10 @@ msgstr ""
 "て設定されています。"
 
 #, python-format
+msgid "Group  %s not found in config"
+msgstr "グループ  %s が設定内に見つかりません"
+
+#, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "ドメイン固有の設定ではグループ %(group)s はサポートされません"
 
@@ -516,6 +695,9 @@ msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
 msgstr "着信 ID プロバイダー ID が受諾 ID に含まれていませんでした。"
+
+msgid "Invalid EC2 signature."
+msgstr "無効な EC2 の署名。"
 
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
@@ -594,6 +776,9 @@ msgstr "シグニチャーが無効です"
 msgid "Invalid user / password"
 msgstr "ユーザー/パスワードが無効です"
 
+msgid "Invalid username or TOTP passcode"
+msgstr "無効なユーザー名または TOTP パスコード"
+
 msgid "Invalid username or password"
 msgstr "無効なユーザー名かパスワード"
 
@@ -617,6 +802,12 @@ msgstr "LDAP %s の削除"
 msgid "LDAP %s update"
 msgstr "LDAP %s の更新"
 
+msgid ""
+"Length of transformable resource id > 64, which is max allowed characters"
+msgstr ""
+"変換可能なリソース ID の長さは最大許容文字数である、64 文字より少なくなりま"
+"す。"
+
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
 msgstr "キー %(target)s についてロックタイムアウトが発生しました"
@@ -634,6 +825,10 @@ msgstr ""
 
 msgid "Marker could not be found"
 msgstr "マーカーが見つかりませんでした"
+
+#, python-format
+msgid "Max hierarchy depth reached for %s branch."
+msgstr "%s ブランチに到達する最大の階層の深さ。"
 
 #, python-format
 msgid "Maximum lock attempts on %s occurred."
@@ -669,6 +864,11 @@ msgstr "ドメインまたはプロジェクトのいずれかを指定する必
 msgid "Name field is required and cannot be empty"
 msgstr "「名前」フィールドは必須フィールドであり、空にできません"
 
+msgid "Neither Project Domain ID nor Project Domain Name was provided."
+msgstr ""
+"プロジェクトドメイン ID および プロジェクトドメイン名のいずれも指定されません"
+"でした。"
+
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
@@ -699,6 +899,9 @@ msgstr ""
 msgid "No remaining uses for trust: %(trust_id)s"
 msgstr "トラストには使用が残っていません: %(trust_id)s"
 
+msgid "No token in the request"
+msgstr "要求にトークンがありません"
+
 msgid "Non-default domain is not supported"
 msgstr "デフォルト以外のドメインはサポートされません"
 
@@ -726,8 +929,28 @@ msgid "Project (%s)"
 msgstr "プロジェクト (%s)"
 
 #, python-format
+msgid "Project ID not found: %(t_id)s"
+msgstr "プロジェクト ID が見つかりません: %(t_id)s"
+
+msgid "Project field is required and cannot be empty."
+msgstr "プロジェクトフィールドは必須であり、空にできません。"
+
+#, python-format
 msgid "Project is disabled: %s"
 msgstr "プロジェクト %s が無効になっています"
+
+msgid "Project name cannot contain reserved characters."
+msgstr "プロジェクト名に予約済み文字が含まれていてはなりません。"
+
+msgid "Query string is not UTF-8 encoded"
+msgstr "照会ストリングは、UTF-8 でエンコードされていません"
+
+#, python-format
+msgid ""
+"Reading the default for option %(option)s in group %(group)s is not supported"
+msgstr ""
+"グループ %(group)s のオプション %(option)s のデフォルトの読み取りはサポートさ"
+"れません"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "再委任はトラストによる委任にのみ許可されます"
@@ -739,6 +962,79 @@ msgid ""
 msgstr ""
 "%(redelegation_depth)d の残りの再委任の深さが、許可された範囲 [0.."
 "%(max_count)d] を超えています"
+
+msgid ""
+"Remove admin_crud_extension from the paste pipeline, the admin_crud "
+"extension is now always available. Updatethe [pipeline:admin_api] section in "
+"keystone-paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"admin_crud_extension を Paste のパイプラインから削除したため、admin_crud 拡張"
+"を常時使用できるようになりました。これは O リリースで削除される予定であるた"
+"め、それに応じて keystone-paste.ini 内の [pipeline:admin_api] セクションを更"
+"新してください。"
+
+msgid ""
+"Remove endpoint_filter_extension from the paste pipeline, the endpoint "
+"filter extension is now always available. Update the [pipeline:api_v3] "
+"section in keystone-paste.ini accordingly as it will be removed in the O "
+"release."
+msgstr ""
+"endpoint_filter_extension を Paste パイプラインから削除したため、エンドポイン"
+"トフィルター拡張を常時使用できるようになりました。これは O リリースで削除され"
+"る予定であるため、それに応じて keystone-paste.ini 内の [pipeline:api_v3] セク"
+"ションを更新してください。"
+
+msgid ""
+"Remove federation_extension from the paste pipeline, the federation "
+"extension is now always available. Update the [pipeline:api_v3] section in "
+"keystone-paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"federation_extension を Paste パイプラインから削除したため、フェデレーション"
+"拡張を常時使用できるようになりました。これは O リリースで削除される予定である"
+"ため、それに応じて keystone-paste.ini 内の [pipeline:api_v3] セクションを更新"
+"してください。"
+
+msgid ""
+"Remove oauth1_extension from the paste pipeline, the oauth1 extension is now "
+"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"oauth1_extension を Paste パイプラインから削除したため、oauth1 拡張を常時使用"
+"できるようになりました。これは O リリースで削除される予定であるため、それに応"
+"じて keystone-paste.ini  内の [pipeline:api_v3] セクションを更新してくださ"
+"い。"
+
+msgid ""
+"Remove revoke_extension from the paste pipeline, the revoke extension is now "
+"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"revoke_extension を Paste パイプラインから削除したため、取り消し拡張を常時使"
+"用できるようになりました。これは O リリースで削除される予定であるため、それに"
+"応じて keystone-paste.ini 内の [pipeline:api_v3] セクションを更新してくださ"
+"い。"
+
+msgid ""
+"Remove simple_cert from the paste pipeline, the PKI and PKIz token providers "
+"are now deprecated and simple_cert was only used insupport of these token "
+"providers. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"simple_cert を Paste パイプラインから削除したため、PKI および PKIz のトークン"
+"プロバイダーは非推奨となりました。これらのトークンプロバイダーのサポートに使"
+"用されていたのは simple_cert のみでした。これは O リリースで削除される予定で"
+"あるため、それに応じて keystone-paste.ini 内の [pipeline:api_v3] セクションを"
+"更新してください。"
+
+msgid ""
+"Remove user_crud_extension from the paste pipeline, the user_crud extension "
+"is now always available. Updatethe [pipeline:public_api] section in keystone-"
+"paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"user_crud_extension を Paste パイプラインから削除したため、user_crud 拡張を常"
+"時使用できるようになりました。 これは O リリースで削除される予定であるため、"
+"それに応じて keystone-paste.ini 内の [pipeline:public_api] セクションを更新し"
+"てください。"
 
 msgid "Request Token does not have an authorizing user id"
 msgstr "要求されたトークンに許可ユーザー ID が含まれていません"
@@ -819,6 +1115,9 @@ msgstr ""
 "文字列が長過ぎます。文字列 %(string)s' の長さが列 %(type)s(CHAR(%(length)d)) "
 "の制限を超えました。"
 
+msgid "Tenant name cannot contain reserved characters."
+msgstr "テナント名に予約済み文字が含まれていてはなりません。"
+
 #, python-format
 msgid ""
 "The %s extension has been moved into keystone core and as such its "
@@ -868,6 +1167,12 @@ msgstr ""
 "要求された証明書がありません。このサーバーでは PKI トークンが使用されていない"
 "か、そうでない場合は設定が間違っていると考えられます。 "
 
+msgid "The configured token provider does not support bind authentication."
+msgstr "設定済みトークンプロバイダーはバインド認証をサポートしません。"
+
+msgid "The creation of projects acting as domains is not allowed in v2."
+msgstr "v2 では、ドメインとして動作するプロジェクトの作成は許可されません。"
+
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -910,9 +1215,13 @@ msgstr ""
 msgid "There should not be any non-oauth parameters"
 msgstr "oauth 関連以外のパラメーターが含まれていてはいけません"
 
-#, fuzzy, python-format
+#, python-format
 msgid "This is not a recognized Fernet payload version: %s"
-msgstr "これは認識された Fernet ペイロードバージョンではありません: %s"
+msgstr "これは認識可能な Fernet ペイロードバージョンではありません: %s"
+
+#, python-format
+msgid "This is not a recognized Fernet token %s"
+msgstr "これは認識可能な Fernet トークン %s ではありません"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -992,6 +1301,9 @@ msgstr ""
 "リージョン %(region_id)s またはその子リージョンがエンドポイントに関連付けられ"
 "ているため、このリージョンを削除できません。"
 
+msgid "Unable to downgrade schema"
+msgstr "スキーマをダウングレードすることができません"
+
 #, python-format
 msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr ""
@@ -1057,8 +1369,21 @@ msgstr "トークンバージョン %s は不明です"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "未登録の依存関係: %(targets)s に対する %(name)s"
 
+msgid "Update of `domain_id` is not allowed."
+msgstr "`domain_id` の更新は許可されていません。"
+
+msgid "Update of `is_domain` is not allowed."
+msgstr "`is_domain` の更新は許可されません。"
+
 msgid "Update of `parent_id` is not allowed."
 msgstr "\"parent_id\" の更新は許可されていません。"
+
+msgid "Update of domain_id is only allowed for root projects."
+msgstr "domain_id の更新が許可されるのは root プロジェクトのみです。"
+
+msgid "Update of domain_id of projects acting as domains is not allowed."
+msgstr ""
+"ドメインとして動作するプロジェクトの domain_id の更新は許可されません。"
 
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
@@ -1071,8 +1396,8 @@ msgid ""
 "driver will need to be expicitly configured if different than the default "
 "(SQL)."
 msgstr ""
-"同一の割り当てドライバーを自動的に設定するための ID ドライバー設定の使用"
-"は、\"O\" リリースでは提供を終了しました。デフォルト (SQL) 以外の場合は割り当"
+"同一の割り当てドライバーを自動的に設定するための ID ドライバー設定の使用は、"
+"提供を終了しました。 \"O\" リリースでは、デフォルト (SQL) 以外の場合は割り当"
 "てドライバーを明示的に設定する必要があります。"
 
 #, python-format
@@ -1101,6 +1426,13 @@ msgstr "ユーザー '%(user_id)s' がグループ '%(group_id)s' で見つか�
 msgid "User IDs do not match"
 msgstr "ユーザー ID が一致しません"
 
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"ユーザー ID、ドメイン ID が指定されたユーザー名、ドメイン名が指定されたユー"
+"ザー名のいずれかが欠落しているため、ユーザー認証を作成できません。"
+
 #, python-format
 msgid "User is disabled: %s"
 msgstr "ユーザーが無効になっています: %s"
@@ -1115,6 +1447,9 @@ msgstr "ユーザーは受託者ではありません。"
 msgid "User not found"
 msgstr "ユーザーが見つかりません"
 
+msgid "User not valid for tenant."
+msgstr "ユーザーはテナントに対して無効です。"
+
 msgid "User roles not supported: tenant_id required"
 msgstr "ユーザーロールがサポートされません: tenant_id が必要です"
 
@@ -1128,6 +1463,14 @@ msgstr "要求されたアクションを実行する許可がありません。
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s"
 msgstr "要求されたアクションを実行する許可がありません: %(action)s"
+
+msgid ""
+"You have tried to create a resource using the admin token. As this token is "
+"not within a domain you must explicitly include a domain for this resource "
+"to belong to."
+msgstr ""
+"管理トークンを使用してリソースを作成しようとしています。このトークンはドメイ"
+"ン内にないため、このリソースが属するドメインを明示的に含める必要があります。"
 
 msgid "`key_mangler` functions must be callable."
 msgstr "`key_mangler` 関数は呼び出し可能でなければなりません。"
@@ -1152,6 +1495,14 @@ msgstr ""
 "ません: %s"
 
 #, python-format
+msgid ""
+"cannot delete an enabled project acting as a domain. Please disable the "
+"project %s first."
+msgstr ""
+"ドメインとして動作する有効になっているプロジェクトを削除できません。最初にプ"
+"ロジェクト %s を無効にしてください。"
+
+#, python-format
 msgid "group %(group)s"
 msgstr "グループ %(group)s"
 
@@ -1165,6 +1516,25 @@ msgstr ""
 #, python-format
 msgid "invalid date format %s"
 msgstr "日付形式 %s は無効です"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects acting as domains with the same "
+"name: %s"
+msgstr ""
+"ドメインとして動作する同じ名前の 2 つのプロジェクトが存在することは許可されま"
+"せん: %s"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects within a domain with the same "
+"name : %s"
+msgstr ""
+"1 つのドメイン内に同じ名前の 2 つのプロジェクトが存在することは許可されませ"
+"ん : %s"
+
+msgid "only root projects are allowed to act as domains."
+msgstr "ドメインとして動作することが許可されるのは root プロジェクトのみです。"
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
@@ -1198,6 +1568,10 @@ msgstr ""
 msgid "rescope a scoped token"
 msgstr "スコープが設定されたトークンのスコープを設定し直します"
 
+#, python-format
+msgid "role %s is not defined"
+msgstr "ロール %s は定義されていません"
+
 msgid "scope.project.id must be specified if include_subtree is also specified"
 msgstr ""
 "include_subtree も指定される場合、scope.project.id を指定する必要があります。"
@@ -1214,3 +1588,8 @@ msgstr "tls_cacertfile %s が見つからない、もしくは、ファイルで
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "トークン参照は KeystoneToken 型である必要があります。%s を受信しました"
+
+msgid ""
+"update of domain_id is deprecated as of Mitaka and will be removed in O."
+msgstr ""
+"domain_id の更新は Mitaka の時点で提供を終了し、O で削除される予定です。"
