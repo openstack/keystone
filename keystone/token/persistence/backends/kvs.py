@@ -15,6 +15,7 @@
 
 from __future__ import absolute_import
 import copy
+import threading
 
 from oslo_config import cfg
 from oslo_log import log
@@ -31,6 +32,8 @@ from keystone.token import provider
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
+
+STORE_CONF_LOCK = threading.Lock()
 
 
 class Token(token.persistence.TokenDriverV8):
@@ -49,9 +52,12 @@ class Token(token.persistence.TokenDriverV8):
         self._store = kvs.get_key_value_store('token-driver')
         if backing_store is not None:
             self.kvs_backend = backing_store
-        if not self._store.is_configured:
-            # Do not re-configure the backend if the store has been initialized
-            self._store.configure(backing_store=self.kvs_backend, **kwargs)
+        # Using a lock here to avoid race condition.
+        with STORE_CONF_LOCK:
+            if not self._store.is_configured:
+                # Do not re-configure the backend if the store has been
+                # initialized.
+                self._store.configure(backing_store=self.kvs_backend, **kwargs)
         if self.__class__ == Token:
             # NOTE(morganfainberg): Only warn if the base KVS implementation
             # is instantiated.

@@ -26,6 +26,7 @@ from keystone.common.kvs.backends import memcached
 from keystone.common.kvs import core
 from keystone import exception
 from keystone.tests import unit
+from keystone.token.persistence.backends import kvs as token_kvs_backend
 
 
 NO_VALUE = api.NO_VALUE
@@ -584,3 +585,41 @@ class TestMemcachedBackend(unit.TestCase):
         }
         self.assertThat(lambda: memcached.MemcachedBackend(options),
                         raises_valueerror)
+
+
+class TestCacheRegionInit(unit.TestCase):
+    """Illustrate the race condition on cache initialization.
+
+    This case doesn't actually expose the error, it just simulates unprotected
+    code behaviour, when race condition leads to re-configuration of shared
+    KVS backend object. What, in turn, results in an exception.
+    """
+
+    kvs_backend = token_kvs_backend.Token.kvs_backend
+    store_name = 'test-kvs'
+
+    def test_different_instances_initialization(self):
+        """Simulate race condition on token storage initialization."""
+        store = core.get_key_value_store(self.store_name)
+        self.assertFalse(store.is_configured)
+        other_store = core.get_key_value_store(self.store_name)
+        self.assertFalse(other_store.is_configured)
+
+        other_store.configure(backing_store=self.kvs_backend)
+        self.assertTrue(other_store.is_configured)
+        # This error shows that core.get_key_value_store() returns a shared
+        # object protected from re-configuration with an exception.
+        self.assertRaises(RuntimeError, store.configure,
+                          backing_store=self.kvs_backend)
+
+    def test_kvs_configure_called_twice(self):
+        """Check if configure() is called again"""
+        target = core.KeyValueStore
+        with mock.patch.object(target, 'configure') as configure_mock:
+            store = core.get_key_value_store(self.store_name)
+            other_store = core.get_key_value_store(self.store_name)
+
+            store.configure(backing_store=self.kvs_backend)
+            other_store.configure(backing_store=self.kvs_backend)
+
+            self.assertThat(configure_mock.mock_calls, matchers.HasLength(2))
