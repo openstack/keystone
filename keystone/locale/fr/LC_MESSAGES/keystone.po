@@ -15,13 +15,13 @@
 # Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev109\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev7\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-15 05:12+0000\n"
+"POT-Creation-Date: 2016-03-23 08:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-14 07:26+0000\n"
+"PO-Revision-Date: 2016-03-23 06:34+0000\n"
 "Last-Translator: Martine Marin <mmarin@fr.ibm.com>\n"
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -95,7 +95,7 @@ msgstr "%s ne peut pas être vide."
 
 #, python-format
 msgid "%s extension does not exist."
-msgstr "extension %s n'existe pas."
+msgstr "L'extension %s n'existe pas."
 
 #, python-format
 msgid "%s field is required and cannot be empty"
@@ -119,7 +119,7 @@ msgid "(Disable insecure_debug mode to suppress these details.)"
 msgstr "(Désactivez le mode insecure_debug pour supprimer ces détails.)"
 
 msgid "--all option cannot be mixed with other options"
-msgstr "-all option ne peut pas être mélanger avec d'autres options."
+msgstr "L'option -all ne peut pas être associée à d'autres options."
 
 msgid "A project-scoped token is required to produce a service catalog."
 msgstr "Un jeton de projet est requis pour produire un catalogue de service."
@@ -158,7 +158,7 @@ msgid "An unhandled exception has occurred: Could not find metadata."
 msgstr "Une exception non gérée s'est produite : métadonnées introuvables."
 
 msgid "At least one option must be provided"
-msgstr "Au moins une option doit être fourni"
+msgstr "Au moins une option doit être fournie"
 
 msgid "At least one option must be provided, use either --all or --domain-name"
 msgstr ""
@@ -209,7 +209,7 @@ msgid "Cannot change %(option_name)s %(attr)s"
 msgstr "Impossible de modifier %(option_name)s %(attr)s"
 
 msgid "Cannot change Domain ID"
-msgstr "Ne peut pas changer l'identifiant du domaine"
+msgstr "Impossible de modifier l'ID du domaine"
 
 msgid "Cannot change user ID"
 msgstr "Impossible de modifier l'id de l'utilisateur"
@@ -473,6 +473,14 @@ msgid "Could not find: %(target)s"
 msgstr "N'est pas trouvé:  %(target)s"
 
 msgid ""
+"Could not map any federated user properties to identity values. Check debug "
+"logs or the mapping used for additional details."
+msgstr ""
+"Impossible de mapper des propriétés d'utilisateur fédéré avec des valeurs "
+"d'identité. Pour plus d'informations, consultez les journaux de débogage ou "
+"le mappage utilisé."
+
+msgid ""
 "Could not map user while setting ephemeral user identity. Either mapping "
 "rules must specify user id/name or REMOTE_USER environment variable must be "
 "set."
@@ -482,7 +490,7 @@ msgstr ""
 "nom ou la variable d'environnement REMOTE_USER doit être définie."
 
 msgid "Could not validate the access token"
-msgstr "Ne peut pas valider l'acces du token"
+msgstr "Impossible de valider le jeton d'accès"
 
 msgid "Credential belongs to another user"
 msgstr "Les données d'identification appartiennent à un autre utilisateur"
@@ -660,7 +668,7 @@ msgid "Failed to validate token"
 msgstr "Echec de validation du token"
 
 msgid "Federation token is expired"
-msgstr "La fédération du toke est expiré"
+msgstr "Le jeton Federation a expiré"
 
 #, python-format
 msgid ""
@@ -880,7 +888,7 @@ msgstr ""
 "interdite. Il est conseillé d'omettre ce paramètre."
 
 msgid "Multiple domains are not supported"
-msgstr "Les multiples domaines ne sont pas supporté"
+msgstr "Les domaines multiples ne sont pas pris en charge"
 
 msgid "Must be called within an active lock context."
 msgstr "Doit être appelé dans un contexte de verrou actif."
@@ -1077,7 +1085,7 @@ msgid "Request must have an origin query parameter"
 msgstr "La demande doit avoir un paramètre de requête d'origine"
 
 msgid "Request token is expired"
-msgstr "La requete du token est expiré"
+msgstr "Le jeton de la demande a expiré"
 
 msgid "Request token not found"
 msgstr "Token de requete non trouvé"
@@ -1390,7 +1398,7 @@ msgid "Unexpected status requested for JSON Home response, %s"
 msgstr "Statut inattendu demandé pour la réponse JSON Home, %s"
 
 msgid "Unknown Target"
-msgstr "Cible inconnu"
+msgstr "Cible inconnue"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
@@ -1398,7 +1406,7 @@ msgstr "Domaine inconnu '%(name)s' spécifié par --domain-name"
 
 #, python-format
 msgid "Unknown token version %s"
-msgstr "Version du token inconnu %s"
+msgstr "Version de token inconnue %s"
 
 #, python-format
 msgid "Unregistered dependency: %(name)s for %(targets)s"
@@ -1550,7 +1558,7 @@ msgstr ""
 
 #, python-format
 msgid "invalid date format %s"
-msgstr "Format de date invalid %s"
+msgstr "Format de date non valide %s"
 
 #, python-format
 msgid ""
