@@ -24,7 +24,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
     This module is specific to tests for trust CRUD operations. All other tests
     related to trusts that are authentication or authorization specific should
-    live in in the keystone/tests/unit/test_v3_auth.py module.
+    live in the keystone/tests/unit/test_v3_auth.py module.
 
     """
 

@@ -568,7 +568,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         - Check if the user has proper domain ('federated') set
         - Check if the user has proper type set ('ephemeral')
         - Check if display_name is properly set from the assertion
-        - Check if unique_id is properly set and and equal to value hardcoded
+        - Check if unique_id is properly set and equal to value hardcoded
         in the mapping
 
         This test does two iterations with different assertions used as input
