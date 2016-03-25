@@ -8,16 +8,17 @@
 # Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
 # OpenStack Infra <zanata@openstack.org>, 2015. #zanata
 # Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
+# SeYeon Lee <sy_lee@kr.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev8\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-07 18:22+0000\n"
+"POT-Creation-Date: 2016-03-24 10:41+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-02-03 07:03+0000\n"
-"Last-Translator: Lucas Palm <lapalm@us.ibm.com>\n"
+"PO-Revision-Date: 2016-03-24 01:32+0000\n"
+"Last-Translator: SeYeon Lee <sy_lee@kr.ibm.com>\n"
 "Language: ko-KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -27,6 +28,15 @@ msgstr ""
 #, python-format
 msgid "%(detail)s"
 msgstr "%(detail)s"
+
+#, python-format
+msgid "%(driver)s is not supported driver version"
+msgstr "%(driver)s은(는) 지원되는 드라이버 버전이 아님"
+
+#, python-format
+msgid ""
+"%(entity)s name cannot contain the following reserved characters: %(chars)s"
+msgstr "%(entity)s 이름에는 다음과 같은 예약 문자가 포함될 수 없음: %(chars)s"
 
 #, python-format
 msgid ""
@@ -51,6 +61,10 @@ msgstr ""
 "션 저장소 경로가 %(path)s에 존재하지 않거나 디렉토리가 아닙니다."
 
 #, python-format
+msgid "%(prior_role_id)s does not imply %(implied_role_id)s"
+msgstr "%(prior_role_id)s은(는) %(implied_role_id)s을(를) 내포하지 않음"
+
+#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s은(는) %(min_length)s자 미만일 수 없습니다. "
 
@@ -61,6 +75,10 @@ msgstr "%(property_name)s이(가) %(display_expected_type)s이(가) 아님"
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr "%(property_name)s은(는) %(max_length)s자 이하여야 합니다. "
+
+#, python-format
+msgid "%(role_id)s cannot be an implied roles"
+msgstr "%(role_id)s은(는) 내포된 역할일 수 없음"
 
 #, python-format
 msgid "%s cannot be empty."
@@ -77,6 +95,20 @@ msgstr "%s 필드가 필요하며 비어 있을 수 없음"
 #, python-format
 msgid "%s field(s) cannot be empty"
 msgstr "%s 필드는 비어 있을 수 없음"
+
+#, python-format
+msgid ""
+"%s for the LDAP identity backend has been deprecated in the Mitaka release "
+"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
+"release."
+msgstr ""
+"Mitaka 릴리스에서는 읽기 전용 ID LDAP 액세스를 사용하기 위해 LDAP ID 백엔드"
+"의 %s이(가) 더 이상 사용되지 않으므로, \"O\" 릴리스에서 제거됩니다."
+
+msgid "(Disable insecure_debug mode to suppress these details.)"
+msgstr ""
+"(이러한 세부사항을 억제하려면 insecure_debug  모드를 사용 안함으로 설정하십시"
+"오.)"
 
 msgid "--all option cannot be mixed with other options"
 msgstr "--all 옵션은 다른 옵션과 함께 사용할 수 없음"
@@ -123,6 +155,16 @@ msgstr ""
 msgid "At least one role should be specified."
 msgstr "최소한 하나의 역할을 지정해야 합니다."
 
+#, python-format
+msgid ""
+"Attempted automatic driver selection for assignment based upon "
+"[identity]\\driver option failed since driver %s is not found. Set "
+"[assignment]/driver to a valid driver in keystone config."
+msgstr ""
+"드라이버 %s을(를) 찾을 수 없으므로 [identity]\\driver 옵션을 기반으로 할당할 "
+"드라이버를 자동으로 선택하는 데 실패했습니다. keystone 구성에서 [assignment]/"
+"driver를 올바른 드라이버로 설정하십시오."
+
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "지원되지 않는 방법으로 인증을 시도했습니다."
 
@@ -167,6 +209,61 @@ msgstr "올바르지 않은 URL을 사용하여 엔드포인트를 작성할 수
 msgid "Cannot create project with parent: %(project_id)s"
 msgstr "상위로 프로젝트를 작성할 수 없음: %(project_id)s"
 
+#, python-format
+msgid ""
+"Cannot create project, since it specifies its owner as domain %(domain_id)s, "
+"but specifies a parent in a different domain (%(parent_domain_id)s)."
+msgstr ""
+"소유자를 도메인 %(domain_id)s(으)로 지정하지만 다른 도메인 "
+"(%(parent_domain_id)s)의 상위를 지정하므로 프로젝트를 생성할 수 없습니다."
+
+#, python-format
+msgid ""
+"Cannot create project, since its parent (%(domain_id)s) is acting as a "
+"domain, but project's specified parent_id (%(parent_id)s) does not match "
+"this domain_id."
+msgstr ""
+"상위(%(domain_id)s)가 도메인 역할을 수행하지만 프로젝트 지정 "
+"parent_id(%(parent_id)s)가 이 domain_id와 일치하지 않으므로 프로젝트를 생성"
+"할 수 없습니다."
+
+msgid "Cannot delete a domain that is enabled, please disable it first."
+msgstr ""
+"사용으로 설정된 도메인을 삭제할 수 없습니다. 먼저 해당 도메인을 사용 안함으"
+"로 설정하십시오."
+
+#, python-format
+msgid ""
+"Cannot delete project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr ""
+"서브트리에 사용 설정된 프로젝트가 있으므로 프로젝트 %(project_id)s을(를) 삭제"
+"할 수 없습니다."
+
+#, python-format
+msgid ""
+"Cannot delete the project %s since it is not a leaf in the hierarchy. Use "
+"the cascade option if you want to delete a whole subtree."
+msgstr ""
+"계층 구조의 리프가 아니므로 프로젝트 %s을(를) 삭제할 수 없습니다. 전체 하위 "
+"트리를 삭제하려면 계단식 옵션을 사용하십시오."
+
+#, python-format
+msgid ""
+"Cannot disable project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr ""
+"서브트리에 사용 설정된 프로젝트가 있으므로 프로젝트 %(project_id)s을(를) 사"
+"용 안함으로 설정할 수 없습니다."
+
+#, python-format
+msgid "Cannot enable project %s since it has disabled parents"
+msgstr "프로젝트 %s에 사용 안함으로 설정된 상위가 있어서 이를 사용할 수 없음"
+
+msgid "Cannot list assignments sourced from groups and filtered by user ID."
+msgstr ""
+"그룹에서 소스가 공급되고 사용자 ID별로 필터링된 할당을 나열할 수 없습니다."
+
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "위임을 통해 발행된 토큰으로 요청 토큰을 나열할 수 없습니다."
 
@@ -184,6 +281,9 @@ msgid ""
 msgstr ""
 "자신 뒤의 첫 번째 매개변수와 같은 힌트 목록 없이 드라이버 호출을 자를 수 없음"
 
+msgid "Cannot update domain_id of a project that has children."
+msgstr "하위가 있는 프로젝트의 domain_id를 업데이트할 수 없습니다."
+
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
 msgstr ""
@@ -193,6 +293,9 @@ msgid ""
 "Cannot use subtree_as_list and subtree_as_ids query params at the same time."
 msgstr ""
 "subtree_as_list 및 subtree_as_ids 조회 매개변수를 동시에 사용할 수 없습니다."
+
+msgid "Cascade update is only allowed for enabled attribute."
+msgstr "사용된 속성에만 계단식 업데이트가 허용됩니다."
 
 msgid ""
 "Combining effective and group filter will always result in an empty list."
@@ -333,6 +436,13 @@ msgid "Could not find: %(target)s"
 msgstr "%(target)s을(를) 찾을 수 없음"
 
 msgid ""
+"Could not map any federated user properties to identity values. Check debug "
+"logs or the mapping used for additional details."
+msgstr ""
+"연합 사용자 특성을 ID 값에 맵핑할 수 없습니다. 추가 세부 사항은 사용된 맵핑 "
+"또는 디버그 로그를 확인하십시오."
+
+msgid ""
 "Could not map user while setting ephemeral user identity. Either mapping "
 "rules must specify user id/name or REMOTE_USER environment variable must be "
 "set."
@@ -345,6 +455,25 @@ msgstr "액세스 토큰을 유효성 검증할 수 없음"
 
 msgid "Credential belongs to another user"
 msgstr "신임 정보가 다른 사용자에 속함"
+
+msgid "Credential signature mismatch"
+msgstr "자격 증명 서명 불일치"
+
+#, python-format
+msgid ""
+"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
+"of its entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"Liberty에서 %(namespace)r의 입력점을 사용하기 위해 인증 플러그인 %(name)r의 "
+"직접 가져오기는 더 이상 사용되지 않으므로, N에서 제거될 수 있습니다."
+
+#, python-format
+msgid ""
+"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
+"entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"Liberty에서 %(namespace)r의 입력점을 사용하기 위해 드라이버 %(name)r의 직접 "
+"가져오기는 더 이상 사용되지 않으므로, N에서 제거될 수 있습니다."
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -366,8 +495,14 @@ msgstr "도메인 ID가 %s일 수 없음"
 msgid "Domain is disabled: %s"
 msgstr "도메인을 사용 안함: %s"
 
+msgid "Domain name cannot contain reserved characters."
+msgstr "도메인 이름에는 예약된 문자가 포함될 수 없습니다."
+
 msgid "Domain scoped token is not supported"
 msgstr "도메인 범위 지정 토큰은 지원되지 않음"
+
+msgid "Domain specific roles are not supported in the V8 role driver"
+msgstr "V8 역할 드라이버에서는 도메인 특정 역할이 지원되지 않음"
 
 #, python-format
 msgid ""
@@ -385,8 +520,26 @@ msgid "Duplicate ID, %s."
 msgstr "중복 ID, %s."
 
 #, python-format
+msgid "Duplicate entry: %s"
+msgstr "중복된 항목: %s"
+
+#, python-format
 msgid "Duplicate name, %s."
 msgstr "중복 이름, %s."
+
+#, python-format
+msgid "Duplicate remote ID: %s"
+msgstr "중복된 원격 ID: %s"
+
+msgid "EC2 access key not found."
+msgstr "EC2 액세스 키를 찾을 수 없습니다."
+
+msgid "EC2 signature not supplied."
+msgstr "EC2 서명이 제공되지 않았습니다."
+
+msgid ""
+"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
+msgstr "--bootstrap-password 인수나 OS_BOOTSTRAP_PASSWORD를 설정해야 합니다."
 
 msgid "Enabled field must be a boolean"
 msgstr "사용으로 설정된 필드는 부울이어야 함"
@@ -431,6 +584,15 @@ msgid "Error while reading metadata file, %(reason)s"
 msgstr "메타데이터 파일을 읽는 중에 오류 발생, %(reason)s"
 
 #, python-format
+msgid ""
+"Exceeded attempts to register domain %(domain)s to use the SQL driver, the "
+"last domain that appears to have had it is %(last_domain)s, giving up"
+msgstr ""
+"SQL 드라이버를 사용하기 위해 도메인 %(domain)s을(를) 등록하는 시도가 초과되었"
+"습니다. 드라이버를 보유한 것으로 보이는 마지막 도메인은 %(last_domain)s입니"
+"다. 포기하는 중"
+
+#, python-format
 msgid "Expected dict or list: %s"
 msgstr "예상된 사전 또는 목록: %s"
 
@@ -473,6 +635,10 @@ msgstr ""
 "올바르지 않은 토큰이 있습니다. 프로젝트와 도메인 둘 다 범위에 포함됩니다."
 
 #, python-format
+msgid "Group  %s not found in config"
+msgstr "구성에 그룹 %s을(를) 찾을 수 없음"
+
+#, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "도메인 특정 구성에 대해 %(group)s 그룹이 지원되지 않음"
 
@@ -504,6 +670,9 @@ msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
 msgstr "승인 ID에 수신 ID 제공자가 포함되지 않습니다."
+
+msgid "Invalid EC2 signature."
+msgstr "올바르지 않은 EC2 서명입니다."
 
 #, python-format
 msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
@@ -576,6 +745,9 @@ msgstr "올바르지 않은 서명"
 msgid "Invalid user / password"
 msgstr "올바르지 않은 사용자 / 비밀번호"
 
+msgid "Invalid username or TOTP passcode"
+msgstr "올바르지 않은 사용자 이름 또는 TOTP 비밀번호"
+
 msgid "Invalid username or password"
 msgstr "올바르지 않은 사용자 이름 또는 비밀번호"
 
@@ -599,6 +771,18 @@ msgstr "LDAP %s 삭제"
 msgid "LDAP %s update"
 msgstr "LDAP %s 업데이트"
 
+msgid ""
+"Length of transformable resource id > 64, which is max allowed characters"
+msgstr "변환 가능한 자원 id의 길이가 최대 허용 문자인  64보다 큼"
+
+#, python-format
+msgid ""
+"Local section in mapping %(mapping_id)s refers to a remote match that "
+"doesn't exist (e.g. {0} in a local section)."
+msgstr ""
+"맵핑 %(mapping_id)s의 로컬 섹션에서 존재하지 않는 원격 일치를 참조합니다(예: "
+"로컬 섹션의 {0})."
+
 #, python-format
 msgid "Lock Timeout occurred for key, %(target)s"
 msgstr "키 %(target)s에 대해 잠금 제한시간 초과가 발생함"
@@ -615,6 +799,10 @@ msgstr ""
 
 msgid "Marker could not be found"
 msgstr "마커를 찾을 수 없음"
+
+#, python-format
+msgid "Max hierarchy depth reached for %s branch."
+msgstr "%s 분기에 대한 최대 계층 깊이에 도달했습니다."
 
 #, python-format
 msgid "Maximum lock attempts on %s occurred."
@@ -681,6 +869,9 @@ msgstr "엔드포인트 %(endpoint_id)s과(와) 연관된 정책이 없습니다
 msgid "No remaining uses for trust: %(trust_id)s"
 msgstr "신뢰 %(trust_id)s에 대해 남아 있는 사용이 없음"
 
+msgid "No token in the request"
+msgstr "요청에 토큰이 없음"
+
 msgid "Non-default domain is not supported"
 msgstr "기본이 아닌 도메인은 지원되지 않음"
 
@@ -716,8 +907,16 @@ msgstr "프로젝트 필드는 필수이므로 비어 있어서는 안 됩니다
 msgid "Project is disabled: %s"
 msgstr "프로젝트를 사용 안함: %s"
 
+msgid "Project name cannot contain reserved characters."
+msgstr "프로젝트 이름에 예약된 문자가 포함될 수 없습니다."
+
 msgid "Query string is not UTF-8 encoded"
 msgstr "조회 문자열이 UTF-8로 인코딩되어 있지 않음"
+
+#, python-format
+msgid ""
+"Reading the default for option %(option)s in group %(group)s is not supported"
+msgstr "그룹 %(group)s에서 옵션 %(option)s의 기본값 읽기는 지원되지 않음"
 
 msgid "Redelegation allowed for delegated by trust only"
 msgstr "신뢰에서 위임한 경우에만 재위임 허용"
@@ -729,6 +928,72 @@ msgid ""
 msgstr ""
 "%(redelegation_depth)d의 나머지 재위임 깊이가 허용 범위 [0..%(max_count)d]을"
 "(를) 벗어남"
+
+msgid ""
+"Remove admin_crud_extension from the paste pipeline, the admin_crud "
+"extension is now always available. Updatethe [pipeline:admin_api] section in "
+"keystone-paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"붙여넣기 파이프라인에서 admin_crud_extension을 제거하십시오. admin_crud 확장"
+"은 이제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini"
+"에서 [pipeline:admin_api] 섹션을 적절하게 업데이트하십시오."
+
+msgid ""
+"Remove endpoint_filter_extension from the paste pipeline, the endpoint "
+"filter extension is now always available. Update the [pipeline:api_v3] "
+"section in keystone-paste.ini accordingly as it will be removed in the O "
+"release."
+msgstr ""
+"붙여넣기 파이프라인에서 endpoint_filter_extension을 제거하십시오. 엔드포인트 "
+"필터 확장은 이제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-"
+"paste.ini에서 [pipeline:api_v3] 섹션을 적절하게 업데이트하십시오."
+
+msgid ""
+"Remove federation_extension from the paste pipeline, the federation "
+"extension is now always available. Update the [pipeline:api_v3] section in "
+"keystone-paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"붙여넣기 파이프라인에서 federation_extension을 제거하십시오. 연합 확장은 이"
+"제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 "
+"[pipeline:api_v3]섹션을 적절하게 업데이트하십시오."
+
+msgid ""
+"Remove oauth1_extension from the paste pipeline, the oauth1 extension is now "
+"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"붙여넣기 파이프라인에서 oauth1_extension을 제거하십시오. oauth1 확장은 이제 "
+"항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 "
+"[pipeline:api_v3]섹션을 적절하게 업데이트하십시오."
+
+msgid ""
+"Remove revoke_extension from the paste pipeline, the revoke extension is now "
+"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"붙여넣기 파이프라인에서 revoke_extension을 제거하십시오. 취소 확장은 이제 항"
+"상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 "
+"[pipeline:api_v3]섹션을 적절하게 업데이트하십시오."
+
+msgid ""
+"Remove simple_cert from the paste pipeline, the PKI and PKIz token providers "
+"are now deprecated and simple_cert was only used insupport of these token "
+"providers. Update the [pipeline:api_v3] section in keystone-paste.ini "
+"accordingly, as it will be removed in the O release."
+msgstr ""
+"붙여넣기 파이프라인에서 simple_cert를 제거하십시오. PKI 및 PKIz 토큰 제공자"
+"는 이제 더 이상 사용되지 않으며 simple_cert는 이러한 토큰 제공자를 지원하는 "
+"데만 사용됩니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 [pipeline:"
+"api_v3]섹션을 적절하게 업데이트하십시오."
+
+msgid ""
+"Remove user_crud_extension from the paste pipeline, the user_crud extension "
+"is now always available. Updatethe [pipeline:public_api] section in keystone-"
+"paste.ini accordingly, as it will be removed in the O release."
+msgstr ""
+"붙여넣기 파이프라인에서 user_crud_extension을 제거하십시오. user_crud 확장은 "
+"이제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에"
+"서 [pipeline:public_api] 섹션을 적절하게 업데이트하십시오."
 
 msgid "Request Token does not have an authorizing user id"
 msgstr "요청 토큰에 인증하는 사용자 ID가 없음"
@@ -807,6 +1072,18 @@ msgstr ""
 "문자열 길이 제한을 초과합니다. '%(string)s' 문자열 길이가 열의 한도 "
 "%(type)s(CHAR(%(length)d))을(를) 초과합니다."
 
+msgid "Tenant name cannot contain reserved characters."
+msgstr "테넌트 이름에 예약된 문자가 포함될 수 없습니다."
+
+#, python-format
+msgid ""
+"The %s extension has been moved into keystone core and as such its "
+"migrations are maintained by the main keystone database control. Use the "
+"command: keystone-manage db_sync"
+msgstr ""
+"%s 확장이 keystone 코어에 이동되었으므로 기본 keystone 데이터베이스 제어에서 "
+"마이그레이션을 유지 관리합니다. keystone-manage db_sync 명령을 사용하십시오."
+
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -847,6 +1124,9 @@ msgstr ""
 
 msgid "The configured token provider does not support bind authentication."
 msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
+
+msgid "The creation of projects acting as domains is not allowed in v2."
+msgstr "도메인 역할을 수행하는 프로젝트 생성은 v2에서 허용되지 않습니다. "
 
 #, python-format
 msgid ""
@@ -890,6 +1170,10 @@ msgstr "non-oauth 매개변수가 없어야 함"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "인식되는 Fernet 페이로드 버전이 아님: %s"
+
+#, python-format
+msgid "This is not a recognized Fernet token %s"
+msgstr "인식되는 Fernet 토큰 %s이(가) 아님"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -964,6 +1248,9 @@ msgstr ""
 "리젼 %(region_id)s 또는 하위 리젼에 연관된 엔드포인트가 있어 삭제할 수 없습니"
 "다."
 
+msgid "Unable to downgrade schema"
+msgstr "스키마를 다운그레이드할 수 없음"
+
 #, python-format
 msgid "Unable to find valid groups while using mapping %(mapping_id)s"
 msgstr "%(mapping_id)s 맵핑을 사용하는 중에 올바른 그룹을 찾을 수 없음 "
@@ -1027,14 +1314,33 @@ msgstr "알 수 없는 토큰 버전 %s"
 msgid "Unregistered dependency: %(name)s for %(targets)s"
 msgstr "등록되지 않은 종속성: %(targets)s의 %(name)s"
 
+msgid "Update of `domain_id` is not allowed."
+msgstr "`domain_id` 업데이트는 허용되지 않습니다."
+
 msgid "Update of `is_domain` is not allowed."
 msgstr "`is_domain`의 업데이트는 허용되지 않습니다. "
 
 msgid "Update of `parent_id` is not allowed."
 msgstr "`parent_id` 업데이트가 허용되지 않습니다."
 
+msgid "Update of domain_id is only allowed for root projects."
+msgstr "domain_id의 업데이트는 루트 프로젝트에만 허용됩니다."
+
+msgid "Update of domain_id of projects acting as domains is not allowed."
+msgstr "도메인 역할을 하는 프로젝트의 domain_id는 업데이트할 수 없습니다."
+
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr "SAML 어설션을 작성할 때 프로젝트 범위 지정 토큰 사용"
+
+msgid ""
+"Use of the identity driver config to automatically configure the same "
+"assignment driver has been deprecated, in the \"O\" release, the assignment "
+"driver will need to be expicitly configured if different than the default "
+"(SQL)."
+msgstr ""
+"ID 드라이버 구성을 사용하여 동일한 할당 드라이버를 자동으로 구성하는 기능은 "
+"더 이상 사용되지 않습니다. \"O\" 릴리스에서는 기본값(SQL)과 다른 경우 할당 드"
+"라이버를 명시적으로 구성해야 합니다."
 
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
@@ -1081,6 +1387,9 @@ msgstr "사용자는 trustee가 아닙니다."
 msgid "User not found"
 msgstr "사용자를 찾을 수 없음"
 
+msgid "User not valid for tenant."
+msgstr "테넌트의 사용자가 올바르지 않습니다."
+
 msgid "User roles not supported: tenant_id required"
 msgstr "사용자 역할이 지원되지 않음: tenant_id 필요"
 
@@ -1094,6 +1403,14 @@ msgstr "요청한 조치를 수행할 권한이 없습니다."
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s"
 msgstr "요청한 조치(%(action)s)를 수행할 권한이 없습니다."
+
+msgid ""
+"You have tried to create a resource using the admin token. As this token is "
+"not within a domain you must explicitly include a domain for this resource "
+"to belong to."
+msgstr ""
+"관리자 토큰을 사용하여 자원을 생성하려 했습니다. 이 토큰이 도메인에 없으므"
+"로, 이 자원이 속할 도메인을 명시적으로 포함시켜야 합니다."
 
 msgid "`key_mangler` functions must be callable."
 msgstr "`key_mangler` 기능을 호출할 수 있어야 합니다."
@@ -1117,6 +1434,14 @@ msgstr ""
 "%s"
 
 #, python-format
+msgid ""
+"cannot delete an enabled project acting as a domain. Please disable the "
+"project %s first."
+msgstr ""
+"도메인 역할을 하는 사용 설정된 프로젝트를 삭제할 수 없습니다. 프로젝트 %s을"
+"(를) 먼저 사용하지 않게 설정하십시오."
+
+#, python-format
 msgid "group %(group)s"
 msgstr "%(group)s 그룹"
 
@@ -1129,6 +1454,21 @@ msgstr ""
 #, python-format
 msgid "invalid date format %s"
 msgstr "올바르지 않은 날짜 형식 %s"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects acting as domains with the same "
+"name: %s"
+msgstr "이름이 같은 두 프로젝트가 도메인 역할을 수행할 수 없음: %s"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects within a domain with the same "
+"name : %s"
+msgstr "한 도메인에 이름이 같은 두 프로젝트가 있을 수 없음: %s"
+
+msgid "only root projects are allowed to act as domains."
+msgstr "루트 프로젝트만 도메인 역할을 수행할 수 있습니다."
 
 #, python-format
 msgid "option %(option)s in group %(group)s"
@@ -1161,6 +1501,13 @@ msgid "rescope a scoped token"
 msgstr "범위 지정된 토큰의 범위 재지정"
 
 #, python-format
+msgid "role %s is not defined"
+msgstr "역할 %s이(가) 정의되지 않음"
+
+msgid "scope.project.id must be specified if include_subtree is also specified"
+msgstr "include_subtree도 지정된 경우 scope.project.id를 지정해야 함"
+
+#, python-format
 msgid "tls_cacertdir %s not found or is not a directory"
 msgstr "tls_cacertdir %s를 찾을 수 없으며, 이 디렉토리에 존재하지 않습니다."
 
@@ -1171,6 +1518,11 @@ msgstr "tls_cacertfile %s를 찾을 수 없스며, 그런 파일이 없습니다
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "토큰 참조는 KeystoneToken 유형이어야 합니다. %s을(를) 가져왔습니다."
+
+msgid ""
+"update of domain_id is deprecated as of Mitaka and will be removed in O."
+msgstr ""
+"Mitaka에서 domain_id 업데이트는 더 이상 사용되지 않으므로, O에서 제거됩니다."
 
 #, python-format
 msgid ""

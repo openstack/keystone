@@ -1,0 +1,211 @@
+# Translations template for keystone.
+# Copyright (C) 2015 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+#
+# Translators:
+# Yongbok Kim <ruo91@yongbok.net>, 2015
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# SeYeon Lee <sy_lee@kr.ibm.com>, 2016. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: keystone 9.0.0.0rc2.dev8\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2016-03-24 10:41+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-03-24 02:14+0000\n"
+"Last-Translator: SeYeon Lee <sy_lee@kr.ibm.com>\n"
+"Language: ko-KR\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
+"Language-Team: Korean (South Korea)\n"
+
+#, python-format
+msgid ""
+"\"expires_at\" has conflicting values %(existing)s and %(new)s.  Will use "
+"the earliest value."
+msgstr ""
+"\"expires_at\"에 충돌되는 값 %(existing)s 및 %(new)s이(가) 있습니다. 가장 이"
+"른 값을 사용합니다."
+
+#, python-format
+msgid "Adding proxy '%(proxy)s' to KVS %(name)s."
+msgstr "KVS %(name)s에 프록시 '%(proxy)s'을(를) 추가합니다."
+
+#, python-format
+msgid "Cannot find client issuer in env by the issuer attribute - %s."
+msgstr ""
+"발행자 속성 - %s을(를) 사용하여 환경에서 클라이언트 발행자를 찾을 수 없습니"
+"다."
+
+#, python-format
+msgid "Couldn't verify unknown bind: {%(bind_type)s: %(identifier)s}"
+msgstr "알 수 없는 바인드를 확인할 수 없음: {%(bind_type)s: %(identifier)s}"
+
+#, python-format
+msgid "Created %(interface)s endpoint %(url)s"
+msgstr "%(interface)s 엔드포인트 %(url)s이(가)생성됨"
+
+#, python-format
+msgid "Created Region %s"
+msgstr "지역 %s이(가) 생성됨"
+
+#, python-format
+msgid "Created Role %s"
+msgstr "역할 %s이(가) 생성됨"
+
+#, python-format
+msgid "Created a new key: %s"
+msgstr "새로운 키 생성: %s"
+
+#, python-format
+msgid "Created domain %s"
+msgstr "도메인 %s이(가) 생성됨"
+
+#, python-format
+msgid "Created project %s"
+msgstr "프로젝트 %s이(가) 생성됨"
+
+#, python-format
+msgid "Created user %s"
+msgstr "사용자 \"%s\"이(가) 생성됨"
+
+#, python-format
+msgid "Creating the default role %s because it does not exist."
+msgstr "기본 역할 %s이(가) 없으므로 작성합니다."
+
+#, python-format
+msgid "Creating the default role %s failed because it was already created"
+msgstr "기본 역할 %s이(가) 이미 생성되었으므로 작성에 실패"
+
+#, python-format
+msgid "Current primary key is: %s"
+msgstr "현재 기본 키: %s"
+
+#, python-format
+msgid "Domain %s already exists, skipping creation."
+msgstr "도메인 %s이(가) 이미 있으므로, 생성을 건너뜁니다."
+
+#, python-format
+msgid "Excess key to purge: %s"
+msgstr "제거할 초과 키: %s"
+
+#, python-format
+msgid ""
+"Fernet token created with length of %d characters, which exceeds 255 "
+"characters"
+msgstr "길이가 255자를 초과하는 %d자로 Fernet 토큰이 생성됨"
+
+#, python-format
+msgid "Granted %(role)s on %(project)s to user %(username)s."
+msgstr ""
+"%(project)s에 대한 %(role)s이(가) 사용자 %(username)s에 부여되었습니다."
+
+#, python-format
+msgid "KVS region %s key_mangler disabled."
+msgstr "KVS 지역 %s key_mangler가 사용되지 않습니다."
+
+msgid "Kerberos bind authentication successful"
+msgstr "Kerberos 바인드 인증 성공"
+
+msgid "Kerberos credentials do not match those in bind"
+msgstr "Kerberos 자격 증명이 바인드에 있는 자격 증명과 일치하지 않음"
+
+msgid "Kerberos credentials required and not present"
+msgstr "Kerberos 자격 증명이 필요하지만 없음"
+
+msgid "Key repository is already initialized; aborting."
+msgstr "키 저장소가 이미 초기화되었습니다. 중단합니다."
+
+#, python-format
+msgid ""
+"Loaded %(count)d encryption keys (max_active_keys=%(max)d) from: %(dir)s"
+msgstr "%(dir)s에서 %(count)d 암호화 키(max_active_keys=%(max)d)를 로드함"
+
+#, python-format
+msgid "Named bind mode %s not in bind information"
+msgstr "바인드 정보에 이름 지정된 바인드 모드 %s이(가) 없음"
+
+#, python-format
+msgid "Next primary key will be: %s"
+msgstr "다음 기본 키: %s"
+
+msgid "No bind information present in token"
+msgstr "토큰에 바인드 정보가 없음"
+
+#, python-format
+msgid "Project %s already exists, skipping creation."
+msgstr "프로젝트 %s이(가) 이미 있으므로, 생성을 건너뜁니다."
+
+#, python-format
+msgid "Promoted key 0 to be the primary: %s"
+msgstr "승격된 키 0이 기본이 됨: %s"
+
+#, python-format
+msgid "Region %s exists, skipping creation."
+msgstr "지역 %s이(가) 이미 있으므로, 생성을 건너뜁니다."
+
+#, python-format
+msgid "Role %s exists, skipping creation."
+msgstr "역할 %s이(가) 이미 있으므로, 생성을 건너뜁니다."
+
+#, python-format
+msgid "Running command - %s"
+msgstr "%s - 명령 실행"
+
+#, python-format
+msgid "Scanning %r for domain config files"
+msgstr "%r에서 도메인 구성 파일 스캔"
+
+#, python-format
+msgid "Skipping %s endpoint as already created"
+msgstr "%s 엔드포인트가 이미 생성되었으므로 건너뜀"
+
+#, python-format
+msgid "Starting %(arg0)s on %(host)s:%(port)s"
+msgstr "%(host)s:%(port)s에서 %(arg0)s 시작 중"
+
+#, python-format
+msgid "Starting key rotation with %(count)s key files: %(list)s"
+msgstr "%(count)s 키 파일로 키 순환 시작: %(list)s"
+
+#, python-format
+msgid ""
+"The client issuer %(client_issuer)s does not match with the trusted issuer "
+"%(trusted_issuer)s"
+msgstr ""
+"클라이언트 발행자 %(client_issuer)s이(가) 신뢰할 수 있는 발행자 "
+"%(trusted_issuer)s과(와) 일치하지 않음"
+
+#, python-format
+msgid "Total expired tokens removed: %d"
+msgstr "제거된 만료 토큰 총계: %d"
+
+#, python-format
+msgid "User %(username)s already has %(role)s on %(project)s."
+msgstr ""
+"사용자 %(username)s이(가) 이미 %(project)s에 대한 %(role)s이(가) 있습니다."
+
+#, python-format
+msgid "User %s already exists, skipping creation."
+msgstr "사용자 %s이(가) 이미 있으므로, 생성을 건너뜁니다."
+
+#, python-format
+msgid "Using %(func)s as KVS region %(name)s key_mangler"
+msgstr "%(func)s을(를) KVS region %(name)s key_mangler(으)로 사용"
+
+#, python-format
+msgid ""
+"Using default keystone.common.kvs.sha1_mangle_key as KVS region %s "
+"key_mangler"
+msgstr ""
+"기본 keystone.common.kvs.sha1_mangle_key을(를) KVS 지역 %s key_mangler(으)로 "
+"사용"
+
+msgid ""
+"[fernet_tokens] key_repository does not appear to exist; attempting to "
+"create it"
+msgstr ""
+"[fernet_tokens] key_repository가 없는 것으로 보입니다. 생성하려고 시도합니다."

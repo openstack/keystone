@@ -1,0 +1,326 @@
+# Translations template for keystone.
+# Copyright (C) 2015 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+#
+# Translators:
+# Yongbok Kim <ruo91@yongbok.net>, 2015
+# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
+# SeYeon Lee <sy_lee@kr.ibm.com>, 2016. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: keystone 9.0.0.0rc2.dev8\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
+"POT-Creation-Date: 2016-03-24 10:41+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-03-24 02:55+0000\n"
+"Last-Translator: SeYeon Lee <sy_lee@kr.ibm.com>\n"
+"Language: ko-KR\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 3.7.3\n"
+"Language-Team: Korean (South Korea)\n"
+
+#, python-format
+msgid "%s is not a dogpile.proxy.ProxyBackend"
+msgstr "%s이(가) dogpile.proxy.ProxyBackend가 아님"
+
+msgid "'local conf' from PasteDeploy INI is being ignored."
+msgstr "PasteDeploy INI의 'local conf'가 무시됩니다."
+
+msgid ""
+"Auth context already exists in the request environment; it will be used for "
+"authorization instead of creating a new one."
+msgstr ""
+"요청 환경에 인증 컨텍스트가 이미 있습니다. 새로 생성하지 않고 이 인증 컨텍스"
+"트를 인증에 사용합니다."
+
+#, python-format
+msgid "Authorization failed. %(exception)s from %(remote_addr)s"
+msgstr "%(remote_addr)s 에서 %(exception)s 인증에 실패 하였습니다."
+
+msgid "Couldn't find the auth context."
+msgstr "인증 컨텍스트를 찾을 수 없습니다."
+
+#, python-format
+msgid ""
+"Endpoint %(endpoint_id)s referenced in association for policy %(policy_id)s "
+"not found."
+msgstr ""
+"정책 %(policy_id)s의 연관에서 참조되는 엔드포인트 %(endpoint_id)s을(를) 찾을 "
+"수 없습니다."
+
+msgid "Failed to invoke ``openssl version``, assuming is v1.0 or newer"
+msgstr "v1.0 이상이라고 가정하여 ``openssl version``을 호출하는 데 실패"
+
+#, python-format
+msgid ""
+"Found multiple domains being mapped to a driver that does not support that "
+"(e.g. LDAP) - Domain ID: %(domain)s, Default Driver: %(driver)s"
+msgstr ""
+"여러 도메인이 드라이버에 맵핑되어 있음을 발견했지만, 이 드라이버에서 이 기능"
+"을 지원하지 않음(예: LDAP) - 도메인 ID: %(domain)s, 기본 드라이버: %(driver)s"
+
+#, python-format
+msgid ""
+"Found what looks like an incorrectly constructed config option substitution "
+"reference - domain: %(domain)s, group: %(group)s, option: %(option)s, value: "
+"%(value)s."
+msgstr ""
+"잘못 구성된 구성 옵션 대체 참조 발견 - 도메인: %(domain)s, 그룹: %(group)s, "
+"옵션: %(option)s, 값: %(value)s."
+
+#, python-format
+msgid ""
+"Found what looks like an unmatched config option substitution reference - "
+"domain: %(domain)s, group: %(group)s, option: %(option)s, value: %(value)s. "
+"Perhaps the config option to which it refers has yet to be added?"
+msgstr ""
+"일치하지 않는 구성 옵션 대체 발견 - 도메인: %(domain)s, 그룹: %(group)s, 옵"
+"션: %(option)s, 값: %(value)s. 참조하는 구성 옵션이 이미 추가되었을 가능성이 "
+"있습니다."
+
+#, python-format
+msgid ""
+"ID attribute %(id_attr)s for LDAP object %(dn)s has multiple values and "
+"therefore cannot be used as an ID. Will get the ID from DN instead"
+msgstr ""
+"LDAP 오브젝트 %(dn)s의 ID 속성 %(id_attr)s 값이 여러 개이므로, ID로 사용할 "
+"수 없습니다. 대신 DN에서 ID를 얻습니다."
+
+#, python-format
+msgid "Ignoring file (%s) while scanning domain config directory"
+msgstr "도메인 구성 디렉토리를 스캔하는 중에 파일(%s) 무시"
+
+msgid "Ignoring user name"
+msgstr "사용자 이름 무시"
+
+#, python-format
+msgid ""
+"Invalid additional attribute mapping: \"%s\". Format must be "
+"<ldap_attribute>:<keystone_attribute>"
+msgstr ""
+"잘못된 추가 속성 맵핑:\" %s\". 형식은 <ldap_attribute>:<keystone_attribute>"
+
+#, python-format
+msgid "Invalid domain name (%s) found in config file name"
+msgstr "설정 파일 이름에 잘못된 도메인 이름(%s)을 찾았습니다."
+
+msgid ""
+"It is recommended to only use the base key-value-store implementation for "
+"the token driver for testing purposes. Please use 'memcache' or 'sql' "
+"instead."
+msgstr ""
+"테스트용으로만 토큰 드라이버의 기본 key-value-store 구현을 사용하는 것이 좋습"
+"니다. 대신 'memcache' 또는 'sql'을 사용하십시오."
+
+#, python-format
+msgid "KVS lock released (timeout reached) for: %s"
+msgstr "%s에 대한 KVS 잠금이 해제됨(제한시간에 도달)"
+
+msgid ""
+"LDAP Server does not support paging. Disable paging in keystone.conf to "
+"avoid this message."
+msgstr ""
+"LDAP 서버가 페이징을 지원하지 않습니다. 이 메시지를 방지하려면 keystone.conf"
+"에서 페이징을 사용 안함으로 설정하십시오."
+
+msgid "No domain information specified as part of list request"
+msgstr "목록 요청의 일부로 도메인 정보가 지정되지 않음"
+
+msgid ""
+"Not specifying a domain during a create user, group or project call, and "
+"relying on falling back to the default domain, is deprecated as of Liberty "
+"and will be removed in the N release. Specify the domain explicitly or use a "
+"domain-scoped token"
+msgstr ""
+"사용자, 그룹 또는 프로젝트 호출 생성 중에 도메인을 지정하지 않고, 기본 도메인"
+"으로 다시 돌아가는 기능은 Liberty에서는 더 이상 사용되지 않으므로 N 릴리스에"
+"서 제거됩니다. 도메인을 명시적으로 지정하거나 도메인 범위 토큰을 사용하십시"
+"오."
+
+#, python-format
+msgid ""
+"Policy %(policy_id)s referenced in association for endpoint %(endpoint_id)s "
+"not found."
+msgstr ""
+"엔드포인트 %(endpoint_id)s의 연관에서 참조되는 정책 %(policy_id)s을(를) 찾을 "
+"수 없습니다."
+
+#, python-format
+msgid "Project %s does not exist and was not deleted."
+msgstr "프로젝트 %s이(가) 없으므로 삭제되지 않았습니다."
+
+msgid "RBAC: Bypassing authorization"
+msgstr "RBAC: 권한 무시"
+
+msgid "RBAC: Invalid token"
+msgstr "RBAC: 올바르지 않은 토큰"
+
+msgid "RBAC: Invalid user data in token"
+msgstr "RBAC: 토큰에 잘못된 사용자 데이터"
+
+#, python-format
+msgid ""
+"Removing `%s` from revocation list due to invalid expires data in revocation "
+"list."
+msgstr ""
+"유효하지 않아 취소 목록에서 `%s`을(를) 제거하면 취소 목록의 데이터가 만료됩니"
+"다."
+
+msgid ""
+"The admin_token_auth middleware presents a security risk and should be "
+"removed from the [pipeline:api_v3], [pipeline:admin_api], and [pipeline:"
+"public_api] sections of your paste ini file."
+msgstr ""
+"admin_token_auth 미들웨어에서는 보안 위험이 제기되므로 paste ini 파일의 "
+"[pipeline:api_v3], [pipeline:admin_api] 및 [pipeline:public_api] 섹션에서 제"
+"거해야 합니다."
+
+msgid ""
+"The default domain was created automatically to contain V2 resources. This "
+"is deprecated in the M release and will not be supported in the O release. "
+"Create the default domain manually or use the keystone-manage bootstrap "
+"command."
+msgstr ""
+"V2 자원을 포함하도록 기본 도메인이 자동으로 생성되었습니다. 이 기능은 M 릴리"
+"스에서 더 이상 사용되지 않으며 O 릴리스에서 지원되지 않습니다. 수동으로 기본 "
+"도메인을 생성하거나 keystone-manage 부트스트랩 명령을 사용하십시오."
+
+#, python-format
+msgid "Token `%s` is expired, not adding to the revocation list."
+msgstr "토큰 `%s`를 해지 목록에 추가 하지 않으면 만료 됩니다."
+
+#, python-format
+msgid "Truncating user password to %d characters."
+msgstr "사용자 비밀번호를 %d자로 자릅니다."
+
+#, python-format
+msgid "Unable to add user %(user)s to %(tenant)s."
+msgstr "%(tenant)s 에 사용자 %(user)s 를 추가 할 수 없습니다."
+
+#, python-format
+msgid ""
+"Unable to change the ownership of [fernet_tokens] key_repository without a "
+"keystone user ID and keystone group ID both being provided: %s"
+msgstr ""
+"keystone 사용자 ID와 keystone 그룹 ID가 모두 제공되지 않으면 [fernet_tokens] "
+"key_repository의 소유권은 변경할 수 없음: %s"
+
+#, python-format
+msgid ""
+"Unable to change the ownership of the new key without a keystone user ID and "
+"keystone group ID both being provided: %s"
+msgstr ""
+"keystone 사용자 ID와 keystone 그룹 ID가 모두 제공되지 않으면 새 키의 소유권"
+"을 변경할 수 없음: %s"
+
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr "%s: 도메인 설정 디렉토리를 찾을 수 없습니다."
+
+#, python-format
+msgid "Unable to remove user %(user)s from %(tenant)s."
+msgstr "%(tenant)s 에서 %(user)s 를 제거 할 수 없습니다."
+
+#, python-format
+msgid ""
+"Unsupported policy association found - Policy %(policy_id)s, Endpoint "
+"%(endpoint_id)s, Service %(service_id)s, Region %(region_id)s, "
+msgstr ""
+"지원되지 않는 정책 연관 발견 - 정책 %(policy_id)s, 엔드포인트 "
+"%(endpoint_id)s, 서비스 %(service_id)s, 지역 %(region_id)s, "
+
+#, python-format
+msgid ""
+"User %(user_id)s doesn't have access to default project %(project_id)s. The "
+"token will be unscoped rather than scoped to the project."
+msgstr ""
+"사용자 %(user_id)s이(가) 기본 프로젝트 %(project_id)s에 대한 액세스 권한이 없"
+"습니다. 토큰의 범위가 프로젝트로 지정되지 않고 범위 지정이 해제됩니다."
+
+#, python-format
+msgid ""
+"User %(user_id)s's default project %(project_id)s is disabled. The token "
+"will be unscoped rather than scoped to the project."
+msgstr ""
+"%(user_id)s 사용자의 기본 프로젝트 %(project_id)s을(를) 사용하지 않습니다. 토"
+"큰의 범위가 프로젝트로 지정되지 않고 범위 지정이 해제됩니다."
+
+#, python-format
+msgid ""
+"User %(user_id)s's default project %(project_id)s not found. The token will "
+"be unscoped rather than scoped to the project."
+msgstr ""
+"사용자 %(user_id)s의 기본 프로젝트 %(project_id)s을(를) 찾을 수 없습니다. 토"
+"큰의 범위가 프로젝트로 지정되지 않고 범위 지정이 해제됩니다."
+
+#, python-format
+msgid ""
+"When deleting entries for %(search_base)s, could not delete nonexistent "
+"entries %(entries)s%(dots)s"
+msgstr ""
+"%(search_base)s의 항목을 삭제할 때 존재하지 않는 항목 %(entries)s%(dots)s을"
+"(를) 삭제할 수 없음"
+
+#, python-format
+msgid "[fernet_tokens] key_repository is world readable: %s"
+msgstr "[fernet_tokens] key_repository는 읽을 수 있음: %s"
+
+msgid ""
+"[fernet_tokens] max_active_keys must be at least 1 to maintain a primary key."
+msgstr ""
+"기본 키를 유지 보수하려면 [fernet_tokens] max_active_keys가 최소 1이어야 합니"
+"다."
+
+#, python-format
+msgid ""
+"`token_api.%s` is deprecated as of Juno in favor of utilizing methods on "
+"`token_provider_api` and may be removed in Kilo."
+msgstr ""
+"Juno에서는 `token_provider_api`의 메소드를 활용하기 위해 `token_api.%s`이"
+"(가) 더 이상 사용되지 않으므로 Kilo에서 제거될 수 있습니다."
+
+msgid ""
+"build_auth_context middleware checking for the admin token is deprecated as "
+"of the Mitaka release and will be removed in the O release. If your "
+"deployment requires use of the admin token, update keystone-paste.ini so "
+"that admin_token_auth is before build_auth_context in the paste pipelines, "
+"otherwise remove the admin_token_auth middleware from the paste pipelines."
+msgstr ""
+"build_auth_context 미들웨어에서 관리 토큰을 확인하는 기능은 Mitaka 릴리스에"
+"서 더 이상 사용되지 않으므로, O 릴리스에서 제거됩니다. 배포에서 관리 토큰을 "
+"사용해야 하는 경우 붙여넣기 파이프라인에서 build_auth_context 전에 "
+"admin_token_auth가 오도록 keystone-paste.ini를 업데이트하십시오. 그렇지 않으"
+"면 붙여넣기 파이프라인에서 admin_token_auth 미들웨어를 제거하십시오."
+
+#, python-format
+msgid ""
+"delete_domain_assignments method not found in custom assignment driver. "
+"Domain assignments for domain (%s) to users from other domains will not be "
+"removed. This was added in V9 of the assignment driver."
+msgstr ""
+"사용자 정의 할당 드라이버에서 delete_domain_assignments 메소드를 찾을 수 없습"
+"니다. 다른 도메인의 사용자에게 할당한 도메인(%s)은 제거되지 않습니다. 이 기능"
+"은 할당 드라이버의 V9에서 추가되었습니다."
+
+msgid ""
+"insecure_debug is enabled so responses may include sensitive information."
+msgstr "insecure_debug가 사용되므로 응답에 민감한 정보가 포함될 수 있습니다."
+
+msgid ""
+"keystone-manage pki_setup is deprecated as of Mitaka in favor of not using "
+"PKI tokens and may be removed in 'O' release."
+msgstr ""
+" Mitaka에서 PKI 토큰을 사용하지 않기 위해 keystone-manage pki_setup이 더 이"
+"상 사용되지 않으므로,  'O' 릴리스에서 제거할 수 있습니다."
+
+msgid "keystone-manage pki_setup is not recommended for production use."
+msgstr "keystone-manage pki_setup은 프로덕션에서 사용하지 않는 것이 좋습니다.."
+
+msgid "keystone-manage ssl_setup is not recommended for production use."
+msgstr "keystone-manage ssl_setup은 프로덕션에서 사용하지 않는 것이 좋습니다."
+
+msgid "missing exception kwargs (programmer error)"
+msgstr "누락된 예외 kwargs(프로그래머 오류)"
