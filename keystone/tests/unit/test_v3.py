@@ -292,19 +292,14 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.load_sample_data()
 
     def _populate_default_domain(self):
-        if CONF.database.connection == unit.IN_MEM_DB_CONN_STRING:
-            # NOTE(morganfainberg): If an in-memory db is being used, be sure
-            # to populate the default domain, this is typically done by
-            # a migration, but the in-mem db uses model definitions  to create
-            # the schema (no migrations are run).
-            try:
-                self.resource_api.get_domain(DEFAULT_DOMAIN_ID)
-            except exception.DomainNotFound:
-                domain = unit.new_domain_ref(
-                    description=(u'The default domain'),
-                    id=DEFAULT_DOMAIN_ID,
-                    name=u'Default')
-                self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
+        try:
+            self.resource_api.get_domain(DEFAULT_DOMAIN_ID)
+        except exception.DomainNotFound:
+            domain = unit.new_domain_ref(
+                description=(u'The default domain'),
+                id=DEFAULT_DOMAIN_ID,
+                name=u'Default')
+            self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
 
     def load_sample_data(self):
         self._populate_default_domain()
