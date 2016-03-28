@@ -32,6 +32,7 @@ WARNING::
 import json
 import uuid
 
+import migrate
 from migrate.versioning import api as versioning_api
 from migrate.versioning import repository
 import mock
@@ -493,6 +494,11 @@ class SqlUpgradeTests(SqlMigrateBase):
         meta = sqlalchemy.MetaData(bind=self.engine)
         table = sqlalchemy.Table(table_name, meta, autoload=True)
         return index_name in [idx.name for idx in table.indexes]
+
+    def does_constraint_exist(self, table_name, constraint_name):
+        meta = sqlalchemy.MetaData(bind=self.engine)
+        table = sqlalchemy.Table(table_name, meta, autoload=True)
+        return constraint_name in [con.name for con in table.constraints]
 
     def test_endpoint_policy_upgrade(self):
         self.assertTableDoesNotExist('policy_association')
@@ -1058,6 +1064,93 @@ class SqlUpgradeTests(SqlMigrateBase):
                                                   meta, autoload=True)
         # assert id column is an integer (after)
         self.assertEqual('INTEGER', str(revocation_event_table.c.id.type))
+
+    def _add_unique_constraint_to_role_name(self,
+                                            constraint_name='ixu_role_name'):
+        meta = sqlalchemy.MetaData()
+        meta.bind = self.engine
+        role_table = sqlalchemy.Table('role', meta, autoload=True)
+        migrate.UniqueConstraint(role_table.c.name,
+                                 name=constraint_name).create()
+
+    def _drop_unique_constraint_to_role_name(self,
+                                             constraint_name='ixu_role_name'):
+        role_table = sqlalchemy.Table('role', self.metadata, autoload=True)
+        migrate.UniqueConstraint(role_table.c.name,
+                                 name=constraint_name).drop()
+
+    def test_migration_88_drops_unique_constraint(self):
+        self.upgrade(87)
+        if self.engine.name == 'mysql':
+            self.assertTrue(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertTrue(self.does_constraint_exist('role',
+                                                       'ixu_role_name'))
+        self.upgrade(88)
+        if self.engine.name == 'mysql':
+            self.assertFalse(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        'ixu_role_name'))
+
+    def test_migration_88_inconsistent_constraint_name(self):
+        self.upgrade(87)
+        self._drop_unique_constraint_to_role_name()
+
+        constraint_name = uuid.uuid4().hex
+        self._add_unique_constraint_to_role_name(
+            constraint_name=constraint_name)
+
+        if self.engine.name == 'mysql':
+            self.assertTrue(self.does_index_exist('role', constraint_name))
+            self.assertFalse(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertTrue(self.does_constraint_exist('role',
+                                                       constraint_name))
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        'ixu_role_name'))
+
+        self.upgrade(88)
+        if self.engine.name == 'mysql':
+            self.assertFalse(self.does_index_exist('role', constraint_name))
+            self.assertFalse(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        constraint_name))
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        'ixu_role_name'))
+
+    def test_migration_96(self):
+        self.upgrade(95)
+        if self.engine.name == 'mysql':
+            self.assertFalse(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        'ixu_role_name'))
+
+        self.upgrade(96)
+        if self.engine.name == 'mysql':
+            self.assertFalse(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        'ixu_role_name'))
+
+    def test_migration_96_constraint_exists(self):
+        self.upgrade(95)
+        self._add_unique_constraint_to_role_name()
+
+        if self.engine.name == 'mysql':
+            self.assertTrue(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertTrue(self.does_constraint_exist('role',
+                                                       'ixu_role_name'))
+
+        self.upgrade(96)
+        if self.engine.name == 'mysql':
+            self.assertFalse(self.does_index_exist('role', 'ixu_role_name'))
+        else:
+            self.assertFalse(self.does_constraint_exist('role',
+                                                        'ixu_role_name'))
 
 
 class VersionTests(SqlMigrateBase):
