@@ -19,9 +19,8 @@
 # This script is based on the original DevStack keystone_data.sh script.
 #
 # It demonstrates how to bootstrap Keystone with an administrative user
-# using the OS_TOKEN and OS_URL environment variables and the administrative
-# API.  It will get the admin_token (OS_TOKEN) and admin_port from
-# keystone.conf if available.
+# using the `keystone-manage bootstrap` command.  It will get the admin_port
+# from keystone.conf if available.
 #
 # Disable creation of endpoints by setting DISABLE_ENDPOINTS environment variable.
 # Use this with the Catalog Templated backend.
@@ -75,11 +74,6 @@ fi
 
 # Extract some info from Keystone's configuration file
 if [[ -r "$KEYSTONE_CONF" ]]; then
-    CONFIG_SERVICE_TOKEN=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_token= | cut -d'=' -f2)
-    if [[ -z "${CONFIG_SERVICE_TOKEN}" ]]; then
-        # default config options are commented out, so lets try those
-        CONFIG_SERVICE_TOKEN=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^\#admin_token= | cut -d'=' -f2)
-    fi
     CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_port= | cut -d'=' -f2)
     if [[ -z "${CONFIG_ADMIN_PORT}" ]]; then
         # default config options are commented out, so lets try those
@@ -87,26 +81,24 @@ if [[ -r "$KEYSTONE_CONF" ]]; then
     fi
 fi
 
-export OS_TOKEN=${OS_TOKEN:-$CONFIG_SERVICE_TOKEN}
-if [[ -z "$OS_TOKEN" ]]; then
-    echo "No service token found."
-    echo "Set OS_TOKEN manually from keystone.conf admin_token."
-    exit 1
-fi
-
-export OS_URL=${OS_URL:-http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-35357}/v2.0}
+export OS_USERNAME=admin
+export OS_PASSWORD=$ADMIN_PASSWORD
+export OS_PROJECT_NAME=admin
+export OS_USER_DOMAIN_ID=default
+export OS_PROJECT_DOMAIN_ID=default
+export OS_IDENTITY_API_VERSION=3
+export OS_AUTH_URL=http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-35357}/v3
 
 function get_id () {
     echo `"$@" | grep ' id ' | awk '{print $4}'`
 }
 
-#
-# Roles
-#
-
-openstack role create admin
-
-openstack role create service
+export OS_BOOTSTRAP_PASSWORD=$ADMIN_PASSWORD
+export OS_BOOTSTRAP_REGION_ID=RegionOne
+export OS_BOOTSTRAP_ADMIN_URL="http://$CONTROLLER_PUBLIC_ADDRESS:\$(public_port)s/v3"
+export OS_BOOTSTRAP_PUBLIC_URL="http://$CONTROLLER_ADMIN_ADDRESS:\$(admin_port)s/v3"
+export OS_BOOTSTRAP_INTERNAL_URL="http://$CONTROLLER_INTERNAL_ADDRESS:\$(public_port)s/v3"
+keystone-manage bootstrap
 
 #
 # Default tenant
@@ -114,16 +106,11 @@ openstack role create service
 openstack project create demo \
                          --description "Default Tenant"
 
-openstack user create admin --project demo \
-                      --password "${ADMIN_PASSWORD}"
-
-openstack role add --user admin \
-                   --project demo\
-                   admin
-
 #
 # Service tenant
 #
+openstack role create service
+
 openstack project create service \
                   --description "Service Tenant"
 
@@ -163,20 +150,6 @@ openstack role add --user neutron \
                    service
 
 #
-# Keystone service
-#
-openstack service create --name keystone \
-                         --description "Keystone Identity Service" \
-                         identity
-if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    openstack endpoint create --region RegionOne \
-        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:\$(public_port)s/v2.0" \
-        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:\$(admin_port)s/v2.0" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:\$(public_port)s/v2.0" \
-        keystone
-fi
-
-#
 # Nova service
 #
 openstack service create --name=nova \
@@ -184,10 +157,11 @@ openstack service create --name=nova \
                          compute
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8774/v2/\$(tenant_id)s" \
-        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8774/v2/\$(tenant_id)s" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2/\$(tenant_id)s" \
-        nova
+        compute public "http://$CONTROLLER_PUBLIC_ADDRESS:8774/v2/\$(tenant_id)s"
+    openstack endpoint create --region RegionOne \
+        compute admin "http://$CONTROLLER_ADMIN_ADDRESS:8774/v2/\$(tenant_id)s"
+    openstack endpoint create --region RegionOne \
+        compute internal "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2/\$(tenant_id)s"
 fi
 
 #
@@ -198,10 +172,11 @@ openstack service create --name=volume \
                          volume
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v1/\$(tenant_id)s" \
-        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8776/v1/\$(tenant_id)s" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v1/\$(tenant_id)s" \
-        volume
+        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v1/\$(tenant_id)s"
+    openstack endpoint create --region RegionOne \
+        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v1/\$(tenant_id)s"
+    openstack endpoint create --region RegionOne \
+        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v1/\$(tenant_id)s"
 fi
 
 #
@@ -212,10 +187,11 @@ openstack service create --name=glance \
                          image
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne  \
-        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:9292" \
-        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:9292" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9292" \
-        glance
+        image public "http://$CONTROLLER_PUBLIC_ADDRESS:9292"
+    openstack endpoint create --region RegionOne  \
+        image admin "http://$CONTROLLER_ADMIN_ADDRESS:9292"
+    openstack endpoint create --region RegionOne  \
+        image internal "http://$CONTROLLER_INTERNAL_ADDRESS:9292"
 fi
 
 #
@@ -226,10 +202,11 @@ openstack service create --name=ec2 \
                          ec2
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        --publicurl "http://$CONTROLLER_PUBLIC_ADDRESS:8773/services/Cloud" \
-        --adminurl "http://$CONTROLLER_ADMIN_ADDRESS:8773/services/Admin" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8773/services/Cloud" \
-        ec2
+        ec2 public "http://$CONTROLLER_PUBLIC_ADDRESS:8773/services/Cloud"
+    openstack endpoint create --region RegionOne \
+        ec2 admin "http://$CONTROLLER_ADMIN_ADDRESS:8773/services/Admin"
+    openstack endpoint create --region RegionOne \
+        ec2 internal "http://$CONTROLLER_INTERNAL_ADDRESS:8773/services/Cloud"
 fi
 
 #
@@ -240,10 +217,11 @@ openstack service create --name=swift \
                          object-store
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        --publicurl   "http://$CONTROLLER_PUBLIC_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
-        --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:8080/v1" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s" \
-        swift
+        object-store public "http://$CONTROLLER_PUBLIC_ADDRESS:8080/v1/AUTH_\$(tenant_id)s"
+    openstack endpoint create --region RegionOne \
+        object-store admin "http://$CONTROLLER_ADMIN_ADDRESS:8080/v1"
+    openstack endpoint create --region RegionOne \
+        object-store internal "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s"
 fi
 
 #
@@ -254,10 +232,11 @@ openstack service create --name=neutron \
                          network
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        --publicurl   "http://$CONTROLLER_PUBLIC_ADDRESS:9696" \
-        --adminurl    "http://$CONTROLLER_ADMIN_ADDRESS:9696" \
-        --internalurl "http://$CONTROLLER_INTERNAL_ADDRESS:9696" \
-        neutron
+        network public "http://$CONTROLLER_PUBLIC_ADDRESS:9696"
+    openstack endpoint create --region RegionOne \
+        network admin "http://$CONTROLLER_ADMIN_ADDRESS:9696"
+    openstack endpoint create --region RegionOne \
+        network internal "http://$CONTROLLER_INTERNAL_ADDRESS:9696"
 fi
 
 # create ec2 creds and parse the secret and access key returned
