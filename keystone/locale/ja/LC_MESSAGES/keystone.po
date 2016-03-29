@@ -8,13 +8,13 @@
 # 笹原 昌美 <ebb0de1@jp.ibm.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0rc2.dev7\n"
+"Project-Id-Version: keystone 9.0.0.0rc2.dev10\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-23 08:52+0000\n"
+"POT-Creation-Date: 2016-03-28 22:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-24 02:31+0000\n"
+"PO-Revision-Date: 2016-03-29 06:41+0000\n"
 "Last-Translator: 笹原 昌美 <ebb0de1@jp.ibm.com>\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -210,9 +210,9 @@ msgstr "ユーザー名を変更できません"
 msgid "Cannot create an endpoint with an invalid URL: %(url)s"
 msgstr "以下の無効な URL を持つエンドポイントを作成できません: %(url)s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Cannot create project with parent: %(project_id)s"
-msgstr "親を持つプロジェクトを作成できません: %(project_id)s"
+msgstr "親を持つプロジェクト: %(project_id)s を作成できません"
 
 #, python-format
 msgid ""
@@ -378,9 +378,9 @@ msgstr "ID プロバイダー %(idp_id)s が見つかりませんでした"
 msgid "Could not find Service Provider: %(sp_id)s"
 msgstr "サービスプロバイダー %(sp_id)s が見つかりませんでした"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Could not find credential: %(credential_id)s"
-msgstr "資格情報が見つかりませんでした: %(credential_id)s"
+msgstr "認証情報が見つかりませんでした: %(credential_id)s"
 
 #, python-format
 msgid "Could not find domain: %(domain_id)s"
@@ -390,12 +390,12 @@ msgstr "ドメイン %(domain_id)s が見つかりませんでした"
 msgid "Could not find endpoint: %(endpoint_id)s"
 msgstr "エンドポイント %(endpoint_id)sが見つかりませんでした"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Could not find federated protocol %(protocol_id)s for Identity Provider: "
 "%(idp_id)s"
 msgstr ""
-"Identity Provider の統合プロトコル %(protocol_id)s が見つかりませんでした: "
+"Identity Provider の連携プロトコル %(protocol_id)s が見つかりませんでした: "
 "%(idp_id)s"
 
 #, python-format
@@ -477,9 +477,8 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "アクセストークンを検証できませんでした"
 
-#, fuzzy
 msgid "Credential belongs to another user"
-msgstr "資格情報が別のユーザーに属しています"
+msgstr "認証情報が別のユーザーに属しています"
 
 msgid "Credential signature mismatch"
 msgstr "クレデンシャルのシグニチャーが一致しません"
@@ -614,6 +613,15 @@ msgid "Error while reading metadata file, %(reason)s"
 msgstr "メタデータファイルの読み取り中にエラーが発生しました。%(reason)s"
 
 #, python-format
+msgid ""
+"Exceeded attempts to register domain %(domain)s to use the SQL driver, the "
+"last domain that appears to have had it is %(last_domain)s, giving up"
+msgstr ""
+"SQL ドライバーを使用するためのドメイン %(domain)s の登録の試行回数が制限を超"
+"過しました。最後に登録されたと思われるドメインは %(last_domain)s です。中断し"
+"ます"
+
+#, python-format
 msgid "Expected dict or list: %s"
 msgstr "期待される辞書またはリスト: %s"
 
@@ -690,11 +698,10 @@ msgstr "ID 属性 %(id_attr)s が LDAP オブジェクト %(dn)s に見つかり
 msgid "Identity Provider %(idp)s is disabled"
 msgstr "ID プロバイダー %(idp)s は無効になっています"
 
-#, fuzzy
 msgid ""
 "Incoming identity provider identifier not included among the accepted "
 "identifiers."
-msgstr "着信 ID プロバイダー ID が受諾 ID に含まれていませんでした。"
+msgstr "受諾した ID の中に着信 ID プロバイダーの ID が含まれません。"
 
 msgid "Invalid EC2 signature."
 msgstr "無効な EC2 の署名。"
@@ -728,9 +735,8 @@ msgstr "無効な TLS / LDAPS の組み合わせです"
 msgid "Invalid audit info data type: %(data)s (%(type)s)"
 msgstr "無効な監査情報データタイプ %(data)s (%(type)s) です"
 
-#, fuzzy
 msgid "Invalid blob in credential"
-msgstr "資格情報内の blob が無効です"
+msgstr "認証情報内の blob が無効です"
 
 #, python-format
 msgid ""
@@ -786,9 +792,9 @@ msgstr "無効なユーザー名かパスワード"
 msgid "KVS region %s is already configured. Cannot reconfigure."
 msgstr "KVS 領域 %s は既に構成されています。再構成はできません。"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Key Value Store not configured: %s"
-msgstr "キー値ストアが構成されていません: %s"
+msgstr "キーバリュートアが設定されていません: %s"
 
 #, python-format
 msgid "LDAP %s create"
@@ -888,12 +894,11 @@ msgstr ""
 msgid "No authenticated user"
 msgstr "認証されていないユーザー"
 
-#, fuzzy
 msgid ""
 "No encryption keys found; run keystone-manage fernet_setup to bootstrap one."
 msgstr ""
-"暗号鍵が見つかりません。keystone 管理 fernet_setup を実行してブートストラップ"
-"を行ってください。"
+"暗号鍵が見つかりません。keystone-manage fernet_setup を実行して暗号鍵を初期設"
+"定します。"
 
 msgid "No options specified"
 msgstr "オプションが指定されていません"
@@ -903,9 +908,9 @@ msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr ""
 "エンドポイント %(endpoint_id)s に関連付けられているポリシーはありません。"
 
-#, fuzzy, python-format
+#, python-format
 msgid "No remaining uses for trust: %(trust_id)s"
-msgstr "トラストには使用が残っていません: %(trust_id)s"
+msgstr "トラストはこれ以上使用できません: %(trust_id)s"
 
 msgid "No token in the request"
 msgstr "要求にトークンがありません"
@@ -1346,9 +1351,9 @@ msgstr ""
 msgid "Unable to sign token."
 msgstr "トークンに署名できません。"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Unexpected assignment type encountered, %s"
-msgstr "無効な割り当てタイプ %s が検出されました"
+msgstr "予期しない割り当てタイプが検出されました。%s"
 
 #, python-format
 msgid ""
@@ -1358,9 +1363,9 @@ msgstr ""
 "認可属性 の組み合わせ (ユーザー: %(user_id)s、グループ: %(group_id)s、プロ"
 "ジェクト: %(project_id)s、ドメイン: %(domain_id)s) が正しくありません。"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
-msgstr "JSON ホーム応答に対して予期しない状況が要求されました。%s"
+msgstr "JSON Home 応答に対して予期しない状況が要求されました。%s"
 
 msgid "Unknown Target"
 msgstr "不明なターゲット"
@@ -1489,9 +1494,8 @@ msgstr "`key_mangler` オプションは関数参照でなければなりませ�
 msgid "any options"
 msgstr "任意のオプション"
 
-#, fuzzy
 msgid "auth_type is not Negotiate"
-msgstr "auth_type は折衝されていません"
+msgstr "auth_type はネゴシエートではありません"
 
 msgid "authorizing user does not have role required"
 msgstr "ユーザーを認可するのに必要なロールがありません"
