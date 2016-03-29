@@ -1613,7 +1613,7 @@ class BaseLdap(object):
             except ldap.NOT_ALLOWED_ON_NONLEAF:
                 # Most LDAP servers do not support the tree_delete_control.
                 # In these servers, the usual idiom is to first perform a
-                # search to get the entries to delete, then delete them in
+                # search to get the entries to delete, then delete them
                 # in order of child to parent, since LDAP forbids the
                 # deletion of a parent entry before deleting the children
                 # of that parent.  The simplest way to do that is to delete

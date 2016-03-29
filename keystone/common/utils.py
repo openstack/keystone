@@ -587,7 +587,7 @@ def remove_standard_port(url):
     separator = ':'
     (host, separator, port) = o.netloc.partition(':')
     if o.scheme.lower() == 'http' and port == '80':
-        # NOTE(gyee): _replace() is not a private method. It has an
+        # NOTE(gyee): _replace() is not a private method. It has
         # an underscore prefix to prevent conflict with field names.
         # See https://docs.python.org/2/library/collections.html#
         # collections.namedtuple
