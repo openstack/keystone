@@ -25,7 +25,8 @@ boolean = {
 name = {
     'type': 'string',
     'minLength': 1,
-    'maxLength': 255
+    'maxLength': 255,
+    'pattern': '[\S]+'
 }
 
 external_id_string = {
