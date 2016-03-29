@@ -1984,7 +1984,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         employee_unscoped_token_id = r.headers.get('X-Subject-Token')
         r = self.get('/auth/projects', token=employee_unscoped_token_id)
         projects = r.result['projects']
-        random_project = random.randint(0, len(projects)) - 1
+        random_project = random.randint(0, len(projects) - 1)
         project = projects[random_project]
 
         v3_scope_request = self._scope_request(employee_unscoped_token_id,
@@ -2520,7 +2520,7 @@ class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         unscoped_token = resp.headers.get('X-Subject-Token')
         resp = self.get('/auth/projects', token=unscoped_token)
         projects = resp.result['projects']
-        random_project = random.randint(0, len(projects)) - 1
+        random_project = random.randint(0, len(projects) - 1)
         project = projects[random_project]
 
         v3_scope_request = self._scope_request(unscoped_token,
@@ -2565,7 +2565,7 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
         employee_unscoped_token_id = r.headers.get('X-Subject-Token')
         r = self.get('/auth/projects', token=employee_unscoped_token_id)
         projects = r.result['projects']
-        random_project = random.randint(0, len(projects)) - 1
+        random_project = random.randint(0, len(projects) - 1)
         project = projects[random_project]
 
         v3_scope_request = self._scope_request(employee_unscoped_token_id,
