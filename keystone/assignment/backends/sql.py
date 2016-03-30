@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import assignment as keystone_assignment
+from keystone.assignment.backends import base
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _
@@ -40,7 +40,7 @@ class AssignmentType(object):
         raise exception.AssignmentTypeCalculationError(**locals())
 
 
-class Assignment(keystone_assignment.AssignmentDriverV9):
+class Assignment(base.AssignmentDriverV9):
 
     def default_role_driver(self):
         return 'sql'

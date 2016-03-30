@@ -14,22 +14,22 @@
 
 """Main entry point into the Assignment service."""
 
-import abc
 import copy
 
 from oslo_cache import core as oslo_cache
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
-import six
 
+from keystone.assignment.backends import base
+from keystone.assignment.role_backends import base as role_base
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone import exception
 from keystone.i18n import _
-from keystone.i18n import _LI, _LE, _LW
+from keystone.i18n import _LI, _LE
 from keystone import notifications
 
 
@@ -95,9 +95,9 @@ class Manager(manager.Manager):
 
         # Make sure it is a driver version we support, and if it is a legacy
         # driver, then wrap it.
-        if isinstance(self.driver, AssignmentDriverV8):
-            self.driver = V9AssignmentWrapperForV8Driver(self.driver)
-        elif not isinstance(self.driver, AssignmentDriverV9):
+        if isinstance(self.driver, base.AssignmentDriverV8):
+            self.driver = base.V9AssignmentWrapperForV8Driver(self.driver)
+        elif not isinstance(self.driver, base.AssignmentDriverV9):
             raise exception.UnsupportedDriverVersion(driver=assignment_driver)
 
         self.event_callbacks = {
@@ -1092,380 +1092,44 @@ class Manager(manager.Manager):
             )
 
 
-# The AssignmentDriverBase class is the set of driver methods from earlier
-# drivers that we still support, that have not been removed or modified. This
-# class is then used to created the augmented V8 and V9 version abstract driver
-# classes, without having to duplicate a lot of abstract method signatures.
-# If you remove a method from V9, then move the abstract methods from this Base
-# class to the V8 class. Do not modify any of the method signatures in the Base
-# class - changes should only be made in the V8 and subsequent classes.
-@six.add_metaclass(abc.ABCMeta)
-class AssignmentDriverBase(object):
-
-    def _get_list_limit(self):
-        return CONF.assignment.list_limit or CONF.list_limit
-
-    @abc.abstractmethod
-    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        """Add a role to a user within given tenant.
-
-        :raises keystone.exception.Conflict: If a duplicate role assignment
-            exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        """Remove a role from a user within given tenant.
-
-        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    # assignment/grant crud
-
-    @abc.abstractmethod
-    def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
-        """Create a new assignment/grant.
-
-        If the assignment is to a domain, then optionally it may be
-        specified as inherited to owned projects (this requires
-        the OS-INHERIT extension to be enabled).
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_grant_role_ids(self, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
-        """List role ids for assignments/grants."""
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
-        """Check an assignment/grant role id.
-
-        :raises keystone.exception.RoleAssignmentNotFound: If the role
-            assignment doesn't exist.
-        :returns: None or raises an exception if grant not found
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
-        """Delete assignments/grants.
-
-        :raises keystone.exception.RoleAssignmentNotFound: If the role
-            assignment doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_role_assignments(self, role_id=None,
-                              user_id=None, group_ids=None,
-                              domain_id=None, project_ids=None,
-                              inherited_to_projects=None):
-        """Return a list of role assignments for actors on targets.
-
-        Available parameters represent values in which the returned role
-        assignments attributes need to be filtered on.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_project_assignments(self, project_id):
-        """Delete all assignments for a project.
-
-        :raises keystone.exception.ProjectNotFound: If the project doesn't
-            exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_role_assignments(self, role_id):
-        """Delete all assignments for a role."""
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_user_assignments(self, user_id):
-        """Delete all assignments for a user.
-
-        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_group_assignments(self, group_id):
-        """Delete all assignments for a group.
-
-        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-
-class AssignmentDriverV8(AssignmentDriverBase):
-    """Removed or redefined methods from V8.
-
-    Move the abstract methods of any methods removed or modified in later
-    versions of the driver from AssignmentDriverBase to here. We maintain this
-    so that legacy drivers, which will be a subclass of AssignmentDriverV8, can
-    still reference them.
-
-    """
-
-    @abc.abstractmethod
-    def list_user_ids_for_project(self, tenant_id):
-        """List all user IDs with a role assignment in the specified project.
-
-        :returns: a list of user_ids or an empty set.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_project_ids_for_user(self, user_id, group_ids, hints,
-                                  inherited=False):
-        """List all project ids associated with a given user.
-
-        :param user_id: the user in question
-        :param group_ids: the groups this user is a member of.  This list is
-                          built in the Manager, so that the driver itself
-                          does not have to call across to identity.
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-        :param inherited: whether assignments marked as inherited should
-                          be included.
-
-        :returns: a list of project ids or an empty list.
-
-        This method should not try and expand any inherited assignments,
-        just report the projects that have the role for this user. The manager
-        method is responsible for expanding out inherited assignments.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_domain_ids_for_user(self, user_id, group_ids, hints,
-                                 inherited=False):
-        """List all domain ids associated with a given user.
-
-        :param user_id: the user in question
-        :param group_ids: the groups this user is a member of.  This list is
-                          built in the Manager, so that the driver itself
-                          does not have to call across to identity.
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-        :param inherited: whether to return domain_ids that have inherited
-                          assignments or not.
-
-        :returns: a list of domain ids or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_project_ids_for_groups(self, group_ids, hints,
-                                    inherited=False):
-        """List project ids accessible to specified groups.
-
-        :param group_ids: List of group ids.
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-        :param inherited: whether assignments marked as inherited should
-                          be included.
-        :returns: List of project ids accessible to specified groups.
-
-        This method should not try and expand any inherited assignments,
-        just report the projects that have the role for this group. The manager
-        method is responsible for expanding out inherited assignments.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_domain_ids_for_groups(self, group_ids, inherited=False):
-        """List domain ids accessible to specified groups.
-
-        :param group_ids: List of group ids.
-        :param inherited: whether to return domain_ids that have inherited
-                          assignments or not.
-        :returns: List of domain ids accessible to specified groups.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_role_ids_for_groups_on_project(
-            self, group_ids, project_id, project_domain_id, project_parents):
-        """List the group role ids for a specific project.
-
-        Supports the ``OS-INHERIT`` role inheritance from the project's domain
-        if supported by the assignment driver.
-
-        :param group_ids: list of group ids
-        :type group_ids: list
-        :param project_id: project identifier
-        :type project_id: str
-        :param project_domain_id: project's domain identifier
-        :type project_domain_id: str
-        :param project_parents: list of parent ids of this project
-        :type project_parents: list
-        :returns: list of role ids for the project
-        :rtype: list
-        """
-        raise exception.NotImplemented()
-
-    @abc.abstractmethod
-    def list_role_ids_for_groups_on_domain(self, group_ids, domain_id):
-        """List the group role ids for a specific domain.
-
-        :param group_ids: list of group ids
-        :type group_ids: list
-        :param domain_id: domain identifier
-        :type domain_id: str
-        :returns: list of role ids for the project
-        :rtype: list
-        """
-        raise exception.NotImplemented()
-
-
-class AssignmentDriverV9(AssignmentDriverBase):
-    """New or redefined methods from V8.
-
-    Add any new V9 abstract methods (or those with modified signatures) to
-    this class.
-
-    """
-
-    @abc.abstractmethod
-    def delete_domain_assignments(self, domain_id):
-        """Delete all assignments for a domain."""
-        raise exception.NotImplemented()
-
-
-class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
-    """Wrapper class to supported a V8 legacy driver.
-
-    In order to support legacy drivers without having to make the manager code
-    driver-version aware, we wrap legacy drivers so that they look like the
-    latest version. For the various changes made in a new driver, here are the
-    actions needed in this wrapper:
-
-    Method removed from new driver - remove the call-through method from this
-                                     class, since the manager will no longer be
-                                     calling it.
-    Method signature (or meaning) changed - wrap the old method in a new
-                                            signature here, and munge the input
-                                            and output parameters accordingly.
-    New method added to new driver - add a method to implement the new
-                                     functionality here if possible. If that is
-                                     not possible, then return NotImplemented,
-                                     since we do not guarantee to support new
-                                     functionality with legacy drivers.
-
-    """
-
-    @versionutils.deprecated(
-        as_of=versionutils.deprecated.MITAKA,
-        what='keystone.assignment.AssignmentDriverV8',
-        in_favor_of='keystone.assignment.AssignmentDriverV9',
-        remove_in=+2)
-    def __init__(self, wrapped_driver):
-        self.driver = wrapped_driver
-
-    def delete_domain_assignments(self, domain_id):
-        """Delete all assignments for a domain."""
-        msg = _LW('delete_domain_assignments method not found in custom '
-                  'assignment driver. Domain assignments for domain (%s) to '
-                  'users from other domains will not be removed. This was '
-                  'added in V9 of the assignment driver.')
-        LOG.warning(msg, domain_id)
-
-    def default_role_driver(self):
-        return self.driver.default_role_driver()
-
-    def default_resource_driver(self):
-        return self.driver.default_resource_driver()
-
-    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        self.driver.add_role_to_user_and_project(user_id, tenant_id, role_id)
-
-    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        self.driver.remove_role_from_user_and_project(
-            user_id, tenant_id, role_id)
-
-    def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
-        self.driver.create_grant(
-            role_id, user_id=user_id, group_id=group_id,
-            domain_id=domain_id, project_id=project_id,
-            inherited_to_projects=inherited_to_projects)
-
-    def list_grant_role_ids(self, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
-        return self.driver.list_grant_role_ids(
-            user_id=user_id, group_id=group_id,
-            domain_id=domain_id, project_id=project_id,
-            inherited_to_projects=inherited_to_projects)
-
-    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
-        self.driver.check_grant_role_id(
-            role_id, user_id=user_id, group_id=group_id,
-            domain_id=domain_id, project_id=project_id,
-            inherited_to_projects=inherited_to_projects)
-
-    def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
-        self.driver.delete_grant(
-            role_id, user_id=user_id, group_id=group_id,
-            domain_id=domain_id, project_id=project_id,
-            inherited_to_projects=inherited_to_projects)
-
-    def list_role_assignments(self, role_id=None,
-                              user_id=None, group_ids=None,
-                              domain_id=None, project_ids=None,
-                              inherited_to_projects=None):
-        return self.driver.list_role_assignments(
-            role_id=role_id,
-            user_id=user_id, group_ids=group_ids,
-            domain_id=domain_id, project_ids=project_ids,
-            inherited_to_projects=inherited_to_projects)
-
-    def delete_project_assignments(self, project_id):
-        self.driver.delete_project_assignments(project_id)
-
-    def delete_role_assignments(self, role_id):
-        self.driver.delete_role_assignments(role_id)
-
-    def delete_user_assignments(self, user_id):
-        self.driver.delete_user_assignments(user_id)
-
-    def delete_group_assignments(self, group_id):
-        self.driver.delete_group_assignments(group_id)
-
-
-Driver = manager.create_legacy_driver(AssignmentDriverV8)
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.AssignmentDriverBase',
+    in_favor_of='keystone.assignment.backends.base.AssignmentDriverBase',
+    remove_in=+1)
+class AssignmentDriverBase(base.AssignmentDriverBase):
+    pass
+
+
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.AssignmentDriverV8',
+    in_favor_of='keystone.assignment.backends.base.AssignmentDriverV8',
+    remove_in=+1)
+class AssignmentDriverV8(base.AssignmentDriverV8):
+    pass
+
+
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.AssignmentDriverV9',
+    in_favor_of='keystone.assignment.backends.base.AssignmentDriverV9',
+    remove_in=+1)
+class AssignmentDriverV9(base.AssignmentDriverV9):
+    pass
+
+
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.V9AssignmentWrapperForV8Driver',
+    in_favor_of=(
+        'keystone.assignment.backends.base.V9AssignmentWrapperForV8Driver'),
+    remove_in=+1)
+class V9AssignmentWrapperForV8Driver(base.V9AssignmentWrapperForV8Driver):
+    pass
+
+
+Driver = manager.create_legacy_driver(base.AssignmentDriverV8)
 
 
 @dependency.provider('role_api')
@@ -1490,9 +1154,9 @@ class RoleManager(manager.Manager):
 
         # Make sure it is a driver version we support, and if it is a legacy
         # driver, then wrap it.
-        if isinstance(self.driver, RoleDriverV8):
-            self.driver = V9RoleWrapperForV8Driver(self.driver)
-        elif not isinstance(self.driver, RoleDriverV9):
+        if isinstance(self.driver, role_base.RoleDriverV8):
+            self.driver = role_base.V9RoleWrapperForV8Driver(self.driver)
+        elif not isinstance(self.driver, role_base.RoleDriverV9):
             raise exception.UnsupportedDriverVersion(driver=role_driver)
 
     @MEMOIZE
@@ -1546,245 +1210,41 @@ class RoleManager(manager.Manager):
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
 
-# The RoleDriverBase class is the set of driver methods from earlier
-# drivers that we still support, that have not been removed or modified. This
-# class is then used to created the augmented V8 and V9 version abstract driver
-# classes, without having to duplicate a lot of abstract method signatures.
-# If you remove a method from V9, then move the abstract methods from this Base
-# class to the V8 class. Do not modify any of the method signatures in the Base
-# class - changes should only be made in the V8 and subsequent classes.
-@six.add_metaclass(abc.ABCMeta)
-class RoleDriverBase(object):
-
-    def _get_list_limit(self):
-        return CONF.role.list_limit or CONF.list_limit
-
-    @abc.abstractmethod
-    def create_role(self, role_id, role):
-        """Create a new role.
-
-        :raises keystone.exception.Conflict: If a duplicate role exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_roles(self, hints):
-        """List roles in the system.
-
-        :param hints: filter hints which the driver should
-                      implement if at all possible.
-
-        :returns: a list of role_refs or an empty list.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_roles_from_ids(self, role_ids):
-        """List roles for the provided list of ids.
-
-        :param role_ids: list of ids
-
-        :returns: a list of role_refs.
-
-        This method is used internally by the assignment manager to bulk read
-        a set of roles given their ids.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_role(self, role_id):
-        """Get a role by ID.
-
-        :returns: role_ref
-        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_role(self, role_id, role):
-        """Update an existing role.
-
-        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
-        :raises keystone.exception.Conflict: If a duplicate role exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_role(self, role_id):
-        """Delete an existing role.
-
-        :raises keystone.exception.RoleNotFound: If the role doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-
-class RoleDriverV8(RoleDriverBase):
-    """Removed or redefined methods from V8.
-
-    Move the abstract methods of any methods removed or modified in later
-    versions of the driver from RoleDriverBase to here. We maintain this
-    so that legacy drivers, which will be a subclass of RoleDriverV8, can
-    still reference them.
-
-    """
-
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.RoleDriverBase',
+    in_favor_of='keystone.assignment.role_backends.base.RoleDriverBase',
+    remove_in=+1)
+class RoleDriverBase(role_base.RoleDriverBase):
     pass
 
 
-class RoleDriverV9(RoleDriverBase):
-    """New or redefined methods from V8.
-
-    Add any new V9 abstract methods (or those with modified signatures) to
-    this class.
-
-    """
-
-    @abc.abstractmethod
-    def get_implied_role(self, prior_role_id, implied_role_id):
-        """Get a role inference rule.
-
-        :raises keystone.exception.ImpliedRoleNotFound: If the implied role
-            doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def create_implied_role(self, prior_role_id, implied_role_id):
-        """Create a role inference rule.
-
-        :raises: keystone.exception.RoleNotFound: If the role doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_implied_role(self, prior_role_id, implied_role_id):
-        """Delete a role inference rule.
-
-        :raises keystone.exception.ImpliedRoleNotFound: If the implied role
-            doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_role_inference_rules(self):
-        """List all the rules used to imply one role from another."""
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_implied_roles(self, prior_role_id):
-        """List roles implied from the prior role ID."""
-        raise exception.NotImplemented()  # pragma: no cover
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.RoleDriverV8',
+    in_favor_of='keystone.assignment.role_backends.base.RoleDriverV8',
+    remove_in=+1)
+class RoleDriverV8(role_base.RoleDriverV8):
+    pass
 
 
-class V9RoleWrapperForV8Driver(RoleDriverV9):
-    """Wrapper class to supported a V8 legacy driver.
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.RoleDriverV9',
+    in_favor_of='keystone.assignment.role_backends.base.RoleDriverV9',
+    remove_in=+1)
+class RoleDriverV9(role_base.RoleDriverV9):
+    pass
 
-    In order to support legacy drivers without having to make the manager code
-    driver-version aware, we wrap legacy drivers so that they look like the
-    latest version. For the various changes made in a new driver, here are the
-    actions needed in this wrapper:
 
-    Method removed from new driver - remove the call-through method from this
-                                     class, since the manager will no longer be
-                                     calling it.
-    Method signature (or meaning) changed - wrap the old method in a new
-                                            signature here, and munge the input
-                                            and output parameters accordingly.
-    New method added to new driver - add a method to implement the new
-                                     functionality here if possible. If that is
-                                     not possible, then return NotImplemented,
-                                     since we do not guarantee to support new
-                                     functionality with legacy drivers.
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.assignment.V9RoleWrapperForV8Driver',
+    in_favor_of=(
+        'keystone.assignment.role_backends.base.V9RoleWrapperForV8Driver'),
+    remove_in=+1)
+class V9RoleWrapperForV8Driver(role_base.V9RoleWrapperForV8Driver):
+    pass
 
-    This V8 wrapper contains the following support for newer manager code:
 
-    - The current manager code expects a role entity to have a domain_id
-      attribute, with a non-None value indicating a domain specific role. V8
-      drivers will only understand global roles, hence if a non-None domain_id
-      is passed to this wrapper, it will raise a NotImplemented exception.
-      If a None-valued domain_id is passed in, it will be trimmed off before
-      the underlying driver is called (and a None-valued domain_id attribute
-      is added in for any entities returned to the manager.
-
-    """
-
-    @versionutils.deprecated(
-        as_of=versionutils.deprecated.MITAKA,
-        what='keystone.assignment.RoleDriverV8',
-        in_favor_of='keystone.assignment.RoleDriverV9',
-        remove_in=+2)
-    def __init__(self, wrapped_driver):
-        self.driver = wrapped_driver
-
-    def _append_null_domain_id(self, role_or_list):
-        def _append_null_domain_id_to_dict(role):
-            if 'domain_id' not in role:
-                role['domain_id'] = None
-            return role
-
-        if isinstance(role_or_list, list):
-            return [_append_null_domain_id_to_dict(x) for x in role_or_list]
-        else:
-            return _append_null_domain_id_to_dict(role_or_list)
-
-    def _trim_and_assert_null_domain_id(self, role):
-        if 'domain_id' in role:
-            if role['domain_id'] is not None:
-                raise exception.NotImplemented(
-                    _('Domain specific roles are not supported in the V8 '
-                      'role driver'))
-            else:
-                new_role = role.copy()
-                new_role.pop('domain_id')
-                return new_role
-        else:
-            return role
-
-    def create_role(self, role_id, role):
-        new_role = self._trim_and_assert_null_domain_id(role)
-        return self._append_null_domain_id(
-            self.driver.create_role(role_id, new_role))
-
-    def list_roles(self, hints):
-        return self._append_null_domain_id(self.driver.list_roles(hints))
-
-    def list_roles_from_ids(self, role_ids):
-        return self._append_null_domain_id(
-            self.driver.list_roles_from_ids(role_ids))
-
-    def get_role(self, role_id):
-        return self._append_null_domain_id(self.driver.get_role(role_id))
-
-    def update_role(self, role_id, role):
-        update_role = self._trim_and_assert_null_domain_id(role)
-        return self._append_null_domain_id(
-            self.driver.update_role(role_id, update_role))
-
-    def delete_role(self, role_id):
-        self.driver.delete_role(role_id)
-
-    def get_implied_role(self, prior_role_id, implied_role_id):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    def create_implied_role(self, prior_role_id, implied_role_id):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    def delete_implied_role(self, prior_role_id, implied_role_id):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    def list_implied_roles(self, prior_role_id):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    def list_role_inference_rules(self):
-        raise exception.NotImplemented()  # pragma: no cover
-
-RoleDriver = manager.create_legacy_driver(RoleDriverV8)
+RoleDriver = manager.create_legacy_driver(role_base.RoleDriverV8)
