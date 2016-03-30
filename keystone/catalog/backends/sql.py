@@ -296,7 +296,7 @@ class Catalog(catalog.CatalogDriverV8):
                         url = formatted_url
                     else:
                         continue
-                except exception.MalformedEndpoint:
+                except exception.MalformedEndpoint:  # nosec(tkelsey)
                     continue  # this failure is already logged in format_url()
 
                 region = endpoint['region_id']
@@ -358,7 +358,7 @@ class Catalog(catalog.CatalogDriverV8):
                             endpoint['url'] = formatted_url
                         else:
                             continue
-                    except exception.MalformedEndpoint:
+                    except exception.MalformedEndpoint:  # nosec(tkelsey)
                         # this failure is already logged in format_url()
                         continue
 

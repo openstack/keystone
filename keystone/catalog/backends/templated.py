@@ -236,7 +236,7 @@ class Catalog(core.Driver):
                             silent_keyerror_failures=silent_keyerror_failures)
                         if formatted_value:
                             service_data[k] = formatted_value
-                except exception.MalformedEndpoint:
+                except exception.MalformedEndpoint:  # nosec(tkelsey)
                     continue  # this failure is already logged in format_url()
                 catalog[region][service] = service_data
 
