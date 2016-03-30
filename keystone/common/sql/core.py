@@ -196,12 +196,26 @@ def _get_context():
     return _CONTEXT
 
 
+# Unit tests set this to True so that oslo.db's global engine is used.
+# This allows oslo_db.test_base.DbTestCase to override the transaction manager
+# with its test transaction manager.
+_TESTING_USE_GLOBAL_CONTEXT_MANAGER = False
+
+
 def session_for_read():
-    return _get_main_context_manager().reader.using(_get_context())
+    if _TESTING_USE_GLOBAL_CONTEXT_MANAGER:
+        reader = enginefacade.reader
+    else:
+        reader = _get_main_context_manager().reader
+    return reader.using(_get_context())
 
 
 def session_for_write():
-    return _get_main_context_manager().writer.using(_get_context())
+    if _TESTING_USE_GLOBAL_CONTEXT_MANAGER:
+        writer = enginefacade.writer
+    else:
+        writer = _get_main_context_manager().writer
+    return writer.using(_get_context())
 
 
 def truncated(f):
