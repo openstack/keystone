@@ -50,9 +50,9 @@ class SchemaValidator(object):
                 # too long, then we should build the masking in here so that
                 # we don't expose sensitive user information in the event it
                 # fails validation.
-                detail = _("Invalid input for field '%(path)s'. The value is "
-                           "'%(value)s'.") % {'path': ex.path.pop(),
-                                              'value': ex.instance}
+                detail = _("Invalid input for field '%(path)s': "
+                           "%(message)s") % {'path': ex.path.pop(),
+                                             'message': ex.message}
             else:
                 detail = ex.message
             raise exception.SchemaValidationError(detail=detail)
