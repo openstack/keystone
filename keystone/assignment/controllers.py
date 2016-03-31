@@ -474,6 +474,9 @@ class ImpliedRolesV3(controller.V3Controller):
             implied_response = self._implied_role_stanza(
                 endpoint, implied_role)
             response["role_inference"]['implies'].append(implied_response)
+        response["links"] = {
+            "self": endpoint + "/v3/roles/" + prior_id + "/implies"
+        }
         return response
 
     def _populate_implied_role_response(self, endpoint, prior_id, implied_id):
