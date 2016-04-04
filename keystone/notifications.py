@@ -329,7 +329,7 @@ def _get_notifier():
     if _notifier is None:
         host = CONF.default_publisher_id or socket.gethostname()
         try:
-            transport = oslo_messaging.get_transport(CONF)
+            transport = oslo_messaging.get_notification_transport(CONF)
             _notifier = oslo_messaging.Notifier(transport,
                                                 "identity.%s" % host)
         except Exception:
