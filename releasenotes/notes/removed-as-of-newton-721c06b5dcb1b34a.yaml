@@ -1,0 +1,7 @@
+---
+other:
+  - >
+    [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
+    Removed the backend and route from ``keystone.contrib.endpoint_policy``.
+    The package has been moved to ``keystone.endpoint_policy``. This was
+    deprecated in the Liberty release.
