@@ -23,12 +23,12 @@ same secret key will be equal.
 """
 
 import base64
-import time
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.twofactor import totp as crypto_totp
 from oslo_log import log
+from oslo_utils import timeutils
 import six
 
 from keystone import auth
@@ -62,7 +62,7 @@ def _generate_totp_passcode(secret):
     decoded = base64.b32decode(secret)
     totp = crypto_totp.TOTP(
         decoded, 6, hashes.SHA1(), 30, backend=default_backend())
-    return totp.generate(time.time())
+    return totp.generate(timeutils.utcnow_ts(microsecond=True))
 
 
 @dependency.requires('credential_api')
