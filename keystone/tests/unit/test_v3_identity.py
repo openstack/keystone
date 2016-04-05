@@ -499,6 +499,34 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertIsNone(user['domain_id'])
         self.assertEqual(user['enabled'], True)
 
+    def test_shadow_existing_federated_user(self):
+        fed_user = unit.new_federated_user_ref()
+
+        # introduce the user to keystone for the first time
+        shadow_user1 = self.identity_api.shadow_federated_user(
+            fed_user["idp_id"],
+            fed_user["protocol_id"],
+            fed_user["unique_id"],
+            fed_user["display_name"])
+        self.assertEqual(fed_user['display_name'], shadow_user1['name'])
+
+        # shadow the user again, with another name to invalidate the cache
+        # internally, this operation causes request to the driver. It should
+        # not fail.
+        fed_user['display_name'] = uuid.uuid4().hex
+        shadow_user2 = self.identity_api.shadow_federated_user(
+            fed_user["idp_id"],
+            fed_user["protocol_id"],
+            fed_user["unique_id"],
+            fed_user["display_name"])
+        # FIXME(dolph): These assertEqual / assertNotEqual should be reversed,
+        # to illustrate that the display name has been updated as expected.
+        self.assertNotEqual(fed_user['display_name'], shadow_user2['name'])
+        self.assertEqual(shadow_user1['name'], shadow_user2['name'])
+
+        # The shadowed users still share the same unique ID.
+        self.assertEqual(shadow_user1['id'], shadow_user2['id'])
+
     # group crud tests
 
     def test_create_group(self):
