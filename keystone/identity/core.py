@@ -1239,8 +1239,8 @@ class Manager(manager.Manager):
         try:
             user_dict = self.shadow_users_api.get_federated_user(
                 idp_id, protocol_id, unique_id)
-            self.update_federated_user_display_name(idp_id, protocol_id,
-                                                    unique_id, display_name)
+            self.shadow_users_api.update_federated_user_display_name(
+                idp_id, protocol_id, unique_id, display_name)
         except exception.UserNotFound:
             federated_dict = {
                 'idp_id': idp_id,
