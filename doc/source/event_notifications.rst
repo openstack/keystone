@@ -436,4 +436,4 @@ This will opt-out notifications for user creation, role assignment creation and
 successful authentications. For a list of event types that can be used, refer
 to: `Telemetry Measurements`_.
 
-.. _Telemetry Measurements: http://docs.openstack.org/admin-guide-cloud/telemetry-measurements.html#openstack-identity
+.. _Telemetry Measurements: http://docs.openstack.org/admin-guide/telemetry-measurements.html#openstack-identity
