@@ -491,8 +491,8 @@ FILE_OPTIONS = {
         # the backend
         cfg.StrOpt('driver',
                    help='Entrypoint for the role backend driver in the '
-                        'keystone.role namespace. Supplied drivers are ldap '
-                        'and sql.'),
+                        'keystone.role namespace. Only an SQL driver is '
+                        'supplied'),
         cfg.BoolOpt('caching', default=True,
                     help='Toggle for role caching. This has no effect '
                          'unless global caching is enabled.'),
