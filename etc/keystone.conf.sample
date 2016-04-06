@@ -1793,8 +1793,8 @@
 # From keystone
 #
 
-# Entrypoint for the role backend driver in the keystone.role namespace.
-# Supplied drivers are ldap and sql. (string value)
+# Entrypoint for the role backend driver in the keystone.role namespace. Only
+# an SQL driver is supplied (string value)
 #driver = <None>
 
 # Toggle for role caching. This has no effect unless global caching is enabled.
