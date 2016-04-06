@@ -519,10 +519,8 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             fed_user["protocol_id"],
             fed_user["unique_id"],
             fed_user["display_name"])
-        # FIXME(dolph): These assertEqual / assertNotEqual should be reversed,
-        # to illustrate that the display name has been updated as expected.
-        self.assertNotEqual(fed_user['display_name'], shadow_user2['name'])
-        self.assertEqual(shadow_user1['name'], shadow_user2['name'])
+        self.assertEqual(fed_user['display_name'], shadow_user2['name'])
+        self.assertNotEqual(shadow_user1['name'], shadow_user2['name'])
 
         # The shadowed users still share the same unique ID.
         self.assertEqual(shadow_user1['id'], shadow_user2['id'])

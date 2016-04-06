@@ -1237,10 +1237,10 @@ class Manager(manager.Manager):
         """
         user_dict = {}
         try:
-            user_dict = self.shadow_users_api.get_federated_user(
-                idp_id, protocol_id, unique_id)
             self.shadow_users_api.update_federated_user_display_name(
                 idp_id, protocol_id, unique_id, display_name)
+            user_dict = self.shadow_users_api.get_federated_user(
+                idp_id, protocol_id, unique_id)
         except exception.UserNotFound:
             federated_dict = {
                 'idp_id': idp_id,
