@@ -4,6 +4,5 @@ keystone.tests.unit.test_backend_ldap_pool
 keystone.tests.unit.test_v2
 keystone.tests.unit.test_v3_auth
 keystone.tests.unit.test_v3_credential
-keystone.tests.unit.test_v3_federation
 keystone.tests.unit.test_v3_oauth1
 keystone.tests.unit.token.test_fernet_provider
