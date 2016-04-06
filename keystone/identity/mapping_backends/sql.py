@@ -14,7 +14,7 @@
 
 from keystone.common import dependency
 from keystone.common import sql
-from keystone import identity
+from keystone.identity.mapping_backends import base
 from keystone.identity.mapping_backends import mapping as identity_mapping
 
 
@@ -36,7 +36,7 @@ class IDMapping(sql.ModelBase, sql.ModelDictMixin):
 
 
 @dependency.requires('id_generator_api')
-class Mapping(identity.MappingDriverV8):
+class Mapping(base.MappingDriverV8):
 
     def get_public_id(self, local_entity):
         # NOTE(henry-nash): Since the Public ID is regeneratable, rather

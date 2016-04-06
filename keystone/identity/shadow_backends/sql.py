@@ -14,11 +14,12 @@ import uuid
 
 from keystone.common import sql
 from keystone import exception
-from keystone import identity
+from keystone.identity.backends import base as identity_base
 from keystone.identity.backends import sql as model
+from keystone.identity.shadow_backends import base
 
 
-class ShadowUsers(identity.ShadowUsersDriverV9):
+class ShadowUsers(base.ShadowUsersDriverV9):
     @sql.handle_conflicts(conflict_type='federated_user')
     def create_federated_user(self, federated_dict):
         user = {
@@ -30,11 +31,11 @@ class ShadowUsers(identity.ShadowUsersDriverV9):
             user_ref = model.User.from_dict(user)
             user_ref.federated_users.append(federated_ref)
             session.add(user_ref)
-            return identity.filter_user(user_ref.to_dict())
+            return identity_base.filter_user(user_ref.to_dict())
 
     def get_federated_user(self, idp_id, protocol_id, unique_id):
         user_ref = self._get_federated_user(idp_id, protocol_id, unique_id)
-        return identity.filter_user(user_ref.to_dict())
+        return identity_base.filter_user(user_ref.to_dict())
 
     def _get_federated_user(self, idp_id, protocol_id, unique_id):
         """Returns the found user for the federated identity

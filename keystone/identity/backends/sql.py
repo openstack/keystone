@@ -21,7 +21,7 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
-from keystone import identity
+from keystone.identity.backends import base
 
 
 class User(sql.ModelBase, sql.DictBase):
@@ -178,7 +178,7 @@ class UserGroupMembership(sql.ModelBase, sql.DictBase):
                           primary_key=True)
 
 
-class Identity(identity.IdentityDriverV8):
+class Identity(base.IdentityDriverV8):
     # NOTE(henry-nash): Override the __init__() method so as to take a
     # config parameter to enable sql to be used as a domain-specific driver.
     def __init__(self, conf=None):
@@ -210,7 +210,7 @@ class Identity(identity.IdentityDriverV8):
                 raise AssertionError(_('Invalid user / password'))
             if not self._check_password(password, user_ref):
                 raise AssertionError(_('Invalid user / password'))
-            return identity.filter_user(user_ref.to_dict())
+            return base.filter_user(user_ref.to_dict())
 
     # user crud
 
@@ -220,14 +220,14 @@ class Identity(identity.IdentityDriverV8):
         with sql.session_for_write() as session:
             user_ref = User.from_dict(user)
             session.add(user_ref)
-            return identity.filter_user(user_ref.to_dict())
+            return base.filter_user(user_ref.to_dict())
 
     @driver_hints.truncated
     def list_users(self, hints):
         with sql.session_for_read() as session:
             query = session.query(User).outerjoin(LocalUser)
             user_refs = sql.filter_limit_query(User, query, hints)
-            return [identity.filter_user(x.to_dict()) for x in user_refs]
+            return [base.filter_user(x.to_dict()) for x in user_refs]
 
     def _get_user(self, session, user_id):
         user_ref = session.query(User).get(user_id)
@@ -237,7 +237,7 @@ class Identity(identity.IdentityDriverV8):
 
     def get_user(self, user_id):
         with sql.session_for_read() as session:
-            return identity.filter_user(
+            return base.filter_user(
                 self._get_user(session, user_id).to_dict())
 
     def get_user_by_name(self, user_name, domain_id):
@@ -249,7 +249,7 @@ class Identity(identity.IdentityDriverV8):
                 user_ref = query.one()
             except sql.NotFound:
                 raise exception.UserNotFound(user_id=user_name)
-            return identity.filter_user(user_ref.to_dict())
+            return base.filter_user(user_ref.to_dict())
 
     @sql.handle_conflicts(conflict_type='user')
     def update_user(self, user_id, user):
@@ -264,7 +264,7 @@ class Identity(identity.IdentityDriverV8):
                 if attr != 'id':
                     setattr(user_ref, attr, getattr(new_user, attr))
             user_ref.extra = new_user.extra
-            return identity.filter_user(
+            return base.filter_user(
                 user_ref.to_dict(include_extra_dict=True))
 
     def add_user_to_group(self, user_id, group_id):
@@ -328,7 +328,7 @@ class Identity(identity.IdentityDriverV8):
             query = query.join(UserGroupMembership)
             query = query.filter(UserGroupMembership.group_id == group_id)
             query = sql.filter_limit_query(User, query, hints)
-            return [identity.filter_user(u.to_dict()) for u in query]
+            return [base.filter_user(u.to_dict()) for u in query]
 
     def delete_user(self, user_id):
         with sql.session_for_write() as session:

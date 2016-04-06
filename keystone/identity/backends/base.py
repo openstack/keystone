@@ -1,0 +1,275 @@
+# Copyright 2012 OpenStack Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import abc
+
+from oslo_config import cfg
+import six
+
+from keystone import exception
+
+
+CONF = cfg.CONF
+
+
+def filter_user(user_ref):
+    """Filter out private items in a user dict.
+
+    'password', 'tenants' and 'groups' are never returned.
+
+    :returns: user_ref
+
+    """
+    if user_ref:
+        user_ref = user_ref.copy()
+        user_ref.pop('password', None)
+        user_ref.pop('tenants', None)
+        user_ref.pop('groups', None)
+        user_ref.pop('domains', None)
+        try:
+            user_ref['extra'].pop('password', None)
+            user_ref['extra'].pop('tenants', None)
+        except KeyError:  # nosec
+            # ok to not have extra in the user_ref.
+            pass
+    return user_ref
+
+
+@six.add_metaclass(abc.ABCMeta)
+class IdentityDriverV8(object):
+    """Interface description for an Identity driver."""
+
+    def _get_conf(self):
+        try:
+            return self.conf or CONF
+        except AttributeError:
+            return CONF
+
+    def _get_list_limit(self):
+        conf = self._get_conf()
+        # use list_limit from domain-specific config. If list_limit in
+        # domain-specific config is not set, look it up in the default config
+        return (conf.identity.list_limit or conf.list_limit or
+                CONF.identity.list_limit or CONF.list_limit)
+
+    def is_domain_aware(self):
+        """Indicates if Driver supports domains."""
+        return True
+
+    def default_assignment_driver(self):
+        # TODO(morganfainberg): To be removed when assignment driver based
+        # upon [identity]/driver option is removed in the "O" release.
+        return 'sql'
+
+    @property
+    def is_sql(self):
+        """Indicates if this Driver uses SQL."""
+        return False
+
+    @property
+    def multiple_domains_supported(self):
+        return (self.is_domain_aware() or
+                CONF.identity.domain_specific_drivers_enabled)
+
+    def generates_uuids(self):
+        """Indicates if Driver generates UUIDs as the local entity ID."""
+        return True
+
+    @abc.abstractmethod
+    def authenticate(self, user_id, password):
+        """Authenticate a given user and password.
+
+        :returns: user_ref
+        :raises AssertionError: If user or password is invalid.
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    # user crud
+
+    @abc.abstractmethod
+    def create_user(self, user_id, user):
+        """Creates a new user.
+
+        :raises keystone.exception.Conflict: If a duplicate user exists.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_users(self, hints):
+        """List users in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of user_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_users_in_group(self, group_id, hints):
+        """List users in a group.
+
+        :param group_id: the group in question
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of user_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_user(self, user_id):
+        """Get a user by ID.
+
+        :returns: user_ref
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_user(self, user_id, user):
+        """Updates an existing user.
+
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+        :raises keystone.exception.Conflict: If a duplicate user exists.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def add_user_to_group(self, user_id, group_id):
+        """Adds a user to a group.
+
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def check_user_in_group(self, user_id, group_id):
+        """Checks if a user is a member of a group.
+
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def remove_user_from_group(self, user_id, group_id):
+        """Removes a user from a group.
+
+        :raises keystone.exception.NotFound: If the entity not found.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_user(self, user_id):
+        """Deletes an existing user.
+
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_user_by_name(self, user_name, domain_id):
+        """Get a user by name.
+
+        :returns: user_ref
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    # group crud
+
+    @abc.abstractmethod
+    def create_group(self, group_id, group):
+        """Creates a new group.
+
+        :raises keystone.exception.Conflict: If a duplicate group exists.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_groups(self, hints):
+        """List groups in the system.
+
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of group_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_groups_for_user(self, user_id, hints):
+        """List groups a user is in
+
+        :param user_id: the user in question
+        :param hints: filter hints which the driver should
+                      implement if at all possible.
+
+        :returns: a list of group_refs or an empty list.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_group(self, group_id):
+        """Get a group by ID.
+
+        :returns: group_ref
+        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_group_by_name(self, group_name, domain_id):
+        """Get a group by name.
+
+        :returns: group_ref
+        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_group(self, group_id, group):
+        """Updates an existing group.
+
+        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
+        :raises keystone.exception.Conflict: If a duplicate group exists.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_group(self, group_id):
+        """Deletes an existing group.
+
+        :raises keystone.exception.GroupNotFound: If the group doesn't exist.
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
