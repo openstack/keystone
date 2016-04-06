@@ -496,14 +496,13 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_shadow_federated_user(self):
         fed_user = unit.new_federated_user_ref()
         user = (
-            self.identity_api.shadow_federated_user(fed_user["idp_id"],
-                                                    fed_user["protocol_id"],
-                                                    fed_user["unique_id"],
-                                                    fed_user["display_name"])
+            self.identity_api.shadow_federated_user(fed_user['idp_id'],
+                                                    fed_user['protocol_id'],
+                                                    fed_user['unique_id'],
+                                                    fed_user['display_name'])
         )
-        self.assertIsNotNone(user["id"])
-        self.assertEqual(len(user.keys()), 4)
         self.assertIsNotNone(user['id'])
+        self.assertEqual(len(user.keys()), 4)
         self.assertIsNotNone(user['name'])
         self.assertIsNone(user['domain_id'])
         self.assertEqual(user['enabled'], True)
@@ -513,10 +512,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # introduce the user to keystone for the first time
         shadow_user1 = self.identity_api.shadow_federated_user(
-            fed_user["idp_id"],
-            fed_user["protocol_id"],
-            fed_user["unique_id"],
-            fed_user["display_name"])
+            fed_user['idp_id'],
+            fed_user['protocol_id'],
+            fed_user['unique_id'],
+            fed_user['display_name'])
         self.assertEqual(fed_user['display_name'], shadow_user1['name'])
 
         # shadow the user again, with another name to invalidate the cache
@@ -524,10 +523,10 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # not fail.
         fed_user['display_name'] = uuid.uuid4().hex
         shadow_user2 = self.identity_api.shadow_federated_user(
-            fed_user["idp_id"],
-            fed_user["protocol_id"],
-            fed_user["unique_id"],
-            fed_user["display_name"])
+            fed_user['idp_id'],
+            fed_user['protocol_id'],
+            fed_user['unique_id'],
+            fed_user['display_name'])
         self.assertEqual(fed_user['display_name'], shadow_user2['name'])
         self.assertNotEqual(shadow_user1['name'], shadow_user2['name'])
 
