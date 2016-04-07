@@ -170,7 +170,7 @@ class Token(token.persistence.TokenDriverV8):
             for item in token_list:
                 try:
                     item_id, expires = self._format_token_index_item(item)
-                except (ValueError, TypeError):
+                except (ValueError, TypeError):  # nosec(tkelsey)
                     # NOTE(morganfainberg): Skip on expected errors
                     # possibilities from the `_format_token_index_item` method.
                     continue
@@ -334,7 +334,7 @@ class Token(token.persistence.TokenDriverV8):
         for item in token_list:
             try:
                 token_id, expires = self._format_token_index_item(item)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # nosec(tkelsey)
                 # NOTE(morganfainberg): Skip on expected error possibilities
                 # from the `_format_token_index_item` method.
                 continue
@@ -344,7 +344,7 @@ class Token(token.persistence.TokenDriverV8):
 
             try:
                 token_ref = self.get_token(token_id)
-            except exception.TokenNotFound:
+            except exception.TokenNotFound:  # nosec(tkelsey)
                 # NOTE(morganfainberg): Token doesn't exist, skip it.
                 continue
             if token_ref:
