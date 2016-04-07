@@ -13,7 +13,7 @@
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _
-from keystone import resource
+from keystone.resource.config_backends import base
 
 
 class WhiteListedConfig(sql.ModelBase, sql.ModelDictMixin):
@@ -48,7 +48,7 @@ class ConfigRegister(sql.ModelBase, sql.ModelDictMixin):
     domain_id = sql.Column(sql.String(64), nullable=False)
 
 
-class DomainConfig(resource.DomainConfigDriverV8):
+class DomainConfig(base.DomainConfigDriverV8):
 
     def choose_table(self, sensitive):
         if sensitive:

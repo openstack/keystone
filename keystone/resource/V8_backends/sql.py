@@ -17,13 +17,13 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _LE
-from keystone import resource as keystone_resource
+from keystone.resource.backends import base
 
 
 LOG = log.getLogger(__name__)
 
 
-class Resource(keystone_resource.ResourceDriverV8):
+class Resource(base.ResourceDriverV8):
 
     def default_assignment_driver(self):
         return 'sql'
