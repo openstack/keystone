@@ -89,6 +89,7 @@ Developers Documentation
    developing
    developing_drivers
    architecture
+   api_change_tutorial
    middlewarearchitecture
    http-api
    api_curl_examples
