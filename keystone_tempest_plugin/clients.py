@@ -14,6 +14,8 @@
 
 from keystone_tempest_plugin.services.identity.v3 import (
     identity_providers_client)
+from keystone_tempest_plugin.services.identity.v3 import (
+    service_providers_client)
 
 from tempest import clients
 
@@ -25,4 +27,7 @@ class Manager(clients.Manager):
 
         self.identity_providers_client = (
             identity_providers_client.IdentityProvidersClient(
+                self.auth_provider))
+        self.service_providers_client = (
+            service_providers_client.ServiceProvidersClient(
                 self.auth_provider))
