@@ -9,15 +9,12 @@
 # Olivier Perrin <operrin@heliostech.fr>, 2013
 # Olivier Perrin <operrin@heliostech.fr>, 2013
 # Rémi Le Trocquer <remi.letrocquer@orange.com>, 2014
-# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
-# Tom Cocozzello <tjcocozz@us.ibm.com>, 2015. #zanata
-# Martine Marin <mmarin@fr.ibm.com>, 2016. #zanata
-# Tom Cocozzello <tjcocozz@us.ibm.com>, 2016. #zanata
+# Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev109\n"
+"Project-Id-Version: keystone 9.0.1.dev12\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-15 05:12+0000\n"
+"POT-Creation-Date: 2016-04-07 22:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -473,6 +470,14 @@ msgid "Could not find: %(target)s"
 msgstr "N'est pas trouvé:  %(target)s"
 
 msgid ""
+"Could not map any federated user properties to identity values. Check debug "
+"logs or the mapping used for additional details."
+msgstr ""
+"Impossible de mapper des propriétés d'utilisateur fédéré avec des valeurs "
+"d'identité. Pour plus d'informations, consultez les journaux de débogage ou "
+"le mappage utilisé."
+
+msgid ""
 "Could not map user while setting ephemeral user identity. Either mapping "
 "rules must specify user id/name or REMOTE_USER environment variable must be "
 "set."
@@ -758,12 +763,6 @@ msgstr ""
 #, python-format
 msgid "Invalid domain specific configuration: %(reason)s"
 msgstr "Configuration spécifique au domaine non valide : %(reason)s"
-
-#, python-format
-msgid "Invalid input for field '%(path)s'. The value is '%(value)s'."
-msgstr ""
-"Valeur d'entrée incorrecte pour la zone '%(path)s'. La valeur est "
-"'%(value)s'."
 
 msgid "Invalid limit value"
 msgstr "Limite de valeur non valide"
