@@ -80,7 +80,8 @@ Verbosely, keystone can be bootstrapped with:
 
 .. code-block:: bash
 
-    $ keystone-manage bootstrap --bootstrap-password s3cr3t
+    $ keystone-manage bootstrap \
+        --bootstrap-password s3cr3t \
         --bootstrap-username admin \
         --bootstrap-project-name admin \
         --bootstrap-role-name admin \
