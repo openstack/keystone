@@ -32,8 +32,10 @@ from pycadf import eventfactory
 from pycadf import resource
 
 from keystone.i18n import _, _LE
+from keystone.common import dependency
 from keystone.common import utils
 
+_CATALOG_HELPER_OBJ = None
 
 notifier_opts = [
     cfg.StrOpt('default_publisher_id',
@@ -662,6 +664,11 @@ def send_saml_audit_notification(action, context, user_id, group_ids,
     _send_audit_notification(action, initiator, outcome, target, event_type)
 
 
+@dependency.requires('catalog_api')
+class _CatalogHelperObj(object):
+    """A helper object to allow lookups of identity service id."""
+
+
 def _send_audit_notification(action, initiator, outcome, target,
                              event_type, **kwargs):
     """Send CADF notification to inform observers about the affected resource.
@@ -682,6 +689,17 @@ def _send_audit_notification(action, initiator, outcome, target,
     if _check_notification_opt_out(event_type, outcome):
         return
 
+    global _CATALOG_HELPER_OBJ
+    if _CATALOG_HELPER_OBJ is None:
+        _CATALOG_HELPER_OBJ = _CatalogHelperObj()
+    service_list = _CATALOG_HELPER_OBJ.catalog_api.list_services()
+    service_id = None
+
+    for i in service_list:
+        if i['type'] == SERVICE:
+            service_id = i['id']
+            break
+
     event = eventfactory.EventFactory().new_event(
         eventType=cadftype.EVENTTYPE_ACTIVITY,
         outcome=outcome,
@@ -689,6 +707,9 @@ def _send_audit_notification(action, initiator, outcome, target,
         initiator=initiator,
         target=target,
         observer=resource.Resource(typeURI=taxonomy.SERVICE_SECURITY))
+
+    if service_id is not None:
+        event.observer.id = service_id
 
     for key, value in kwargs.items():
         setattr(event, key, value)
