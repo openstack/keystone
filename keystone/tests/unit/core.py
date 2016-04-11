@@ -19,6 +19,7 @@ import datetime
 import functools
 import hashlib
 import json
+import ldap
 import logging
 import os
 import re
@@ -46,6 +47,7 @@ from keystone import auth
 from keystone.common import config
 from keystone.common import dependency
 from keystone.common.kvs import core as kvs_core
+from keystone.common import ldap as ks_ldap
 from keystone.common import sql
 from keystone import exception
 from keystone import notifications
@@ -522,6 +524,23 @@ class BaseTestCase(testtools.TestCase):
         # test.
         self.assertIsNone(oslo_context.get_current())
         self.useFixture(oslo_ctx_fixture.ClearRequestContext())
+
+        orig_debug_level = ldap.get_option(ldap.OPT_DEBUG_LEVEL)
+        self.addCleanup(ldap.set_option, ldap.OPT_DEBUG_LEVEL,
+                        orig_debug_level)
+        orig_tls_cacertfile = ldap.get_option(ldap.OPT_X_TLS_CACERTFILE)
+        self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_CACERTFILE,
+                        orig_tls_cacertfile)
+        orig_tls_cacertdir = ldap.get_option(ldap.OPT_X_TLS_CACERTDIR)
+        # Setting orig_tls_cacertdir to None is not allowed.
+        if orig_tls_cacertdir is None:
+            orig_tls_cacertdir = ''
+        self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_CACERTDIR,
+                        orig_tls_cacertdir)
+        orig_tls_require_cert = ldap.get_option(ldap.OPT_X_TLS_REQUIRE_CERT)
+        self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_REQUIRE_CERT,
+                        orig_tls_require_cert)
+        self.addCleanup(ks_ldap.PooledLDAPHandler.connection_pools.clear)
 
     def cleanup_instance(self, *names):
         """Create a function suitable for use with self.addCleanup.
