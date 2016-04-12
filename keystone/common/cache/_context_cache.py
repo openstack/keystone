@@ -94,6 +94,8 @@ class _ResponseCacheProxy(proxy.ProxyBackend):
         value = self._get_local_cache(key)
         if value is api.NO_VALUE:
             value = self.proxied.get(key)
+            if value is not api.NO_VALUE:
+                self._set_local_cache(key, value)
         return value
 
     def set(self, key, value):
