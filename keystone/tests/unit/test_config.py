@@ -49,6 +49,10 @@ class ConfigTestCase(unit.TestCase):
         self.assertIs(None, CONF.auth.password)
         self.assertIs(None, CONF.auth.token)
 
+    def test_profiler_config_default(self):
+        """Check config.set_config_defaults() has set [profiler]enabled."""
+        self.assertEqual(False, CONF.profiler.enabled)
+
 
 class DeprecatedTestCase(unit.TestCase):
     """Test using the original (deprecated) name for renamed options."""
