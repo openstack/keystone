@@ -32,7 +32,7 @@ Keystone and a TOTP device (i.e. `Google Authenticator`_).
 .. _Google Authenticator: http://www.google.com/2step
 
 TOTP uses a base32 encoded string for the secret. The secret must be at least
-148 bits (16 bytes). The following python code can be used to generate a TOTP
+128 bits (16 bytes). The following python code can be used to generate a TOTP
 secret:
 
 .. code-block:: python
