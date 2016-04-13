@@ -1,5 +1,3 @@
-:orphan:
-
 ..
       Licensed under the Apache License, Version 2.0 (the "License"); you may
       not use this file except in compliance with the License. You may obtain
@@ -13,12 +11,12 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-==============================
-Setup Mellon (mod_auth_mellon)
-==============================
+Setup Mellon
+============
 
+------------------------------------------
 Configure Apache HTTPD for mod_auth_mellon
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------
 
 Follow the steps outlined at: `Running Keystone in HTTPD`_.
 
@@ -38,7 +36,9 @@ Add *WSGIScriptAlias* directive to your vhost configuration::
     WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /var/www/keystone/main/$1
 
 Make sure the *wsgi-keystone.conf* contains a *<Location>* directive for the Mellon module and
-a *<Location>* directive for each identity provider::
+a *<Location>* directive for each identity provider
+
+..code-block:: xml
 
     <Location /v3>
         MellonEnable "info"
@@ -84,8 +84,9 @@ Restart the Apache instance that is serving Keystone, for example:
 
     $ service apache2 restart
 
+----------------------------------
 Configuring the Mellon SP Metadata
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 Mellon provides a script called ``mellon_create_metadata.sh`` which generates the
 values for the config directives `MellonSPPrivateKeyFile`, `MellonSPCertFile`,

@@ -1,5 +1,3 @@
-:orphan:
-
 ..
       Licensed under the Apache License, Version 2.0 (the "License"); you may
       not use this file except in compliance with the License. You may obtain
@@ -13,12 +11,12 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-====================
 Setup OpenID Connect
 ====================
 
+----------------------------
 Configuring mod_auth_openidc
-============================
+----------------------------
 
 Federate Keystone (SP) and an external IdP using OpenID Connect (`mod_auth_openidc`_)
 
@@ -82,8 +80,9 @@ Once you are done, restart your Apache daemon:
 
     $ service apache2 restart
 
+----
 Tips
-====
+----
 
 1. When creating a mapping, note that the 'remote' attributes will be prefixed,
    with `HTTP_`, so for instance, if you set OIDCClaimPrefix to `OIDC-`, then a

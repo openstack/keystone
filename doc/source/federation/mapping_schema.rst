@@ -11,10 +11,10 @@
     License for the specific language governing permissions and limitations
     under the License.
 
-=============================
-Mapping Schema for Federation
-=============================
+Mapping Schema
+==============
 
+-----------
 Description
 -----------
 
@@ -24,6 +24,7 @@ It shows all the requirements and possibilities for a JSON to be used for mappin
 Mapping schema is validated with `JSON Schema
 <http://json-schema.org/documentation.html>`__
 
+--------------
 Mapping Schema
 --------------
 

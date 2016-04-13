@@ -11,9 +11,8 @@
     License for the specific language governing permissions and limitations
     under the License.
 
-===================================
-Mapping Combinations for Federation
-===================================
+Mapping Combinations
+====================
 
 -----------
 Description
