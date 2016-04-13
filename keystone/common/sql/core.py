@@ -169,6 +169,9 @@ _main_context_manager = None
 
 
 def _get_main_context_manager():
+    # TODO(DinaBelova): add DB profiling
+    # this requires oslo.db modification for proper format and functionality
+    # will be done in Newton timeframe
     global _main_context_manager
 
     if not _main_context_manager:

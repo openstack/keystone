@@ -17,6 +17,8 @@ import logging
 from oslo_config import cfg
 import oslo_i18n
 
+from keystone.common import profiler
+
 
 # NOTE(dstanek): i18n.enable_lazy() must be called before
 # keystone.i18n._() is called to ensure it has the desired lazy lookup
@@ -51,6 +53,11 @@ def initialize_application(name, post_log_configured_function=lambda: None):
 
     _unused, application = common.setup_backends(
         startup_application_fn=loadapp)
+
+    # setup OSprofiler notifier and enable the profiling if that is configured
+    # in Keystone configuration file.
+    profiler.setup(name)
+
     return application
 
 
