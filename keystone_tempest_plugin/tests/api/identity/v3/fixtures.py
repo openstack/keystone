@@ -28,6 +28,30 @@ def idp_ref(enabled=None, remote_ids=None):
     return ref
 
 
+def mapping_ref():
+    rules = [{
+        'local': [
+            {
+                'user': {'name': '{0}'}
+            },
+            {
+                'group_ids': '{1}'
+            }
+        ],
+        'remote': [
+            {
+                'type': 'openstack_username'
+            },
+            {
+                'type': 'group_ids',
+                'whitelist': ['abc', '123']
+            }
+
+        ]
+    }]
+    return {'rules': rules}
+
+
 def sp_ref(enabled=None, relay_state_prefix=None):
     ref = {
         'auth_url': data_utils.rand_url(),

@@ -15,6 +15,8 @@
 from keystone_tempest_plugin.services.identity.v3 import (
     identity_providers_client)
 from keystone_tempest_plugin.services.identity.v3 import (
+    mapping_rules_client)
+from keystone_tempest_plugin.services.identity.v3 import (
     service_providers_client)
 
 from tempest import clients
@@ -27,6 +29,9 @@ class Manager(clients.Manager):
 
         self.identity_providers_client = (
             identity_providers_client.IdentityProvidersClient(
+                self.auth_provider))
+        self.mapping_rules_client = (
+            mapping_rules_client.MappingRulesClient(
                 self.auth_provider))
         self.service_providers_client = (
             service_providers_client.ServiceProvidersClient(
