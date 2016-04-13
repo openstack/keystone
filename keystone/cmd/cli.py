@@ -232,7 +232,7 @@ class BootStrap(BaseApp):
                 role={'name': self.role_name,
                       'id': self.role_id},
             )
-            LOG.info(_LI('Created Role %s'), self.role_name)
+            LOG.info(_LI('Created role %s'), self.role_name)
         except exception.Conflict:
             LOG.info(_LI('Role %s exists, skipping creation.'), self.role_name)
             # NOTE(davechen): There is no backend method to get the role
@@ -268,7 +268,7 @@ class BootStrap(BaseApp):
                 self.catalog_manager.create_region(
                     region_ref={'id': self.region_id}
                 )
-                LOG.info(_LI('Created Region %s'), self.region_id)
+                LOG.info(_LI('Created region %s'), self.region_id)
             except exception.Conflict:
                 LOG.info(_LI('Region %s exists, skipping creation.'),
                          self.region_id)
