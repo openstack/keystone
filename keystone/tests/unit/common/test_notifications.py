@@ -1246,3 +1246,45 @@ class TestCallbackRegistration(unit.BaseTestCase):
                           uuid.uuid4().hex,
                           'thing',
                           callback)
+
+
+class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
+
+    def setUp(self):
+        super(CADFNotificationsDataTestCase, self).setUp()
+
+    def test_receive_identityId_from_audit_notification(self):
+
+        observer = None
+        resource_type = EXP_RESOURCE_TYPE
+
+        ref = unit.new_service_ref()
+        ref['type'] = 'identity'
+        self.catalog_api.create_service(ref['id'], ref.copy())
+
+        action = CREATED_OPERATION + '.' + resource_type
+        initiator = notifications._get_request_audit_info(self.user_id)
+        target = cadfresource.Resource(typeURI=cadftaxonomy.ACCOUNT_USER)
+        outcome = 'success'
+        event_type = 'identity.authenticate.created'
+
+        conf = self.useFixture(config_fixture.Config(CONF))
+        conf.config(notification_opt_out=event_type)
+
+        with mock.patch.object(notifications._get_notifier(),
+                               '_notify') as mocked:
+
+            notifications._send_audit_notification(action,
+                                                   initiator,
+                                                   outcome,
+                                                   target,
+                                                   event_type)
+
+            for mock_args_list in mocked.call_args:
+                if len(mock_args_list) != 0:
+                    for mock_args in mock_args_list:
+                        if 'observer' in mock_args:
+                            observer = mock_args['observer']
+                            break
+
+        self.assertEqual(ref['id'], observer['id'])
