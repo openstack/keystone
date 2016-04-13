@@ -45,6 +45,9 @@ _DEPRECATE_EP_MSG = ('The option to enable the OS-ENDPOINT-POLICY extension '
                      'removed in the O release. The OS-ENDPOINT-POLICY '
                      'extension will be enabled by default.')
 
+_DEPRECATE_DII_MSG = ('The option to set domain_id_immutable to false '
+                      'has been deprecated in the M release and will '
+                      'be removed in the O release.')
 
 FILE_OPTIONS = {
     None: [
@@ -126,7 +129,8 @@ FILE_OPTIONS = {
                          '(see policy.v3cloudsample as an example). This '
                          'ability is deprecated and will be removed in a '
                          'future release.',
-                    deprecated_for_removal=True),
+                    deprecated_for_removal=True,
+                    deprecated_reason=_DEPRECATE_DII_MSG),
         cfg.BoolOpt('strict_password_check', default=False,
                     help='If set to true, strict password length checking is '
                          'performed for password manipulation. If a password '
