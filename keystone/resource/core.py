@@ -203,7 +203,7 @@ class Manager(manager.Manager):
                      ) % project['name']
         else:
             return _('it is not permitted to have two projects '
-                     'within a domain with the same name : %s'
+                     'with the same name in the same domain : %s'
                      ) % project['name']
 
     def create_project(self, project_id, project, initiator=None):
