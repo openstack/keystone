@@ -14,10 +14,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import fixtures
 import ldappool
 import mock
 from oslo_config import cfg
-from oslotest import mockpatch
 
 from keystone.common.ldap import core as ldap_core
 from keystone.identity.backends import ldap
@@ -213,7 +213,7 @@ class LDAPIdentity(LdapPoolCommonTestMixin,
     """Executes tests in existing base class with pooled LDAP handler."""
 
     def setUp(self):
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             ldap_core.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))
         super(LDAPIdentity, self).setUp()
 

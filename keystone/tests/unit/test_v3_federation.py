@@ -23,7 +23,6 @@ from oslo_config import cfg
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
-from oslotest import mockpatch
 import saml2
 from saml2 import saml
 from saml2 import sigver
@@ -1588,7 +1587,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                 'send_notification_called': True}
             self._notifications.append(note)
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             notifications,
             'send_saml_audit_notification',
             fake_saml_notify))

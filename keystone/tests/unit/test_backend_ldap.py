@@ -17,11 +17,11 @@
 import copy
 import uuid
 
+import fixtures
 import ldap
 import mock
 from oslo_config import cfg
 from oslo_log import versionutils
-from oslotest import mockpatch
 import pkg_resources
 from six.moves import http_client
 from six.moves import range
@@ -2152,7 +2152,8 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             sample_dn_filter_esc)
 
         with mixin_impl.get_connection() as conn:
-            m = self.useFixture(mockpatch.PatchObject(conn, 'search_s')).mock
+            m = self.useFixture(
+                fixtures.MockPatchObject(conn, 'search_s')).mock
             mixin_impl._get_enabled(object_id, conn)
             # The 3rd argument is the DN.
             self.assertEqual(exp_filter, m.call_args[0][2])

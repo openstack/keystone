@@ -36,7 +36,6 @@ from oslo_context import fixture as oslo_ctx_fixture
 from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
-from oslotest import mockpatch
 from paste.deploy import loadwsgi
 import six
 from sqlalchemy import exc
@@ -517,8 +516,8 @@ class BaseTestCase(testtools.TestCase):
         self.useFixture(fixtures.NestedTempfile())
         self.useFixture(fixtures.TempHomeDir())
 
-        self.useFixture(mockpatch.PatchObject(sys, 'exit',
-                                              side_effect=UnexpectedExit))
+        self.useFixture(fixtures.MockPatchObject(sys, 'exit',
+                                                 side_effect=UnexpectedExit))
         self.useFixture(log_fixture.get_logging_handle_error_fixture())
 
         warnings.filterwarnings('error', category=DeprecationWarning,
@@ -634,7 +633,7 @@ class TestCase(BaseTestCase):
         # cleanup.
         def mocked_register_auth_plugin_opt(conf, opt):
             self.config_fixture.register_opt(opt, group='auth')
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             config, '_register_auth_plugin_opt',
             new=mocked_register_auth_plugin_opt))
 
