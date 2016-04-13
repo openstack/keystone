@@ -405,6 +405,8 @@ class Manager(manager.Manager):
             self._update_project_enabled_cascade(project_id, project_enabled)
 
         try:
+            project['is_domain'] = (project.get('is_domain') or
+                                    original_project['is_domain'])
             ret = self.driver.update_project(project_id, project)
         except exception.Conflict:
             raise exception.Conflict(

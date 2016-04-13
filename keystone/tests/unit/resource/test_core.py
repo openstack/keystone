@@ -94,6 +94,27 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
         self.assertRaises(exception.UnexpectedError,
                           self.resource_api.ensure_default_domain_exists)
 
+    def test_update_project_name_conflict(self):
+        name = uuid.uuid4().hex
+        description = uuid.uuid4().hex
+        domain_attrs = {
+            'id': CONF.identity.default_domain_id,
+            'name': name,
+            'description': description,
+        }
+        domain = self.resource_api.create_domain(
+            CONF.identity.default_domain_id, domain_attrs)
+        project1 = unit.new_project_ref(domain_id=domain['id'],
+                                        name=uuid.uuid4().hex)
+        self.resource_api.create_project(project1['id'], project1)
+        project2 = unit.new_project_ref(domain_id=domain['id'],
+                                        name=uuid.uuid4().hex)
+        project = self.resource_api.create_project(project2['id'], project2)
+
+        self.assertRaises(exception.Conflict,
+                          self.resource_api.update_project,
+                          project['id'], {'name': project1['name']})
+
 
 class DomainConfigDriverTests(object):
 
