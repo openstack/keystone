@@ -13,11 +13,10 @@
 import copy
 import uuid
 
+import fixtures
 import mock
-from testtools import matchers
-
 from oslo_config import cfg
-from oslotest import mockpatch
+from testtools import matchers
 
 from keystone import exception
 from keystone.tests import unit
@@ -87,7 +86,7 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
     def test_ensure_default_domain_exists_fails(self):
         # When there's an unexpected exception creating domain it's passed on.
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             self.resource_api, 'create_domain',
             side_effect=exception.UnexpectedError))
 

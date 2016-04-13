@@ -14,11 +14,11 @@
 
 import uuid
 
+import fixtures
 import mock
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_utils import importutils
-from oslotest import mockpatch
 import stevedore
 from stevedore import extension
 
@@ -45,7 +45,7 @@ class TestLoadAuthMethod(unit.BaseTestCase):
         fake_driver_manager = stevedore.DriverManager.make_test_instance(
             extension_, namespace=auth_plugin_namespace)
 
-        driver_manager_mock = self.useFixture(mockpatch.PatchObject(
+        driver_manager_mock = self.useFixture(fixtures.MockPatchObject(
             stevedore, 'DriverManager', return_value=fake_driver_manager)).mock
 
         driver = controllers.load_auth_method(method)
@@ -66,10 +66,10 @@ class TestLoadAuthMethod(unit.BaseTestCase):
 
         # stevedore.DriverManager raises RuntimeError if it can't load the
         # driver.
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             stevedore, 'DriverManager', side_effect=RuntimeError))
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             importutils, 'import_object', return_value=mock.sentinel.driver))
 
         driver = controllers.load_auth_method(method)
@@ -86,13 +86,13 @@ class TestLoadAuthMethod(unit.BaseTestCase):
 
         # stevedore.DriverManager raises RuntimeError if it can't load the
         # driver.
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             stevedore, 'DriverManager', side_effect=RuntimeError))
 
         class TestException(Exception):
             pass
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             importutils, 'import_object', side_effect=TestException))
 
         self.assertRaises(TestException, controllers.load_auth_method, method)

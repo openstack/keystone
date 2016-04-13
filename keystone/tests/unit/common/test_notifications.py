@@ -15,10 +15,10 @@
 import logging
 import uuid
 
+import fixtures
 import mock
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
-from oslotest import mockpatch
 from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
@@ -225,7 +225,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
                 note['actor_operation'] = actor_dict.get('actor_operation')
             self._notifications.append(note)
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             notifications, '_send_notification', fake_notify))
 
         def fake_audit(action, initiator, outcome, target,
@@ -249,7 +249,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
                 'send_notification_called': True}
             self._audits.append(audit)
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             notifications, '_send_audit_notification', fake_audit))
 
     def _assert_last_note(self, resource_id, operation, resource_type,
@@ -993,7 +993,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 'send_notification_called': True}
             self._notifications.append(note)
 
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             notifications, '_send_audit_notification', fake_notify))
 
     def _assert_last_note(self, action, user_id, event_type=None):
