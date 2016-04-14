@@ -1312,7 +1312,7 @@ class TokenExpirationTest(AuthTest):
 
 
 class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
-    """Tests for the catalog provided in the auth response."""
+    """Test for the catalog provided in the auth response."""
 
     def config_files(self):
         config_files = super(AuthCatalog, self).config_files()

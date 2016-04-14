@@ -56,7 +56,7 @@ MEMOIZE_COMPUTED_CATALOG = cache.get_memoization_decorator(
 
 
 def format_url(url, substitutions, silent_keyerror_failures=None):
-    """Formats a user-defined URL with the given substitutions.
+    """Format a user-defined URL with the given substitutions.
 
     :param string url: the URL to be formatted
     :param dict substitutions: the dictionary used for substitution
@@ -409,7 +409,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def create_region(self, region_ref):
-        """Creates a new region.
+        """Create a new region.
 
         :raises keystone.exception.Conflict: If the region already exists.
         :raises keystone.exception.RegionNotFound: If the parent region
@@ -453,7 +453,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def delete_region(self, region_id):
-        """Deletes an existing region.
+        """Delete an existing region.
 
         :raises keystone.exception.RegionNotFound: If the region doesn't exist.
 
@@ -462,7 +462,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def create_service(self, service_id, service_ref):
-        """Creates a new service.
+        """Create a new service.
 
         :raises keystone.exception.Conflict: If a duplicate service exists.
 
@@ -506,7 +506,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def delete_service(self, service_id):
-        """Deletes an existing service.
+        """Delete an existing service.
 
         :raises keystone.exception.ServiceNotFound: If the service doesn't
             exist.
@@ -516,7 +516,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def create_endpoint(self, endpoint_id, endpoint_ref):
-        """Creates a new endpoint for a service.
+        """Create a new endpoint for a service.
 
         :raises keystone.exception.Conflict: If a duplicate endpoint exists.
         :raises keystone.exception.ServiceNotFound: If the service doesn't
@@ -564,7 +564,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def delete_endpoint(self, endpoint_id):
-        """Deletes an endpoint for a service.
+        """Delete an endpoint for a service.
 
         :raises keystone.exception.EndpointNotFound: If the endpoint doesn't
             exist.
@@ -677,7 +677,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def remove_endpoint_from_project(self, endpoint_id, project_id):
-        """Removes an endpoint to project association.
+        """Remove an endpoint to project association.
 
         :param endpoint_id: identity of endpoint to remove
         :type endpoint_id: string
@@ -692,7 +692,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def check_endpoint_in_project(self, endpoint_id, project_id):
-        """Checks if an endpoint is associated with a project.
+        """Check if an endpoint is associated with a project.
 
         :param endpoint_id: identity of endpoint to check
         :type endpoint_id: string
@@ -729,7 +729,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def delete_association_by_endpoint(self, endpoint_id):
-        """Removes all the endpoints to project association with endpoint.
+        """Remove all the endpoints to project association with endpoint.
 
         :param endpoint_id: identity of endpoint to check
         :type endpoint_id: string
@@ -740,7 +740,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def delete_association_by_project(self, project_id):
-        """Removes all the endpoints to project association with project.
+        """Remove all the endpoints to project association with project.
 
         :param project_id: identity of the project to check
         :type project_id: string
@@ -805,7 +805,7 @@ class CatalogDriverV8(object):
 
     @abc.abstractmethod
     def add_endpoint_group_to_project(self, endpoint_group_id, project_id):
-        """Adds an endpoint group to project association.
+        """Add an endpoint group to project association.
 
         :param endpoint_group_id: identity of endpoint to associate
         :type endpoint_group_id: string

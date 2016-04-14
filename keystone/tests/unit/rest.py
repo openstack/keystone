@@ -92,7 +92,7 @@ class RestfulTestCase(unit.TestCase):
         return response
 
     def assertResponseSuccessful(self, response):
-        """Asserts that a status code lies inside the 2xx range.
+        """Assert that a status code lies inside the 2xx range.
 
         :param response: :py:class:`httplib.HTTPResponse` to be
           verified to have a status code between 200 and 299.
@@ -107,7 +107,7 @@ class RestfulTestCase(unit.TestCase):
             (response.status, response.body))
 
     def assertResponseStatus(self, response, expected_status):
-        """Asserts a specific status code on the response.
+        """Assert a specific status code on the response.
 
         :param response: :py:class:`httplib.HTTPResponse`
         :param expected_status: The specific ``status`` result expected
@@ -122,7 +122,7 @@ class RestfulTestCase(unit.TestCase):
             (response.status_code, expected_status, response.body))
 
     def assertValidResponseHeaders(self, response):
-        """Ensures that response headers appear as expected."""
+        """Ensure that response headers appear as expected."""
         self.assertIn('X-Auth-Token', response.headers.get('Vary'))
 
     def assertValidErrorResponse(self, response,
@@ -168,7 +168,7 @@ class RestfulTestCase(unit.TestCase):
     def restful_request(self, method='GET', headers=None, body=None,
                         content_type=None, response_content_type=None,
                         **kwargs):
-        """Serializes/deserializes json as request/response body.
+        """Serialize/deserialize json as request/response body.
 
         .. WARNING::
 

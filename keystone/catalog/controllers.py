@@ -408,7 +408,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
 
     @controller.protected()
     def add_endpoint_to_project(self, context, project_id, endpoint_id):
-        """Establishes an association between an endpoint and a project."""
+        """Establish an association between an endpoint and a project."""
         # NOTE(gyee): we just need to make sure endpoint and project exist
         # first. We don't really care whether if project is disabled.
         # The relationship can still be established even with a disabled
@@ -420,7 +420,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
 
     @controller.protected()
     def check_endpoint_in_project(self, context, project_id, endpoint_id):
-        """Verifies endpoint is currently associated with given project."""
+        """Verify endpoint is currently associated with given project."""
         self.catalog_api.get_endpoint(endpoint_id)
         self.resource_api.get_project(project_id)
         self.catalog_api.check_endpoint_in_project(endpoint_id,
@@ -474,7 +474,7 @@ class EndpointGroupV3Controller(controller.V3Controller):
     @controller.protected()
     @validation.validated(schema.endpoint_group_create, 'endpoint_group')
     def create_endpoint_group(self, context, endpoint_group):
-        """Creates an Endpoint Group with the associated filters."""
+        """Create an Endpoint Group with the associated filters."""
         ref = self._assign_unique_id(self._normalize_dict(endpoint_group))
         self._require_attribute(ref, 'filters')
         self._require_valid_filter(ref)
@@ -590,7 +590,7 @@ class ProjectEndpointGroupV3Controller(controller.V3Controller):
     @controller.protected()
     def add_endpoint_group_to_project(self, context, endpoint_group_id,
                                       project_id):
-        """Creates an association between an endpoint group and project."""
+        """Create an association between an endpoint group and project."""
         self.resource_api.get_project(project_id)
         self.catalog_api.get_endpoint_group(endpoint_group_id)
         self.catalog_api.add_endpoint_group_to_project(

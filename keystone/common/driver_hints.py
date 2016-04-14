@@ -97,7 +97,7 @@ class Hints(object):
 
     def add_filter(self, name, value, comparator='equals',
                    case_sensitive=False):
-        """Adds a filter to the filters list, which is publicly accessible."""
+        """Add a filter to the filters list, which is publicly accessible."""
         self.filters.append({'name': name, 'value': value,
                              'comparator': comparator,
                              'case_sensitive': case_sensitive,

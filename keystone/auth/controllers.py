@@ -305,7 +305,7 @@ class AuthInfo(object):
         self._validate_and_normalize_scope_data()
 
     def get_method_names(self):
-        """Returns the identity method names.
+        """Return the identity method names.
 
         :returns: list of auth method names
 

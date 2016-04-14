@@ -135,7 +135,7 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
         self.config_fixture.config(group='os_inherit', enabled=False)
 
     def _get_domain_fixture(self):
-        """Domains in LDAP are read-only, so just return the static one."""
+        """Return the static domain, since domains in LDAP are read-only."""
         return self.resource_api.get_domain(CONF.identity.default_domain_id)
 
     def get_config(self, domain_id):
@@ -2190,7 +2190,7 @@ class LDAPPosixGroupsTest(unit.TestCase):
         return config_files
 
     def _get_domain_fixture(self):
-        """Domains in LDAP are read-only, so just return the static one."""
+        """Return the static domain, since domains in LDAP are read-only."""
         return self.resource_api.get_domain(CONF.identity.default_domain_id)
 
     def test_posix_member_id(self):

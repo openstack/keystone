@@ -857,7 +857,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         return r
 
     def test_create_idp(self):
-        """Creates the IdentityProvider entity associated to remote_ids."""
+        """Create the IdentityProvider entity associated to remote_ids."""
         keys_to_check = list(self.idp_keys)
         body = self.default_body.copy()
         body['description'] = uuid.uuid4().hex
@@ -867,7 +867,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                  ref=body)
 
     def test_create_idp_remote(self):
-        """Creates the IdentityProvider entity associated to remote_ids."""
+        """Create the IdentityProvider entity associated to remote_ids."""
         keys_to_check = list(self.idp_keys)
         keys_to_check.append('remote_ids')
         body = self.default_body.copy()
@@ -881,7 +881,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                  ref=body)
 
     def test_create_idp_remote_repeated(self):
-        """Creates two IdentityProvider entities with some remote_ids
+        """Create two IdentityProvider entities with some remote_ids
 
         A remote_id is the same for both so the second IdP is not
         created because of the uniqueness of the remote_ids
@@ -908,7 +908,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                       resp_data.get('error', {}).get('message'))
 
     def test_create_idp_remote_empty(self):
-        """Creates an IdP with empty remote_ids."""
+        """Create an IdP with empty remote_ids."""
         keys_to_check = list(self.idp_keys)
         keys_to_check.append('remote_ids')
         body = self.default_body.copy()
@@ -920,7 +920,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                  ref=body)
 
     def test_create_idp_remote_none(self):
-        """Creates an IdP with a None remote_ids."""
+        """Create an IdP with a None remote_ids."""
         keys_to_check = list(self.idp_keys)
         keys_to_check.append('remote_ids')
         body = self.default_body.copy()
@@ -988,7 +988,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                          sorted(returned_idp.get('remote_ids')))
 
     def test_list_idps(self, iterations=5):
-        """Lists all available IdentityProviders.
+        """List all available IdentityProviders.
 
         This test collects ids of created IdPs and
         intersects it with the list of all available IdPs.
@@ -1617,7 +1617,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self.assertValidMappedUser(r.json['token'])
 
     def test_issue_unscoped_token_disabled_idp(self):
-        """Checks if authentication works with disabled identity providers.
+        """Check if authentication works with disabled identity providers.
 
         Test plan:
         1) Disable default IdP
@@ -2584,7 +2584,7 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
 
 
 class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
-    """Tests for federated users
+    """Test for federated users
 
     Tests new shadow users functionality
 

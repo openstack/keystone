@@ -173,7 +173,7 @@ def requires(*dependencies):
 
 
 def resolve_future_dependencies(__provider_name=None):
-    """Forces injection of all dependencies.
+    """Force injection of all dependencies.
 
     Before this function is called, circular dependencies may not have been
     injected. This function should be called only once, after all global

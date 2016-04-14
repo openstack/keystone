@@ -1388,7 +1388,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
                  expected_status=exception.ForbiddenAction.code)
 
     def test_get_and_delete_ec2_credentials(self):
-        """Tests getting and deleting ec2 credentials through the ec2 API."""
+        """Test getting and deleting ec2 credentials through the ec2 API."""
         another_user = unit.create_user(self.identity_api,
                                         domain_id=self.domainA['id'])
 

@@ -435,7 +435,7 @@ class Manager(manager.Manager):
 
     def _expand_indirect_assignment(self, ref, user_id=None, project_id=None,
                                     subtree_ids=None, expand_groups=True):
-        """Returns a list of expanded role assignments.
+        """Return a list of expanded role assignments.
 
         This methods is called for each discovered assignment that either needs
         a group assignment expanded into individual user assignments, or needs
@@ -457,7 +457,7 @@ class Manager(manager.Manager):
 
         """
         def create_group_assignment(base_ref, user_id):
-            """Creates a group assignment from the provided ref."""
+            """Create a group assignment from the provided ref."""
             ref = copy.deepcopy(base_ref)
 
             ref['user_id'] = user_id
@@ -468,7 +468,7 @@ class Manager(manager.Manager):
             return ref
 
         def expand_group_assignment(ref, user_id):
-            """Expands group role assignment.
+            """Expand group role assignment.
 
             For any group role assignment on a target, it is replaced by a list
             of role assignments containing one for each user of that group on
@@ -511,7 +511,7 @@ class Manager(manager.Manager):
 
         def expand_inherited_assignment(ref, user_id, project_id, subtree_ids,
                                         expand_groups):
-            """Expands inherited role assignments.
+            """Expand inherited role assignments.
 
             If expand_groups is True and this is a group role assignment on a
             target, replace it by a list of role assignments containing one for
@@ -561,7 +561,7 @@ class Manager(manager.Manager):
 
             """
             def create_inherited_assignment(base_ref, project_id):
-                """Creates a project assignment from the provided ref.
+                """Create a project assignment from the provided ref.
 
                 base_ref can either be a project or domain inherited
                 assignment ref.
@@ -1130,7 +1130,7 @@ class AssignmentDriverBase(object):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        """Creates a new assignment/grant.
+        """Create a new assignment/grant.
 
         If the assignment is to a domain, then optionally it may be
         specified as inherited to owned projects (this requires
@@ -1143,14 +1143,14 @@ class AssignmentDriverBase(object):
     def list_grant_role_ids(self, user_id=None, group_id=None,
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
-        """Lists role ids for assignments/grants."""
+        """List role ids for assignments/grants."""
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def check_grant_role_id(self, role_id, user_id=None, group_id=None,
                             domain_id=None, project_id=None,
                             inherited_to_projects=False):
-        """Checks an assignment/grant role id.
+        """Check an assignment/grant role id.
 
         :raises keystone.exception.RoleAssignmentNotFound: If the role
             assignment doesn't exist.
@@ -1163,7 +1163,7 @@ class AssignmentDriverBase(object):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
-        """Deletes assignments/grants.
+        """Delete assignments/grants.
 
         :raises keystone.exception.RoleAssignmentNotFound: If the role
             assignment doesn't exist.
@@ -1176,7 +1176,7 @@ class AssignmentDriverBase(object):
                               user_id=None, group_ids=None,
                               domain_id=None, project_ids=None,
                               inherited_to_projects=None):
-        """Returns a list of role assignments for actors on targets.
+        """Return a list of role assignments for actors on targets.
 
         Available parameters represent values in which the returned role
         assignments attributes need to be filtered on.
@@ -1186,7 +1186,7 @@ class AssignmentDriverBase(object):
 
     @abc.abstractmethod
     def delete_project_assignments(self, project_id):
-        """Deletes all assignments for a project.
+        """Delete all assignments for a project.
 
         :raises keystone.exception.ProjectNotFound: If the project doesn't
             exist.
@@ -1196,12 +1196,12 @@ class AssignmentDriverBase(object):
 
     @abc.abstractmethod
     def delete_role_assignments(self, role_id):
-        """Deletes all assignments for a role."""
+        """Delete all assignments for a role."""
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def delete_user_assignments(self, user_id):
-        """Deletes all assignments for a user.
+        """Delete all assignments for a user.
 
         :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
@@ -1210,7 +1210,7 @@ class AssignmentDriverBase(object):
 
     @abc.abstractmethod
     def delete_group_assignments(self, group_id):
-        """Deletes all assignments for a group.
+        """Delete all assignments for a group.
 
         :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
@@ -1230,7 +1230,7 @@ class AssignmentDriverV8(AssignmentDriverBase):
 
     @abc.abstractmethod
     def list_user_ids_for_project(self, tenant_id):
-        """Lists all user IDs with a role assignment in the specified project.
+        """List all user IDs with a role assignment in the specified project.
 
         :returns: a list of user_ids or an empty set.
 
@@ -1355,7 +1355,7 @@ class AssignmentDriverV9(AssignmentDriverBase):
 
     @abc.abstractmethod
     def delete_domain_assignments(self, domain_id):
-        """Deletes all assignments for a domain."""
+        """Delete all assignments for a domain."""
         raise exception.NotImplemented()
 
 
@@ -1390,7 +1390,7 @@ class V9AssignmentWrapperForV8Driver(AssignmentDriverV9):
         self.driver = wrapped_driver
 
     def delete_domain_assignments(self, domain_id):
-        """Deletes all assignments for a domain."""
+        """Delete all assignments for a domain."""
         msg = _LW('delete_domain_assignments method not found in custom '
                   'assignment driver. Domain assignments for domain (%s) to '
                   'users from other domains will not be removed. This was '
@@ -1561,7 +1561,7 @@ class RoleDriverBase(object):
 
     @abc.abstractmethod
     def create_role(self, role_id, role):
-        """Creates a new role.
+        """Create a new role.
 
         :raises keystone.exception.Conflict: If a duplicate role exists.
 
@@ -1606,7 +1606,7 @@ class RoleDriverBase(object):
 
     @abc.abstractmethod
     def update_role(self, role_id, role):
-        """Updates an existing role.
+        """Update an existing role.
 
         :raises keystone.exception.RoleNotFound: If the role doesn't exist.
         :raises keystone.exception.Conflict: If a duplicate role exists.
@@ -1616,7 +1616,7 @@ class RoleDriverBase(object):
 
     @abc.abstractmethod
     def delete_role(self, role_id):
-        """Deletes an existing role.
+        """Delete an existing role.
 
         :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 
@@ -1647,7 +1647,7 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def get_implied_role(self, prior_role_id, implied_role_id):
-        """Fetches a role inference rule
+        """Fetche a role inference rule
 
         :raises keystone.exception.ImpliedRoleNotFound: If the implied role
             doesn't exist.
@@ -1657,7 +1657,7 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def create_implied_role(self, prior_role_id, implied_role_id):
-        """Creates a role inference rule
+        """Create a role inference rule
 
         :raises: keystone.exception.RoleNotFound: If the role doesn't exist.
 
@@ -1666,7 +1666,7 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def delete_implied_role(self, prior_role_id, implied_role_id):
-        """Deletes a role inference rule
+        """Delete a role inference rule
 
         :raises keystone.exception.ImpliedRoleNotFound: If the implied role
             doesn't exist.
@@ -1676,12 +1676,12 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def list_role_inference_rules(self):
-        """Lists all the rules used to imply one role from another"""
+        """List all the rules used to imply one role from another"""
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
     def list_implied_roles(self, prior_role_id):
-        """Lists roles implied from the prior role ID"""
+        """List roles implied from the prior role ID"""
         raise exception.NotImplemented()  # pragma: no cover
 
 

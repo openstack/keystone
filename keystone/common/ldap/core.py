@@ -235,7 +235,7 @@ def prep_case_insensitive(value):
 
 
 def is_ava_value_equal(attribute_type, val1, val2):
-    """Returns True if and only if the AVAs are equal.
+    """Return True if and only if the AVAs are equal.
 
     When comparing AVAs, the equality matching rule for the attribute type
     should be taken into consideration. For simplicity, this implementation
@@ -249,7 +249,7 @@ def is_ava_value_equal(attribute_type, val1, val2):
 
 
 def is_rdn_equal(rdn1, rdn2):
-    """Returns True if and only if the RDNs are equal.
+    """Return True if and only if the RDNs are equal.
 
     * RDNs must have the same number of AVAs.
     * Each AVA of the RDNs must be the equal for the same attribute type. The
@@ -284,7 +284,7 @@ def is_rdn_equal(rdn1, rdn2):
 
 
 def is_dn_equal(dn1, dn2):
-    """Returns True if and only if the DNs are equal.
+    """Return True if and only if the DNs are equal.
 
     Two DNs are equal if they've got the same number of RDNs and if the RDNs
     are the same at each position. See RFC4517.
@@ -311,7 +311,7 @@ def is_dn_equal(dn1, dn2):
 
 
 def dn_startswith(descendant_dn, dn):
-    """Returns True if and only if the descendant_dn is under the dn.
+    """Return True if and only if the descendant_dn is under the dn.
 
     :param descendant_dn: Either a string DN or a DN parsed by ldap.dn.str2dn.
     :param dn: Either a string DN or a DN parsed by ldap.dn.str2dn.
@@ -777,7 +777,7 @@ class PooledLDAPHandler(LDAPHandler):
                    filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
                    serverctrls=None, clientctrls=None,
                    timeout=-1, sizelimit=0):
-        """Asynchronous API to return a ``MsgId`` instance.
+        """Return a ``MsgId`` instance, it asynchronous API.
 
         The ``MsgId`` instance can be safely used in a call to ``result3()``.
 
@@ -805,7 +805,7 @@ class PooledLDAPHandler(LDAPHandler):
 
     def result3(self, msgid, all=1, timeout=None,
                 resp_ctrl_classes=None):
-        """This method is used to wait for and return result.
+        """Wait for and return the result.
 
         This method returns the result of an operation previously initiated by
         one of the LDAP asynchronous operation routines (eg search_ext()). It
@@ -1238,7 +1238,7 @@ class BaseLdap(object):
         return mapping
 
     def _is_dumb_member(self, member_dn):
-        """Checks that member is a dumb member.
+        """Check that member is a dumb member.
 
         :param member_dn: DN of member to be checked.
         """
@@ -1709,7 +1709,7 @@ class BaseLdap(object):
                          'dots': '...' if len(not_deleted_nodes) > 3 else ''})
 
     def filter_query(self, hints, query=None):
-        """Applies filtering to a query.
+        """Apply filtering to a query.
 
         :param hints: contains the list of filters, which may be None,
                       indicating that there are no filters to be applied.

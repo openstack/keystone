@@ -358,7 +358,7 @@ class SqlIdentity(SqlTests, identity_tests.IdentityTests,
         self.assertEqual([], tenants)
 
     def test_update_project_returns_extra(self):
-        """This tests for backwards-compatibility with an essex/folsom bug.
+        """Test for backward compatibility with an essex/folsom bug.
 
         Non-indexed attributes were returned in an 'extra' attribute, instead
         of on the entity itself; for consistency and backwards compatibility,
@@ -382,7 +382,7 @@ class SqlIdentity(SqlTests, identity_tests.IdentityTests,
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 
     def test_update_user_returns_extra(self):
-        """This tests for backwards-compatibility with an essex/folsom bug.
+        """Test for backwards-compatibility with an essex/folsom bug.
 
         Non-indexed attributes were returned in an 'extra' attribute, instead
         of on the entity itself; for consistency and backwards compatibility,

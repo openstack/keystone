@@ -82,7 +82,7 @@ class S3Controller(controllers.Ec2Controller):
                 message=_('Credential signature mismatch'))
 
     def _calculate_signature_v1(self, string_to_sign, secret_key):
-        """Calculates a v1 signature.
+        """Calculate a v1 signature.
 
         :param bytes string_to_sign: String that contains request params and
                                      is used for calculate signature of request
@@ -99,7 +99,7 @@ class S3Controller(controllers.Ec2Controller):
         return signed
 
     def _calculate_signature_v4(self, string_to_sign, secret_key):
-        """Calculates a v4 signature.
+        """Calculate a v4 signature.
 
         :param bytes string_to_sign: String that contains request params and
                                      is used for calculate signature of request

@@ -130,7 +130,7 @@ class DictBase(models.ModelBase):
         return cls(**new_d)
 
     def to_dict(self, include_extra_dict=False):
-        """Returns the model's attributes as a dictionary.
+        """Return the model's attributes as a dictionary.
 
         If include_extra_dict is True, 'extra' attributes are literally
         included in the resulting dictionary twice, for backwards-compatibility
@@ -156,11 +156,11 @@ class ModelDictMixin(object):
 
     @classmethod
     def from_dict(cls, d):
-        """Returns a model instance from a dictionary."""
+        """Return a model instance from a dictionary."""
         return cls(**d)
 
     def to_dict(self):
-        """Returns the model's attributes as a dictionary."""
+        """Return the model's attributes as a dictionary."""
         names = (column.name for column in self.__table__.columns)
         return {name: getattr(self, name) for name in names}
 
@@ -259,7 +259,7 @@ class _WontMatch(Exception):
 
 
 def _filter(model, query, hints):
-    """Applies filtering to a query.
+    """Apply filtering to a query.
 
     :param model: the table model in question
     :param query: query to apply filters to
@@ -271,7 +271,7 @@ def _filter(model, query, hints):
 
     """
     def inexact_filter(model, query, filter_, satisfied_filters):
-        """Applies an inexact filter to a query.
+        """Apply an inexact filter to a query.
 
         :param model: the table model in question
         :param query: query to apply filters to
@@ -312,7 +312,7 @@ def _filter(model, query, hints):
         return query.filter(query_term)
 
     def exact_filter(model, query, filter_, satisfied_filters):
-        """Applies an exact filter to a query.
+        """Apply an exact filter to a query.
 
         :param model: the table model in question
         :param query: query to apply filters to
@@ -357,7 +357,7 @@ def _filter(model, query, hints):
 
 
 def _limit(query, hints):
-    """Applies a limit to a query.
+    """Apply a limit to a query.
 
     :param query: query to apply filters to
     :param hints: contains the list of filters and limit details.
@@ -375,7 +375,7 @@ def _limit(query, hints):
 
 
 def filter_limit_query(model, query, hints):
-    """Applies filtering and limit to a query.
+    """Apply filtering and limit to a query.
 
     :param model: table model
     :param query: query to apply filters to
@@ -412,7 +412,7 @@ def filter_limit_query(model, query, hints):
 
 
 def handle_conflicts(conflict_type='object'):
-    """Converts select sqlalchemy exceptions into HTTP 409 Conflict."""
+    """Convert select sqlalchemy exceptions into HTTP 409 Conflict."""
     _conflict_msg = 'Conflict %(conflict_type)s: %(details)s'
 
     def decorator(method):

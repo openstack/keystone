@@ -107,7 +107,7 @@ class ExceptionTestCase(unit.BaseTestCase):
 
 
 class UnexpectedExceptionTestCase(ExceptionTestCase):
-    """Tests if internal info is exposed to the API user on UnexpectedError."""
+    """Test if internal info is exposed to the API user on UnexpectedError."""
 
     class SubClassExc(exception.UnexpectedError):
         debug_message_format = 'Debug Message: %(debug_info)s'
@@ -177,7 +177,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
 
 
 class SecurityErrorTestCase(ExceptionTestCase):
-    """Tests whether security-related info is exposed to the API user."""
+    """Test whether security-related info is exposed to the API user."""
 
     def setUp(self):
         super(SecurityErrorTestCase, self).setUp()

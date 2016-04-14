@@ -34,7 +34,7 @@ CONF = cfg.CONF
 
 @dependency.requires('catalog_api', 'resource_api', 'assignment_api')
 class V2TokenDataHelper(object):
-    """Creates V2 token data."""
+    """Create V2 token data."""
 
     def v3_to_v2_token(self, v3_token_data):
         """Convert v3 token data into v2.0 token data.

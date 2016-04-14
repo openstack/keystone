@@ -380,7 +380,7 @@ class Auth(controller.V2Controller):
         return tenant_id
 
     def _get_project_roles_and_ref(self, user_id, tenant_id):
-        """Returns the project roles for this user, and the project ref."""
+        """Return the project roles for this user, and the project ref."""
         tenant_ref = None
         role_list = []
         if tenant_id:
@@ -401,7 +401,7 @@ class Auth(controller.V2Controller):
         return (tenant_ref, role_list)
 
     def _get_token_ref(self, token_id, belongs_to=None):
-        """Returns a token if a valid one exists.
+        """Return a token if a valid one exists.
 
         Optionally, limited to a token owned by a specific tenant.
 
@@ -491,7 +491,7 @@ class Auth(controller.V2Controller):
 
     @classmethod
     def format_endpoint_list(cls, catalog_ref):
-        """Formats a list of endpoints according to Identity API v2.
+        """Format a list of endpoints according to Identity API v2.
 
         The v2.0 API wants an endpoint list to look like::
 

@@ -55,7 +55,7 @@ def loadapp(conf, name):
 
 
 def fail_gracefully(f):
-    """Logs exceptions and aborts."""
+    """Log exceptions and aborts."""
     @functools.wraps(f)
     def wrapper(*args, **kw):
         try:

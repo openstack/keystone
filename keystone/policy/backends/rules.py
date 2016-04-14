@@ -42,7 +42,7 @@ def init():
 
 
 def enforce(credentials, action, target, do_raise=True):
-    """Verifies that the action is valid on the target in this context.
+    """Verify that the action is valid on the target in this context.
 
     :param credentials: user credentials
     :param action: string representing the action to be checked, which should

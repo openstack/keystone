@@ -43,12 +43,12 @@ class FakeAttributeCheckerApp(wsgi.Application):
         return context['query_string']
 
     def assert_attribute(self, body, attr):
-        """Asserts that the given request has a certain attribute."""
+        """Assert that the given request has a certain attribute."""
         ref = jsonutils.loads(body)
         self._require_attribute(ref, attr)
 
     def assert_attributes(self, body, attr):
-        """Asserts that the given request has a certain set attributes."""
+        """Assert that the given request has a certain set attributes."""
         ref = jsonutils.loads(body)
         self._require_attributes(ref, attr)
 

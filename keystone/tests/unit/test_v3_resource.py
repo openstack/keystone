@@ -675,7 +675,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.assertValidProjectResponse(r, ref_child)
 
     def _create_projects_hierarchy(self, hierarchy_size=1):
-        """Creates a single-branched project hierarchy with the specified size.
+        """Create a single-branched project hierarchy with the specified size.
 
         :param hierarchy_size: the desired hierarchy size, default is 1 -
                                a project with one child.

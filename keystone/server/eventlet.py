@@ -45,7 +45,7 @@ CONF = cfg.CONF
 
 
 class ServerWrapper(object):
-    """Wraps a Server with some launching info & capabilities."""
+    """Wrap a Server with some launching info & capabilities."""
 
     def __init__(self, server, workers):
         self.server = server

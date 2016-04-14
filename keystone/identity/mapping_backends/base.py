@@ -25,7 +25,7 @@ class MappingDriverV8(object):
 
     @abc.abstractmethod
     def get_public_id(self, local_entity):
-        """Returns the public ID for the given local entity.
+        """Return the public ID for the given local entity.
 
         :param dict local_entity: Containing the entity domain, local ID and
                                   type ('user' or 'group').
@@ -36,7 +36,7 @@ class MappingDriverV8(object):
 
     @abc.abstractmethod
     def get_id_mapping(self, public_id):
-        """Returns the local mapping.
+        """Return the local mapping.
 
         :param public_id: The public ID for the mapping required.
         :returns dict: Containing the entity domain, local ID and type. If no
@@ -60,7 +60,7 @@ class MappingDriverV8(object):
 
     @abc.abstractmethod
     def delete_id_mapping(self, public_id):
-        """Deletes an entry for the given public_id.
+        """Delete an entry for the given public_id.
 
         :param public_id: The public ID for the mapping to be deleted.
 

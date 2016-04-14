@@ -46,7 +46,7 @@ def calc_default_domain():
 
 
 def _get_project_from_domain(domain_ref):
-    """Creates a project ref from the provided domain ref."""
+    """Create a project ref from the provided domain ref."""
     project_ref = domain_ref.copy()
     project_ref['is_domain'] = True
     project_ref['domain_id'] = None
@@ -106,7 +106,7 @@ class Manager(manager.Manager):
                 _('Max hierarchy depth reached for %s branch.') % project_id)
 
     def _assert_is_domain_project_constraints(self, project_ref):
-        """Enforces specific constraints of projects that act as domains
+        """Enforce specific constraints of projects that act as domains
 
         Called when is_domain is true, this method ensures that:
 
@@ -130,7 +130,7 @@ class Manager(manager.Manager):
                           'domains.'))
 
     def _assert_regular_project_constraints(self, project_ref):
-        """Enforces regular project hierarchy constraints
+        """Enforce regular project hierarchy constraints
 
         Called when is_domain is false. The project must contain a valid
         domain_id and parent_id. The goal of this method is to check
@@ -581,7 +581,7 @@ class Manager(manager.Manager):
         return traverse_parents_hierarchy(project)
 
     def get_project_parents_as_ids(self, project):
-        """Gets the IDs from the parents from a given project.
+        """Get the IDs from the parents from a given project.
 
         The project IDs are returned as a structured dictionary traversing up
         the hierarchy to the top level project. For example, considering the
@@ -637,7 +637,7 @@ class Manager(manager.Manager):
         return traverse_subtree_hierarchy(project_id)
 
     def get_projects_in_subtree_as_ids(self, project_id):
-        """Gets the IDs from the projects in the subtree from a given project.
+        """Get the IDs from the projects in the subtree from a given project.
 
         The project IDs are returned as a structured dictionary representing
         their hierarchy. For example, considering the following project
@@ -719,7 +719,7 @@ class Manager(manager.Manager):
         return self._get_domain_from_project(project)
 
     def _get_domain_from_project(self, project_ref):
-        """Creates a domain ref from a project ref.
+        """Create a domain ref from a project ref.
 
         Based on the provided project ref, create a domain ref, so that the
         result can be returned in response to a domain API call.
@@ -878,7 +878,7 @@ class Manager(manager.Manager):
         return self.driver.get_project_by_name(project_name, domain_id)
 
     def ensure_default_domain_exists(self):
-        """Creates the default domain if it doesn't exist.
+        """Create the default domain if it doesn't exist.
 
         This is only used for the v2 API and can go away when V2 does.
 
@@ -990,7 +990,7 @@ class ResourceDriverBase(object):
 
     @abc.abstractmethod
     def update_project(self, project_id, project):
-        """Updates an existing project.
+        """Update an existing project.
 
         :raises keystone.exception.ProjectNotFound: if project_id does not
                                                     exist
@@ -1001,7 +1001,7 @@ class ResourceDriverBase(object):
 
     @abc.abstractmethod
     def delete_project(self, project_id):
-        """Deletes an existing project.
+        """Delete an existing project.
 
         :raises keystone.exception.ProjectNotFound: if project_id does not
                                                     exist
@@ -1039,7 +1039,7 @@ class ResourceDriverBase(object):
 
     @abc.abstractmethod
     def is_leaf_project(self, project_id):
-        """Checks if a project is a leaf in the hierarchy.
+        """Check if a project is a leaf in the hierarchy.
 
         :param project_id: the driver will check if this project
                            is a leaf in the hierarchy.
@@ -1080,7 +1080,7 @@ class ResourceDriverV8(ResourceDriverBase):
 
     @abc.abstractmethod
     def create_project(self, tenant_id, tenant):
-        """Creates a new project.
+        """Create a new project.
 
         :param tenant_id: This parameter can be ignored.
         :param dict tenant: The new project
@@ -1146,7 +1146,7 @@ class ResourceDriverV8(ResourceDriverBase):
     # domain crud
     @abc.abstractmethod
     def create_domain(self, domain_id, domain):
-        """Creates a new domain.
+        """Create a new domain.
 
         :raises keystone.exception.Conflict: if the domain_id or domain name
                                              already exists
@@ -1203,7 +1203,7 @@ class ResourceDriverV8(ResourceDriverBase):
 
     @abc.abstractmethod
     def update_domain(self, domain_id, domain):
-        """Updates an existing domain.
+        """Update an existing domain.
 
         :raises keystone.exception.DomainNotFound: if domain_id does not exist
         :raises keystone.exception.Conflict: if domain name already exists
@@ -1213,7 +1213,7 @@ class ResourceDriverV8(ResourceDriverBase):
 
     @abc.abstractmethod
     def delete_domain(self, domain_id):
-        """Deletes an existing domain.
+        """Delete an existing domain.
 
         :raises keystone.exception.DomainNotFound: if domain_id does not exist
 
@@ -1231,7 +1231,7 @@ class ResourceDriverV9(ResourceDriverBase):
 
     @abc.abstractmethod
     def create_project(self, project_id, project):
-        """Creates a new project.
+        """Create a new project.
 
         :param project_id: This parameter can be ignored.
         :param dict project: The new project
@@ -1281,7 +1281,7 @@ class ResourceDriverV9(ResourceDriverBase):
 
     @abc.abstractmethod
     def delete_projects_from_ids(self, project_ids):
-        """Deletes a given list of projects.
+        """Delete a given list of projects.
 
         Deletes a list of projects. Ensures no project on the list exists
         after it is successfully called. If an empty list is provided,
@@ -1344,7 +1344,7 @@ class V9ResourceWrapperForV8Driver(ResourceDriverV9):
         self.driver = wrapped_driver
 
     def _get_domain_from_project(self, project_ref):
-        """Creates a domain ref from a project ref.
+        """Create a domain ref from a project ref.
 
         Based on the provided project ref (or partial ref), creates a
         domain ref, so that the result can be passed to the driver
@@ -2006,7 +2006,7 @@ class DomainConfigDriverV8(object):
 
     @abc.abstractmethod
     def create_config_options(self, domain_id, option_list):
-        """Creates config options for a domain.
+        """Create config options for a domain.
 
         Any existing config options will first be deleted.
 
@@ -2033,7 +2033,7 @@ class DomainConfigDriverV8(object):
 
     @abc.abstractmethod
     def get_config_option(self, domain_id, group, option, sensitive=False):
-        """Gets the config option for a domain.
+        """Get the config option for a domain.
 
         :param domain_id: the domain for this option
         :param group: the group name
@@ -2050,7 +2050,7 @@ class DomainConfigDriverV8(object):
     @abc.abstractmethod
     def list_config_options(self, domain_id, group=None, option=False,
                             sensitive=False):
-        """Gets a config options for a domain.
+        """Get a config options for a domain.
 
         :param domain_id: the domain for this option
         :param group: optional group option name
@@ -2065,7 +2065,7 @@ class DomainConfigDriverV8(object):
 
     @abc.abstractmethod
     def update_config_options(self, domain_id, option_list):
-        """Updates config options for a domain.
+        """Update config options for a domain.
 
         :param domain_id: the domain for this option
         :param option_list: a list of dicts, each one specifying an option
@@ -2075,7 +2075,7 @@ class DomainConfigDriverV8(object):
 
     @abc.abstractmethod
     def delete_config_options(self, domain_id, group=None, option=None):
-        """Deletes config options for a domain.
+        """Delete config options for a domain.
 
         Allows deletion of all options for a domain, all options in a group
         or a specific option. The driver is silent if there are no options

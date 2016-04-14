@@ -525,7 +525,7 @@ class TestFernetKeyRotation(unit.TestCase):
         self.assertUniqueRepositoryState()
 
     def assertUniqueRepositoryState(self):
-        """Ensures that the current key repo state has not been seen before."""
+        """Ensure that the current key repo state has not been seen before."""
         # This is assigned to a variable because it takes some work to
         # calculate.
         signature = self.key_repository_signature

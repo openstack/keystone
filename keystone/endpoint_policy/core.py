@@ -273,7 +273,7 @@ class EndpointPolicyDriverV8(object):
     @abc.abstractmethod
     def create_policy_association(self, policy_id, endpoint_id=None,
                                   service_id=None, region_id=None):
-        """Creates a policy association.
+        """Create a policy association.
 
         :param policy_id: identity of policy that is being associated
         :type policy_id: string
@@ -297,7 +297,7 @@ class EndpointPolicyDriverV8(object):
     @abc.abstractmethod
     def check_policy_association(self, policy_id, endpoint_id=None,
                                  service_id=None, region_id=None):
-        """Checks existence a policy association.
+        """Check existence a policy association.
 
         :param policy_id: identity of policy that is being associated
         :type policy_id: string
@@ -317,7 +317,7 @@ class EndpointPolicyDriverV8(object):
     @abc.abstractmethod
     def delete_policy_association(self, policy_id, endpoint_id=None,
                                   service_id=None, region_id=None):
-        """Deletes a policy association.
+        """Delete a policy association.
 
         :param policy_id: identity of policy that is being associated
         :type policy_id: string
@@ -335,7 +335,7 @@ class EndpointPolicyDriverV8(object):
     @abc.abstractmethod
     def get_policy_association(self, endpoint_id=None,
                                service_id=None, region_id=None):
-        """Gets the policy for an explicit association.
+        """Get the policy for an explicit association.
 
         This method is not exposed as a public API, but is used by
         get_policy_for_endpoint().
@@ -393,7 +393,7 @@ class EndpointPolicyDriverV8(object):
 
     @abc.abstractmethod
     def delete_association_by_endpoint(self, endpoint_id):
-        """Removes all the policy associations with the specific endpoint.
+        """Remove all the policy associations with the specific endpoint.
 
         :param endpoint_id: identity of endpoint to check
         :type endpoint_id: string
@@ -404,7 +404,7 @@ class EndpointPolicyDriverV8(object):
 
     @abc.abstractmethod
     def delete_association_by_service(self, service_id):
-        """Removes all the policy associations with the specific service.
+        """Remove all the policy associations with the specific service.
 
         :param service_id: identity of endpoint to check
         :type service_id: string
@@ -415,7 +415,7 @@ class EndpointPolicyDriverV8(object):
 
     @abc.abstractmethod
     def delete_association_by_region(self, region_id):
-        """Removes all the policy associations with the specific region.
+        """Remove all the policy associations with the specific region.
 
         :param region_id: identity of endpoint to check
         :type region_id: string
@@ -426,7 +426,7 @@ class EndpointPolicyDriverV8(object):
 
     @abc.abstractmethod
     def delete_association_by_policy(self, policy_id):
-        """Removes all the policy associations with the specific policy.
+        """Remove all the policy associations with the specific policy.
 
         :param policy_id: identity of endpoint to check
         :type policy_id: string

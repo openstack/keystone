@@ -69,7 +69,7 @@ class Error(Exception):
         super(Error, self).__init__(message)
 
     def _build_message(self, message, **kwargs):
-        """Builds and returns an exception message.
+        """Build and returns an exception message.
 
         :raises KeyError: given insufficient kwargs
 

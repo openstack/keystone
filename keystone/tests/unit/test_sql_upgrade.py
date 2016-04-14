@@ -228,7 +228,7 @@ class SqlMigrateBase(test_base.DbTestCase):
             raise AssertionError('Table "%s" does not exist' % table_name)
 
     def assertTableDoesNotExist(self, table_name):
-        """Asserts that a given table exists cannot be selected by name."""
+        """Assert that a given table exists cannot be selected by name."""
         # Switch to a different metadata otherwise you might still
         # detect renamed or dropped tables
         try:
@@ -241,7 +241,7 @@ class SqlMigrateBase(test_base.DbTestCase):
             raise AssertionError('Table "%s" already exists' % table_name)
 
     def calc_table_row_count(self, table_name):
-        """Returns the number of rows in the table."""
+        """Return the number of rows in the table."""
         t = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         session = self.sessionmaker()
         row_count = session.query(
@@ -275,7 +275,7 @@ class SqlMigrateBase(test_base.DbTestCase):
         self.assertEqual(self.schema_.version, version)
 
     def assertTableColumns(self, table_name, expected_cols):
-        """Asserts that the table contains the expected set of columns."""
+        """Assert that the table contains the expected set of columns."""
         self.initialize_sql()
         table = self.select_table(table_name)
         actual_cols = [col.name for col in table.columns]
@@ -423,7 +423,7 @@ class SqlUpgradeTests(SqlMigrateBase):
                           assignments)
 
     def does_pk_exist(self, table, pk_column):
-        """Checks whether a column is primary key on a table."""
+        """Check whether a column is primary key on a table."""
         inspector = reflection.Inspector.from_engine(self.engine)
         pk_columns = inspector.get_pk_constraint(table)['constrained_columns']
 

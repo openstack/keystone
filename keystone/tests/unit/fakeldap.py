@@ -190,7 +190,7 @@ def _match(key, value, attrs):
 
 
 def _subs(value):
-    """Returns a list of subclass strings.
+    """Return a list of subclass strings.
 
     The strings represent the ldap objectclass plus any subclasses that
     inherit from it. Fakeldap doesn't know about the ldap object structure,
@@ -295,7 +295,7 @@ class FakeLdap(core.LDAPHandler):
 
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
-        """This method is ignored, but provided for compatibility."""
+        """Provide for compatibility but this method is ignored."""
         if server_fail:
             raise ldap.SERVER_DOWN
         whos = ['cn=Admin', CONF.ldap.user]
@@ -322,7 +322,7 @@ class FakeLdap(core.LDAPHandler):
             raise ldap.INVALID_CREDENTIALS
 
     def unbind_s(self):
-        """This method is ignored, but provided for compatibility."""
+        """Provide for compatibility but this method is ignored."""
         if server_fail:
             raise ldap.SERVER_DOWN
 

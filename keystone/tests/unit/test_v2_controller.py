@@ -30,7 +30,7 @@ _ADMIN_CONTEXT = {'is_admin': True, 'query_string': {}}
 
 
 class TenantTestCase(unit.TestCase):
-    """Tests for the V2 Tenant controller.
+    """Test for the V2 Tenant controller.
 
     These tests exercise :class:`keystone.assignment.controllers.Tenant`.
 
@@ -48,7 +48,7 @@ class TenantTestCase(unit.TestCase):
             assignment_controllers.RoleAssignmentV2())
 
     def test_get_project_users_no_user(self):
-        """get_project_users when user doesn't exist.
+        """Test the user's existence for get_project_users.
 
         When a user that's not known to `identity` has a role on a project,
         then `get_project_users` just skips that user.
