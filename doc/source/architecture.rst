@@ -158,7 +158,8 @@ each service.
 
 A general class exists under each backend to provide an
 abstract base class for any implementations, identifying the expected service
-implementations. The classes are named after the keystone release in which
+implementations. The abstract base classes are stored in the service's backends
+directory as ``base.py``. The classes are named after the keystone release in which
 they were introduced. For eg. ``DriverV8`` for keystone release version 8.
 The corresponding drivers for the services are:
 
