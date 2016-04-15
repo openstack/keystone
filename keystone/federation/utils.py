@@ -202,7 +202,7 @@ class DirectMaps(object):
         self._matches = []
 
     def add(self, values):
-        """Adds a matched value to the list of matches.
+        """Add a matched value to the list of matches.
 
         :param list value: the match to save
 

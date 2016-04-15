@@ -37,7 +37,7 @@ class Tenant(controller.V2Controller):
 
     @controller.v2_deprecated
     def get_all_projects(self, context, **kw):
-        """Gets a list of all tenants for an admin user."""
+        """Get a list of all tenants for an admin user."""
         self.assert_admin(context)
 
         if 'name' in context['query_string']:

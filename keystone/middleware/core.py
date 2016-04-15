@@ -128,7 +128,7 @@ class NormalizingFilter(wsgi.Middleware):
     """Middleware filter to handle URL normalization."""
 
     def process_request(self, request):
-        """Normalizes URLs."""
+        """Normalize URLs."""
         # Removes a trailing slash from the given path, if any.
         if (len(request.environ['PATH_INFO']) > 1 and
                 request.environ['PATH_INFO'][-1] == '/'):

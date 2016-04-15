@@ -140,7 +140,7 @@ class RevokeTree(object):
         self.add_events(revoke_events)
 
     def add_event(self, event):
-        """Updates the tree based on a revocation event.
+        """Update the tree based on a revocation event.
 
         Creates any necessary internal nodes in the tree corresponding to the
         fields of the revocation event.  The leaf node will always be set to

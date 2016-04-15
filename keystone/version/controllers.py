@@ -111,7 +111,7 @@ class Version(wsgi.Application):
         super(Version, self).__init__()
 
     def _get_identity_url(self, context, version):
-        """Returns a URL to keystone's own endpoint."""
+        """Return a URL to keystone's own endpoint."""
         url = self.base_url(context, self.endpoint_url_type)
         return '%s/%s/' % (url, version)
 

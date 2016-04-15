@@ -1368,7 +1368,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                  'project_id': project_id})
 
     def _create_endpoint_and_associations(self, project_id, service_id=None):
-        """Creates an endpoint associated with service and project."""
+        """Create an endpoint associated with service and project."""
         if not service_id:
             # create a new service
             service_ref = unit.new_service_ref()

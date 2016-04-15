@@ -330,7 +330,7 @@ class Auth(auth_controllers.Auth):
         return self.render_html_response(host, token_id)
 
     def render_html_response(self, host, token_id):
-        """Forms an HTML Form from a template with autosubmit."""
+        """Form an HTML Form from a template with autosubmit."""
         headers = [('Content-Type', 'text/html')]
 
         with open(CONF.federation.sso_callback_template) as template:

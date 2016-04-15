@@ -213,7 +213,7 @@ class Manager(manager.Manager):
         return revoke_tree
 
     def check_token(self, token_values):
-        """Checks the values from a token against the revocation list
+        """Check the values from a token against the revocation list
 
         :param token_values: dictionary of values from a token, normalized for
                              differences between v2 and v3. The checked values

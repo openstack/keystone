@@ -35,7 +35,7 @@ class PolicyAssociation(sql.ModelBase, sql.ModelDictMixin):
                                            'region_id'),)
 
     def to_dict(self):
-        """Returns the model's attributes as a dictionary.
+        """Return the model's attributes as a dictionary.
 
         We override the standard method in order to hide the id column,
         since this only exists to provide the table with a primary key.

@@ -791,7 +791,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
 
 class TestCatalogAPISQL(unit.TestCase):
-    """Tests for the catalog Manager against the SQL backend."""
+    """Test for the catalog Manager against the SQL backend."""
 
     def setUp(self):
         super(TestCatalogAPISQL, self).setUp()
@@ -882,7 +882,7 @@ class TestCatalogAPISQL(unit.TestCase):
 # TODO(dstanek): this needs refactoring with the test above, but we are in a
 # crunch so that will happen in a future patch.
 class TestCatalogAPISQLRegions(unit.TestCase):
-    """Tests for the catalog Manager against the SQL backend."""
+    """Test for the catalog Manager against the SQL backend."""
 
     def setUp(self):
         super(TestCatalogAPISQLRegions, self).setUp()

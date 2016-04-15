@@ -56,7 +56,7 @@ class CredentialDriverV8(object):
 
     @abc.abstractmethod
     def create_credential(self, credential_id, credential):
-        """Creates a new credential.
+        """Create a new credential.
 
         :raises keystone.exception.Conflict: If a duplicate credential exists.
 
@@ -101,7 +101,7 @@ class CredentialDriverV8(object):
 
     @abc.abstractmethod
     def update_credential(self, credential_id, credential):
-        """Updates an existing credential.
+        """Update an existing credential.
 
         :raises keystone.exception.CredentialNotFound: If credential doesn't
             exist.
@@ -112,7 +112,7 @@ class CredentialDriverV8(object):
 
     @abc.abstractmethod
     def delete_credential(self, credential_id):
-        """Deletes an existing credential.
+        """Delete an existing credential.
 
         :raises keystone.exception.CredentialNotFound: If credential doesn't
             exist.
@@ -122,12 +122,12 @@ class CredentialDriverV8(object):
 
     @abc.abstractmethod
     def delete_credentials_for_project(self, project_id):
-        """Deletes all credentials for a project."""
+        """Delete all credentials for a project."""
         self._delete_credentials(lambda cr: cr['project_id'] == project_id)
 
     @abc.abstractmethod
     def delete_credentials_for_user(self, user_id):
-        """Deletes all credentials for a user."""
+        """Delete all credentials for a user."""
         self._delete_credentials(lambda cr: cr['user_id'] == user_id)
 
     def _delete_credentials(self, match_fn):

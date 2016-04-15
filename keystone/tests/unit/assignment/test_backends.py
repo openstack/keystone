@@ -2532,7 +2532,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.execute_assignment_plan(test_plan)
 
     def _test_crud_inherited_and_direct_assignment(self, **kwargs):
-        """Tests inherited and direct assignments for the actor and target
+        """Test inherited and direct assignments for the actor and target
 
         Ensure it is possible to create both inherited and direct role
         assignments for the same actor on the same target. The actor and the

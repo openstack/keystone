@@ -207,7 +207,7 @@ class TrustV3(controller.V3Controller):
         return expiration_time
 
     def _check_role_for_trust(self, context, trust_id, role_id):
-        """Checks if a role has been assigned to a trust."""
+        """Check if a role has been assigned to a trust."""
         trust = self.trust_api.get_trust(trust_id)
         user_id = self._get_user_id(context)
         _trustor_trustee_only(trust, user_id)

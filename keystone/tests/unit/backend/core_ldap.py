@@ -49,7 +49,7 @@ class BaseBackendLdapCommon(object):
         self.addCleanup(self.clear_database)
 
     def _get_domain_fixture(self):
-        """Domains in LDAP are read-only, so just return the static one."""
+        """Return the static domain, since domains in LDAP are read-only."""
         return self.resource_api.get_domain(CONF.identity.default_domain_id)
 
     def clear_database(self):

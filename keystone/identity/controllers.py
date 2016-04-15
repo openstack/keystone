@@ -184,7 +184,7 @@ class User(controller.V2Controller):
 
     @staticmethod
     def _normalize_OSKSADM_password_on_request(ref):
-        """Sets the password from the OS-KSADM Admin Extension.
+        """Set the password from the OS-KSADM Admin Extension.
 
         The OS-KSADM Admin Extension documentation says that
         `OS-KSADM:password` can be used in place of `password`.

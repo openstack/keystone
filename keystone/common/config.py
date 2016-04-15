@@ -1138,7 +1138,7 @@ def set_default_for_default_log_levels():
 
 
 def setup_logging():
-    """Sets up logging for the keystone package."""
+    """Set up logging for the keystone package."""
     log.setup(CONF, 'keystone')
     logging.captureWarnings(True)
 

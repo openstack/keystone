@@ -382,7 +382,7 @@ class CoreApiTests(object):
                            expected_status=http_client.OK)
 
     def test_error_response(self):
-        """This triggers assertValidErrorResponse by convention."""
+        """Trigger assertValidErrorResponse by convention."""
         self.public_request(path='/v2.0/tenants',
                             expected_status=http_client.UNAUTHORIZED)
 
@@ -701,7 +701,7 @@ class CoreApiTests(object):
 
 
 class LegacyV2UsernameTests(object):
-    """Tests to show the broken username behavior in V2.
+    """Test to show the broken username behavior in V2.
 
     The V2 API is documented to use `username` instead of `name`.  The
     API forced used to use name and left the username to fall into the
@@ -712,7 +712,7 @@ class LegacyV2UsernameTests(object):
     """
 
     def create_user(self, **user_attrs):
-        """Creates a users and returns the response object.
+        """Create a users and returns the response object.
 
         :param user_attrs: attributes added to the request body (optional)
         """

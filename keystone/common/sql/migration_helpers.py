@@ -95,7 +95,7 @@ def add_constraints(constraints):
 
 
 def rename_tables_with_constraints(renames, constraints, engine):
-    """Renames tables with foreign key constraints.
+    """Rename tables with foreign key constraints.
 
     Tables are renamed after first removing constraints. The constraints are
     replaced after the rename is complete.

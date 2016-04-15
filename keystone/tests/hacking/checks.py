@@ -44,7 +44,7 @@ class BaseASTChecker(ast.NodeVisitor):
     """
 
     def __init__(self, tree, filename):
-        """This object is created automatically by pep8.
+        """Created object automatically by pep8.
 
         :param tree: an AST tree
         :param filename: name of the file being analyzed
@@ -66,7 +66,7 @@ class BaseASTChecker(ast.NodeVisitor):
 
 
 class CheckForMutableDefaultArgs(BaseASTChecker):
-    """Checks for the use of mutable objects as function/method defaults.
+    """Check for the use of mutable objects as function/method defaults.
 
     We are only checking for list and dict literals at this time. This means
     that a developer could specify an instance of their own and cause a bug.
@@ -115,7 +115,7 @@ def block_comments_begin_with_a_space(physical_line, line_number):
 
 
 class CheckForAssertingNoneEquality(BaseASTChecker):
-    """Ensures that code does not use a None with assert(Not*)Equal."""
+    """Ensure that code does not use a None with assert(Not*)Equal."""
 
     CHECK_DESC_IS = ('K003 Use self.assertIsNone(...) when comparing '
                      'against None')
@@ -193,7 +193,7 @@ class CheckForLoggingIssues(BaseASTChecker):
                 self.visit(value)
 
     def _filter_imports(self, module_name, alias):
-        """Keeps lists of logging and i18n imports."""
+        """Keep lists of logging and i18n imports."""
         if module_name in self.LOG_MODULES:
             self.logger_module_names.append(alias.asname or alias.name)
         elif module_name in self.I18N_MODULES:

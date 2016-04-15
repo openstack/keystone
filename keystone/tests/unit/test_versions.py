@@ -960,7 +960,7 @@ class VersionTestCase(unit.TestCase):
 
 
 class VersionSingleAppTestCase(unit.TestCase):
-    """Tests running with a single application loaded.
+    """Test running with a single application loaded.
 
     These are important because when Keystone is running in Apache httpd
     there's only one application loaded for each instance.

@@ -381,7 +381,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual([], mapped_properties['group_ids'])
 
     def test_rule_engine_blacklist_and_direct_groups_mapping_multiples(self):
-        """Tests matching multiple values before the blacklist.
+        """Test matching multiple values before the blacklist.
 
         Verifies that the local indexes are correct when matching multiple
         remote values for a field when the field occurs before the blacklist

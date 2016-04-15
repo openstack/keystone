@@ -64,7 +64,7 @@ class IdentityDriverV8(object):
                 CONF.identity.list_limit or CONF.list_limit)
 
     def is_domain_aware(self):
-        """Indicates if Driver supports domains."""
+        """Indicate if Driver supports domains."""
         return True
 
     def default_assignment_driver(self):
@@ -74,7 +74,7 @@ class IdentityDriverV8(object):
 
     @property
     def is_sql(self):
-        """Indicates if this Driver uses SQL."""
+        """Indicate if this Driver uses SQL."""
         return False
 
     @property
@@ -83,7 +83,7 @@ class IdentityDriverV8(object):
                 CONF.identity.domain_specific_drivers_enabled)
 
     def generates_uuids(self):
-        """Indicates if Driver generates UUIDs as the local entity ID."""
+        """Indicate if Driver generates UUIDs as the local entity ID."""
         return True
 
     @abc.abstractmethod
@@ -99,7 +99,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def create_user(self, user_id, user):
-        """Creates a new user.
+        """Create a new user.
 
         :raises keystone.exception.Conflict: If a duplicate user exists.
 
@@ -143,7 +143,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def update_user(self, user_id, user):
-        """Updates an existing user.
+        """Update an existing user.
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
         :raises keystone.exception.Conflict: If a duplicate user exists.
@@ -153,7 +153,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def add_user_to_group(self, user_id, group_id):
-        """Adds a user to a group.
+        """Add a user to a group.
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
@@ -163,7 +163,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def check_user_in_group(self, user_id, group_id):
-        """Checks if a user is a member of a group.
+        """Check if a user is a member of a group.
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
@@ -173,7 +173,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def remove_user_from_group(self, user_id, group_id):
-        """Removes a user from a group.
+        """Remove a user from a group.
 
         :raises keystone.exception.NotFound: If the entity not found.
 
@@ -182,7 +182,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def delete_user(self, user_id):
-        """Deletes an existing user.
+        """Delete an existing user.
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
 
@@ -203,7 +203,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def create_group(self, group_id, group):
-        """Creates a new group.
+        """Create a new group.
 
         :raises keystone.exception.Conflict: If a duplicate group exists.
 
@@ -257,7 +257,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def update_group(self, group_id, group):
-        """Updates an existing group.
+        """Update an existing group.
 
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
         :raises keystone.exception.Conflict: If a duplicate group exists.
@@ -267,7 +267,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def delete_group(self, group_id):
-        """Deletes an existing group.
+        """Delete an existing group.
 
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
 

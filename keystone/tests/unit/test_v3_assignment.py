@@ -894,14 +894,14 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
     MAX_HIERARCHY_DEPTH = CONF.max_project_tree_depth - 1
 
     def load_sample_data(self):
-        """Creates sample data to be used on tests.
+        """Create sample data to be used on tests.
 
         Created data are i) a role and ii) a domain containing: a project
         hierarchy and 3 users within 3 groups.
 
         """
         def create_project_hierarchy(parent_id, depth):
-            """Creates a random project hierarchy."""
+            """Create a random project hierarchy."""
             if depth == 0:
                 return
 
@@ -967,7 +967,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         self.default_group_id = self.group_ids[0]
 
     def get_role_assignments(self, expected_status=http_client.OK, **filters):
-        """Returns the result from querying role assignment API + queried URL.
+        """Return the result from querying role assignment API + queried URL.
 
         Calls GET /v3/role_assignments?<params> and returns its result, where
         <params> is the HTTP query parameters form of effective option plus
@@ -983,7 +983,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         return (response, query_url)
 
     def _get_role_assignments_query_url(self, **filters):
-        """Returns non-effective role assignments query URL from given filters.
+        """Return non-effective role assignments query URL from given filters.
 
         :param filters: query parameters are created with the provided filters
                         on role assignments attributes. Valid filters are:
@@ -1080,7 +1080,7 @@ class RoleAssignmentDirectTestCase(RoleAssignmentBaseTestCase):
         self.assignment_api.delete_grant(**test_assignment)
 
     def _set_default_assignment_attributes(self, **attribs):
-        """Inserts default values for missing attributes of role assignment.
+        """Insert default values for missing attributes of role assignment.
 
         If no actor, target or role are provided, they will default to values
         from sample data.
@@ -1186,7 +1186,7 @@ class RoleAssignmentInheritedTestCase(RoleAssignmentDirectTestCase):
         self.config_fixture.config(group='os_inherit', enabled=True)
 
     def _test_get_role_assignments(self, **filters):
-        """Adds inherited_to_project filter to expected entity in tests."""
+        """Add inherited_to_project filter to expected entity in tests."""
         super(RoleAssignmentInheritedTestCase,
               self)._test_get_role_assignments(inherited_to_projects=True,
                                                **filters)
@@ -1204,7 +1204,7 @@ class RoleAssignmentEffectiveTestCase(RoleAssignmentInheritedTestCase):
     """
 
     def _get_role_assignments_query_url(self, **filters):
-        """Returns effective role assignments query URL from given filters.
+        """Return effective role assignments query URL from given filters.
 
         For test methods in this class, effetive will always be true. As in
         effective mode, inherited_to_projects, group_id, domain_id and
@@ -1933,7 +1933,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, gd_entity)
 
     def _setup_hierarchical_projects_scenario(self):
-        """Creates basic hierarchical projects scenario.
+        """Create basic hierarchical projects scenario.
 
         This basic scenario contains a root with one leaf project and
         two roles with the following names: non-inherited and inherited.
@@ -2779,7 +2779,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
 
 
 class ListUserProjectsTestCase(test_v3.RestfulTestCase):
-    """Tests for /users/<user>/projects"""
+    """Test for /users/<user>/projects"""
 
     def load_sample_data(self):
         # do not load base class's data, keep it focused on the tests

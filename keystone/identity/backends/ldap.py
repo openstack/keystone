@@ -300,7 +300,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         return base.filter_user(common_ldap.filter_entity(user))
 
     def is_user(self, dn):
-        """Returns True if the entry is a user."""
+        """Return True if the entry is a user."""
         # NOTE(blk-u): It's easy to check if the DN is under the User tree,
         # but may not be accurate. A more accurate test would be to fetch the
         # entry to see if it's got the user objectclass, but this could be

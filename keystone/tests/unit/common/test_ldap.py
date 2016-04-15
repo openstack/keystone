@@ -34,7 +34,7 @@ CONF = cfg.CONF
 
 
 class DnCompareTest(unit.BaseTestCase):
-    """Tests for the DN comparison functions in keystone.common.ldap.core."""
+    """Test for the DN comparison functions in keystone.common.ldap.core."""
 
     def test_prep(self):
         # prep_case_insensitive returns the string with spaces at the front and
@@ -287,7 +287,7 @@ class LDAPDeleteTreeTest(unit.TestCase):
 
 
 class MultiURLTests(unit.TestCase):
-    """Tests for setting multiple LDAP URLs."""
+    """Test for setting multiple LDAP URLs."""
 
     def test_multiple_urls_with_comma_no_conn_pool(self):
         urls = 'ldap://localhost,ldap://backup.localhost'
@@ -305,7 +305,7 @@ class MultiURLTests(unit.TestCase):
 
 
 class SslTlsTest(unit.TestCase):
-    """Tests for the SSL/TLS functionality in keystone.common.ldap.core."""
+    """Test for the SSL/TLS functionality in keystone.common.ldap.core."""
 
     @mock.patch.object(ks_ldap.core.KeystoneLDAPHandler, 'simple_bind_s')
     @mock.patch.object(ldap.ldapobject.LDAPObject, 'start_tls_s')
@@ -372,7 +372,7 @@ class SslTlsTest(unit.TestCase):
 
 
 class LDAPPagedResultsTest(unit.TestCase):
-    """Tests the paged results functionality in keystone.common.ldap.core."""
+    """Test the paged results functionality in keystone.common.ldap.core."""
 
     def setUp(self):
         super(LDAPPagedResultsTest, self).setUp()

@@ -119,7 +119,7 @@ class TokenFormatter(object):
 
     @classmethod
     def creation_time(cls, fernet_token):
-        """Returns the creation time of a valid Fernet token.
+        """Return the creation time of a valid Fernet token.
 
         :type fernet_token: six.text_type
 
@@ -178,7 +178,7 @@ class TokenFormatter(object):
         return token
 
     def validate_token(self, token):
-        """Validates a Fernet token and returns the payload attributes.
+        """Validate a Fernet token and returns the payload attributes.
 
         :type token: six.text_type
 

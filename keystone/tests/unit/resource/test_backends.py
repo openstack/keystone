@@ -49,7 +49,7 @@ class ResourceTests(object):
 
     @unit.skip_if_no_multiple_domains_support
     def test_get_project_by_name_for_project_acting_as_a_domain(self):
-        """Tests get_project_by_name works when the domain_id is None."""
+        """Test get_project_by_name works when the domain_id is None."""
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, is_domain=False)
         project = self.resource_api.create_project(project['id'], project)
@@ -475,7 +475,7 @@ class ResourceTests(object):
                                    domain_id=None,
                                    is_domain=False,
                                    parent_project_id=None):
-        """Creates a project hierarchy with specified size.
+        """Create a project hierarchy with specified size.
 
         :param hierarchy_size: the desired hierarchy size, default is 2 -
                                a project with one child.
@@ -521,7 +521,7 @@ class ResourceTests(object):
 
     @unit.skip_if_no_multiple_domains_support
     def test_project_as_a_domain_uniqueness_constraints(self):
-        """Tests project uniqueness for those acting as domains.
+        """Test project uniqueness for those acting as domains.
 
         If it is a project acting as a domain, we can't have two or more with
         the same name.
@@ -980,7 +980,7 @@ class ResourceTests(object):
                           leaf_project['id'])
 
     def test_delete_projects_from_ids(self):
-        """Tests the resource backend call delete_projects_from_ids.
+        """Test the resource backend call delete_projects_from_ids.
 
         Tests the normal flow of the delete_projects_from_ids backend call,
         that ensures no project on the list exists after it is succesfully
@@ -1008,7 +1008,7 @@ class ResourceTests(object):
         self.resource_api.driver.delete_projects_from_ids([])
 
     def test_delete_projects_from_ids_with_no_existing_project_id(self):
-        """Tests delete_projects_from_ids issues warning if not found.
+        """Test delete_projects_from_ids issues warning if not found.
 
         Tests the resource backend call delete_projects_from_ids passing a
         non existing ID in project_ids, which is logged and ignored by
@@ -1592,7 +1592,7 @@ class ResourceTests(object):
 
 
 class ResourceDriverTests(object):
-    """Tests for the resource driver.
+    """Test for the resource driver.
 
     Subclasses must set self.driver to the driver instance.
 

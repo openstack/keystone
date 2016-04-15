@@ -303,7 +303,7 @@ def listener(cls):
 
 
 def notify_event_callbacks(service, resource_type, operation, payload):
-    """Sends a notification to registered extensions."""
+    """Send a notification to registered extensions."""
     if operation in _SUBSCRIBERS:
         if resource_type in _SUBSCRIBERS[operation]:
             for cb in _SUBSCRIBERS[operation][resource_type]:
@@ -506,7 +506,7 @@ class CadfNotificationWrapper(object):
     def __call__(self, f):
         @functools.wraps(f)
         def wrapper(wrapped_self, context, user_id, *args, **kwargs):
-            """Always send a notification."""
+            """Alway send a notification."""
             initiator = _get_request_audit_info(context, user_id)
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             try:

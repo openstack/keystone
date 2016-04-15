@@ -28,7 +28,7 @@ class BaseStyleCheck(unit.BaseTestCase):
         self.addCleanup(delattr, self, 'code_ex')
 
     def get_checker(self):
-        """Returns the checker to be used for tests in this class."""
+        """Return the checker to be used for tests in this class."""
         raise NotImplemented('subclasses must provide a real implementation')
 
     def get_fixture(self):

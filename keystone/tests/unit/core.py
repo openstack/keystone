@@ -171,7 +171,7 @@ def remove_generated_paste_config(extension_name):
 
 
 def skip_if_cache_disabled(*sections):
-    """This decorator is used to skip a test if caching is disabled.
+    """Skip a test if caching is disabled, this is a decorator.
 
     Caching can be disabled either globally or for a specific section.
 
@@ -674,7 +674,7 @@ class TestCase(BaseTestCase):
         CONF(args=[], project='keystone', default_config_files=config_files)
 
     def load_backends(self):
-        """Initializes each manager and assigns them to an attribute."""
+        """Initialize each manager and assigns them to an attribute."""
         # TODO(blk-u): Shouldn't need to clear the registry here, but some
         # tests call load_backends multiple times. These should be fixed to
         # only call load_backends once.
@@ -814,7 +814,7 @@ class TestCase(BaseTestCase):
         auth.controllers.AUTH_PLUGINS_LOADED = False
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
-        """Asserts that two datetimes are nearly equal within a small delta.
+        """Assert that two datetimes are nearly equal within a small delta.
 
         :param delta: Maximum allowable time delta, defined in seconds.
         """
@@ -831,7 +831,7 @@ class TestCase(BaseTestCase):
 
     def assertRaisesRegexp(self, expected_exception, expected_regexp,
                            callable_obj, *args, **kwargs):
-        """Asserts that the message in a raised exception matches a regexp."""
+        """Assert that the message in a raised exception matches a regexp."""
         try:
             callable_obj(*args, **kwargs)
         except expected_exception as exc_value:

@@ -302,7 +302,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
 
     def _create_context(self, request, mapping_ref=None,
                         exception_expected=False):
-        """Builds the auth context from the given arguments.
+        """Build the auth context from the given arguments.
 
         auth context will be returned from the AuthContextMiddleware based on
         what is being passed in the given request and what mapping is being

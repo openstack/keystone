@@ -113,7 +113,7 @@ def validate_token_bind(context, token_ref):
 
 
 def best_match_language(req):
-    """Determines the best available locale.
+    """Determine the best available locale.
 
     This returns best available locale based on the Accept-Language HTTP
     header passed in the request.
@@ -153,7 +153,7 @@ class BaseApplication(object):
         return cls(**local_config)
 
     def __call__(self, environ, start_response):
-        r"""Subclasses will probably want to implement __call__ like this:
+        r"""Provide subclasses how to implement __call__, probably like this:
 
         @webob.dec.wsgify()
         def __call__(self, req):
@@ -333,7 +333,7 @@ class Application(BaseApplication):
         return ref.get(attribute) is None or ref.get(attribute) == ''
 
     def _require_attribute(self, ref, attribute):
-        """Ensures the reference contains the specified attribute.
+        """Ensure the reference contains the specified attribute.
 
         Raise a ValidationError if the given attribute is not present
         """
@@ -342,7 +342,7 @@ class Application(BaseApplication):
             raise exception.ValidationError(message=msg)
 
     def _require_attributes(self, ref, attrs):
-        """Ensures the reference contains the specified attributes.
+        """Ensure the reference contains the specified attributes.
 
         Raise a ValidationError if any of the given attributes is not present
         """
@@ -726,7 +726,7 @@ class V3ExtensionRouter(ExtensionRouter, RoutersBase):
 
 
 def render_response(body=None, status=None, headers=None, method=None):
-    """Forms a WSGI response."""
+    """Form a WSGI response."""
     if headers is None:
         headers = []
     else:
@@ -801,7 +801,7 @@ def render_response(body=None, status=None, headers=None, method=None):
 
 
 def render_exception(error, context=None, request=None, user_locale=None):
-    """Forms a WSGI response based on the current error."""
+    """Form a WSGI response based on the current error."""
     error_message = error.args[0]
     message = oslo_i18n.translate(error_message, desired_locale=user_locale)
     if message is error_message:

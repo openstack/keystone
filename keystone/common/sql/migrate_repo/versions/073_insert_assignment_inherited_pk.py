@@ -18,7 +18,7 @@ from keystone.assignment.backends import sql as assignment_sql
 
 
 def upgrade(migrate_engine):
-    """Inserts inherited column to assignment table PK constraints.
+    """Insert inherited column to assignment table PK constraints.
 
     For non-SQLite databases, it changes the constraint in the existing table.
 

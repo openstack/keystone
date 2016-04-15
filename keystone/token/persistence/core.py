@@ -266,7 +266,7 @@ class TokenDriverV8(object):
 
     @abc.abstractmethod
     def delete_token(self, token_id):
-        """Deletes a token by id.
+        """Delete a token by id.
 
         :param token_id: identity of the token
         :type token_id: string
@@ -279,7 +279,7 @@ class TokenDriverV8(object):
     @abc.abstractmethod
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
                       consumer_id=None):
-        """Deletes tokens by user.
+        """Delete tokens by user.
 
         If the tenant_id is not None, only delete the tokens by user id under
         the specified tenant.
@@ -320,7 +320,7 @@ class TokenDriverV8(object):
     @abc.abstractmethod
     def _list_tokens(self, user_id, tenant_id=None, trust_id=None,
                      consumer_id=None):
-        """Returns a list of current token_id's for a user
+        """Return a list of current token_id's for a user
 
         This is effectively a private method only used by the ``delete_tokens``
         method and should not be called by anything outside of the
@@ -341,7 +341,7 @@ class TokenDriverV8(object):
 
     @abc.abstractmethod
     def list_revoked_tokens(self):
-        """Returns a list of all revoked tokens
+        """Return a list of all revoked tokens
 
         :returns: list of token_id's
 

@@ -51,7 +51,7 @@ RESOURCE_ID_NAMESPACE = uuid.UUID('4332ecab-770b-4288-a680-b9aca3b1b153')
 
 
 def resource_uuid(value):
-    """Converts input to valid UUID hex digits."""
+    """Convert input to valid UUID hex digits."""
     try:
         uuid.UUID(value)
         return value
@@ -173,7 +173,7 @@ def check_password(password, hashed):
 
 
 def attr_as_boolean(val_attr):
-    """Returns the boolean value, decoded from a string.
+    """Return the boolean value, decoded from a string.
 
     We test explicitly for a value meaning False, which can be one of
     several formats as specified in oslo strutils.FALSE_STRINGS.
@@ -537,7 +537,7 @@ def strtime():
 
 
 def get_token_ref(context):
-    """Retrieves KeystoneToken object from the auth context and returns it.
+    """Retrieve KeystoneToken object from the auth context and returns it.
 
     :param dict context: The request context.
     :raises keystone.exception.Unauthorized: If auth context cannot be found.

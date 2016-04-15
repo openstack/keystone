@@ -218,7 +218,7 @@ class RoleAssignmentV2(controller.V2Controller):
     # COMPAT(diablo): CRUD extension
     @controller.v2_deprecated
     def create_role_ref(self, context, user_id, role):
-        """This is actually used for adding a user to a tenant.
+        """Used for adding a user to a tenant.
 
         In the legacy data model adding a user to a tenant required setting
         a role.
@@ -237,7 +237,7 @@ class RoleAssignmentV2(controller.V2Controller):
     # COMPAT(diablo): CRUD extension
     @controller.v2_deprecated
     def delete_role_ref(self, context, user_id, role_ref_id):
-        """This is actually used for deleting a user from a tenant.
+        """Used for deleting a user from a tenant.
 
         In the legacy data model removing a user from a tenant required
         deleting a role.
@@ -616,7 +616,7 @@ class GrantAssignmentV3(controller.V3Controller):
     @controller.protected(callback=_check_grant_protection)
     def create_grant(self, context, role_id, user_id=None,
                      group_id=None, domain_id=None, project_id=None):
-        """Grants a role to a user or group on either a domain or project."""
+        """Grant a role to a user or group on either a domain or project."""
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
@@ -627,7 +627,7 @@ class GrantAssignmentV3(controller.V3Controller):
     @controller.protected(callback=_check_grant_protection)
     def list_grants(self, context, user_id=None,
                     group_id=None, domain_id=None, project_id=None):
-        """Lists roles granted to user/group on either a domain or project."""
+        """List roles granted to user/group on either a domain or project."""
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
@@ -639,7 +639,7 @@ class GrantAssignmentV3(controller.V3Controller):
     @controller.protected(callback=_check_grant_protection)
     def check_grant(self, context, role_id, user_id=None,
                     group_id=None, domain_id=None, project_id=None):
-        """Checks if a role has been granted on either a domain or project."""
+        """Check if a role has been granted on either a domain or project."""
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
@@ -654,7 +654,7 @@ class GrantAssignmentV3(controller.V3Controller):
         _check_grant_protection, allow_no_user=True))
     def revoke_grant(self, context, role_id, user_id=None,
                      group_id=None, domain_id=None, project_id=None):
-        """Revokes a role from user/group on either a domain or project."""
+        """Revoke a role from user/group on either a domain or project."""
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 

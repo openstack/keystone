@@ -399,12 +399,12 @@ class EntityValidationTestCase(unit.BaseTestCase):
                           request_to_validate)
 
     def test_update_entity_with_a_valid_optional_parameter_validates(self):
-        """Succeeds with only a single valid optional parameter."""
+        """Succeed with only a single valid optional parameter."""
         request_to_validate = {'email': self.valid_email}
         self.update_schema_validator.validate(request_to_validate)
 
     def test_update_entity_with_invalid_optional_parameter_fails(self):
-        """Fails when an optional parameter is invalid."""
+        """Fail when an optional parameter is invalid."""
         request_to_validate = {'email': 0}
         self.assertRaises(exception.SchemaValidationError,
                           self.update_schema_validator.validate,

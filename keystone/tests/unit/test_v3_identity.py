@@ -731,7 +731,7 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         return r.headers.get('X-Subject-Token')
 
     def change_password(self, expected_status, **kwargs):
-        """Returns a test response for a change password request."""
+        """Return a test response for a change password request."""
         return self.post('/users/%s/password' % self.user_ref['id'],
                          body={'user': kwargs},
                          token=self.token,

@@ -108,7 +108,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
 
 
 def protected(callback=None):
-    """Wraps API calls with role based access controls (RBAC).
+    """Wrap API calls with role based access controls (RBAC).
 
     This handles both the protection of the API parameters as well as any
     target entities for single-entity API calls.
@@ -184,7 +184,7 @@ def protected(callback=None):
 
 
 def filterprotected(*filters, **callback):
-    """Wraps API list calls with role based access controls (RBAC).
+    """Wrap API list calls with role based access controls (RBAC).
 
     This handles both the protection of the API parameters as well as any
     filters supplied.
@@ -288,7 +288,7 @@ class V2Controller(wsgi.Application):
 
     @staticmethod
     def normalize_username_in_response(ref):
-        """Adds username to outgoing user refs to match the v2 spec.
+        """Add username to outgoing user refs to match the v2 spec.
 
         Internally we use `name` to represent a user's name. The v2 spec
         requires the use of `username` instead.
@@ -300,7 +300,7 @@ class V2Controller(wsgi.Application):
 
     @staticmethod
     def normalize_username_in_request(ref):
-        """Adds name in incoming user refs to match the v2 spec.
+        """Add name in incoming user refs to match the v2 spec.
 
         Internally we use `name` to represent a user's name. The v2 spec
         requires the use of `username` instead.
@@ -527,7 +527,7 @@ class V3Controller(wsgi.Application):
 
     @classmethod
     def limit(cls, refs, hints):
-        """Limits a list of entities.
+        """Limit a list of entities.
 
         The underlying driver layer may have already truncated the collection
         for us, but in case it was unable to handle truncation we check here.
@@ -560,9 +560,9 @@ class V3Controller(wsgi.Application):
 
     @classmethod
     def filter_by_attributes(cls, refs, hints):
-        """Filters a list of references by filter values."""
+        """Filter a list of references by filter values."""
         def _attr_match(ref_attr, val_attr):
-            """Matches attributes allowing for booleans as strings.
+            """Matche attributes allowing for booleans as strings.
 
             We test explicitly for a value that defines it as 'False',
             which also means that the existence of the attribute with
@@ -575,7 +575,7 @@ class V3Controller(wsgi.Application):
                 return ref_attr == val_attr
 
         def _inexact_attr_match(filter, ref):
-            """Applies an inexact filter to a result dict.
+            """Apply an inexact filter to a result dict.
 
             :param filter: the filter in question
             :param ref: the dict to check
@@ -678,7 +678,7 @@ class V3Controller(wsgi.Application):
         return hints
 
     def _require_matching_id(self, value, ref):
-        """Ensures the value matches the reference's ID, if any."""
+        """Ensure the value matches the reference's ID, if any."""
         if 'id' in ref and ref['id'] != value:
             raise exception.ValidationError('Cannot change ID')
 
@@ -705,7 +705,7 @@ class V3Controller(wsgi.Application):
                 raise exception.ValidationError(_('Cannot change Domain ID'))
 
     def _assign_unique_id(self, ref):
-        """Generates and assigns a unique identifier to a reference."""
+        """Generate and assigns a unique identifier to a reference."""
         ref = ref.copy()
         ref['id'] = uuid.uuid4().hex
         return ref
