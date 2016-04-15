@@ -23,6 +23,7 @@ from keystoneclient.common import cms
 import mock
 from oslo_config import cfg
 from oslo_log import versionutils
+from oslo_utils import fixture
 from oslo_utils import timeutils
 from six.moves import http_client
 from six.moves import range
@@ -4826,6 +4827,11 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
                                          project_id=self.project['id'])
         creds = self._make_credentials('totp', count=1, user_id=user['id'])
         secret = creds[-1]['blob']
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
 
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcode(secret), user_id=user['id'])
