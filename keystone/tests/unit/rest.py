@@ -223,7 +223,7 @@ class RestfulTestCase(unit.TestCase):
                     'username': self.user_reqadmin['name'],
                     'password': self.user_reqadmin['password']
                 },
-                'tenantId': 'service'
+                'tenantId': default_fixtures.SERVICE_TENANT_ID
             }
         })
 
