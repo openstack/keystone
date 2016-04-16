@@ -70,6 +70,8 @@
 # removed in a future release. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
+# Reason: The option to set domain_id_immutable to false has been deprecated in
+# the M release and will be removed in the O release.
 #domain_id_immutable = true
 
 # If set to true, strict password length checking is performed for password
