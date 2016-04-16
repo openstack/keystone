@@ -1,14 +1,14 @@
-# Translations template for keystone.
-# Copyright (C) 2016 OpenStack Foundation
-# This file is distributed under the same license as the keystone project.
+# Translations template for PROJECT.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-08 06:03+0000\n"
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-04-16 07:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,21 +17,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
 
-#: keystone/notifications.py:370
+#: keystone/notifications.py:336
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:466
+#: keystone/notifications.py:439
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:733
+#: keystone/notifications.py:706
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/assignment/core.py:669
+#: keystone/assignment/core.py:688
 #, python-format
 msgid "Circular reference found role inference rules - %(prior_role_id)s."
 msgstr ""
@@ -102,25 +102,25 @@ msgstr ""
 msgid "Cannot retrieve Authorization headers"
 msgstr ""
 
-#: keystone/resource/core.py:728
+#: keystone/resource/core.py:726
 #, python-format
 msgid ""
 "Asked to convert a non-domain project into a domain - Domain: "
 "%(domain_id)s, Project ID: %(id)s, Project Name: %(project_name)s"
 msgstr ""
 
-#: keystone/resource/core.py:831
+#: keystone/resource/core.py:829
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:912
+#: keystone/resource/core.py:902
 msgid "Failed to create the default domain."
 msgstr ""
 
-#: keystone/resource/core.py:1419 keystone/resource/V8_backends/sql.py:100
+#: keystone/resource/core.py:1477 keystone/resource/V8_backends/sql.py:100
 #: keystone/resource/V8_backends/sql.py:119
 #: keystone/resource/backends/sql.py:137 keystone/resource/backends/sql.py:156
 #, python-format
@@ -129,7 +129,7 @@ msgid ""
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:1600
+#: keystone/resource/core.py:1658
 #, python-format
 msgid ""
 "Unexpected results in response for domain config - %(count)s responses, "
@@ -149,7 +149,7 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:726
+#: keystone/token/providers/common.py:728
 msgid "Failed to validate token"
 msgstr ""
 
