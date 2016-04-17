@@ -253,18 +253,6 @@ class ConfigurePKI(BaseCertificateConfigure):
                                            keystone_group, rebuild=rebuild)
 
 
-class ConfigureSSL(BaseCertificateConfigure):
-    """Generate files for HTTPS using OpenSSL.
-
-    Creates a public/private key and certificates. If a CA is not given
-    one will be generated using provided arguments.
-    """
-
-    def __init__(self, keystone_user, keystone_group, rebuild=False):
-        super(ConfigureSSL, self).__init__(CONF.ssl, keystone_user,
-                                           keystone_group, rebuild=rebuild)
-
-
 BaseCertificateConfigure.sslconfig = """
 # OpenSSL configuration file.
 #

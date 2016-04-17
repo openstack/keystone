@@ -365,21 +365,6 @@ FILE_OPTIONS = {
                    deprecated_opts=[cfg.DeprecatedOpt(
                        'revocation_cache_time', group='token')]),
     ],
-    'ssl': [
-        cfg.StrOpt('ca_key',
-                   default='/etc/keystone/ssl/private/cakey.pem',
-                   help='Path of the CA key file for SSL.'),
-        cfg.IntOpt('key_size', default=1024, min=1024,
-                   help='SSL key length (in bits) (auto generated '
-                        'certificate).'),
-        cfg.IntOpt('valid_days', default=3650,
-                   help='Days the certificate is valid for once signed '
-                        '(auto generated certificate).'),
-        cfg.StrOpt('cert_subject',
-                   default='/C=US/ST=Unset/L=Unset/O=Unset/CN=localhost',
-                   help='SSL certificate subject (auto generated '
-                        'certificate).'),
-    ],
     'signing': [
         cfg.StrOpt('certfile',
                    default=_CERTFILE,

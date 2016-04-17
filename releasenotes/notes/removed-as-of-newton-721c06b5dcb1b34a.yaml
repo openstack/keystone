@@ -13,3 +13,6 @@ other:
     [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
     Removed support for running keystone under eventlet. It is recommended to
     run keystone in an HTTP server.
+  - >
+    [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
+    Removed support for generating SSL certificates.
