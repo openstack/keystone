@@ -966,5 +966,7 @@ def main(argv=None, config_files=None):
          version=pbr.version.VersionInfo('keystone').version_string(),
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
          default_config_files=config_files)
+    if not CONF.default_config_files:
+        LOG.warning(_LW('Config file not found, using default configs.'))
     config.setup_logging()
     CONF.command.cmd_class.main()

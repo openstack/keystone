@@ -12,12 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import os
 import uuid
 
 import fixtures
 import mock
 from oslo_config import cfg
+from oslo_config import fixture as config_fixture
+from oslotest import mockpatch
 from six.moves import range
 from testtools import matchers
 
@@ -42,6 +45,30 @@ class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self.useFixture(database.Database())
         self.load_backends()
         cli.TokenFlush.main()
+
+
+class CliNoConfigTestCase(unit.BaseTestCase):
+
+    def setUp(self):
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture.register_cli_opt(cli.command_opt)
+        super(CliNoConfigTestCase, self).setUp()
+
+        # NOTE(crinkle): the command call doesn't have to actually work,
+        # that's what the other unit tests are for. So just mock it out.
+        class FakeConfCommand(object):
+            def __init__(self):
+                self.cmd_class = mock.Mock()
+        self.useFixture(mockpatch.PatchObject(
+            CONF, 'command', FakeConfCommand()))
+
+        self.logging = self.useFixture(
+            fixtures.FakeLogger(level=logging.WARN))
+
+    def test_cli(self):
+        expected_msg = 'Config file not found, using default configs.'
+        cli.main(argv=['keystone-manage', 'db_sync'])
+        self.assertThat(self.logging.output, matchers.Contains(expected_msg))
 
 
 class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
