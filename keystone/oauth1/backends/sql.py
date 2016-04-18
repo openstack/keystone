@@ -194,8 +194,7 @@ class OAuth1(core.Oauth1DriverV8):
 
             new_token = RequestToken.from_dict(token_dict)
             for attr in RequestToken.attributes:
-                if (attr == 'authorizing_user_id' or attr == 'verifier'
-                        or attr == 'role_ids'):
+                if attr in ['authorizing_user_id', 'verifier', 'role_ids']:
                     setattr(token_ref, attr, getattr(new_token, attr))
 
             return token_ref.to_dict()
