@@ -3448,7 +3448,7 @@ class TestAuth(test_v3.RestfulTestCase):
             project_name=project['name'],
             project_domain_id=test_v3.DEFAULT_DOMAIN_ID)
 
-        # Since name url restriction is off, we should be able to autenticate
+        # Since name url restriction is off, we should be able to authenticate
         self.v3_create_token(auth_data)
 
         # Set the name url restriction to new, which should still allow us to
@@ -3485,7 +3485,7 @@ class TestAuth(test_v3.RestfulTestCase):
             password=self.user['password'],
             domain_name=domain['name'])
 
-        # Since name url restriction is off, we should be able to autenticate
+        # Since name url restriction is off, we should be able to authenticate
         self.v3_create_token(auth_data)
 
         # Set the name url restriction to new, which should still allow us to
@@ -3527,7 +3527,7 @@ class TestAuth(test_v3.RestfulTestCase):
             project_name=project['name'],
             project_domain_name=domain['name'])
 
-        # Since name url restriction is off, we should be able to autenticate
+        # Since name url restriction is off, we should be able to authenticate
         self.v3_create_token(auth_data)
 
         # Set the name url restriction to new, which should still allow us to

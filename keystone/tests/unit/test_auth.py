@@ -243,7 +243,7 @@ class AuthBadRequests(AuthTest):
             password=self.user_foo['password'],
             tenant_name=project['name'])
 
-        # Since name url restriction is off, we should be able to autenticate
+        # Since name url restriction is off, we should be able to authenticate
         self.controller.authenticate(no_context, body_dict)
 
         # Set the name url restriction to strict and we should fail to
