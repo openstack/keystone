@@ -68,3 +68,48 @@ class IdentityProvidersClient(clients.Federation):
         self.expected_success(200, resp.status)
         body = json.loads(body)
         return rest_client.ResponseBody(resp, body)
+
+    def add_protocol_and_mapping(self, idp_id, protocol_id, mapping_id):
+        """Add a protocol and mapping to an identity provider."""
+        put_body = json.dumps({'protocol': {'mapping_id': mapping_id}})
+        url = '%s/%s/%s' % (
+            self._build_path(entity_id=idp_id), 'protocols', protocol_id)
+        resp, body = self.put(url, put_body)
+        self.expected_success(201, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)
+
+    def delete_protocol_and_mapping(self, idp_id, protocol_id):
+        """Delete a protocol and mapping from an identity provider."""
+        url = '%s/%s/%s' % (
+            self._build_path(entity_id=idp_id), 'protocols', protocol_id)
+        resp, body = self.delete(url)
+        self.expected_success(204, resp.status)
+        return rest_client.ResponseBody(resp, body)
+
+    def get_protocol_and_mapping(self, idp_id, protocol_id):
+        """Get a protocol and mapping from an identity provider."""
+        url = '%s/%s/%s' % (
+            self._build_path(entity_id=idp_id), 'protocols', protocol_id)
+        resp, body = self.get(url)
+        self.expected_success(200, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)
+
+    def list_protocols_and_mappings(self, idp_id):
+        """List the protocols and mappings from an identity provider."""
+        url = '%s/%s' % (self._build_path(entity_id=idp_id), 'protocols')
+        resp, body = self.get(url)
+        self.expected_success(200, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)
+
+    def update_protocol_mapping(self, idp_id, protocol_id, mapping_id):
+        """Update the identity provider protocol with a new mapping."""
+        patch_body = json.dumps({'protocol': {'mapping_id': mapping_id}})
+        url = '%s/%s/%s' % (
+            self._build_path(entity_id=idp_id), 'protocols', protocol_id)
+        resp, body = self.patch(url, patch_body)
+        self.expected_success(200, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)
