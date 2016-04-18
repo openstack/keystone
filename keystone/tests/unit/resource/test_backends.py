@@ -751,6 +751,52 @@ class ResourceTests(object):
         subtree = self.resource_api.list_projects_in_subtree(project3['id'])
         self.assertEqual(0, len(subtree))
 
+    def test_get_projects_in_subtree_as_ids_with_large_tree(self):
+        """Check project hierarchy is returned correctly in large tree.
+
+        With a large hierarchy we need to enforce the projects
+        are returned in the correct order (illustrated below).
+
+        Tree we will create::
+
+               +------p1------+
+               |              |
+            +---p3---+      +-p2-+
+            |        |      |    |
+            p7    +-p6-+   p5    p4
+            |     |    |
+            p10   p9   p8
+                  |
+                 p11
+        """
+        # Create large project hierarchy, of above depiction
+        p1, p2, p4 = self._create_projects_hierarchy(hierarchy_size=3)
+        p5 = self._create_projects_hierarchy(
+            hierarchy_size=1, parent_project_id=p2['id'])[0]
+        p3, p6, p8 = self._create_projects_hierarchy(
+            hierarchy_size=3, parent_project_id=p1['id'])
+        p9, p11 = self._create_projects_hierarchy(
+            hierarchy_size=2, parent_project_id=p6['id'])
+        p7, p10 = self._create_projects_hierarchy(
+            hierarchy_size=2, parent_project_id=p3['id'])
+
+        expected_projects = {
+            p2['id']: {
+                p5['id']: None,
+                p4['id']: None},
+            p3['id']: {
+                p7['id']: {
+                    p10['id']: None},
+                p6['id']: {
+                    p9['id']: {
+                        p11['id']: None},
+                    p8['id']: None}}}
+
+        prjs_hierarchy = self.resource_api.get_projects_in_subtree_as_ids(
+            p1['id'])
+
+        self.assertDictEqual(expected_projects, prjs_hierarchy)
+
     def test_list_projects_in_subtree_with_circular_reference(self):
         project1 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
