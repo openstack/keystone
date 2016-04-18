@@ -39,7 +39,7 @@ this would be accomplished by:
 
 .. code-block:: bash
 
-    $ sysctl -w 'sys.net.ipv4.ip_local_reserved_ports=35357'
+    $ sysctl -w 'net.ipv4.ip_local_reserved_ports=35357'
 
 To make the above change persistent,
 ``net.ipv4.ip_local_reserved_ports = 35357`` should be added to
