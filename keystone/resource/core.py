@@ -216,6 +216,7 @@ class Manager(manager.Manager):
 
         project.setdefault('enabled', True)
         project['enabled'] = clean.project_enabled(project['enabled'])
+        project['name'] = clean.project_name(project['name'])
         project.setdefault('description', '')
 
         # For regular projects, the controller will ensure we have a valid
@@ -327,12 +328,14 @@ class Manager(manager.Manager):
             url_safe_option = CONF.resource.project_name_url_safe
             exception_entity = 'Project'
 
-        if (url_safe_option != 'off' and
-                'name' in project and
-                project['name'] != original_project['name'] and
+        project_name_changed = ('name' in project and project['name'] !=
+                                original_project['name'])
+        if (url_safe_option != 'off' and project_name_changed and
                 utils.is_not_url_safe(project['name'])):
             self._raise_reserved_character_exception(exception_entity,
                                                      project['name'])
+        elif project_name_changed:
+            project['name'] = clean.project_name(project['name'])
 
         parent_id = original_project.get('parent_id')
         if 'parent_id' in project and project.get('parent_id') != parent_id:

@@ -12,7 +12,6 @@
 
 from oslo_log import log
 
-from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
@@ -174,7 +173,6 @@ class Resource(keystone_resource.ResourceDriverV9):
     # CRUD
     @sql.handle_conflicts(conflict_type='project')
     def create_project(self, project_id, project):
-        project['name'] = clean.project_name(project['name'])
         new_project = self._encode_domain_id(project)
         with sql.session_for_write() as session:
             project_ref = Project.from_dict(new_project)
@@ -183,9 +181,6 @@ class Resource(keystone_resource.ResourceDriverV9):
 
     @sql.handle_conflicts(conflict_type='project')
     def update_project(self, project_id, project):
-        if 'name' in project:
-            project['name'] = clean.project_name(project['name'])
-
         update_project = self._encode_domain_id(project)
         with sql.session_for_write() as session:
             project_ref = self._get_project(session, project_id)

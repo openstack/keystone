@@ -20,7 +20,6 @@ from oslo_log import log
 from oslo_log import versionutils
 import six
 
-from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import ldap as common_ldap
 from keystone.common.ldap import models
@@ -135,7 +134,6 @@ class Identity(base.IdentityDriverV8):
         msg = _DEPRECATION_MSG % "create_group"
         versionutils.report_deprecated_feature(LOG, msg)
         self.group.check_allow_create()
-        group['name'] = clean.group_name(group['name'])
         return common_ldap.filter_entity(self.group.create(group))
 
     def get_group(self, group_id):
@@ -150,8 +148,6 @@ class Identity(base.IdentityDriverV8):
         msg = _DEPRECATION_MSG % "update_group"
         versionutils.report_deprecated_feature(LOG, msg)
         self.group.check_allow_update()
-        if 'name' in group:
-            group['name'] = clean.group_name(group['name'])
         return common_ldap.filter_entity(self.group.update(group_id, group))
 
     def delete_group(self, group_id):

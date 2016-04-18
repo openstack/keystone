@@ -99,6 +99,16 @@ class ResourceTests(object):
                           project['id'],
                           project)
 
+    def test_create_project_name_with_trailing_whitespace(self):
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        project_id = project['id']
+        project_name = project['name'] = (project['name'] + '    ')
+        project_returned = self.resource_api.create_project(project_id,
+                                                            project)
+        self.assertEqual(project_returned['id'], project_id)
+        self.assertEqual(project_returned['name'], project_name.strip())
+
     def test_create_duplicate_project_name_in_different_domains(self):
         new_domain = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain['id'], new_domain)
@@ -240,6 +250,17 @@ class ResourceTests(object):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.get_project,
                           'fake2')
+
+    def test_update_project_name_with_trailing_whitespace(self):
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        project_id = project['id']
+        project_create = self.resource_api.create_project(project_id, project)
+        self.assertEqual(project_create['id'], project_id)
+        project_name = project['name'] = (project['name'] + '    ')
+        project_update = self.resource_api.update_project(project_id, project)
+        self.assertEqual(project_update['id'], project_id)
+        self.assertEqual(project_update['name'], project_name.strip())
 
     def test_delete_domain_with_user_group_project_links(self):
         # TODO(chungg):add test case once expected behaviour defined

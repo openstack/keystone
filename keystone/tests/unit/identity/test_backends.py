@@ -804,6 +804,21 @@ class IdentityTests(object):
                           self.identity_api.get_group,
                           group['id'])
 
+    def test_create_group_name_with_trailing_whitespace(self):
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
+        group_name = group['name'] = (group['name'] + '    ')
+        group_returned = self.identity_api.create_group(group)
+        self.assertEqual(group_returned['name'], group_name.strip())
+
+    def test_update_group_name_with_trailing_whitespace(self):
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
+        group_create = self.identity_api.create_group(group)
+        group_name = group['name'] = (group['name'] + '    ')
+        group_update = self.identity_api.update_group(group_create['id'],
+                                                      group)
+        self.assertEqual(group_update['id'], group_create['id'])
+        self.assertEqual(group_update['name'], group_name.strip())
+
     def test_get_group_by_name(self):
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group_name = group['name']

@@ -983,6 +983,7 @@ class Manager(manager.Manager):
         # the underlying driver so that it could conform to rules set down by
         # that particular driver type.
         group['id'] = uuid.uuid4().hex
+        group['name'] = clean.group_name(group['name'])
         ref = driver.create_group(group['id'], group)
 
         notifications.Audit.created(self._GROUP, group['id'], initiator)
@@ -1019,6 +1020,8 @@ class Manager(manager.Manager):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
         group = self._clear_domain_id_if_domain_unaware(driver, group)
+        if 'name' in group:
+            group['name'] = clean.group_name(group['name'])
         ref = driver.update_group(entity_id, group)
         self.get_group.invalidate(self, group_id)
         notifications.Audit.updated(self._GROUP, group_id, initiator)
