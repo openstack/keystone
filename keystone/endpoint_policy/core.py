@@ -12,14 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import abc
-
 from oslo_config import cfg
 from oslo_log import log
-import six
+from oslo_log import versionutils
 
 from keystone.common import dependency
 from keystone.common import manager
+from keystone.endpoint_policy.backends import base
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 
@@ -266,174 +265,14 @@ class Manager(manager.Manager):
         raise exception.NotFound(msg)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class EndpointPolicyDriverV8(object):
-    """Interface description for an Endpoint Policy driver."""
-
-    @abc.abstractmethod
-    def create_policy_association(self, policy_id, endpoint_id=None,
-                                  service_id=None, region_id=None):
-        """Create a policy association.
-
-        :param policy_id: identity of policy that is being associated
-        :type policy_id: string
-        :param endpoint_id: identity of endpoint to associate
-        :type endpoint_id: string
-        :param service_id: identity of the service to associate
-        :type service_id: string
-        :param region_id: identity of the region to associate
-        :type region_id: string
-        :returns: None
-
-        There are three types of association permitted:
-
-        - Endpoint (in which case service and region must be None)
-        - Service and region (in which endpoint must be None)
-        - Service (in which case endpoint and region must be None)
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def check_policy_association(self, policy_id, endpoint_id=None,
-                                 service_id=None, region_id=None):
-        """Check existence a policy association.
-
-        :param policy_id: identity of policy that is being associated
-        :type policy_id: string
-        :param endpoint_id: identity of endpoint to associate
-        :type endpoint_id: string
-        :param service_id: identity of the service to associate
-        :type service_id: string
-        :param region_id: identity of the region to associate
-        :type region_id: string
-        :raises keystone.exception.PolicyAssociationNotFound: If there is no
-            match for the specified association.
-        :returns: None
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_policy_association(self, policy_id, endpoint_id=None,
-                                  service_id=None, region_id=None):
-        """Delete a policy association.
-
-        :param policy_id: identity of policy that is being associated
-        :type policy_id: string
-        :param endpoint_id: identity of endpoint to associate
-        :type endpoint_id: string
-        :param service_id: identity of the service to associate
-        :type service_id: string
-        :param region_id: identity of the region to associate
-        :type region_id: string
-        :returns: None
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_policy_association(self, endpoint_id=None,
-                               service_id=None, region_id=None):
-        """Get the policy for an explicit association.
-
-        This method is not exposed as a public API, but is used by
-        get_policy_for_endpoint().
-
-        :param endpoint_id: identity of endpoint
-        :type endpoint_id: string
-        :param service_id: identity of the service
-        :type service_id: string
-        :param region_id: identity of the region
-        :type region_id: string
-        :raises keystone.exception.PolicyAssociationNotFound: If there is no
-            match for the specified association.
-        :returns: dict containing policy_id
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_associations_for_policy(self, policy_id):
-        """List the associations for a policy.
-
-        This method is not exposed as a public API, but is used by
-        list_endpoints_for_policy().
-
-        :param policy_id: identity of policy
-        :type policy_id: string
-        :returns: List of association dicts
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_endpoints_for_policy(self, policy_id):
-        """List all the endpoints using a given policy.
-
-        :param policy_id: identity of policy that is being associated
-        :type policy_id: string
-        :returns: list of endpoints that have an effective association with
-                  that policy
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_policy_for_endpoint(self, endpoint_id):
-        """Get the appropriate policy for a given endpoint.
-
-        :param endpoint_id: identity of endpoint
-        :type endpoint_id: string
-        :returns: Policy entity for the endpoint
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.endpoint_policy.EndpointPolicyDriverV8',
+    in_favor_of=(
+        'keystone.endpoint_policy.backends.base.EndpointPolicyDriverV8'),
+    remove_in=+1)
+class EndpointPolicyDriverV8(base.EndpointPolicyDriverV8):
+    pass
 
 
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_association_by_endpoint(self, endpoint_id):
-        """Remove all the policy associations with the specific endpoint.
-
-        :param endpoint_id: identity of endpoint to check
-        :type endpoint_id: string
-        :returns: None
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_association_by_service(self, service_id):
-        """Remove all the policy associations with the specific service.
-
-        :param service_id: identity of endpoint to check
-        :type service_id: string
-        :returns: None
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_association_by_region(self, region_id):
-        """Remove all the policy associations with the specific region.
-
-        :param region_id: identity of endpoint to check
-        :type region_id: string
-        :returns: None
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_association_by_policy(self, policy_id):
-        """Remove all the policy associations with the specific policy.
-
-        :param policy_id: identity of endpoint to check
-        :type policy_id: string
-        :returns: None
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-
-Driver = manager.create_legacy_driver(EndpointPolicyDriverV8)
+Driver = manager.create_legacy_driver(base.EndpointPolicyDriverV8)
