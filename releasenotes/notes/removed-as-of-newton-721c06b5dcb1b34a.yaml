@@ -5,3 +5,11 @@ other:
     Removed the backend and route from ``keystone.contrib.endpoint_policy``.
     The package has been moved to ``keystone.endpoint_policy``. This was
     deprecated in the Liberty release.
+  - >
+    [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
+    Removed ``[eventlet_server]`` and ``[eventlet_server_ssl]`` sections from
+    the `keystone.conf`.
+  - >
+    [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
+    Removed support for running keystone under eventlet. It is recommended to
+    run keystone in an HTTP server.

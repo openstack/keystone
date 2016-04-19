@@ -28,7 +28,6 @@ oslo_i18n.enable_lazy()
 
 
 from keystone.common import config
-from keystone.common import environment
 from keystone.server import common
 from keystone.version import service as keystone_service
 
@@ -42,8 +41,6 @@ def initialize_application(name, post_log_configured_function=lambda: None):
     # Log the options used when starting if we're in debug mode...
     if CONF.debug:
         CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
-
-    environment.use_stdlib()
 
     post_log_configured_function()
 

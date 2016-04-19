@@ -111,9 +111,7 @@ modindex_common_prefix = ['keystone.']
 
 man_pages = [
     ('man/keystone-manage', 'keystone-manage', u'Keystone Management Utility',
-     [u'OpenStack'], 1),
-    ('man/keystone-all', 'keystone-all', u'Keystone Startup Command',
-     [u'OpenStack'], 1),
+     [u'OpenStack'], 1)
 ]
 
 
