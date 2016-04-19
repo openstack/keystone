@@ -1037,6 +1037,7 @@ FILE_OPTIONS = {
                     deprecated_name='admin_port',
                     deprecated_group='DEFAULT',
                     deprecated_for_removal=True,
+                    deprecated_reason=_DEPRECATE_EVENTLET_MSG,
                     help='The port number which the admin service listens '
                          'on.'),
     ],
