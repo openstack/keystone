@@ -137,7 +137,7 @@ def _sync_common_repo(version):
 
 
 def get_init_version(abs_path=None):
-    """Get the initial version of a migrate repository
+    """Get the initial version of a migrate repository.
 
     :param abs_path: Absolute path to migrate repository.
     :return:         initial version number or None, if DB is empty.

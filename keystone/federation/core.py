@@ -66,7 +66,7 @@ class Manager(manager.Manager):
                 driver=CONF.federation.driver)
 
     def get_enabled_service_providers(self):
-        """List enabled service providers for Service Catalog
+        """List enabled service providers for Service Catalog.
 
         Service Provider in a catalog contains three attributes: ``id``,
         ``auth_url``, ``sp_url``, where:
@@ -409,7 +409,7 @@ class FederationDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     def get_enabled_service_providers(self):
-        """List enabled service providers for Service Catalog
+        """List enabled service providers for Service Catalog.
 
         Service Provider in a catalog contains three attributes: ``id``,
         ``auth_url``, ``sp_url``, where:

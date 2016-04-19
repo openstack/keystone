@@ -114,7 +114,7 @@ class Token(token.persistence.TokenDriverV8):
 
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
                       consumer_id=None):
-        """Delete all tokens in one session
+        """Delete all tokens in one session.
 
         The user_id will be ignored if the trust_id is specified. user_id
         will always be specified.
@@ -244,7 +244,7 @@ class Token(token.persistence.TokenDriverV8):
             return tokens
 
     def _expiry_range_strategy(self, dialect):
-        """Choose a token range expiration strategy
+        """Choose a token range expiration strategy.
 
         Based on the DB dialect, select an expiry range callable that is
         appropriate.

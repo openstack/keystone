@@ -95,7 +95,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
             policyfile.write(jsonutils.dumps(new_policy))
 
     def test_list_users_filtered_by_domain(self):
-        """GET /users?domain_id=mydomain (filtered)
+        """GET /users?domain_id=mydomain (filtered).
 
         Test Plan:
 
@@ -113,7 +113,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.assertIn(self.user3['id'], id_list)
 
     def test_list_filtered_domains(self):
-        """GET /domains?enabled=0
+        """GET /domains?enabled=0.
 
         Test Plan:
 
@@ -156,7 +156,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.assertIn(CONF.identity.default_domain_id, id_list)
 
     def test_multiple_filters(self):
-        """GET /domains?enabled&name=myname
+        """GET /domains?enabled&name=myname.
 
         Test Plan:
 
@@ -176,7 +176,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.assertIs(True, r.result.get('domains')[0]['enabled'])
 
     def test_invalid_filter_is_ignored(self):
-        """GET /domains?enableds&name=myname
+        """GET /domains?enableds&name=myname.
 
         Test Plan:
 
@@ -199,7 +199,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self.assertIs(True, r.result.get('domains')[0]['enabled'])
 
     def test_list_users_filtered_by_funny_name(self):
-        """GET /users?name=%myname%
+        """GET /users?name=%myname%.
 
         Test Plan:
 
@@ -283,7 +283,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         self._delete_test_data('user', user_list)
 
     def test_filter_sql_injection_attack(self):
-        """GET /users?name=<injected sql_statement>
+        """GET /users?name=<injected sql_statement>.
 
         Test Plan:
 
@@ -362,7 +362,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
             self.policy_api.delete_policy(policy['id'])
 
     def _test_entity_list_limit(self, entity, driver):
-        """GET /<entities> (limited)
+        """GET /<entities> (limited).
 
         Test Plan:
 

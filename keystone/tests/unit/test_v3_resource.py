@@ -958,7 +958,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                       [p['id'] for p in r.result['projects']])
 
     def test_list_project_is_domain_filter_default(self):
-        """Default project list should not see projects acting as domains"""
+        """Default project list should not see projects acting as domains."""
         # Get the initial count of regular projects
         r = self.get('/projects?is_domain=False', expected_status=200)
         number_is_domain_false = len(r.result['projects'])
@@ -1259,7 +1259,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             expected_status=http_client.FORBIDDEN)
 
     def test_delete_project(self):
-        """Call ``DELETE /projects/{project_id}``
+        """Call ``DELETE /projects/{project_id}``.
 
         As well as making sure the delete succeeds, we ensure
         that any credentials that reference this projects are

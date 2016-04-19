@@ -224,7 +224,7 @@ class IdentityDriverV8(object):
 
     @abc.abstractmethod
     def list_groups_for_user(self, user_id, hints):
-        """List groups a user is in
+        """List groups a user is in.
 
         :param user_id: the user in question
         :param hints: filter hints which the driver should

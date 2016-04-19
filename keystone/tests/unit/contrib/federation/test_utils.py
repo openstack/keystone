@@ -409,7 +409,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual([], mapped_properties['group_ids'])
 
     def test_rule_engine_whitelist_direct_group_mapping_missing_domain(self):
-        """Test if the local rule is rejected upon missing domain value
+        """Test if the local rule is rejected upon missing domain value.
 
         This is a variation with a ``whitelist`` filter.
 
@@ -420,7 +420,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertRaises(exception.ValidationError, rp.process, assertion)
 
     def test_rule_engine_blacklist_direct_group_mapping_missing_domain(self):
-        """Test if the local rule is rejected upon missing domain value
+        """Test if the local rule is rejected upon missing domain value.
 
         This is a variation with a ``blacklist`` filter.
 
@@ -623,7 +623,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
                           assertion)
 
     def test_rule_engine_group_ids_mapping_whitelist(self):
-        """Test mapping engine when group_ids is explicitly set
+        """Test mapping engine when group_ids is explicitly set.
 
         Also test whitelists on group ids
 

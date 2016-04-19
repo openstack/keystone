@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Keystone Compressed PKI Token Provider"""
+"""Keystone Compressed PKI Token Provider."""
 
 import subprocess  # nosec : used to catch subprocess exceptions
 

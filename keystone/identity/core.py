@@ -165,7 +165,7 @@ class DomainConfigs(dict):
     def _load_config_from_database(self, domain_id, specific_config):
 
         def _assert_no_more_than_one_sql_driver(domain_id, new_config):
-            """Ensure adding driver doesn't push us over the limit of 1
+            """Ensure adding driver doesn't push us over the limit of 1.
 
             The checks we make in this method need to take into account that
             we may be in a multiple process configuration and ensure that
@@ -777,7 +777,7 @@ class Manager(manager.Manager):
             hints.add_filter('domain_id', domain_id)
 
     def _set_list_limit_in_hints(self, hints, driver):
-        """Set list limit in hints from driver
+        """Set list limit in hints from driver.
 
         If a hints list is provided, the wrapper will insert the relevant
         limit into the hints so that the underlying driver call can try and

@@ -2532,7 +2532,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.execute_assignment_plan(test_plan)
 
     def _test_crud_inherited_and_direct_assignment(self, **kwargs):
-        """Test inherited and direct assignments for the actor and target
+        """Test inherited and direct assignments for the actor and target.
 
         Ensure it is possible to create both inherited and direct role
         assignments for the same actor on the same target. The actor and the
@@ -3195,7 +3195,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             test_plan_with_os_inherit_disabled, test_data)
 
     def test_list_assignments_for_tree(self):
-        """Test we correctly list direct assignments for a tree"""
+        """Test we correctly list direct assignments for a tree."""
         # Enable OS-INHERIT extension
         self.config_fixture.config(group='os_inherit', enabled=True)
 
@@ -3244,7 +3244,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.execute_assignment_plan(test_plan)
 
     def test_list_effective_assignments_for_tree(self):
-        """Test we correctly list effective assignments for a tree"""
+        """Test we correctly list effective assignments for a tree."""
         # Enable OS-INHERIT extension
         self.config_fixture.config(group='os_inherit', enabled=True)
 
@@ -3378,7 +3378,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.execute_assignment_plan(test_plan)
 
     def test_list_effective_assignments_for_tree_with_domain_assignments(self):
-        """Test we correctly honor domain inherited assignments on the tree"""
+        """Test we correctly honor domain inherited assignments on the tree."""
         # Enable OS-INHERIT extension
         self.config_fixture.config(group='os_inherit', enabled=True)
 

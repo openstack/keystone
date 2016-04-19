@@ -566,7 +566,7 @@ class FakeLdap(core.LDAPHandler):
 
     def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
                 resp_ctrl_classes=None):
-        """Execute async request
+        """Execute async request.
 
         Only msgid param is supported. Request info is fetched from global
         variable `PendingRequests` by msgid, executed using search_s and
@@ -638,7 +638,7 @@ class FakeLdapPool(FakeLdap):
 
 
 class FakeLdapNoSubtreeDelete(FakeLdap):
-    """FakeLdap subclass that does not support subtree delete
+    """FakeLdap subclass that does not support subtree delete.
 
     Same as FakeLdap except delete will throw the LDAP error
     ldap.NOT_ALLOWED_ON_NONLEAF if there is an attempt to delete

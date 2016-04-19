@@ -814,7 +814,7 @@ class OAuthNotificationTests(OAuth1Tests,
                                 cadftaxonomy.SECURITY_ACCOUNT)
 
     def test_oauth_flow_notifications(self):
-        """Test to ensure notifications are sent for oauth tokens
+        """Test to ensure notifications are sent for oauth tokens.
 
         This test is very similar to test_oauth_flow, however
         there are additional checks in this test for ensuring that

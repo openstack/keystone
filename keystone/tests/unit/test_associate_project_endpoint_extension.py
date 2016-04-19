@@ -54,7 +54,7 @@ class EndpointFilterDeprecateTestCase(test_v3.RestfulTestCase):
 class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
     def test_create_endpoint_project_association(self):
-        """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Valid endpoint and project id test case.
 
@@ -62,7 +62,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
         self.put(self.default_request_url)
 
     def test_create_endpoint_project_association_with_invalid_project(self):
-        """PUT OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """PUT OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Invalid project id test case.
 
@@ -74,7 +74,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                  expected_status=http_client.NOT_FOUND)
 
     def test_create_endpoint_project_association_with_invalid_endpoint(self):
-        """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Invalid endpoint id test case.
 
@@ -86,7 +86,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                  expected_status=http_client.NOT_FOUND)
 
     def test_create_endpoint_project_association_with_unexpected_body(self):
-        """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """PUT /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Unexpected body in request. The body should be ignored.
 
@@ -95,7 +95,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                  body={'project_id': self.default_domain_project_id})
 
     def test_check_endpoint_project_association(self):
-        """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Valid project and endpoint id test case.
 
@@ -107,7 +107,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                       'endpoint_id': self.endpoint_id})
 
     def test_check_endpoint_project_association_with_invalid_project(self):
-        """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Invalid project id test case.
 
@@ -120,7 +120,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                   expected_status=http_client.NOT_FOUND)
 
     def test_check_endpoint_project_association_with_invalid_endpoint(self):
-        """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """HEAD /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Invalid endpoint id test case.
 
@@ -133,7 +133,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                   expected_status=http_client.NOT_FOUND)
 
     def test_list_endpoints_associated_with_valid_project(self):
-        """GET /OS-EP-FILTER/projects/{project_id}/endpoints
+        """GET /OS-EP-FILTER/projects/{project_id}/endpoints.
 
         Valid project and endpoint id test case.
 
@@ -146,7 +146,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                                              resource_url=resource_url)
 
     def test_list_endpoints_associated_with_invalid_project(self):
-        """GET /OS-EP-FILTER/projects/{project_id}/endpoints
+        """GET /OS-EP-FILTER/projects/{project_id}/endpoints.
 
         Invalid project id test case.
 
@@ -157,7 +157,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                  expected_status=http_client.NOT_FOUND)
 
     def test_list_projects_associated_with_endpoint(self):
-        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
+        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects.
 
         Valid endpoint-project association test case.
 
@@ -170,7 +170,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                                             resource_url=resource_url)
 
     def test_list_projects_with_no_endpoint_project_association(self):
-        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
+        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects.
 
         Valid endpoint id but no endpoint-project associations test case.
 
@@ -180,7 +180,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
         self.assertValidProjectListResponse(r, expected_length=0)
 
     def test_list_projects_associated_with_invalid_endpoint(self):
-        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects
+        """GET /OS-EP-FILTER/endpoints/{endpoint_id}/projects.
 
         Invalid endpoint id test case.
 
@@ -190,7 +190,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                  expected_status=http_client.NOT_FOUND)
 
     def test_remove_endpoint_project_association(self):
-        """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Valid project id and endpoint id test case.
 
@@ -202,7 +202,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                         'endpoint_id': self.endpoint_id})
 
     def test_remove_endpoint_project_association_with_invalid_project(self):
-        """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Invalid project id test case.
 
@@ -215,7 +215,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                     expected_status=http_client.NOT_FOUND)
 
     def test_remove_endpoint_project_association_with_invalid_endpoint(self):
-        """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
+        """DELETE /OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}.
 
         Invalid endpoint id test case.
 
@@ -698,7 +698,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
     DEFAULT_ENDPOINT_GROUP_URL = '/OS-EP-FILTER/endpoint_groups'
 
     def test_create_endpoint_group(self):
-        """POST /OS-EP-FILTER/endpoint_groups
+        """POST /OS-EP-FILTER/endpoint_groups.
 
         Valid endpoint group test case.
 
@@ -719,7 +719,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                     'endpoint_group_id': r.result['endpoint_group']['id']}))
 
     def test_create_invalid_endpoint_group(self):
-        """POST /OS-EP-FILTER/endpoint_groups
+        """POST /OS-EP-FILTER/endpoint_groups.
 
         Invalid endpoint group creation test case.
 
@@ -731,7 +731,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                   expected_status=http_client.BAD_REQUEST)
 
     def test_get_endpoint_group(self):
-        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Valid endpoint group test case.
 
@@ -755,7 +755,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                         matchers.EndsWith(url))
 
     def test_get_invalid_endpoint_group(self):
-        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Invalid endpoint group test case.
 
@@ -766,7 +766,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_check_endpoint_group(self):
-        """HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        """HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}.
 
         Valid endpoint_group_id test case.
 
@@ -779,7 +779,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.head(url, expected_status=http_client.OK)
 
     def test_check_invalid_endpoint_group(self):
-        """HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        """HEAD /OS-EP-FILTER/endpoint_groups/{endpoint_group_id}.
 
         Invalid endpoint_group_id test case.
 
@@ -790,7 +790,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_patch_endpoint_group(self):
-        """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Valid endpoint group patch test case.
 
@@ -812,7 +812,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                         matchers.EndsWith(url))
 
     def test_patch_nonexistent_endpoint_group(self):
-        """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Invalid endpoint group patch test case.
 
@@ -827,7 +827,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.patch(url, body=body, expected_status=http_client.NOT_FOUND)
 
     def test_patch_invalid_endpoint_group(self):
-        """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """PATCH /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Valid endpoint group patch test case.
 
@@ -859,7 +859,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.assertDictEqual(self.DEFAULT_ENDPOINT_GROUP_BODY, r.result)
 
     def test_delete_endpoint_group(self):
-        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Valid endpoint group test case.
 
@@ -873,7 +873,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.get(url, expected_status=http_client.NOT_FOUND)
 
     def test_delete_invalid_endpoint_group(self):
-        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}
+        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}.
 
         Invalid endpoint group test case.
 
@@ -1003,7 +1003,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                          r.result['endpoint_groups'][0].get('id'))
 
     def test_list_projects_associated_with_endpoint_group(self):
-        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects
+        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}/projects.
 
         Valid endpoint group test case.
 
@@ -1023,7 +1023,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.get(url)
 
     def test_list_endpoints_associated_with_endpoint_group(self):
-        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}/endpoints
+        """GET /OS-EP-FILTER/endpoint_groups/{endpoint_group}/endpoints.
 
         Valid endpoint group test case.
 
@@ -1061,7 +1061,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.assertEqual(endpoint_id, r.result['endpoints'][0].get('id'))
 
     def test_list_endpoints_associated_with_project_endpoint_group(self):
-        """GET /OS-EP-FILTER/projects/{project_id}/endpoints
+        """GET /OS-EP-FILTER/projects/{project_id}/endpoints.
 
         Valid project, endpoint id, and endpoint group test case.
 
