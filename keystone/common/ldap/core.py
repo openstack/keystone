@@ -1922,14 +1922,14 @@ class EnabledEmuMixIn(BaseLdap):
         hints = hints or driver_hints.Hints()
         if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
             # had to copy BaseLdap.get_all here to ldap_filter by DN
-            tenant_list = [self._ldap_res_to_model(x)
-                           for x in self._ldap_get_all(hints, ldap_filter)
-                           if x[0] != self.enabled_emulation_dn]
+            obj_list = [self._ldap_res_to_model(x)
+                        for x in self._ldap_get_all(hints, ldap_filter)
+                        if x[0] != self.enabled_emulation_dn]
             with self.get_connection() as conn:
-                for tenant_ref in tenant_list:
-                    tenant_ref['enabled'] = self._get_enabled(
-                        tenant_ref['id'], conn)
-            return tenant_list
+                for obj_ref in obj_list:
+                    obj_ref['enabled'] = self._get_enabled(
+                        obj_ref['id'], conn)
+            return obj_list
         else:
             return super(EnabledEmuMixIn, self).get_all(ldap_filter, hints)
 
