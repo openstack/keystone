@@ -1,0 +1,34 @@
+# See openstack-infra/project-config:jenkins/data/bindep-fallback.txt
+# This is used by bindep: sudo [apt-get | yum] install $(bindep -b)
+
+gettext
+libssl-dev
+postgresql
+
+libffi-dev [platform:dpkg]
+libffi-devel [platform:rpm]
+libldap2-dev [platform:dpkg]
+libsasl2-dev [platform:dpkg]
+libsqlite3-dev [platform:dpkg]
+libxml2-dev [platform:dpkg]
+libxslt1-dev [platform:dpkg]
+mysql-client [platform:dpkg]
+mysql-server [platform:dpkg]
+postgresql-client [platform:dpkg]
+postgresql-server-dev-all [platform:dpkg]
+python-dev [platform:dpkg]
+python3-all-dev [platform:ubuntu-trusty]
+python3-dev [platform:dpkg]
+python3.4 [platform:ubuntu-trusty]
+
+cyrus-sasl-devel [platform:rpm]
+libxml2-devel [platform:rpm]
+mariadb [platform:rpm]
+mariadb-devel [platform:rpm]
+mariadb-server [platform:rpm]
+openldap-devel [platform:rpm]
+postgresql-devel [platform:rpm]
+postgresql-server [platform:rpm]
+python-devel [platform:rpm]
+python3-devel [platform:fedora]
+python34-devel [platform:centos]
