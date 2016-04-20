@@ -696,6 +696,9 @@
 # Deprecated group/name - [DEFAULT]/admin_port
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
+# Reason: Support for running keystone under eventlet has been removed in the N
+# release. These options remain for backwards compatibility because they are
+# used for URL substitutions.
 #admin_port = 35357
 
 
@@ -1917,27 +1920,6 @@
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
-
-
-[ssl]
-
-#
-# From keystone
-#
-
-# Path of the CA key file for SSL. (string value)
-#ca_key = /etc/keystone/ssl/private/cakey.pem
-
-# SSL key length (in bits) (auto generated certificate). (integer value)
-# Minimum value: 1024
-#key_size = 1024
-
-# Days the certificate is valid for once signed (auto generated certificate).
-# (integer value)
-#valid_days = 3650
-
-# SSL certificate subject (auto generated certificate). (string value)
-#cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=localhost
 
 
 [token]
