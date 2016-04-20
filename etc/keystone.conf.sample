@@ -1637,7 +1637,7 @@
 # part
 # will be empty.
 #  (boolean value)
-# Deprecated group/name - [profiler]/profiler_enabled
+# Deprecated group/name - [DEFAULT]/profiler_enabled
 #enabled = false
 
 #
