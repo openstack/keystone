@@ -50,7 +50,6 @@ Available commands:
 * ``mapping_engine``: Test your federation mapping rules.
 * ``pki_setup``: Initialize the certificates used to sign tokens. **deprecated**
 * ``saml_idp_metadata``: Generate identity provider metadata.
-* ``ssl_setup``: Generate certificates for SSL.
 * ``token_flush``: Purge expired tokens.
 
 OPTIONS

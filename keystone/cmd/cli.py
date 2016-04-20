@@ -463,25 +463,6 @@ class PKISetup(BaseCertificateSetup):
         conf_pki.run()
 
 
-class SSLSetup(BaseCertificateSetup):
-    """Create key pairs and certificates for HTTPS connections.
-
-    This is NOT intended for production use, see Keystone Configuration
-    documentation for details.
-    """
-
-    name = 'ssl_setup'
-
-    @classmethod
-    def main(cls):
-        LOG.warning(_LW('keystone-manage ssl_setup is not recommended for '
-                        'production use.'))
-        keystone_user_id, keystone_group_id = cls.get_user_group()
-        conf_ssl = openssl.ConfigureSSL(keystone_user_id, keystone_group_id,
-                                        rebuild=CONF.command.rebuild)
-        conf_ssl.run()
-
-
 class FernetSetup(BasePermissionsSetup):
     """Setup a key repository for Fernet tokens.
 
@@ -938,7 +919,6 @@ CMDS = [
     MappingEngineTester,
     PKISetup,
     SamlIdentityProviderMetadata,
-    SSLSetup,
     TokenFlush,
 ]
 
