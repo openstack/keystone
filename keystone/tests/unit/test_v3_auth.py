@@ -2426,7 +2426,8 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
                           TokenDataTests):
     def config_overrides(self):
         super(TestFernetTokenAPIs, self).config_overrides()
-        self.config_fixture.config(group='token', provider='fernet')
+        self.config_fixture.config(group='token', provider='fernet',
+                                   cache_on_issue=True)
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -2503,6 +2504,13 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         # Bind not current supported by Fernet, see bug 1433311.
         self.v3_create_token(auth_data,
                              expected_status=http_client.NOT_IMPLEMENTED)
+
+    def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
+        # NOTE(amakarov): have to override this test for non-persistent tokens
+        # as TokenNotFound exception makes no sense for those.
+        self.assertRaises(
+            exception.Forbidden, super(TestFernetTokenAPIs, self)
+            .test_trust_scoped_token_is_invalid_after_disabling_trustor)
 
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):

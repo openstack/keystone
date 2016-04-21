@@ -157,6 +157,13 @@ directly assigned to the token's scope, but are instead linked implicitly to
 other role assignments.
 """))
 
+cache_on_issue = cfg.BoolOpt(
+    'cache_on_issue',
+    default=False,
+    help=utils.fmt("""
+Enable storing issued token data to token validation cache so that first token
+validation doesn't actually cause full validation cycle.
+"""))
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -171,6 +178,7 @@ ALL_OPTS = [
     allow_rescope_scoped_token,
     hash_algorithm,
     infer_roles,
+    cache_on_issue,
 ]
 
 
