@@ -1464,7 +1464,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
 
 
 class JsonHomeTestMixin(object):
-    """JSON Home test
+    """JSON Home test.
 
     Mixin this class to provide a test for the JSON-Home response for an
     extension.

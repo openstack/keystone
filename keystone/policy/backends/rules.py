@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Policy engine for keystone"""
+"""Policy engine for keystone."""
 
 from oslo_config import cfg
 from oslo_log import log

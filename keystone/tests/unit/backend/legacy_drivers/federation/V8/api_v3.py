@@ -38,7 +38,7 @@ class FederatedIdentityProviderTestsV8(
         self.useV8driver()
 
     def test_create_idp_remote_repeated(self):
-        """Create two IdentityProvider entities with some remote_ids
+        """Create two IdentityProvider entities with some remote_ids.
 
         A remote_id is the same for both so the second IdP is not
         created because of the uniqueness of the remote_ids

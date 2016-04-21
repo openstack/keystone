@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base model for keystone internal services
+"""Base model for keystone internal services.
 
 Unless marked otherwise, all fields are strings.
 

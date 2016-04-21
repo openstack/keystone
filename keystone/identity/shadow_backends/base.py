@@ -25,7 +25,7 @@ class ShadowUsersDriverV9(object):
 
     @abc.abstractmethod
     def create_federated_user(self, federated_dict):
-        """Create a new user with the federated identity
+        """Create a new user with the federated identity.
 
         :param dict federated_dict: Reference to the federated user
         :param user_id: user ID for linking to the federated identity
@@ -36,7 +36,7 @@ class ShadowUsersDriverV9(object):
 
     @abc.abstractmethod
     def get_federated_user(self, idp_id, protocol_id, unique_id):
-        """Return the found user for the federated identity
+        """Return the found user for the federated identity.
 
         :param idp_id: The identity provider ID
         :param protocol_id: The federation protocol ID
@@ -49,7 +49,7 @@ class ShadowUsersDriverV9(object):
     @abc.abstractmethod
     def update_federated_user_display_name(self, idp_id, protocol_id,
                                            unique_id, display_name):
-        """Update federated user's display name if changed
+        """Update federated user's display name if changed.
 
         :param idp_id: The identity provider ID
         :param protocol_id: The federation protocol ID

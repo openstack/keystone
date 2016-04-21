@@ -894,7 +894,7 @@ class SqlFilterTests(SqlTests, identity_tests.FilterTests):
             self.assertFalse(hints.get_exact_filter_by_name('domain_id'))
 
     def test_filter_sql_injection_attack(self):
-        """Test against sql injection attack on filters
+        """Test against sql injection attack on filters.
 
         Test Plan:
         - Attempt to get all entities back by passing a two-term attribute

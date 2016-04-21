@@ -613,7 +613,7 @@ class TestCacheRegionInit(unit.TestCase):
                           backing_store=self.kvs_backend)
 
     def test_kvs_configure_called_twice(self):
-        """Check if configure() is called again"""
+        """Check if configure() is called again."""
         target = core.KeyValueStore
         with mock.patch.object(target, 'configure') as configure_mock:
             store = core.get_key_value_store(self.store_name)

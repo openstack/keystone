@@ -55,7 +55,7 @@ class BaseApp(object):
 
 
 class BootStrap(BaseApp):
-    """Perform the basic bootstrap process"""
+    """Perform the basic bootstrap process."""
 
     name = "bootstrap"
 

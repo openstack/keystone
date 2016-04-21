@@ -444,7 +444,7 @@ class CoreApiTests(object):
         raise NotImplementedError()
 
     def assertNoRoles(self, r):
-        """Helper method to assert No Roles
+        """Helper method to assert No Roles.
 
         This needs to be overridden by child classes
         based on their content type.

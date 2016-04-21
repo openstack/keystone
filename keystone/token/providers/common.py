@@ -289,7 +289,7 @@ class V3TokenDataHelper(object):
     def populate_roles_for_groups(self, token_data, group_ids,
                                   project_id=None, domain_id=None,
                                   user_id=None):
-        """Populate roles basing on provided groups and project/domain
+        """Populate roles basing on provided groups and project/domain.
 
         Used for ephemeral users with dynamically assigned groups.
         This method does not return anything, yet it modifies token_data in

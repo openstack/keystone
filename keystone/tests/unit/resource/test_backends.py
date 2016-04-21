@@ -874,7 +874,7 @@ class ResourceTests(object):
         self.assertEqual(1, len(parents))
 
     def test_update_project_enabled_cascade(self):
-        """Test update_project_cascade
+        """Test update_project_cascade.
 
         Ensures the enabled attribute is correctly updated across
         a simple 3-level projects hierarchy.

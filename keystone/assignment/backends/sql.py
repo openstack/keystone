@@ -151,7 +151,7 @@ class Assignment(keystone_assignment.AssignmentDriverV9):
         return [AssignmentType.USER_DOMAIN, AssignmentType.GROUP_DOMAIN]
 
     def _get_assignment_types(self, user, group, project, domain):
-        """Return a list of role assignment types based on provided entities
+        """Return a list of role assignment types based on provided entities.
 
         If one of user or group (the "actor") as well as one of project or
         domain (the "target") are provided, the list will contain the role

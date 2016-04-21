@@ -305,7 +305,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.head(member_url, expected_status=http_client.NOT_FOUND)
 
     def test_token_revoked_once_group_role_grant_revoked(self):
-        """Test token is revoked when group role grant is revoked
+        """Test token is revoked when group role grant is revoked.
 
         When a role granted to a group is revoked for a given scope,
         all tokens related to this scope and belonging to one of the members
@@ -2779,7 +2779,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
 
 
 class ListUserProjectsTestCase(test_v3.RestfulTestCase):
-    """Test for /users/<user>/projects"""
+    """Test for /users/<user>/projects."""
 
     def load_sample_data(self):
         # do not load base class's data, keep it focused on the tests

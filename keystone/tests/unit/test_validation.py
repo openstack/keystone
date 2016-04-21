@@ -306,7 +306,7 @@ class EntityValidationTestCase(unit.BaseTestCase):
                               request_to_validate)
 
     def test_create_entity_with_valid_email_validates(self):
-        """Validate email address
+        """Validate email address.
 
         Test that we successfully validate properly formatted email
         addresses.
@@ -1025,7 +1025,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
             self.create_service_validator.validate(request_to_validate)
 
     def test_validate_service_create_fails_with_invalid_enabled(self):
-        """Exception raised when boolean-like parameters as `enabled`
+        """Exception raised when boolean-like parameters as `enabled`.
 
         On service create, make sure an exception is raised if `enabled` is
         not a boolean value.
@@ -2038,7 +2038,7 @@ class IdentityProviderValidationTestCase(unit.BaseTestCase):
                           request_to_validate)
 
     def test_validate_idp_request_remote_id_nullable(self):
-        """Test that `remote_ids` could be explicitly set to None"""
+        """Test that `remote_ids` could be explicitly set to None."""
         request_to_validate = {'remote_ids': None}
         self.create_idp_validator.validate(request_to_validate)
         self.update_idp_validator.validate(request_to_validate)

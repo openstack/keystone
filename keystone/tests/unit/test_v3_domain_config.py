@@ -47,7 +47,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertEqual(self.config, res)
 
     def test_create_config_invalid_domain(self):
-        """Call ``PUT /domains/{domain_id}/config``
+        """Call ``PUT /domains/{domain_id}/config``.
 
         While creating Identity API-based domain config with an invalid domain
         id provided, the request shall be rejected with a response, 404 domain
@@ -60,7 +60,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
                  expected_status=exception.DomainNotFound.code)
 
     def test_create_config_twice(self):
-        """Check multiple creates don't throw error"""
+        """Check multiple creates don't throw error."""
         self.put('/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']},
             body={'config': self.config},
@@ -80,7 +80,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             expected_status=exception.DomainConfigNotFound.code)
 
     def test_delete_config_invalid_domain(self):
-        """Call ``DELETE /domains{domain_id}/config``
+        """Call ``DELETE /domains{domain_id}/config``.
 
         While deleting Identity API-based domain config with an invalid domain
         id provided, the request shall be rejected with a response, 404 domain
@@ -101,7 +101,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertNotIn('ldap', res)
 
     def test_delete_config_by_group_invalid_domain(self):
-        """Call ``DELETE /domains{domain_id}/config/{group}``
+        """Call ``DELETE /domains{domain_id}/config/{group}``.
 
         While deleting Identity API-based domain config by group with an
         invalid domain id provided, the request shall be rejected with a
@@ -132,7 +132,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.head(url, expected_status=http_client.OK)
 
     def test_get_config_by_group_invalid_domain(self):
-        """Call ``GET & HEAD /domains{domain_id}/config/{group}``
+        """Call ``GET & HEAD /domains{domain_id}/config/{group}``.
 
         While retrieving Identity API-based domain config by group with an
         invalid domain id provided, the request shall be rejected with a
@@ -155,7 +155,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.head(url, expected_status=http_client.OK)
 
     def test_get_config_by_option_invalid_domain(self):
-        """Call ``GET & HEAD /domains{domain_id}/config/{group}/{option}``
+        """Call ``GET & HEAD /domains{domain_id}/config/{group}/{option}``.
 
         While retrieving Identity API-based domain config by option with an
         invalid domain id provided, the request shall be rejected with a
@@ -174,7 +174,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.NOT_FOUND)
 
     def test_get_non_existant_config_invalid_domain(self):
-        """Call ``GET /domains{domain_id}/config when no config defined``
+        """Call ``GET /domains{domain_id}/config when no config defined``.
 
         While retrieving non-existent Identity API-based domain config with an
         invalid domain id provided, the request shall be rejected with a
@@ -194,7 +194,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.NOT_FOUND)
 
     def test_get_non_existant_config_group_invalid_domain(self):
-        """Call ``GET /domains{domain_id}/config/{group_not_exist}``
+        """Call ``GET /domains{domain_id}/config/{group_not_exist}``.
 
         While retrieving non-existent Identity API-based domain config group
         with an invalid domain id provided, the request shall be rejected with
@@ -216,7 +216,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.NOT_FOUND)
 
     def test_get_non_existant_config_option_invalid_domain(self):
-        """Call ``GET /domains{domain_id}/config/group/{option_not_exist}``
+        """Call ``GET /domains{domain_id}/config/group/{option_not_exist}``.
 
         While retrieving non-existent Identity API-based domain config option
         with an invalid domain id provided, the request shall be rejected with
@@ -246,7 +246,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertEqual(expected_config, res)
 
     def test_update_config_invalid_domain(self):
-        """Call ``PATCH /domains/{domain_id}/config``
+        """Call ``PATCH /domains/{domain_id}/config``.
 
         While updating Identity API-based domain config with an invalid domain
         id provided, the request shall be rejected with a response, 404 domain
@@ -278,7 +278,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertEqual(expected_config, res)
 
     def test_update_config_group_invalid_domain(self):
-        """Call ``PATCH /domains/{domain_id}/config/{group}``
+        """Call ``PATCH /domains/{domain_id}/config/{group}``.
 
         While updating Identity API-based domain config group with an invalid
         domain id provided, the request shall be rejected with a response,
@@ -317,7 +317,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.NOT_FOUND)
 
     def test_update_config_invalid_group_invalid_domain(self):
-        """Call ``PATCH /domains/{domain_id}/config/{invalid_group}``
+        """Call ``PATCH /domains/{domain_id}/config/{invalid_group}``.
 
         While updating Identity API-based domain config with an invalid group
         and an invalid domain id provided, the request shall be rejected
@@ -348,7 +348,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertEqual(expected_config, res)
 
     def test_update_config_option_invalid_domain(self):
-        """Call ``PATCH /domains/{domain_id}/config/{group}/{option}``
+        """Call ``PATCH /domains/{domain_id}/config/{group}/{option}``.
 
         While updating Identity API-based domain config option with an invalid
         domain id provided, the request shall be rejected with a response, 404
@@ -385,7 +385,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.NOT_FOUND)
 
     def test_update_config_invalid_option_invalid_domain(self):
-        """Call ``PATCH /domains/{domain_id}/config/{group}/{invalid}``
+        """Call ``PATCH /domains/{domain_id}/config/{group}/{invalid}``.
 
         While updating Identity API-based domain config with an invalid option
         and an invalid domain id provided, the request shall be rejected

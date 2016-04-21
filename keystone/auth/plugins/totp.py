@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Time-based One-time Password Algorithm (TOTP) auth plugin
+"""Time-based One-time Password Algorithm (TOTP) auth plugin.
 
 TOTP is an algorithm that computes a one-time password from a shared secret
 key and the current time.
@@ -69,7 +69,7 @@ def _generate_totp_passcode(secret):
 class TOTP(auth.AuthMethodHandler):
 
     def authenticate(self, context, auth_payload, auth_context):
-        """Try to authenticate using TOTP"""
+        """Try to authenticate using TOTP."""
         user_info = plugins.TOTPUserInfo.create(auth_payload, METHOD_NAME)
         auth_passcode = auth_payload.get('user').get('passcode')
 

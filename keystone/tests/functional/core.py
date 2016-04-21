@@ -50,7 +50,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
         return headers
 
     def get_scoped_token_response(self, user):
-        """Convenience method so that we can test authenticated requests
+        """Convenience method so that we can test authenticated requests.
 
         :param user: A dictionary with user information like 'username',
                      'password', 'domain_id'
@@ -65,7 +65,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
                              json=body)
 
     def get_scoped_token(self, user):
-        """Convenience method for getting scoped token
+        """Convenience method for getting scoped token.
 
         This method doesn't do any token validaton.
 

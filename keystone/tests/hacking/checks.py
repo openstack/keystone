@@ -227,7 +227,7 @@ class CheckForLoggingIssues(BaseASTChecker):
             return None
 
     def visit_Assign(self, node):
-        """Look for 'LOG = logging.getLogger'
+        """Look for 'LOG = logging.getLogger'.
 
         This handles the simple case:
           name = [logging_module].getLogger(...)

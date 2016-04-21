@@ -3582,7 +3582,7 @@ class TestTrustOptional(test_v3.RestfulTestCase):
 
 
 class TrustAPIBehavior(test_v3.RestfulTestCase):
-    """Redelegation valid and secure
+    """Redelegation valid and secure.
 
     Redelegation is a hierarchical structure of trusts between initial trustor
     and a group of users allowed to impersonate trustor and act in his name.

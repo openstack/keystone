@@ -99,7 +99,7 @@ class FilterTests(object):
 
     def _create_test_data(self, entity_type, number, domain_id=None,
                           name_dict=None):
-        """Create entity test data
+        """Create entity test data.
 
         :param entity_type: type of entity to create, e.g. 'user', group' etc.
         :param number: number of entities to create,

@@ -213,7 +213,7 @@ class Manager(manager.Manager):
         return revoke_tree
 
     def check_token(self, token_values):
-        """Check the values from a token against the revocation list
+        """Check the values from a token against the revocation list.
 
         :param token_values: dictionary of values from a token, normalized for
                              differences between v2 and v3. The checked values
@@ -236,7 +236,7 @@ class RevokeDriverV8(object):
 
     @abc.abstractmethod
     def list_events(self, last_fetch=None):
-        """return the revocation events, as a list of objects
+        """return the revocation events, as a list of objects.
 
         :param last_fetch:   Time of last fetch.  Return all events newer.
         :returns: A list of keystone.revoke.model.RevokeEvent
@@ -249,7 +249,7 @@ class RevokeDriverV8(object):
 
     @abc.abstractmethod
     def revoke(self, event):
-        """register a revocation event
+        """register a revocation event.
 
         :param event: An instance of
             keystone.revoke.model.RevocationEvent

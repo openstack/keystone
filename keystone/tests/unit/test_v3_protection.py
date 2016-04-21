@@ -113,7 +113,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
             policyfile.write(jsonutils.dumps(new_policy))
 
     def test_list_users_unprotected(self):
-        """GET /users (unprotected)
+        """GET /users (unprotected).
 
         Test Plan:
 
@@ -130,7 +130,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assertIn(self.user3['id'], id_list)
 
     def test_list_users_filtered_by_domain(self):
-        """GET /users?domain_id=mydomain (filtered)
+        """GET /users?domain_id=mydomain (filtered).
 
         Test Plan:
 
@@ -148,7 +148,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assertIn(self.user3['id'], id_list)
 
     def test_get_user_protected_match_id(self):
-        """GET /users/{id} (match payload)
+        """GET /users/{id} (match payload).
 
         Test Plan:
 
@@ -168,7 +168,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assertEqual(self.user1['id'], r.result['user']['id'])
 
     def test_get_user_protected_match_target(self):
-        """GET /users/{id} (match target)
+        """GET /users/{id} (match target).
 
         Test Plan:
 
@@ -200,7 +200,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
                      expected_status=exception.UserNotFound.code)
 
     def test_revoke_grant_protected_match_target(self):
-        """DELETE /domains/{id}/users/{id}/roles/{id} (match target)
+        """DELETE /domains/{id}/users/{id}/roles/{id} (match target).
 
         Test Plan:
 
@@ -239,7 +239,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.delete(member_url, auth=self.auth)
 
     def test_list_users_protected_by_domain(self):
-        """GET /users?domain_id=mydomain (protected)
+        """GET /users?domain_id=mydomain (protected).
 
         Test Plan:
 
@@ -270,7 +270,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
                      expected_status=exception.ForbiddenAction.code)
 
     def test_list_groups_protected_by_domain(self):
-        """GET /groups?domain_id=mydomain (protected)
+        """GET /groups?domain_id=mydomain (protected).
 
         Test Plan:
 
@@ -301,7 +301,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
                      expected_status=exception.ForbiddenAction.code)
 
     def test_list_groups_protected_by_domain_and_filtered(self):
-        """GET /groups?domain_id=mydomain&name=myname (protected)
+        """GET /groups?domain_id=mydomain&name=myname (protected).
 
         Test Plan:
 

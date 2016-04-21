@@ -127,7 +127,7 @@ def attr_keys(event):
 
 
 class RevokeTree(object):
-    """Fast Revocation Checking Tree Structure
+    """Fast Revocation Checking Tree Structure.
 
     The Tree is an index to quickly match tokens against events.
     Each node is a hashtable of key=value combinations from revocation events.
@@ -160,7 +160,7 @@ class RevokeTree(object):
         return event
 
     def remove_event(self, event):
-        """Update the tree based on the removal of a Revocation Event
+        """Update the tree based on the removal of a Revocation Event.
 
         Removes empty nodes from the tree from the leaf back to the root.
 
@@ -192,7 +192,7 @@ class RevokeTree(object):
 
     @staticmethod
     def _next_level_keys(name, token_data):
-        """Generate keys based on current field name and token data
+        """Generate keys based on current field name and token data.
 
         Generate all keys to look for in the next iteration of revocation
         event tree traversal.
@@ -211,7 +211,7 @@ class RevokeTree(object):
                 yield token_data[alt_name]
 
     def _search(self, revoke_map, names, token_data):
-        """Search for revocation event by token_data
+        """Search for revocation event by token_data.
 
         Traverse the revocation events tree looking for event matching token
         data issued after the token.
@@ -236,7 +236,7 @@ class RevokeTree(object):
         return False
 
     def is_revoked(self, token_data):
-        """Check if a token matches the revocation event
+        """Check if a token matches the revocation event.
 
         Compare the values for each level of the tree with the values from
         the token, accounting for attributes that have alternative
