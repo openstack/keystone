@@ -8,14 +8,14 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev12\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-04-07 22:09+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-20 19:33+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-02-03 07:03+0000\n"
-"Last-Translator: Lucas Palm <lapalm@us.ibm.com>\n"
+"PO-Revision-Date: 2016-03-24 01:32+0000\n"
+"Last-Translator: SeYeon Lee <sy_lee@kr.ibm.com>\n"
 "Language: ko-KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -609,10 +609,6 @@ msgstr ""
 "올바르지 않기 때문에 서버가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태"
 "로 간주됩니다."
 
-#, python-format
-msgid "Failed to start the %(name)s server"
-msgstr "%(name)s 서버를 시작하지 못함"
-
 msgid "Failed to validate token"
 msgstr "토큰을 유효성 검증하지 못했음"
 
@@ -1020,15 +1016,6 @@ msgid ""
 msgstr ""
 "%(requested_count)d의 요청된 재위임 깊이가 허용되는 %(max_count)d보다 깊음"
 
-msgid ""
-"Running keystone via eventlet is deprecated as of Kilo in favor of running "
-"in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
-"be removed in the \"M\"-Release."
-msgstr ""
-"eventlet을 통한 키스톤 실행은 WSGI 서버 실행의 플레이버에 있는 Kilo부터  더 "
-"이상 사용되지 않습니다(예: mod_wsgi). eventlet 아래의 키스톤에 대한 지원은 "
-"\"M\"-릴리스에서 제거됩니다."
-
 msgid "Scoping to both domain and project is not allowed"
 msgstr "도메인과 프로젝트에 대한 범위 지정이 허용되지 않음"
 
@@ -1175,15 +1162,6 @@ msgid ""
 msgstr ""
 "시간소인이 예상된 형식이 아닙니다. 잘못 구성되었거나 올바르지 않으므로 서버"
 "가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태로 간주됩니다."
-
-#, python-format
-msgid ""
-"To get a more detailed information on this error, re-run this command for "
-"the specific domain, i.e.: keystone-manage domain_config_upload --domain-"
-"name %s"
-msgstr ""
-"이 오류에 대한 자세한 정보를 보려면 특정 도메인에 대해 이 명령을 다시 실행하"
-"십시오. 예: keystone-manage domain_config_upload --domain-name %s"
 
 msgid "Token belongs to another user"
 msgstr "토큰이 다른 사용자에 속함"
@@ -1453,12 +1431,6 @@ msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
 msgstr "이름이 같은 두 프로젝트가 도메인 역할을 수행할 수 없음: %s"
-
-#, python-format
-msgid ""
-"it is not permitted to have two projects within a domain with the same "
-"name : %s"
-msgstr "한 도메인에 이름이 같은 두 프로젝트가 있을 수 없음: %s"
 
 msgid "only root projects are allowed to act as domains."
 msgstr "루트 프로젝트만 도메인 역할을 수행할 수 있습니다."

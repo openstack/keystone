@@ -6,14 +6,14 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev12\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-04-07 22:09+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-20 19:33+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-02-02 09:49+0000\n"
-"Last-Translator: Tom Cocozzello <tjcocozz@us.ibm.com>\n"
+"PO-Revision-Date: 2016-03-22 02:50+0000\n"
+"Last-Translator: Alessandra <alessandra@translated.net>\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.0\n"
@@ -652,10 +652,6 @@ msgstr ""
 "di soddisfare la richiesta perché non è valido o non è corretto. Si ritiene "
 "che il client sia in errore."
 
-#, python-format
-msgid "Failed to start the %(name)s server"
-msgstr "Impossibile avviare il server %(name)s"
-
 msgid "Failed to validate token"
 msgstr "Impossibile convalidare il token"
 
@@ -1085,15 +1081,6 @@ msgstr ""
 "La profondità di riassegnazione della delega richiesta %(requested_count)d è "
 "maggiore del valore consentito %(max_count)d"
 
-msgid ""
-"Running keystone via eventlet is deprecated as of Kilo in favor of running "
-"in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
-"be removed in the \"M\"-Release."
-msgstr ""
-"L'esecuzione del keystone via eventlet è obsoleta in Kilo, rispetto "
-"all'esecuzione in un server WSGI (ad esempio mod_wsgi). Il supporto per il "
-"keystone in eventlet verrà rimosso in \"M\"-Release."
-
 msgid "Scoping to both domain and project is not allowed"
 msgstr "Il controllo sia del dominio che del progetto non è consentito"
 
@@ -1251,16 +1238,6 @@ msgstr ""
 "Data/ora non nel formato previsto. Il server non è riuscito a rispettare la "
 "richiesta perché è in formato errato o non corretta. Il client viene "
 "considerato in errore."
-
-#, python-format
-msgid ""
-"To get a more detailed information on this error, re-run this command for "
-"the specific domain, i.e.: keystone-manage domain_config_upload --domain-"
-"name %s"
-msgstr ""
-"Per ottenere informazioni più dettagliate su questo errore, eseguire di "
-"nuovo questo comando per il dominio specificato, ad esempio: keystone-manage "
-"domain_config_upload --domain-name %s"
 
 msgid "Token belongs to another user"
 msgstr "Il token appartiene ad un altro utente"
@@ -1543,14 +1520,6 @@ msgid ""
 "name: %s"
 msgstr ""
 "non è consentito avere due progetti che agiscono con lo stesso nome: %s"
-
-#, python-format
-msgid ""
-"it is not permitted to have two projects within a domain with the same "
-"name : %s"
-msgstr ""
-"non è consentito avere due progetti all'interno di un dominio con lo stesso "
-"nome: %s"
 
 msgid "only root projects are allowed to act as domains."
 msgstr "Solo ai progetti root è consentito agire come domini."

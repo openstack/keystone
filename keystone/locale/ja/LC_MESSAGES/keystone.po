@@ -7,14 +7,14 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev12\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-04-07 22:09+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-20 19:33+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-10-08 03:20+0000\n"
-"Last-Translator: Akihiro Motoki <amotoki@gmail.com>\n"
+"PO-Revision-Date: 2016-04-04 01:18+0000\n"
+"Last-Translator: 笹原 昌美 <ebb0de1@jp.ibm.com>\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -641,10 +641,6 @@ msgstr ""
 "しくは正しくないため、サーバーは要求に応じることができませんでした。クライア"
 "ントでエラーが発生していると考えられます。"
 
-#, python-format
-msgid "Failed to start the %(name)s server"
-msgstr "%(name)s サーバーの起動に失敗しました"
-
 msgid "Failed to validate token"
 msgstr "トークンの検証に失敗しました"
 
@@ -1077,15 +1073,6 @@ msgstr ""
 "要求された再委任の深さ %(requested_count)d が、許可された上限 %(max_count)d "
 "を超えています"
 
-msgid ""
-"Running keystone via eventlet is deprecated as of Kilo in favor of running "
-"in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
-"be removed in the \"M\"-Release."
-msgstr ""
-"eventlet を介した keystone の実行は Kilo 以降では推奨されておらず、WSGI サー"
-"バー (mod_wsgi など) での実行が推奨されています。eventlet 下での keystone の"
-"サポートは「M」リリースで削除される予定です。"
-
 msgid "Scoping to both domain and project is not allowed"
 msgstr "ドメインとプロジェクトの両方にスコープを設定することはできません"
 
@@ -1238,15 +1225,6 @@ msgstr ""
 "タイムスタンプが想定された形式になっていません。要求の形式が不正もしくは正し"
 "くないため、サーバーは要求に応じることができませんでした。クライアントでエ"
 "ラーが発生していると考えられます。"
-
-#, python-format
-msgid ""
-"To get a more detailed information on this error, re-run this command for "
-"the specific domain, i.e.: keystone-manage domain_config_upload --domain-"
-"name %s"
-msgstr ""
-"このエラーに関する詳細を得るには、特定ドメインに対してこのコマンドを再実行し"
-"てください: keystone-manage domain_config_upload --domain-name %s"
 
 msgid "Token belongs to another user"
 msgstr "トークンが別のユーザーに属しています"
@@ -1530,14 +1508,6 @@ msgid ""
 msgstr ""
 "ドメインとして動作する同じ名前の 2 つのプロジェクトが存在することは許可されま"
 "せん: %s"
-
-#, python-format
-msgid ""
-"it is not permitted to have two projects within a domain with the same "
-"name : %s"
-msgstr ""
-"1 つのドメイン内に同じ名前の 2 つのプロジェクトが存在することは許可されませ"
-"ん : %s"
 
 msgid "only root projects are allowed to act as domains."
 msgstr "ドメインとして動作することが許可されるのは root プロジェクトのみです。"

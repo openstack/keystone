@@ -7,9 +7,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev12\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-04-07 22:09+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-20 19:33+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -127,17 +127,6 @@ msgstr ""
 
 msgid "No domain information specified as part of list request"
 msgstr "목록 요청의 일부로 도메인 정보가 지정되지 않음"
-
-msgid ""
-"Not specifying a domain during a create user, group or project call, and "
-"relying on falling back to the default domain, is deprecated as of Liberty "
-"and will be removed in the N release. Specify the domain explicitly or use a "
-"domain-scoped token"
-msgstr ""
-"사용자, 그룹 또는 프로젝트 호출 생성 중에 도메인을 지정하지 않고, 기본 도메인"
-"으로 다시 돌아가는 기능은 Liberty에서는 더 이상 사용되지 않으므로 N 릴리스에"
-"서 제거됩니다. 도메인을 명시적으로 지정하거나 도메인 범위 토큰을 사용하십시"
-"오."
 
 #, python-format
 msgid ""
@@ -317,9 +306,6 @@ msgstr ""
 
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr "keystone-manage pki_setup은 프로덕션에서 사용하지 않는 것이 좋습니다.."
-
-msgid "keystone-manage ssl_setup is not recommended for production use."
-msgstr "keystone-manage ssl_setup은 프로덕션에서 사용하지 않는 것이 좋습니다."
 
 msgid "missing exception kwargs (programmer error)"
 msgstr "누락된 예외 kwargs(프로그래머 오류)"

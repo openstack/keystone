@@ -1,14 +1,14 @@
 # Translations template for keystone.
-# Copyright (C) 2016 OpenStack Foundation
+# Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the keystone project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev37\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-08 06:03+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-21 07:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,21 +17,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
 
-#: keystone/notifications.py:370
+#: keystone/notifications.py:338
 msgid "Failed to construct notifier"
 msgstr ""
 
-#: keystone/notifications.py:466
+#: keystone/notifications.py:441
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/notifications.py:733
+#: keystone/notifications.py:727
 #, python-format
 msgid "Failed to send %(action)s %(event_type)s notification"
 msgstr ""
 
-#: keystone/assignment/core.py:669
+#: keystone/assignment/core.py:688
 #, python-format
 msgid "Circular reference found role inference rules - %(prior_role_id)s."
 msgstr ""
@@ -60,6 +60,13 @@ msgid ""
 "notifier ?)"
 msgstr ""
 
+#: keystone/cmd/cli.py:720
+#, python-format
+msgid ""
+"Error processing config file for domain: %(domain_name)s, file: "
+"%(filename)s, error: %(error)s"
+msgstr ""
+
 #: keystone/common/openssl.py:90
 #, python-format
 msgid "Command %(to_exec)s exited with %(retcode)s - %(output)s"
@@ -77,15 +84,6 @@ msgid ""
 "listening on that port."
 msgstr ""
 
-#: keystone/common/environment/eventlet_server.py:112
-#, python-format
-msgid "Could not bind to %(host)s:%(port)s"
-msgstr ""
-
-#: keystone/common/environment/eventlet_server.py:211
-msgid "Server error"
-msgstr ""
-
 #: keystone/endpoint_policy/core.py:131 keystone/endpoint_policy/core.py:231
 #, python-format
 msgid ""
@@ -93,7 +91,7 @@ msgid ""
 "%(region_id)s."
 msgstr ""
 
-#: keystone/federation/idp.py:440
+#: keystone/federation/idp.py:439
 #, python-format
 msgid "Error when signing assertion, reason: %(reason)s%(output)s"
 msgstr ""
@@ -102,34 +100,34 @@ msgstr ""
 msgid "Cannot retrieve Authorization headers"
 msgstr ""
 
-#: keystone/resource/core.py:728
+#: keystone/resource/core.py:731
 #, python-format
 msgid ""
 "Asked to convert a non-domain project into a domain - Domain: "
 "%(domain_id)s, Project ID: %(id)s, Project Name: %(project_name)s"
 msgstr ""
 
-#: keystone/resource/core.py:831
+#: keystone/resource/core.py:833
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:912
+#: keystone/resource/core.py:906
 msgid "Failed to create the default domain."
 msgstr ""
 
-#: keystone/resource/core.py:1419 keystone/resource/V8_backends/sql.py:100
+#: keystone/resource/core.py:1481 keystone/resource/V8_backends/sql.py:100
 #: keystone/resource/V8_backends/sql.py:119
-#: keystone/resource/backends/sql.py:137 keystone/resource/backends/sql.py:156
+#: keystone/resource/backends/sql.py:136 keystone/resource/backends/sql.py:155
 #, python-format
 msgid ""
 "Circular reference or a repeated entry found in projects hierarchy - "
 "%(project_id)s."
 msgstr ""
 
-#: keystone/resource/core.py:1600
+#: keystone/resource/core.py:1660
 #, python-format
 msgid ""
 "Unexpected results in response for domain config - %(count)s responses, "
@@ -141,7 +139,7 @@ msgstr ""
 msgid "Unexpected error or malformed token determining token expiry: %s"
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:236
+#: keystone/token/persistence/backends/kvs.py:242
 #, python-format
 msgid ""
 "Reinitializing revocation list due to error in loading revocation list "
@@ -149,11 +147,11 @@ msgid ""
 "data: %(list)r"
 msgstr ""
 
-#: keystone/token/providers/common.py:726
+#: keystone/token/providers/common.py:728
 msgid "Failed to validate token"
 msgstr ""
 
-#: keystone/token/providers/pki.py:52
+#: keystone/token/providers/pki.py:53
 msgid "Unable to sign token"
 msgstr ""
 

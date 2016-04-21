@@ -1,14 +1,14 @@
 # Translations template for keystone.
-# Copyright (C) 2016 OpenStack Foundation
+# Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the keystone project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.0.0b4.dev83\n"
-"Report-Msgid-Bugs-To: https://bugs.launchpad.net/keystone\n"
-"POT-Creation-Date: 2016-03-11 06:03+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-04-21 07:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "missing exception kwargs (programmer error)"
 msgstr ""
 
-#: keystone/assignment/core.py:1393
+#: keystone/assignment/core.py:1394
 #, python-format
 msgid ""
 "delete_domain_assignments method not found in custom assignment driver. "
@@ -60,13 +60,13 @@ msgstr ""
 msgid "keystone-manage pki_setup is not recommended for production use."
 msgstr ""
 
-#: keystone/cmd/cli.py:477
-msgid "keystone-manage ssl_setup is not recommended for production use."
-msgstr ""
-
-#: keystone/cmd/cli.py:650
+#: keystone/cmd/cli.py:631
 #, python-format
 msgid "Ignoring file (%s) while scanning domain config directory"
+msgstr ""
+
+#: keystone/cmd/cli.py:950
+msgid "Config file not found, using default configs."
 msgstr ""
 
 #: keystone/common/authorization.py:69
@@ -78,7 +78,7 @@ msgid "RBAC: Invalid token"
 msgstr ""
 
 #: keystone/common/controller.py:127 keystone/common/controller.py:246
-#: keystone/common/controller.py:799
+#: keystone/common/controller.py:800
 msgid "RBAC: Bypassing authorization"
 msgstr ""
 
@@ -90,8 +90,9 @@ msgstr ""
 msgid ""
 "Not specifying a domain during a create user, group or project call, and "
 "relying on falling back to the default domain, is deprecated as of "
-"Liberty and will be removed in the N release. Specify the domain "
-"explicitly or use a domain-scoped token"
+"Liberty. There is no plan to remove this compatibility, however, future "
+"API versions may remove this, so please specify the domain explicitly or "
+"use a domain-scoped token."
 msgstr ""
 
 #: keystone/common/openssl.py:74
@@ -170,7 +171,7 @@ msgid ""
 "%(endpoint_id)s not found."
 msgstr ""
 
-#: keystone/federation/utils.py:606
+#: keystone/federation/utils.py:615
 msgid "Ignoring user name"
 msgstr ""
 
@@ -184,17 +185,17 @@ msgstr ""
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr ""
 
-#: keystone/identity/core.py:131
+#: keystone/identity/core.py:109
 #, python-format
 msgid "Invalid domain name (%s) found in config file name"
 msgstr ""
 
-#: keystone/identity/core.py:169
+#: keystone/identity/core.py:147
 #, python-format
 msgid "Unable to locate domain config directory: %s"
 msgstr ""
 
-#: keystone/identity/core.py:691
+#: keystone/identity/core.py:669
 #, python-format
 msgid ""
 "Found multiple domains being mapped to a driver that does not support "
@@ -224,7 +225,7 @@ msgid ""
 "[pipeline:public_api] sections of your paste ini file."
 msgstr ""
 
-#: keystone/resource/core.py:899
+#: keystone/resource/core.py:898
 msgid ""
 "The default domain was created automatically to contain V2 resources. "
 "This is deprecated in the M release and will not be supported in the O "
@@ -232,7 +233,7 @@ msgid ""
 "bootstrap command."
 msgstr ""
 
-#: keystone/resource/core.py:1948
+#: keystone/resource/core.py:1919
 #, python-format
 msgid ""
 "Found what looks like an unmatched config option substitution reference -"
@@ -241,7 +242,7 @@ msgid ""
 "added?"
 msgstr ""
 
-#: keystone/resource/core.py:1955
+#: keystone/resource/core.py:1926
 #, python-format
 msgid ""
 "Found what looks like an incorrectly constructed config option "
@@ -249,12 +250,12 @@ msgid ""
 "%(option)s, value: %(value)s."
 msgstr ""
 
-#: keystone/resource/backends/sql.py:222
+#: keystone/resource/backends/sql.py:217
 #, python-format
 msgid "Project %s does not exist and was not deleted."
 msgstr ""
 
-#: keystone/server/common.py:43
+#: keystone/server/common.py:42
 msgid "insecure_debug is enabled so responses may include sensitive information."
 msgstr ""
 
@@ -265,19 +266,19 @@ msgid ""
 "`token_provider_api` and may be removed in Kilo."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:58
+#: keystone/token/persistence/backends/kvs.py:64
 msgid ""
 "It is recommended to only use the base key-value-store implementation for"
 " the token driver for testing purposes. Please use 'memcache' or 'sql' "
 "instead."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:207
+#: keystone/token/persistence/backends/kvs.py:213
 #, python-format
 msgid "Token `%s` is expired, not adding to the revocation list."
 msgstr ""
 
-#: keystone/token/persistence/backends/kvs.py:250
+#: keystone/token/persistence/backends/kvs.py:256
 #, python-format
 msgid ""
 "Removing `%s` from revocation list due to invalid expires data in "
