@@ -63,6 +63,7 @@ class KeystoneToken(dict):
                                               'both project and domain.'))
 
     def __repr__(self):
+        """Return string representation of KeystoneToken."""
         desc = ('<%(type)s (audit_id=%(audit_id)s, '
                 'audit_chain_id=%(audit_chain_id)s) at %(loc)s>')
         self_cls_name = reflection.get_class_name(self,

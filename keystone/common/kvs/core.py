@@ -429,6 +429,7 @@ class KeyValueStoreLock(object):
                             self.key)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Release the lock."""
         self.release()
 
 

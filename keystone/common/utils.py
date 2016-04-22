@@ -498,6 +498,7 @@ class WhiteListedItemFilter(object):
         self._data = data
 
     def __getitem__(self, name):
+        """Evaluation on an item access."""
         if name not in self._whitelist:
             raise KeyError
         return self._data[name]

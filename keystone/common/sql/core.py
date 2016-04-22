@@ -147,6 +147,7 @@ class DictBase(models.ModelBase):
         return d
 
     def __getitem__(self, key):
+        """Evaluate if key is in extra or not, to return correct item."""
         if key in self.extra:
             return self.extra[key]
         return getattr(self, key)
