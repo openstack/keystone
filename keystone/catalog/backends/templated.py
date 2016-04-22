@@ -19,7 +19,8 @@ from oslo_config import cfg
 from oslo_log import log
 import six
 
-from keystone.catalog import core
+from keystone.catalog.backends import base
+from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _LC
 
@@ -56,7 +57,7 @@ def parse_templates(template_lines):
     return o
 
 
-class Catalog(core.Driver):
+class Catalog(base.CatalogDriverV8):
     """A backend that generates endpoints for the Catalog based on templates.
 
     It is usually configured via config entries that look like:
@@ -231,7 +232,7 @@ class Catalog(core.Driver):
                 service_data = {}
                 try:
                     for k, v in service_ref.items():
-                        formatted_value = core.format_url(
+                        formatted_value = utils.format_url(
                             v, substitutions,
                             silent_keyerror_failures=silent_keyerror_failures)
                         if formatted_value:

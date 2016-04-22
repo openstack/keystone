@@ -15,8 +15,8 @@
 from oslo_config import cfg
 
 from keystone.catalog.backends import sql
-from keystone.catalog import core as catalog_core
 from keystone.common import dependency
+from keystone.common import utils
 
 
 CONF = cfg.CONF
@@ -56,7 +56,7 @@ class EndpointFilterCatalog(sql.Catalog):
             del endpoint['legacy_endpoint_id']
             # Include deprecated region for backwards compatibility
             endpoint['region'] = endpoint['region_id']
-            endpoint['url'] = catalog_core.format_url(
+            endpoint['url'] = utils.format_url(
                 endpoint['url'], substitutions)
             # populate filtered endpoints
             if 'endpoints' in services[service_id]:
