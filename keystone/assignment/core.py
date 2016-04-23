@@ -1647,7 +1647,7 @@ class RoleDriverV9(RoleDriverBase):
 
     @abc.abstractmethod
     def get_implied_role(self, prior_role_id, implied_role_id):
-        """Fetche a role inference rule.
+        """Get a role inference rule.
 
         :raises keystone.exception.ImpliedRoleNotFound: If the implied role
             doesn't exist.
