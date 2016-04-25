@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
 import uuid
 
 import fixtures
 import mock
 from oslo_config import cfg
+from oslo_log import log
 from six.moves import http_client
 from testtools import matchers
 
@@ -596,7 +596,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_create_user_password_not_logged(self):
         # When a user is created, the password isn't logged at any level.
 
-        log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+        log_fix = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
 
         ref = unit.new_user_ref(domain_id=self.domain_id)
         self.post(
@@ -609,7 +609,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # When admin modifies user password, the password isn't logged at any
         # level.
 
-        log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+        log_fix = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
 
         # bootstrap a user as admin
         user_ref = unit.create_user(self.identity_api,
@@ -794,7 +794,7 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         # When a user changes their password, the password isn't logged at any
         # level.
 
-        log_fix = self.useFixture(fixtures.FakeLogger(level=logging.DEBUG))
+        log_fix = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
 
         # change password
         new_password = uuid.uuid4().hex

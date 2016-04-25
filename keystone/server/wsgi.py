@@ -12,11 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import logging
 import os
 
 from oslo_config import cfg
 import oslo_i18n
+from oslo_log import log
 
 from keystone.common import profiler
 
@@ -46,7 +46,7 @@ def initialize_application(name,
 
     # Log the options used when starting if we're in debug mode...
     if CONF.debug:
-        CONF.log_opt_values(logging.getLogger(CONF.prog), logging.DEBUG)
+        CONF.log_opt_values(log.getLogger(CONF.prog), log.DEBUG)
 
     post_log_configured_function()
 

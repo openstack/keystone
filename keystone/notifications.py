@@ -17,7 +17,6 @@
 import collections
 import functools
 import inspect
-import logging
 import socket
 
 from oslo_config import cfg
@@ -246,7 +245,7 @@ def register_event_callback(event, resource_type, callbacks):
         _SUBSCRIBERS.setdefault(event, {}).setdefault(resource_type, set())
         _SUBSCRIBERS[event][resource_type].add(callback)
 
-        if LOG.logger.getEffectiveLevel() <= logging.DEBUG:
+        if LOG.logger.getEffectiveLevel() <= log.DEBUG:
             # Do this only if its going to appear in the logs.
             msg = 'Callback: `%(callback)s` subscribed to event `%(event)s`.'
             callback_info = _get_callback_info(callback)

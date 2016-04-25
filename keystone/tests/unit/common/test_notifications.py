@@ -12,13 +12,13 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import logging
 import uuid
 
 import fixtures
 import mock
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
+from oslo_log import log
 from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
@@ -1158,7 +1158,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
         super(TestCallbackRegistration, self).setUp()
         self.mock_log = mock.Mock()
         # Force the callback logging to occur
-        self.mock_log.logger.getEffectiveLevel.return_value = logging.DEBUG
+        self.mock_log.logger.getEffectiveLevel.return_value = log.DEBUG
 
     def verify_log_message(self, data):
         """Verify log message.

@@ -10,8 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import logging
-
+from oslo_log import log
 import oslo_messaging
 import osprofiler.notifier
 import osprofiler.web
@@ -21,7 +20,7 @@ from keystone.i18n import _LI
 
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
+LOG = log.getLogger(__name__)
 
 
 def setup(name, host='0.0.0.0'):  # nosec
