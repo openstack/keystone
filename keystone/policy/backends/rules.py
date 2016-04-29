@@ -20,7 +20,7 @@ from oslo_log import log
 from oslo_policy import policy as common_policy
 
 from keystone import exception
-from keystone import policy
+from keystone.policy.backends import base
 
 
 CONF = cfg.CONF
@@ -69,7 +69,7 @@ def enforce(credentials, action, target, do_raise=True):
     return _ENFORCER.enforce(action, target, credentials, **extra)
 
 
-class Policy(policy.PolicyDriverV8):
+class Policy(base.PolicyDriverV8):
     def enforce(self, credentials, action, target):
         LOG.debug('enforce %(action)s: %(credentials)s', {
             'action': action,

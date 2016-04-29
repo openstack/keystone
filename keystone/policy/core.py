@@ -14,15 +14,14 @@
 
 """Main entry point into the Policy service."""
 
-import abc
-
 from oslo_config import cfg
-import six
+from oslo_log import versionutils
 
 from keystone.common import dependency
 from keystone.common import manager
 from keystone import exception
 from keystone import notifications
+from keystone.policy.backends import base
 
 
 CONF = cfg.CONF
@@ -81,61 +80,13 @@ class Manager(manager.Manager):
         return ret
 
 
-@six.add_metaclass(abc.ABCMeta)
-class PolicyDriverV8(object):
-
-    def _get_list_limit(self):
-        return CONF.policy.list_limit or CONF.list_limit
-
-    @abc.abstractmethod
-    def enforce(self, context, credentials, action, target):
-        """Verify that a user is authorized to perform action.
-
-        For more information on a full implementation of this see:
-        `keystone.policy.backends.rules.Policy.enforce`
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def create_policy(self, policy_id, policy):
-        """Store a policy blob.
-
-        :raises keystone.exception.Conflict: If a duplicate policy exists.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_policies(self):
-        """List all policies."""
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_policy(self, policy_id):
-        """Retrieve a specific policy blob.
-
-        :raises keystone.exception.PolicyNotFound: If the policy doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_policy(self, policy_id, policy):
-        """Update a policy blob.
-
-        :raises keystone.exception.PolicyNotFound: If the policy doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_policy(self, policy_id):
-        """Remove a policy blob.
-
-        :raises keystone.exception.PolicyNotFound: If the policy doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.policy.PolicyDriverV8',
+    in_favor_of='keystone.policy.backends.base.PolicyDriverV8',
+    remove_in=+1)
+class PolicyDriverV8(base.PolicyDriverV8):
+    pass
 
 
-Driver = manager.create_legacy_driver(PolicyDriverV8)
+Driver = manager.create_legacy_driver(base.PolicyDriverV8)
