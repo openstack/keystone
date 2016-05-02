@@ -4718,10 +4718,10 @@ class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
 class TestAuthFernetTokenProvider(TestAuth):
     def setUp(self):
         super(TestAuthFernetTokenProvider, self).setUp()
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
     def config_overrides(self):
         super(TestAuthFernetTokenProvider, self).config_overrides()
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
         self.config_fixture.config(group='token', provider='fernet')
 
     def test_verify_with_bound_token(self):
