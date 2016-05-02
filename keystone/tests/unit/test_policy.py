@@ -65,15 +65,6 @@ class PolicyFileTestCase(BasePolicyTestCase):
         self.assertRaises(exception.ForbiddenAction, rules.enforce,
                           empty_credentials, action, self.target)
 
-    def test_invalid_policy_raises_error(self):
-        action = "example:test"
-        empty_credentials = {}
-        invalid_json = '{"example:test": [],}'
-        with open(self.tmpfilename, "w") as policyfile:
-            policyfile.write(invalid_json)
-        self.assertRaises(ValueError, rules.enforce,
-                          empty_credentials, action, self.target)
-
 
 class PolicyTestCase(BasePolicyTestCase):
     def setUp(self):
