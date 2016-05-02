@@ -15,7 +15,6 @@ from oslo_config import cfg
 from keystone.common import dependency
 from keystone.common import utils as ks_utils
 from keystone.federation import constants as federation_constants
-from keystone.token import provider
 from keystone.token.providers import common
 from keystone.token.providers.fernet import token_formatters as tf
 
@@ -145,12 +144,8 @@ class Provider(common.BaseProvider):
         expires_at = token_data['access']['token']['expires']
         audit_ids = token_data['access']['token'].get('audit_ids')
         methods = ['password']
-        if audit_ids:
-            parent_audit_id = token_data['access']['token'].get(
-                'parent_audit_id')
-            audit_ids = provider.audit_info(parent_audit_id)
-            if parent_audit_id:
-                methods.append('token')
+        if len(audit_ids) > 1:
+            methods.append('token')
         project_id = token_data['access']['token'].get('tenant', {}).get('id')
         domain_id = None
         trust_id = None

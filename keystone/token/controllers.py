@@ -180,7 +180,8 @@ class Auth(controller.V2Controller):
         try:
             token_model_ref = token_model.KeystoneToken(
                 token_id=old_token,
-                token_data=self.token_provider_api.validate_token(old_token))
+                token_data=self.token_provider_api.validate_v2_token(old_token)
+            )
         except exception.NotFound as e:
             raise exception.Unauthorized(e)
 
