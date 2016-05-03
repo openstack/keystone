@@ -292,7 +292,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         return self.filter_attributes(user)
 
     def get_all_filtered(self, hints):
-        query = self.filter_query(hints)
+        query = self.filter_query(hints, self.ldap_filter)
         return [self.filter_attributes(user)
                 for user in self.get_all(query, hints)]
 
