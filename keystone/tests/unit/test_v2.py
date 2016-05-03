@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import time
 import uuid
 
 from keystoneclient.common import cms
 from oslo_config import cfg
+from oslo_serialization import jsonutils
 import six
 from six.moves import http_client
 from testtools import matchers
@@ -1257,7 +1257,7 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         data_json = cms.cms_verify(signed_text, CONF.signing.certfile,
                                    CONF.signing.ca_certs)
 
-        data = json.loads(data_json)
+        data = jsonutils.loads(data_json)
 
         return (data, token2)
 
@@ -1523,6 +1523,9 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
                                                          project_ref['id'],
                                                          self.role_admin['id'])
+        token_id = unscoped_token
+        if six.PY2:
+            token_id = token_id.encode('ascii')
         r = self.public_request(
             method='POST',
             path='/v2.0/tokens',
@@ -1530,7 +1533,7 @@ class TestFernetTokenProviderV2(RestfulTestCase):
                 'auth': {
                     'tenantName': project_ref['name'],
                     'token': {
-                        'id': unscoped_token.encode('ascii')
+                        'id': token_id,
                     }
                 }
             },
