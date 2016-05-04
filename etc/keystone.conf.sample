@@ -96,82 +96,74 @@
 # From oslo.log
 #
 
-# If set to true, the logging level will be set to DEBUG instead of the default
-# INFO level. (boolean value)
+# Print debugging output (set logging level to DEBUG instead of default INFO
+# level). (boolean value)
 #debug = false
 
-# If set to false, the logging level will be set to WARNING instead of the
-# default INFO level. (boolean value)
+# If set to false, will disable INFO logging level, making WARNING the default.
+# (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #verbose = true
 
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
-# files, see the Python logging module documentation. Note that when logging
-# configuration files are used then all logging configuration is set in the
-# configuration file and other logging configuration options are ignored (for
-# example, logging_context_format_string). (string value)
+# files, see the Python logging module documentation. (string value)
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append = <None>
 
-# Defines the format string for %%(asctime)s in log records. Default:
-# %(default)s . This option is ignored if log_config_append is set. (string
+# DEPRECATED. A logging.Formatter log message format string which may use any
+# of the available logging.LogRecord attributes. This option is deprecated.
+# Please use logging_context_format_string and logging_default_format_string
+# instead. (string value)
+#log_format = <None>
+
+# Format string for %%(asctime)s in log records. Default: %(default)s . (string
 # value)
 #log_date_format = %Y-%m-%d %H:%M:%S
 
-# (Optional) Name of log file to send logging output to. If no default is set,
-# logging will go to stderr as defined by use_stderr. This option is ignored if
-# log_config_append is set. (string value)
+# (Optional) Name of log file to output to. If no default is set, logging will
+# go to stdout. (string value)
 # Deprecated group/name - [DEFAULT]/logfile
 #log_file = <None>
 
-# (Optional) The base directory used for relative log_file  paths. This option
-# is ignored if log_config_append is set. (string value)
+# (Optional) The base directory used for relative --log-file paths. (string
+# value)
 # Deprecated group/name - [DEFAULT]/logdir
 #log_dir = <None>
 
-# Uses logging handler designed to watch file system. When log file is moved or
-# removed this handler will open a new log file with specified path
-# instantaneously. It makes sense only if log_file option is specified and
-# Linux platform is used. This option is ignored if log_config_append is set.
-# (boolean value)
-#watch_log_file = false
-
 # Use syslog for logging. Existing syslog format is DEPRECATED and will be
-# changed later to honor RFC5424. This option is ignored if log_config_append
-# is set. (boolean value)
+# changed later to honor RFC5424. (boolean value)
 #use_syslog = false
 
-# Syslog facility to receive log lines. This option is ignored if
-# log_config_append is set. (string value)
+# (Optional) Enables or disables syslog rfc5424 format for logging. If enabled,
+# prefixes the MSG part of the syslog message with APP-NAME (RFC5424). The
+# format without the APP-NAME is deprecated in Kilo, and will be removed in
+# Mitaka, along with this option. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+#use_syslog_rfc_format = true
+
+# Syslog facility to receive log lines. (string value)
 #syslog_log_facility = LOG_USER
 
-# Log output to standard error. This option is ignored if log_config_append is
-# set. (boolean value)
+# Log output to standard error. (boolean value)
 #use_stderr = true
 
 # Format string to use for log messages with context. (string value)
 #logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
 
-# Format string to use for log messages when context is undefined. (string
-# value)
+# Format string to use for log messages without context. (string value)
 #logging_default_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s
 
-# Additional data to append to log message when logging level for the message
-# is DEBUG. (string value)
+# Data to append to log format when level is DEBUG. (string value)
 #logging_debug_format_suffix = %(funcName)s %(pathname)s:%(lineno)d
 
 # Prefix each line of exception output with this format. (string value)
 #logging_exception_prefix = %(asctime)s.%(msecs)03d %(process)d ERROR %(name)s %(instance)s
 
-# Defines the format string for %(user_identity)s that is used in
-# logging_context_format_string. (string value)
-#logging_user_identity_format = %(user)s %(tenant)s %(domain)s %(user_domain)s %(project_domain)s
-
-# List of package logging levels in logger=LEVEL pairs. This option is ignored
-# if log_config_append is set. (list value)
-#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN,oslo.cache=INFO,dogpile.core.dogpile=INFO
+# List of logger=LEVEL pairs. (list value)
+#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN
 
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
@@ -200,11 +192,10 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, dummy
-#rpc_zmq_matchmaker = redis
+#rpc_zmq_matchmaker = local
 
-# Type of concurrency used. Either "native" or "eventlet" (string value)
-#rpc_zmq_concurrency = eventlet
+# ZeroMQ receiver listening port. (integer value)
+#rpc_zmq_port = 9501
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
 #rpc_zmq_contexts = 1
@@ -220,41 +211,27 @@
 # "host" option, if running Nova. (string value)
 #rpc_zmq_host = localhost
 
-# Seconds to wait before a cast expires (TTL). The default value of -1
-# specifies an infinite linger period. The value of 0 specifies no linger
-# period. Pending messages shall be discarded immediately when the socket is
-# closed. Only supported by impl_zmq. (integer value)
-#rpc_cast_timeout = -1
-
-# The default number of seconds that poll should wait. Poll raises timeout
-# exception when timeout expired. (integer value)
-#rpc_poll_timeout = 1
-
-# Expiration timeout in seconds of a name service record about existing target
-# ( < 0 means no timeout). (integer value)
-#zmq_target_expire = 120
-
-# Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
-# value)
-#use_pub_sub = true
-
-# Minimal port number for random ports range. (port value)
-# Minimum value: 0
-# Maximum value: 65535
-#rpc_zmq_min_port = 49152
-
-# Maximal port number for random ports range. (integer value)
-# Minimum value: 1
-# Maximum value: 65536
-#rpc_zmq_max_port = 65536
-
-# Number of retries to find free port number before fail with ZMQBindError.
+# Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.
 # (integer value)
-#rpc_zmq_bind_port_retries = 100
+#rpc_cast_timeout = 30
+
+# Heartbeat frequency. (integer value)
+#matchmaker_heartbeat_freq = 300
+
+# Heartbeat time-to-live. (integer value)
+#matchmaker_heartbeat_ttl = 600
 
 # Size of executor thread pool. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
 #executor_thread_pool_size = 64
+
+# The Drivers(s) to handle sending notifications. Possible values are
+# messaging, messagingv2, routing, log, test, noop (multi valued)
+#notification_driver =
+
+# AMQP topic used for OpenStack notifications. (list value)
+# Deprecated group/name - [rpc_notifier2]/topics
+#notification_topics = notifications
 
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
@@ -264,7 +241,7 @@
 # configuration. (string value)
 #transport_url = <None>
 
-# The messaging driver to use, defaults to rabbit. Other drivers include amqp
+# The messaging driver to use, defaults to rabbit. Other drivers include qpid
 # and zmq. (string value)
 #rpc_backend = rabbit
 
@@ -284,19 +261,9 @@
 # The chosen port is displayed in the service's log file. (string value)
 #backdoor_port = <None>
 
-# Enable eventlet backdoor, using the provided path as a unix socket that can
-# receive connections. This option is mutually exclusive with 'backdoor_port'
-# in that only one should be provided. If both are provided then the existence
-# of this option overrides the usage of that option. (string value)
-#backdoor_socket = <None>
-
 # Enables or disables logging values of all registered options when starting a
 # service (at DEBUG level). (boolean value)
 #log_options = true
-
-# Specify a timeout after which a gracefully shutdown server will exit. Zero
-# value means endless wait. (integer value)
-#graceful_shutdown_timeout = 60
 
 
 [assignment]
@@ -442,7 +409,7 @@
 #
 
 # Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. (list value)
+# requests "origin" header. (string value)
 #allowed_origin = <None>
 
 # Indicate that the actual request can include user credentials (boolean value)
@@ -470,7 +437,7 @@
 #
 
 # Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. (list value)
+# requests "origin" header. (string value)
 #allowed_origin = <None>
 
 # Indicate that the actual request can include user credentials (boolean value)
@@ -567,7 +534,7 @@
 # If set, use this value for max_overflow with SQLAlchemy. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_overflow
 # Deprecated group/name - [DATABASE]/sqlalchemy_max_overflow
-#max_overflow = 50
+#max_overflow = <None>
 
 # Verbosity of SQL debugging information: 0=None, 100=Everything. (integer
 # value)
@@ -1318,29 +1285,22 @@
 # Host to locate redis. (string value)
 #host = 127.0.0.1
 
-# Use this port to connect to redis host. (port value)
-# Minimum value: 0
-# Maximum value: 65535
+# Use this port to connect to redis host. (integer value)
 #port = 6379
 
 # Password for Redis server (optional). (string value)
-#password =
+#password = <None>
 
-# List of Redis Sentinel hosts (fault tolerance mode) e.g.
-# [host:port, host1:port ... ] (list value)
-#sentinel_hosts =
 
-# Redis replica set name. (string value)
-#sentinel_group_name = oslo-messaging-zeromq
+[matchmaker_ring]
 
-# Time in ms to wait between connection attempts. (integer value)
-#wait_timeout = 500
+#
+# From oslo.messaging
+#
 
-# Time in ms to wait before the transaction is killed. (integer value)
-#check_timeout = 20000
-
-# Timeout in ms on blocking socket operations (integer value)
-#socket_timeout = 1000
+# Matchmaker ring file (JSON). (string value)
+# Deprecated group/name - [DEFAULT]/matchmaker_ringfile
+#ringfile = /etc/oslo/matchmaker_ring.json
 
 
 [memcache]
@@ -1456,47 +1416,78 @@
 # Deprecated group/name - [amqp1]/allow_insecure_clients
 #allow_insecure_clients = false
 
-# Space separated list of acceptable SASL mechanisms (string value)
-# Deprecated group/name - [amqp1]/sasl_mechanisms
-#sasl_mechanisms =
 
-# Path to directory that contains the SASL configuration (string value)
-# Deprecated group/name - [amqp1]/sasl_config_dir
-#sasl_config_dir =
-
-# Name of configuration file (without .conf suffix) (string value)
-# Deprecated group/name - [amqp1]/sasl_config_name
-#sasl_config_name =
-
-# User name for message broker authentication (string value)
-# Deprecated group/name - [amqp1]/username
-#username =
-
-# Password for message broker authentication (string value)
-# Deprecated group/name - [amqp1]/password
-#password =
-
-
-[oslo_messaging_notifications]
+[oslo_messaging_qpid]
 
 #
 # From oslo.messaging
 #
 
-# The Drivers(s) to handle sending notifications. Possible values are
-# messaging, messagingv2, routing, log, test, noop (multi valued)
-# Deprecated group/name - [DEFAULT]/notification_driver
-#driver =
+# Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_durable_queues
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues = false
 
-# A URL representing the messaging driver to use for notifications. If not set,
-# we fall back to the same configuration used for RPC. (string value)
-# Deprecated group/name - [DEFAULT]/notification_transport_url
-#transport_url = <None>
+# Auto-delete queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_auto_delete
+#amqp_auto_delete = false
 
-# AMQP topic used for OpenStack notifications. (list value)
-# Deprecated group/name - [rpc_notifier2]/topics
-# Deprecated group/name - [DEFAULT]/notification_topics
-#topics = notifications
+# Send a single AMQP reply to call message. The current behaviour since oslo-
+# incubator is to send two AMQP replies - first one with the payload, a second
+# one to ensure the other have finish to send the payload. We are going to
+# remove it in the N release, but we must keep backward compatible at the same
+# time. This option provides such compatibility - it defaults to False in
+# Liberty and can be turned on for early adopters with a new installations or
+# for testing. Please note, that this option will be removed in the Mitaka
+# release. (boolean value)
+#send_single_reply = false
+
+# Qpid broker hostname. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_hostname
+#qpid_hostname = localhost
+
+# Qpid broker port. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_port
+#qpid_port = 5672
+
+# Qpid HA cluster host:port pairs. (list value)
+# Deprecated group/name - [DEFAULT]/qpid_hosts
+#qpid_hosts = $qpid_hostname:$qpid_port
+
+# Username for Qpid connection. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_username
+#qpid_username =
+
+# Password for Qpid connection. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_password
+#qpid_password =
+
+# Space separated list of SASL mechanisms to use for auth. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_sasl_mechanisms
+#qpid_sasl_mechanisms =
+
+# Seconds between connection keepalive heartbeats. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_heartbeat
+#qpid_heartbeat = 60
+
+# Transport to use, either 'tcp' or 'ssl'. (string value)
+# Deprecated group/name - [DEFAULT]/qpid_protocol
+#qpid_protocol = tcp
+
+# Whether to disable the Nagle algorithm. (boolean value)
+# Deprecated group/name - [DEFAULT]/qpid_tcp_nodelay
+#qpid_tcp_nodelay = true
+
+# The number of prefetched messages held by receiver. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_receiver_capacity
+#qpid_receiver_capacity = 1
+
+# The qpid topology version to use.  Version 1 is what was originally used by
+# impl_qpid.  Version 2 includes some backwards-incompatible changes that allow
+# broker federation to work.  Users should update to version 2 when they are
+# able to take everything down, as it requires a clean break. (integer value)
+# Deprecated group/name - [DEFAULT]/qpid_topology_version
+#qpid_topology_version = 1
 
 
 [oslo_messaging_rabbit]
@@ -1513,6 +1504,16 @@
 # Auto-delete queues in AMQP. (boolean value)
 # Deprecated group/name - [DEFAULT]/amqp_auto_delete
 #amqp_auto_delete = false
+
+# Send a single AMQP reply to call message. The current behaviour since oslo-
+# incubator is to send two AMQP replies - first one with the payload, a second
+# one to ensure the other have finish to send the payload. We are going to
+# remove it in the N release, but we must keep backward compatible at the same
+# time. This option provides such compatibility - it defaults to False in
+# Liberty and can be turned on for early adopters with a new installations or
+# for testing. Please note, that this option will be removed in the Mitaka
+# release. (boolean value)
+#send_single_reply = false
 
 # SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
 # SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
@@ -1537,28 +1538,15 @@
 # Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
 #kombu_reconnect_delay = 1.0
 
-# EXPERIMENTAL: Possible values are: gzip, bz2. If not set compression will not
-# be used. This option may notbe available in future versions. (string value)
-#kombu_compression = <None>
-
-# How long to wait a missing client beforce abandoning to send it its replies.
-# This value should not be longer than rpc_response_timeout. (integer value)
-# Deprecated group/name - [DEFAULT]/kombu_reconnect_timeout
-#kombu_missing_consumer_retry_timeout = 60
-
-# Determines how the next RabbitMQ node is chosen in case the one we are
-# currently connected to becomes unavailable. Takes effect only if more than
-# one RabbitMQ node is provided in config. (string value)
-# Allowed values: round-robin, shuffle
-#kombu_failover_strategy = round-robin
+# How long to wait before considering a reconnect attempt to have failed. This
+# value should not be longer than rpc_response_timeout. (integer value)
+#kombu_reconnect_timeout = 60
 
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
 #rabbit_host = localhost
 
-# The RabbitMQ broker port where a single node is used. (port value)
-# Minimum value: 0
-# Maximum value: 65535
+# The RabbitMQ broker port where a single node is used. (integer value)
 # Deprecated group/name - [DEFAULT]/rabbit_port
 #rabbit_port = 5672
 
@@ -1594,33 +1582,15 @@
 # Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
 #rabbit_retry_backoff = 2
 
-# Maximum interval of RabbitMQ connection retries. Default is 30 seconds.
-# (integer value)
-#rabbit_interval_max = 30
-
 # Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
 # count). (integer value)
 # Deprecated group/name - [DEFAULT]/rabbit_max_retries
 #rabbit_max_retries = 0
 
-# Try to use HA queues in RabbitMQ (x-ha-policy: all). If you change this
-# option, you must wipe the RabbitMQ database. In RabbitMQ 3.0, queue mirroring
-# is no longer controlled by the x-ha-policy argument when declaring a queue.
-# If you just want to make sure that all queues (except  those with auto-
-# generated names) are mirrored across all nodes, run: "rabbitmqctl set_policy
-# HA '^(?!amq\.).*' '{"ha-mode": "all"}' " (boolean value)
+# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
+# must wipe the RabbitMQ database. (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_ha_queues
 #rabbit_ha_queues = false
-
-# Positive integer representing duration in seconds for queue TTL (x-expires).
-# Queues which are unused for the duration of the TTL are automatically
-# deleted. The parameter affects only reply and fanout queues. (integer value)
-# Minimum value: 1
-#rabbit_transient_queues_ttl = 1800
-
-# Specifies the number of messages to prefetch. Setting to zero allows
-# unlimited messages. (integer value)
-#rabbit_qos_prefetch_count = 0
 
 # Number of seconds after which the Rabbit broker is considered down if
 # heartbeat's keep-alive fails (0 disable the heartbeat). EXPERIMENTAL (integer
@@ -1635,104 +1605,6 @@
 # Deprecated group/name - [DEFAULT]/fake_rabbit
 #fake_rabbit = false
 
-# Maximum number of channels to allow (integer value)
-#channel_max = <None>
-
-# The maximum byte size for an AMQP frame (integer value)
-#frame_max = <None>
-
-# How often to send heartbeats for consumer's connections (integer value)
-#heartbeat_interval = 1
-
-# Enable SSL (boolean value)
-#ssl = <None>
-
-# Arguments passed to ssl.wrap_socket (dict value)
-#ssl_options = <None>
-
-# Set socket timeout in seconds for connection's socket (floating point value)
-#socket_timeout = 0.25
-
-# Set TCP_USER_TIMEOUT in seconds for connection's socket (floating point
-# value)
-#tcp_user_timeout = 0.25
-
-# Set delay for reconnection to some host which has connection error (floating
-# point value)
-#host_connection_reconnect_delay = 0.25
-
-# Maximum number of connections to keep queued. (integer value)
-#pool_max_size = 10
-
-# Maximum number of connections to create above `pool_max_size`. (integer
-# value)
-#pool_max_overflow = 0
-
-# Default number of seconds to wait for a connections to available (integer
-# value)
-#pool_timeout = 30
-
-# Lifetime of a connection (since creation) in seconds or None for no
-# recycling. Expired connections are closed on acquire. (integer value)
-#pool_recycle = 600
-
-# Threshold at which inactive (since release) connections are considered stale
-# in seconds or None for no staleness. Stale connections are closed on acquire.
-# (integer value)
-#pool_stale = 60
-
-# Persist notification messages. (boolean value)
-#notification_persistence = false
-
-# Exchange name for for sending notifications (string value)
-#default_notification_exchange = ${control_exchange}_notification
-
-# Max number of not acknowledged message which RabbitMQ can send to
-# notification listener. (integer value)
-#notification_listener_prefetch_count = 100
-
-# Reconnecting retry count in case of connectivity problem during sending
-# notification, -1 means infinite retry. (integer value)
-#default_notification_retry_attempts = -1
-
-# Reconnecting retry delay in case of connectivity problem during sending
-# notification message (floating point value)
-#notification_retry_delay = 0.25
-
-# Time to live for rpc queues without consumers in seconds. (integer value)
-#rpc_queue_expiration = 60
-
-# Exchange name for sending RPC messages (string value)
-#default_rpc_exchange = ${control_exchange}_rpc
-
-# Exchange name for receiving RPC replies (string value)
-#rpc_reply_exchange = ${control_exchange}_rpc_reply
-
-# Max number of not acknowledged message which RabbitMQ can send to rpc
-# listener. (integer value)
-#rpc_listener_prefetch_count = 100
-
-# Max number of not acknowledged message which RabbitMQ can send to rpc reply
-# listener. (integer value)
-#rpc_reply_listener_prefetch_count = 100
-
-# Reconnecting retry count in case of connectivity problem during sending
-# reply. -1 means infinite retry during rpc_timeout (integer value)
-#rpc_reply_retry_attempts = -1
-
-# Reconnecting retry delay in case of connectivity problem during sending
-# reply. (floating point value)
-#rpc_reply_retry_delay = 0.25
-
-# Reconnecting retry count in case of connectivity problem during sending RPC
-# message, -1 means infinite retry. If actual retry attempts in not 0 the rpc
-# request could be processed more then one time (integer value)
-#default_rpc_retry_attempts = -1
-
-# Reconnecting retry delay in case of connectivity problem during sending RPC
-# message (floating point value)
-#rpc_retry_delay = 0.25
-
 
 [oslo_middleware]
 
@@ -1745,11 +1617,13 @@
 # Deprecated group/name - [DEFAULT]/max_request_body_size
 #max_request_body_size = 114688
 
+#
+# From oslo.middleware
+#
+
 # The HTTP Header that will be used to determine what the original request
 # protocol scheme was, even if it was hidden by an SSL termination proxy.
 # (string value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
 #secure_proxy_ssl_header = X-Forwarded-Proto
 
 
@@ -1773,6 +1647,8 @@
 # directories to be searched.  Missing or empty directories are ignored. (multi
 # valued)
 # Deprecated group/name - [DEFAULT]/policy_dirs
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #policy_dirs = policy.d
 
 
