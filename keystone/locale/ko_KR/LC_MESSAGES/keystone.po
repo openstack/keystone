@@ -5,19 +5,16 @@
 # Translators:
 # Sungjin Kang <potopro@gmail.com>, 2013
 # Sungjin Kang <potopro@gmail.com>, 2013
-# Lucas Palm <lapalm@us.ibm.com>, 2015. #zanata
-# OpenStack Infra <zanata@openstack.org>, 2015. #zanata
-# Lucas Palm <lapalm@us.ibm.com>, 2016. #zanata
-# SeYeon Lee <sy_lee@kr.ibm.com>, 2016. #zanata
+# Sungjin Kang <gang.sungjin@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-04-15 17:47+0000\n"
+"Project-Id-Version: keystone 9.0.1.dev10\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2016-05-03 20:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-24 01:32+0000\n"
+"PO-Revision-Date: 2016-04-19 04:43+0000\n"
 "Last-Translator: SeYeon Lee <sy_lee@kr.ibm.com>\n"
 "Language: ko-KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -532,7 +529,7 @@ msgid "Duplicate remote ID: %s"
 msgstr "중복된 원격 ID: %s"
 
 msgid "EC2 access key not found."
-msgstr "EC2 액세스 키를 찾을 수 없습니다."
+msgstr "EC2 접근 키를 찾을 수 없습니다."
 
 msgid "EC2 signature not supplied."
 msgstr "EC2 서명이 제공되지 않았습니다."
@@ -1025,15 +1022,15 @@ msgid ""
 "Requested redelegation depth of %(requested_count)d is greater than allowed "
 "%(max_count)d"
 msgstr ""
-"%(requested_count)d의 요청된 재위임 깊이가 허용되는 %(max_count)d보다 깊음"
+"%(requested_count)d의 요청된 재위임 depth가 허용되는 %(max_count)d보다 깊음"
 
 msgid ""
 "Running keystone via eventlet is deprecated as of Kilo in favor of running "
 "in a WSGI server (e.g. mod_wsgi). Support for keystone under eventlet will "
 "be removed in the \"M\"-Release."
 msgstr ""
-"eventlet을 통한 키스톤 실행은 WSGI 서버 실행의 플레이버에 있는 Kilo부터  더 "
-"이상 사용되지 않습니다(예: mod_wsgi). eventlet 아래의 키스톤에 대한 지원은 "
+"Eventlet을 통한 키스톤 실행은 WSGI 서버 실행의 플레이버에 있는 Kilo부터  더 "
+"이상 사용되지 않습니다(예: mod_wsgi). Eventlet 아래의 키스톤에 대한 지원은 "
 "\"M\"-릴리스에서 제거됩니다."
 
 msgid "Scoping to both domain and project is not allowed"
@@ -1073,7 +1070,7 @@ msgstr ""
 "%(type)s(CHAR(%(length)d))을(를) 초과합니다."
 
 msgid "Tenant name cannot contain reserved characters."
-msgstr "테넌트 이름에 예약된 문자가 포함될 수 없습니다."
+msgstr "Tenant 이름에 예약된 문자가 포함될 수 없습니다."
 
 #, python-format
 msgid ""
@@ -1233,8 +1230,8 @@ msgid ""
 "Unable to access the keystone database, please check it is configured "
 "correctly."
 msgstr ""
-"키스톤 데이터베이스를 액세스할 수 없습니다. 데이터베이스가 제대로 구성되어 있"
-"는지 확인하십시오. "
+"Keystone 데이터베이스를 액세스할 수 없습니다. 데이터베이스가 제대로 구성되어 "
+"있는지 확인하십시오. "
 
 #, python-format
 msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
@@ -1292,7 +1289,7 @@ msgid ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
 msgstr ""
-"grant 속성의 예상치 못한 조합 - 사용자: %(user_id)s, 그룹: %(group_id)s, 프로"
+"Grant 속성의 예상치 못한 조합 - 사용자: %(user_id)s, 그룹: %(group_id)s, 프로"
 "젝트: %(project_id)s, 도메인: %(domain_id)s"
 
 #, python-format
@@ -1344,7 +1341,7 @@ msgstr ""
 
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
-msgstr "사용자 %(u_id)s이(는) 테넌트 %(t_id)s에 대한 권한이 없습니다. "
+msgstr "사용자 %(u_id)s이(는) tenant %(t_id)s에 대한 권한이 없습니다. "
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -1388,7 +1385,7 @@ msgid "User not found"
 msgstr "사용자를 찾을 수 없음"
 
 msgid "User not valid for tenant."
-msgstr "테넌트의 사용자가 올바르지 않습니다."
+msgstr "Tenant 사용자가 올바르지 않습니다."
 
 msgid "User roles not supported: tenant_id required"
 msgstr "사용자 역할이 지원되지 않음: tenant_id 필요"
@@ -1484,7 +1481,7 @@ msgid "provided verifier does not match stored verifier"
 msgstr "제공된 확인자가 저장된 확인자와 일치하지 않음 "
 
 msgid "remaining_uses must be a positive integer or null."
-msgstr "remaining_uses는 양의 정수 또는 널이어야 합니다."
+msgstr "remaining_uses는 양의 정수 또는 null이어야 합니다."
 
 msgid "remaining_uses must not be set if redelegation is allowed"
 msgstr "재위임을 허용하는 경우 remaining_uses를 설정하지 않아야 함"
