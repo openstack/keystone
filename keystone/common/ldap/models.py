@@ -23,6 +23,7 @@ class Model(dict):
     """Base model class."""
 
     def __hash__(self):
+        """Define hash behavior where hash of service ID is returned."""
         return self['id'].__hash__()
 
     @property

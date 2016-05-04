@@ -868,6 +868,7 @@ class KeystoneLDAPHandler(LDAPHandler):
         self.page_size = 0
 
     def __enter__(self):
+        """Enter runtime context."""
         return self
 
     def _disable_paging(self):
@@ -1083,6 +1084,7 @@ class KeystoneLDAPHandler(LDAPHandler):
         return self.conn.delete_ext_s(dn_utf8, serverctrls, clientctrls)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit runtime context, unbind LDAP."""
         self.unbind_s()
 
 
