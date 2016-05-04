@@ -24,6 +24,7 @@ from testtools import matchers
 
 from keystone.common import extension as keystone_extension
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
 from keystone.tests.unit.schema import v2
@@ -180,7 +181,8 @@ class CoreApiTests(object):
             self.tenant_service['id'],
             self.role_service['id'])
 
-        token = self.get_scoped_token(tenant_id='service')
+        token = self.get_scoped_token(
+            tenant_id=default_fixtures.SERVICE_TENANT_ID)
         r = self.admin_request(
             path='/v2.0/tokens/%s' % token,
             token=token)
@@ -192,7 +194,8 @@ class CoreApiTests(object):
             self.tenant_service['id'],
             self.role_service['id'])
 
-        token = self.get_scoped_token(tenant_id='service')
+        token = self.get_scoped_token(
+            tenant_id=default_fixtures.SERVICE_TENANT_ID)
         r = self.admin_request(
             path='/v2.0/tokens/%s' % token,
             token=token)
