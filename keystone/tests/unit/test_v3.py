@@ -692,7 +692,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         require_catalog = kwargs.pop('require_catalog', True)
         endpoint_filter = kwargs.pop('endpoint_filter', False)
         ep_filter_assoc = kwargs.pop('ep_filter_assoc', 0)
-        is_admin_project = kwargs.pop('is_admin_project', False)
+        is_admin_project = kwargs.pop('is_admin_project', None)
         token = self.assertValidTokenResponse(r, *args, **kwargs)
 
         if require_catalog:
@@ -720,11 +720,8 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             self.assertIn('id', role)
             self.assertIn('name', role)
 
-        if is_admin_project:
-            # NOTE(samueldmq): We want to explicitly test for boolean
-            self.assertIs(True, token['is_admin_project'])
-        else:
-            self.assertNotIn('is_admin_project', token)
+        # NOTE(samueldmq): We want to explicitly test for boolean or None
+        self.assertIs(is_admin_project, token.get('is_admin_project'))
 
         return token
 

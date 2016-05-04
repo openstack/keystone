@@ -827,10 +827,10 @@ class TokenAPITests(object):
             user_id=self.user['id'],
             password=self.user['password'],
             project_id=self.project['id']))
-        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=None)
         v3_token = r.headers.get('X-Subject-Token')
         r = self.get('/auth/tokens', headers={'X-Subject-Token': v3_token})
-        self.assertValidProjectScopedTokenResponse(r, is_admin_project=False)
+        self.assertValidProjectScopedTokenResponse(r, is_admin_project=None)
 
     def _create_role(self, domain_id=None):
         """Call ``POST /roles``."""
