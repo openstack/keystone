@@ -52,6 +52,8 @@ class CliNoConfigTestCase(unit.BaseTestCase):
     def setUp(self):
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
+        self.useFixture(mockpatch.Patch(
+            'oslo_config.cfg.find_config_files', return_value=[]))
         super(CliNoConfigTestCase, self).setUp()
 
         # NOTE(crinkle): the command call doesn't have to actually work,
