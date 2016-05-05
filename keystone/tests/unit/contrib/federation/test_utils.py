@@ -21,6 +21,7 @@ from keystone import exception
 from keystone.federation import utils as mapping_utils
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
+from keystone.tests.unit import utils as test_utils
 
 
 FAKE_MAPPING_ID = uuid.uuid4().hex
@@ -607,15 +608,53 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual('Developer',
                          mapped_properties['group_names'][0]['name'])
 
-    def test_mapping_with_incorrect_local_keys(self):
+    def test_mapping_validation_with_incorrect_local_keys(self):
         mapping = mapping_fixtures.MAPPING_BAD_LOCAL_SETUP
         self.assertRaises(exception.ValidationError,
                           mapping_utils.validate_mapping_structure,
                           mapping)
 
-    def test_mapping_with_group_name_and_domain(self):
+    def test_mapping_validation_with_user_name_and_domain_name(self):
+        mapping = mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINNAME
+        mapping_utils.validate_mapping_structure(mapping)
+
+    def test_mapping_validation_with_user_name_and_domain_id(self):
+        mapping = mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID
+        mapping_utils.validate_mapping_structure(mapping)
+
+    def test_mapping_validation_with_user_id_and_domain_id(self):
+        mapping = mapping_fixtures.MAPPING_WITH_USERID_AND_DOMAINID
+        mapping_utils.validate_mapping_structure(mapping)
+
+    def test_mapping_validation_with_group_name_and_domain(self):
         mapping = mapping_fixtures.MAPPING_GROUP_NAMES
         mapping_utils.validate_mapping_structure(mapping)
+
+    @test_utils.wip('waiting for fix the validator '
+                    'to choke on group name without domain')
+    def test_mapping_validation_with_group_name_without_domain(self):
+        mapping = mapping_fixtures.MAPPING_GROUP_NAME_WITHOUT_DOMAIN
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
+    def test_mapping_validation_no_local(self):
+        mapping = mapping_fixtures.MAPPING_MISSING_LOCAL
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
+    def test_mapping_validataion_no_remote(self):
+        mapping = mapping_fixtures.MAPPING_NO_REMOTE
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
+    def test_mapping_validation_no_type(self):
+        mapping = mapping_fixtures.MAPPING_MISSING_TYPE
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
 
     def test_type_not_in_assertion(self):
         """Test that if the remote "type" is not in the assertion it fails."""
