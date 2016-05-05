@@ -120,7 +120,10 @@ empty condition
                             "email": "{2}"
                         },
                         "group": {
-                            "name": "{3}"
+                            "name": "{3}",
+                            "domain": {
+                                "id": "0cd5e9"
+                            }
                         }
                     }
                 ],
