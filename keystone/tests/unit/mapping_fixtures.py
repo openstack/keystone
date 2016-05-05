@@ -584,6 +584,29 @@ MAPPING_GROUP_NAMES = {
     ]
 }
 
+MAPPING_GROUP_NAME_WITHOUT_DOMAIN = {
+
+    "rules": [
+        {
+            "local": [
+                {
+                    "group": {
+                        "name": DEVELOPER_GROUP_NAME,
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Employee"
+                    ],
+                }
+            ]
+        },
+    ]
+}
+
 MAPPING_EPHEMERAL_USER = {
     "rules": [
         {
