@@ -61,12 +61,7 @@ MAPPING_SCHEMA = {
                                         "name": {"type": "string"},
                                         "email": {"type": "string"},
                                         "domain": {
-                                            "type": "object",
-                                            "properties": {
-                                                "id": {"type": "string"},
-                                                "name": {"type": "string"}
-                                            },
-                                            "additionalProperties": False,
+                                            "$ref": "#/definitions/domain"
                                         },
                                         "type": {
                                             "type": "string",
@@ -78,19 +73,10 @@ MAPPING_SCHEMA = {
                                 },
                                 "group": {
                                     "type": "object",
-                                    "properties": {
-                                        "id": {"type": "string"},
-                                        "name": {"type": "string"},
-                                        "domain": {
-                                            "type": "object",
-                                            "properties": {
-                                                "id": {"type": "string"},
-                                                "name": {"type": "string"}
-                                            },
-                                            "additionalProperties": False,
-                                        },
-                                    },
-                                    "additionalProperties": False,
+                                    "oneOf": [
+                                        {"$ref": "#/definitions/group_by_id"},
+                                        {"$ref": "#/definitions/group_by_name"}
+                                    ]
                                 },
                                 "groups": {
                                     "type": "string"
@@ -98,14 +84,7 @@ MAPPING_SCHEMA = {
                                 "group_ids": {
                                     "type": "string"
                                 },
-                                "domain": {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {"type": "string"},
-                                        "name": {"type": "string"}
-                                    },
-                                    "additionalProperties": False
-                                }
+                                "domain": {"$ref": "#/definitions/domain"},
                             }
                         }
                     },
@@ -195,6 +174,31 @@ MAPPING_SCHEMA = {
                     "type": "array"
                 }
             }
+        },
+        "domain": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "name": {"type": "string"}
+            },
+            "additionalProperties": False
+        },
+        "group_by_id": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"}
+            },
+            "additionalProperties": False,
+            "required": ["id"]
+        },
+        "group_by_name": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "domain": {"$ref": "#/definitions/domain"}
+            },
+            "additionalProperties": False,
+            "required": ["name", "domain"]
         }
     }
 }

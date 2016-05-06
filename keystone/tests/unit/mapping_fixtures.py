@@ -607,6 +607,81 @@ MAPPING_GROUP_NAME_WITHOUT_DOMAIN = {
     ]
 }
 
+MAPPING_GROUP_ID_WITH_DOMAIN = {
+
+    "rules": [
+        {
+            "local": [
+                {
+                    "group": {
+                        "id": EMPLOYEE_GROUP_ID,
+                        "domain": {
+                            "id": DEVELOPER_GROUP_DOMAIN_ID
+                        }
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Employee"
+                    ],
+                }
+            ]
+        },
+    ]
+}
+
+MAPPING_BAD_GROUP = {
+
+    "rules": [
+        {
+            "local": [
+                {
+                    "group": {
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Employee"
+                    ],
+                }
+            ]
+        },
+    ]
+}
+
+MAPPING_BAD_DOMAIN = {
+
+    "rules": [
+        {
+            "local": [
+                {
+                    "group": {
+                        "id": EMPLOYEE_GROUP_ID,
+                        "domain": {
+                            "id": DEVELOPER_GROUP_DOMAIN_ID,
+                            "badkey": "badvalue"
+                        }
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Employee"
+                    ],
+                }
+            ]
+        },
+    ]
+}
+
 MAPPING_EPHEMERAL_USER = {
     "rules": [
         {

@@ -21,7 +21,6 @@ from keystone import exception
 from keystone.federation import utils as mapping_utils
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
-from keystone.tests.unit import utils as test_utils
 
 
 FAKE_MAPPING_ID = uuid.uuid4().hex
@@ -630,10 +629,26 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         mapping = mapping_fixtures.MAPPING_GROUP_NAMES
         mapping_utils.validate_mapping_structure(mapping)
 
-    @test_utils.wip('waiting for fix the validator '
-                    'to choke on group name without domain')
+    def test_mapping_validation_bad_domain(self):
+        mapping = mapping_fixtures.MAPPING_BAD_DOMAIN
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
+    def test_mapping_validation_bad_group(self):
+        mapping = mapping_fixtures.MAPPING_BAD_GROUP
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
     def test_mapping_validation_with_group_name_without_domain(self):
         mapping = mapping_fixtures.MAPPING_GROUP_NAME_WITHOUT_DOMAIN
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
+    def test_mapping_validation_with_group_id_and_domain(self):
+        mapping = mapping_fixtures.MAPPING_GROUP_ID_WITH_DOMAIN
         self.assertRaises(exception.ValidationError,
                           mapping_utils.validate_mapping_structure,
                           mapping)
