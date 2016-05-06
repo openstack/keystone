@@ -34,7 +34,7 @@ from keystone.common.ldap import core as common_ldap_core
 from keystone import exception
 from keystone import identity
 from keystone.identity.mapping_backends import mapping as map
-from keystone import resource
+from keystone.resource.backends import base as resource
 from keystone.tests import unit
 from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit import default_fixtures

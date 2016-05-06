@@ -16,13 +16,13 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _LE, _LW
-from keystone import resource as keystone_resource
+from keystone.resource.backends import base
 
 
 LOG = log.getLogger(__name__)
 
 
-class Resource(keystone_resource.ResourceDriverV9):
+class Resource(base.ResourceDriverV9):
 
     def default_assignment_driver(self):
         return 'sql'
@@ -30,13 +30,13 @@ class Resource(keystone_resource.ResourceDriverV9):
     def _encode_domain_id(self, ref):
         if 'domain_id' in ref and ref['domain_id'] is None:
             new_ref = ref.copy()
-            new_ref['domain_id'] = keystone_resource.NULL_DOMAIN_ID
+            new_ref['domain_id'] = base.NULL_DOMAIN_ID
             return new_ref
         else:
             return ref
 
     def _is_hidden_ref(self, ref):
-        return ref.id == keystone_resource.NULL_DOMAIN_ID
+        return ref.id == base.NULL_DOMAIN_ID
 
     def _get_project(self, session, project_id):
         project_ref = session.query(Project).get(project_id)
@@ -54,7 +54,7 @@ class Resource(keystone_resource.ResourceDriverV9):
             query = query.filter_by(name=project_name)
             if domain_id is None:
                 query = query.filter_by(
-                    domain_id=keystone_resource.NULL_DOMAIN_ID)
+                    domain_id=base.NULL_DOMAIN_ID)
             else:
                 query = query.filter_by(domain_id=domain_id)
             try:
@@ -76,7 +76,7 @@ class Resource(keystone_resource.ResourceDriverV9):
         # hints (hence ensuring our substitution is not exposed to the caller).
         for f in hints.filters:
             if (f['name'] == 'domain_id' and f['value'] is None):
-                f['value'] = keystone_resource.NULL_DOMAIN_ID
+                f['value'] = base.NULL_DOMAIN_ID
         with sql.session_for_read() as session:
             query = session.query(Project)
             project_refs = sql.filter_limit_query(Project, query, hints)
@@ -213,7 +213,7 @@ class Resource(keystone_resource.ResourceDriverV9):
             project_ids_from_bd = [p['id'] for p in query.all()]
             for project_id in project_ids:
                 if (project_id not in project_ids_from_bd or
-                        project_id == keystone_resource.NULL_DOMAIN_ID):
+                        project_id == base.NULL_DOMAIN_ID):
                     LOG.warning(_LW('Project %s does not exist and was not '
                                     'deleted.') % project_id)
             query.delete(synchronize_session=False)
@@ -240,7 +240,7 @@ class Project(sql.ModelBase, sql.DictBase):
     def to_dict(self, include_extra_dict=False):
         d = super(Project, self).to_dict(
             include_extra_dict=include_extra_dict)
-        if d['domain_id'] == keystone_resource.NULL_DOMAIN_ID:
+        if d['domain_id'] == base.NULL_DOMAIN_ID:
             d['domain_id'] = None
         return d
 

@@ -29,7 +29,7 @@ from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
 from keystone.identity.backends import sql as identity_sql
-from keystone import resource
+from keystone.resource.backends import base as resource
 from keystone.tests import unit
 from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit.catalog import test_backends as catalog_tests

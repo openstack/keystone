@@ -27,7 +27,7 @@ from testtools import matchers
 from keystone.cmd import cli
 from keystone.common import dependency
 from keystone.i18n import _
-from keystone import resource
+from keystone.resource.backends import base as resource
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
