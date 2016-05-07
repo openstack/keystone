@@ -20,6 +20,7 @@ import calendar
 import collections
 import grp
 import hashlib
+import itertools
 import os
 import pwd
 import uuid
@@ -40,8 +41,12 @@ from keystone.i18n import _, _LE, _LW
 
 
 CONF = cfg.CONF
-
 LOG = log.getLogger(__name__)
+WHITELISTED_PROPERTIES = [
+    'tenant_id', 'project_id', 'user_id',
+    'public_bind_host', 'admin_bind_host',
+    'compute_host', 'admin_port', 'public_port',
+    'public_endpoint', 'admin_endpoint', ]
 
 
 # NOTE(stevermar): This UUID must stay the same, forever, across
@@ -597,3 +602,67 @@ def remove_standard_port(url):
         o = o._replace(netloc=host)
 
     return moves.urllib.parse.urlunparse(o)
+
+
+def format_url(url, substitutions, silent_keyerror_failures=None):
+    """Format a user-defined URL with the given substitutions.
+
+    :param string url: the URL to be formatted
+    :param dict substitutions: the dictionary used for substitution
+    :param list silent_keyerror_failures: keys for which we should be silent
+        if there is a KeyError exception on substitution attempt
+    :returns: a formatted URL
+
+    """
+    substitutions = WhiteListedItemFilter(
+        WHITELISTED_PROPERTIES,
+        substitutions)
+    allow_keyerror = silent_keyerror_failures or []
+    try:
+        result = url.replace('$(', '%(') % substitutions
+    except AttributeError:
+        LOG.error(_LE('Malformed endpoint - %(url)r is not a string'),
+                  {"url": url})
+        raise exception.MalformedEndpoint(endpoint=url)
+    except KeyError as e:
+        if not e.args or e.args[0] not in allow_keyerror:
+            LOG.error(_LE("Malformed endpoint %(url)s - unknown key "
+                          "%(keyerror)s"),
+                      {"url": url,
+                       "keyerror": e})
+            raise exception.MalformedEndpoint(endpoint=url)
+        else:
+            result = None
+    except TypeError as e:
+        LOG.error(_LE("Malformed endpoint '%(url)s'. The following type error "
+                      "occurred during string substitution: %(typeerror)s"),
+                  {"url": url,
+                   "typeerror": e})
+        raise exception.MalformedEndpoint(endpoint=url)
+    except ValueError as e:
+        LOG.error(_LE("Malformed endpoint %s - incomplete format "
+                      "(are you missing a type notifier ?)"), url)
+        raise exception.MalformedEndpoint(endpoint=url)
+    return result
+
+
+def check_endpoint_url(url):
+    """Check substitution of url.
+
+    The invalid urls are as follows:
+    urls with substitutions that is not in the whitelist
+
+    Check the substitutions in the URL to make sure they are valid
+    and on the whitelist.
+
+    :param str url: the URL to validate
+    :rtype: None
+    :raises keystone.exception.URLValidationError: if the URL is invalid
+    """
+    # check whether the property in the path is exactly the same
+    # with that in the whitelist below
+    substitutions = dict(zip(WHITELISTED_PROPERTIES, itertools.repeat('')))
+    try:
+        url.replace('$(', '%(') % substitutions
+    except (KeyError, TypeError, ValueError):
+        raise exception.URLValidationError(url)

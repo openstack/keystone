@@ -17,10 +17,10 @@ import uuid
 
 import six
 
-from keystone.catalog import core
 from keystone.catalog import schema
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import utils
 from keystone.common import validation
 from keystone.common import wsgi
 from keystone import exception
@@ -144,7 +144,7 @@ class Endpoint(controller.V2Controller):
         for interface in INTERFACES:
             interface_url = endpoint.get(interface + 'url')
             if interface_url:
-                core.check_endpoint_url(interface_url)
+                utils.check_endpoint_url(interface_url)
 
         initiator = notifications._get_request_audit_info(context)
 
@@ -348,7 +348,7 @@ class EndpointV3(controller.V3Controller):
     @controller.protected()
     @validation.validated(schema.endpoint_create, 'endpoint')
     def create_endpoint(self, context, endpoint):
-        core.check_endpoint_url(endpoint['url'])
+        utils.check_endpoint_url(endpoint['url'])
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         ref = self._validate_endpoint_region(ref, context)
         initiator = notifications._get_request_audit_info(context)

@@ -12,7 +12,7 @@
 
 import uuid
 
-from keystone.catalog import core
+from keystone.common import utils
 from keystone import exception
 from keystone.tests import unit
 
@@ -25,33 +25,33 @@ class FormatUrlTests(unit.BaseTestCase):
         project_id = uuid.uuid4().hex
         values = {'public_bind_host': 'server', 'admin_port': 9090,
                   'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
-        actual_url = core.format_url(url_template, values)
+        actual_url = utils.format_url(url_template, values)
 
         expected_url = 'http://server:9090/A/B/%s' % (project_id,)
         self.assertEqual(expected_url, actual_url)
 
     def test_raises_malformed_on_missing_key(self):
         self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
+                          utils.format_url,
                           "http://$(public_bind_host)s/$(public_port)d",
                           {"public_bind_host": "1"})
 
     def test_raises_malformed_on_wrong_type(self):
         self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
+                          utils.format_url,
                           "http://$(public_bind_host)d",
                           {"public_bind_host": "something"})
 
     def test_raises_malformed_on_incomplete_format(self):
         self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
+                          utils.format_url,
                           "http://$(public_bind_host)",
                           {"public_bind_host": "1"})
 
     def test_formatting_a_non_string(self):
         def _test(url_template):
             self.assertRaises(exception.MalformedEndpoint,
-                              core.format_url,
+                              utils.format_url,
                               url_template,
                               {})
 
@@ -67,7 +67,7 @@ class FormatUrlTests(unit.BaseTestCase):
         values = {'public_bind_host': 'server', 'public_port': 9090,
                   'tenant_id': 'A', 'user_id': 'B', 'admin_token': 'C'}
         self.assertRaises(exception.MalformedEndpoint,
-                          core.format_url,
+                          utils.format_url,
                           url_template,
                           values)
 
@@ -82,7 +82,7 @@ class FormatUrlTests(unit.BaseTestCase):
                         '$(tenant_id)s/$(user_id)s')
         values = {'public_bind_host': 'server', 'admin_port': 9090,
                   'user_id': 'B'}
-        self.assertIsNone(core.format_url(url_template, values,
+        self.assertIsNone(utils.format_url(url_template, values,
                           silent_keyerror_failures=['tenant_id']))
 
     def test_substitution_with_allowed_project_keyerror(self):
@@ -96,5 +96,5 @@ class FormatUrlTests(unit.BaseTestCase):
                         '$(project_id)s/$(user_id)s')
         values = {'public_bind_host': 'server', 'admin_port': 9090,
                   'user_id': 'B'}
-        self.assertIsNone(core.format_url(url_template, values,
+        self.assertIsNone(utils.format_url(url_template, values,
                           silent_keyerror_failures=['project_id']))

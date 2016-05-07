@@ -19,10 +19,10 @@ from oslo_config import cfg
 import sqlalchemy
 from sqlalchemy.sql import true
 
-from keystone import catalog
-from keystone.catalog import core
+from keystone.catalog.backends import base
 from keystone.common import driver_hints
 from keystone.common import sql
+from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
 
@@ -81,7 +81,7 @@ class Endpoint(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class Catalog(catalog.CatalogDriverV8):
+class Catalog(base.CatalogDriverV8):
     # Regions
     def list_regions(self, hints):
         with sql.session_for_read() as session:
@@ -289,7 +289,7 @@ class Catalog(catalog.CatalogDriverV8):
                 if not endpoint.service['enabled']:
                     continue
                 try:
-                    formatted_url = core.format_url(
+                    formatted_url = utils.format_url(
                         endpoint['url'], substitutions,
                         silent_keyerror_failures=silent_keyerror_failures)
                     if formatted_url is not None:
@@ -351,7 +351,7 @@ class Catalog(catalog.CatalogDriverV8):
                     del endpoint['enabled']
                     endpoint['region'] = endpoint['region_id']
                     try:
-                        formatted_url = core.format_url(
+                        formatted_url = utils.format_url(
                             endpoint['url'], d,
                             silent_keyerror_failures=silent_keyerror_failures)
                         if formatted_url:
