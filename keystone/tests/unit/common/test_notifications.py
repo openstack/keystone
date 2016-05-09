@@ -1268,9 +1268,6 @@ class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
         outcome = 'success'
         event_type = 'identity.authenticate.created'
 
-        conf = self.useFixture(config_fixture.Config(CONF))
-        conf.config(notification_opt_out=event_type)
-
         with mock.patch.object(notifications._get_notifier(),
                                '_notify') as mocked:
 
