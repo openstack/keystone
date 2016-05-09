@@ -19,7 +19,7 @@ from sqlalchemy import orm
 
 from keystone.common import sql
 from keystone import exception
-from keystone.federation import core
+from keystone.federation.backends import base
 from keystone.i18n import _
 
 
@@ -161,7 +161,7 @@ class ServiceProviderModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class Federation(core.FederationDriverV9):
+class Federation(base.FederationDriverV9):
 
     _CONFLICT_LOG_MSG = 'Conflict %(conflict_type)s: %(details)s'
 
