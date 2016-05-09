@@ -145,7 +145,9 @@ class SqlModels(SqlTests):
     def test_password_model(self):
         cols = (('id', sql.Integer, None),
                 ('local_user_id', sql.Integer, None),
-                ('password', sql.String, 128))
+                ('password', sql.String, 128),
+                ('created_at', sql.DateTime, None),
+                ('expires_at', sql.DateTime, None))
         self.assertExpectedSchema('password', cols)
 
     def test_federated_user_model(self):
@@ -232,7 +234,7 @@ class SqlIdentity(SqlTests,
         with sql.session_for_read() as session:
             new_user_ref = self.identity_api._get_user(session,
                                                        new_user_dict['id'])
-            self.assertFalse(new_user_ref.local_user.passwords)
+            self.assertFalse(new_user_ref.password)
 
     def test_update_user_with_null_password(self):
         user_dict = unit.new_user_ref(
@@ -245,7 +247,7 @@ class SqlIdentity(SqlTests,
         with sql.session_for_read() as session:
             new_user_ref = self.identity_api._get_user(session,
                                                        new_user_dict['id'])
-            self.assertFalse(new_user_ref.local_user.passwords)
+            self.assertFalse(new_user_ref.password)
 
     def test_delete_user_with_project_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
