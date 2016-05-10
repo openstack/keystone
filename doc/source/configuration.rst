@@ -1284,9 +1284,14 @@ You should now be ready to initialize your new database without error, using:
 
     $ keystone-manage db_sync
 
-To test this, you should now be able to start ``keystone-all`` and use the
-OpenStack Client to list your projects (which should successfully return an
-empty list from your new database):
+To test this, you should now be able to start keystone:
+
+.. code-block:: bash
+
+    $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
+
+And use the OpenStack Client to list your projects (which should successfully
+return an empty list from your new database):
 
 .. code-block:: bash
 

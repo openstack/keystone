@@ -63,7 +63,6 @@ system. The following commands should be available on the command-line path:
 
 * ``keystone`` the Keystone client, used to interact with Keystone
 * ``keystone-manage`` used to bootstrap Keystone data
-* ``keystone-all`` used to run the Keystone services
 
 You will find sample configuration files in ``etc/``:
 
@@ -79,7 +78,7 @@ the command:
 
 .. code-block:: bash
 
-    $ keystone-all
+    $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
 
 By default, this will show logging on the console from which it was started.
 Once started, you can initialize data in Keystone for use with the rest of
