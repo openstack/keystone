@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
 import os
 import uuid
 
@@ -20,6 +19,7 @@ import fixtures
 import mock
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
+from oslo_log import log
 from oslotest import mockpatch
 from six.moves import range
 from testtools import matchers
@@ -64,8 +64,7 @@ class CliNoConfigTestCase(unit.BaseTestCase):
         self.useFixture(mockpatch.PatchObject(
             CONF, 'command', FakeConfCommand()))
 
-        self.logging = self.useFixture(
-            fixtures.FakeLogger(level=logging.WARN))
+        self.logging = self.useFixture(fixtures.FakeLogger(level=log.WARN))
 
     def test_cli(self):
         expected_msg = 'Config file not found, using default configs.'
