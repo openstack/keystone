@@ -223,6 +223,7 @@
 #rpc_zmq_matchmaker = redis
 
 # Type of concurrency used. Either "native" or "eventlet" (string value)
+# Allowed values: eventlet, native
 #rpc_zmq_concurrency = eventlet
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
@@ -257,10 +258,13 @@
 # value)
 #use_pub_sub = true
 
+# Use ROUTER remote proxy for direct methods. (boolean value)
+#use_router_proxy = false
+
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
 # Maximum value: 65535
-#rpc_zmq_min_port = 49152
+#rpc_zmq_min_port = 49153
 
 # Maximal port number for random ports range. (integer value)
 # Minimum value: 1
@@ -439,7 +443,8 @@
 #
 
 # Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. (list value)
+# requests "origin" header. Format: "<protocol>://<host>[:<port>]", no trailing
+# slash. Example: https://horizon.example.com (list value)
 #allowed_origin = <None>
 
 # Indicate that the actual request can include user credentials (boolean value)
@@ -467,7 +472,8 @@
 #
 
 # Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. (list value)
+# requests "origin" header. Format: "<protocol>://<host>[:<port>]", no trailing
+# slash. Example: https://horizon.example.com (list value)
 #allowed_origin = <None>
 
 # Indicate that the actual request can include user credentials (boolean value)
@@ -1458,7 +1464,7 @@
 #frame_max = <None>
 
 # How often to send heartbeats for consumer's connections (integer value)
-#heartbeat_interval = 1
+#heartbeat_interval = 3
 
 # Enable SSL (boolean value)
 #ssl = <None>
@@ -1478,7 +1484,7 @@
 #host_connection_reconnect_delay = 0.25
 
 # Maximum number of connections to keep queued. (integer value)
-#pool_max_size = 10
+#pool_max_size = 30
 
 # Maximum number of connections to create above `pool_max_size`. (integer
 # value)
