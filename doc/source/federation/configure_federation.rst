@@ -48,7 +48,7 @@ Ubuntu 12.04 and Apache 2.2.22.
 
 To enable federation, you'll need to:
 
-1. Run keystone under Apache, rather than using ``keystone-all``.
+1. Run keystone under Apache, rather than using uwsgi command.
 2. Configure Apache to use a federation capable authentication method.
 3. Configure ``federation`` in keystone.
 
