@@ -1421,8 +1421,6 @@ class TestFernetTokenProviderV2(RestfulTestCase):
 
     def setUp(self):
         super(TestFernetTokenProviderV2, self).setUp()
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
-
         # Add catalog data
         self.region = unit.new_region_ref()
         self.region_id = self.region['id']
@@ -1458,6 +1456,7 @@ class TestFernetTokenProviderV2(RestfulTestCase):
     def config_overrides(self):
         super(TestFernetTokenProviderV2, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
     def test_authenticate_unscoped_token(self):
         unscoped_token = self.get_unscoped_token()

@@ -22,6 +22,7 @@ from keystone.common import dependency
 from keystone.common import utils
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
 from keystone.token.providers import fernet
@@ -717,6 +718,7 @@ class TestTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestTokenProvider, self).setUp()
         self.useFixture(database.Database())
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
         self.load_backends()
 
     def test_get_token_version(self):
