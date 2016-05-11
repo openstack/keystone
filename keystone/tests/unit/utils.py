@@ -49,7 +49,7 @@ def new_uuid():
     return uuid.uuid4().hex
 
 
-def wip(message):
+def wip(message, expected_exception=Exception, bug=None):
     """Mark a test as work in progress.
 
     Based on code by Nat Pryce:
@@ -62,23 +62,50 @@ def wip(message):
 
     :param message: a string message to help clarify why the test is
                     marked as a work in progress
+    :param expected_exception: an exception class that will be checked for
+                               when @wip verifies an exception is raised. The
+                               test will fail if a different exception is
+                               raised. Default is "any" exception is valid
+    :param bug: (optional) a string for tracking the bug and what bug should
+                cause the @wip decorator to be removed from the testcase
 
-    usage:
-      >>> @wip('waiting on bug #000000')
+    Usage:
+      >>> @wip('Expected Error', expected_exception=Exception, bug="#000000")
       >>> def test():
       >>>     pass
 
     """
+    if bug:
+        bugstr = " (BugID " + bug + ")"
+    else:
+        bugstr = ""
+
     def _wip(f):
         @six.wraps(f)
         def run_test(*args, **kwargs):
+            __e = None
             try:
                 f(*args, **kwargs)
-            except Exception:
-                raise testcase.TestSkipped('work in progress test failed: ' +
-                                           message)
+            except Exception as __e:
+                if (expected_exception != Exception and
+                        not isinstance(__e, expected_exception)):
+                    raise AssertionError(
+                        'Work In Progress Test Failed%(bugstr)s with '
+                        'unexpected exception. Expected "%(expected)s" '
+                        'got "%(exception)s": %(message)s ' %
+                        {'message': message, 'bugstr': bugstr,
+                         'expected': expected_exception.__class__.__name__,
+                         'exception': __e.__class__.__name__})
+                # NOTE(notmorgan): We got the expected exception we can safely
+                # skip this test.
+                raise testcase.TestSkipped(
+                    'Work In Progress Test Failed as '
+                    'expected%(bugstr)s: %(message)s' %
+                    {'message': message, 'bugstr': bugstr})
 
-            raise AssertionError('work in progress test passed: ' + message)
+            raise AssertionError('Work In Progress Test Passed%(bugstr)s: '
+                                 '%(message)s' % {'message': message,
+                                                  'bugstr': bugstr})
 
         return run_test
 
