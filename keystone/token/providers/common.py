@@ -270,11 +270,17 @@ class V3TokenDataHelper(object):
         # acting as domains is merged.  Code will likely be:
         # (r.admin_project_name == None and project['is_domain'] == True
         #  and project['name'] == r.admin_project_domain_name)
+        admin_project_name = CONF.resource.admin_project_name
+        admin_project_domain_name = CONF.resource.admin_project_domain_name
+
+        if not (admin_project_name and admin_project_domain_name):
+            return  # admin project not enabled
+
         project = token_data['project']
-        r = CONF.resource
-        if (project['name'] == r.admin_project_name and
-                project['domain']['name'] == r.admin_project_domain_name):
-            token_data['is_admin_project'] = True
+
+        token_data['is_admin_project'] = (
+            project['name'] == admin_project_name and
+            project['domain']['name'] == admin_project_domain_name)
 
     def _get_roles_for_user(self, user_id, domain_id, project_id):
         roles = []
