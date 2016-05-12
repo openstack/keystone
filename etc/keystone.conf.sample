@@ -117,6 +117,7 @@
 
 # If set to true, the logging level will be set to DEBUG instead of the default
 # INFO level. (boolean value)
+# Note: This option can be changed without restarting.
 #debug = false
 
 # If set to false, the logging level will be set to WARNING instead of the
@@ -259,7 +260,7 @@
 #use_pub_sub = true
 
 # Use ROUTER remote proxy for direct methods. (boolean value)
-#use_router_proxy = false
+#use_router_proxy = true
 
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
@@ -1149,13 +1150,13 @@
 #sentinel_group_name = oslo-messaging-zeromq
 
 # Time in ms to wait between connection attempts. (integer value)
-#wait_timeout = 500
+#wait_timeout = 5000
 
 # Time in ms to wait before the transaction is killed. (integer value)
-#check_timeout = 20000
+#check_timeout = 60000
 
 # Timeout in ms on blocking socket operations (integer value)
-#socket_timeout = 1000
+#socket_timeout = 10000
 
 
 [memcache]
