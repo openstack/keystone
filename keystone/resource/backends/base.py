@@ -29,14 +29,6 @@ CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
-def calc_default_domain():
-    return {'description':
-            (u'The default domain'),
-            'enabled': True,
-            'id': CONF.identity.default_domain_id,
-            'name': u'Default'}
-
-
 def get_project_from_domain(domain_ref):
     """Create a project ref from the provided domain ref."""
     project_ref = domain_ref.copy()

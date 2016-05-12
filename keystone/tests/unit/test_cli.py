@@ -27,7 +27,6 @@ from testtools import matchers
 from keystone.cmd import cli
 from keystone.common import dependency
 from keystone.i18n import _
-from keystone.resource.backends import base as resource
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
@@ -317,8 +316,11 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
             domain = 'domain%s' % x
             self.domains[domain] = create_domain(
                 {'id': uuid.uuid4().hex, 'name': domain})
-        self.domains['domain_default'] = create_domain(
-            resource.calc_default_domain())
+        self.default_domain = unit.new_domain_ref(
+            description=u'The default domain',
+            id=CONF.identity.default_domain_id,
+            name=u'Default')
+        self.domains['domain_default'] = create_domain(self.default_domain)
 
     def test_config_upload(self):
         # The values below are the same as in the domain_configs_multi_ldap
@@ -408,12 +410,11 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
         dependency.reset()
         with mock.patch('six.moves.builtins.print') as mock_print:
             self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
-            file_name = ('keystone.%s.conf' %
-                         resource.calc_default_domain()['name'])
+            file_name = ('keystone.%s.conf' % self.default_domain['name'])
             error_msg = _(
                 'Domain: %(domain)s already has a configuration defined - '
                 'ignoring file: %(file)s.') % {
-                    'domain': resource.calc_default_domain()['name'],
+                    'domain': self.default_domain['name'],
                     'file': os.path.join(CONF.identity.domain_config_dir,
                                          file_name)}
             mock_print.assert_has_calls([mock.call(error_msg)])
