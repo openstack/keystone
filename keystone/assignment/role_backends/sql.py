@@ -11,7 +11,7 @@
 # under the License.
 from oslo_db import exception as db_exception
 
-from keystone import assignment
+from keystone.assignment.role_backends import base
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
@@ -25,7 +25,7 @@ from keystone import exception
 NULL_DOMAIN_ID = '<<null>>'
 
 
-class Role(assignment.RoleDriverV9):
+class Role(base.RoleDriverV9):
 
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):

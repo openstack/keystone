@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import assignment
+from keystone.assignment.role_backends import base
 from keystone.common import sql
 from keystone import exception
 
 
-class Role(assignment.RoleDriverV8):
+class Role(base.RoleDriverV8):
 
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
