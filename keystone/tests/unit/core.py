@@ -57,6 +57,7 @@ from keystone.version import service
 
 
 config.configure()
+config.set_config_defaults()
 
 PID = six.text_type(os.getpid())
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
