@@ -126,7 +126,15 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
         # http://docs.openstack.org/developer/keystone/developing.html#online-migration
 
         exceptions = [
-            # NOTE(xek): Reviewers: DO NOT ALLOW THINGS TO BE ADDED HERE
+            # NOTE(xek): Reviewers: DO NOT ALLOW THINGS TO BE ADDED HERE UNLESS
+            # JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT CAUSE
+            # PROBLEMS FOR ROLLING UPGRADES.
+
+            # Migration 102 drops the domain table in the Newton release. All
+            # code that referenced the domain table was removed in the Mitaka
+            # release, hence this migration will not cause problems when
+            # running a mixture of Mitaka and Newton versions of keystone.
+            102
         ]
 
         # NOTE(xek): We start requiring things be additive in Newton, so

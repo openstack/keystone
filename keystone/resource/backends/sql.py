@@ -219,16 +219,6 @@ class Resource(base.ResourceDriverV9):
             query.delete(synchronize_session=False)
 
 
-class Domain(sql.ModelBase, sql.DictBase):
-    __tablename__ = 'domain'
-    attributes = ['id', 'name', 'enabled']
-    id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(64), nullable=False)
-    enabled = sql.Column(sql.Boolean, default=True, nullable=False)
-    extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint('name'),)
-
-
 class Project(sql.ModelBase, sql.DictBase):
     # NOTE(henry-nash): From the manager and above perspective, the domain_id
     # is nullable.  However, to ensure uniqueness in multi-process

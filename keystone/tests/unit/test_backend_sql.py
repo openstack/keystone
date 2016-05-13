@@ -165,13 +165,6 @@ class SqlModels(SqlTests):
                 ('extra', sql.JsonBlob, None))
         self.assertExpectedSchema('group', cols)
 
-    def test_domain_model(self):
-        cols = (('id', sql.String, 64),
-                ('name', sql.String, 64),
-                ('enabled', sql.Boolean, True),
-                ('extra', sql.JsonBlob, None))
-        self.assertExpectedSchema('domain', cols)
-
     def test_project_model(self):
         cols = (('id', sql.String, 64),
                 ('name', sql.String, 64),
