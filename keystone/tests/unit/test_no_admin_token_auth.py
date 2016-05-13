@@ -18,11 +18,13 @@ from six.moves import http_client
 import webtest
 
 from keystone.tests import unit
+from keystone.tests.unit.ksfixtures import database
 
 
 class TestNoAdminTokenAuth(unit.TestCase):
     def setUp(self):
         super(TestNoAdminTokenAuth, self).setUp()
+        self.useFixture(database.Database())
         self.load_backends()
 
         self._generate_paste_config()
