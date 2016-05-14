@@ -73,6 +73,7 @@ def token_to_auth_context(token):
     if token.project_scoped:
         auth_context['project_id'] = token.project_id
         auth_context['project_domain_id'] = token.project_domain_id
+        auth_context['is_domain'] = token.is_domain
     elif token.domain_scoped:
         auth_context['domain_id'] = token.domain_id
         auth_context['domain_name'] = token.domain_name
