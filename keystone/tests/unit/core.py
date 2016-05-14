@@ -529,6 +529,8 @@ class BaseTestCase(testtools.TestCase):
         self.addCleanup(ldap.set_option, ldap.OPT_DEBUG_LEVEL,
                         orig_debug_level)
         orig_tls_cacertfile = ldap.get_option(ldap.OPT_X_TLS_CACERTFILE)
+        if orig_tls_cacertfile is None:
+            orig_tls_cacertfile = ''
         self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_CACERTFILE,
                         orig_tls_cacertfile)
         orig_tls_cacertdir = ldap.get_option(ldap.OPT_X_TLS_CACERTDIR)
