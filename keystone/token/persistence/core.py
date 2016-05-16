@@ -38,7 +38,7 @@ REVOCATION_MEMOIZE = cache.get_memoization_decorator(group='token',
 
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',
-                     'token_provider_api', 'trust_api')
+                     'trust_api')
 class PersistenceManager(manager.Manager):
     """Default pivot point for the Token Persistence backend.
 
@@ -184,13 +184,7 @@ class PersistenceManager(manager.Manager):
         # NOTE(morganfainberg): invalidate takes the exact same arguments as
         # the normal method, this means we need to pass "self" in (which gets
         # stripped off).
-
-        # FIXME(morganfainberg): Does this cache actually need to be
-        # invalidated? We maintain a cached revocation list, which should be
-        # consulted before accepting a token as valid.  For now we will
-        # do the explicit individual token invalidation.
         self._get_token.invalidate(self, token_id)
-        self.token_provider_api.invalidate_individual_token_cache(token_id)
 
 
 @dependency.requires('token_provider_api')

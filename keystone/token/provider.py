@@ -468,6 +468,12 @@ class Manager(manager.Manager):
         if CONF.token.revoke_by_id and self._needs_persistence:
             self._persistence.delete_token(token_id=token_id)
 
+        # FIXME(morganfainberg): Does this cache actually need to be
+        # invalidated? We maintain a cached revocation list, which should be
+        # consulted before accepting a token as valid.  For now we will
+        # do the explicit individual token invalidation.
+        self.invalidate_individual_token_cache(token_id)
+
     def list_revoked_tokens(self):
         return self._persistence.list_revoked_tokens()
 
