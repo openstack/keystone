@@ -33,7 +33,7 @@ example:
 
 Configure your Keystone virtual host and adjust the config to properly handle SAML2 workflow:
 
-Add this *WSGIScriptAlias* directive to your public vhost configuration::
+Add this *WSGIScriptAliasMatch* directive to your public vhost configuration::
 
     WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /usr/local/bin/keystone-wsgi-public/$1
 
