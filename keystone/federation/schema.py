@@ -104,12 +104,20 @@ identity_provider_update = {
     'additionalProperties': False
 }
 
-federation_protocol_schema = {
+_protocol_properties = {
+    'mapping_id': parameter_types.mapping_id_string
+}
+
+protocol_create = {
     'type': 'object',
-    'properties': {
-        'mapping_id': parameter_types.mapping_id_string
-    },
-    # `mapping_id` is the property that cannot be ignored
+    'properties': _protocol_properties,
+    'required': ['mapping_id'],
+    'additionalProperties': False
+}
+
+protocol_update = {
+    'type': 'object',
+    'properties': _protocol_properties,
     'minProperties': 1,
     'additionalProperties': False
 }
