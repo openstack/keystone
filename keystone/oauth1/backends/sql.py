@@ -23,7 +23,7 @@ from keystone.common import sql
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
-from keystone.oauth1 import core
+from keystone.oauth1.backends import base
 
 
 random = _random.SystemRandom()
@@ -84,7 +84,7 @@ class AccessToken(sql.ModelBase, sql.DictBase):
         return dict(self.items())
 
 
-class OAuth1(core.Oauth1DriverV8):
+class OAuth1(base.Oauth1DriverV8):
     def _get_consumer(self, session, consumer_id):
         consumer_ref = session.query(Consumer).get(consumer_id)
         if consumer_ref is None:
@@ -97,7 +97,7 @@ class OAuth1(core.Oauth1DriverV8):
             return consumer_ref.to_dict()
 
     def get_consumer(self, consumer_id):
-        return core.filter_consumer(
+        return base.filter_consumer(
             self.get_consumer_with_secret(consumer_id))
 
     def create_consumer(self, consumer_ref):
@@ -135,7 +135,7 @@ class OAuth1(core.Oauth1DriverV8):
     def list_consumers(self):
         with sql.session_for_read() as session:
             cons = session.query(Consumer)
-            return [core.filter_consumer(x.to_dict()) for x in cons]
+            return [base.filter_consumer(x.to_dict()) for x in cons]
 
     def update_consumer(self, consumer_id, consumer_ref):
         with sql.session_for_write() as session:
@@ -145,7 +145,7 @@ class OAuth1(core.Oauth1DriverV8):
             new_consumer = Consumer.from_dict(old_consumer_dict)
             consumer.description = new_consumer.description
             consumer.extra = new_consumer.extra
-        return core.filter_consumer(consumer.to_dict())
+        return base.filter_consumer(consumer.to_dict())
 
     def create_request_token(self, consumer_id, requested_project,
                              request_token_duration):
@@ -188,7 +188,7 @@ class OAuth1(core.Oauth1DriverV8):
             token_ref = self._get_request_token(session, request_token_id)
             token_dict = token_ref.to_dict()
             token_dict['authorizing_user_id'] = user_id
-            token_dict['verifier'] = ''.join(random.sample(core.VERIFIER_CHARS,
+            token_dict['verifier'] = ''.join(random.sample(base.VERIFIER_CHARS,
                                                            8))
             token_dict['role_ids'] = jsonutils.dumps(role_ids)
 
@@ -245,7 +245,7 @@ class OAuth1(core.Oauth1DriverV8):
         with sql.session_for_read() as session:
             q = session.query(AccessToken)
             user_auths = q.filter_by(authorizing_user_id=user_id)
-            return [core.filter_token(x.to_dict()) for x in user_auths]
+            return [base.filter_token(x.to_dict()) for x in user_auths]
 
     def delete_access_token(self, user_id, access_token_id):
         with sql.session_for_write() as session:

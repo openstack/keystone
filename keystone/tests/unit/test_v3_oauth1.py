@@ -25,8 +25,8 @@ from six.moves import urllib
 from keystone.contrib.oauth1 import routers
 from keystone import exception
 from keystone import oauth1
+from keystone.oauth1.backends import base
 from keystone.oauth1 import controllers
-from keystone.oauth1 import core
 from keystone.tests import unit
 from keystone.tests.unit.common import test_notifications
 from keystone.tests.unit import ksfixtures
@@ -272,7 +272,7 @@ class OAuthFlowTests(OAuth1Tests):
         body = {'roles': [{'id': self.role_id}]}
         resp = self.put(url, body=body, expected_status=http_client.OK)
         self.verifier = resp.result['token']['oauth_verifier']
-        self.assertTrue(all(i in core.VERIFIER_CHARS for i in self.verifier))
+        self.assertTrue(all(i in base.VERIFIER_CHARS for i in self.verifier))
         self.assertEqual(8, len(self.verifier))
 
         self.request_token.set_verifier(self.verifier)
@@ -851,7 +851,7 @@ class OAuthNotificationTests(OAuth1Tests,
         body = {'roles': [{'id': self.role_id}]}
         resp = self.put(url, body=body, expected_status=http_client.OK)
         self.verifier = resp.result['token']['oauth_verifier']
-        self.assertTrue(all(i in core.VERIFIER_CHARS for i in self.verifier))
+        self.assertTrue(all(i in base.VERIFIER_CHARS for i in self.verifier))
         self.assertEqual(8, len(self.verifier))
 
         self.request_token.set_verifier(self.verifier)
