@@ -419,6 +419,44 @@ class TokenAPITests(object):
             headers={'X-Subject-Token': v3_token})
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
 
+    def test_remove_all_roles_from_scope_result_in_404(self):
+        # create a new user
+        new_user_password = uuid.uuid4().hex
+        new_user = {
+            'name': uuid.uuid4().hex,
+            'domain_id': self.domain['id'],
+            'password': new_user_password,
+            'email': uuid.uuid4().hex,
+        }
+        new_user = self.identity_api.create_user(new_user)
+
+        # give the new user a role on a project
+        path = '/projects/%s/users/%s/roles/%s' % (
+            self.project['id'], new_user['id'], self.role['id'])
+        self.put(path=path)
+
+        # authenticate as the new user and get a project-scoped token
+        auth_data = self.build_authentication_request(
+            user_id=new_user['id'],
+            password=new_user_password,
+            project_id=self.project['id'])
+        subject_token_id = self.v3_authenticate_token(auth_data).headers.get(
+            'X-Subject-Token')
+
+        # make sure the project-scoped token is valid
+        headers = {'X-Subject-Token': subject_token_id}
+        r = self.get('/auth/tokens', headers=headers)
+        self.assertValidProjectScopedTokenResponse(r)
+
+        # remove the roles from the user for the given scope
+        path = '/projects/%s/users/%s/roles/%s' % (
+            self.project['id'], new_user['id'], self.role['id'])
+        self.delete(path=path)
+
+        # token validation should now result in 404
+        self.get('/auth/tokens', headers=headers,
+                 expected_status=http_client.NOT_FOUND)
+
 
 class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def config_overrides(self):

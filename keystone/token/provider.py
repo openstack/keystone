@@ -233,21 +233,25 @@ class Manager(manager.Manager):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
 
-        unique_id = utils.generate_unique_id(token_id)
-        # NOTE(lbragstad): Only go to persistent storage if we have a token to
-        # fetch from the backend. If the Fernet token provider is being used
-        # this step isn't necessary. The Fernet token reference is persisted in
-        # the token_id, so in this case set the token_ref as the identifier of
-        # the token.
-        if not self._needs_persistence:
-            token_ref = token_id
-        else:
-            # NOTE(morganfainberg): Ensure we never use the long-form token_id
-            # (PKI) as part of the cache_key.
-            token_ref = self._persistence.get_token(unique_id)
-        token = self._validate_v3_token(token_ref)
-        self._is_valid_token(token)
-        return token
+        try:
+            unique_id = utils.generate_unique_id(token_id)
+            # NOTE(lbragstad): Only go to persistent storage if we have a
+            # token to fetch from the backend. If the Fernet token provider is
+            # being used this step isn't necessary. The Fernet token reference
+            # is persisted in the token_id, so in this case set the token_ref
+            # as the identifier of the token.
+            if not self._needs_persistence:
+                token_ref = token_id
+            else:
+                # NOTE(morganfainberg): Ensure we never use the long-form
+                # token_id (PKI) as part of the cache_key.
+                token_ref = self._persistence.get_token(unique_id)
+            token = self._validate_v3_token(token_ref)
+            self._is_valid_token(token)
+            return token
+        except exception.Unauthorized as e:
+            LOG.debug('Unable to validate token: %s', e)
+            raise exception.TokenNotFound(token_id=token_id)
 
     @MEMOIZE
     def _validate_token(self, token_id):
@@ -259,7 +263,11 @@ class Manager(manager.Manager):
         token_ref = self._persistence.get_token(token_id)
         version = self.driver.get_token_version(token_ref)
         if version == self.V3:
-            return self.driver.validate_v3_token(token_ref)
+            try:
+                return self.driver.validate_v3_token(token_ref)
+            except exception.Unauthorized as e:
+                LOG.debug('Unable to validate token: %s', e)
+                raise exception.TokenNotFound(token_id=token_id)
         elif version == self.V2:
             return self.driver.validate_v2_token(token_ref)
         raise exception.UnsupportedTokenVersionException()
