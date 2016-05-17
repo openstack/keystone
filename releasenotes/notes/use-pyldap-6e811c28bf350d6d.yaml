@@ -1,0 +1,6 @@
+---
+upgrade:
+  - Keystone now relies on pyldap instead of python-ldap.
+    The pyldap library is a fork of python-ldap and is
+    a drop-in replacement with modifications to be py3
+    compatible.
