@@ -1156,6 +1156,12 @@ class SqlUpgradeTests(SqlMigrateBase):
             self.assertFalse(self.does_constraint_exist('role',
                                                         'ixu_role_name'))
 
+    def test_drop_domain_table(self):
+        self.upgrade(101)
+        self.assertTableExists('domain')
+        self.upgrade(102)
+        self.assertTableDoesNotExist('domain')
+
 
 class MySQLOpportunisticUpgradeTestCase(SqlUpgradeTests):
     FIXTURE = test_base.MySQLOpportunisticFixture
