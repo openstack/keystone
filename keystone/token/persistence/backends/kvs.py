@@ -67,10 +67,14 @@ class Token(token.persistence.TokenDriverV8):
                             "'memcache' or 'sql' instead."))
 
     def _prefix_token_id(self, token_id):
-        return 'token-%s' % token_id.encode('utf-8')
+        if six.PY2:
+            token_id = token_id.encode('utf-8')
+        return 'token-%s' % token_id
 
     def _prefix_user_id(self, user_id):
-        return 'usertokens-%s' % user_id.encode('utf-8')
+        if six.PY2:
+            user_id = user_id.encode('utf-8')
+        return 'usertokens-%s' % user_id
 
     def _get_key_or_default(self, key, default=None):
         try:
