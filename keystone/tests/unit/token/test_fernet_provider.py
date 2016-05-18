@@ -149,7 +149,7 @@ class TestValidate(unit.TestCase):
                 'protocol': {'id': protocol, },
             },
         }
-        self.assertEqual(exp_user_info, token['user'])
+        self.assertDictEqual(exp_user_info, token['user'])
 
     def test_validate_v3_token_trust(self):
         # Check the trust fields in the token result when use validate_v3_token
