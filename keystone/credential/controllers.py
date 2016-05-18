@@ -49,7 +49,8 @@ class CredentialV3(controller.V3Controller):
                 raise exception.ValidationError(attribute='access',
                                                 target='blob')
             ret_ref = ref.copy()
-            ret_ref['id'] = hashlib.sha256(blob['access']).hexdigest()
+            ret_ref['id'] = hashlib.sha256(
+                blob['access'].encode('utf8')).hexdigest()
             # Update the blob with the trust_id, so credentials created
             # with a trust scoped token will result in trust scoped
             # tokens when authentication via ec2tokens happens
