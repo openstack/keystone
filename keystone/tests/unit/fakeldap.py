@@ -80,7 +80,6 @@ def _internal_attr(attr_name, value_or_values):
             name, val, i = part[0]
             name = core.utf8_decode(name)
             name = name.upper()
-            name = core.utf8_encode(name)
             norm.append([(name, val, i)])
         return core.utf8_decode(ldap.dn.dn2str(norm))
 
@@ -299,7 +298,8 @@ class FakeLdap(core.LDAPHandler):
         if server_fail:
             raise ldap.SERVER_DOWN
         whos = ['cn=Admin', CONF.ldap.user]
-        if who in whos and cred in ['password', CONF.ldap.password]:
+        if (core.utf8_decode(who) in whos and
+                core.utf8_decode(cred) in ['password', CONF.ldap.password]):
             return
 
         try:
@@ -316,7 +316,7 @@ class FakeLdap(core.LDAPHandler):
                       core.utf8_decode(who))
             raise ldap.INAPPROPRIATE_AUTH
 
-        if cred != db_password:
+        if cred != core.utf8_encode(db_password):
             LOG.debug('bind fail: password for who=%s does not match',
                       core.utf8_decode(who))
             raise ldap.INVALID_CREDENTIALS
@@ -524,7 +524,8 @@ class FakeLdap(core.LDAPHandler):
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
             attrs_checked = set()
-            if not filterstr or _match_query(filterstr, match_attrs,
+            if not filterstr or _match_query(core.utf8_decode(filterstr),
+                                             match_attrs,
                                              attrs_checked):
                 if (filterstr and
                         (scope != ldap.SCOPE_BASE) and
@@ -532,7 +533,7 @@ class FakeLdap(core.LDAPHandler):
                     raise AssertionError('No objectClass in search filter')
                 # filter the attributes by attrlist
                 attrs = {k: v for k, v in attrs.items()
-                         if not attrlist or k in attrlist}
+                         if not attrlist or k in core.utf8_decode(attrlist)}
                 objects.append((dn, attrs))
 
         return objects

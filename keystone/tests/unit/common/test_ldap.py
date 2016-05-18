@@ -422,7 +422,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                 'cn': ['junk'],
                 'sn': [uuid.uuid4().hex],
                 'mail': [uuid.uuid4().hex],
-                'binary_attr': ['\x00\xFF\x00\xFF']
+                'binary_attr': [b'\x00\xFF\x00\xFF']
             }
         ), ]
         py_result = ks_ldap.convert_ldap_result(result)

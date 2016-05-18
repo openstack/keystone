@@ -1,7 +1,3 @@
-keystone.tests.unit.common.test_ldap
-keystone.tests.unit.identity.backends.test_ldap
-keystone.tests.unit.test_backend_ldap
-keystone.tests.unit.test_backend_ldap_pool
 keystone.tests.unit.test_v3_auth
 keystone.tests.unit.test_v3_credential
 keystone.tests.unit.test_v3_oauth1
