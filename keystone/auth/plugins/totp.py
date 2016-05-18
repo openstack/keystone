@@ -62,7 +62,7 @@ def _generate_totp_passcode(secret):
     decoded = base64.b32decode(secret)
     totp = crypto_totp.TOTP(
         decoded, 6, hashes.SHA1(), 30, backend=default_backend())
-    return totp.generate(timeutils.utcnow_ts(microsecond=True))
+    return six.text_type(totp.generate(timeutils.utcnow_ts(microsecond=True)))
 
 
 @dependency.requires('credential_api')

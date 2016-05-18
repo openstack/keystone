@@ -15,7 +15,6 @@
 import copy
 import datetime
 import itertools
-import json
 import operator
 import uuid
 
@@ -23,8 +22,10 @@ from keystoneclient.common import cms
 import mock
 from oslo_config import cfg
 from oslo_log import versionutils
+from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
 from oslo_utils import timeutils
+import six
 from six.moves import http_client
 from six.moves import range
 from testtools import matchers
@@ -198,6 +199,17 @@ class TokenAPITests(object):
     def _set_user_enabled(self, user, enabled=True):
         user['enabled'] = enabled
         self.identity_api.update_user(user['id'], user)
+
+    def assertTimestampEqual(self, expected, value):
+        # Compare two timestamps but ignore the microseconds part
+        # of the expected timestamp. Keystone does not track microseconds and
+        # is working to eliminate microseconds from it's datetimes used.
+        expected = timeutils.parse_isotime(expected).replace(microsecond=0)
+        value = timeutils.parse_isotime(value).replace(microsecond=0)
+        self.assertEqual(
+            expected,
+            value,
+            "%s != %s" % (expected, value))
 
     def test_validate_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
@@ -603,10 +615,8 @@ class TokenAPITests(object):
 
         self.assertEqual(v2_token_data['access']['user']['id'],
                          v3_token_data['token']['user']['id'])
-        # v2 token time has not fraction of second precision so
-        # just need to make sure the non fraction part agrees
-        self.assertIn(v2_token_data['access']['token']['expires'][:-1],
-                      v3_token_data['token']['expires_at'])
+        self.assertTimestampEqual(v2_token_data['access']['token']['expires'],
+                                  v3_token_data['token']['expires_at'])
 
     def test_v3_v2_token_intermix(self):
         # FIXME(gyee): PKI tokens are not interchangeable because token
@@ -628,10 +638,8 @@ class TokenAPITests(object):
 
         self.assertEqual(v2_token_data['access']['user']['id'],
                          v3_token_data['token']['user']['id'])
-        # v2 token time has not fraction of second precision so
-        # just need to make sure the non fraction part agrees
-        self.assertIn(v2_token_data['access']['token']['expires'][:-1],
-                      v3_token_data['token']['expires_at'])
+        self.assertTimestampEqual(v2_token_data['access']['token']['expires'],
+                                  v3_token_data['token']['expires_at'])
         self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
                          v3_token_data['token']['roles'][0]['name'])
 
@@ -656,10 +664,8 @@ class TokenAPITests(object):
 
         self.assertEqual(v2_token_data['access']['user']['id'],
                          v3_token_data['token']['user']['id'])
-        # v2 token time has not fraction of second precision so
-        # just need to make sure the non fraction part agrees
-        self.assertIn(v2_token_data['access']['token']['expires'][-1],
-                      v3_token_data['token']['expires_at'])
+        self.assertTimestampEqual(v2_token_data['access']['token']['expires'],
+                                  v3_token_data['token']['expires_at'])
 
     def test_v2_v3_token_intermix(self):
         r = self.admin_request(
@@ -683,10 +689,8 @@ class TokenAPITests(object):
 
         self.assertEqual(v2_token_data['access']['user']['id'],
                          v3_token_data['token']['user']['id'])
-        # v2 token time has not fraction of second precision so
-        # just need to make sure the non fraction part agrees
-        self.assertIn(v2_token_data['access']['token']['expires'][-1],
-                      v3_token_data['token']['expires_at'])
+        self.assertTimestampEqual(v2_token_data['access']['token']['expires'],
+                                  v3_token_data['token']['expires_at'])
         self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
                          v3_token_data['token']['roles'][0]['name'])
 
@@ -731,7 +735,7 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
 
         # ensure token expiration stayed the same
-        self.assertEqual(expires, r.result['token']['expires_at'])
+        self.assertTimestampEqual(expires, r.result['token']['expires_at'])
 
     def test_check_token(self):
         self.head('/auth/tokens', headers=self.headers,
@@ -1111,7 +1115,7 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        r.result['token'][u'extra'] = unicode(uuid.uuid4().hex)
+        r.result['token'][u'extra'] = six.text_type(uuid.uuid4().hex)
         self.assertRaises(exception.SchemaValidationError,
                           self.assertValidUnscopedTokenResponse,
                           r)
@@ -1133,7 +1137,7 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        r.result['token'][u'extra'] = unicode(uuid.uuid4().hex)
+        r.result['token'][u'extra'] = six.text_type(uuid.uuid4().hex)
         self.assertRaises(exception.SchemaValidationError,
                           self.assertValidDomainScopedTokenResponse,
                           r)
@@ -1150,7 +1154,7 @@ class TokenDataTests(object):
         resp = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        resp.result['token'][u'extra'] = unicode(uuid.uuid4().hex)
+        resp.result['token'][u'extra'] = six.text_type(uuid.uuid4().hex)
         self.assertRaises(exception.SchemaValidationError,
                           self.assertValidProjectScopedTokenResponse,
                           resp)
@@ -1258,8 +1262,8 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
 
         decoded_token = self.verify_token(token_id, CONF.signing.certfile,
                                           CONF.signing.ca_certs)
-        decoded_token_dict = json.loads(decoded_token)
 
+        decoded_token_dict = json.loads(decoded_token)
         token_resp_dict = json.loads(resp.body)
 
         self.assertEqual(decoded_token_dict, token_resp_dict)
@@ -1288,10 +1292,8 @@ class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         v2_token = resp.result
         self.assertEqual(v2_token['access']['user']['id'],
                          token_data['token']['user']['id'])
-        # v2 token time has not fraction of second precision so
-        # just need to make sure the non fraction part agrees
-        self.assertIn(v2_token['access']['token']['expires'][:-1],
-                      token_data['token']['expires_at'])
+        self.assertTimestampEqual(v2_token['access']['token']['expires'],
+                                  token_data['token']['expires_at'])
         self.assertEqual(v2_token['access']['user']['roles'][0]['name'],
                          token_data['token']['roles'][0]['name'])
 
