@@ -12,7 +12,7 @@
 
 from keystone.common import sql
 from keystone.models import revoke_model
-from keystone import revoke
+from keystone.revoke.backends import base
 
 
 class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
@@ -36,7 +36,7 @@ class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
     audit_chain_id = sql.Column(sql.String(32))
 
 
-class Revoke(revoke.RevokeDriverV8):
+class Revoke(base.RevokeDriverV8):
     def _flush_batch_size(self, dialect):
         batch_size = 0
         if dialect == 'ibm_db_sa':
@@ -56,7 +56,7 @@ class Revoke(revoke.RevokeDriverV8):
         return batch_size
 
     def _prune_expired_events(self):
-        oldest = revoke.revoked_before_cutoff_time()
+        oldest = base.revoked_before_cutoff_time()
 
         with sql.session_for_write() as session:
             dialect = session.bind.dialect.name

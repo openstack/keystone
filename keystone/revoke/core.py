@@ -12,13 +12,8 @@
 
 """Main entry point into the Revoke service."""
 
-import abc
-import datetime
-
 from oslo_config import cfg
 from oslo_log import versionutils
-from oslo_utils import timeutils
-import six
 
 from keystone.common import cache
 from keystone.common import dependency
@@ -28,6 +23,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.models import revoke_model
 from keystone import notifications
+from keystone.revoke.backends import base
 
 
 CONF = cfg.CONF
@@ -52,13 +48,6 @@ extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 MEMOIZE = cache.get_memoization_decorator(group='revoke')
-
-
-def revoked_before_cutoff_time():
-    expire_delta = datetime.timedelta(
-        seconds=CONF.token.expiration + CONF.revoke.expiration_buffer)
-    oldest = timeutils.utcnow() - expire_delta
-    return oldest
 
 
 @dependency.provider('revoke_api')
@@ -230,32 +219,13 @@ class Manager(manager.Manager):
         self._get_revoke_tree.invalidate(self)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class RevokeDriverV8(object):
-    """Interface for recording and reporting revocation events."""
-
-    @abc.abstractmethod
-    def list_events(self, last_fetch=None):
-        """return the revocation events, as a list of objects.
-
-        :param last_fetch:   Time of last fetch.  Return all events newer.
-        :returns: A list of keystone.revoke.model.RevokeEvent
-                  newer than `last_fetch.`
-                  If no last_fetch is specified, returns all events
-                  for tokens issued after the expiration cutoff.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def revoke(self, event):
-        """register a revocation event.
-
-        :param event: An instance of
-            keystone.revoke.model.RevocationEvent
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.revoke.RevokeDriverV8',
+    in_favor_of='keystone.revoke.backends.base.RevokeDriverV8',
+    remove_in=+1)
+class RevokeDriverV8(base.RevokeDriverV8):
+    pass
 
 
-Driver = manager.create_legacy_driver(RevokeDriverV8)
+Driver = manager.create_legacy_driver(base.RevokeDriverV8)
