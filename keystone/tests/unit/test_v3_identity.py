@@ -624,6 +624,32 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         self.assertNotIn(new_password, log_fix.output)
 
+    def test_setting_default_project_id_to_domain_failed(self):
+        """Call ``POST and PATCH /users`` default_project_id=domain_id.
+
+        Make sure we validate the default_project_id if it is specified.
+        It cannot be set to a domain_id, even for a project acting as domain
+        right now. That's because we haven't sort out the issuing
+        project-scoped token for project acting as domain bit yet. Once we
+        got that sorted out, we can relax this constraint.
+
+        """
+        # creating a new user with default_project_id set to a
+        # domain_id should result in HTTP 400
+        ref = unit.new_user_ref(domain_id=self.domain_id,
+                                project_id=self.domain_id)
+        self.post('/users', body={'user': ref}, token=CONF.admin_token,
+                  expected_status=http_client.BAD_REQUEST)
+
+        # updating user's default_project_id to a domain_id should result
+        # in HTTP 400
+        user = {'default_project_id': self.domain_id}
+        self.patch('/users/%(user_id)s' % {
+            'user_id': self.user['id']},
+            body={'user': user},
+            token=CONF.admin_token,
+            expected_status=http_client.BAD_REQUEST)
+
 
 class IdentityV3toV2MethodsTestCase(unit.TestCase):
     """Test users V3 to V2 conversion methods."""
