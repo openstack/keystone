@@ -60,38 +60,38 @@ class ConsumerCrudV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.consumer_create, 'consumer')
-    def create_consumer(self, context, consumer):
+    def create_consumer(self, request, consumer):
         ref = self._assign_unique_id(self._normalize_dict(consumer))
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         consumer_ref = self.oauth_api.create_consumer(ref, initiator)
-        return ConsumerCrudV3.wrap_member(context, consumer_ref)
+        return ConsumerCrudV3.wrap_member(request.context_dict, consumer_ref)
 
     @controller.protected()
     @validation.validated(schema.consumer_update, 'consumer')
-    def update_consumer(self, context, consumer_id, consumer):
+    def update_consumer(self, request, consumer_id, consumer):
         self._require_matching_id(consumer_id, consumer)
         ref = self._normalize_dict(consumer)
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.oauth_api.update_consumer(consumer_id, ref, initiator)
-        return ConsumerCrudV3.wrap_member(context, ref)
+        return ConsumerCrudV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def list_consumers(self, context):
+    def list_consumers(self, request):
         ref = self.oauth_api.list_consumers()
-        return ConsumerCrudV3.wrap_collection(context, ref)
+        return ConsumerCrudV3.wrap_collection(request.context_dict, ref)
 
     @controller.protected()
-    def get_consumer(self, context, consumer_id):
+    def get_consumer(self, request, consumer_id):
         ref = self.oauth_api.get_consumer(consumer_id)
-        return ConsumerCrudV3.wrap_member(context, ref)
+        return ConsumerCrudV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def delete_consumer(self, context, consumer_id):
-        user_token_ref = utils.get_token_ref(context)
+    def delete_consumer(self, request, consumer_id):
+        user_token_ref = utils.get_token_ref(request.context_dict)
         payload = {'user_id': user_token_ref.user_id,
                    'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.oauth_api.delete_consumer(consumer_id, initiator)
 
 
@@ -110,33 +110,36 @@ class AccessTokenCrudV3(controller.V3Controller):
         ref['links']['self'] = cls.base_url(context, path) + '/' + ref['id']
 
     @controller.protected()
-    def get_access_token(self, context, user_id, access_token_id):
+    def get_access_token(self, request, user_id, access_token_id):
         access_token = self.oauth_api.get_access_token(access_token_id)
         if access_token['authorizing_user_id'] != user_id:
             raise exception.NotFound()
-        access_token = self._format_token_entity(context, access_token)
-        return AccessTokenCrudV3.wrap_member(context, access_token)
+        access_token = self._format_token_entity(request.context_dict,
+                                                 access_token)
+        return AccessTokenCrudV3.wrap_member(request.context_dict,
+                                             access_token)
 
     @controller.protected()
-    def list_access_tokens(self, context, user_id):
-        auth_context = context.get('environment',
-                                   {}).get('KEYSTONE_AUTH_CONTEXT', {})
+    def list_access_tokens(self, request, user_id):
+        env = request.context_dict.get('environment', {})
+        auth_context = env.get('KEYSTONE_AUTH_CONTEXT', {})
         if auth_context.get('is_delegated_auth'):
             raise exception.Forbidden(
                 _('Cannot list request tokens'
                   ' with a token issued via delegation.'))
         refs = self.oauth_api.list_access_tokens(user_id)
-        formatted_refs = ([self._format_token_entity(context, x)
+        formatted_refs = ([self._format_token_entity(request.context_dict, x)
                            for x in refs])
-        return AccessTokenCrudV3.wrap_collection(context, formatted_refs)
+        return AccessTokenCrudV3.wrap_collection(request.context_dict,
+                                                 formatted_refs)
 
     @controller.protected()
-    def delete_access_token(self, context, user_id, access_token_id):
+    def delete_access_token(self, request, user_id, access_token_id):
         access_token = self.oauth_api.get_access_token(access_token_id)
         consumer_id = access_token['consumer_id']
         payload = {'user_id': user_id, 'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         return self.oauth_api.delete_access_token(
             user_id, access_token_id, initiator)
 
@@ -170,17 +173,17 @@ class AccessTokenRolesV3(controller.V3Controller):
     member_name = 'role'
 
     @controller.protected()
-    def list_access_token_roles(self, context, user_id, access_token_id):
+    def list_access_token_roles(self, request, user_id, access_token_id):
         access_token = self.oauth_api.get_access_token(access_token_id)
         if access_token['authorizing_user_id'] != user_id:
             raise exception.NotFound()
         authed_role_ids = access_token['role_ids']
         authed_role_ids = jsonutils.loads(authed_role_ids)
         refs = ([self._format_role_entity(x) for x in authed_role_ids])
-        return AccessTokenRolesV3.wrap_collection(context, refs)
+        return AccessTokenRolesV3.wrap_collection(request.context_dict, refs)
 
     @controller.protected()
-    def get_access_token_role(self, context, user_id,
+    def get_access_token_role(self, request, user_id,
                               access_token_id, role_id):
         access_token = self.oauth_api.get_access_token(access_token_id)
         if access_token['authorizing_user_id'] != user_id:
@@ -190,7 +193,8 @@ class AccessTokenRolesV3(controller.V3Controller):
         for authed_role_id in authed_role_ids:
             if authed_role_id == role_id:
                 role = self._format_role_entity(role_id)
-                return AccessTokenRolesV3.wrap_member(context, role)
+                return AccessTokenRolesV3.wrap_member(request.context_dict,
+                                                      role)
         raise exception.RoleNotFound(role_id=role_id)
 
     def _format_role_entity(self, role_id):
@@ -209,8 +213,8 @@ class OAuthControllerV3(controller.V3Controller):
     collection_name = 'not_used'
     member_name = 'not_used'
 
-    def create_request_token(self, context):
-        headers = context['headers']
+    def create_request_token(self, request):
+        headers = request.context_dict['headers']
         oauth_headers = oauth1.get_oauth_headers(headers)
         consumer_id = oauth_headers.get('oauth_consumer_key')
         requested_project_id = headers.get('Requested-Project-Id')
@@ -226,7 +230,7 @@ class OAuthControllerV3(controller.V3Controller):
         self.resource_api.get_project(requested_project_id)
         self.oauth_api.get_consumer(consumer_id)
 
-        url = self.base_url(context, context['path'])
+        url = self.base_url(request.context_dict, request.context_dict['path'])
 
         req_headers = {'Requested-Project-Id': requested_project_id}
         req_headers.update(headers)
@@ -236,7 +240,7 @@ class OAuthControllerV3(controller.V3Controller):
         h, b, s = request_verifier.create_request_token_response(
             url,
             http_method='POST',
-            body=context['query_string'],
+            body=request.context_dict['query_string'],
             headers=req_headers)
 
         if (not b) or int(s) > 399:
@@ -244,7 +248,7 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.Unauthorized(message=msg)
 
         request_token_duration = CONF.oauth1.request_token_duration
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         token_ref = self.oauth_api.create_request_token(consumer_id,
                                                         requested_project_id,
                                                         request_token_duration,
@@ -265,8 +269,8 @@ class OAuthControllerV3(controller.V3Controller):
 
         return response
 
-    def create_access_token(self, context):
-        headers = context['headers']
+    def create_access_token(self, request):
+        headers = request.context_dict['headers']
         oauth_headers = oauth1.get_oauth_headers(headers)
         consumer_id = oauth_headers.get('oauth_consumer_key')
         request_token_id = oauth_headers.get('oauth_token')
@@ -293,7 +297,7 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
-        url = self.base_url(context, context['path'])
+        url = self.base_url(request.context_dict, request.context_dict['path'])
 
         access_verifier = oauth1.AccessTokenEndpoint(
             request_validator=validator.OAuthValidator(),
@@ -301,7 +305,7 @@ class OAuthControllerV3(controller.V3Controller):
         h, b, s = access_verifier.create_access_token_response(
             url,
             http_method='POST',
-            body=context['query_string'],
+            body=request.context_dict['query_string'],
             headers=headers)
         params = oauth1.extract_non_oauth_params(b)
         if params:
@@ -325,7 +329,7 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.Unauthorized(message=msg)
 
         access_token_duration = CONF.oauth1.access_token_duration
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         token_ref = self.oauth_api.create_access_token(request_token_id,
                                                        access_token_duration,
                                                        initiator)
@@ -346,7 +350,7 @@ class OAuthControllerV3(controller.V3Controller):
         return response
 
     @controller.protected()
-    def authorize_request_token(self, context, request_token_id, roles):
+    def authorize_request_token(self, request, request_token_id, roles):
         """An authenticated user is going to authorize a request token.
 
         As a security precaution, the requested roles must match those in
@@ -354,8 +358,8 @@ class OAuthControllerV3(controller.V3Controller):
         there is not another easy way to make sure the user knows which roles
         are being requested before authorizing.
         """
-        auth_context = context.get('environment',
-                                   {}).get('KEYSTONE_AUTH_CONTEXT', {})
+        env = request.context_dict.get('environment', {})
+        auth_context = env.get('KEYSTONE_AUTH_CONTEXT', {})
         if auth_context.get('is_delegated_auth'):
             raise exception.Forbidden(
                 _('Cannot authorize a request token'
@@ -377,7 +381,7 @@ class OAuthControllerV3(controller.V3Controller):
             authed_roles.add(role['id'])
 
         # verify the authorizing user has the roles
-        user_token = utils.get_token_ref(context)
+        user_token = utils.get_token_ref(request.context_dict)
         user_id = user_token.user_id
         project_id = req_token['requested_project_id']
         user_roles = self.assignment_api.get_roles_for_user_and_project(

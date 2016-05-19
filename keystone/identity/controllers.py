@@ -34,38 +34,39 @@ LOG = log.getLogger(__name__)
 class User(controller.V2Controller):
 
     @controller.v2_deprecated
-    def get_user(self, context, user_id):
-        self.assert_admin(context)
+    def get_user(self, request, user_id):
+        self.assert_admin(request.context_dict)
         ref = self.identity_api.get_user(user_id)
         return {'user': self.v3_to_v2_user(ref)}
 
     @controller.v2_deprecated
-    def get_users(self, context):
+    def get_users(self, request):
         # NOTE(termie): i can't imagine that this really wants all the data
         #               about every single user in the system...
-        if 'name' in context['query_string']:
+        if 'name' in request.context_dict['query_string']:
             return self.get_user_by_name(
-                context, context['query_string'].get('name'))
+                request,
+                request.context_dict['query_string'].get('name'))
 
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
         user_list = self.identity_api.list_users(
             CONF.identity.default_domain_id)
         return {'users': self.v3_to_v2_user(user_list)}
 
     @controller.v2_deprecated
-    def get_user_by_name(self, context, user_name):
-        self.assert_admin(context)
+    def get_user_by_name(self, request, user_name):
+        self.assert_admin(request.context_dict)
         ref = self.identity_api.get_user_by_name(
             user_name, CONF.identity.default_domain_id)
         return {'user': self.v3_to_v2_user(ref)}
 
     # CRUD extension
     @controller.v2_deprecated
-    def create_user(self, context, user):
+    def create_user(self, request, user):
         user = self._normalize_OSKSADM_password_on_request(user)
         user = self.normalize_username_in_request(user)
         user = self._normalize_dict(user)
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
 
         if 'name' not in user or not user['name']:
             msg = _('Name field is required and cannot be empty')
@@ -83,8 +84,8 @@ class User(controller.V2Controller):
         self.resource_api.ensure_default_domain_exists()
 
         # The manager layer will generate the unique ID for users
-        user_ref = self._normalize_domain_id(context, user.copy())
-        initiator = notifications._get_request_audit_info(context)
+        user_ref = self._normalize_domain_id(request.context_dict, user.copy())
+        initiator = notifications._get_request_audit_info(request.context_dict)
         new_user_ref = self.v3_to_v2_user(
             self.identity_api.create_user(user_ref, initiator))
 
@@ -94,10 +95,10 @@ class User(controller.V2Controller):
         return {'user': new_user_ref}
 
     @controller.v2_deprecated
-    def update_user(self, context, user_id, user):
+    def update_user(self, request, user_id, user):
         # NOTE(termie): this is really more of a patch than a put
         user = self.normalize_username_in_request(user)
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
 
         if 'enabled' in user and not isinstance(user['enabled'], bool):
             msg = _('Enabled field should be a boolean')
@@ -123,7 +124,7 @@ class User(controller.V2Controller):
             # user update.
             self.resource_api.get_project(default_project_id)
 
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         user_ref = self.v3_to_v2_user(
             self.identity_api.update_user(user_id, user, initiator))
 
@@ -168,19 +169,19 @@ class User(controller.V2Controller):
         return {'user': user_ref}
 
     @controller.v2_deprecated
-    def delete_user(self, context, user_id):
-        self.assert_admin(context)
-        initiator = notifications._get_request_audit_info(context)
+    def delete_user(self, request, user_id):
+        self.assert_admin(request.context_dict)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.identity_api.delete_user(user_id, initiator)
 
     @controller.v2_deprecated
-    def set_user_enabled(self, context, user_id, user):
-        return self.update_user(context, user_id, user)
+    def set_user_enabled(self, request, user_id, user):
+        return self.update_user(request, user_id, user)
 
     @controller.v2_deprecated
-    def set_user_password(self, context, user_id, user):
+    def set_user_password(self, request, user_id, user):
         user = self._normalize_OSKSADM_password_on_request(user)
-        return self.update_user(context, user_id, user)
+        return self.update_user(request, user_id, user)
 
     @staticmethod
     def _normalize_OSKSADM_password_on_request(ref):
@@ -218,33 +219,32 @@ class UserV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.user_create, 'user')
-    def create_user(self, context, user):
+    def create_user(self, request, user):
         # The manager layer will generate the unique ID for users
         ref = self._normalize_dict(user)
-        ref = self._normalize_domain_id(context, ref)
-        initiator = notifications._get_request_audit_info(context)
+        ref = self._normalize_domain_id(request.context_dict, ref)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.identity_api.create_user(ref, initiator)
-        return UserV3.wrap_member(context, ref)
+        return UserV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
-    def list_users(self, context, filters):
-        hints = UserV3.build_driver_hints(context, filters)
-        refs = self.identity_api.list_users(
-            domain_scope=self._get_domain_id_for_list_request(context),
-            hints=hints)
-        return UserV3.wrap_collection(context, refs, hints=hints)
+    def list_users(self, request, filters):
+        hints = UserV3.build_driver_hints(request.context_dict, filters)
+        domain = self._get_domain_id_for_list_request(request.context_dict)
+        refs = self.identity_api.list_users(domain_scope=domain, hints=hints)
+        return UserV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.filterprotected('domain_id', 'enabled', 'name',
                                 callback=_check_group_protection)
-    def list_users_in_group(self, context, filters, group_id):
-        hints = UserV3.build_driver_hints(context, filters)
+    def list_users_in_group(self, request, filters, group_id):
+        hints = UserV3.build_driver_hints(request.context_dict, filters)
         refs = self.identity_api.list_users_in_group(group_id, hints=hints)
-        return UserV3.wrap_collection(context, refs, hints=hints)
+        return UserV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.protected()
-    def get_user(self, context, user_id):
+    def get_user(self, request, user_id):
         ref = self.identity_api.get_user(user_id)
-        return UserV3.wrap_member(context, ref)
+        return UserV3.wrap_member(request.context_dict, ref)
 
     def _update_user(self, context, user_id, user):
         self._require_matching_id(user_id, user)
@@ -256,30 +256,30 @@ class UserV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.user_update, 'user')
-    def update_user(self, context, user_id, user):
-        return self._update_user(context, user_id, user)
+    def update_user(self, request, user_id, user):
+        return self._update_user(request.context_dict, user_id, user)
 
     @controller.protected(callback=_check_user_and_group_protection)
-    def add_user_to_group(self, context, user_id, group_id):
-        initiator = notifications._get_request_audit_info(context)
+    def add_user_to_group(self, request, user_id, group_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.identity_api.add_user_to_group(user_id, group_id, initiator)
 
     @controller.protected(callback=_check_user_and_group_protection)
-    def check_user_in_group(self, context, user_id, group_id):
+    def check_user_in_group(self, request, user_id, group_id):
         return self.identity_api.check_user_in_group(user_id, group_id)
 
     @controller.protected(callback=_check_user_and_group_protection)
-    def remove_user_from_group(self, context, user_id, group_id):
-        initiator = notifications._get_request_audit_info(context)
+    def remove_user_from_group(self, request, user_id, group_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.identity_api.remove_user_from_group(user_id, group_id, initiator)
 
     @controller.protected()
-    def delete_user(self, context, user_id):
-        initiator = notifications._get_request_audit_info(context)
+    def delete_user(self, request, user_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         return self.identity_api.delete_user(user_id, initiator)
 
     @controller.protected()
-    def change_password(self, context, user_id, user):
+    def change_password(self, request, user_id, user):
         original_password = user.get('original_password')
         if original_password is None:
             raise exception.ValidationError(target='user',
@@ -291,7 +291,7 @@ class UserV3(controller.V3Controller):
                                             attribute='password')
         try:
             self.identity_api.change_password(
-                context, user_id, original_password, password)
+                request.context_dict, user_id, original_password, password)
         except AssertionError:
             raise exception.Unauthorized()
 
@@ -312,44 +312,43 @@ class GroupV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.group_create, 'group')
-    def create_group(self, context, group):
+    def create_group(self, request, group):
         # The manager layer will generate the unique ID for groups
         ref = self._normalize_dict(group)
-        ref = self._normalize_domain_id(context, ref)
-        initiator = notifications._get_request_audit_info(context)
+        ref = self._normalize_domain_id(request.context_dict, ref)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.identity_api.create_group(ref, initiator)
-        return GroupV3.wrap_member(context, ref)
+        return GroupV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('domain_id', 'name')
-    def list_groups(self, context, filters):
-        hints = GroupV3.build_driver_hints(context, filters)
-        refs = self.identity_api.list_groups(
-            domain_scope=self._get_domain_id_for_list_request(context),
-            hints=hints)
-        return GroupV3.wrap_collection(context, refs, hints=hints)
+    def list_groups(self, request, filters):
+        hints = GroupV3.build_driver_hints(request.context_dict, filters)
+        domain = self._get_domain_id_for_list_request(request.context_dict)
+        refs = self.identity_api.list_groups(domain_scope=domain, hints=hints)
+        return GroupV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.filterprotected('name', callback=_check_user_protection)
-    def list_groups_for_user(self, context, filters, user_id):
-        hints = GroupV3.build_driver_hints(context, filters)
+    def list_groups_for_user(self, request, filters, user_id):
+        hints = GroupV3.build_driver_hints(request.context_dict, filters)
         refs = self.identity_api.list_groups_for_user(user_id, hints=hints)
-        return GroupV3.wrap_collection(context, refs, hints=hints)
+        return GroupV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.protected()
-    def get_group(self, context, group_id):
+    def get_group(self, request, group_id):
         ref = self.identity_api.get_group(group_id)
-        return GroupV3.wrap_member(context, ref)
+        return GroupV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     @validation.validated(schema.group_update, 'group')
-    def update_group(self, context, group_id, group):
+    def update_group(self, request, group_id, group):
         self._require_matching_id(group_id, group)
         self._require_matching_domain_id(
             group_id, group, self.identity_api.get_group)
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.identity_api.update_group(group_id, group, initiator)
-        return GroupV3.wrap_member(context, ref)
+        return GroupV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def delete_group(self, context, group_id):
-        initiator = notifications._get_request_audit_info(context)
+    def delete_group(self, request, group_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.identity_api.delete_group(group_id, initiator)

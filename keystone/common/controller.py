@@ -122,17 +122,23 @@ def protected(callback=None):
     """
     def wrapper(f):
         @functools.wraps(f)
-        def inner(self, context, *args, **kwargs):
-            if 'is_admin' in context and context['is_admin']:
+        def inner(self, request, *args, **kwargs):
+            if request.context_dict.get('is_admin', False):
                 LOG.warning(_LW('RBAC: Bypassing authorization'))
             elif callback is not None:
                 prep_info = {'f_name': f.__name__,
                              'input_attr': kwargs}
-                callback(self, context, prep_info, *args, **kwargs)
+                callback(self,
+                         request.context_dict,
+                         prep_info,
+                         *args,
+                         **kwargs)
             else:
                 action = 'identity:%s' % f.__name__
-                creds = _build_policy_check_credentials(self, action,
-                                                        context, kwargs)
+                creds = _build_policy_check_credentials(self,
+                                                        action,
+                                                        request.context_dict,
+                                                        kwargs)
 
                 policy_dict = {}
 
@@ -149,11 +155,11 @@ def protected(callback=None):
 
                 # TODO(henry-nash): Move this entire code to a member
                 # method inside v3 Auth
-                if context.get('subject_token_id') is not None:
+                if request.context_dict.get('subject_token_id') is not None:
                     token_ref = token_model.KeystoneToken(
-                        token_id=context['subject_token_id'],
+                        token_id=request.context_dict['subject_token_id'],
                         token_data=self.token_provider_api.validate_token(
-                            context['subject_token_id']))
+                            request.context_dict['subject_token_id']))
                     policy_dict.setdefault('target', {})
                     policy_dict['target'].setdefault(self.member_name, {})
                     policy_dict['target'][self.member_name]['user_id'] = (
@@ -178,7 +184,7 @@ def protected(callback=None):
                                         action,
                                         utils.flatten_dict(policy_dict))
                 LOG.debug('RBAC: Authorization granted')
-            return f(self, context, *args, **kwargs)
+            return f(self, request, *args, **kwargs)
         return inner
     return wrapper
 
@@ -198,8 +204,8 @@ def filterprotected(*filters, **callback):
     """
     def _filterprotected(f):
         @functools.wraps(f)
-        def wrapper(self, context, **kwargs):
-            if not context['is_admin']:
+        def wrapper(self, request, **kwargs):
+            if not request.context_dict['is_admin']:
                 # The target dict for the policy check will include:
                 #
                 # - Any query filter parameters
@@ -212,8 +218,9 @@ def filterprotected(*filters, **callback):
                 target = dict()
                 if filters:
                     for item in filters:
-                        if item in context['query_string']:
-                            target[item] = context['query_string'][item]
+                        if item in request.context_dict['query_string']:
+                            i = request.context_dict['query_string'][item]
+                            target[item] = i
 
                     LOG.debug('RBAC: Adding query filter params (%s)', (
                         ', '.join(['%s=%s' % (item, target[item])
@@ -227,12 +234,15 @@ def filterprotected(*filters, **callback):
                     prep_info = {'f_name': f.__name__,
                                  'input_attr': kwargs,
                                  'filter_attr': target}
-                    callback['callback'](self, context, prep_info, **kwargs)
+                    callback['callback'](self,
+                                         request.context_dict,
+                                         prep_info,
+                                         **kwargs)
                 else:
                     # No callback, so we are going to check the protection here
                     action = 'identity:%s' % f.__name__
-                    creds = _build_policy_check_credentials(self, action,
-                                                            context, kwargs)
+                    creds = _build_policy_check_credentials(
+                        self, action, request.context_dict, kwargs)
                     # Add in any formal url parameters
                     for key in kwargs:
                         target[key] = kwargs[key]
@@ -244,7 +254,7 @@ def filterprotected(*filters, **callback):
                     LOG.debug('RBAC: Authorization granted')
             else:
                 LOG.warning(_LW('RBAC: Bypassing authorization'))
-            return f(self, context, filters, **kwargs)
+            return f(self, request, filters, **kwargs)
         return wrapper
     return _filterprotected
 

@@ -24,8 +24,6 @@ from keystone.tests.unit.ksfixtures import database
 
 CONF = cfg.CONF
 
-_ADMIN_CONTEXT = {'is_admin': True, 'query_string': {}}
-
 
 class TenantTestCaseNoDefaultDomain(unit.TestCase):
 
@@ -45,7 +43,8 @@ class TenantTestCaseNoDefaultDomain(unit.TestCase):
     def test_get_all_projects(self):
         # When get_all_projects is done and there's no default domain, the
         # result is an empty list.
-        res = self.tenant_controller.get_all_projects(_ADMIN_CONTEXT)
+        req = self.make_request(is_admin=True)
+        res = self.tenant_controller.get_all_projects(req)
         self.assertEqual([], res['tenants'])
 
     def test_create_project(self):
@@ -53,5 +52,6 @@ class TenantTestCaseNoDefaultDomain(unit.TestCase):
         # default domain, it doesn't fail with can't find domain (a default
         # domain is created)
         tenant = {'name': uuid.uuid4().hex}
-        self.tenant_controller.create_project(_ADMIN_CONTEXT, tenant)
+        self.tenant_controller.create_project(self.make_request(is_admin=True),
+                                              tenant)
         # If the above doesn't fail then this is successful.

@@ -84,10 +84,10 @@ class AuthTest(unit.TestCase):
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        self.context_with_remote_user = {'environment':
-                                         {'REMOTE_USER': 'FOO',
-                                          'AUTH_TYPE': 'Negotiate'}}
-        self.empty_context = {'environment': {}}
+        environ = {'REMOTE_USER': 'FOO', 'AUTH_TYPE': 'Negotiate'}
+        self.request_with_remote_user = self.make_request(environ=environ)
+
+        self.empty_request = self.make_request()
 
         self.controller = token.controllers.Auth()
 
@@ -163,20 +163,20 @@ class AuthBadRequests(AuthTest):
         """Verify sending empty json dict raises the right exception."""
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,
-                          {}, {})
+                          self.make_request(), {})
 
     def test_authenticate_blank_auth(self):
         """Verify sending blank 'auth' raises the right exception."""
         body_dict = _build_user_auth()
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_invalid_auth_content(self):
         """Verify sending invalid 'auth' raises the right exception."""
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,
-                          {}, {'auth': 'abcd'})
+                          self.make_request(), {'auth': 'abcd'})
 
     def test_authenticate_user_id_too_large(self):
         """Verify sending large 'userId' raises the right exception."""
@@ -184,14 +184,14 @@ class AuthBadRequests(AuthTest):
                                      password='foo2')
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_username_too_large(self):
         """Verify sending large 'username' raises the right exception."""
         body_dict = _build_user_auth(username='0' * 65, password='foo2')
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_tenant_id_too_large(self):
         """Verify sending large 'tenantId' raises the right exception."""
@@ -199,7 +199,7 @@ class AuthBadRequests(AuthTest):
                                      tenant_id='0' * 65)
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_tenant_name_too_large(self):
         """Verify sending large 'tenantName' raises the right exception."""
@@ -207,14 +207,14 @@ class AuthBadRequests(AuthTest):
                                      tenant_name='0' * 65)
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_token_too_large(self):
         """Verify sending large 'token' raises the right exception."""
         body_dict = _build_user_auth(token={'id': '0' * 8193})
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_password_too_large(self):
         """Verify sending large 'password' raises the right exception."""
@@ -222,7 +222,7 @@ class AuthBadRequests(AuthTest):
         body_dict = _build_user_auth(username='FOO', password='0' * length)
         self.assertRaises(exception.ValidationSizeError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_fails_if_project_unsafe(self):
         """Verify authenticate to a project with unsafe name fails."""
@@ -236,7 +236,7 @@ class AuthBadRequests(AuthTest):
         self.resource_api.create_project(project['id'], project)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project['id'], self.role_member['id'])
-        no_context = {}
+        empty_request = self.make_request()
 
         body_dict = _build_user_auth(
             username=self.user_foo['name'],
@@ -244,7 +244,7 @@ class AuthBadRequests(AuthTest):
             tenant_name=project['name'])
 
         # Since name url restriction is off, we should be able to authenticate
-        self.controller.authenticate(no_context, body_dict)
+        self.controller.authenticate(empty_request, body_dict)
 
         # Set the name url restriction to strict and we should fail to
         # authenticate
@@ -252,7 +252,7 @@ class AuthBadRequests(AuthTest):
                                    project_name_url_safe='strict')
         self.assertRaises(exception.Unauthorized,
                           self.controller.authenticate,
-                          no_context, body_dict)
+                          empty_request, body_dict)
 
 
 class AuthWithToken(AuthTest):
@@ -260,7 +260,8 @@ class AuthWithToken(AuthTest):
         """Verify getting an unscoped token with password creds."""
         body_dict = _build_user_auth(username='FOO',
                                      password='foo2')
-        unscoped_token = self.controller.authenticate({}, body_dict)
+        unscoped_token = self.controller.authenticate(self.make_request(),
+                                                      body_dict)
         self.assertNotIn('tenant', unscoped_token['access']['token'])
 
     def test_auth_invalid_token(self):
@@ -269,7 +270,7 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
 
     def test_auth_bad_formatted_token(self):
         """Verify exception is raised if invalid token."""
@@ -277,18 +278,20 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.ValidationError,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
 
     def test_auth_unscoped_token_no_project(self):
         """Verify getting an unscoped token with an unscoped token."""
         body_dict = _build_user_auth(
             username='FOO',
             password='foo2')
-        unscoped_token = self.controller.authenticate({}, body_dict)
+        unscoped_token = self.controller.authenticate(self.make_request(),
+                                                      body_dict)
 
         body_dict = _build_user_auth(
             token=unscoped_token["access"]["token"])
-        unscoped_token_2 = self.controller.authenticate({}, body_dict)
+        unscoped_token_2 = self.controller.authenticate(self.make_request(),
+                                                        body_dict)
 
         self.assertEqualTokens(unscoped_token, unscoped_token_2)
 
@@ -303,12 +306,14 @@ class AuthWithToken(AuthTest):
         body_dict = _build_user_auth(
             username='FOO',
             password='foo2')
-        unscoped_token = self.controller.authenticate({}, body_dict)
+        unscoped_token = self.controller.authenticate(self.make_request(),
+                                                      body_dict)
         # Get a token on BAR tenant using the unscoped token
         body_dict = _build_user_auth(
             token=unscoped_token["access"]["token"],
             tenant_name="BAR")
-        scoped_token = self.controller.authenticate({}, body_dict)
+        scoped_token = self.controller.authenticate(self.make_request(),
+                                                    body_dict)
 
         tenant = scoped_token["access"]["token"]["tenant"]
         roles = scoped_token["access"]["metadata"]["roles"]
@@ -330,7 +335,7 @@ class AuthWithToken(AuthTest):
         e = self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
         # explicitly verify that the error message shows that a *name* is
         # found where an *ID* is expected
         self.assertIn(
@@ -352,7 +357,7 @@ class AuthWithToken(AuthTest):
         e = self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
         # explicitly verify that the error message details above have been
         # suppressed.
         self.assertNotIn(
@@ -384,7 +389,8 @@ class AuthWithToken(AuthTest):
             password='foo2',
             tenant_name="BAR")
 
-        scoped_token = self.controller.authenticate({}, body_dict)
+        scoped_token = self.controller.authenticate(self.make_request(),
+                                                    body_dict)
 
         tenant = scoped_token["access"]["token"]["tenant"]
         roles = scoped_token["access"]["metadata"]["roles"]
@@ -394,7 +400,7 @@ class AuthWithToken(AuthTest):
 
     def test_belongs_to_no_tenant(self):
         r = self.controller.authenticate(
-            {},
+            self.make_request(),
             auth={
                 'passwordCredentials': {
                     'username': self.user_foo['name'],
@@ -405,7 +411,8 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            dict(is_admin=True, query_string={'belongsTo': 'BAR'}),
+            self.make_request(is_admin=True,
+                              query_string={'belongsTo': 'BAR'}),
             token_id=unscoped_token_id)
 
     def test_belongs_to(self):
@@ -414,26 +421,28 @@ class AuthWithToken(AuthTest):
             password='foo2',
             tenant_name="BAR")
 
-        scoped_token = self.controller.authenticate({}, body_dict)
+        scoped_token = self.controller.authenticate(self.make_request(),
+                                                    body_dict)
         scoped_token_id = scoped_token['access']['token']['id']
 
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            dict(is_admin=True, query_string={'belongsTo': 'me'}),
+            self.make_request(is_admin=True, query_string={'belongsTo': 'me'}),
             token_id=scoped_token_id)
 
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            dict(is_admin=True, query_string={'belongsTo': 'BAR'}),
+            self.make_request(is_admin=True,
+                              query_string={'belongsTo': 'BAR'}),
             token_id=scoped_token_id)
 
     def test_token_auth_with_binding(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
         body_dict = _build_user_auth()
         unscoped_token = self.controller.authenticate(
-            self.context_with_remote_user, body_dict)
+            self.request_with_remote_user, body_dict)
 
         # the token should have bind information in it
         bind = unscoped_token['access']['token']['bind']
@@ -447,11 +456,11 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            self.empty_context, body_dict)
+            self.empty_request, body_dict)
 
         # using token with remote user context succeeds
         scoped_token = self.controller.authenticate(
-            self.context_with_remote_user, body_dict)
+            self.request_with_remote_user, body_dict)
 
         # the bind information should be carried over from the original token
         bind = scoped_token['access']['token']['bind']
@@ -466,34 +475,31 @@ class AuthWithToken(AuthTest):
         self.role_api.create_role(role_one['id'], role_one)
         self.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], project1['id'], role_one['id'])
-        no_context = {}
 
         # Get a scoped token for the tenant
         body_dict = _build_user_auth(
             username=self.user_foo['name'],
             password=self.user_foo['password'],
             tenant_name=project1['name'])
-        token = self.controller.authenticate(no_context, body_dict)
+        token = self.controller.authenticate(self.empty_request, body_dict)
         # Ensure it is valid
         token_id = token['access']['token']['id']
-        self.controller.validate_token(
-            dict(is_admin=True, query_string={}),
-            token_id=token_id)
+        self.controller.validate_token(self.make_request(is_admin=True),
+                                       token_id=token_id)
 
         # Delete the role, which should invalidate the token
-        role_controller.delete_role(
-            dict(is_admin=True, query_string={}), role_one['id'])
+        role_controller.delete_role(self.make_request(is_admin=True),
+                                    role_one['id'])
 
         # Check the token is now invalid
         self.assertRaises(
             exception.TokenNotFound,
             self.controller.validate_token,
-            dict(is_admin=True, query_string={}),
+            self.make_request(is_admin=True),
             token_id=token_id)
 
     def test_deleting_role_assignment_does_not_revoke_unscoped_token(self):
-        no_context = {}
-        admin_context = dict(is_admin=True, query_string={})
+        admin_request = self.make_request(is_admin=True)
 
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
@@ -504,13 +510,14 @@ class AuthWithToken(AuthTest):
             self.user_foo['id'], project['id'], role['id'])
 
         # Get an unscoped token.
-        token = self.controller.authenticate(no_context, _build_user_auth(
-            username=self.user_foo['name'],
-            password=self.user_foo['password']))
+        token = self.controller.authenticate(
+            self.make_request(),
+            _build_user_auth(username=self.user_foo['name'],
+                             password=self.user_foo['password']))
         token_id = token['access']['token']['id']
 
         # Ensure it is valid
-        self.controller.validate_token(admin_context, token_id=token_id)
+        self.controller.validate_token(admin_request, token_id=token_id)
 
         # Delete the role assignment, which should not invalidate the token,
         # because we're not consuming it with just an unscoped token.
@@ -518,23 +525,23 @@ class AuthWithToken(AuthTest):
             self.user_foo['id'], project['id'], role['id'])
 
         # Ensure it is still valid
-        self.controller.validate_token(admin_context, token_id=token_id)
+        self.controller.validate_token(admin_request, token_id=token_id)
 
     def test_only_original_audit_id_is_kept(self):
-        context = {}
-
         def get_audit_ids(token):
             return token['access']['token']['audit_ids']
 
         # get a token
         body_dict = _build_user_auth(username='FOO', password='foo2')
-        unscoped_token = self.controller.authenticate(context, body_dict)
+        unscoped_token = self.controller.authenticate(self.make_request(),
+                                                      body_dict)
         starting_audit_id = get_audit_ids(unscoped_token)[0]
         self.assertIsNotNone(starting_audit_id)
 
         # get another token to ensure the correct parent audit_id is set
         body_dict = _build_user_auth(token=unscoped_token["access"]["token"])
-        unscoped_token_2 = self.controller.authenticate(context, body_dict)
+        unscoped_token_2 = self.controller.authenticate(self.make_request(),
+                                                        body_dict)
         audit_ids = get_audit_ids(unscoped_token_2)
         self.assertThat(audit_ids, matchers.HasLength(2))
         self.assertThat(audit_ids[-1], matchers.Equals(starting_audit_id))
@@ -542,24 +549,26 @@ class AuthWithToken(AuthTest):
         # get another token from token 2 and ensure the correct parent
         # audit_id is set
         body_dict = _build_user_auth(token=unscoped_token_2["access"]["token"])
-        unscoped_token_3 = self.controller.authenticate(context, body_dict)
+        unscoped_token_3 = self.controller.authenticate(self.make_request(),
+                                                        body_dict)
         audit_ids = get_audit_ids(unscoped_token_3)
         self.assertThat(audit_ids, matchers.HasLength(2))
         self.assertThat(audit_ids[-1], matchers.Equals(starting_audit_id))
 
     def test_revoke_by_audit_chain_id_original_token(self):
         self.config_fixture.config(group='token', revoke_by_id=False)
-        context = {}
 
         # get a token
         body_dict = _build_user_auth(username='FOO', password='foo2')
-        unscoped_token = self.controller.authenticate(context, body_dict)
+        unscoped_token = self.controller.authenticate(self.make_request(),
+                                                      body_dict)
         token_id = unscoped_token['access']['token']['id']
         self.time_fixture.advance_time_seconds(1)
 
         # get a second token
         body_dict = _build_user_auth(token=unscoped_token["access"]["token"])
-        unscoped_token_2 = self.controller.authenticate(context, body_dict)
+        unscoped_token_2 = self.controller.authenticate(self.make_request(),
+                                                        body_dict)
         token_2_id = unscoped_token_2['access']['token']['id']
         self.time_fixture.advance_time_seconds(1)
 
@@ -574,17 +583,18 @@ class AuthWithToken(AuthTest):
 
     def test_revoke_by_audit_chain_id_chained_token(self):
         self.config_fixture.config(group='token', revoke_by_id=False)
-        context = {}
 
         # get a token
         body_dict = _build_user_auth(username='FOO', password='foo2')
-        unscoped_token = self.controller.authenticate(context, body_dict)
+        unscoped_token = self.controller.authenticate(self.make_request(),
+                                                      body_dict)
         token_id = unscoped_token['access']['token']['id']
         self.time_fixture.advance_time_seconds(1)
 
         # get a second token
         body_dict = _build_user_auth(token=unscoped_token["access"]["token"])
-        unscoped_token_2 = self.controller.authenticate(context, body_dict)
+        unscoped_token_2 = self.controller.authenticate(self.make_request(),
+                                                        body_dict)
         token_2_id = unscoped_token_2['access']['token']['id']
         self.time_fixture.advance_time_seconds(1)
 
@@ -616,7 +626,7 @@ class FernetAuthWithToken(AuthWithToken):
         body_dict = _build_user_auth()
         self.assertRaises(exception.NotImplemented,
                           self.controller.authenticate,
-                          self.context_with_remote_user,
+                          self.request_with_remote_user,
                           body_dict)
 
     def test_revoke_with_no_audit_info(self):
@@ -635,7 +645,7 @@ class AuthWithPasswordCredentials(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
 
     def test_auth_valid_user_invalid_password(self):
         """Verify exception is raised if invalid password."""
@@ -645,7 +655,7 @@ class AuthWithPasswordCredentials(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
 
     def test_auth_empty_password(self):
         """Verify exception is raised if empty password."""
@@ -655,7 +665,7 @@ class AuthWithPasswordCredentials(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {}, body_dict)
+            self.empty_request, body_dict)
 
     def test_auth_no_password(self):
         """Verify exception is raised if empty password."""
@@ -663,14 +673,14 @@ class AuthWithPasswordCredentials(AuthTest):
         self.assertRaises(
             exception.ValidationError,
             self.controller.authenticate,
-            {}, body_dict)
+            self.make_request(), body_dict)
 
     def test_authenticate_blank_password_credentials(self):
         """Sending empty dict as passwordCredentials raises 400 Bad Requset."""
         body_dict = {'passwordCredentials': {}, 'tenantName': 'demo'}
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_authenticate_no_username(self):
         """Verify skipping username raises the right exception."""
@@ -678,13 +688,13 @@ class AuthWithPasswordCredentials(AuthTest):
                                      tenant_name="demo")
         self.assertRaises(exception.ValidationError,
                           self.controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_bind_without_remote_user(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
         body_dict = _build_user_auth(username='FOO', password='foo2',
                                      tenant_name='BAR')
-        token = self.controller.authenticate({}, body_dict)
+        token = self.controller.authenticate(self.make_request(), body_dict)
         self.assertNotIn('bind', token['access']['token'])
 
     def test_change_default_domain_id(self):
@@ -715,7 +725,7 @@ class AuthWithPasswordCredentials(AuthTest):
             password=new_user['password'])
 
         # The test is successful if this doesn't raise, so no need to assert.
-        self.controller.authenticate({}, body_dict)
+        self.controller.authenticate(self.make_request(), body_dict)
 
 
 class AuthWithRemoteUser(AuthTest):
@@ -725,11 +735,11 @@ class AuthWithRemoteUser(AuthTest):
             username='FOO',
             password='foo2')
         local_token = self.controller.authenticate(
-            {}, body_dict)
+            self.make_request(), body_dict)
 
         body_dict = _build_user_auth()
         remote_token = self.controller.authenticate(
-            self.context_with_remote_user, body_dict)
+            self.request_with_remote_user, body_dict)
 
         self.assertEqualTokens(local_token, remote_token,
                                enforce_audit_ids=False)
@@ -739,7 +749,7 @@ class AuthWithRemoteUser(AuthTest):
         self.assertRaises(
             exception.ValidationError,
             self.controller.authenticate,
-            {'REMOTE_USER': 'FOO'},
+            self.make_request(environ={'REMOTE_USER': 'FOO'}),
             None)
 
     def test_scoped_remote_authn(self):
@@ -749,12 +759,12 @@ class AuthWithRemoteUser(AuthTest):
             password='foo2',
             tenant_name='BAR')
         local_token = self.controller.authenticate(
-            {}, body_dict)
+            self.make_request(), body_dict)
 
         body_dict = _build_user_auth(
             tenant_name='BAR')
         remote_token = self.controller.authenticate(
-            self.context_with_remote_user, body_dict)
+            self.request_with_remote_user, body_dict)
 
         self.assertEqualTokens(local_token, remote_token,
                                enforce_audit_ids=False)
@@ -766,11 +776,11 @@ class AuthWithRemoteUser(AuthTest):
             password='two2',
             tenant_name='BAZ')
         local_token = self.controller.authenticate(
-            {}, body_dict)
+            self.make_request(), body_dict)
 
         body_dict = _build_user_auth(tenant_name='BAZ')
         remote_token = self.controller.authenticate(
-            {'environment': {'REMOTE_USER': 'TWO'}}, body_dict)
+            self.make_request(environ={'REMOTE_USER': 'TWO'}), body_dict)
 
         self.assertEqualTokens(local_token, remote_token,
                                enforce_audit_ids=False)
@@ -781,20 +791,20 @@ class AuthWithRemoteUser(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.authenticate,
-            {'environment': {'REMOTE_USER': uuid.uuid4().hex}},
+            self.make_request(environ={'REMOTE_USER': uuid.uuid4().hex}),
             body_dict)
 
     def test_bind_with_kerberos(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
         body_dict = _build_user_auth(tenant_name="BAR")
-        token = self.controller.authenticate(self.context_with_remote_user,
+        token = self.controller.authenticate(self.request_with_remote_user,
                                              body_dict)
         self.assertEqual('FOO', token['access']['token']['bind']['kerberos'])
 
     def test_bind_without_config_opt(self):
         self.config_fixture.config(group='token', bind=['x509'])
         body_dict = _build_user_auth(tenant_name='BAR')
-        token = self.controller.authenticate(self.context_with_remote_user,
+        token = self.controller.authenticate(self.request_with_remote_user,
                                              body_dict)
         self.assertNotIn('bind', token['access']['token'])
 
@@ -824,7 +834,7 @@ class AuthWithTrust(AuthTest):
         super(AuthWithTrust, self).config_overrides()
         self.config_fixture.config(group='trust', enabled=True)
 
-    def _create_auth_context(self, token_id):
+    def _create_auth_request(self, token_id):
         token_ref = token_model.KeystoneToken(
             token_id=token_id,
             token_data=self.token_provider_api.validate_token(token_id))
@@ -834,31 +844,35 @@ class AuthWithTrust(AuthTest):
         # variables wsgi.url_scheme, SERVER_NAME, SERVER_PORT, and SCRIPT_NAME.
         # We have to set them in the context so the base url can be constructed
         # accordingly.
-        return {'environment': {authorization.AUTH_CONTEXT_ENV: auth_context,
-                                'wsgi.url_scheme': 'http',
-                                'SCRIPT_NAME': '/v3',
-                                'SERVER_PORT': '80',
-                                'SERVER_NAME': HOST},
-                'token_id': token_id,
-                'host_url': HOST_URL}
+        environ = {authorization.AUTH_CONTEXT_ENV: auth_context,
+                   'wsgi.url_scheme': 'http',
+                   'HTTP_HOST': HOST_URL,
+                   'SCRIPT_NAME': '/v3',
+                   'SERVER_PORT': '80',
+                   'SERVER_NAME': HOST}
+
+        req = self.make_request(environ=environ)
+        req.context_dict['token_id'] = token_id
+
+        return req
 
     def create_trust(self, trust_data, trustor_name, expires_at=None,
                      impersonation=True):
         username = trustor_name
         password = 'foo2'
         unscoped_token = self.get_unscoped_token(username, password)
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
         trust_data_copy = copy.deepcopy(trust_data)
         trust_data_copy['expires_at'] = expires_at
         trust_data_copy['impersonation'] = impersonation
 
         return self.trust_controller.create_trust(
-            context, trust=trust_data_copy)['trust']
+            request, trust=trust_data_copy)['trust']
 
     def get_unscoped_token(self, username, password='foo2'):
         body_dict = _build_user_auth(username=username, password=password)
-        return self.controller.authenticate({}, body_dict)
+        return self.controller.authenticate(self.make_request(), body_dict)
 
     def build_v2_token_request(self, username, password, trust,
                                tenant_id=None):
@@ -873,7 +887,7 @@ class AuthWithTrust(AuthTest):
 
     def test_create_trust_bad_data_fails(self):
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
         bad_sample_data = {'trustor_user_id': self.trustor['id'],
                            'project_id': self.tenant_bar['id'],
@@ -881,15 +895,16 @@ class AuthWithTrust(AuthTest):
 
         self.assertRaises(exception.ValidationError,
                           self.trust_controller.create_trust,
-                          context, trust=bad_sample_data)
+                          request, trust=bad_sample_data)
 
     def test_create_trust_no_roles(self):
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        context = {'token_id': unscoped_token['access']['token']['id']}
+        req = self.make_request()
+        req.context_dict['token_id'] = unscoped_token['access']['token']['id']
         self.sample_data['roles'] = []
         self.assertRaises(exception.Forbidden,
                           self.trust_controller.create_trust,
-                          context, trust=self.sample_data)
+                          req, trust=self.sample_data)
 
     def test_create_trust(self):
         expires_at = (timeutils.utcnow() +
@@ -932,12 +947,12 @@ class AuthWithTrust(AuthTest):
         Also, token can be generated with that trust.
         """
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
         self.sample_data['project_id'] = None
         self.sample_data['roles'] = []
         new_trust = self.trust_controller.create_trust(
-            context, trust=self.sample_data)['trust']
+            request, trust=self.sample_data)['trust']
         self.assertEqual(self.trustor['id'], new_trust['trustor_user_id'])
         self.assertEqual(self.trustee['id'], new_trust['trustee_user_id'])
         self.assertIs(new_trust['impersonation'], True)
@@ -947,11 +962,11 @@ class AuthWithTrust(AuthTest):
 
     def test_get_trust(self):
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
         new_trust = self.trust_controller.create_trust(
-            context, trust=self.sample_data)['trust']
-        trust = self.trust_controller.get_trust(context,
+            request, trust=self.sample_data)['trust']
+        trust = self.trust_controller.get_trust(request,
                                                 new_trust['id'])['trust']
         self.assertEqual(self.trustor['id'], trust['trustor_user_id'])
         self.assertEqual(self.trustee['id'], trust['trustee_user_id'])
@@ -962,14 +977,14 @@ class AuthWithTrust(AuthTest):
     def test_get_trust_without_auth_context(self):
         """Verify a trust cannot be retrieved if auth context is missing."""
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
         new_trust = self.trust_controller.create_trust(
-            context, trust=self.sample_data)['trust']
+            request, trust=self.sample_data)['trust']
         # Delete the auth context before calling get_trust().
-        del context['environment'][authorization.AUTH_CONTEXT_ENV]
+        del request.context_dict['environment'][authorization.AUTH_CONTEXT_ENV]
         self.assertRaises(exception.Forbidden,
-                          self.trust_controller.get_trust, context,
+                          self.trust_controller.get_trust, request,
                           new_trust['id'])
 
     def test_create_trust_no_impersonation(self):
@@ -995,7 +1010,7 @@ class AuthWithTrust(AuthTest):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
         request_body = self.build_v2_token_request('FOO', 'foo2', new_trust)
         self.assertRaises(exception.Forbidden, self.controller.authenticate,
-                          {}, request_body)
+                          self.make_request(), request_body)
 
     def test_token_from_trust_wrong_project_fails(self):
         for assigned_role in self.assigned_roles:
@@ -1005,11 +1020,12 @@ class AuthWithTrust(AuthTest):
         request_body = self.build_v2_token_request('TWO', 'two2', new_trust,
                                                    self.tenant_baz['id'])
         self.assertRaises(exception.Forbidden, self.controller.authenticate,
-                          {}, request_body)
+                          self.make_request(), request_body)
 
     def fetch_v2_token_from_trust(self, trust):
         request_body = self.build_v2_token_request('TWO', 'two2', trust)
-        auth_response = self.controller.authenticate({}, request_body)
+        auth_response = self.controller.authenticate(self.make_request(),
+                                                     request_body)
         return auth_response
 
     def fetch_v3_token_from_trust(self, trust, trustee):
@@ -1029,10 +1045,8 @@ class AuthWithTrust(AuthTest):
                 }
             }
         }
-        auth_response = (self.auth_v3_controller.authenticate_for_token
-                         ({'environment': {},
-                           'query_string': {}},
-                          v3_password_data))
+        auth_response = self.auth_v3_controller.authenticate_for_token(
+            self.make_request(), v3_password_data)
         token = auth_response.headers['X-Subject-Token']
 
         v3_req_with_trust = {
@@ -1041,10 +1055,8 @@ class AuthWithTrust(AuthTest):
                 "token": {"id": token}},
             "scope": {
                 "OS-TRUST:trust": {"id": trust['id']}}}
-        token_auth_response = (self.auth_v3_controller.authenticate_for_token
-                               ({'environment': {},
-                                 'query_string': {}},
-                                v3_req_with_trust))
+        token_auth_response = self.auth_v3_controller.authenticate_for_token(
+            self.make_request(), v3_req_with_trust)
         return token_auth_response
 
     def test_create_v3_token_from_trust(self):
@@ -1075,8 +1087,7 @@ class AuthWithTrust(AuthTest):
         self.assertRaises(
             exception.Forbidden,
             self.auth_v3_controller.authenticate_for_token,
-            {'environment': {},
-             'query_string': {}}, v3_token_data)
+            self.make_request(), v3_token_data)
 
     def test_token_from_trust(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
@@ -1111,12 +1122,12 @@ class AuthWithTrust(AuthTest):
                                         tenant_id=self.tenant_bar['id'])
         self.assertRaises(
             exception.Unauthorized,
-            self.controller.authenticate, {}, request_body)
+            self.controller.authenticate, self.make_request(), request_body)
 
     def test_delete_trust_revokes_token(self):
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
         self.fetch_v2_token_from_trust(new_trust)
         trust_id = new_trust['id']
@@ -1124,7 +1135,7 @@ class AuthWithTrust(AuthTest):
             self.trustor['id'],
             trust_id=trust_id)
         self.assertEqual(1, len(tokens))
-        self.trust_controller.delete_trust(context, trust_id=trust_id)
+        self.trust_controller.delete_trust(request, trust_id=trust_id)
         tokens = self.token_provider_api._persistence._list_tokens(
             self.trustor['id'],
             trust_id=trust_id)
@@ -1138,7 +1149,7 @@ class AuthWithTrust(AuthTest):
         request_body = self.build_v2_token_request('TWO', 'two2', new_trust)
         self.assertRaises(
             exception.Forbidden,
-            self.controller.authenticate, {}, request_body)
+            self.controller.authenticate, self.make_request(), request_body)
 
     def test_expired_trust_get_token_fails(self):
         expires_at = (timeutils.utcnow() +
@@ -1152,7 +1163,8 @@ class AuthWithTrust(AuthTest):
                                                        new_trust)
             self.assertRaises(
                 exception.Forbidden,
-                self.controller.authenticate, {}, request_body)
+                self.controller.authenticate,
+                self.make_request(), request_body)
 
     def test_token_from_trust_with_wrong_role_fails(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
@@ -1168,7 +1180,7 @@ class AuthWithTrust(AuthTest):
 
         self.assertRaises(
             exception.Forbidden,
-            self.controller.authenticate, {}, request_body)
+            self.controller.authenticate, self.make_request(), request_body)
 
     def test_do_not_consume_remaining_uses_when_get_token_fails(self):
         trust_data = copy.deepcopy(self.sample_data)
@@ -1181,12 +1193,14 @@ class AuthWithTrust(AuthTest):
 
         request_body = self.build_v2_token_request('TWO', 'two2', new_trust)
         self.assertRaises(exception.Forbidden,
-                          self.controller.authenticate, {}, request_body)
+                          self.controller.authenticate,
+                          self.make_request(),
+                          request_body)
 
         unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        context = self._create_auth_context(
+        request = self._create_auth_request(
             unscoped_token['access']['token']['id'])
-        trust = self.trust_controller.get_trust(context,
+        trust = self.trust_controller.get_trust(request,
                                                 new_trust['id'])['trust']
         self.assertEqual(3, trust['remaining_uses'])
 
@@ -1202,7 +1216,7 @@ class AuthWithTrust(AuthTest):
         self.disable_user(self.trustor)
         self.assertRaises(
             exception.Forbidden,
-            self.controller.authenticate, {}, request_body)
+            self.controller.authenticate, self.make_request(), request_body)
 
     def test_trust_get_token_fails_if_trustee_disabled(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
@@ -1212,7 +1226,7 @@ class AuthWithTrust(AuthTest):
         self.disable_user(self.trustee)
         self.assertRaises(
             exception.Unauthorized,
-            self.controller.authenticate, {}, request_body)
+            self.controller.authenticate, self.make_request(), request_body)
 
 
 class TokenExpirationTest(AuthTest):
@@ -1224,7 +1238,7 @@ class TokenExpirationTest(AuthTest):
         mock_utcnow.return_value = now
 
         r = self.controller.authenticate(
-            {},
+            self.make_request(),
             auth={
                 'passwordCredentials': {
                     'username': self.user_foo['name'],
@@ -1237,14 +1251,14 @@ class TokenExpirationTest(AuthTest):
         mock_utcnow.return_value = now + datetime.timedelta(seconds=1)
 
         r = self.controller.validate_token(
-            dict(is_admin=True, query_string={}),
+            self.make_request(is_admin=True),
             token_id=unscoped_token_id)
         self.assertEqual(original_expiration, r['access']['token']['expires'])
 
         mock_utcnow.return_value = now + datetime.timedelta(seconds=2)
 
         r = self.controller.authenticate(
-            {},
+            self.make_request(),
             auth={
                 'token': {
                     'id': unscoped_token_id,
@@ -1257,7 +1271,7 @@ class TokenExpirationTest(AuthTest):
         mock_utcnow.return_value = now + datetime.timedelta(seconds=3)
 
         r = self.controller.validate_token(
-            dict(is_admin=True, query_string={}),
+            self.make_request(is_admin=True),
             token_id=scoped_token_id)
         self.assertEqual(original_expiration, r['access']['token']['expires'])
 
@@ -1321,7 +1335,7 @@ class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
             password='foo2',
             tenant_name="BAR")
 
-        token = self.controller.authenticate({}, body_dict)
+        token = self.controller.authenticate(self.make_request(), body_dict)
 
         # Check the catalog
         self.assertEqual(1, len(token['access']['serviceCatalog']))
@@ -1347,12 +1361,12 @@ class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
             password='foo2',
             tenant_name="BAR")
 
-        token = self.controller.authenticate({}, body_dict)
+        token = self.controller.authenticate(self.make_request(), body_dict)
 
         # Validate
         token_id = token['access']['token']['id']
         validate_ref = self.controller.validate_token(
-            dict(is_admin=True, query_string={}),
+            self.make_request(is_admin=True),
             token_id=token_id)
 
         # Check the catalog

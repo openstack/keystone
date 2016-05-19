@@ -36,30 +36,30 @@ INTERFACES = ['public', 'internal', 'admin']
 class Service(controller.V2Controller):
 
     @controller.v2_deprecated
-    def get_services(self, context):
-        self.assert_admin(context)
+    def get_services(self, request):
+        self.assert_admin(request.context_dict)
         service_list = self.catalog_api.list_services()
         return {'OS-KSADM:services': service_list}
 
     @controller.v2_deprecated
-    def get_service(self, context, service_id):
-        self.assert_admin(context)
+    def get_service(self, request, service_id):
+        self.assert_admin(request.context_dict)
         service_ref = self.catalog_api.get_service(service_id)
         return {'OS-KSADM:service': service_ref}
 
     @controller.v2_deprecated
-    def delete_service(self, context, service_id):
-        self.assert_admin(context)
-        initiator = notifications._get_request_audit_info(context)
+    def delete_service(self, request, service_id):
+        self.assert_admin(request.context_dict)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.catalog_api.delete_service(service_id, initiator)
 
     @controller.v2_deprecated
-    def create_service(self, context, OS_KSADM_service):
-        self.assert_admin(context)
+    def create_service(self, request, OS_KSADM_service):
+        self.assert_admin(request.context_dict)
         service_id = uuid.uuid4().hex
         service_ref = OS_KSADM_service.copy()
         service_ref['id'] = service_id
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         new_service_ref = self.catalog_api.create_service(
             service_id, service_ref, initiator)
         return {'OS-KSADM:service': new_service_ref}
@@ -69,9 +69,9 @@ class Service(controller.V2Controller):
 class Endpoint(controller.V2Controller):
 
     @controller.v2_deprecated
-    def get_endpoints(self, context):
+    def get_endpoints(self, request):
         """Merge matching v3 endpoint refs into legacy refs."""
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
         legacy_endpoints = {}
         v3_endpoints = {}
         for endpoint in self.catalog_api.list_endpoints():
@@ -129,9 +129,9 @@ class Endpoint(controller.V2Controller):
         return {'endpoints': list(legacy_endpoints.values())}
 
     @controller.v2_deprecated
-    def create_endpoint(self, context, endpoint):
+    def create_endpoint(self, request, endpoint):
         """Create three v3 endpoint refs based on a legacy ref."""
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
 
         # according to the v2 spec publicurl is mandatory
         self._require_attribute(endpoint, 'publicurl')
@@ -146,7 +146,7 @@ class Endpoint(controller.V2Controller):
             if interface_url:
                 utils.check_endpoint_url(interface_url)
 
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
 
         if endpoint.get('region') is not None:
             try:
@@ -184,10 +184,10 @@ class Endpoint(controller.V2Controller):
         return {'endpoint': legacy_endpoint_ref}
 
     @controller.v2_deprecated
-    def delete_endpoint(self, context, endpoint_id):
+    def delete_endpoint(self, request, endpoint_id):
         """Delete up to three v3 endpoint refs based on a legacy ref ID."""
-        self.assert_admin(context)
-        initiator = notifications._get_request_audit_info(context)
+        self.assert_admin(request.context_dict)
+        initiator = notifications._get_request_audit_info(request.context_dict)
 
         deleted_at_least_one = False
         for endpoint in self.catalog_api.list_endpoints():
@@ -221,40 +221,42 @@ class RegionV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.region_create, 'region')
-    def create_region(self, context, region):
+    def create_region(self, request, region):
         ref = self._normalize_dict(region)
 
         if not ref.get('id'):
             ref = self._assign_unique_id(ref)
 
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.create_region(ref, initiator)
         return wsgi.render_response(
-            RegionV3.wrap_member(context, ref),
+            RegionV3.wrap_member(request.context_dict, ref),
             status=(201, 'Created'))
 
     @controller.filterprotected('parent_region_id')
-    def list_regions(self, context, filters):
-        hints = RegionV3.build_driver_hints(context, filters)
+    def list_regions(self, request, filters):
+        hints = RegionV3.build_driver_hints(request.context_dict, filters)
         refs = self.catalog_api.list_regions(hints)
-        return RegionV3.wrap_collection(context, refs, hints=hints)
+        return RegionV3.wrap_collection(request.context_dict,
+                                        refs,
+                                        hints=hints)
 
     @controller.protected()
-    def get_region(self, context, region_id):
+    def get_region(self, request, region_id):
         ref = self.catalog_api.get_region(region_id)
-        return RegionV3.wrap_member(context, ref)
+        return RegionV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     @validation.validated(schema.region_update, 'region')
-    def update_region(self, context, region_id, region):
+    def update_region(self, request, region_id, region):
         self._require_matching_id(region_id, region)
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.update_region(region_id, region, initiator)
-        return RegionV3.wrap_member(context, ref)
+        return RegionV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def delete_region(self, context, region_id):
-        initiator = notifications._get_request_audit_info(context)
+    def delete_region(self, request, region_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         return self.catalog_api.delete_region(region_id, initiator)
 
 
@@ -269,34 +271,36 @@ class ServiceV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.service_create, 'service')
-    def create_service(self, context, service):
+    def create_service(self, request, service):
         ref = self._assign_unique_id(self._normalize_dict(service))
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.create_service(ref['id'], ref, initiator)
-        return ServiceV3.wrap_member(context, ref)
+        return ServiceV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('type', 'name')
-    def list_services(self, context, filters):
-        hints = ServiceV3.build_driver_hints(context, filters)
+    def list_services(self, request, filters):
+        hints = ServiceV3.build_driver_hints(request.context_dict, filters)
         refs = self.catalog_api.list_services(hints=hints)
-        return ServiceV3.wrap_collection(context, refs, hints=hints)
+        return ServiceV3.wrap_collection(request.context_dict,
+                                         refs,
+                                         hints=hints)
 
     @controller.protected()
-    def get_service(self, context, service_id):
+    def get_service(self, request, service_id):
         ref = self.catalog_api.get_service(service_id)
-        return ServiceV3.wrap_member(context, ref)
+        return ServiceV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     @validation.validated(schema.service_update, 'service')
-    def update_service(self, context, service_id, service):
+    def update_service(self, request, service_id, service):
         self._require_matching_id(service_id, service)
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.update_service(service_id, service, initiator)
-        return ServiceV3.wrap_member(context, ref)
+        return ServiceV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def delete_service(self, context, service_id):
-        initiator = notifications._get_request_audit_info(context)
+    def delete_service(self, request, service_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         return self.catalog_api.delete_service(service_id, initiator)
 
 
@@ -347,40 +351,43 @@ class EndpointV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.endpoint_create, 'endpoint')
-    def create_endpoint(self, context, endpoint):
+    def create_endpoint(self, request, endpoint):
         utils.check_endpoint_url(endpoint['url'])
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
-        ref = self._validate_endpoint_region(ref, context)
-        initiator = notifications._get_request_audit_info(context)
+        ref = self._validate_endpoint_region(ref, request.context_dict)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.create_endpoint(ref['id'], ref, initiator)
-        return EndpointV3.wrap_member(context, ref)
+        return EndpointV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('interface', 'service_id', 'region_id')
-    def list_endpoints(self, context, filters):
-        hints = EndpointV3.build_driver_hints(context, filters)
+    def list_endpoints(self, request, filters):
+        hints = EndpointV3.build_driver_hints(request.context_dict, filters)
         refs = self.catalog_api.list_endpoints(hints=hints)
-        return EndpointV3.wrap_collection(context, refs, hints=hints)
+        return EndpointV3.wrap_collection(request.context_dict,
+                                          refs,
+                                          hints=hints)
 
     @controller.protected()
-    def get_endpoint(self, context, endpoint_id):
+    def get_endpoint(self, request, endpoint_id):
         ref = self.catalog_api.get_endpoint(endpoint_id)
-        return EndpointV3.wrap_member(context, ref)
+        return EndpointV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     @validation.validated(schema.endpoint_update, 'endpoint')
-    def update_endpoint(self, context, endpoint_id, endpoint):
+    def update_endpoint(self, request, endpoint_id, endpoint):
         self._require_matching_id(endpoint_id, endpoint)
 
-        endpoint = self._validate_endpoint_region(endpoint.copy(), context)
+        endpoint = self._validate_endpoint_region(endpoint.copy(),
+                                                  request.context_dict)
 
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.update_endpoint(endpoint_id, endpoint,
                                                initiator)
-        return EndpointV3.wrap_member(context, ref)
+        return EndpointV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def delete_endpoint(self, context, endpoint_id):
-        initiator = notifications._get_request_audit_info(context)
+    def delete_endpoint(self, request, endpoint_id):
+        initiator = notifications._get_request_audit_info(request.context_dict)
         return self.catalog_api.delete_endpoint(endpoint_id, initiator)
 
 
@@ -407,7 +414,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
                 project_or_endpoint_id)
 
     @controller.protected()
-    def add_endpoint_to_project(self, context, project_id, endpoint_id):
+    def add_endpoint_to_project(self, request, project_id, endpoint_id):
         """Establish an association between an endpoint and a project."""
         # NOTE(gyee): we just need to make sure endpoint and project exist
         # first. We don't really care whether if project is disabled.
@@ -419,7 +426,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
                                                  project_id)
 
     @controller.protected()
-    def check_endpoint_in_project(self, context, project_id, endpoint_id):
+    def check_endpoint_in_project(self, request, project_id, endpoint_id):
         """Verify endpoint is currently associated with given project."""
         self.catalog_api.get_endpoint(endpoint_id)
         self.resource_api.get_project(project_id)
@@ -427,31 +434,32 @@ class EndpointFilterV3Controller(controller.V3Controller):
                                                    project_id)
 
     @controller.protected()
-    def list_endpoints_for_project(self, context, project_id):
+    def list_endpoints_for_project(self, request, project_id):
         """List all endpoints currently associated with a given project."""
         self.resource_api.get_project(project_id)
         filtered_endpoints = self.catalog_api.list_endpoints_for_project(
             project_id)
 
         return EndpointV3.wrap_collection(
-            context, [v for v in six.itervalues(filtered_endpoints)])
+            request.context_dict,
+            [v for v in six.itervalues(filtered_endpoints)])
 
     @controller.protected()
-    def remove_endpoint_from_project(self, context, project_id, endpoint_id):
+    def remove_endpoint_from_project(self, request, project_id, endpoint_id):
         """Remove the endpoint from the association with given project."""
         self.catalog_api.remove_endpoint_from_project(endpoint_id,
                                                       project_id)
 
     @controller.protected()
-    def list_projects_for_endpoint(self, context, endpoint_id):
+    def list_projects_for_endpoint(self, request, endpoint_id):
         """Return a list of projects associated with the endpoint."""
         self.catalog_api.get_endpoint(endpoint_id)
         refs = self.catalog_api.list_projects_for_endpoint(endpoint_id)
 
         projects = [self.resource_api.get_project(
             ref['project_id']) for ref in refs]
-        return resource.controllers.ProjectV3.wrap_collection(context,
-                                                              projects)
+        return resource.controllers.ProjectV3.wrap_collection(
+            request.context_dict, projects)
 
 
 @dependency.requires('catalog_api', 'resource_api')
@@ -473,13 +481,13 @@ class EndpointGroupV3Controller(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.endpoint_group_create, 'endpoint_group')
-    def create_endpoint_group(self, context, endpoint_group):
+    def create_endpoint_group(self, request, endpoint_group):
         """Create an Endpoint Group with the associated filters."""
         ref = self._assign_unique_id(self._normalize_dict(endpoint_group))
         self._require_attribute(ref, 'filters')
         self._require_valid_filter(ref)
         ref = self.catalog_api.create_endpoint_group(ref['id'], ref)
-        return EndpointGroupV3Controller.wrap_member(context, ref)
+        return EndpointGroupV3Controller.wrap_member(request.context_dict, ref)
 
     def _require_valid_filter(self, endpoint_group):
         filters = endpoint_group.get('filters')
@@ -493,15 +501,15 @@ class EndpointGroupV3Controller(controller.V3Controller):
         return ' or '.join(self.VALID_FILTER_KEYS)
 
     @controller.protected()
-    def get_endpoint_group(self, context, endpoint_group_id):
+    def get_endpoint_group(self, request, endpoint_group_id):
         """Retrieve the endpoint group associated with the id if exists."""
         ref = self.catalog_api.get_endpoint_group(endpoint_group_id)
         return EndpointGroupV3Controller.wrap_member(
-            context, ref)
+            request.context_dict, ref)
 
     @controller.protected()
     @validation.validated(schema.endpoint_group_update, 'endpoint_group')
-    def update_endpoint_group(self, context, endpoint_group_id,
+    def update_endpoint_group(self, request, endpoint_group_id,
                               endpoint_group):
         """Update fixed values and/or extend the filters."""
         if 'filters' in endpoint_group:
@@ -509,30 +517,30 @@ class EndpointGroupV3Controller(controller.V3Controller):
         ref = self.catalog_api.update_endpoint_group(endpoint_group_id,
                                                      endpoint_group)
         return EndpointGroupV3Controller.wrap_member(
-            context, ref)
+            request.context_dict, ref)
 
     @controller.protected()
-    def delete_endpoint_group(self, context, endpoint_group_id):
+    def delete_endpoint_group(self, request, endpoint_group_id):
         """Delete endpoint_group."""
         self.catalog_api.delete_endpoint_group(endpoint_group_id)
 
     @controller.protected()
-    def list_endpoint_groups(self, context):
+    def list_endpoint_groups(self, request):
         """List all endpoint groups."""
         refs = self.catalog_api.list_endpoint_groups()
         return EndpointGroupV3Controller.wrap_collection(
-            context, refs)
+            request.context_dict, refs)
 
     @controller.protected()
-    def list_endpoint_groups_for_project(self, context, project_id):
+    def list_endpoint_groups_for_project(self, request, project_id):
         """List all endpoint groups associated with a given project."""
         return EndpointGroupV3Controller.wrap_collection(
-            context,
+            request.context_dict,
             self.catalog_api.get_endpoint_groups_for_project(project_id))
 
     @controller.protected()
     def list_projects_associated_with_endpoint_group(self,
-                                                     context,
+                                                     request,
                                                      endpoint_group_id):
         """List all projects associated with endpoint group."""
         endpoint_group_refs = (self.catalog_api.
@@ -544,18 +552,19 @@ class EndpointGroupV3Controller(controller.V3Controller):
                 endpoint_group_ref['project_id'])
             if project:
                 projects.append(project)
-        return resource.controllers.ProjectV3.wrap_collection(context,
-                                                              projects)
+        return resource.controllers.ProjectV3.wrap_collection(
+            request.context_dict, projects)
 
     @controller.protected()
     def list_endpoints_associated_with_endpoint_group(self,
-                                                      context,
+                                                      request,
                                                       endpoint_group_id):
         """List all the endpoints filtered by a specific endpoint group."""
         filtered_endpoints = (self.catalog_api.
                               get_endpoints_filtered_by_endpoint_group(
                                   endpoint_group_id))
-        return EndpointV3.wrap_collection(context, filtered_endpoints)
+        return EndpointV3.wrap_collection(request.context_dict,
+                                          filtered_endpoints)
 
 
 @dependency.requires('catalog_api', 'resource_api')
@@ -577,7 +586,7 @@ class ProjectEndpointGroupV3Controller(controller.V3Controller):
                 project_id))
 
     @controller.protected()
-    def get_endpoint_group_in_project(self, context, endpoint_group_id,
+    def get_endpoint_group_in_project(self, request, endpoint_group_id,
                                       project_id):
         """Retrieve the endpoint group associated with the id if exists."""
         self.resource_api.get_project(project_id)
@@ -585,10 +594,10 @@ class ProjectEndpointGroupV3Controller(controller.V3Controller):
         ref = self.catalog_api.get_endpoint_group_in_project(
             endpoint_group_id, project_id)
         return ProjectEndpointGroupV3Controller.wrap_member(
-            context, ref)
+            request.context_dict, ref)
 
     @controller.protected()
-    def add_endpoint_group_to_project(self, context, endpoint_group_id,
+    def add_endpoint_group_to_project(self, request, endpoint_group_id,
                                       project_id):
         """Create an association between an endpoint group and project."""
         self.resource_api.get_project(project_id)
@@ -597,7 +606,7 @@ class ProjectEndpointGroupV3Controller(controller.V3Controller):
             endpoint_group_id, project_id)
 
     @controller.protected()
-    def remove_endpoint_group_from_project(self, context, endpoint_group_id,
+    def remove_endpoint_group_from_project(self, request, endpoint_group_id,
                                            project_id):
         """Remove the endpoint group from associated project."""
         self.resource_api.get_project(project_id)

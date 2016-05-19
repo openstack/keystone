@@ -265,7 +265,7 @@ class Ec2ControllerCommon(object):
 class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
     @controller.v2_ec2_deprecated
-    def authenticate(self, context, credentials=None, ec2Credentials=None):
+    def authenticate(self, request, credentials=None, ec2Credentials=None):
         (user_ref, tenant_ref, metadata_ref, roles_ref,
          catalog_ref) = self._authenticate(credentials=credentials,
                                            ec2credentials=ec2Credentials)
@@ -285,29 +285,29 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
         return token_data
 
     @controller.v2_ec2_deprecated
-    def get_credential(self, context, user_id, credential_id):
-        if not self._is_admin(context):
-            self._assert_identity(context, user_id)
+    def get_credential(self, request, user_id, credential_id):
+        if not self._is_admin(request.context_dict):
+            self._assert_identity(request.context_dict, user_id)
         return super(Ec2Controller, self).get_credential(user_id,
                                                          credential_id)
 
     @controller.v2_ec2_deprecated
-    def get_credentials(self, context, user_id):
-        if not self._is_admin(context):
-            self._assert_identity(context, user_id)
+    def get_credentials(self, request, user_id):
+        if not self._is_admin(request.context_dict):
+            self._assert_identity(request.context_dict, user_id)
         return super(Ec2Controller, self).get_credentials(user_id)
 
     @controller.v2_ec2_deprecated
-    def create_credential(self, context, user_id, tenant_id):
-        if not self._is_admin(context):
-            self._assert_identity(context, user_id)
-        return super(Ec2Controller, self).create_credential(context, user_id,
-                                                            tenant_id)
+    def create_credential(self, request, user_id, tenant_id):
+        if not self._is_admin(request.context_dict):
+            self._assert_identity(request.context_dict, user_id)
+        return super(Ec2Controller, self).create_credential(
+            request.context_dict, user_id, tenant_id)
 
     @controller.v2_ec2_deprecated
-    def delete_credential(self, context, user_id, credential_id):
-        if not self._is_admin(context):
-            self._assert_identity(context, user_id)
+    def delete_credential(self, request, user_id, credential_id):
+        if not self._is_admin(request.context_dict):
+            self._assert_identity(request.context_dict, user_id)
             self._assert_owner(user_id, credential_id)
         return super(Ec2Controller, self).delete_credential(user_id,
                                                             credential_id)
@@ -392,24 +392,27 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         return render_token_data_response(token_id, token_data)
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
-    def ec2_get_credential(self, context, user_id, credential_id):
+    def ec2_get_credential(self, request, user_id, credential_id):
         ref = super(Ec2ControllerV3, self).get_credential(user_id,
                                                           credential_id)
-        return Ec2ControllerV3.wrap_member(context, ref['credential'])
+        return Ec2ControllerV3.wrap_member(request.context_dict,
+                                           ref['credential'])
 
     @controller.protected()
-    def ec2_list_credentials(self, context, user_id):
+    def ec2_list_credentials(self, request, user_id):
         refs = super(Ec2ControllerV3, self).get_credentials(user_id)
-        return Ec2ControllerV3.wrap_collection(context, refs['credentials'])
+        return Ec2ControllerV3.wrap_collection(request.context_dict,
+                                               refs['credentials'])
 
     @controller.protected()
-    def ec2_create_credential(self, context, user_id, tenant_id):
-        ref = super(Ec2ControllerV3, self).create_credential(context, user_id,
-                                                             tenant_id)
-        return Ec2ControllerV3.wrap_member(context, ref['credential'])
+    def ec2_create_credential(self, request, user_id, tenant_id):
+        ref = super(Ec2ControllerV3, self).create_credential(
+            request.context_dict, user_id, tenant_id)
+        return Ec2ControllerV3.wrap_member(request.context_dict,
+                                           ref['credential'])
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
-    def ec2_delete_credential(self, context, user_id, credential_id):
+    def ec2_delete_credential(self, request, user_id, credential_id):
         return super(Ec2ControllerV3, self).delete_credential(user_id,
                                                               credential_id)
 

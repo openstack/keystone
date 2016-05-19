@@ -21,8 +21,8 @@ from keystone.i18n import _
 @dependency.requires('revoke_api')
 class RevokeController(controller.V3Controller):
     @controller.protected()
-    def list_revoke_events(self, context):
-        since = context['query_string'].get('since')
+    def list_revoke_events(self, request):
+        since = request.context_dict['query_string'].get('since')
         last_fetch = None
         if since:
             try:
@@ -37,8 +37,8 @@ class RevokeController(controller.V3Controller):
                     'links': {
                         'next': None,
                         'self': RevokeController.base_url(
-                            context,
-                            path=context['path']),
+                            request.context_dict,
+                            path=request.context_dict['path']),
                         'previous': None}
                     }
         return response

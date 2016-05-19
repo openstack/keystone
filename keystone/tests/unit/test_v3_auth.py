@@ -2493,11 +2493,11 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
     def test_remote_user_disabled(self):
         api = auth.controllers.Auth()
         remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             remote_user)
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
-                          context,
+                          request,
                           auth_info,
                           auth_context)
 
@@ -2514,10 +2514,10 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         api = auth.controllers.Auth()
         remote_user = self.user['name']
         remote_domain = self.domain['name']
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
 
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
         self.assertEqual(self.user['id'], auth_context['user_id'])
 
         # Now test to make sure the user name can, itself, contain the
@@ -2525,10 +2525,10 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         user = {'name': 'myname@mydivision'}
         self.identity_api.update_user(self.user['id'], user)
         remote_user = user['name']
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
 
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
         self.assertEqual(self.user['id'], auth_context['user_id'])
 
     def test_project_id_scoped_with_remote_user(self):
@@ -2570,10 +2570,10 @@ class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
     def test_remote_user_with_default_domain(self):
         api = auth.controllers.Auth()
         remote_user = self.default_domain_user['name']
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             remote_user, kerberos=self.kerberos)
 
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
         self.assertEqual(self.default_domain_user['id'],
                          auth_context['user_id'])
 
@@ -2582,10 +2582,10 @@ class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
         user = {'name': 'myname@mydivision'}
         self.identity_api.update_user(self.default_domain_user['id'], user)
         remote_user = user['name']
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             remote_user, kerberos=self.kerberos)
 
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
         self.assertEqual(self.default_domain_user['id'],
                          auth_context['user_id'])
 
@@ -3204,28 +3204,28 @@ class TestAuth(test_v3.RestfulTestCase):
 
     def test_remote_user_no_realm(self):
         api = auth.controllers.Auth()
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
         self.assertEqual(self.default_domain_user['id'],
                          auth_context['user_id'])
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
         user = {'name': 'myname@mydivision'}
         self.identity_api.update_user(self.default_domain_user['id'], user)
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             user["name"])
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
         self.assertEqual(self.default_domain_user['id'],
                          auth_context['user_id'])
 
     def test_remote_user_no_domain(self):
         api = auth.controllers.Auth()
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             self.user['name'])
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
-                          context,
+                          request,
                           auth_info,
                           auth_context)
 
@@ -3237,10 +3237,10 @@ class TestAuth(test_v3.RestfulTestCase):
             user_domain_id=self.default_domain_user['domain_id'],
             username=self.default_domain_user['name'],
             password=self.default_domain_user['password'])['auth']
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'], auth_data=auth_data)
 
-        api.authenticate(context, auth_info, auth_context)
+        api.authenticate(request, auth_info, auth_context)
 
     def test_remote_user_and_explicit_external(self):
         # both REMOTE_USER and password methods must pass.
@@ -3256,7 +3256,7 @@ class TestAuth(test_v3.RestfulTestCase):
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
-                          self.empty_context,
+                          self.make_request(),
                           auth_info,
                           auth_context)
 
@@ -3267,11 +3267,11 @@ class TestAuth(test_v3.RestfulTestCase):
             user_domain_id=self.domain['id'],
             username=self.user['name'],
             password='badpassword')['auth']
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'], auth_data=auth_data)
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
-                          context,
+                          request,
                           auth_info,
                           auth_context)
 
@@ -3639,11 +3639,11 @@ class TestAuthJSONExternal(test_v3.RestfulTestCase):
 
     def test_remote_user_no_method(self):
         api = auth.controllers.Auth()
-        context, auth_info, auth_context = self.build_external_auth_request(
+        request, auth_info, auth_context = self.build_external_auth_request(
             self.default_domain_user['name'])
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
-                          context,
+                          request,
                           auth_info,
                           auth_context)
 
@@ -4618,11 +4618,10 @@ class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
         auth_controller = auth.controllers.Auth()
         # all we care is that auth context is not in the environment and
         # 'token_id' is used to build the auth context instead
-        context = {'subject_token_id': token,
-                   'token_id': token,
-                   'query_string': {},
-                   'environment': {}}
-        r = auth_controller.validate_token(context)
+        request = self.make_request()
+        request.context_dict['subject_token_id'] = token
+        request.context_dict['token_id'] = token
+        r = auth_controller.validate_token(request)
         self.assertEqual(http_client.OK, r.status_code)
 
 

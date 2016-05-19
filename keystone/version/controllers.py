@@ -56,10 +56,10 @@ class Extensions(wsgi.Application):
     def extensions(self):
         return None
 
-    def get_extensions_info(self, context):
+    def get_extensions_info(self, request):
         return {'extensions': {'values': list(self.extensions.values())}}
 
-    def get_extension_info(self, context, extension_alias):
+    def get_extension_info(self, request, extension_alias):
         try:
             return {'extension': self.extensions[extension_alias]}
         except KeyError:
@@ -159,24 +159,24 @@ class Version(wsgi.Application):
 
         return versions
 
-    def get_versions(self, context):
+    def get_versions(self, request):
 
-        req_mime_type = v3_mime_type_best_match(context)
+        req_mime_type = v3_mime_type_best_match(request.context_dict)
         if req_mime_type == MimeTypes.JSON_HOME:
             v3_json_home = request_v3_json_home('/v3')
             return wsgi.render_response(
                 body=v3_json_home,
                 headers=(('Content-Type', MimeTypes.JSON_HOME),))
 
-        versions = self._get_versions_list(context)
+        versions = self._get_versions_list(request.context_dict)
         return wsgi.render_response(status=(300, 'Multiple Choices'), body={
             'versions': {
                 'values': list(versions.values())
             }
         })
 
-    def get_version_v2(self, context):
-        versions = self._get_versions_list(context)
+    def get_version_v2(self, request):
+        versions = self._get_versions_list(request.context_dict)
         if 'v2.0' in _VERSIONS:
             return wsgi.render_response(body={
                 'version': versions['v2.0']
@@ -195,10 +195,10 @@ class Version(wsgi.Application):
             'resources': dict(all_resources())
         }
 
-    def get_version_v3(self, context):
-        versions = self._get_versions_list(context)
+    def get_version_v3(self, request):
+        versions = self._get_versions_list(request.context_dict)
         if 'v3' in _VERSIONS:
-            req_mime_type = v3_mime_type_best_match(context)
+            req_mime_type = v3_mime_type_best_match(request.context_dict)
 
             if req_mime_type == MimeTypes.JSON_HOME:
                 return wsgi.render_response(
