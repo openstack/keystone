@@ -1,4 +1,3 @@
 keystone.tests.unit.test_v3_auth
-keystone.tests.unit.test_v3_credential
 keystone.tests.unit.test_v3_oauth1
 keystone.tests.unit.token.test_fernet_provider
