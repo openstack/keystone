@@ -20,6 +20,7 @@ import msgpack
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
+import six
 from six.moves import map
 from six.moves import urllib
 
@@ -536,7 +537,9 @@ class FederatedUnscopedPayload(BasePayload):
             idp_id = cls.convert_uuid_bytes_to_hex(idp_id)
         else:
             idp_id = idp_id.decode('utf-8')
-        protocol_id = payload[4].decode('utf-8')
+        protocol_id = payload[4]
+        if isinstance(protocol_id, six.binary_type):
+            protocol_id = protocol_id.decode('utf-8')
         expires_at_str = cls._convert_float_to_time_string(payload[5])
         audit_ids = list(map(provider.base64_encode, payload[6]))
         federated_info = dict(group_ids=group_ids, idp_id=idp_id,
