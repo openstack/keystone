@@ -19,6 +19,7 @@
 """Utility methods for working with WSGI servers."""
 
 import copy
+import functools
 import itertools
 import re
 import wsgiref.util
@@ -395,6 +396,30 @@ class Application(BaseApplication):
         return url.rstrip('/')
 
 
+def middleware_exceptions(method):
+
+    @functools.wraps(method)
+    def _inner(self, request):
+        try:
+            return method(self, request)
+        except exception.Error as e:
+            LOG.warning(six.text_type(e))
+            return render_exception(e, request=request,
+                                    user_locale=best_match_language(request))
+        except TypeError as e:
+            LOG.exception(six.text_type(e))
+            return render_exception(exception.ValidationError(e),
+                                    request=request,
+                                    user_locale=best_match_language(request))
+        except Exception as e:
+            LOG.exception(six.text_type(e))
+            return render_exception(exception.UnexpectedError(exception=e),
+                                    request=request,
+                                    user_locale=best_match_language(request))
+
+    return _inner
+
+
 class Middleware(Application):
     """Base WSGI middleware.
 
@@ -431,27 +456,13 @@ class Middleware(Application):
         return response
 
     @webob.dec.wsgify()
+    @middleware_exceptions
     def __call__(self, request):
-        try:
-            response = self.process_request(request)
-            if response:
-                return response
-            response = request.get_response(self.application)
-            return self.process_response(request, response)
-        except exception.Error as e:
-            LOG.warning(six.text_type(e))
-            return render_exception(e, request=request,
-                                    user_locale=best_match_language(request))
-        except TypeError as e:
-            LOG.exception(six.text_type(e))
-            return render_exception(exception.ValidationError(e),
-                                    request=request,
-                                    user_locale=best_match_language(request))
-        except Exception as e:
-            LOG.exception(six.text_type(e))
-            return render_exception(exception.UnexpectedError(exception=e),
-                                    request=request,
-                                    user_locale=best_match_language(request))
+        response = self.process_request(request)
+        if response:
+            return response
+        response = request.get_response(self.application)
+        return self.process_response(request, response)
 
 
 class Debug(Middleware):

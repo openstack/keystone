@@ -72,10 +72,10 @@ class MiddlewareRequestTestBase(unit.TestCase):
 
             _called = False
 
-            def process_request(i_self, *i_args, **i_kwargs):
+            def fill_context(i_self, *i_args, **i_kwargs):
                 # i_ to distinguish it from and not clobber the outer vars
                 e = self.assertRaises(exc,
-                                      super(_Failing, i_self).process_request,
+                                      super(_Failing, i_self).fill_context,
                                       *i_args, **i_kwargs)
                 i_self._called = True
                 raise e
