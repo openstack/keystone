@@ -16,6 +16,7 @@ import webob
 from keystone import exception
 from keystone.i18n import _
 
+
 # Environment variable used to pass the request context
 CONTEXT_ENV = 'openstack.context'
 
