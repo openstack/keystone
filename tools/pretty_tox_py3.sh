@@ -2,7 +2,7 @@
 
 set -o pipefail
 
-TESTRARGS=`python -c 'print ("^((?!%s).)*$" % "|".join(f.strip() for f in open("tests-py3-blacklist.txt")))'`
+TESTRARGS=$1
 python setup.py testr --testr-args="--subunit $TESTRARGS" | subunit-trace -f
 retval=$?
 # NOTE(mtreinish) The pipe above would eat the slowest display from pbr's testr
