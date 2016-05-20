@@ -39,8 +39,19 @@ CONF = cfg.CONF
 def initialize_application(name,
                            post_log_configured_function=lambda: None,
                            config_files=None):
+    possible_topdir = os.path.normpath(os.path.join(
+                                       os.path.abspath(__file__),
+                                       os.pardir,
+                                       os.pardir,
+                                       os.pardir))
+
+    dev_conf = os.path.join(possible_topdir,
+                            'etc',
+                            'keystone.conf')
     if not config_files:
         config_files = None
+        if os.path.exists(dev_conf):
+            config_files = [dev_conf]
 
     common.configure(config_files=config_files)
 
