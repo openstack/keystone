@@ -828,6 +828,19 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
+    def _assert_default_project_id_is_not_domain(self, default_project_id):
+        if default_project_id:
+            # make sure project is not a domain
+            try:
+                project_ref = self.resource_api.get_project(default_project_id)
+                if project_ref['is_domain'] is True:
+                    msg = _("User's default project ID cannot be a domain ID.")
+                    raise exception.ValidationError(message=msg)
+            except exception.ProjectNotFound:
+                # should be idempotent if project is not found so that it is
+                # backward compatible
+                pass
+
     @domains_configured
     @exception_translated('user')
     def create_user(self, user_ref, initiator=None):
@@ -837,6 +850,9 @@ class Manager(manager.Manager):
         user['enabled'] = clean.user_enabled(user['enabled'])
         domain_id = user['domain_id']
         self.resource_api.get_domain(domain_id)
+
+        self._assert_default_project_id_is_not_domain(
+            user_ref.get('default_project_id'))
 
         # For creating a user, the domain is in the object itself
         domain_id = user_ref['domain_id']
@@ -927,6 +943,9 @@ class Manager(manager.Manager):
             # the driver layer won't be confused by the fact the this is the
             # public ID not the local ID
             user.pop('id')
+
+        self._assert_default_project_id_is_not_domain(
+            user_ref.get('default_project_id'))
 
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
