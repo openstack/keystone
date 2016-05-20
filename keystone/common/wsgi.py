@@ -37,6 +37,7 @@ import webob.exc
 
 from keystone.common import dependency
 from keystone.common import json_home
+from keystone.common import request as request_mod
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
@@ -194,46 +195,15 @@ class BaseApplication(object):
 
 @dependency.requires('assignment_api', 'policy_api', 'token_provider_api')
 class Application(BaseApplication):
-    @webob.dec.wsgify()
+
+    @webob.dec.wsgify(RequestClass=request_mod.Request)
     def __call__(self, req):
         arg_dict = req.environ['wsgiorg.routing_args'][1]
         action = arg_dict.pop('action')
         del arg_dict['controller']
 
-        # allow middleware up the stack to provide context, params and headers.
-        context = req.environ.get(CONTEXT_ENV, {})
-
-        try:
-            context['query_string'] = dict(req.params.items())
-        except UnicodeDecodeError as e:
-            # The webob package throws UnicodeError when a request cannot be
-            # decoded. Raise ValidationError instead to avoid an UnknownError.
-            msg = _('Query string is not UTF-8 encoded')
-            raise exception.ValidationError(msg)
-
-        context['headers'] = dict(req.headers.items())
-        context['path'] = req.environ['PATH_INFO']
-        scheme = req.environ.get(CONF.secure_proxy_ssl_header)
-        if scheme:
-            # NOTE(andrey-mp): "wsgi.url_scheme" contains the protocol used
-            # before the proxy removed it ('https' usually). So if
-            # the webob.Request instance is modified in order to use this
-            # scheme instead of the one defined by API, the call to
-            # webob.Request.relative_url() will return a URL with the correct
-            # scheme.
-            req.environ['wsgi.url_scheme'] = scheme
-        context['host_url'] = req.host_url
         params = req.environ.get(PARAMS_ENV, {})
-        # authentication and authorization attributes are set as environment
-        # values by the container and processed by the pipeline. The complete
-        # set is not yet known.
-        context['environment'] = req.environ
-        context['accept_header'] = req.accept
-        req.environ = None
-
         params.update(arg_dict)
-
-        context.setdefault('is_admin', False)
 
         # TODO(termie): do some basic normalization on methods
         method = getattr(self, action)
@@ -242,34 +212,36 @@ class Application(BaseApplication):
         # response code between GET and HEAD requests. The HTTP status should
         # be the same.
         LOG.info('%(req_method)s %(uri)s', {
-            'req_method': req.environ['REQUEST_METHOD'].upper(),
+            'req_method': req.method.upper(),
             'uri': wsgiref.util.request_uri(req.environ),
         })
 
         params = self._normalize_dict(params)
 
         try:
-            result = method(context, **params)
+            result = method(req.context_dict, **params)
         except exception.Unauthorized as e:
             LOG.warning(
                 _LW("Authorization failed. %(exception)s from "
                     "%(remote_addr)s"),
                 {'exception': e, 'remote_addr': req.environ['REMOTE_ADDR']})
-            return render_exception(e, context=context,
+            return render_exception(e,
+                                    context=req.context_dict,
                                     user_locale=best_match_language(req))
         except exception.Error as e:
             LOG.warning(six.text_type(e))
-            return render_exception(e, context=context,
+            return render_exception(e,
+                                    context=req.context_dict,
                                     user_locale=best_match_language(req))
         except TypeError as e:
             LOG.exception(six.text_type(e))
             return render_exception(exception.ValidationError(e),
-                                    context=context,
+                                    context=req.context_dict,
                                     user_locale=best_match_language(req))
         except Exception as e:
             LOG.exception(six.text_type(e))
             return render_exception(exception.UnexpectedError(exception=e),
-                                    context=context,
+                                    context=req.context_dict,
                                     user_locale=best_match_language(req))
 
         if result is None:
@@ -282,8 +254,9 @@ class Application(BaseApplication):
             return result
 
         response_code = self._get_response_code(req)
-        return render_response(body=result, status=response_code,
-                               method=req.environ['REQUEST_METHOD'])
+        return render_response(body=result,
+                               status=response_code,
+                               method=req.method)
 
     def _get_response_code(self, req):
         req_method = req.environ['REQUEST_METHOD']
@@ -455,7 +428,7 @@ class Middleware(Application):
         """Do whatever you'd like to the response, based on the request."""
         return response
 
-    @webob.dec.wsgify()
+    @webob.dec.wsgify(RequestClass=request_mod.Request)
     @middleware_exceptions
     def __call__(self, request):
         response = self.process_request(request)
@@ -473,7 +446,7 @@ class Debug(Middleware):
 
     """
 
-    @webob.dec.wsgify()
+    @webob.dec.wsgify(RequestClass=request_mod.Request)
     def __call__(self, req):
         if not hasattr(LOG, 'isEnabledFor') or LOG.isEnabledFor(LOG.debug):
             LOG.debug('%s %s %s', ('*' * 20), 'REQUEST ENVIRON', ('*' * 20))
@@ -537,7 +510,7 @@ class Router(object):
         self._router = routes.middleware.RoutesMiddleware(self._dispatch,
                                                           self.map)
 
-    @webob.dec.wsgify()
+    @webob.dec.wsgify(RequestClass=request_mod.Request)
     def __call__(self, req):
         """Route the incoming request to a controller based on self.map.
 
@@ -547,7 +520,7 @@ class Router(object):
         return self._router
 
     @staticmethod
-    @webob.dec.wsgify()
+    @webob.dec.wsgify(RequestClass=request_mod.Request)
     def _dispatch(req):
         """Dispatch the request to the appropriate controller.
 
@@ -714,7 +687,7 @@ class V3ExtensionRouter(ExtensionRouter, RoutersBase):
     def _update_version_response(self, response_data):
         response_data['resources'].update(self.v3_resources)
 
-    @webob.dec.wsgify()
+    @webob.dec.wsgify(RequestClass=request_mod.Request)
     def __call__(self, request):
         if request.path_info != '/':
             # Not a request for version info so forward to super.
