@@ -64,9 +64,9 @@ There is currently support for two major federation protocols:
 
 * OpenID Connect - see `Setup OpenID Connect`_.
 
-.. _`Setup Shibboleth`: federation/shibboleth.html
-.. _`Setup OpenID Connect`: federation/openidc.html
-.. _`Setup Mellon`: federation/mellon.html
+.. _`Setup Shibboleth`: shibboleth.html
+.. _`Setup OpenID Connect`: openidc.html
+.. _`Setup Mellon`: mellon.html
 
 Configure keystone and Horizon for Single Sign-On
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ Configure keystone and Horizon for Single Sign-On
 * To configure horizon to access a federated keystone,
   follow the steps outlined at: `Keystone Federation and Horizon`_.
 
-.. _`Keystone Federation and Horizon`: federation/websso.html
+.. _`Keystone Federation and Horizon`: websso.html
 
 Configuring Federation in Keystone
 -----------------------------------
