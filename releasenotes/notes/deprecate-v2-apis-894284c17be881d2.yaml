@@ -1,4 +1,7 @@
 ---
+prelude: >
+    Deprecated all v2.0 APIs. Most v2.0 APIs will be removed in the 'Q' release.
+    However, the authentication APIs and EC2 APIs are indefinitely deprecated.
 deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]

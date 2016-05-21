@@ -1,4 +1,6 @@
 ---
+prelude: >
+    Deprecated the PKI and PKIz token formats. They will be removed in the 'O' release.
 deprecations:
   - >
     [`blueprint deprecated-as-of-mitaka <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-mitaka>`_]
