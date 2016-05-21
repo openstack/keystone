@@ -1,0 +1,4 @@
+---
+other:
+  - Keystone now supports being run under Python 3. The
+    Python 3 and Python 3.4 classifiers have been added.
