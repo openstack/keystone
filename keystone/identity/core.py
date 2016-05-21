@@ -834,8 +834,10 @@ class Manager(manager.Manager):
             try:
                 project_ref = self.resource_api.get_project(default_project_id)
                 if project_ref['is_domain'] is True:
-                    msg = _("User's default project ID cannot be a domain ID.")
-                    raise exception.ValidationError(message=msg)
+                    msg = _("User's default project ID cannot be a "
+                            "domain ID: %s")
+                    raise exception.ValidationError(
+                        message=(msg % default_project_id))
             except exception.ProjectNotFound:
                 # should be idempotent if project is not found so that it is
                 # backward compatible
