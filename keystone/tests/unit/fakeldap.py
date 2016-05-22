@@ -32,9 +32,8 @@ from oslo_log import log
 import six
 from six import moves
 
-from keystone.common.ldap import core
 from keystone import exception
-
+from keystone.identity.backends.ldap import common
 
 SCOPE_NAMES = {
     ldap.SCOPE_BASE: 'SCOPE_BASE',
@@ -51,7 +50,7 @@ CONF = cfg.CONF
 
 def _internal_attr(attr_name, value_or_values):
     def normalize_value(value):
-        return core.utf8_decode(value)
+        return common.utf8_decode(value)
 
     def normalize_dn(dn):
         # Capitalize the attribute names as an LDAP server might.
@@ -69,7 +68,7 @@ def _internal_attr(attr_name, value_or_values):
             return 'CN=Doe\\2C John,OU=Users,CN=example,CN=com'
 
         try:
-            dn = ldap.dn.str2dn(core.utf8_encode(dn))
+            dn = ldap.dn.str2dn(common.utf8_encode(dn))
         except ldap.DECODING_ERROR:
             # NOTE(amakarov): In case of IDs instead of DNs in group members
             # they must be handled as regular values.
@@ -78,10 +77,10 @@ def _internal_attr(attr_name, value_or_values):
         norm = []
         for part in dn:
             name, val, i = part[0]
-            name = core.utf8_decode(name)
+            name = common.utf8_decode(name)
             name = name.upper()
             norm.append([(name, val, i)])
-        return core.utf8_decode(ldap.dn.dn2str(norm))
+        return common.utf8_decode(ldap.dn.dn2str(norm))
 
     if attr_name in ('member', 'roleOccupant'):
         attr_fn = normalize_dn
@@ -217,7 +216,7 @@ FakeShelves = {}
 PendingRequests = {}
 
 
-class FakeLdap(core.LDAPHandler):
+class FakeLdap(common.LDAPHandler):
     """Emulate the python-ldap API.
 
     The python-ldap API requires all strings to be UTF-8 encoded. This
@@ -263,7 +262,7 @@ class FakeLdap(core.LDAPHandler):
                 ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
             elif tls_cacertdir:
                 ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
-            if tls_req_cert in list(core.LDAP_TLS_CERTS.values()):
+            if tls_req_cert in list(common.LDAP_TLS_CERTS.values()):
                 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
             else:
                 raise ValueError("invalid TLS_REQUIRE_CERT tls_req_cert=%s",
@@ -281,13 +280,15 @@ class FakeLdap(core.LDAPHandler):
         self.pool_conn_lifetime = pool_conn_lifetime
 
     def dn(self, dn):
-        return core.utf8_decode(dn)
+        return common.utf8_decode(dn)
 
     def _dn_to_id_attr(self, dn):
-        return core.utf8_decode(ldap.dn.str2dn(core.utf8_encode(dn))[0][0][0])
+        return common.utf8_decode(
+            ldap.dn.str2dn(common.utf8_encode(dn))[0][0][0])
 
     def _dn_to_id_value(self, dn):
-        return core.utf8_decode(ldap.dn.str2dn(core.utf8_encode(dn))[0][0][1])
+        return common.utf8_decode(
+            ldap.dn.str2dn(common.utf8_encode(dn))[0][0][1])
 
     def key(self, dn):
         return '%s%s' % (self.__prefix, self.dn(dn))
@@ -298,14 +299,14 @@ class FakeLdap(core.LDAPHandler):
         if server_fail:
             raise ldap.SERVER_DOWN
         whos = ['cn=Admin', CONF.ldap.user]
-        if (core.utf8_decode(who) in whos and
-                core.utf8_decode(cred) in ['password', CONF.ldap.password]):
+        if (common.utf8_decode(who) in whos and
+                common.utf8_decode(cred) in ['password', CONF.ldap.password]):
             return
 
         try:
             attrs = self.db[self.key(who)]
         except KeyError:
-            LOG.debug('bind fail: who=%s not found', core.utf8_decode(who))
+            LOG.debug('bind fail: who=%s not found', common.utf8_decode(who))
             raise ldap.NO_SUCH_OBJECT
 
         db_password = None
@@ -313,12 +314,12 @@ class FakeLdap(core.LDAPHandler):
             db_password = attrs['userPassword'][0]
         except (KeyError, IndexError):
             LOG.debug('bind fail: password for who=%s not found',
-                      core.utf8_decode(who))
+                      common.utf8_decode(who))
             raise ldap.INAPPROPRIATE_AUTH
 
-        if cred != core.utf8_encode(db_password):
+        if cred != common.utf8_encode(db_password):
             LOG.debug('bind fail: password for who=%s does not match',
-                      core.utf8_decode(who))
+                      common.utf8_decode(who))
             raise ldap.INVALID_CREDENTIALS
 
     def unbind_s(self):
@@ -343,7 +344,7 @@ class FakeLdap(core.LDAPHandler):
 
             if k == id_attr:
                 for val in dummy_v:
-                    if core.utf8_decode(val) == id_value:
+                    if common.utf8_decode(val) == id_value:
                         id_attr_in_modlist = True
 
         if not id_attr_in_modlist:
@@ -352,10 +353,10 @@ class FakeLdap(core.LDAPHandler):
             raise ldap.NAMING_VIOLATION
         key = self.key(dn)
         LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
-            'dn': core.utf8_decode(dn), 'attrs': modlist})
+            'dn': common.utf8_decode(dn), 'attrs': modlist})
         if key in self.db:
             LOG.debug('add item failed: dn=%s is already in store.',
-                      core.utf8_decode(dn))
+                      common.utf8_decode(dn))
             raise ldap.ALREADY_EXISTS(dn)
 
         self.db[key] = {k: _internal_attr(k, v) for k, v in modlist}
@@ -379,17 +380,17 @@ class FakeLdap(core.LDAPHandler):
         try:
             if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
                 LOG.debug('FakeLdap subtree_delete item: dn=%s',
-                          core.utf8_decode(dn))
+                          common.utf8_decode(dn))
                 children = self._getChildren(dn)
                 for c in children:
                     del self.db[c]
 
             key = self.key(dn)
-            LOG.debug('FakeLdap delete item: dn=%s', core.utf8_decode(dn))
+            LOG.debug('FakeLdap delete item: dn=%s', common.utf8_decode(dn))
             del self.db[key]
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.',
-                      core.utf8_decode(dn))
+                      common.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
@@ -405,12 +406,12 @@ class FakeLdap(core.LDAPHandler):
 
         key = self.key(dn)
         LOG.debug('modify item: dn=%(dn)s attrs=%(attrs)s', {
-            'dn': core.utf8_decode(dn), 'attrs': modlist})
+            'dn': common.utf8_decode(dn), 'attrs': modlist})
         try:
             entry = self.db[key]
         except KeyError:
             LOG.debug('modify item failed: dn=%s not found.',
-                      core.utf8_decode(dn))
+                      common.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
 
         for cmd, k, v in modlist:
@@ -495,14 +496,14 @@ class FakeLdap(core.LDAPHandler):
         elif scope == ldap.SCOPE_ONELEVEL:
 
             def get_entries():
-                base_dn = ldap.dn.str2dn(core.utf8_encode(base))
+                base_dn = ldap.dn.str2dn(common.utf8_encode(base))
                 base_len = len(base_dn)
 
                 for k, v in self.db.items():
                     if not k.startswith(self.__prefix):
                         continue
                     k_dn_str = k[len(self.__prefix):]
-                    k_dn = ldap.dn.str2dn(core.utf8_encode(k_dn_str))
+                    k_dn = ldap.dn.str2dn(common.utf8_encode(k_dn_str))
                     if len(k_dn) != base_len + 1:
                         continue
                     if k_dn[-base_len:] != base_dn:
@@ -518,13 +519,13 @@ class FakeLdap(core.LDAPHandler):
         objects = []
         for dn, attrs in results:
             # filter the objects by filterstr
-            id_attr, id_val, _ = ldap.dn.str2dn(core.utf8_encode(dn))[0][0]
-            id_attr = core.utf8_decode(id_attr)
-            id_val = core.utf8_decode(id_val)
+            id_attr, id_val, _ = ldap.dn.str2dn(common.utf8_encode(dn))[0][0]
+            id_attr = common.utf8_decode(id_attr)
+            id_val = common.utf8_decode(id_val)
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
             attrs_checked = set()
-            if not filterstr or _match_query(core.utf8_decode(filterstr),
+            if not filterstr or _match_query(common.utf8_decode(filterstr),
                                              match_attrs,
                                              attrs_checked):
                 if (filterstr and
@@ -533,7 +534,7 @@ class FakeLdap(core.LDAPHandler):
                     raise AssertionError('No objectClass in search filter')
                 # filter the attributes by attrlist
                 attrs = {k: v for k, v in attrs.items()
-                         if not attrlist or k in core.utf8_decode(attrlist)}
+                         if not attrlist or k in common.utf8_decode(attrlist)}
                 objects.append((dn, attrs))
 
         return objects
@@ -658,7 +659,7 @@ class FakeLdapNoSubtreeDelete(FakeLdap):
 
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.',
-                      core.utf8_decode(dn))
+                      common.utf8_decode(dn))
             raise ldap.NO_SUCH_OBJECT
         super(FakeLdapNoSubtreeDelete, self).delete_ext_s(dn,
                                                           serverctrls,

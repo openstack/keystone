@@ -12,4 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common.ldap.core import *  # noqa
+from oslo_log import versionutils
+
+
+versionutils.deprecated(
+    what='keystone.common.ldap',
+    as_of=versionutils.deprecated.NEWTON,
+    remove_in=+2,
+    in_favor_of='keystone.identity.backends.ldap.common')
+
+# NOTE(notmorgan): This is maintained for compatibility in case outside
+# developers are relying on this location.
+from keystone.identity.backends.ldap.common import *  # noqa

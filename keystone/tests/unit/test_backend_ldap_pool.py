@@ -19,8 +19,8 @@ import ldappool
 import mock
 from oslo_config import cfg
 
-from keystone.common.ldap import core as ldap_core
 from keystone.identity.backends import ldap
+from keystone.identity.backends.ldap import common as common_ldap
 from keystone.tests import unit
 from keystone.tests.unit import fakeldap
 from keystone.tests.unit import test_backend_ldap
@@ -32,7 +32,7 @@ class LdapPoolCommonTestMixin(object):
     """LDAP pool specific common tests used here and in live tests."""
 
     def cleanup_pools(self):
-        ldap_core.PooledLDAPHandler.connection_pools.clear()
+        common_ldap.PooledLDAPHandler.connection_pools.clear()
 
     def test_handler_with_use_pool_enabled(self):
         # by default use_pool and use_auth_pool is enabled in test pool config
@@ -40,11 +40,11 @@ class LdapPoolCommonTestMixin(object):
         self.user_foo.pop('password')
         self.assertDictEqual(self.user_foo, user_ref)
 
-        handler = ldap_core._get_connection(CONF.ldap.url, use_pool=True)
-        self.assertIsInstance(handler, ldap_core.PooledLDAPHandler)
+        handler = common_ldap._get_connection(CONF.ldap.url, use_pool=True)
+        self.assertIsInstance(handler, common_ldap.PooledLDAPHandler)
 
-    @mock.patch.object(ldap_core.KeystoneLDAPHandler, 'connect')
-    @mock.patch.object(ldap_core.KeystoneLDAPHandler, 'simple_bind_s')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'connect')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     def test_handler_with_use_pool_not_enabled(self, bind_method,
                                                connect_method):
         self.config_fixture.config(group='ldap', use_pool=False)
@@ -56,10 +56,10 @@ class LdapPoolCommonTestMixin(object):
                                           end_user_auth=True)
         # use_auth_pool flag does not matter when use_pool is False
         # still handler is non pool version
-        self.assertIsInstance(handler.conn, ldap_core.PythonLDAPHandler)
+        self.assertIsInstance(handler.conn, common_ldap.PythonLDAPHandler)
 
-    @mock.patch.object(ldap_core.KeystoneLDAPHandler, 'connect')
-    @mock.patch.object(ldap_core.KeystoneLDAPHandler, 'simple_bind_s')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'connect')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     def test_handler_with_end_user_auth_use_pool_not_enabled(self, bind_method,
                                                              connect_method):
         # by default use_pool is enabled in test pool config
@@ -70,13 +70,13 @@ class LdapPoolCommonTestMixin(object):
         user_api = ldap.UserApi(CONF)
         handler = user_api.get_connection(user=None, password=None,
                                           end_user_auth=True)
-        self.assertIsInstance(handler.conn, ldap_core.PythonLDAPHandler)
+        self.assertIsInstance(handler.conn, common_ldap.PythonLDAPHandler)
 
         # For end_user_auth case, flag should not be false otherwise
         # it will use, admin connections ldap pool
         handler = user_api.get_connection(user=None, password=None,
                                           end_user_auth=False)
-        self.assertIsInstance(handler.conn, ldap_core.PooledLDAPHandler)
+        self.assertIsInstance(handler.conn, common_ldap.PooledLDAPHandler)
 
     def test_pool_size_set(self):
         # get related connection manager instance
@@ -214,12 +214,12 @@ class LDAPIdentity(LdapPoolCommonTestMixin,
 
     def setUp(self):
         self.useFixture(fixtures.MockPatchObject(
-            ldap_core.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))
+            common_ldap.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))
         super(LDAPIdentity, self).setUp()
 
         self.addCleanup(self.cleanup_pools)
         # storing to local variable to avoid long references
-        self.conn_pools = ldap_core.PooledLDAPHandler.connection_pools
+        self.conn_pools = common_ldap.PooledLDAPHandler.connection_pools
         # super class loads db fixtures which establishes ldap connection
         # so adding dummy call to highlight connection pool initialization
         # as its not that obvious though its not needed here
@@ -230,7 +230,7 @@ class LDAPIdentity(LdapPoolCommonTestMixin,
         config_files.append(unit.dirs.tests_conf('backend_ldap_pool.conf'))
         return config_files
 
-    @mock.patch.object(ldap_core, 'utf8_encode')
+    @mock.patch.object(common_ldap, 'utf8_encode')
     def test_utf8_encoded_is_used_in_pool(self, mocked_method):
         def side_effect(arg):
             return arg
