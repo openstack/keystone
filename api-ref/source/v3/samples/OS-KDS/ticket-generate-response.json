@@ -1,0 +1,6 @@
+{
+    "source": "scheduler.host.example.com",
+    "destination": "compute.host.example.com",
+    "timestamp": "2012-03-26T10:01:01.720000",
+    "nonce": 1234567890
+}

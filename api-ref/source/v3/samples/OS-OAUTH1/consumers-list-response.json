@@ -1,0 +1,22 @@
+{
+    "consumers": [
+        {
+            "id": "0c2a74",
+            "links": {
+                "self": "http://identity:35357/v3/OS-OAUTH1/consumers/0c2a74"
+            }
+        },
+        {
+            "description": "My consumer",
+            "id": "7fea2d",
+            "links": {
+                "self": "http://identity:35357/v3/OS-OAUTH1/consumers/7fea2d"
+            }
+        }
+    ],
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://identity:35357/v3/OS-OAUTH1/consumers"
+    }
+}

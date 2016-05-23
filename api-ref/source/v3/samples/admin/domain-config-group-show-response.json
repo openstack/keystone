@@ -1,0 +1,6 @@
+{
+    "ldap": {
+        "url": "http://myldap/root",
+        "user_tree_dn": "ou=Users,dc=root,dc=org"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "links": {
+        "self": "http://localhost:5000/v3/projects/9e5a15e2c0dd42aab0990a463e839ac1/users/b964a9e51c0046a4a84d3f83a135a97c/roles",
+        "previous": null,
+        "next": null
+    },
+    "roles": [
+        {
+            "id": "3b5347fa7a144008ba57c0acea469cc3",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/3b5347fa7a144008ba57c0acea469cc3"
+            },
+            "name": "admin"
+        }
+    ]
+}

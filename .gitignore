@@ -9,6 +9,7 @@ vendor
 keystone.egg-info/
 *.log
 .coverage
+api-ref/build
 coverage.xml
 cover/*
 covhtml

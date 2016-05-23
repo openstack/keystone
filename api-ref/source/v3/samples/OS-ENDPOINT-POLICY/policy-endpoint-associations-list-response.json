@@ -1,0 +1,29 @@
+{
+    "endpoints": [
+        {
+            "id": "1",
+            "interface": "public",
+            "links": {
+                "self": "http://identity:35357/v3/endpoints/1"
+            },
+            "region": "north",
+            "service_id": "9242e05f0c23467bbd1cf1f7a6e5e596",
+            "url": "http://identity:35357/"
+        },
+        {
+            "id": "1",
+            "interface": "internal",
+            "links": {
+                "self": "http://identity:35357/v3/endpoints/1"
+            },
+            "region": "south",
+            "service_id": "9242e05f0c23467bbd1cf1f7a6e5e596",
+            "url": "http://identity:35357/"
+        }
+    ],
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://identity:35357/v3/OS-ENDPOINT-POLICY/policies/13c92821e4c4476a878d3aae7444f52f/endpoints"
+    }
+}

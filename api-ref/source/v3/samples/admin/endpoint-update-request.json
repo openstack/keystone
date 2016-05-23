@@ -1,0 +1,9 @@
+{
+    "endpoint": {
+        "interface": "public",
+        "name": "Name",
+        "region_id": "north",
+        "url": "http://identity:35357/v3/endpoints/828384",
+        "service_id": "345678"
+    }
+}

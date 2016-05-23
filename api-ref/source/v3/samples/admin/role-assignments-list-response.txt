@@ -1,0 +1,1 @@
+GET /role_assignments?user.id={user_id}&scope.project.id={project_id}&effective

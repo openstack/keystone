@@ -1,0 +1,51 @@
+{
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://localhost:5000/v3/roles"
+    },
+    "roles": [
+        {
+            "id": "5318e65d75574c17bf5339d3df33a5a3",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/5318e65d75574c17bf5339d3df33a5a3"
+            },
+            "name": "admin"
+        },
+        {
+            "id": "642bcfc75c384fd181adf34d9b2df897",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/642bcfc75c384fd181adf34d9b2df897"
+            },
+            "name": "anotherrole"
+        },
+        {
+            "id": "779a76d74f544224a7ef8762ca0de627",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/779a76d74f544224a7ef8762ca0de627"
+            },
+            "name": "Member"
+        },
+        {
+            "id": "9fe2ff9ee4384b1894a90878d3e92bab",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/9fe2ff9ee4384b1894a90878d3e92bab"
+            },
+            "name": "_member_"
+        },
+        {
+            "id": "ba2dfba61c934ee89e3110de36273229",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/ba2dfba61c934ee89e3110de36273229"
+            },
+            "name": "ResellerAdmin"
+        },
+        {
+            "id": "f127b97616f24d3ebceb7be840210adc",
+            "links": {
+                "self": "http://localhost:5000/v3/roles/f127b97616f24d3ebceb7be840210adc"
+            },
+            "name": "service"
+        }
+    ]
+}

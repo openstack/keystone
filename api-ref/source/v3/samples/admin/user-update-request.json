@@ -1,0 +1,8 @@
+{
+    "user": {
+        "default_project_id": "263fd9",
+        "description": "James Doe's user",
+        "email": "jamesdoe@example.com",
+        "enabled": true
+    }
+}

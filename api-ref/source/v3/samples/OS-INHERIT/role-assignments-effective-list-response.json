@@ -1,0 +1,42 @@
+{
+    "role_assignments": [
+        {
+            "links": {
+                "assignment": "http://identity:35357/v3/OS-INHERIT/domains/12131/users/41516/roles/91011/inherited_to_projects"
+            },
+            "role": {
+                "id": "91011"
+            },
+            "scope": {
+                "project": {
+                    "id": "1234"
+                }
+            },
+            "user": {
+                "id": "41516"
+            }
+        },
+        {
+            "links": {
+                "assignment": "http://identity:35357/v3/projects/1234/groups/5678/roles/91011",
+                "membership": "http://identity:35357/v3/groups/5678/users/41516"
+            },
+            "role": {
+                "id": "91011"
+            },
+            "scope": {
+                "project": {
+                    "id": "1234"
+                }
+            },
+            "user": {
+                "id": "41516"
+            }
+        }
+    ],
+    "links": {
+        "self": "http://identity:35357/v3/role_assignments?effective",
+        "previous": null,
+        "next": null
+    }
+}

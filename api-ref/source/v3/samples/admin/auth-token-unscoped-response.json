@@ -1,0 +1,21 @@
+{
+    "token": {
+        "methods": [
+            "token"
+        ],
+        "expires_at": "2015-11-05T22:00:11.000000Z",
+        "extras": {},
+        "user": {
+            "domain": {
+                "id": "default",
+                "name": "Default"
+            },
+            "id": "10a2e6e717a245d9acad3e5f97aeca3d",
+            "name": "admin"
+        },
+        "audit_ids": [
+            "mAjXQhiYRyKwkB4qygdLVg"
+        ],
+        "issued_at": "2015-11-05T21:00:33.819948Z"
+    }
+}

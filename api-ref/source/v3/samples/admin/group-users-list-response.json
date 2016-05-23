@@ -1,0 +1,19 @@
+{
+    "users": [
+        {
+            "name": "admin",
+            "links": {
+                "self": "http://localhost:5000/v3/users/fff603a0829d41e48bc0dd0d72ad61ce"
+            },
+            "domain_id": "default",
+            "enabled": true,
+            "email": null,
+            "id": "fff603a0829d41e48bc0dd0d72ad61ce"
+        }
+    ],
+    "links": {
+        "self": "http://localhost:5000/v3/groups/9ce0ad4e58a84d7a97b92f7955d10c92/users",
+        "previous": null,
+        "next": null
+    }
+}

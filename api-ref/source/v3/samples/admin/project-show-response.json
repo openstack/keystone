@@ -1,0 +1,13 @@
+{
+    "project": {
+        "description": null,
+        "domain_id": "default",
+        "enabled": true,
+        "id": "0c4e939acacf4376bdcd1129f1a054ad",
+        "links": {
+            "self": "http://localhost:5000/v3/projects/0c4e939acacf4376bdcd1129f1a054ad"
+        },
+        "name": "admin",
+        "parent_id": null
+    }
+}
