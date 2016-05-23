@@ -46,9 +46,9 @@ from keystone import auth
 from keystone.common import config
 from keystone.common import dependency
 from keystone.common.kvs import core as kvs_core
-from keystone.common import ldap as ks_ldap
 from keystone.common import sql
 from keystone import exception
+from keystone.identity.backends.ldap import common as ks_ldap
 from keystone import notifications
 from keystone.server import common
 from keystone.tests.unit import ksfixtures
@@ -622,7 +622,7 @@ class TestCase(BaseTestCase):
                 'routes.middleware=INFO',
                 'stevedore.extension=INFO',
                 'keystone.notifications=INFO',
-                'keystone.common.ldap=INFO',
+                'keystone.identity.backends.ldap.common=INFO',
             ])
         self.auth_plugin_config_override()
 

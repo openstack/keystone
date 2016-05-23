@@ -1,5 +1,3 @@
-# Copyright 2012 OpenStack Foundation
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,15 +10,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import versionutils
-
-
-versionutils.deprecated(
-    what='keystone.common.ldap.core',
-    as_of=versionutils.deprecated.NEWTON,
-    remove_in=+2,
-    in_favor_of='keystone.identity.backends.ldap.common')
-
-# NOTE(notmorgan): This is maintained for compatibility in case outside
-# developers are relying on this location.
-from keystone.identity.backends.ldap.common import *  # noqa
+from keystone.identity.backends.ldap.core import *  # noqa

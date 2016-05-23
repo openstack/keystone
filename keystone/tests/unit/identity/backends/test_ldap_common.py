@@ -22,8 +22,7 @@ from oslo_config import cfg
 from testtools import matchers
 
 from keystone.common import driver_hints
-from keystone.common import ldap as ks_ldap
-from keystone.common.ldap import core as common_ldap_core
+from keystone.identity.backends.ldap import common as common_ldap
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
@@ -40,82 +39,82 @@ class DnCompareTest(unit.BaseTestCase):
         # prep_case_insensitive returns the string with spaces at the front and
         # end if it's already lowercase and no insignificant characters.
         value = 'lowercase value'
-        self.assertEqual(value, ks_ldap.prep_case_insensitive(value))
+        self.assertEqual(value, common_ldap.prep_case_insensitive(value))
 
     def test_prep_lowercase(self):
         # prep_case_insensitive returns the string with spaces at the front and
         # end and lowercases the value.
         value = 'UPPERCASE VALUE'
         exp_value = value.lower()
-        self.assertEqual(exp_value, ks_ldap.prep_case_insensitive(value))
+        self.assertEqual(exp_value, common_ldap.prep_case_insensitive(value))
 
     def test_prep_insignificant(self):
         # prep_case_insensitive remove insignificant spaces.
         value = 'before   after'
         exp_value = 'before after'
-        self.assertEqual(exp_value, ks_ldap.prep_case_insensitive(value))
+        self.assertEqual(exp_value, common_ldap.prep_case_insensitive(value))
 
     def test_prep_insignificant_pre_post(self):
         # prep_case_insensitive remove insignificant spaces.
         value = '   value   '
         exp_value = 'value'
-        self.assertEqual(exp_value, ks_ldap.prep_case_insensitive(value))
+        self.assertEqual(exp_value, common_ldap.prep_case_insensitive(value))
 
     def test_ava_equal_same(self):
         # is_ava_value_equal returns True if the two values are the same.
         value = 'val1'
-        self.assertTrue(ks_ldap.is_ava_value_equal('cn', value, value))
+        self.assertTrue(common_ldap.is_ava_value_equal('cn', value, value))
 
     def test_ava_equal_complex(self):
         # is_ava_value_equal returns True if the two values are the same using
         # a value that's got different capitalization and insignificant chars.
         val1 = 'before   after'
         val2 = '  BEFORE  afTer '
-        self.assertTrue(ks_ldap.is_ava_value_equal('cn', val1, val2))
+        self.assertTrue(common_ldap.is_ava_value_equal('cn', val1, val2))
 
     def test_ava_different(self):
         # is_ava_value_equal returns False if the values aren't the same.
-        self.assertFalse(ks_ldap.is_ava_value_equal('cn', 'val1', 'val2'))
+        self.assertFalse(common_ldap.is_ava_value_equal('cn', 'val1', 'val2'))
 
     def test_rdn_same(self):
         # is_rdn_equal returns True if the two values are the same.
         rdn = ldap.dn.str2dn('cn=val1')[0]
-        self.assertTrue(ks_ldap.is_rdn_equal(rdn, rdn))
+        self.assertTrue(common_ldap.is_rdn_equal(rdn, rdn))
 
     def test_rdn_diff_length(self):
         # is_rdn_equal returns False if the RDNs have a different number of
         # AVAs.
         rdn1 = ldap.dn.str2dn('cn=cn1')[0]
         rdn2 = ldap.dn.str2dn('cn=cn1+ou=ou1')[0]
-        self.assertFalse(ks_ldap.is_rdn_equal(rdn1, rdn2))
+        self.assertFalse(common_ldap.is_rdn_equal(rdn1, rdn2))
 
     def test_rdn_multi_ava_same_order(self):
         # is_rdn_equal returns True if the RDNs have the same number of AVAs
         # and the values are the same.
         rdn1 = ldap.dn.str2dn('cn=cn1+ou=ou1')[0]
         rdn2 = ldap.dn.str2dn('cn=CN1+ou=OU1')[0]
-        self.assertTrue(ks_ldap.is_rdn_equal(rdn1, rdn2))
+        self.assertTrue(common_ldap.is_rdn_equal(rdn1, rdn2))
 
     def test_rdn_multi_ava_diff_order(self):
         # is_rdn_equal returns True if the RDNs have the same number of AVAs
         # and the values are the same, even if in a different order
         rdn1 = ldap.dn.str2dn('cn=cn1+ou=ou1')[0]
         rdn2 = ldap.dn.str2dn('ou=OU1+cn=CN1')[0]
-        self.assertTrue(ks_ldap.is_rdn_equal(rdn1, rdn2))
+        self.assertTrue(common_ldap.is_rdn_equal(rdn1, rdn2))
 
     def test_rdn_multi_ava_diff_type(self):
         # is_rdn_equal returns False if the RDNs have the same number of AVAs
         # and the attribute types are different.
         rdn1 = ldap.dn.str2dn('cn=cn1+ou=ou1')[0]
         rdn2 = ldap.dn.str2dn('cn=cn1+sn=sn1')[0]
-        self.assertFalse(ks_ldap.is_rdn_equal(rdn1, rdn2))
+        self.assertFalse(common_ldap.is_rdn_equal(rdn1, rdn2))
 
     def test_rdn_attr_type_case_diff(self):
         # is_rdn_equal returns True for same RDNs even when attr type case is
         # different.
         rdn1 = ldap.dn.str2dn('cn=cn1')[0]
         rdn2 = ldap.dn.str2dn('CN=cn1')[0]
-        self.assertTrue(ks_ldap.is_rdn_equal(rdn1, rdn2))
+        self.assertTrue(common_ldap.is_rdn_equal(rdn1, rdn2))
 
     def test_rdn_attr_type_alias(self):
         # is_rdn_equal returns False for same RDNs even when attr type alias is
@@ -123,82 +122,82 @@ class DnCompareTest(unit.BaseTestCase):
         # consider them equal.
         rdn1 = ldap.dn.str2dn('cn=cn1')[0]
         rdn2 = ldap.dn.str2dn('2.5.4.3=cn1')[0]
-        self.assertFalse(ks_ldap.is_rdn_equal(rdn1, rdn2))
+        self.assertFalse(common_ldap.is_rdn_equal(rdn1, rdn2))
 
     def test_dn_same(self):
         # is_dn_equal returns True if the DNs are the same.
         dn = 'cn=Babs Jansen,ou=OpenStack'
-        self.assertTrue(ks_ldap.is_dn_equal(dn, dn))
+        self.assertTrue(common_ldap.is_dn_equal(dn, dn))
 
     def test_dn_equal_unicode(self):
         # is_dn_equal can accept unicode
         dn = u'cn=fäké,ou=OpenStack'
-        self.assertTrue(ks_ldap.is_dn_equal(dn, dn))
+        self.assertTrue(common_ldap.is_dn_equal(dn, dn))
 
     def test_dn_diff_length(self):
         # is_dn_equal returns False if the DNs don't have the same number of
         # RDNs
         dn1 = 'cn=Babs Jansen,ou=OpenStack'
         dn2 = 'cn=Babs Jansen,ou=OpenStack,dc=example.com'
-        self.assertFalse(ks_ldap.is_dn_equal(dn1, dn2))
+        self.assertFalse(common_ldap.is_dn_equal(dn1, dn2))
 
     def test_dn_equal_rdns(self):
         # is_dn_equal returns True if the DNs have the same number of RDNs
         # and each RDN is the same.
         dn1 = 'cn=Babs Jansen,ou=OpenStack+cn=OpenSource'
         dn2 = 'CN=Babs Jansen,cn=OpenSource+ou=OpenStack'
-        self.assertTrue(ks_ldap.is_dn_equal(dn1, dn2))
+        self.assertTrue(common_ldap.is_dn_equal(dn1, dn2))
 
     def test_dn_parsed_dns(self):
         # is_dn_equal can also accept parsed DNs.
         dn_str1 = ldap.dn.str2dn('cn=Babs Jansen,ou=OpenStack+cn=OpenSource')
         dn_str2 = ldap.dn.str2dn('CN=Babs Jansen,cn=OpenSource+ou=OpenStack')
-        self.assertTrue(ks_ldap.is_dn_equal(dn_str1, dn_str2))
+        self.assertTrue(common_ldap.is_dn_equal(dn_str1, dn_str2))
 
     def test_startswith_under_child(self):
         # dn_startswith returns True if descendant_dn is a child of dn.
         child = 'cn=Babs Jansen,ou=OpenStack'
         parent = 'ou=OpenStack'
-        self.assertTrue(ks_ldap.dn_startswith(child, parent))
+        self.assertTrue(common_ldap.dn_startswith(child, parent))
 
     def test_startswith_parent(self):
         # dn_startswith returns False if descendant_dn is a parent of dn.
         child = 'cn=Babs Jansen,ou=OpenStack'
         parent = 'ou=OpenStack'
-        self.assertFalse(ks_ldap.dn_startswith(parent, child))
+        self.assertFalse(common_ldap.dn_startswith(parent, child))
 
     def test_startswith_same(self):
         # dn_startswith returns False if DNs are the same.
         dn = 'cn=Babs Jansen,ou=OpenStack'
-        self.assertFalse(ks_ldap.dn_startswith(dn, dn))
+        self.assertFalse(common_ldap.dn_startswith(dn, dn))
 
     def test_startswith_not_parent(self):
         # dn_startswith returns False if descendant_dn is not under the dn
         child = 'cn=Babs Jansen,ou=OpenStack'
         parent = 'dc=example.com'
-        self.assertFalse(ks_ldap.dn_startswith(child, parent))
+        self.assertFalse(common_ldap.dn_startswith(child, parent))
 
     def test_startswith_descendant(self):
         # dn_startswith returns True if descendant_dn is a descendant of dn.
         descendant = 'cn=Babs Jansen,ou=Keystone,ou=OpenStack,dc=example.com'
         dn = 'ou=OpenStack,dc=example.com'
-        self.assertTrue(ks_ldap.dn_startswith(descendant, dn))
+        self.assertTrue(common_ldap.dn_startswith(descendant, dn))
 
         descendant = 'uid=12345,ou=Users,dc=example,dc=com'
         dn = 'ou=Users,dc=example,dc=com'
-        self.assertTrue(ks_ldap.dn_startswith(descendant, dn))
+        self.assertTrue(common_ldap.dn_startswith(descendant, dn))
 
     def test_startswith_parsed_dns(self):
         # dn_startswith also accepts parsed DNs.
         descendant = ldap.dn.str2dn('cn=Babs Jansen,ou=OpenStack')
         dn = ldap.dn.str2dn('ou=OpenStack')
-        self.assertTrue(ks_ldap.dn_startswith(descendant, dn))
+        self.assertTrue(common_ldap.dn_startswith(descendant, dn))
 
     def test_startswith_unicode(self):
         # dn_startswith accepts unicode.
         child = u'cn=fäké,ou=OpenStäck'
         parent = u'ou=OpenStäck'
-        self.assertTrue(ks_ldap.dn_startswith(child, parent))
+        self.assertTrue(common_ldap.dn_startswith(child, parent))
 
 
 class LDAPDeleteTreeTest(unit.TestCase):
@@ -206,15 +205,15 @@ class LDAPDeleteTreeTest(unit.TestCase):
     def setUp(self):
         super(LDAPDeleteTreeTest, self).setUp()
 
-        ks_ldap.register_handler('fake://',
-                                 fakeldap.FakeLdapNoSubtreeDelete)
+        common_ldap.register_handler('fake://',
+                                     fakeldap.FakeLdapNoSubtreeDelete)
         self.useFixture(database.Database(self.sql_driver_version_overrides))
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
         self.addCleanup(self.clear_database)
-        self.addCleanup(common_ldap_core._HANDLERS.clear)
+        self.addCleanup(common_ldap._HANDLERS.clear)
 
     def clear_database(self):
         for shelf in fakeldap.FakeShelves:
@@ -264,7 +263,7 @@ class LDAPDeleteTreeTest(unit.TestCase):
         scope = ldap.SCOPE_SUBTREE
         filt = '(|(objectclass=*)(objectclass=ldapsubentry))'
         entries = conn.search_s(base_dn, scope, filt,
-                                attrlist=common_ldap_core.DN_ONLY)
+                                attrlist=common_ldap.DN_ONLY)
         self.assertThat(entries, matchers.HasLength(3))
         sort_ents = sorted([e[0] for e in entries], key=len, reverse=True)
         self.assertEqual([grandchild_dn, child_dn, base_dn], sort_ents)
@@ -292,14 +291,14 @@ class MultiURLTests(unit.TestCase):
     def test_multiple_urls_with_comma_no_conn_pool(self):
         urls = 'ldap://localhost,ldap://backup.localhost'
         self.config_fixture.config(group='ldap', url=urls, use_pool=False)
-        base_ldap = ks_ldap.BaseLdap(CONF)
+        base_ldap = common_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
         self.assertEqual(urls, ldap_connection.conn.conn._uri)
 
     def test_multiple_urls_with_comma_with_conn_pool(self):
         urls = 'ldap://localhost,ldap://backup.localhost'
         self.config_fixture.config(group='ldap', url=urls, use_pool=True)
-        base_ldap = ks_ldap.BaseLdap(CONF)
+        base_ldap = common_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
         self.assertEqual(urls, ldap_connection.conn.conn_pool.uri)
 
@@ -307,11 +306,11 @@ class MultiURLTests(unit.TestCase):
 class SslTlsTest(unit.TestCase):
     """Test for the SSL/TLS functionality in keystone.common.ldap.core."""
 
-    @mock.patch.object(ks_ldap.core.KeystoneLDAPHandler, 'simple_bind_s')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     @mock.patch.object(ldap.ldapobject.LDAPObject, 'start_tls_s')
     def _init_ldap_connection(self, config, mock_ldap_one, mock_ldap_two):
         # Attempt to connect to initialize python-ldap.
-        base_ldap = ks_ldap.BaseLdap(config)
+        base_ldap = common_ldap.BaseLdap(config)
         base_ldap.get_connection()
 
     def test_certfile_trust_tls(self):
@@ -378,8 +377,8 @@ class LDAPPagedResultsTest(unit.TestCase):
         super(LDAPPagedResultsTest, self).setUp()
         self.clear_database()
 
-        ks_ldap.register_handler('fake://', fakeldap.FakeLdap)
-        self.addCleanup(common_ldap_core._HANDLERS.clear)
+        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        self.addCleanup(common_ldap._HANDLERS.clear)
         self.useFixture(database.Database(self.sql_driver_version_overrides))
 
         self.load_backends()
@@ -425,7 +424,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                 'binary_attr': [b'\x00\xFF\x00\xFF']
             }
         ), ]
-        py_result = ks_ldap.convert_ldap_result(result)
+        py_result = common_ldap.convert_ldap_result(result)
         # The attribute containing the binary value should
         # not be present in the converted result.
         self.assertNotIn('binary_attr', py_result[0][1])
@@ -434,23 +433,23 @@ class CommonLdapTestCase(unit.BaseTestCase):
         value_unicode = u'fäké1'
         value_utf8 = value_unicode.encode('utf-8')
 
-        result_utf8 = ks_ldap.utf8_encode(value_unicode)
+        result_utf8 = common_ldap.utf8_encode(value_unicode)
         self.assertEqual(value_utf8, result_utf8)
 
-        result_utf8 = ks_ldap.utf8_encode(value_utf8)
+        result_utf8 = common_ldap.utf8_encode(value_utf8)
         self.assertEqual(value_utf8, result_utf8)
 
-        result_unicode = ks_ldap.utf8_decode(value_utf8)
+        result_unicode = common_ldap.utf8_decode(value_utf8)
         self.assertEqual(value_unicode, result_unicode)
 
-        result_unicode = ks_ldap.utf8_decode(value_unicode)
+        result_unicode = common_ldap.utf8_decode(value_unicode)
         self.assertEqual(value_unicode, result_unicode)
 
         self.assertRaises(TypeError,
-                          ks_ldap.utf8_encode,
+                          common_ldap.utf8_encode,
                           100)
 
-        result_unicode = ks_ldap.utf8_decode(100)
+        result_unicode = common_ldap.utf8_decode(100)
         self.assertEqual(u'100', result_unicode)
 
     def test_user_id_begins_with_0(self):
@@ -462,7 +461,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                 'enabled': ['TRUE']
             }
         ), ]
-        py_result = ks_ldap.convert_ldap_result(result)
+        py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be True
         self.assertIs(py_result[0][1]['enabled'][0], True)
@@ -479,7 +478,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                 'enabled': [bitmask]
             }
         ), ]
-        py_result = ks_ldap.convert_ldap_result(result)
+        py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be 225
         self.assertEqual(expected_bitmask, py_result[0][1]['enabled'][0])
@@ -496,7 +495,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                 'enabled': [bitmask]
             }
         ), ]
-        py_result = ks_ldap.convert_ldap_result(result)
+        py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be 225, the 0 is dropped.
         self.assertEqual(expected_bitmask, py_result[0][1]['enabled'][0])
@@ -514,7 +513,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                     'user_name': [user_name]
                 }
             ), ]
-            py_result = ks_ldap.convert_ldap_result(result)
+            py_result = common_ldap.convert_ldap_result(result)
             # The user name should still be a string value.
             self.assertEqual(user_name, py_result[0][1]['user_name'][0])
 
@@ -525,7 +524,7 @@ class LDAPFilterQueryCompositionTest(unit.TestCase):
     def setUp(self):
         super(LDAPFilterQueryCompositionTest, self).setUp()
 
-        self.base_ldap = ks_ldap.BaseLdap(self.config_fixture.conf)
+        self.base_ldap = common_ldap.BaseLdap(self.config_fixture.conf)
 
         # The tests need an attribute mapping to use.
         self.attribute_name = uuid.uuid4().hex

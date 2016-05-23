@@ -13,8 +13,7 @@
 
 import fixtures
 
-from keystone.common import ldap as common_ldap
-from keystone.common.ldap import core as common_ldap_core
+from keystone.identity.backends.ldap import common as common_ldap
 from keystone.tests.unit import fakeldap
 
 
@@ -24,11 +23,11 @@ class LDAPDatabase(fixtures.Fixture):
     def setUp(self):
         super(LDAPDatabase, self).setUp()
         self.clear()
-        common_ldap_core._HANDLERS.clear()
+        common_ldap._HANDLERS.clear()
         common_ldap.register_handler('fake://', fakeldap.FakeLdap)
         # TODO(dstanek): switch the flow here
         self.addCleanup(self.clear)
-        self.addCleanup(common_ldap_core._HANDLERS.clear)
+        self.addCleanup(common_ldap._HANDLERS.clear)
 
     def clear(self):
         for shelf in fakeldap.FakeShelves:

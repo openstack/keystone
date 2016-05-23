@@ -12,59 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base model for keystone internal services.
-
-Unless marked otherwise, all fields are strings.
-
-"""
+from oslo_log import versionutils
 
 
-class Model(dict):
-    """Base model class."""
+versionutils.deprecated(
+    what='keystone.common.ldap.models',
+    as_of=versionutils.deprecated.NEWTON,
+    remove_in=+2,
+    in_favor_of='keystone.identity.backends.ldap.models')
 
-    def __hash__(self):
-        """Define hash behavior where hash of service ID is returned."""
-        return self['id'].__hash__()
-
-    @property
-    def known_keys(cls):
-        return cls.required_keys + cls.optional_keys
-
-
-class User(Model):
-    """User object.
-
-    Required keys:
-        id
-        name
-        domain_id
-
-    Optional keys:
-        password
-        description
-        email
-        enabled (bool, default True)
-        default_project_id
-    """
-
-    required_keys = ('id', 'name', 'domain_id')
-    optional_keys = ('password', 'description', 'email', 'enabled',
-                     'default_project_id')
-
-
-class Group(Model):
-    """Group object.
-
-    Required keys:
-        id
-        name
-        domain_id
-
-    Optional keys:
-
-        description
-
-    """
-
-    required_keys = ('id', 'name', 'domain_id')
-    optional_keys = ('description',)
+# NOTE(notmorgan): This is maintained for compatibility in case outside
+# developers are relying on this location.
+from keystone.identity.backends.ldap.models import *  # noqa

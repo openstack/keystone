@@ -17,8 +17,8 @@ import uuid
 import ldappool
 from oslo_config import cfg
 
-from keystone.common.ldap import core as ldap_core
 from keystone.identity.backends import ldap
+from keystone.identity.backends.ldap import common as ldap_common
 from keystone.tests import unit
 from keystone.tests.unit import fakeldap
 from keystone.tests.unit import test_backend_ldap_pool
@@ -40,7 +40,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         super(LiveLDAPPoolIdentity, self).setUp()
         self.addCleanup(self.cleanup_pools)
         # storing to local variable to avoid long references
-        self.conn_pools = ldap_core.PooledLDAPHandler.connection_pools
+        self.conn_pools = ldap_common.PooledLDAPHandler.connection_pools
 
     def config_files(self):
         config_files = super(LiveLDAPPoolIdentity, self).config_files()
@@ -48,7 +48,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         return config_files
 
     def test_assert_connector_used_not_fake_ldap_pool(self):
-        handler = ldap_core._get_connection(CONF.ldap.url, use_pool=True)
+        handler = ldap_common._get_connection(CONF.ldap.url, use_pool=True)
         self.assertNotEqual(type(handler.Connector),
                             type(fakeldap.FakeLdapPool))
         self.assertEqual(type(ldappool.StateConnector),
@@ -120,7 +120,8 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         return self.identity_api.get_user(user['id'])
 
     def _get_auth_conn_pool_cm(self):
-        pool_url = ldap_core.PooledLDAPHandler.auth_pool_prefix + CONF.ldap.url
+        pool_url = (
+            ldap_common.PooledLDAPHandler.auth_pool_prefix + CONF.ldap.url)
         return self.conn_pools[pool_url]
 
     def _do_password_change_for_one_user(self, password, new_password):

@@ -21,11 +21,11 @@ from oslo_log import versionutils
 import six
 
 from keystone.common import driver_hints
-from keystone.common import ldap as common_ldap
-from keystone.common.ldap import models
 from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import base
+from keystone.identity.backends.ldap import common as common_ldap
+from keystone.identity.backends.ldap import models
 
 
 CONF = cfg.CONF
