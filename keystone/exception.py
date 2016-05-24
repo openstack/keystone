@@ -93,6 +93,10 @@ class URLValidationError(ValidationError):
                        " %(url)s")
 
 
+class PasswordValidationError(ValidationError):
+    message_format = _("Invalid password: %(detail)s")
+
+
 class SchemaValidationError(ValidationError):
     # NOTE(lbragstad): For whole OpenStack message consistency, this error
     # message has been written in a format consistent with WSME.
