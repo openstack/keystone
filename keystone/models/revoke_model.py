@@ -126,133 +126,85 @@ def attr_keys(event):
     return list(map(event.key_for_name, _EVENT_NAMES))
 
 
-class RevokeTree(object):
-    """Fast Revocation Checking Tree Structure.
+def is_revoked(events, token_data):
+    """Check if a token matches a revocation event.
 
-    The Tree is an index to quickly match tokens against events.
-    Each node is a hashtable of key=value combinations from revocation events.
-    The
+    Compare a token against every revocation event. If the token matches an
+    event in the `events` list, the token is revoked. If the token is compared
+    against every item in the list without a match, it is not considered
+    revoked from the `revoke_api`.
 
+    :param events: a list of RevokeEvent instances
+    :param token_data: map based on a flattened view of the token. The required
+                       fields are `expires_at`,`user_id`, `project_id`,
+                       `identity_domain_id`, `assignment_domain_id`,
+                       `trust_id`, `trustor_id`, `trustee_id` `consumer_id` and
+                       `access_token_id`
+    :returns: True if the token matches an existing revocation event, meaning
+              the token is revoked. False is returned if the token does not
+              match any revocation events, meaning the token is considered
+              valid by the revocation API.
     """
+    return any([matches(e, token_data) for e in events])
 
-    def __init__(self, revoke_events=None):
-        self.revoke_map = dict()
-        self.add_events(revoke_events)
 
-    def add_event(self, event):
-        """Update the tree based on a revocation event.
+def matches(event, token_values):
+    """See if the token matches the revocation event.
 
-        Creates any necessary internal nodes in the tree corresponding to the
-        fields of the revocation event.  The leaf node will always be set to
-        the latest 'issued_before' for events that are otherwise identical.
+    A brute force approach to checking.
+    Compare each attribute from the event with the corresponding
+    value from the token.  If the event does not have a value for
+    the attribute, a match is still possible.  If the event has a
+    value for the attribute, and it does not match the token, no match
+    is possible, so skip the remaining checks.
 
-        :param:  Event to add to the tree
+    :param event: a RevokeEvent instance
+    :param token_values: dictionary with set of values taken from the
+                         token
+    :returns: True if the token matches the revocation event, indicating the
+              token has been revoked
+    """
+    # If any one check does not match, the whole token does
+    # not match the event. The numerous return False indicate
+    # that the token is still valid and short-circuits the
+    # rest of the logic.
 
-        :returns:  the event that was passed in.
+    # The token has three attributes that can match the user_id
+    if event.user_id is not None:
+        if all(event.user_id != token_values[attribute_name]
+               for attribute_name in ['user_id', 'trustor_id', 'trustee_id']):
+            return False
 
-        """
-        revoke_map = self.revoke_map
-        for key in attr_keys(event):
-            revoke_map = revoke_map.setdefault(key, {})
-        revoke_map['issued_before'] = max(
-            event.issued_before, revoke_map.get(
-                'issued_before', event.issued_before))
-        return event
+    # The token has two attributes that can match the domain_id
+    if event.domain_id is not None:
+        if all(event.domain_id != token_values[attribute_name]
+                for attribute_name in ['identity_domain_id',
+                                       'assignment_domain_id']):
+            return False
 
-    def remove_event(self, event):
-        """Update the tree based on the removal of a Revocation Event.
+    if event.domain_scope_id is not None:
+        if event.domain_scope_id != token_values['assignment_domain_id']:
+            return False
 
-        Removes empty nodes from the tree from the leaf back to the root.
+    # If an event specifies an attribute name, but it does not  match,
+    # the token is not revoked.
+    attribute_names = ['project_id',
+                       'expires_at', 'trust_id', 'consumer_id',
+                       'access_token_id', 'audit_id', 'audit_chain_id']
+    for attribute_name in attribute_names:
+        if getattr(event, attribute_name) is not None:
+            if (getattr(event, attribute_name) !=
+                    token_values[attribute_name]):
+                        return False
 
-        If multiple events trace the same path, but have different
-        'issued_before' values, only the last is ever stored in the tree.
-        So only an exact match on 'issued_before' ever triggers a removal
+    if event.role_id is not None:
+        roles = token_values['roles']
+        if all(event.role_id != role for role in roles):
+            return False
 
-        :param: Event to remove from the tree
-
-        """
-        stack = []
-        revoke_map = self.revoke_map
-        for name in _EVENT_NAMES:
-            key = event.key_for_name(name)
-            nxt = revoke_map.get(key)
-            if nxt is None:
-                break
-            stack.append((revoke_map, key, nxt))
-            revoke_map = nxt
-        else:
-            if event.issued_before == revoke_map['issued_before']:
-                revoke_map.pop('issued_before')
-        for parent, key, child in reversed(stack):
-            if not any(child):
-                del parent[key]
-
-    def add_events(self, revoke_events):
-        return list(map(self.add_event, revoke_events or []))
-
-    @staticmethod
-    def _next_level_keys(name, token_data):
-        """Generate keys based on current field name and token data.
-
-        Generate all keys to look for in the next iteration of revocation
-        event tree traversal.
-        """
-        yield '*'
-        if name == 'role_id':
-            # Roles are very special since a token has a list of them.
-            # If the revocation event matches any one of them,
-            # revoke the token.
-            for role_id in token_data.get('roles', []):
-                yield role_id
-        else:
-            # For other fields we try to get any branch that concur
-            # with any alternative field in the token.
-            for alt_name in ALTERNATIVES.get(name, [name]):
-                yield token_data[alt_name]
-
-    def _search(self, revoke_map, names, token_data):
-        """Search for revocation event by token_data.
-
-        Traverse the revocation events tree looking for event matching token
-        data issued after the token.
-        """
-        if not names:
-            # The last (leaf) level is checked in a special way because we
-            # verify issued_at field differently.
-            try:
-                return revoke_map['issued_before'] >= token_data['issued_at']
-            except KeyError:
-                return False
-
-        name, remaining_names = names[0], names[1:]
-
-        for key in self._next_level_keys(name, token_data):
-            subtree = revoke_map.get('%s=%s' % (name, key))
-            if subtree and self._search(subtree, remaining_names, token_data):
-                return True
-
-        # If we made it out of the loop then no element in revocation tree
-        # corresponds to our token and it is good.
+    if token_values['issued_at'] > event.issued_before:
         return False
-
-    def is_revoked(self, token_data):
-        """Check if a token matches the revocation event.
-
-        Compare the values for each level of the tree with the values from
-        the token, accounting for attributes that have alternative
-        keys, and for wildcard matches.
-        if there is a match, continue down the tree.
-        if there is no match, exit early.
-
-        token_data is a map based on a flattened view of token.
-        The required fields are:
-
-           'expires_at','user_id', 'project_id', 'identity_domain_id',
-           'assignment_domain_id', 'trust_id', 'trustor_id', 'trustee_id'
-           'consumer_id', 'access_token_id'
-
-        """
-        return self._search(self.revoke_map, _EVENT_NAMES, token_data)
+    return True
 
 
 def build_token_values_v2(access, default_domain_id):
