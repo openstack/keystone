@@ -1,0 +1,9 @@
+{
+    "endpoint": {
+        "interface": "public",
+        "name": "ec2-2",
+        "region_id": "RegionOne",
+        "url": "http://identity:35357/v3/endpoints/828384",
+        "service_id": "9242e05f0c23467bbd1cf1f7a6e5e596"
+    }
+}

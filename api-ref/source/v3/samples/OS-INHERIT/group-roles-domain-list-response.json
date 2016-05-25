@@ -1,0 +1,23 @@
+{
+    "roles": [
+        {
+            "id": "91011",
+            "links": {
+                "self": "http://identity:35357/v3/roles/91011"
+            },
+            "name": "admin"
+        },
+        {
+            "id": "91011",
+            "links": {
+                "self": "http://identity:35357/v3/roles/91011"
+            },
+            "name": "admin"
+        }
+    ],
+    "links": {
+        "self": "http://identity:35357/v3/OS-INHERIT/domains/1234/groups/5678/roles/inherited_to_projects",
+        "previous": null,
+        "next": null
+    }
+}

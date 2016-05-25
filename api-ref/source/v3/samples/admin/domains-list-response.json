@@ -1,0 +1,27 @@
+{
+    "domains": [
+        {
+            "description": "Used for swift functional testing",
+            "enabled": true,
+            "id": "5a75994a383c449184053ff7270c4e91",
+            "links": {
+                "self": "http://localhost:5000/v3/domains/5a75994a383c449184053ff7270c4e91"
+            },
+            "name": "swift_test"
+        },
+        {
+            "description": "Owns users and tenants (i.e. projects) available on Identity API v2.",
+            "enabled": true,
+            "id": "default",
+            "links": {
+                "self": "http://localhost:5000/v3/domains/default"
+            },
+            "name": "Default"
+        }
+    ],
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://localhost:5000/v3/domains"
+    }
+}

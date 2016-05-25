@@ -1,0 +1,14 @@
+{
+    "policy": {
+        "blob": {
+            "foobar_user": [
+                "role:compute-user"
+            ]
+        },
+        "id": "13c92821e4c4476a878d3aae7444f52f",
+        "links": {
+            "self": "http://identity:35357/v3/policies/13c92821e4c4476a878d3aae7444f52f"
+        },
+        "type": "application/json"
+    }
+}

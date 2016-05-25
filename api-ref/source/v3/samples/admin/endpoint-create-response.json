@@ -1,0 +1,15 @@
+{
+    "endpoint": {
+        "region_id": "RegionOne",
+        "links": {
+            "self": "http://localhost:5000/v3/endpoints/e9b475a8742d4ff1a81b353c5a37e138"
+        },
+        "url": "http://identity:35357/v3/endpoints/828384",
+        "region": "RegionOne",
+        "enabled": true,
+        "interface": "public",
+        "service_id": "9242e05f0c23467bbd1cf1f7a6e5e596",
+        "id": "e9b475a8742d4ff1a81b353c5a37e138",
+        "name": "ec2-2"
+    }
+}

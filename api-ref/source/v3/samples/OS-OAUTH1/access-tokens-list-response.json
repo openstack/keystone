@@ -1,0 +1,20 @@
+{
+    "access_tokens": [
+        {
+            "consumer_id": "7fea2d",
+            "id": "6be26a",
+            "expires_at": "2013-09-11T06:07:51.501805Z",
+            "links": {
+                "roles": "http://identity:35357/v3/users/ce9e07/OS-OAUTH1/access_tokens/6be26a/roles",
+                "self": "http://identity:35357/v3/users/ce9e07/OS-OAUTH1/access_tokens/6be26a"
+            },
+            "project_id": "b9fca3",
+            "authorizing_user_id": "ce9e07"
+        }
+    ],
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://identity:35357/v3/users/ce9e07/OS-OAUTH1/access_tokens"
+    }
+}

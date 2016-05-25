@@ -1,0 +1,12 @@
+{
+    "service": {
+        "name": "cinderv2",
+        "links": {
+            "self": "http://localhost:5000/v3/services/5789da9864004dd088fce14c1c626a4b"
+        },
+        "enabled": true,
+        "type": "volumev2",
+        "id": "5789da9864004dd088fce14c1c626a4b",
+        "description": "Block Storage Service V2"
+    }
+}

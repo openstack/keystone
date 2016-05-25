@@ -1,0 +1,8 @@
+{
+    "config": {
+        "ldap": {
+            "url": "http://myldap/my_new_root",
+            "user_tree_dn": "ou=Users,dc=my_new_root,dc=org"
+        }
+    }
+}

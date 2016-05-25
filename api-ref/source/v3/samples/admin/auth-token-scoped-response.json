@@ -1,0 +1,401 @@
+{
+    "token": {
+        "methods": [
+            "token"
+        ],
+        "roles": [
+            {
+                "id": "5090055d6bd547dc83e0e8f070803708",
+                "name": "admin"
+            }
+        ],
+        "expires_at": "2015-11-05T22:00:11.000000Z",
+        "project": {
+            "domain": {
+                "id": "default",
+                "name": "Default"
+            },
+            "id": "5b50efd009b540559104ee3c03bbb2b7",
+            "name": "admin"
+        },
+        "catalog": [
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9292",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "b2605da9b25943beb49b2bd86aca2202"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9292",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "c4d1184caf8c4351bff4bf502a09684e"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9292",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "cd73bda89e3948738c2721a8c3acac54"
+                    }
+                ],
+                "type": "image",
+                "id": "495df2483dc145dbb6b34bfbdd787aae",
+                "name": "glance"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8773/",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "7d03218a7f4246e8b9e3992318bf5397"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8773/",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "9ad7f8ce438c4212b8aac930bca04c86"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8773/",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "d84aad1a45c44e4da09b719167383049"
+                    }
+                ],
+                "type": "ec2",
+                "id": "54204024bb7d4665a8efc34fc758f1f7",
+                "name": "ec2"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9000",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "1077687c18514490a3ec980eadd1bd13"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9000",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "1e86d8bef1514c3fba8d157a22ccce88"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9000",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "f6a6b7bbba66443ead3a0e31a008c271"
+                    }
+                ],
+                "type": "messaging-websocket",
+                "id": "6b8655af7d044a15bec3cdca4f2919f8",
+                "name": "zaqar-websocket"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8004/v1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "083663fd231e40ad97384ad3efb9f1b7"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8004/v1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "0f4b7054ea27450eac43f685a4fc1d2c"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8004/v1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "5f3ea39df2e44378b1802a1a87ef9ac4"
+                    }
+                ],
+                "type": "orchestration",
+                "id": "6d6346ff2ca842e5968373fbb93e231f",
+                "name": "heat"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8774/v2.1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "bc2230a70d6a444e9fba75b85fbda41b"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8774/v2.1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "d8102dc2b9984d04b30b91b0a6037470"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8774/v2.1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "f8253a53edd749bf8b107a53a5d47a82"
+                    }
+                ],
+                "type": "compute",
+                "id": "75df965385cc4120a17110c1fde00182",
+                "name": "nova"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:35357/v2.0",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "0ceeb58592274caea5bc942a07d5473f"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:5000/v2.0",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "8126f2c7021d413e9c98ec3a0ba0fd58"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:5000/v2.0",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "c693879254544e3fb502e795a3f6acc8"
+                    }
+                ],
+                "type": "identity",
+                "id": "78aad571d38049e69c866c2abac76af6",
+                "name": "keystone"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8776/v1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "3654138dc64a45aeb5a8153f2a089c74"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8776/v1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "7a0d12d0b7314afd9b53d1618ab546ea"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8776/v1/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "82b68ff3aedb43e2acc8307234d3fd0b"
+                    }
+                ],
+                "type": "volume",
+                "id": "80491007c0ab462daaa9087250325f59",
+                "name": "cinder"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8000/v1",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "24dfa252fba64469b8b1a832f04bded9"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8000/v1",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "e0a01d6cd3be4f6abcc72367b2d87993"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8000/v1",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "f33f79d42df247e1bf6daf43a548b014"
+                    }
+                ],
+                "type": "cloudformation",
+                "id": "ac5cc6e3c62840818ab338c981d5603f",
+                "name": "heat-cfn"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9696/",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "3e78c357b3c8469fbea12eb681f88a0c"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9696/",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "89d2aad3dc8e478fbabb21dd7db0962a"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:9696/",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "b6d4a8cf5e4042848a749a3116497e55"
+                    }
+                ],
+                "type": "network",
+                "id": "b33660edd1eb45e485f7e5f14401a739",
+                "name": "neutron"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8888",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "1f8287cf963948778ab0eb109d9f857d"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8888",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "3adf5f9cc5184d92af5ff0fdef043e4a"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8888",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "f747223060b3414f947fdcdca2ce8714"
+                    }
+                ],
+                "type": "messaging",
+                "id": "cf3e38e9aed54e2d84ea64485317d7a0",
+                "name": "zaqar"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8774/v2/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "08f507ccb552476b98f3af7718f25557"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8774/v2/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "d20091ba591347b2b419e5fbde9b7976"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8774/v2/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "e6b667776e7245dea6e39f2820e080b0"
+                    }
+                ],
+                "type": "compute_legacy",
+                "id": "d442e96b273a48018567aeec5800c3e0",
+                "name": "nova_legacy"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8776/v2/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "012c78a6694a494995c58d5955fb7822"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8776/v2/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "802d5de210874f068ba31c7e27c29d70"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8776/v2/5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "b37ada66e02e44c9a9a7976d77365503"
+                    }
+                ],
+                "type": "volumev2",
+                "id": "d93e78c7967f49acbdd732b9dd97e0d0",
+                "name": "cinderv2"
+            },
+            {
+                "endpoints": [
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8080/v1/AUTH_5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "public",
+                        "id": "265ce88a0e1642fc90b2ec20ccb279ff"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8080",
+                        "region": "RegionOne",
+                        "interface": "admin",
+                        "id": "500b7f066d39492faff8a3f710fb5a2f"
+                    },
+                    {
+                        "region_id": "RegionOne",
+                        "url": "http://23.253.248.171:8080/v1/AUTH_5b50efd009b540559104ee3c03bbb2b7",
+                        "region": "RegionOne",
+                        "interface": "internal",
+                        "id": "a33b0684f817405280df1f5600777a75"
+                    }
+                ],
+                "type": "object-store",
+                "id": "da1b1b5c529946fcb3ee3abdcf376fcb",
+                "name": "swift"
+            }
+        ],
+        "extras": {},
+        "user": {
+            "domain": {
+                "id": "default",
+                "name": "Default"
+            },
+            "id": "10a2e6e717a245d9acad3e5f97aeca3d",
+            "name": "admin"
+        },
+        "audit_ids": [
+            "wLc7nDMsQiKqf8VFU4ySpg"
+        ],
+        "issued_at": "2015-11-05T21:32:30.505384Z"
+    }
+}

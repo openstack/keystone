@@ -1,0 +1,28 @@
+{
+    "trust": {
+        "expires_at": "2014-12-30T23:59:59.999999Z",
+        "id": "394998fa61f14736b1f0c1f322882949",
+        "impersonation": false,
+        "links": {
+            "self": "http://localhost:5000/v3/OS-TRUST/trusts/394998fa61f14736b1f0c1f322882949"
+        },
+        "project_id": "3d4c2c82bd5948f0bcab0cf3a7c9b48c",
+        "remaining_uses": null,
+        "roles": [
+            {
+                "id": "c703057be878458588961ce9a0ce686b",
+                "links": {
+                    "self": "http://localhost:5000/v3/roles/c703057be878458588961ce9a0ce686b"
+                },
+                "name": "admin"
+            }
+        ],
+        "roles_links": {
+            "next": null,
+            "previous": null,
+            "self": "http: //localhost:5000/v3/OS-TRUST/trusts/394998fa61f14736b1f0c1f322882949/roles"
+        },
+        "trustee_user_id": "269348fdd9374b8885da1418e0730af1",
+        "trustor_user_id": "3ec3164f750146be97f21559ee4d9c51"
+    }
+}

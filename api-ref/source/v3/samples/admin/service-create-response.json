@@ -1,0 +1,12 @@
+{
+    "service": {
+        "name": "compute2",
+        "links": {
+            "self": "http://localhost:5000/v3/services/3f552eb79c48436db2868e948d8cf330"
+        },
+        "enabled": true,
+        "type": "compute",
+        "id": "3f552eb79c48436db2868e948d8cf330",
+        "description": "Compute service 2"
+    }
+}

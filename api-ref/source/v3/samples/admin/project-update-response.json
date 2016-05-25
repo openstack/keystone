@@ -1,0 +1,17 @@
+{
+    "project": {
+        "is_domain": true,
+        "description": "My updated project",
+        "links": {
+            "self": "http://localhost:5000/v3/projects/93ebbcc35335488b96ff9cd7d18cbb2e"
+        },
+        "extra": {
+            "is_domain": true
+        },
+        "enabled": true,
+        "id": "93ebbcc35335488b96ff9cd7d18cbb2e",
+        "parent_id": null,
+        "domain_id": "default",
+        "name": "myUpdatedProject"
+    }
+}

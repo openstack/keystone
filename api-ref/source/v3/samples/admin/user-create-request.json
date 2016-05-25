@@ -1,0 +1,11 @@
+{
+    "user": {
+        "default_project_id": "263fd9",
+        "description": "James Doe user",
+        "domain_id": "1789d1",
+        "email": "jdoe@example.com",
+        "enabled": true,
+        "name": "James Doe",
+        "password": "secretsecret"
+    }
+}

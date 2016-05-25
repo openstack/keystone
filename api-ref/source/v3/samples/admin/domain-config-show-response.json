@@ -1,0 +1,11 @@
+{
+    "config": {
+        "identity": {
+            "driver": "keystone.identity.backends.ldap.Identity"
+        },
+        "ldap": {
+            "url": "http://myldap/root",
+            "user_tree_dn": "ou=Users,dc=root,dc=org"
+        }
+    }
+}

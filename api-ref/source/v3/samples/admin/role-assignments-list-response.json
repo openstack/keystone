@@ -1,0 +1,41 @@
+{
+    "role_assignments": [
+        {
+            "links": {
+                "assignment": "http://identity:35357/v3/domains/161718/users/313233/roles/123456"
+            },
+            "role": {
+                "id": "123456"
+            },
+            "scope": {
+                "domain": {
+                    "id": "161718"
+                }
+            },
+            "user": {
+                "id": "313233"
+            }
+        },
+        {
+            "group": {
+                "id": "101112"
+            },
+            "links": {
+                "assignment": "http://identity:35357/v3/projects/456789/groups/101112/roles/123456"
+            },
+            "role": {
+                "id": "123456"
+            },
+            "scope": {
+                "project": {
+                    "id": "456789"
+                }
+            }
+        }
+    ],
+    "links": {
+        "self": "http://identity:35357/v3/role_assignments",
+        "previous": null,
+        "next": null
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "region": {
+        "description": "My subregion 3",
+        "id": "RegionThree",
+        "links": {
+            "self": "http://localhost:5000/v3/regions/RegionThree"
+        },
+        "parent_region_id": "RegionOne"
+    }
+}

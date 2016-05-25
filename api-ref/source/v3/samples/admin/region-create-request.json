@@ -1,0 +1,7 @@
+{
+    "region": {
+        "description": "My subregion",
+        "id": "RegionOneSubRegion",
+        "parent_region_id": "RegionOne"
+    }
+}

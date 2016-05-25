@@ -1,0 +1,12 @@
+{
+    "policy": {
+        "user_id": "0ffd248c55b443eaac5253b4e9cbf9b5",
+        "links": {
+            "self": "http://identity:35357/v3/policies/88f5b83f8f8e41daba4c25eed1a7bbc6"
+        },
+        "blob": "{'foobar_user': 'role:compute-user'}",
+        "project_id": "0426ac1e48f642ef9544c2251e07e261",
+        "type": "application/json",
+        "id": "88f5b83f8f8e41daba4c25eed1a7bbc6"
+    }
+}
