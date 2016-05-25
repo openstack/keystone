@@ -21,7 +21,6 @@ from testtools import matchers
 from keystone.common import utils
 from keystone.models import revoke_model
 from keystone.tests.unit import test_v3
-from keystone.token import provider
 
 
 def _future_time_string():
@@ -72,13 +71,11 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertThat(links['self'], matchers.EndsWith(revoked_list_url))
 
     def test_revoked_token_in_list(self):
-        user_id = uuid.uuid4().hex
-        expires_at = provider.default_expire_time()
+        audit_id = uuid.uuid4().hex
         sample = self._blank_event()
-        sample['user_id'] = six.text_type(user_id)
-        sample['expires_at'] = six.text_type(utils.isotime(expires_at))
+        sample['audit_id'] = six.text_type(audit_id)
         before_time = timeutils.utcnow()
-        self.revoke_api.revoke_by_expiration(user_id, expires_at)
+        self.revoke_api.revoke_by_audit_id(audit_id)
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
         self.assertEqual(1, len(events))

@@ -17,7 +17,6 @@ import uuid
 import mock
 from oslo_utils import timeutils
 from six.moves import range
-from testtools import matchers
 
 from keystone.common import utils
 from keystone import exception
@@ -130,17 +129,8 @@ class RevokeTests(object):
         self.assertEqual(0,
                          len(self.revoke_api.list_events(last_fetch=future)))
 
-    def test_past_expiry_are_removed(self):
-        user_id = 1
-        self.revoke_api.revoke_by_expiration(user_id, _future_time())
-        self.assertEqual(1, len(self.revoke_api.list_events()))
-        event = revoke_model.RevokeEvent()
-        event.revoked_at = _past_time()
-        self.revoke_api.revoke(event)
-        self.assertEqual(1, len(self.revoke_api.list_events()))
-
     @mock.patch.object(timeutils, 'utcnow')
-    def test_expired_events_removed_validate_token_success(self, mock_utcnow):
+    def test_expired_events_are_removed(self, mock_utcnow):
         def _sample_token_values():
             token = _sample_blank_token()
             token['expires_at'] = utils.isotime(_future_time(),
@@ -155,9 +145,9 @@ class RevokeTests(object):
         # future 'synchronize' call.
         token_values = _sample_token_values()
 
-        user_id = _new_id()
-        self.revoke_api.revoke_by_user(user_id)
-        token_values['user_id'] = user_id
+        audit_chain_id = _new_id()
+        self.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
+        token_values['audit_chain_id'] = audit_chain_id
         self.assertRaises(exception.TokenNotFound,
                           self.revoke_api.check_token,
                           token_values)
@@ -165,20 +155,11 @@ class RevokeTests(object):
         # Move our clock forward by 2h, build a new token and validate it.
         # 'synchronize' should now be exercised and remove old expired events
         mock_utcnow.return_value = now_plus_2h
-        self.revoke_api.revoke_by_expiration(_new_id(), now_plus_2h)
-        # should no longer throw an exception
-        self.revoke_api.check_token(token_values)
-
-    def test_revoke_by_expiration_project_and_domain_fails(self):
-        user_id = _new_id()
-        expires_at = utils.isotime(_future_time(), subsecond=True)
-        domain_id = _new_id()
-        project_id = _new_id()
-        self.assertThat(
-            lambda: self.revoke_api.revoke_by_expiration(
-                user_id, expires_at, domain_id=domain_id,
-                project_id=project_id),
-            matchers.raises(exception.UnexpectedError))
+        self.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
+        # two hours later, it should still be not found
+        self.assertRaises(exception.TokenNotFound,
+                          self.revoke_api.check_token,
+                          token_values)
 
 
 class SqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
@@ -335,26 +316,6 @@ class RevokeTreeTests(unit.TestCase):
     def test_revoke_by_user_matches_trustor(self):
         self._user_field_test('trustor_id')
 
-    def test_by_user_expiration(self):
-        future_time = _future_time()
-
-        user_id = 1
-        event = self._revoke_by_expiration(user_id, future_time)
-        token_data_1 = _sample_blank_token()
-        token_data_1['user_id'] = user_id
-        token_data_1['expires_at'] = future_time.replace(microsecond=0)
-        self._assertTokenRevoked(token_data_1)
-
-        token_data_2 = _sample_blank_token()
-        token_data_2['user_id'] = user_id
-        expire_delta = datetime.timedelta(seconds=2000)
-        future_time = timeutils.utcnow() + expire_delta
-        token_data_2['expires_at'] = future_time
-        self._assertTokenNotRevoked(token_data_2)
-
-        self.remove_event(event)
-        self._assertTokenNotRevoked(token_data_1)
-
     def test_revoke_by_audit_id(self):
         audit_id = provider.audit_info(parent_audit_id=None)[0]
         token_data_1 = _sample_blank_token()
@@ -393,40 +354,6 @@ class RevokeTreeTests(unit.TestCase):
         self.remove_event(event)
         self._assertTokenNotRevoked(token_data_1)
         self._assertTokenNotRevoked(token_data_2)
-
-    def test_by_user_project(self):
-        # When a user has a project-scoped token and the project-scoped token
-        # is revoked then the token is revoked.
-
-        user_id = _new_id()
-        project_id = _new_id()
-
-        future_time = _future_time()
-
-        token_data = _sample_blank_token()
-        token_data['user_id'] = user_id
-        token_data['project_id'] = project_id
-        token_data['expires_at'] = future_time.replace(microsecond=0)
-
-        self._revoke_by_expiration(user_id, future_time, project_id=project_id)
-        self._assertTokenRevoked(token_data)
-
-    def test_by_user_domain(self):
-        # When a user has a domain-scoped token and the domain-scoped token
-        # is revoked then the token is revoked.
-
-        user_id = _new_id()
-        domain_id = _new_id()
-
-        future_time = _future_time()
-
-        token_data = _sample_blank_token()
-        token_data['user_id'] = user_id
-        token_data['assignment_domain_id'] = domain_id
-        token_data['expires_at'] = future_time.replace(microsecond=0)
-
-        self._revoke_by_expiration(user_id, future_time, domain_id=domain_id)
-        self._assertTokenRevoked(token_data)
 
     def remove_event(self, event):
         self.events.remove(event)

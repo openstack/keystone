@@ -16,3 +16,7 @@ other:
   - >
     [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
     Removed support for generating SSL certificates.
+  - >
+    [`blueprint removed-as-of-newton <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-newton>`_]
+    The ``revoke_by_expiration`` method in ``keystone.revoke.core`` has been
+    removed. This was deprecated in the Juno release.
