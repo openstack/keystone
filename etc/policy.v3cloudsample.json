@@ -55,7 +55,7 @@
     "admin_and_matching_group_domain_id": "rule:admin_required and domain_id:%(group.domain_id)s",
     "identity:get_group": "rule:cloud_admin or rule:admin_and_matching_target_group_domain_id",
     "identity:list_groups": "rule:cloud_admin or rule:admin_and_matching_domain_id",
-    "identity:list_groups_for_user": "rule:owner or rule:admin_and_matching_domain_id",
+    "identity:list_groups_for_user": "rule:owner or rule:admin_and_matching_target_user_domain_id",
     "identity:create_group": "rule:cloud_admin or rule:admin_and_matching_group_domain_id",
     "identity:update_group": "rule:cloud_admin or rule:admin_and_matching_target_group_domain_id",
     "identity:delete_group": "rule:cloud_admin or rule:admin_and_matching_target_group_domain_id",

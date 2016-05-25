@@ -211,6 +211,11 @@ class UserV3(controller.V3Controller):
         ref['group'] = self.identity_api.get_group(group_id)
         self.check_protection(context, prep_info, ref)
 
+    def _check_group_protection(self, context, prep_info, group_id):
+        ref = {}
+        ref['group'] = self.identity_api.get_group(group_id)
+        self.check_protection(context, prep_info, ref)
+
     @controller.protected()
     @validation.validated(schema.user_create, 'user')
     def create_user(self, context, user):
@@ -229,7 +234,8 @@ class UserV3(controller.V3Controller):
             hints=hints)
         return UserV3.wrap_collection(context, refs, hints=hints)
 
-    @controller.filterprotected('domain_id', 'enabled', 'name')
+    @controller.filterprotected('domain_id', 'enabled', 'name',
+                                callback=_check_group_protection)
     def list_users_in_group(self, context, filters, group_id):
         hints = UserV3.build_driver_hints(context, filters)
         refs = self.identity_api.list_users_in_group(group_id, hints=hints)
@@ -299,6 +305,11 @@ class GroupV3(controller.V3Controller):
         super(GroupV3, self).__init__()
         self.get_member_from_driver = self.identity_api.get_group
 
+    def _check_user_protection(self, context, prep_info, user_id):
+        ref = {}
+        ref['user'] = self.identity_api.get_user(user_id)
+        self.check_protection(context, prep_info, ref)
+
     @controller.protected()
     @validation.validated(schema.group_create, 'group')
     def create_group(self, context, group):
@@ -317,7 +328,7 @@ class GroupV3(controller.V3Controller):
             hints=hints)
         return GroupV3.wrap_collection(context, refs, hints=hints)
 
-    @controller.filterprotected('name')
+    @controller.filterprotected('name', callback=_check_user_protection)
     def list_groups_for_user(self, context, filters, user_id):
         hints = GroupV3.build_driver_hints(context, filters)
         refs = self.identity_api.list_groups_for_user(user_id, hints=hints)
