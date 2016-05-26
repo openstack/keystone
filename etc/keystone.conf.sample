@@ -62,10 +62,10 @@
 # [assignment]). (integer value)
 #list_limit = <None>
 
-# Set this to false if you want to enable the ability for user, group and
-# project entities to be moved between domains by updating their domain_id.
-# Allowing such movement is not recommended if the scope of a domain admin is
-# being restricted by use of an appropriate policy file (see
+# DEPRECATED: Set this to false if you want to enable the ability for user,
+# group and project entities to be moved between domains by updating their
+# domain_id. Allowing such movement is not recommended if the scope of a domain
+# admin is being restricted by use of an appropriate policy file (see
 # policy.v3cloudsample as an example). This ability is deprecated and will be
 # removed in a future release. (boolean value)
 # This option is deprecated for removal.
@@ -120,8 +120,8 @@
 # Note: This option can be changed without restarting.
 #debug = false
 
-# If set to false, the logging level will be set to WARNING instead of the
-# default INFO level. (boolean value)
+# DEPRECATED: If set to false, the logging level will be set to WARNING instead
+# of the default INFO level. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #verbose = true
@@ -645,7 +645,7 @@
 # From keystone
 #
 
-# Enable endpoint_policy functionality. (boolean value)
+# DEPRECATED: Enable endpoint_policy functionality. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: The option to enable the OS-ENDPOINT-POLICY extension has been
@@ -664,8 +664,8 @@
 # From keystone
 #
 
-# The IP address of the network interface for the public service to listen on.
-# (string value)
+# DEPRECATED: The IP address of the network interface for the public service to
+# listen on. (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/public_bind_host
 # This option is deprecated for removal.
@@ -675,7 +675,7 @@
 # used for URL substitutions.
 #public_bind_host = 0.0.0.0
 
-# The port number which the public service listens on. (port value)
+# DEPRECATED: The port number which the public service listens on. (port value)
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/public_port
@@ -686,8 +686,8 @@
 # used for URL substitutions.
 #public_port = 5000
 
-# The IP address of the network interface for the admin service to listen on.
-# (string value)
+# DEPRECATED: The IP address of the network interface for the admin service to
+# listen on. (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/admin_bind_host
 # This option is deprecated for removal.
@@ -697,7 +697,7 @@
 # used for URL substitutions.
 #admin_bind_host = 0.0.0.0
 
-# The port number which the admin service listens on. (port value)
+# DEPRECATED: The port number which the admin service listens on. (port value)
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/admin_port
@@ -983,21 +983,21 @@
 # LDAP attribute mapped to default_project_id for users. (string value)
 #user_default_project_id_attribute = <None>
 
-# Allow user creation in LDAP backend. (boolean value)
+# DEPRECATED: Allow user creation in LDAP backend. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Write support for Identity LDAP backends has been deprecated in the M
 # release and will be removed in the O release.
 #user_allow_create = true
 
-# Allow user updates in LDAP backend. (boolean value)
+# DEPRECATED: Allow user updates in LDAP backend. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Write support for Identity LDAP backends has been deprecated in the M
 # release and will be removed in the O release.
 #user_allow_update = true
 
-# Allow user deletion in LDAP backend. (boolean value)
+# DEPRECATED: Allow user deletion in LDAP backend. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Write support for Identity LDAP backends has been deprecated in the M
@@ -1047,21 +1047,21 @@
 # List of attributes stripped off the group on update. (list value)
 #group_attribute_ignore =
 
-# Allow group creation in LDAP backend. (boolean value)
+# DEPRECATED: Allow group creation in LDAP backend. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Write support for Identity LDAP backends has been deprecated in the M
 # release and will be removed in the O release.
 #group_allow_create = true
 
-# Allow group update in LDAP backend. (boolean value)
+# DEPRECATED: Allow group update in LDAP backend. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Write support for Identity LDAP backends has been deprecated in the M
 # release and will be removed in the O release.
 #group_allow_update = true
 
-# Allow group deletion in LDAP backend. (boolean value)
+# DEPRECATED: Allow group deletion in LDAP backend. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Write support for Identity LDAP backends has been deprecated in the M
@@ -1217,10 +1217,10 @@
 # From keystone
 #
 
-# role-assignment inheritance to projects from owning domain or from projects
-# higher in the hierarchy can be optionally disabled. In the future, this
-# option will be removed and the hierarchy will be always enabled. (boolean
-# value)
+# DEPRECATED: role-assignment inheritance to projects from owning domain or
+# from projects higher in the hierarchy can be optionally disabled. In the
+# future, this option will be removed and the hierarchy will be always enabled.
+# (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: The option to enable the OS-INHERIT extension has been deprecated in
@@ -1568,9 +1568,9 @@
 # Deprecated group/name - [DEFAULT]/max_request_body_size
 #max_request_body_size = 114688
 
-# The HTTP Header that will be used to determine what the original request
-# protocol scheme was, even if it was hidden by an SSL termination proxy.
-# (string value)
+# DEPRECATED: The HTTP Header that will be used to determine what the original
+# request protocol scheme was, even if it was hidden by an SSL termination
+# proxy. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #secure_proxy_ssl_header = X-Forwarded-Proto
@@ -1873,38 +1873,38 @@
 # From keystone
 #
 
-# Path of the certfile for token signing. For non-production environments, you
-# may be interested in using `keystone-manage pki_setup` to generate self-
-# signed certificates. (string value)
+# DEPRECATED: Path of the certfile for token signing. For non-production
+# environments, you may be interested in using `keystone-manage pki_setup` to
+# generate self-signed certificates. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
-# Path of the keyfile for token signing. (string value)
+# DEPRECATED: Path of the keyfile for token signing. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 
-# Path of the CA for token signing. (string value)
+# DEPRECATED: Path of the CA for token signing. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 
-# Path of the CA key for token signing. (string value)
+# DEPRECATED: Path of the CA key for token signing. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #ca_key = /etc/keystone/ssl/private/cakey.pem
 
-# Key size (in bits) for token signing cert (auto generated certificate).
-# (integer value)
+# DEPRECATED: Key size (in bits) for token signing cert (auto generated
+# certificate). (integer value)
 # Minimum value: 1024
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1912,16 +1912,16 @@
 # removed in the O release. Fernet or UUID tokens are recommended.
 #key_size = 2048
 
-# Days the token signing cert is valid for (auto generated certificate).
-# (integer value)
+# DEPRECATED: Days the token signing cert is valid for (auto generated
+# certificate). (integer value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #valid_days = 3650
 
-# Certificate subject (auto generated certificate) for token signing. (string
-# value)
+# DEPRECATED: Certificate subject (auto generated certificate) for token
+# signing. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
@@ -1978,10 +1978,10 @@
 # value)
 #allow_rescope_scoped_token = true
 
-# The hash algorithm to use for PKI tokens. This can be set to any algorithm
-# that hashlib supports. WARNING: Before changing this value, the auth_token
-# middleware must be configured with the hash_algorithms, otherwise token
-# revocation will not be processed correctly. (string value)
+# DEPRECATED: The hash algorithm to use for PKI tokens. This can be set to any
+# algorithm that hashlib supports. WARNING: Before changing this value, the
+# auth_token middleware must be configured with the hash_algorithms, otherwise
+# token revocation will not be processed correctly. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
