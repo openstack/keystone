@@ -1,0 +1,9 @@
+{
+    "user": {
+        "email": "new-user@example.com",
+        "password": null,
+        "enabled": true,
+        "name": "new-user",
+        "tenantId": "40429f980fac419bbfec372a5607c154"
+    }
+}

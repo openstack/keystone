@@ -11,6 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   v2/identity-api-extensions.inc
+   v2/identity-auth.inc
+   v2/versions.inc
+
    v3/authenticate-v3.inc
    v3/credentials
    v3/domains

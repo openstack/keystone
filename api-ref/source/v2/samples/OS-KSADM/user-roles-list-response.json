@@ -1,0 +1,12 @@
+{
+    "roles": [
+        {
+            "id": "8341d3603a1d4d5985bff09f10704d4d",
+            "name": "service"
+        },
+        {
+            "id": "2e66d57df76946fdbe034bc4da6fdec0",
+            "name": "admin"
+        }
+    ]
+}
