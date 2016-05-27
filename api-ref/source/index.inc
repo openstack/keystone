@@ -15,6 +15,9 @@ Contents:
    v2/identity-auth.inc
    v2/versions.inc
 
+   v2-ext/ksadm-admin.inc
+   v2-ext/ksec2-admin.inc
+
    v3/authenticate-v3.inc
    v3/credentials
    v3/domains
