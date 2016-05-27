@@ -1,0 +1,270 @@
+# variables in header
+X-Auth-Token:
+  description: |
+    A valid authentication token for an
+    administrative user.
+  in: header
+  required: true
+  type: string
+
+# variables in path
+tenantId_1:
+  description: |
+    The tenant ID.
+  in: path
+  required: false
+  type: string
+tokenId:
+  description: |
+    The authentication token for which to perform the
+    operation.
+  in: path
+  required: false
+  type: string
+userId:
+  description: |
+    The user ID.
+  in: path
+  required: false
+  type: string
+
+# variables in query
+name_2:
+  description: |
+    Filters the response by a tenant name.
+  in: query
+  required: true
+  type: string
+
+# variables in body
+access:
+  description: |
+    An ``access`` object.
+  in: body
+  required: true
+  type: string
+description:
+  description: |
+    The description of the tenant. If not set, this
+    value is ``null``.
+  in: body
+  required: true
+  type: string
+email:
+  description: |
+    The user email.
+  in: body
+  required: false
+  type: string
+email_1:
+  description: |
+    The user email.
+  in: body
+  required: true
+  type: string
+enabled:
+  description: |
+    Indicates whether the tenant is enabled or
+    disabled.
+  in: body
+  required: true
+  type: boolean
+enabled_1:
+  description: |
+    Indicates whether the user is enabled (``true``)
+    or disabled (``false``). Default is ``true``.
+  in: body
+  required: false
+  type: boolean
+enabled_2:
+  description: |
+    Indicates whether the user is enabled (``true``)
+    or disabled(``false``). The default value is ``true``.
+  in: body
+  required: true
+  type: boolean
+endpoints:
+  description: |
+    One or more ``endpoints`` objects. Each object
+    shows the ``adminURL``, ``region``, ``internalURL``, ``id``, and
+    ``publicURL`` for the endpoint.
+  in: body
+  required: true
+  type: string
+endpoints_links:
+  description: |
+    Links for the endpoint.
+  in: body
+  required: true
+  type: string
+expires:
+  description: |
+    The date and time when the token expires.
+
+    The date and time stamp format is `ISO 8601
+    <https://en.wikipedia.org/wiki/ISO_8601>`_:
+
+    ::
+
+       CCYY-MM-DDThh:mm:ss±hh:mm
+
+    For example, ``2015-08-27T09:49:58-05:00``.
+
+    The ``±hh:mm`` value, if included, is the time zone as an offset
+    from UTC. In the previous example, the offset value is ``-05:00``.
+
+    A ``null`` value indicates that the token never expires.
+  in: body
+  required: true
+  type: string
+id:
+  description: |
+    The ID of the trust.
+  in: body
+  required: false
+  type: string
+id_1:
+  description: |
+    The user ID.
+  in: body
+  required: true
+  type: string
+impersonation:
+  description: |
+    The impersonation flag.
+  in: body
+  required: false
+  type: string
+issued_at:
+  description: |
+    The date and time when the token was issued.
+
+    The date and time stamp format is `ISO 8601
+    <https://en.wikipedia.org/wiki/ISO_8601>`_:
+
+    ::
+
+       CCYY-MM-DDThh:mm:ss±hh:mm
+
+    For example, ``2015-08-27T09:49:58-05:00``.
+
+    The ``±hh:mm`` value, if included, is the time zone as an offset
+    from UTC. In the previous example, the offset value is ``-05:00``.
+  in: body
+  required: true
+  type: string
+location:
+  format: uri
+  in: body
+  required: true
+  type: string
+metadata:
+  description: |
+    A ``metadata`` object.
+  in: body
+  required: true
+  type: string
+name:
+  description: |
+    Endpoint name.
+  in: body
+  required: true
+  type: string
+name_1:
+  description: |
+    The user name.
+  in: body
+  required: true
+  type: string
+password:
+  description: |
+    The user password.
+  in: body
+  required: false
+  type: string
+roles:
+  description: |
+    The collection of roles.
+  in: body
+  required: true
+  type: array
+roles_links:
+  description: |
+    The link to the represented role collection.
+  in: body
+  required: true
+  type: array
+serviceCatalog:
+  description: |
+    A ``serviceCatalog`` object.
+  in: body
+  required: true
+  type: string
+tenant:
+  description: |
+    A ``tenant`` object.
+  in: body
+  required: true
+  type: string
+tenantId:
+  description: |
+    The tenant ID.
+  in: body
+  required: false
+  type: string
+token:
+  description: |
+    A ``token`` object.
+  in: body
+  required: true
+  type: string
+trust:
+  description: |
+    A ``trust`` object.
+  in: body
+  required: false
+  type: string
+trustee_user_id:
+  description: |
+    The trustee user ID.
+  in: body
+  required: false
+  type: string
+trustor_user_id:
+  description: |
+    The trustor user ID.
+  in: body
+  required: false
+  type: string
+type:
+  description: |
+    Endpoint type.
+  in: body
+  required: true
+  type: string
+user:
+  description: |
+    A ``user`` object, which shows the ``username``,
+    ``roles_links``, ``id``, ``roles``, and ``name``.
+  in: body
+  required: true
+  type: string
+username:
+  description: |
+    The user name of the user.
+  in: body
+  required: true
+  type: string
+username_1:
+  description: |
+    The username of user.
+  in: body
+  required: true
+  type: string
+users:
+  description: |
+    One or more ``user`` objects.
+  in: body
+  required: true
+  type: array
+

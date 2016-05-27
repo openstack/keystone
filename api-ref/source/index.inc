@@ -11,6 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   v2-admin/admin-tenants.inc
+   v2-admin/admin-tokens.inc
+   v2-admin/admin-users.inc
+   v2-admin/admin-versions.inc
+
    v2/identity-api-extensions.inc
    v2/identity-auth.inc
    v2/versions.inc

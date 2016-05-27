@@ -413,8 +413,8 @@ Response Example
    :language: javascript
 
 
-List roles for user
-===================
+List inherited roles for user
+=============================
 
 .. rest_method::  GET /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/inherited_to_projects
 
