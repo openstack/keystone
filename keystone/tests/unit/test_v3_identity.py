@@ -492,47 +492,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         r = self.credential_api.get_credential(credential2['id'])
         self.assertDictEqual(credential2, r)
 
-    # shadow user tests
-    def test_shadow_federated_user(self):
-        fed_user = unit.new_federated_user_ref()
-        user = (
-            self.identity_api.shadow_federated_user(fed_user['idp_id'],
-                                                    fed_user['protocol_id'],
-                                                    fed_user['unique_id'],
-                                                    fed_user['display_name'])
-        )
-        self.assertIsNotNone(user['id'])
-        self.assertEqual(len(user.keys()), 4)
-        self.assertIsNotNone(user['name'])
-        self.assertIsNone(user['domain_id'])
-        self.assertEqual(user['enabled'], True)
-
-    def test_shadow_existing_federated_user(self):
-        fed_user = unit.new_federated_user_ref()
-
-        # introduce the user to keystone for the first time
-        shadow_user1 = self.identity_api.shadow_federated_user(
-            fed_user['idp_id'],
-            fed_user['protocol_id'],
-            fed_user['unique_id'],
-            fed_user['display_name'])
-        self.assertEqual(fed_user['display_name'], shadow_user1['name'])
-
-        # shadow the user again, with another name to invalidate the cache
-        # internally, this operation causes request to the driver. It should
-        # not fail.
-        fed_user['display_name'] = uuid.uuid4().hex
-        shadow_user2 = self.identity_api.shadow_federated_user(
-            fed_user['idp_id'],
-            fed_user['protocol_id'],
-            fed_user['unique_id'],
-            fed_user['display_name'])
-        self.assertEqual(fed_user['display_name'], shadow_user2['name'])
-        self.assertNotEqual(shadow_user1['name'], shadow_user2['name'])
-
-        # The shadowed users still share the same unique ID.
-        self.assertEqual(shadow_user1['id'], shadow_user2['id'])
-
     # group crud tests
 
     def test_create_group(self):
