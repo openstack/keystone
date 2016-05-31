@@ -157,6 +157,12 @@ class SqlModels(SqlTests):
                 ('display_name', sql.String, 255))
         self.assertExpectedSchema('federated_user', cols)
 
+    def test_nonlocal_user_model(self):
+        cols = (('domain_id', sql.String, 64),
+                ('name', sql.String, 255),
+                ('user_id', sql.String, 64))
+        self.assertExpectedSchema('nonlocal_user', cols)
+
     def test_group_model(self):
         cols = (('id', sql.String, 64),
                 ('name', sql.String, 64),

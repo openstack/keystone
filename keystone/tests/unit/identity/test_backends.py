@@ -1360,6 +1360,28 @@ class LimitTests(filtering.FilterTests):
 
 
 class ShadowUsersTests(object):
+    def test_create_nonlocal_user_unique_constraint(self):
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_created = self.shadow_users_api.create_nonlocal_user(user)
+        self.assertNotIn('password', user_created)
+        self.assertEqual(user_created['id'], user['id'])
+        self.assertEqual(user_created['domain_id'], user['domain_id'])
+        self.assertEqual(user_created['name'], user['name'])
+        new_user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        new_user['name'] = user['name']
+        self.assertRaises(exception.Conflict,
+                          self.shadow_users_api.create_nonlocal_user,
+                          new_user)
+
+    def test_get_user(self):
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user.pop('email')
+        user.pop('password')
+        user_created = self.shadow_users_api.create_nonlocal_user(user)
+        self.assertEqual(user_created['id'], user['id'])
+        user_found = self.shadow_users_api.get_user(user_created['id'])
+        self.assertItemsEqual(user_created, user_found)
+
     def test_create_federated_user_unique_constraint(self):
         federated_dict = unit.new_federated_user_ref()
         user_dict = self.shadow_users_api.create_federated_user(federated_dict)
