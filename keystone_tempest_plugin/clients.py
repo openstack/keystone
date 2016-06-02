@@ -18,6 +18,8 @@ from keystone_tempest_plugin.services.identity.v3 import (
     mapping_rules_client)
 from keystone_tempest_plugin.services.identity.v3 import (
     service_providers_client)
+from keystone_tempest_plugin.services.identity.v3 import auth_client
+from keystone_tempest_plugin.services.identity.v3 import saml2_client
 
 from tempest import clients
 
@@ -27,12 +29,14 @@ class Manager(clients.Manager):
     def __init__(self, credentials, service=None):
         super(Manager, self).__init__(credentials, service)
 
+        self.auth_client = auth_client.AuthClient(self.auth_provider)
         self.identity_providers_client = (
             identity_providers_client.IdentityProvidersClient(
                 self.auth_provider))
         self.mapping_rules_client = (
             mapping_rules_client.MappingRulesClient(
                 self.auth_provider))
+        self.saml2_client = saml2_client.Saml2Client()
         self.service_providers_client = (
             service_providers_client.ServiceProvidersClient(
                 self.auth_provider))
