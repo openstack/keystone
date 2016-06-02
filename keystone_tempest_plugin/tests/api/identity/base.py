@@ -30,7 +30,7 @@ class BaseIdentityTest(test.BaseTestCase):
     @classmethod
     def setup_clients(cls):
         super(BaseIdentityTest, cls).setup_clients()
-        credentials = common_creds.get_configured_credentials(
+        credentials = common_creds.get_configured_admin_credentials(
             cls.credential_type, identity_version=cls.identity_version)
         cls.keystone_manager = clients.Manager(credentials=credentials)
         cls.idps_client = cls.keystone_manager.identity_providers_client
