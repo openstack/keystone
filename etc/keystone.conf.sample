@@ -90,10 +90,6 @@
 # but is insecure. (boolean value)
 #insecure_debug = false
 
-#
-# From keystone.notifications
-#
-
 # Default publisher_id for outgoing notifications (string value)
 #default_publisher_id = <None>
 

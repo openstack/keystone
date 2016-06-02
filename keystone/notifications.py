@@ -36,29 +36,6 @@ from keystone.common import utils
 
 _CATALOG_HELPER_OBJ = None
 
-notifier_opts = [
-    cfg.StrOpt('default_publisher_id',
-               help='Default publisher_id for outgoing notifications'),
-    cfg.StrOpt('notification_format', default='basic',
-               choices=['basic', 'cadf'],
-               help='Define the notification format for Identity Service '
-                    'events. A "basic" notification has information about '
-                    'the resource being operated on. A "cadf" notification '
-                    'has the same information, as well as information about '
-                    'the initiator of the event.'),
-    cfg.MultiStrOpt('notification_opt_out', default=[],
-                    help='Define the notification options to opt-out from. '
-                         'The value expected is: '
-                         'identity.<resource_type>.<operation>. This field '
-                         'can be set multiple times in order to add more '
-                         'notifications to opt-out from. For example:\n '
-                         'notification_opt_out=identity.user.created\n '
-                         'notification_opt_out=identity.authenticate.success'),
-]
-
-config_section = None
-list_opts = lambda: [(config_section, notifier_opts), ]
-
 LOG = log.getLogger(__name__)
 # NOTE(gyee): actions that can be notified. One must update this list whenever
 # a new action is supported.
@@ -93,7 +70,6 @@ SERVICE = 'identity'
 
 
 CONF = cfg.CONF
-CONF.register_opts(notifier_opts)
 
 # NOTE(morganfainberg): Special case notifications that are only used
 # internally for handling token persistence token deletions
