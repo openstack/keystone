@@ -25,6 +25,9 @@ CONF = cfg.CONF
 CACHE_REGION = cache.create_region()
 
 
+register_model_handler = _context_cache._register_model_handler
+
+
 def configure_cache(region=None):
     if region is None:
         region = CACHE_REGION
