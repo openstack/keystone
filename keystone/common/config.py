@@ -1026,6 +1026,48 @@ FILE_OPTIONS = {
                     help='The port number which the admin service listens '
                          'on.'),
     ],
+    'security_compliance': [
+        cfg.IntOpt('disable_user_account_days_inactive',
+                   default=0,
+                   help='Number of days for which a user can be inactive '
+                        'before the account becomes disabled. Setting the '
+                        'value to 0 disables this feature.'),
+        cfg.IntOpt('lockout_failure_attempts',
+                   default=0,
+                   help='Number of times a user can fail login attempts until '
+                        'the user account is locked. Setting the value to 0  '
+                        'disables this feature.'),
+        cfg.IntOpt('lockout_duration',
+                   default=1800,
+                   help='Number of seconds a user account will be locked.'),
+        cfg.IntOpt('password_expires_days',
+                   default=0,
+                   help='Number of days for which a password will be '
+                        'considered valid before requiring the user to '
+                        'change it. Setting the value to 0 disables this '
+                        'feature. Note: this feature is only supported '
+                        'via the SQL backend driver for identity.'),
+        cfg.IntOpt('unique_last_password_count',
+                   default=0,
+                   help='Number of latest password iterations for which the '
+                        'password must be unique. Setting the value to 0 '
+                        'disables this feature. Note: this feature is only '
+                        'supported via the SQL backend driver for identity.'),
+        cfg.IntOpt('password_change_limit_per_day',
+                   default=0,
+                   help='Maximum number of times a user can change their '
+                        'password in a day. Setting the value to 0 disables '
+                        'this feature.'),
+        cfg.StrOpt('password_regex',
+                   default=None,
+                   help='Regular expression used to validate password '
+                        'strength requirements. Setting the value to '
+                        'None disables this feature. The following '
+                        'is an example of a pattern which requires '
+                        'at least 1 letter, 1 digit, and have a minimum '
+                        'length of 7 characters: '
+                        '^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
+    ]
 }
 
 
