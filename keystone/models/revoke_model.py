@@ -10,9 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_serialization import msgpackutils
 from oslo_utils import timeutils
 from six.moves import map
 
+from keystone.common import cache
 from keystone.common import utils
 
 
@@ -323,3 +325,25 @@ def build_token_values(token_data):
         token_values['consumer_id'] = oauth1['consumer_id']
         token_values['access_token_id'] = oauth1['access_token_id']
     return token_values
+
+
+class _RevokeEventHandler(object):
+    # NOTE(morganfainberg): There needs to be reserved "registry" entries set
+    # in oslo_serialization for application-specific handlers. We picked 127
+    # here since it's waaaaaay far out before oslo_serialization will use it.
+    identity = 127
+    handles = (RevokeEvent,)
+
+    def __init__(self, registry):
+        self._registry = registry
+
+    def serialize(self, obj):
+        return msgpackutils.dumps(obj.__dict__, registry=self._registry)
+
+    def deserialize(self, data):
+        revoke_event_data = msgpackutils.loads(data, registry=self._registry)
+        revoke_event = RevokeEvent(**revoke_event_data)
+        return revoke_event
+
+
+cache.register_model_handler(_RevokeEventHandler)
