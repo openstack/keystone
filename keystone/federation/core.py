@@ -15,6 +15,7 @@
 from oslo_config import cfg
 from oslo_log import versionutils
 
+from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
@@ -22,6 +23,9 @@ from keystone import exception
 from keystone.federation.backends import base
 from keystone.federation import utils
 
+
+# This is a general cache region for service providers.
+MEMOIZE = cache.get_memoization_decorator(group='federation')
 
 CONF = cfg.CONF
 EXTENSION_DATA = {
@@ -63,6 +67,7 @@ class Manager(manager.Manager):
             raise exception.UnsupportedDriverVersion(
                 driver=CONF.federation.driver)
 
+    @MEMOIZE
     def get_enabled_service_providers(self):
         """List enabled service providers for Service Catalog.
 
