@@ -249,6 +249,36 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
             hints=hints)
         self.assertEqual(0, len(users))
 
+    def test_list_groups_by_name_and_with_filter(self):
+        # Create some test groups.
+        domain = self._get_domain_fixture()
+        group_names = []
+        numgroups = 3
+        for _ in range(numgroups):
+            group = unit.new_group_ref(domain_id=domain['id'])
+            group = self.identity_api.create_group(group)
+            group_names.append(group['name'])
+        # confirm that the groups can all be listed
+        groups = self.identity_api.list_groups(
+            domain_scope=self._set_domain_scope(domain['id']))
+        self.assertEqual(numgroups, len(groups))
+        # configure the group filter
+        driver = self.identity_api._select_identity_driver(domain['id'])
+        driver.group.ldap_filter = ('(|(ou=%s)(ou=%s))' %
+                                    tuple(group_names[:2]))
+        # confirm that the group filter is working
+        groups = self.identity_api.list_groups(
+            domain_scope=self._set_domain_scope(domain['id']))
+        self.assertEqual(2, len(groups))
+        # confirm that a group is not exposed when it does not match the
+        # filter setting in conf even if it is requested by name in group list
+        hints = driver_hints.Hints()
+        hints.add_filter('name', group_names[2])
+        groups = self.identity_api.list_groups(
+            domain_scope=self._set_domain_scope(domain['id']),
+            hints=hints)
+        self.assertEqual(0, len(groups))
+
     def test_remove_role_grant_from_user_and_project(self):
         self.assignment_api.create_grant(user_id=self.user_foo['id'],
                                          project_id=self.tenant_baz['id'],
