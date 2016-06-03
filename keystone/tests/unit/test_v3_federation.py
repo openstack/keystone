@@ -3333,6 +3333,105 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
         self.assertValidEntity(resp.result['service_provider'],
                                keys_to_check=self.SP_KEYS)
 
+    @unit.skip_if_cache_disabled('federation')
+    def test_create_service_provider_invalidates_cache(self):
+        # List all service providers and make sure we only have one in the
+        # list. This service provider is from testing setup.
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(1)
+        )
+
+        # Create a new service provider.
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        sp = self.sp_ref()
+        self.put(url, body={'service_provider': sp},
+                 expected_status=http_client.CREATED)
+
+        # List all service providers again and make sure we have two in the
+        # returned list.
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(2)
+        )
+
+    @unit.skip_if_cache_disabled('federation')
+    def test_delete_service_provider_invalidates_cache(self):
+        # List all service providers and make sure we only have one in the
+        # list. This service provider is from testing setup.
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(1)
+        )
+
+        # Create a new service provider.
+        url = self.base_url(suffix=uuid.uuid4().hex)
+        sp = self.sp_ref()
+        self.put(url, body={'service_provider': sp},
+                 expected_status=http_client.CREATED)
+
+        # List all service providers again and make sure we have two in the
+        # returned list.
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(2)
+        )
+
+        # Delete the service provider we created, which should invalidate the
+        # service provider cache. Get the list of service providers again and
+        # if the cache invalidated properly then we should only have one
+        # service provider in the list.
+        self.delete(url, expected_status=http_client.NO_CONTENT)
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(1)
+        )
+
+    @unit.skip_if_cache_disabled('federation')
+    def test_update_service_provider_invalidates_cache(self):
+        # List all service providers and make sure we only have one in the
+        # list. This service provider is from testing setup.
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(1)
+        )
+
+        # Create a new service provider.
+        service_provider_id = uuid.uuid4().hex
+        url = self.base_url(suffix=service_provider_id)
+        sp = self.sp_ref()
+        self.put(url, body={'service_provider': sp},
+                 expected_status=http_client.CREATED)
+
+        # List all service providers again and make sure we have two in the
+        # returned list.
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(2)
+        )
+
+        # Update the service provider we created, which should invalidate the
+        # service provider cache. Get the list of service providers again and
+        # if the cache invalidated properly then we see the value we updated.
+        updated_description = uuid.uuid4().hex
+        body = {'service_provider': {'description': updated_description}}
+        self.patch(url, body=body, expected_status=http_client.OK)
+        resp = self.get(self.base_url(), expected_status=http_client.OK)
+        self.assertThat(
+            resp.json_body['service_providers'],
+            matchers.HasLength(2)
+        )
+        for sp in resp.json_body['service_providers']:
+            if sp['id'] == service_provider_id:
+                self.assertEqual(sp['description'], updated_description)
+
     def test_create_sp_relay_state_default(self):
         """Create an SP without relay state, should default to `ss:mem`."""
         url = self.base_url(suffix=uuid.uuid4().hex)
