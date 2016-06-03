@@ -386,9 +386,8 @@ class GroupApi(common_ldap.BaseLdap):
     def list_user_groups_filtered(self, user_dn, hints):
         """Return a filtered list of groups for which the user is a member."""
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
-        query = '(%s=%s)%s' % (self.member_attribute,
-                               user_dn_esc,
-                               self.ldap_filter or '')
+        query = '(%s=%s)' % (self.member_attribute,
+                             user_dn_esc)
         return self.get_all_filtered(hints, query)
 
     def list_group_users(self, group_id):
@@ -420,6 +419,8 @@ class GroupApi(common_ldap.BaseLdap):
         return common_ldap.filter_entity(group)
 
     def get_all_filtered(self, hints, query=None):
+        if self.ldap_filter:
+            query = (query or '') + self.ldap_filter
         query = self.filter_query(hints, query)
         return [common_ldap.filter_entity(group)
                 for group in self.get_all(query, hints)]
