@@ -283,13 +283,15 @@
 # Seconds to wait for a response from a call. (integer value)
 #rpc_response_timeout = 60
 
-# A URL representing the messaging driver to use and its full configuration. If
-# not set, we fall back to the rpc_backend option and driver specific
-# configuration. (string value)
+# A URL representing the messaging driver to use and its full configuration.
+# (string value)
 #transport_url = <None>
 
-# The messaging driver to use, defaults to rabbit. Other drivers include amqp
-# and zmq. (string value)
+# DEPRECATED: The messaging driver to use, defaults to rabbit. Other drivers
+# include amqp and zmq. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rpc_backend = rabbit
 
 # The default exchange under which topics are scoped. May be overridden by an
@@ -1131,19 +1133,31 @@
 # From oslo.messaging
 #
 
-# Host to locate redis. (string value)
+# DEPRECATED: Host to locate redis. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #host = 127.0.0.1
 
-# Use this port to connect to redis host. (port value)
+# DEPRECATED: Use this port to connect to redis host. (port value)
 # Minimum value: 0
 # Maximum value: 65535
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #port = 6379
 
-# Password for Redis server (optional). (string value)
+# DEPRECATED: Password for Redis server (optional). (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #password =
 
-# List of Redis Sentinel hosts (fault tolerance mode) e.g.
+# DEPRECATED: List of Redis Sentinel hosts (fault tolerance mode) e.g.
 # [host:port, host1:port ... ] (list value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #sentinel_hosts =
 
 # Redis replica set name. (string value)
@@ -1375,38 +1389,58 @@
 # Allowed values: round-robin, shuffle
 #kombu_failover_strategy = round-robin
 
-# The RabbitMQ broker address where a single node is used. (string value)
+# DEPRECATED: The RabbitMQ broker address where a single node is used. (string
+# value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_host = localhost
 
-# The RabbitMQ broker port where a single node is used. (port value)
+# DEPRECATED: The RabbitMQ broker port where a single node is used. (port
+# value)
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/rabbit_port
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_port = 5672
 
-# RabbitMQ HA cluster host:port pairs. (list value)
+# DEPRECATED: RabbitMQ HA cluster host:port pairs. (list value)
 # Deprecated group/name - [DEFAULT]/rabbit_hosts
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_hosts = $rabbit_host:$rabbit_port
 
 # Connect over SSL for RabbitMQ. (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_use_ssl
 #rabbit_use_ssl = false
 
-# The RabbitMQ userid. (string value)
+# DEPRECATED: The RabbitMQ userid. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_userid
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_userid = guest
 
-# The RabbitMQ password. (string value)
+# DEPRECATED: The RabbitMQ password. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_password
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_password = guest
 
 # The RabbitMQ login method. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_login_method
 #rabbit_login_method = AMQPLAIN
 
-# The RabbitMQ virtual host. (string value)
+# DEPRECATED: The RabbitMQ virtual host. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_virtual_host
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_virtual_host = /
 
 # How frequently to retry connecting with RabbitMQ. (integer value)
@@ -1483,6 +1517,10 @@
 # Set delay for reconnection to some host which has connection error (floating
 # point value)
 #host_connection_reconnect_delay = 0.25
+
+# Connection factory implementation (string value)
+# Allowed values: new, single, read_write
+#connection_factory = single
 
 # Maximum number of connections to keep queued. (integer value)
 #pool_max_size = 30
@@ -1854,6 +1892,45 @@
 # The prefix to use for the RelayState SAML attribute, used when generating ECP
 # wrapped assertions. (string value)
 #relay_state_prefix = ss:mem:
+
+
+[security_compliance]
+
+#
+# From keystone
+#
+
+# Number of days for which a user can be inactive before the account becomes
+# disabled. Setting the value to 0 disables this feature. (integer value)
+#disable_user_account_days_inactive = 0
+
+# Number of times a user can fail login attempts until the user account is
+# locked. Setting the value to 0  disables this feature. (integer value)
+#lockout_failure_attempts = 0
+
+# Number of seconds a user account will be locked. (integer value)
+#lockout_duration = 1800
+
+# Number of days for which a password will be considered valid before requiring
+# the user to change it. Setting the value to 0 disables this feature. Note:
+# this feature is only supported via the SQL backend driver for identity.
+# (integer value)
+#password_expires_days = 0
+
+# Number of latest password iterations for which the password must be unique.
+# Setting the value to 0 disables this feature. Note: this feature is only
+# supported via the SQL backend driver for identity. (integer value)
+#unique_last_password_count = 0
+
+# Maximum number of times a user can change their password in a day. Setting
+# the value to 0 disables this feature. (integer value)
+#password_change_limit_per_day = 0
+
+# Regular expression used to validate password strength requirements. Setting
+# the value to None disables this feature. The following is an example of a
+# pattern which requires at least 1 letter, 1 digit, and have a minimum length
+# of 7 characters: ^(?=.*\d)(?=.*[a-zA-Z]).{7,}$ (string value)
+#password_regex = <None>
 
 
 [shadow_users]
