@@ -145,6 +145,28 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self._do_test_bootstrap(bootstrap)
         self._do_test_bootstrap(bootstrap)
 
+    def test_bootstrap_recovers_user(self):
+        bootstrap = cli.BootStrap()
+        self._do_test_bootstrap(bootstrap)
+
+        # Completely lock the user out.
+        user_id = bootstrap.identity_manager.get_user_by_name(
+            bootstrap.username,
+            'default')['id']
+        bootstrap.identity_manager.update_user(
+            user_id,
+            {'enabled': False,
+             'password': uuid.uuid4().hex})
+
+        # The second bootstrap run will recover the account.
+        self._do_test_bootstrap(bootstrap)
+
+        # Sanity check that the original password works again.
+        bootstrap.identity_manager.authenticate(
+            {},
+            user_id,
+            bootstrap.password)
+
 
 class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
 
