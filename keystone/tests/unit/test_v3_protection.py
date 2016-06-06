@@ -1316,6 +1316,19 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, project_admin_entity)
         self.assertRoleAssignmentInListResponse(r, project_user_entity)
 
+    def test_project_admin_list_assignments_of_another_project_failed(self):
+        projectB = unit.new_project_ref(domain_id=self.domainA['id'])
+        self.resource_api.create_project(projectB['id'], projectB)
+        admin_auth = self.build_authentication_request(
+            user_id=self.project_admin_user['id'],
+            password=self.project_admin_user['password'],
+            project_id=self.project['id'])
+
+        collection_url = self.build_role_assignment_query_url(
+            project_id=projectB['id'])
+        self.get(collection_url, auth=admin_auth,
+                 expected_status=exception.ForbiddenAction.code)
+
     @utils.wip('waiting on bug #1437407')
     def test_domain_admin_list_assignments_of_project(self):
         self.auth = self.build_authentication_request(
