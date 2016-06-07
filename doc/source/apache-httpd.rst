@@ -66,8 +66,8 @@ Start or restart HTTPD to pick up the new configuration.
 Now configure and start the uwsgi services. Copy the
 `httpd/keystone-uwsgi-admin.ini` and `httpd/keystone-uwsgi-public.ini` files to
 `/etc/keystone`. Update the files to match your system configuration (for
-example, you'll want to set the number of threads for the public and admin
-servers).
+example, you'll want to set the number of processes and threads for the public
+and admin servers).
 
 Start up the keystone servers using uwsgi::
 
