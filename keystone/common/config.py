@@ -564,6 +564,9 @@ FILE_OPTIONS = {
         cfg.StrOpt('sso_callback_template', default=_SSO_CALLBACK,
                    help='Location of Single Sign-On callback handler, will '
                         'return a token to a trusted dashboard host.'),
+        cfg.BoolOpt('caching', default=True,
+                    help='Toggle for federation caching. This has no effect '
+                         'unless global caching is enabled.'),
     ],
     'policy': [
         cfg.StrOpt('driver',
