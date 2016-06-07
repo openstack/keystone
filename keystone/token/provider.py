@@ -288,6 +288,10 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(token_id=token_id)
 
     @MEMOIZE
+    def validate_non_persistent_token(self, token_id):
+        return self.driver.validate_non_persistent_token(token_id)
+
+    @MEMOIZE
     def _validate_token(self, token_id):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
@@ -425,6 +429,10 @@ class Manager(manager.Manager):
         self._validate_token.invalidate(self, token_id)
         self._validate_v2_token.invalidate(self, token_id)
         self._validate_v3_token.invalidate(self, token_id)
+        # This method isn't actually called in the case of non-persistent
+        # tokens, but we include the invalidation in case this ever changes
+        # in the future.
+        self.validate_non_persistent_token.invalidate(self, token_id)
 
     def revoke_token(self, token_id, revoke_chain=False):
         revoke_by_expires = False
