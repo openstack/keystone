@@ -64,53 +64,56 @@ OPTIONS
                         over-ridden options in the directory take precedence.
   --config-file PATH    Path to a config file to use. Multiple config files
                         can be specified, with values in later files taking
-                        precedence. The default files used are: None.
-  --debug, -d           Print debugging output (set logging level to DEBUG
-                        instead of default WARNING level).
+                        precedence. Defaults to None.
+  --debug, -d           If set to true, the logging level will be set to DEBUG
+                        instead of the default INFO level.
   --log-config-append PATH, --log_config PATH
                         The name of a logging configuration file. This file is
                         appended to any existing logging configuration files.
                         For details about logging configuration files, see the
-                        Python logging module documentation.
+                        Python logging module documentation. Note that when
+                        logging configuration files are used then all logging
+                        configuration is set in the configuration file and
+                        other logging configuration options are ignored (for
+                        example, logging_context_format_string).
   --log-date-format DATE_FORMAT
-                        Format string for %(asctime)s in log records. Default:
-                        None .
+                        Defines the format string for %(asctime)s in log
+                        records. Default: None . This option is ignored if
+                        log_config_append is set.
   --log-dir LOG_DIR, --logdir LOG_DIR
-                        (Optional) The base directory used for relative --log-
-                        file paths.
+                        (Optional) The base directory used for relative
+                        log_file paths. This option is ignored if
+                        log_config_append is set.
   --log-file PATH, --logfile PATH
-                        (Optional) Name of log file to output to. If no
-                        default is set, logging will go to stdout.
-  --log-format FORMAT   DEPRECATED. A logging.Formatter log message format
-                        string which may use any of the available
-                        logging.LogRecord attributes. This option is
-                        deprecated. Please use logging_context_format_string
-                        and logging_default_format_string instead.
+                        (Optional) Name of log file to send logging output to.
+                        If no default is set, logging will go to stderr as
+                        defined by use_stderr. This option is ignored if
+                        log_config_append is set.
   --nodebug             The inverse of --debug
   --nostandard-threads  The inverse of --standard-threads
   --nouse-syslog        The inverse of --use-syslog
-  --nouse-syslog-rfc-format
-                        The inverse of --use-syslog-rfc-format
   --noverbose           The inverse of --verbose
+  --nowatch-log-file    The inverse of --watch-log-file
   --pydev-debug-host PYDEV_DEBUG_HOST
                         Host to connect to for remote debugger.
   --pydev-debug-port PYDEV_DEBUG_PORT
                         Port to connect to for remote debugger.
   --standard-threads    Do not monkey-patch threading system modules.
   --syslog-log-facility SYSLOG_LOG_FACILITY
-                        Syslog facility to receive log lines.
+                        Syslog facility to receive log lines. This option is
+                        ignored if log_config_append is set.
   --use-syslog          Use syslog for logging. Existing syslog format is
-                        DEPRECATED during I, and will change in J to honor
-                        RFC5424.
-  --use-syslog-rfc-format
-                        (Optional) Enables or disables syslog rfc5424 format
-                        for logging. If enabled, prefixes the MSG part of the
-                        syslog message with APP-NAME (RFC5424). The format
-                        without the APP-NAME is deprecated in I, and will be
-                        removed in J.
-  --verbose, -v         Print more verbose output (set logging level to INFO
-                        instead of default WARNING level).
+                        DEPRECATED and will be changed later to honor RFC5424.
+                        This option is ignored if log_config_append is set.
+  --verbose, -v         If set to false, the logging level will be set to
+                        WARNING instead of the default INFO level.
   --version             show program's version number and exit
+  --watch-log-file      Uses logging handler designed to watch file system.
+                        When log file is moved or removed this handler will
+                        open a new log file with specified path
+                        instantaneously. It makes sense only if log_file
+                        option is specified and Linux platform is used. This
+                        option is ignored if log_config_append is set.
 
 FILES
 =====
