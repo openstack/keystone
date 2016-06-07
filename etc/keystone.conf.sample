@@ -743,6 +743,10 @@
 # dashboard host. (string value)
 #sso_callback_template = /etc/keystone/sso_callback_template.html
 
+# Toggle for federation caching. This has no effect unless global caching is
+# enabled. (boolean value)
+#caching = true
+
 
 [fernet_tokens]
 
