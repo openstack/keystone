@@ -144,6 +144,9 @@ FILE_OPTIONS = {
                          'passwords are automatically truncated to the '
                          'maximum length.'),
         cfg.StrOpt('secure_proxy_ssl_header', default='HTTP_X_FORWARDED_PROTO',
+                   deprecated_for_removal=True,
+                   deprecated_reason='Use http_proxy_to_wsgi middleware '
+                                     'configuration instead.',
                    help='The HTTP header used to determine the scheme for the '
                         'original request, even if it was removed by an SSL '
                         'terminating proxy.'),

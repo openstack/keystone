@@ -80,8 +80,11 @@
 # automatically truncated to the maximum length. (boolean value)
 #strict_password_check = false
 
-# The HTTP header used to determine the scheme for the original request, even
-# if it was removed by an SSL terminating proxy. (string value)
+# DEPRECATED: The HTTP header used to determine the scheme for the original
+# request, even if it was removed by an SSL terminating proxy. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Use http_proxy_to_wsgi middleware configuration instead.
 #secure_proxy_ssl_header = HTTP_X_FORWARDED_PROTO
 
 # If set to true the server will return information in the response that may
@@ -1612,6 +1615,10 @@
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #secure_proxy_ssl_header = X-Forwarded-Proto
+
+# Whether the application is behind a proxy or not. This determines if the
+# middleware should parse the headers or not. (boolean value)
+#enable_proxy_headers_parsing = false
 
 
 [oslo_policy]
