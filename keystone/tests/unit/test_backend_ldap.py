@@ -2060,6 +2060,36 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
                           self.identity_api.get_user,
                           user['id'])
 
+    def test_delete_user_group_cleanup(self):
+        domain = self._get_domain_fixture()
+        # setup: create user
+        user_dict = self.new_user_ref(domain_id=domain['id'])
+        user = self.identity_api.create_user(user_dict)
+        # setup: add user to 3 groups
+        group_names = []
+        numgroups = 3
+        for _ in range(numgroups):
+            group_dict = unit.new_group_ref(domain_id=domain['id'])
+            group = self.identity_api.create_group(group_dict)
+            group_names.append(group['name'])
+            self.identity_api.add_user_to_group(user['id'], group['id'])
+
+        # configure a group filter
+        driver = self.identity_api._select_identity_driver(domain['id'])
+        driver.group.ldap_filter = ('(|(ou=%s)(ou=%s))' %
+                                    tuple(group_names[:2]))
+        # confirm that user is a member of all 3 groups
+        group_api = self.identity_api.driver.group
+        user_dn_esc = self.identity_api.driver.user.get(user['id'])['dn']
+        groups = group_api.get_all('(%s=%s)' %
+                                   (group_api.member_attribute, user_dn_esc))
+        self.assertEqual(numgroups, len(groups))
+        # confirm that deleting user removes from all groups
+        self.identity_api.delete_user(user['id'])
+        groups = group_api.get_all('(%s=%s)' %
+                                   (group_api.member_attribute, user_dn_esc))
+        self.assertEqual(0, len(groups))
+
     def test_user_auth_emulated(self):
         driver = self.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
