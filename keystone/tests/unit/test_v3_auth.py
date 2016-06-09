@@ -4872,6 +4872,12 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
     def test_with_a_valid_passcode(self):
         creds = self._make_credentials('totp')
         secret = creds[-1]['blob']
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
+
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcode(secret))
 
@@ -4898,6 +4904,11 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self._make_credentials('other', 3)
         creds = self._make_credentials('totp', count=3)
         secret = creds[-1]['blob']
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
 
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcode(secret))
@@ -4953,6 +4964,12 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
     def test_with_username_and_domain_id(self):
         creds = self._make_credentials('totp')
         secret = creds[-1]['blob']
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
+
         auth_data = self._make_auth_data_by_name(
             totp._generate_totp_passcode(secret),
             username=self.default_domain_user['name'],
