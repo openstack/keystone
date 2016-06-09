@@ -482,7 +482,7 @@ class Manager(manager.Manager):
                         sub-projects are deleted. Otherwise, only the specified
                         project is deleted.
         :type cascade: boolean
-        :raises keystone.exception.validationError: if project is a domain
+        :raises keystone.exception.ValidationError: if project is a domain
         :raises keystone.exception.Forbidden: if project is not a leaf
         """
         project = self.driver.get_project(project_id)
