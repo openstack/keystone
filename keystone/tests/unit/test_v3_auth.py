@@ -381,6 +381,28 @@ class TokenAPITests(object):
                           self.token_provider_api.validate_token,
                           project_scoped_token)
 
+    def test_project_scoped_token_is_invalid_after_deleting_grant(self):
+        # disable caching so that user grant deletion is not hidden
+        # by token caching
+        self.config_fixture.config(
+            group='cache',
+            enabled=False)
+        # Grant user access to project
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         project_id=self.project['id'])
+        project_scoped_token = self._get_project_scoped_token()
+        # Make sure the token is valid
+        self._validate_token(project_scoped_token)
+        # Delete access to project
+        self.assignment_api.delete_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         project_id=self.project['id'])
+        # Ensure the token has been revoked
+        self.assertRaises(exception.TokenNotFound,
+                          self.token_provider_api.validate_token,
+                          project_scoped_token)
+
     def test_rescope_unscoped_token_with_trust(self):
         trustee_user, trust = self._create_trust()
         self._get_trust_scoped_token(trustee_user, trust)
