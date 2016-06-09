@@ -35,12 +35,19 @@ class User(sql.ModelBase, sql.DictBase):
                                        lazy='subquery',
                                        cascade='all,delete-orphan',
                                        backref='user')
+    nonlocal_users = orm.relationship('NonLocalUser',
+                                      single_parent=True,
+                                      lazy='subquery',
+                                      cascade='all,delete-orphan',
+                                      backref='user')
 
     # name property
     @hybrid_property
     def name(self):
         if self.local_user:
             return self.local_user.name
+        elif self.nonlocal_users:
+            return self.nonlocal_users[0].name
         elif self.federated_users:
             return self.federated_users[0].display_name
         else:
@@ -85,6 +92,8 @@ class User(sql.ModelBase, sql.DictBase):
     def domain_id(self):
         if self.local_user:
             return self.local_user.domain_id
+        elif self.nonlocal_users:
+            return self.nonlocal_users[0].domain_id
         else:
             return None
 
@@ -146,6 +155,17 @@ class FederatedUser(sql.ModelBase, sql.ModelDictMixin):
                                         ['federation_protocol.id',
                                          'federation_protocol.idp_id'])
     )
+
+
+class NonLocalUser(sql.ModelBase, sql.ModelDictMixin):
+    """SQL data model for nonlocal users (LDAP and custom)."""
+
+    __tablename__ = 'nonlocal_user'
+    attributes = ['domain_id', 'name', 'user_id']
+    domain_id = sql.Column(sql.String(64), primary_key=True)
+    name = sql.Column(sql.String(255), primary_key=True)
+    user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
+                                                        ondelete='CASCADE'))
 
 
 class Group(sql.ModelBase, sql.DictBase):

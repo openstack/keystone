@@ -14,13 +14,14 @@
 
 import abc
 
+from oslo_log import versionutils
 import six
 
 from keystone import exception
 
 
 @six.add_metaclass(abc.ABCMeta)
-class ShadowUsersDriverV9(object):
+class ShadowUsersDriverBase(object):
     """Interface description for an Shadow Users driver."""
 
     @abc.abstractmethod
@@ -58,3 +59,45 @@ class ShadowUsersDriverV9(object):
 
         """
         raise exception.NotImplemented()
+
+
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.identity.shadow_backends.base.ShadowUsersDriverV9',
+    in_favor_of='keystone.identity.shadow_backends.base.ShadowUsersDriverV10',
+    remove_in=+1)
+class ShadowUsersDriverV9(ShadowUsersDriverBase):
+    pass
+
+
+@six.add_metaclass(abc.ABCMeta)
+class ShadowUsersDriverV10(ShadowUsersDriverBase):
+    """Interface description for an Shadow Users V10 driver."""
+
+    @abc.abstractmethod
+    def get_user(self, user_id):
+        """Return the found user.
+
+        :param user_id: Identity of the user
+        :returns dict: Containing the user reference
+
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def create_nonlocal_user(self, user_dict):
+        """Create a new non-local user.
+
+        :param dict user_dict: Reference to the non-local user
+        :returns dict: Containing the user reference
+
+        """
+        raise exception.NotImplemented()
+
+
+class V10ShadowUsersWrapperForV9Driver(ShadowUsersDriverV10):
+    def get_user(self, user_id):
+        raise exception.UserNotFound(user_id=user_id)
+
+    def create_nonlocal_user(self, user_dict):
+        return user_dict

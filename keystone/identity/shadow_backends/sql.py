@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import uuid
 
 from keystone.common import sql
@@ -19,7 +20,7 @@ from keystone.identity.backends import sql_model as model
 from keystone.identity.shadow_backends import base
 
 
-class ShadowUsers(base.ShadowUsersDriverV9):
+class ShadowUsers(base.ShadowUsersDriverV10):
     @sql.handle_conflicts(conflict_type='federated_user')
     def create_federated_user(self, federated_dict):
         user = {
@@ -72,3 +73,29 @@ class ShadowUsers(base.ShadowUsersDriverV9):
                                  display_name)
             query.update({'display_name': display_name})
             return
+
+    @sql.handle_conflicts(conflict_type='nonlocal_user')
+    def create_nonlocal_user(self, user_dict):
+        new_user_dict = copy.deepcopy(user_dict)
+        new_nonlocal_user_dict = {
+            'domain_id': user_dict['domain_id'],
+            'name': user_dict['name']
+        }
+        with sql.session_for_write() as session:
+            new_nonlocal_user_ref = model.NonLocalUser.from_dict(
+                new_nonlocal_user_dict)
+            new_user_ref = model.User.from_dict(new_user_dict)
+            new_user_ref.nonlocal_users.append(new_nonlocal_user_ref)
+            session.add(new_user_ref)
+            return identity_base.filter_user(new_user_ref.to_dict())
+
+    def get_user(self, user_id):
+        with sql.session_for_read() as session:
+            user_ref = self._get_user(session, user_id)
+            return identity_base.filter_user(user_ref.to_dict())
+
+    def _get_user(self, session, user_id):
+        user_ref = session.query(model.User).get(user_id)
+        if not user_ref:
+            raise exception.UserNotFound(user_id=user_id)
+        return user_ref

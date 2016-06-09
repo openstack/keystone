@@ -825,8 +825,9 @@ class Manager(manager.Manager):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
         ref = driver.authenticate(entity_id, password)
-        return self._set_domain_id_and_mapping(
+        ref = self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
+        return self._shadow_nonlocal_user(ref)
 
     def _assert_default_project_id_is_not_domain(self, default_project_id):
         if default_project_id:
@@ -1226,6 +1227,13 @@ class Manager(manager.Manager):
         self.update_user(user_id, update_dict)
 
     @MEMOIZE
+    def _shadow_nonlocal_user(self, user):
+        try:
+            return self.shadow_users_api.get_user(user['id'])
+        except exception.UserNotFound:
+            return self.shadow_users_api.create_nonlocal_user(user)
+
+    @MEMOIZE
     def shadow_federated_user(self, idp_id, protocol_id, unique_id,
                               display_name):
         """Map a federated user to a user.
@@ -1295,7 +1303,16 @@ class ShadowUsersManager(manager.Manager):
     driver_namespace = 'keystone.identity.shadow_users'
 
     def __init__(self):
-        super(ShadowUsersManager, self).__init__(CONF.shadow_users.driver)
+        shadow_driver = CONF.shadow_users.driver
+
+        super(ShadowUsersManager, self).__init__(shadow_driver)
+
+        if isinstance(self.driver, shadow_interface.ShadowUsersDriverV9):
+            self.driver = (
+                shadow_interface.V10ShadowUsersWrapperForV9Driver(self.driver))
+        elif not isinstance(self.driver,
+                            shadow_interface.ShadowUsersDriverV10):
+            raise exception.UnsupportedDriverVersion(driver=shadow_driver)
 
 
 @versionutils.deprecated(
