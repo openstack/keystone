@@ -132,7 +132,9 @@ class SqlModels(SqlTests):
         cols = (('id', sql.String, 64),
                 ('default_project_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
-                ('extra', sql.JsonBlob, None))
+                ('extra', sql.JsonBlob, None),
+                ('created_at', sql.DateTime, None),
+                ('last_active_at', sqlalchemy.Date, None))
         self.assertExpectedSchema('user', cols)
 
     def test_local_user_model(self):

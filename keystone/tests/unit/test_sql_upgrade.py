@@ -1446,6 +1446,23 @@ class SqlUpgradeTests(SqlMigrateBase):
                                           autoload=True)
         self.assertTrue(password_table.c.password.nullable)
 
+    def test_migration_107_add_user_date_columns(self):
+        user_table = 'user'
+        self.upgrade(106)
+        self.assertTableColumns(user_table,
+                                ['id',
+                                 'extra',
+                                 'enabled',
+                                 'default_project_id'])
+        self.upgrade(107)
+        self.assertTableColumns(user_table,
+                                ['id',
+                                 'extra',
+                                 'enabled',
+                                 'default_project_id',
+                                 'created_at',
+                                 'last_active_at'])
+
 
 class MySQLOpportunisticUpgradeTestCase(SqlUpgradeTests):
     FIXTURE = test_base.MySQLOpportunisticFixture

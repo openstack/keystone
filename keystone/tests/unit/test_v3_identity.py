@@ -300,6 +300,16 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertValidUserResponse(r, self.user)
         self.head(resource_url, expected_status=http_client.OK)
 
+    def test_get_user_does_not_include_extra_attributes(self):
+        """Call ``GET /users/{user_id}`` extra attributes are not included."""
+        user = unit.new_user_ref(domain_id=self.domain_id,
+                                 project_id=self.project_id)
+        user = self.identity_api.create_user(user)
+        self.assertNotIn('created_at', user)
+        self.assertNotIn('last_active_at', user)
+        r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
+        self.assertValidUserResponse(r, user)
+
     def test_get_user_with_default_project(self):
         """Call ``GET /users/{user_id}`` making sure of default_project_id."""
         user = unit.new_user_ref(domain_id=self.domain_id,
