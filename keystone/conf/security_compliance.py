@@ -65,13 +65,14 @@ feature. This feature depends on the `sql` backend for the `[identity] driver`.
 
 unique_last_password_count = cfg.IntOpt(
     'unique_last_password_count',
-    default=0,
-    min=0,
+    default=1,
+    min=1,
     help=utils.fmt("""
 This controls the number of previous user password iterations to keep in
 history, in order to enforce that newly created passwords are unique. Setting
-the value to zero (the default) disables this feature. This feature depends on
-the `sql` backend for the `[identity] driver`.
+the value to one (the default) disables this feature. Thus, to enable this
+feature, values must be greater than 1. This feature depends on the `sql`
+backend for the `[identity] driver`.
 """))
 
 password_change_limit_per_day = cfg.IntOpt(
