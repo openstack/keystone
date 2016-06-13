@@ -214,3 +214,79 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         public_id3 = self.id_mapping_api.create_id_mapping(
             local_entity, public_id=uuid.uuid4().hex)
         self.assertEqual(public_id1, public_id3)
+
+    @unit.skip_if_cache_disabled('identity')
+    def test_cache_when_id_mapping_crud(self):
+        local_id = uuid.uuid4().hex
+        local_entity = {'domain_id': self.domainA['id'],
+                        'local_id': local_id,
+                        'entity_type': mapping.EntityType.USER}
+
+        # Check no mappings for the new local entity
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity))
+
+        # Create new mappings, and it should be in the cache after created
+        public_id = self.id_mapping_api.create_id_mapping(local_entity)
+        self.assertEqual(
+            public_id, self.id_mapping_api.get_public_id(local_entity))
+        local_id_ref = self.id_mapping_api.get_id_mapping(public_id)
+        self.assertEqual(self.domainA['id'], local_id_ref['domain_id'])
+        self.assertEqual(local_id, local_id_ref['local_id'])
+        self.assertEqual(mapping.EntityType.USER, local_id_ref['entity_type'])
+
+        # After delete the mapping, should be deleted from cache too
+        self.id_mapping_api.delete_id_mapping(public_id)
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity))
+        self.assertIsNone(self.id_mapping_api.get_id_mapping(public_id))
+
+    @unit.skip_if_cache_disabled('identity')
+    def test_invalidate_cache_when_purge_mappings(self):
+        local_id1 = uuid.uuid4().hex
+        local_id2 = uuid.uuid4().hex
+        local_id3 = uuid.uuid4().hex
+        local_id4 = uuid.uuid4().hex
+        local_id5 = uuid.uuid4().hex
+
+        # Create five mappings,two in domainA, three in domainB
+        local_entity1 = {'domain_id': self.domainA['id'],
+                         'local_id': local_id1,
+                         'entity_type': mapping.EntityType.USER}
+        local_entity2 = {'domain_id': self.domainA['id'],
+                         'local_id': local_id2,
+                         'entity_type': mapping.EntityType.USER}
+        local_entity3 = {'domain_id': self.domainB['id'],
+                         'local_id': local_id3,
+                         'entity_type': mapping.EntityType.GROUP}
+        local_entity4 = {'domain_id': self.domainB['id'],
+                         'local_id': local_id4,
+                         'entity_type': mapping.EntityType.USER}
+        local_entity5 = {'domain_id': self.domainB['id'],
+                         'local_id': local_id5,
+                         'entity_type': mapping.EntityType.USER}
+
+        self.id_mapping_api.create_id_mapping(local_entity1)
+        self.id_mapping_api.create_id_mapping(local_entity2)
+        self.id_mapping_api.create_id_mapping(local_entity3)
+        self.id_mapping_api.create_id_mapping(local_entity4)
+        self.id_mapping_api.create_id_mapping(local_entity5)
+
+        # Purge mappings for domainA, should be left with those in B
+        self.id_mapping_api.purge_mappings(
+            {'domain_id': self.domainA['id']})
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity1))
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity2))
+
+        # Purge mappings for type Group, should purge one more
+        self.id_mapping_api.purge_mappings(
+            {'entity_type': mapping.EntityType.GROUP})
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity3))
+
+        # Purge mapping for a specific local identifier
+        self.id_mapping_api.purge_mappings(
+            {'domain_id': self.domainB['id'], 'local_id': local_id4,
+             'entity_type': mapping.EntityType.USER})
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity4))
+
+        # Purge mappings the remaining mappings
+        self.id_mapping_api.purge_mappings({})
+        self.assertIsNone(self.id_mapping_api.get_public_id(local_entity5))
