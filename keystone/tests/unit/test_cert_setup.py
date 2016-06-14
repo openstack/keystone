@@ -76,7 +76,7 @@ class CertSetupTestCase(rest.RestfulTestCase):
         }
         self.assertRaises(exception.UnexpectedError,
                           controller.authenticate,
-                          {}, body_dict)
+                          self.make_request(), body_dict)
 
     def test_create_pki_certs(self, rebuild=False):
         pki = openssl.ConfigurePKI(None, None, rebuild=rebuild)

@@ -219,7 +219,7 @@ class Application(BaseApplication):
         params = self._normalize_dict(params)
 
         try:
-            result = method(req.context_dict, **params)
+            result = method(req, **params)
         except exception.Unauthorized as e:
             LOG.warning(
                 _LW("Authorization failed. %(exception)s from "

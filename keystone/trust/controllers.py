@@ -60,13 +60,13 @@ class TrustV3(controller.V3Controller):
             return None
         return token_ref.user_id
 
-    def get_trust(self, context, trust_id):
-        user_id = self._get_user_id(context)
+    def get_trust(self, request, trust_id):
+        user_id = self._get_user_id(request.context_dict)
         trust = self.trust_api.get_trust(trust_id)
         _trustor_trustee_only(trust, user_id)
-        self._fill_in_roles(context, trust,
+        self._fill_in_roles(request.context_dict, trust,
                             self.role_api.list_roles())
-        return TrustV3.wrap_member(context, trust)
+        return TrustV3.wrap_member(request.context_dict, trust)
 
     def _fill_in_roles(self, context, trust, all_roles):
         if trust.get('expires_at') is not None:
@@ -113,14 +113,14 @@ class TrustV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.trust_create, 'trust')
-    def create_trust(self, context, trust):
+    def create_trust(self, request, trust):
         """Create a new trust.
 
         The user creating the trust must be the trustor.
 
         """
-        auth_context = context.get('environment',
-                                   {}).get('KEYSTONE_AUTH_CONTEXT', {})
+        env = request.context_dict.get('environment', {})
+        auth_context = env.get('KEYSTONE_AUTH_CONTEXT', {})
 
         # Check if delegated via trust
         if auth_context.get('is_delegated_auth'):
@@ -136,7 +136,7 @@ class TrustV3(controller.V3Controller):
 
         if trust.get('project_id'):
             self._require_role(trust)
-        self._require_user_is_trustor(context, trust)
+        self._require_user_is_trustor(request.context_dict, trust)
         self._require_trustee_exists(trust['trustee_user_id'])
         all_roles = self.role_api.list_roles()
         # Normalize roles
@@ -146,13 +146,13 @@ class TrustV3(controller.V3Controller):
         trust['expires_at'] = self._parse_expiration_date(
             trust.get('expires_at'))
         trust_id = uuid.uuid4().hex
-        initiator = notifications._get_request_audit_info(context)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         new_trust = self.trust_api.create_trust(trust_id, trust,
                                                 normalized_roles,
                                                 redelegated_trust,
                                                 initiator)
-        self._fill_in_roles(context, new_trust, all_roles)
-        return TrustV3.wrap_member(context, new_trust)
+        self._fill_in_roles(request.context_dict, new_trust, all_roles)
+        return TrustV3.wrap_member(request.context_dict, new_trust)
 
     def _require_trustee_exists(self, trustee_user_id):
         self.identity_api.get_user(trustee_user_id)
@@ -215,22 +215,22 @@ class TrustV3(controller.V3Controller):
             raise exception.RoleNotFound(role_id=role_id)
 
     @controller.protected()
-    def list_trusts(self, context):
-        query = context['query_string']
+    def list_trusts(self, request):
+        query = request.context_dict['query_string']
         trusts = []
         if not query:
-            self.assert_admin(context)
+            self.assert_admin(request.context_dict)
             trusts += self.trust_api.list_trusts()
         if 'trustor_user_id' in query:
             user_id = query['trustor_user_id']
-            calling_user_id = self._get_user_id(context)
+            calling_user_id = self._get_user_id(request.context_dict)
             if user_id != calling_user_id:
                 raise exception.Forbidden()
             trusts += (self.trust_api.
                        list_trusts_for_trustor(user_id))
         if 'trustee_user_id' in query:
             user_id = query['trustee_user_id']
-            calling_user_id = self._get_user_id(context)
+            calling_user_id = self._get_user_id(request.context_dict)
             if user_id != calling_user_id:
                 raise exception.Forbidden()
             trusts += self.trust_api.list_trusts_for_trustee(user_id)
@@ -244,27 +244,28 @@ class TrustV3(controller.V3Controller):
                 trust['expires_at'] = (utils.isotime
                                        (trust['expires_at'],
                                         subsecond=True))
-        return TrustV3.wrap_collection(context, trusts)
+        return TrustV3.wrap_collection(request.context_dict, trusts)
 
     @controller.protected()
-    def delete_trust(self, context, trust_id):
+    def delete_trust(self, request, trust_id):
         trust = self.trust_api.get_trust(trust_id)
-        user_id = self._get_user_id(context)
-        _admin_trustor_only(context, trust, user_id)
-        initiator = notifications._get_request_audit_info(context)
+        user_id = self._get_user_id(request.context_dict)
+        _admin_trustor_only(request.context_dict, trust, user_id)
+        initiator = notifications._get_request_audit_info(request.context_dict)
         self.trust_api.delete_trust(trust_id, initiator)
 
     @controller.protected()
-    def list_roles_for_trust(self, context, trust_id):
-        trust = self.get_trust(context, trust_id)['trust']
-        user_id = self._get_user_id(context)
+    def list_roles_for_trust(self, request, trust_id):
+        trust = self.get_trust(request, trust_id)['trust']
+        user_id = self._get_user_id(request.context_dict)
         _trustor_trustee_only(trust, user_id)
         return {'roles': trust['roles'],
                 'links': trust['roles_links']}
 
     @controller.protected()
-    def get_role_for_trust(self, context, trust_id, role_id):
+    def get_role_for_trust(self, request, trust_id, role_id):
         """Get a role that has been assigned to a trust."""
-        self._check_role_for_trust(context, trust_id, role_id)
+        self._check_role_for_trust(request.context_dict, trust_id, role_id)
         role = self.role_api.get_role(role_id)
-        return assignment.controllers.RoleV3.wrap_member(context, role)
+        return assignment.controllers.RoleV3.wrap_member(request.context_dict,
+                                                         role)

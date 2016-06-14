@@ -48,19 +48,19 @@ class ExternalAuthNotApplicable(Exception):
 class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
-    def ca_cert(self, context, auth=None):
+    def ca_cert(self, request, auth=None):
         with open(CONF.signing.ca_certs, 'r') as ca_file:
             data = ca_file.read()
         return data
 
     @controller.v2_deprecated
-    def signing_cert(self, context, auth=None):
+    def signing_cert(self, request, auth=None):
         with open(CONF.signing.certfile, 'r') as cert_file:
             data = cert_file.read()
         return data
 
     @controller.v2_auth_deprecated
-    def authenticate(self, context, auth=None):
+    def authenticate(self, request, auth=None):
         """Authenticate credentials and return a token.
 
         Accept auth as a dict that looks like::
@@ -88,16 +88,16 @@ class Auth(controller.V2Controller):
         if "token" in auth:
             # Try to authenticate using a token
             auth_info = self._authenticate_token(
-                context, auth)
+                request.context_dict, auth)
         else:
             # Try external authentication
             try:
                 auth_info = self._authenticate_external(
-                    context, auth)
+                    request.context_dict, auth)
             except ExternalAuthNotApplicable:
                 # Try local authentication
                 auth_info = self._authenticate_local(
-                    context, auth)
+                    request.context_dict, auth)
 
         user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id = auth_info
         # Validate that the auth info is valid and nothing is disabled
@@ -421,7 +421,7 @@ class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
     @controller.protected()
-    def validate_token_head(self, context, token_id):
+    def validate_token_head(self, request, token_id):
         """Check that a token is valid.
 
         Optionally, also ensure that it is owned by a specific tenant.
@@ -432,12 +432,12 @@ class Auth(controller.V2Controller):
         the content body.
 
         """
-        belongs_to = context['query_string'].get('belongsTo')
+        belongs_to = request.context_dict['query_string'].get('belongsTo')
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
     @controller.v2_deprecated
     @controller.protected()
-    def validate_token(self, context, token_id):
+    def validate_token(self, request, token_id):
         """Check that a token is valid.
 
         Optionally, also ensure that it is owned by a specific tenant.
@@ -445,20 +445,20 @@ class Auth(controller.V2Controller):
         Returns metadata about the token along any associated roles.
 
         """
-        belongs_to = context['query_string'].get('belongsTo')
+        belongs_to = request.context_dict['query_string'].get('belongsTo')
         # TODO(ayoung) validate against revocation API
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
     @controller.v2_deprecated
-    def delete_token(self, context, token_id):
+    def delete_token(self, request, token_id):
         """Delete a token, effectively invalidating it for authz."""
         # TODO(termie): this stuff should probably be moved to middleware
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
         self.token_provider_api.revoke_token(token_id)
 
     @controller.v2_deprecated
     @controller.protected()
-    def revocation_list(self, context, auth=None):
+    def revocation_list(self, request, auth=None):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
         tokens = self.token_provider_api.list_revoked_tokens()
@@ -476,9 +476,9 @@ class Auth(controller.V2Controller):
         return {'signed': signed_text}
 
     @controller.v2_deprecated
-    def endpoints(self, context, token_id):
+    def endpoints(self, request, token_id):
         """Return a list of endpoints available to the token."""
-        self.assert_admin(context)
+        self.assert_admin(request.context_dict)
 
         token_ref = self._get_token_ref(token_id)
 

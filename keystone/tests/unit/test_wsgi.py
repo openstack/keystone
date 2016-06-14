@@ -33,13 +33,13 @@ from keystone.tests import unit
 
 
 class FakeApp(wsgi.Application):
-    def index(self, context):
+    def index(self, request):
         return {'a': 'b'}
 
 
 class FakeAttributeCheckerApp(wsgi.Application):
-    def index(self, context):
-        return context['query_string']
+    def index(self, request):
+        return request.context_dict['query_string']
 
     def assert_attribute(self, body, attr):
         """Assert that the given request has a certain attribute."""
@@ -88,16 +88,16 @@ class ApplicationTest(BaseWSGITest):
 
     def test_query_string_available(self):
         class FakeApp(wsgi.Application):
-            def index(self, context):
-                return context['query_string']
+            def index(self, request):
+                return request.context_dict['query_string']
         req = self._make_request(url='/?1=2')
         resp = req.get_response(FakeApp())
         self.assertEqual({'1': '2'}, jsonutils.loads(resp.body))
 
     def test_headers_available(self):
         class FakeApp(wsgi.Application):
-            def index(self, context):
-                return context['headers']
+            def index(self, request):
+                return request.context_dict['headers']
 
         app = FakeApp()
         req = self._make_request(url='/?1=2')
@@ -221,8 +221,8 @@ class ApplicationTest(BaseWSGITest):
 
     def test_improperly_encoded_params(self):
         class FakeApp(wsgi.Application):
-            def index(self, context):
-                return context['query_string']
+            def index(self, request):
+                return request.context_dict['query_string']
         # this is high bit set ASCII, copy & pasted from Windows.
         # aka code page 1252. It is not valid UTF8.
         req = self._make_request(url='/?name=nonexit%E8nt')
@@ -231,8 +231,8 @@ class ApplicationTest(BaseWSGITest):
 
     def test_properly_encoded_params(self):
         class FakeApp(wsgi.Application):
-            def index(self, context):
-                return context['query_string']
+            def index(self, request):
+                return request.context_dict['query_string']
         # nonexitènt encoded as UTF-8
         req = self._make_request(url='/?name=nonexit%C3%A8nt')
         resp = req.get_response(FakeApp())
@@ -241,8 +241,8 @@ class ApplicationTest(BaseWSGITest):
 
     def test_base_url(self):
         class FakeApp(wsgi.Application):
-            def index(self, context):
-                return self.base_url(context, 'public')
+            def index(self, request):
+                return self.base_url(request.context_dict, 'public')
         req = self._make_request(url='/')
         # NOTE(gyee): according to wsgiref, if HTTP_HOST is present in the
         # request environment, it will be used to construct the base url.
@@ -582,7 +582,7 @@ class LocalizedResponseTest(unit.TestCase):
             # Fake app raises NotFound exception to simulate Keystone raising.
 
             class FakeApp(wsgi.Application):
-                def index(self, context):
+                def index(self, request):
                     raise exception.NotFound(target=target)
 
             # Make the request with Accept-Language on the app, expect an error

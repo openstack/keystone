@@ -391,16 +391,17 @@ class Auth(controller.V3Controller):
         super(Auth, self).__init__(*args, **kw)
         config.setup_authentication()
 
-    def authenticate_for_token(self, context, auth=None):
+    def authenticate_for_token(self, request, auth=None):
         """Authenticate user and issue a token."""
-        include_catalog = 'nocatalog' not in context['query_string']
+        query_string = request.context_dict['query_string']
+        include_catalog = 'nocatalog' not in query_string
 
         try:
-            auth_info = AuthInfo.create(context, auth=auth)
+            auth_info = AuthInfo.create(request.context_dict, auth=auth)
             auth_context = AuthContext(extras={},
                                        method_names=[],
                                        bind={})
-            self.authenticate(context, auth_info, auth_context)
+            self.authenticate(request, auth_info, auth_context)
             if auth_context.get('access_token_id'):
                 auth_info.set_scope(None, auth_context['project_id'], None)
             self._check_and_set_default_scoping(auth_info, auth_context)
@@ -496,15 +497,17 @@ class Auth(controller.V3Controller):
             LOG.warning(msg, {'user_id': user_ref['id'],
                               'project_id': default_project_id})
 
-    def authenticate(self, context, auth_info, auth_context):
+    def authenticate(self, request, auth_info, auth_context):
         """Authenticate user."""
         # The 'external' method allows any 'REMOTE_USER' based authentication
         # In some cases the server can set REMOTE_USER as '' instead of
         # dropping it, so this must be filtered out
-        if context['environment'].get('REMOTE_USER'):
+        if request.context_dict['environment'].get('REMOTE_USER'):
             try:
                 external = get_auth_method('external')
-                external.authenticate(context, auth_info, auth_context)
+                external.authenticate(request.context_dict,
+                                      auth_info,
+                                      auth_context)
             except exception.AuthMethodNotSupported:
                 # This will happen there is no 'external' plugin registered
                 # and the container is performing authentication.
@@ -523,7 +526,7 @@ class Auth(controller.V3Controller):
         auth_response = {'methods': []}
         for method_name in auth_info.get_method_names():
             method = get_auth_method(method_name)
-            resp = method.authenticate(context,
+            resp = method.authenticate(request.context_dict,
                                        auth_info.get_method_data(method_name),
                                        auth_context)
             if resp:
@@ -539,8 +542,8 @@ class Auth(controller.V3Controller):
             raise exception.Unauthorized(msg)
 
     @controller.protected()
-    def check_token(self, context):
-        token_id = context.get('subject_token_id')
+    def check_token(self, request):
+        token_id = request.context_dict.get('subject_token_id')
         token_data = self.token_provider_api.validate_v3_token(
             token_id)
         # NOTE(morganfainberg): The code in
@@ -549,14 +552,15 @@ class Auth(controller.V3Controller):
         return render_token_data_response(token_id, token_data)
 
     @controller.protected()
-    def revoke_token(self, context):
-        token_id = context.get('subject_token_id')
+    def revoke_token(self, request):
+        token_id = request.context_dict.get('subject_token_id')
         return self.token_provider_api.revoke_token(token_id)
 
     @controller.protected()
-    def validate_token(self, context):
-        token_id = context.get('subject_token_id')
-        include_catalog = 'nocatalog' not in context['query_string']
+    def validate_token(self, request):
+        token_id = request.context_dict.get('subject_token_id')
+        query_string = request.context_dict['query_string']
+        include_catalog = 'nocatalog' not in query_string
         token_data = self.token_provider_api.validate_v3_token(
             token_id)
         if not include_catalog and 'catalog' in token_data['token']:
@@ -564,11 +568,12 @@ class Auth(controller.V3Controller):
         return render_token_data_response(token_id, token_data)
 
     @controller.protected()
-    def revocation_list(self, context, auth=None):
+    def revocation_list(self, request, auth=None):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
 
-        audit_id_only = ('audit_id_only' in context['query_string'])
+        query_string = request.context_dict['query_string']
+        audit_id_only = 'audit_id_only' in query_string
 
         tokens = self.token_provider_api.list_revoked_tokens()
 
@@ -600,8 +605,8 @@ class Auth(controller.V3Controller):
             return a or b
 
     @controller.protected()
-    def get_auth_projects(self, context):
-        auth_context = self.get_auth_context(context)
+    def get_auth_projects(self, request):
+        auth_context = self.get_auth_context(request.context_dict)
 
         user_id = auth_context.get('user_id')
         user_refs = []
@@ -618,11 +623,12 @@ class Auth(controller.V3Controller):
             grp_refs = self.assignment_api.list_projects_for_groups(group_ids)
 
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
-        return resource_controllers.ProjectV3.wrap_collection(context, refs)
+        return resource_controllers.ProjectV3.wrap_collection(
+            request.context_dict, refs)
 
     @controller.protected()
-    def get_auth_domains(self, context):
-        auth_context = self.get_auth_context(context)
+    def get_auth_domains(self, request):
+        auth_context = self.get_auth_context(request.context_dict)
 
         user_id = auth_context.get('user_id')
         user_refs = []
@@ -639,11 +645,12 @@ class Auth(controller.V3Controller):
             grp_refs = self.assignment_api.list_domains_for_groups(group_ids)
 
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
-        return resource_controllers.DomainV3.wrap_collection(context, refs)
+        return resource_controllers.DomainV3.wrap_collection(
+            request.context_dict, refs)
 
     @controller.protected()
-    def get_auth_catalog(self, context):
-        auth_context = self.get_auth_context(context)
+    def get_auth_catalog(self, request):
+        auth_context = self.get_auth_context(request.context_dict)
         user_id = auth_context.get('user_id')
         project_id = auth_context.get('project_id')
 
@@ -660,7 +667,8 @@ class Auth(controller.V3Controller):
         # several private methods.
         return {
             'catalog': self.catalog_api.get_v3_catalog(user_id, project_id),
-            'links': {'self': self.base_url(context, path='auth/catalog')}
+            'links': {'self': self.base_url(request.context_dict,
+                                            path='auth/catalog')}
         }
 
 

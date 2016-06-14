@@ -1301,17 +1301,16 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def build_external_auth_request(self, remote_user,
                                     remote_domain=None, auth_data=None,
                                     kerberos=False):
-        context = {'environment': {'REMOTE_USER': remote_user,
-                                   'AUTH_TYPE': 'Negotiate'}}
+        environment = {'REMOTE_USER': remote_user, 'AUTH_TYPE': 'Negotiate'}
         if remote_domain:
-            context['environment']['REMOTE_DOMAIN'] = remote_domain
+            environment['REMOTE_DOMAIN'] = remote_domain
         if not auth_data:
             auth_data = self.build_authentication_request(
                 kerberos=kerberos)['auth']
         no_context = None
         auth_info = auth.controllers.AuthInfo.create(no_context, auth_data)
         auth_context = {'extras': {}, 'method_names': []}
-        return context, auth_info, auth_context
+        return self.make_request(environ=environment), auth_info, auth_context
 
 
 class VersionTestCase(RestfulTestCase):

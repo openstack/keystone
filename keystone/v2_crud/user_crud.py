@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import uuid
 
 from oslo_log import log
@@ -50,8 +49,8 @@ extension.register_public_extension(
 @dependency.requires('catalog_api', 'identity_api', 'resource_api',
                      'token_provider_api')
 class UserController(identity.controllers.User):
-    def set_user_password(self, context, user_id, user):
-        token_id = context.get('token_id')
+    def set_user_password(self, request, user_id, user):
+        token_id = request.context_dict.get('token_id')
         original_password = user.get('original_password')
 
         token_data = self.token_provider_api.validate_token(token_id)
@@ -66,7 +65,7 @@ class UserController(identity.controllers.User):
 
         try:
             user_ref = self.identity_api.authenticate(
-                context,
+                request.context_dict,
                 user_id=token_ref.user_id,
                 password=original_password)
             if not user_ref.get('enabled', True):
@@ -77,11 +76,14 @@ class UserController(identity.controllers.User):
 
         update_dict = {'password': user['password'], 'id': user_id}
 
-        admin_context = copy.copy(context)
-        admin_context['is_admin'] = True
-        super(UserController, self).set_user_password(admin_context,
+        old_admin = request.context_dict.pop('is_admin', False)
+        request.context_dict['is_admin'] = True
+
+        super(UserController, self).set_user_password(request,
                                                       user_id,
                                                       update_dict)
+
+        request.context_dict['is_admin'] = old_admin
 
         # Issue a new token based upon the original token data. This will
         # always be a V2.0 token.

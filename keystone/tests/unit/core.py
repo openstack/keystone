@@ -46,6 +46,7 @@ from keystone import auth
 from keystone.common import config
 from keystone.common import dependency
 from keystone.common.kvs import core as kvs_core
+from keystone.common import request
 from keystone.common import sql
 from keystone import exception
 from keystone.identity.backends.ldap import common as ks_ldap
@@ -573,6 +574,20 @@ class TestCase(BaseTestCase):
 
     def _policy_fixture(self):
         return ksfixtures.Policy(dirs.etc('policy.json'), self.config_fixture)
+
+    def make_request(self, path='/', **kwargs):
+        context = {}
+
+        for k in ('is_admin', 'query_string'):
+            try:
+                context[k] = kwargs.pop(k)
+            except KeyError:
+                pass
+
+        req = request.Request.blank(path=path, **kwargs)
+        req.context_dict.update(context)
+
+        return req
 
     def config_overrides(self):
         # NOTE(morganfainberg): enforce config_overrides can only ever be

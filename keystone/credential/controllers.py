@@ -63,12 +63,12 @@ class CredentialV3(controller.V3Controller):
 
     @controller.protected()
     @validation.validated(schema.credential_create, 'credential')
-    def create_credential(self, context, credential):
-        trust_id = self._get_trust_id_for_request(context)
+    def create_credential(self, request, credential):
+        trust_id = self._get_trust_id_for_request(request.context_dict)
         ref = self._assign_unique_id(self._normalize_dict(credential),
                                      trust_id)
         ref = self.credential_api.create_credential(ref['id'], ref)
-        return CredentialV3.wrap_member(context, ref)
+        return CredentialV3.wrap_member(request.context_dict, ref)
 
     @staticmethod
     def _blob_to_json(ref):
@@ -83,27 +83,27 @@ class CredentialV3(controller.V3Controller):
             return ref
 
     @controller.filterprotected('user_id', 'type')
-    def list_credentials(self, context, filters):
-        hints = CredentialV3.build_driver_hints(context, filters)
+    def list_credentials(self, request, filters):
+        hints = CredentialV3.build_driver_hints(request.context_dict, filters)
         refs = self.credential_api.list_credentials(hints)
         ret_refs = [self._blob_to_json(r) for r in refs]
-        return CredentialV3.wrap_collection(context, ret_refs,
+        return CredentialV3.wrap_collection(request.context_dict, ret_refs,
                                             hints=hints)
 
     @controller.protected()
-    def get_credential(self, context, credential_id):
+    def get_credential(self, request, credential_id):
         ref = self.credential_api.get_credential(credential_id)
         ret_ref = self._blob_to_json(ref)
-        return CredentialV3.wrap_member(context, ret_ref)
+        return CredentialV3.wrap_member(request.context_dict, ret_ref)
 
     @controller.protected()
     @validation.validated(schema.credential_update, 'credential')
-    def update_credential(self, context, credential_id, credential):
+    def update_credential(self, request, credential_id, credential):
         self._require_matching_id(credential_id, credential)
 
         ref = self.credential_api.update_credential(credential_id, credential)
-        return CredentialV3.wrap_member(context, ref)
+        return CredentialV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    def delete_credential(self, context, credential_id):
+    def delete_credential(self, request, credential_id):
         return self.credential_api.delete_credential(credential_id)

@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import copy
 import uuid
 
 from testtools import matchers
@@ -24,9 +22,6 @@ from keystone.resource import controllers as resource_controllers
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
-
-
-_ADMIN_CONTEXT = {'is_admin': True, 'query_string': {}}
 
 
 class TenantTestCase(unit.TestCase):
@@ -57,18 +52,19 @@ class TenantTestCase(unit.TestCase):
         project_id = self.tenant_bar['id']
 
         orig_project_users = (
-            self.assignment_tenant_controller.get_project_users(_ADMIN_CONTEXT,
-                                                                project_id))
+            self.assignment_tenant_controller.get_project_users(
+                self.make_request(is_admin=True), project_id))
 
         # Assign a role to a user that doesn't exist to the `bar` project.
 
         user_id = uuid.uuid4().hex
         self.assignment_role_controller.add_role_to_user(
-            _ADMIN_CONTEXT, user_id, self.role_other['id'], project_id)
+            self.make_request(is_admin=True), user_id,
+            self.role_other['id'], project_id)
 
         new_project_users = (
-            self.assignment_tenant_controller.get_project_users(_ADMIN_CONTEXT,
-                                                                project_id))
+            self.assignment_tenant_controller.get_project_users(
+                self.make_request(is_admin=True), project_id))
 
         # The new user isn't included in the result, so no change.
         # asserting that the expected values appear in the list,
@@ -93,7 +89,8 @@ class TenantTestCase(unit.TestCase):
         # Now list all projects using the v2 API - we should only get
         # back those in the default features, since only those are in the
         # default domain.
-        refs = self.tenant_controller.get_all_projects(_ADMIN_CONTEXT)
+        refs = self.tenant_controller.get_all_projects(
+            self.make_request(is_admin=True))
         self.assertEqual(len(default_fixtures.TENANTS), len(refs['tenants']))
         for tenant in default_fixtures.TENANTS:
             tenant_copy = tenant.copy()
@@ -111,21 +108,21 @@ class TenantTestCase(unit.TestCase):
         """Test that get project does not return is_domain projects."""
         project = self._create_is_domain_project()
 
-        context = copy.deepcopy(_ADMIN_CONTEXT)
-        context['query_string']['name'] = project['name']
+        request = self.make_request(is_admin=True)
+        request.context_dict['query_string']['name'] = project['name']
 
         self.assertRaises(
             exception.ProjectNotFound,
             self.tenant_controller.get_all_projects,
-            context)
+            request)
 
-        context = copy.deepcopy(_ADMIN_CONTEXT)
-        context['query_string']['name'] = project['id']
+        request = self.make_request(is_admin=True)
+        request.context_dict['query_string']['name'] = project['id']
 
         self.assertRaises(
             exception.ProjectNotFound,
             self.tenant_controller.get_all_projects,
-            context)
+            request)
 
     def test_create_is_domain_project_fails(self):
         """Test that the creation of a project acting as a domain fails."""
@@ -135,7 +132,7 @@ class TenantTestCase(unit.TestCase):
         self.assertRaises(
             exception.ValidationError,
             self.tenant_controller.create_project,
-            _ADMIN_CONTEXT,
+            self.make_request(is_admin=True),
             project)
 
     def test_create_project_passing_is_domain_false_fails(self):
@@ -146,7 +143,7 @@ class TenantTestCase(unit.TestCase):
         self.assertRaises(
             exception.ValidationError,
             self.tenant_controller.create_project,
-            _ADMIN_CONTEXT,
+            self.make_request(is_admin=True),
             project)
 
     def test_update_is_domain_project_not_found(self):
@@ -157,7 +154,7 @@ class TenantTestCase(unit.TestCase):
         self.assertRaises(
             exception.ProjectNotFound,
             self.tenant_controller.update_project,
-            _ADMIN_CONTEXT,
+            self.make_request(is_admin=True),
             project['id'],
             project)
 
@@ -168,7 +165,7 @@ class TenantTestCase(unit.TestCase):
         self.assertRaises(
             exception.ProjectNotFound,
             self.tenant_controller.delete_project,
-            _ADMIN_CONTEXT,
+            self.make_request(is_admin=True),
             project['id'])
 
     def test_list_is_domain_project_not_found(self):
@@ -179,7 +176,8 @@ class TenantTestCase(unit.TestCase):
         project1 = self._create_is_domain_project()
         project2 = self._create_is_domain_project()
 
-        refs = self.tenant_controller.get_all_projects(_ADMIN_CONTEXT)
+        refs = self.tenant_controller.get_all_projects(
+            self.make_request(is_admin=True))
         projects = refs.get('tenants')
 
         self.assertNotIn(project1, projects)
