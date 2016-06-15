@@ -255,6 +255,31 @@ class TokenAPITests(object):
             value,
             "%s != %s" % (expected, value))
 
+    def test_auth_with_token_as_different_user_fails(self):
+        # get the token for a user. This is self.user which is different from
+        # self.default_domain_user.
+        token = self.get_scoped_token()
+        # try both password and token methods with different identities and it
+        # should fail
+        auth_data = self.build_authentication_request(
+            token=token,
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_token_for_user_without_password_fails(self):
+        user = unit.new_user_ref(domain_id=self.domain['id'])
+        del user['password']  # can't have a password for this test
+        user = self.identity_api.create_user(user)
+
+        auth_data = self.build_authentication_request(
+            user_id=user['id'],
+            password='password')
+
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
     def test_create_unscoped_token_by_authenticating_with_unscoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -310,6 +335,49 @@ class TokenAPITests(object):
             password=self.user['password'],
             unscoped="unscoped")
         r = self.post('/auth/tokens', body=auth_data, noauth=True)
+        self.assertValidUnscopedTokenResponse(r)
+
+    def test_disabled_users_default_project_result_in_unscoped_token(self):
+        # create a disabled project to work with
+        project = self.create_new_default_project_for_user(
+            self.user['id'], self.domain_id, enable_project=False)
+
+        # assign a role to user for the new project
+        self.assignment_api.add_role_to_user_and_project(self.user['id'],
+                                                         project['id'],
+                                                         self.role_id)
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+
+    def test_disabled_default_project_domain_result_in_unscoped_token(self):
+        domain_ref = unit.new_domain_ref()
+        r = self.post('/domains', body={'domain': domain_ref})
+        domain = self.assertValidDomainResponse(r, domain_ref)
+
+        project = self.create_new_default_project_for_user(
+            self.user['id'], domain['id'])
+
+        # assign a role to user for the new project
+        self.assignment_api.add_role_to_user_and_project(self.user['id'],
+                                                         project['id'],
+                                                         self.role_id)
+
+        # now disable the project domain
+        body = {'domain': {'enabled': False}}
+        r = self.patch('/domains/%(domain_id)s' % {'domain_id': domain['id']},
+                       body=body)
+        self.assertValidDomainResponse(r)
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
         self.assertValidUnscopedTokenResponse(r)
 
     def test_unscoped_token_is_invalid_after_disabling_user(self):
@@ -465,6 +533,43 @@ class TokenAPITests(object):
             domain_id=self.domain['id'])
         r = self.v3_create_token(auth_data)
         self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_fails_if_domain_name_unsafe(self):
+        """Verify authenticate to a domain with unsafe name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named domain
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        domain = unit.new_domain_ref(name=unsafe_name)
+        self.resource_api.create_domain(domain['id'], domain)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.create_grant(
+            role_member['id'],
+            user_id=self.user['id'],
+            domain_id=domain['id'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_name=domain['name'])
+
+        # Since name url restriction is off, we should be able to authenticate
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to new, which should still allow us to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='strict')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
 
     def test_create_domain_token_without_grant_returns_unauthorized(self):
         auth_data = self.build_authentication_request(
@@ -704,6 +809,43 @@ class TokenAPITests(object):
         r = self.v3_create_token(auth_data)
         self.assertValidProjectScopedTokenResponse(r)
 
+    def test_create_project_scoped_token_fails_if_project_name_unsafe(self):
+        """Verify authenticate to a project with unsafe name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named project
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        project = unit.new_project_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID,
+                                       name=unsafe_name)
+        self.resource_api.create_project(project['id'], project)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user['id'], project['id'], role_member['id'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_id=test_v3.DEFAULT_DOMAIN_ID)
+
+        # Since name url restriction is off, we should be able to authenticate
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to new, which should still allow us to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='strict')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
     def test_create_project_scoped_token_fails_if_domain_name_unsafe(self):
         """Verify authenticate to a project using unsafe domain name fails."""
         # Start with url name restrictions off, so we can create the unsafe
@@ -786,6 +928,42 @@ class TokenAPITests(object):
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
+    def test_create_project_token_with_disabled_project_domain_fails(self):
+        # create a disabled domain
+        domain = unit.new_domain_ref()
+        domain = self.resource_api.create_domain(domain['id'], domain)
+
+        # create a project in the domain
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
+
+        # assign some role to self.user for the project in the domain
+        self.assignment_api.add_role_to_user_and_project(
+            self.user['id'],
+            project['id'],
+            self.role_id)
+
+        # Disable the domain
+        domain['enabled'] = False
+        self.resource_api.update_domain(domain['id'], domain)
+
+        # user should not be able to auth with project_id
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=project['id'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+        # user should not be able to auth with project_name & domain
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_id=domain['id'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
@@ -842,6 +1020,18 @@ class TokenAPITests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api.validate_token,
                           project_scoped_token)
+
+    def test_no_access_to_default_project_result_in_unscoped_token(self):
+        # create a disabled project to work with
+        self.create_new_default_project_for_user(self.user['id'],
+                                                 self.domain_id)
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
 
     def test_rescope_unscoped_token_with_trust(self):
         trustee_user, trust = self._create_trust()
@@ -3464,196 +3654,7 @@ class TestAuthKerberos(TestAuthExternalDomain):
 
 
 class TestAuth(test_v3.RestfulTestCase):
-
-    def test_authenticating_a_user_with_no_password(self):
-        user = unit.new_user_ref(domain_id=self.domain['id'])
-        del user['password']  # can't have a password for this test
-        user = self.identity_api.create_user(user)
-
-        auth_data = self.build_authentication_request(
-            user_id=user['id'],
-            password='password')
-
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_disabled_default_project_result_in_unscoped_token(self):
-        # create a disabled project to work with
-        project = self.create_new_default_project_for_user(
-            self.user['id'], self.domain_id, enable_project=False)
-
-        # assign a role to user for the new project
-        self.assignment_api.add_role_to_user_and_project(self.user['id'],
-                                                         project['id'],
-                                                         self.role_id)
-
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
-    def test_disabled_default_project_domain_result_in_unscoped_token(self):
-        domain_ref = unit.new_domain_ref()
-        r = self.post('/domains', body={'domain': domain_ref})
-        domain = self.assertValidDomainResponse(r, domain_ref)
-
-        project = self.create_new_default_project_for_user(
-            self.user['id'], domain['id'])
-
-        # assign a role to user for the new project
-        self.assignment_api.add_role_to_user_and_project(self.user['id'],
-                                                         project['id'],
-                                                         self.role_id)
-
-        # now disable the project domain
-        body = {'domain': {'enabled': False}}
-        r = self.patch('/domains/%(domain_id)s' % {'domain_id': domain['id']},
-                       body=body)
-        self.assertValidDomainResponse(r)
-
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
-    def test_no_access_to_default_project_result_in_unscoped_token(self):
-        # create a disabled project to work with
-        self.create_new_default_project_for_user(self.user['id'],
-                                                 self.domain_id)
-
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
-    def test_disabled_scope_project_domain_result_in_401(self):
-        # create a disabled domain
-        domain = unit.new_domain_ref()
-        domain = self.resource_api.create_domain(domain['id'], domain)
-
-        # create a project in the domain
-        project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
-
-        # assign some role to self.user for the project in the domain
-        self.assignment_api.add_role_to_user_and_project(
-            self.user['id'],
-            project['id'],
-            self.role_id)
-
-        # Disable the domain
-        domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
-
-        # user should not be able to auth with project_id
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=project['id'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-        # user should not be able to auth with project_name & domain
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_name=project['name'],
-            project_domain_id=domain['id'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_auth_methods_with_different_identities_fails(self):
-        # get the token for a user. This is self.user which is different from
-        # self.default_domain_user.
-        token = self.get_scoped_token()
-        # try both password and token methods with different identities and it
-        # should fail
-        auth_data = self.build_authentication_request(
-            token=token,
-            user_id=self.default_domain_user['id'],
-            password=self.default_domain_user['password'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_authenticate_fails_if_project_unsafe(self):
-        """Verify authenticate to a project with unsafe name fails."""
-        # Start with url name restrictions off, so we can create the unsafe
-        # named project
-        self.config_fixture.config(group='resource',
-                                   project_name_url_safe='off')
-        unsafe_name = 'i am not / safe'
-        project = unit.new_project_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID,
-                                       name=unsafe_name)
-        self.resource_api.create_project(project['id'], project)
-        role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.add_role_to_user_and_project(
-            self.user['id'], project['id'], role_member['id'])
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_name=project['name'],
-            project_domain_id=test_v3.DEFAULT_DOMAIN_ID)
-
-        # Since name url restriction is off, we should be able to authenticate
-        self.v3_create_token(auth_data)
-
-        # Set the name url restriction to new, which should still allow us to
-        # authenticate
-        self.config_fixture.config(group='resource',
-                                   project_name_url_safe='new')
-        self.v3_create_token(auth_data)
-
-        # Set the name url restriction to strict and we should fail to
-        # authenticate
-        self.config_fixture.config(group='resource',
-                                   project_name_url_safe='strict')
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_authenticate_fails_if_domain_unsafe(self):
-        """Verify authenticate to a domain with unsafe name fails."""
-        # Start with url name restrictions off, so we can create the unsafe
-        # named domain
-        self.config_fixture.config(group='resource',
-                                   domain_name_url_safe='off')
-        unsafe_name = 'i am not / safe'
-        domain = unit.new_domain_ref(name=unsafe_name)
-        self.resource_api.create_domain(domain['id'], domain)
-        role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.create_grant(
-            role_member['id'],
-            user_id=self.user['id'],
-            domain_id=domain['id'])
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_name=domain['name'])
-
-        # Since name url restriction is off, we should be able to authenticate
-        self.v3_create_token(auth_data)
-
-        # Set the name url restriction to new, which should still allow us to
-        # authenticate
-        self.config_fixture.config(group='resource',
-                                   project_name_url_safe='new')
-        self.v3_create_token(auth_data)
-
-        # Set the name url restriction to strict and we should fail to
-        # authenticate
-        self.config_fixture.config(group='resource',
-                                   domain_name_url_safe='strict')
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+    pass
 
 
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
