@@ -94,6 +94,20 @@ class Manager(manager.Manager):
         service_providers = self.driver.get_enabled_service_providers()
         return [normalize(sp) for sp in service_providers]
 
+    def create_sp(self, sp_id, service_provider):
+        sp_ref = self.driver.create_sp(sp_id, service_provider)
+        self.get_enabled_service_providers.invalidate(self)
+        return sp_ref
+
+    def delete_sp(self, sp_id):
+        self.driver.delete_sp(sp_id)
+        self.get_enabled_service_providers.invalidate(self)
+
+    def update_sp(self, sp_id, service_provider):
+        sp_ref = self.driver.update_sp(sp_id, service_provider)
+        self.get_enabled_service_providers.invalidate(self)
+        return sp_ref
+
     def evaluate(self, idp_id, protocol_id, assertion_data):
         mapping = self.get_mapping_from_idp_and_protocol(idp_id, protocol_id)
         rules = mapping['rules']
