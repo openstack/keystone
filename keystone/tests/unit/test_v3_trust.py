@@ -401,3 +401,47 @@ class TestTrustOperations(test_v3.RestfulTestCase):
                          resp_body['user']['domain']['name'])
         self.assertEqual(self.project['id'], resp_body['project']['id'])
         self.assertEqual(self.project['name'], resp_body['project']['name'])
+
+    def test_forbidden_trust_impersonation_in_redelegation(self):
+        """Test forbiddance of impersonation in trust redelegation.
+
+        Check that trustee not allowed to create a trust (with impersonation
+        set to true) from a redelegated trust (with impersonation set to false)
+        """
+        # create trust
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            role_ids=[self.role_id],
+            allow_redelegation=True)
+        resp = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        trust = self.assertValidTrustResponse(resp)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user_id,
+            password=self.trustee_user['password'],
+            trust_id=trust['id'])
+        resp = self.v3_create_token(auth_data)
+
+        # create third-party user, which will be trustee in trust created from
+        # redelegated trust
+        third_party_trustee = unit.create_user(self.identity_api,
+                                               domain_id=self.domain_id)
+        third_party_trustee_id = third_party_trustee['id']
+
+        # create trust from redelegated trust
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.trustee_user_id,
+            trustee_user_id=third_party_trustee_id,
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id])
+        ref['redelegated_trust_id'] = trust['id']
+        self.admin_request(path='/v3/OS-TRUST/trusts',
+                           body={'trust': ref},
+                           token=resp.headers.get('X-Subject-Token'),
+                           method='POST',
+                           expected_status=http_client.FORBIDDEN)
