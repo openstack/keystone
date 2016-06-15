@@ -255,6 +255,18 @@ class TokenAPITests(object):
             value,
             "%s != %s" % (expected, value))
 
+    def test_create_unscoped_token_by_authenticating_with_unscoped_token(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+        token_id = r.headers.get('X-Subject-Token')
+
+        auth_data = self.build_authentication_request(token=token_id)
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+
     def test_create_unscoped_token_with_user_id(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -3119,20 +3131,6 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertIn(role_admin['id'], roles_ids)
         self.assertNotIn(role_foo_domain1['id'], roles_ids)
         self.assertNotIn(role_group_domain1['id'], roles_ids)
-
-    def test_auth_with_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
-        token = r.headers.get('X-Subject-Token')
-
-        # test token auth
-        auth_data = self.build_authentication_request(token=token)
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
 
     def get_v2_token(self, tenant_id=None):
         body = {
