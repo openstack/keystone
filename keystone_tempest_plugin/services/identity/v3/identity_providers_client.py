@@ -19,12 +19,9 @@ from tempest.lib.common import rest_client
 from keystone_tempest_plugin.services.identity import clients
 
 
-class IdentityProvidersClient(clients.Identity):
+class IdentityProvidersClient(clients.Federation):
 
-    subpath = 'OS-FEDERATION/identity_providers'
-
-    def _build_path(self, idp_id=None):
-        return '%s/%s' % (self.subpath, idp_id) if idp_id else self.subpath
+    subpath_suffix = 'identity_providers'
 
     def create_identity_provider(self, idp_id, **kwargs):
         """Create an identity provider.
@@ -34,33 +31,28 @@ class IdentityProvidersClient(clients.Identity):
                        (boolean) and remote_ids (list).
         """
         put_body = json.dumps({'identity_provider': kwargs})
-        url = self._build_path(idp_id)
-        resp, body = self.put(url, put_body)
+        resp, body = self._put(idp_id, put_body)
         self.expected_success(201, resp.status)
         body = json.loads(body)
-        idp = rest_client.ResponseBody(resp, body)
-        return idp
+        return rest_client.ResponseBody(resp, body)
 
     def list_identity_providers(self):
         """List the identity providers."""
-        url = self._build_path()
-        resp, body = self.get(url)
+        resp, body = self._get()
         self.expected_success(200, resp.status)
         body = json.loads(body)
         return rest_client.ResponseBody(resp, body)
 
     def show_identity_provider(self, idp_id):
         """Get an identity provider."""
-        url = self._build_path(idp_id)
-        resp, body = self.get(url)
+        resp, body = self._get(idp_id)
         self.expected_success(200, resp.status)
         body = json.loads(body)
         return rest_client.ResponseBody(resp, body)
 
     def delete_identity_provider(self, idp_id):
         """Delete an identity provider."""
-        url = self._build_path(idp_id)
-        resp, body = self.delete(url)
+        resp, body = self._delete(idp_id)
         self.expected_success(204, resp.status)
         return rest_client.ResponseBody(resp, body)
 
@@ -72,8 +64,7 @@ class IdentityProvidersClient(clients.Identity):
                        enabled (boolean) and remote_ids (list).
         """
         patch_body = json.dumps({'identity_provider': kwargs})
-        url = self._build_path(idp_id)
-        resp, body = self.patch(url, patch_body)
+        resp, body = self._patch(idp_id, patch_body)
         self.expected_success(200, resp.status)
         body = json.loads(body)
         return rest_client.ResponseBody(resp, body)

@@ -26,3 +26,18 @@ def idp_ref(enabled=None, remote_ids=None):
         ref['remote_ids'] = remote_ids
 
     return ref
+
+
+def sp_ref(enabled=None, relay_state_prefix=None):
+    ref = {
+        'auth_url': data_utils.rand_url(),
+        'description': data_utils.rand_uuid_hex(),
+        'sp_url': data_utils.rand_url(),
+    }
+    if enabled:
+        ref['enabled'] = enabled
+
+    if relay_state_prefix:
+        ref['relay_state_prefix'] = relay_state_prefix
+
+    return ref
