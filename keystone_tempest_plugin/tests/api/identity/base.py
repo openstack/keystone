@@ -34,4 +34,5 @@ class BaseIdentityTest(test.BaseTestCase):
             cls.credential_type, identity_version=cls.identity_version)
         cls.keystone_manager = clients.Manager(credentials=credentials)
         cls.idps_client = cls.keystone_manager.identity_providers_client
+        cls.mappings_client = cls.keystone_manager.mapping_rules_client
         cls.sps_client = cls.keystone_manager.service_providers_client
