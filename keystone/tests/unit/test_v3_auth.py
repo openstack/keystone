@@ -1440,6 +1440,44 @@ class TokenAPITests(object):
         self.get('/auth/tokens', headers=headers,
                  expected_status=http_client.NOT_FOUND)
 
+    def test_create_token_with_nonexistant_user_id_fails(self):
+        auth_data = self.build_authentication_request(
+            user_id=uuid.uuid4().hex,
+            password=self.user['password'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_token_with_nonexistant_username_fails(self):
+        auth_data = self.build_authentication_request(
+            username=uuid.uuid4().hex,
+            user_domain_id=self.domain['id'],
+            password=self.user['password'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_token_with_nonexistant_domain_id_fails(self):
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_id=uuid.uuid4().hex,
+            password=self.user['password'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_token_with_nonexistant_domain_name_fails(self):
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_name=uuid.uuid4().hex,
+            password=self.user['password'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_token_with_wrong_password_fails(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=uuid.uuid4().hex)
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
 
 class TokenDataTests(object):
     """Test the data in specific token types."""
@@ -3160,44 +3198,6 @@ class TestAuth(test_v3.RestfulTestCase):
             project_id=self.default_domain_project['id'])
         r = self.v3_create_token(auth_data)
         self.assertValidScopedTokenResponse(r)
-
-    def test_invalid_user_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=uuid.uuid4().hex,
-            password=self.user['password'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_invalid_user_name(self):
-        auth_data = self.build_authentication_request(
-            username=uuid.uuid4().hex,
-            user_domain_id=self.domain['id'],
-            password=self.user['password'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_invalid_domain_id(self):
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_id=uuid.uuid4().hex,
-            password=self.user['password'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_invalid_domain_name(self):
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_name=uuid.uuid4().hex,
-            password=self.user['password'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_invalid_password(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=uuid.uuid4().hex)
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
 
     def test_remote_user_no_realm(self):
         api = auth.controllers.Auth()
