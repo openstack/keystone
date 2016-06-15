@@ -534,6 +534,53 @@ class TokenAPITests(object):
         endpoint_ids = [endpoint['id'] for endpoint in endpoints]
         self.assertNotIn(disabled_endpoint_id, endpoint_ids)
 
+    def test_project_scoped_token_catalog_excludes_disabled_service(self):
+        """On authenticate, get a catalog that excludes disabled services."""
+        # although the endpoint associated with the service is enabled, the
+        # service is disabled
+        self.assertTrue(self.endpoint['enabled'])
+        self.catalog_api.update_service(
+            self.endpoint['service_id'], {'enabled': False})
+        service = self.catalog_api.get_service(self.endpoint['service_id'])
+        self.assertFalse(service['enabled'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.v3_create_token(auth_data)
+
+        self.assertEqual([], r.result['token']['catalog'])
+
+    def test_scope_to_project_without_grant_returns_unauthorized(self):
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        self.resource_api.create_project(project['id'], project)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=project['id'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_project_scoped_token_with_username_and_domain_id(self):
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_id=self.domain['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidProjectScopedTokenResponse(r)
+
+    def test_create_project_scoped_token_with_username_and_domain_name(self):
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_name=self.domain['name'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidProjectScopedTokenResponse(r)
+
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
@@ -2779,34 +2826,6 @@ class TestAuthKerberos(TestAuthExternalDomain):
 
 class TestAuth(test_v3.RestfulTestCase):
 
-    def test_auth_catalog_disabled_service(self):
-        """On authenticate, get a catalog that excludes disabled services."""
-        # although the child endpoint is enabled, the service is disabled
-        self.assertTrue(self.endpoint['enabled'])
-        self.catalog_api.update_service(
-            self.endpoint['service_id'], {'enabled': False})
-        service = self.catalog_api.get_service(self.endpoint['service_id'])
-        self.assertFalse(service['enabled'])
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.v3_create_token(auth_data)
-
-        self.assertEqual([], r.result['token']['catalog'])
-
-    def test_project_id_scoped_token_with_user_id_unauthorized(self):
-        project = unit.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(project['id'], project)
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=project['id'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
     def test_user_and_group_roles_scoped_token(self):
         """Test correct roles are returned in scoped token.
 
@@ -2989,24 +3008,6 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertIn(role_admin['id'], roles_ids)
         self.assertNotIn(role_foo_domain1['id'], roles_ids)
         self.assertNotIn(role_group_domain1['id'], roles_ids)
-
-    def test_project_id_scoped_token_with_user_domain_id(self):
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_id=self.domain['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidProjectScopedTokenResponse(r)
-
-    def test_project_id_scoped_token_with_user_domain_name(self):
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_name=self.domain['name'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidProjectScopedTokenResponse(r)
 
     def test_domain_id_scoped_token_with_user_id(self):
         path = '/domains/%s/users/%s/roles/%s' % (
