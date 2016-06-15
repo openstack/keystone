@@ -704,6 +704,88 @@ class TokenAPITests(object):
         r = self.v3_create_token(auth_data)
         self.assertValidProjectScopedTokenResponse(r)
 
+    def test_create_project_scoped_token_fails_if_domain_name_unsafe(self):
+        """Verify authenticate to a project using unsafe domain name fails."""
+        # Start with url name restrictions off, so we can create the unsafe
+        # named domain
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='off')
+        unsafe_name = 'i am not / safe'
+        domain = unit.new_domain_ref(name=unsafe_name)
+        self.resource_api.create_domain(domain['id'], domain)
+        # Add a (safely named) project to that domain
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.create_grant(
+            role_member['id'],
+            user_id=self.user['id'],
+            project_id=project['id'])
+
+        # An auth request via project ID, but specifying domain by name
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_name=domain['name'])
+
+        # Since name url restriction is off, we should be able to authenticate
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to new, which should still allow us to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   project_name_url_safe='new')
+        self.v3_create_token(auth_data)
+
+        # Set the name url restriction to strict and we should fail to
+        # authenticate
+        self.config_fixture.config(group='resource',
+                                   domain_name_url_safe='strict')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_create_project_token_with_same_domain_and_project_name(self):
+        """Authenticate to a project with the same name as its domain."""
+        domain = unit.new_project_ref(is_domain=True)
+        domain = self.resource_api.create_project(domain['id'], domain)
+        project = unit.new_project_ref(domain_id=domain['id'],
+                                       name=domain['name'])
+        self.resource_api.create_project(project['id'], project)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(
+            self.user['id'], project['id'], role_member['id'])
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=project['name'],
+            project_domain_name=domain['name'])
+
+        r = self.v3_create_token(auth_data)
+        self.assertEqual(project['id'], r.result['token']['project']['id'])
+
+    def test_create_project_token_fails_with_project_acting_as_domain(self):
+        domain = unit.new_project_ref(is_domain=True)
+        domain = self.resource_api.create_project(domain['id'], domain)
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.create_grant(
+            role_member['id'],
+            user_id=self.user['id'],
+            domain_id=domain['id'])
+
+        # authentication will fail because the project name is incorrect
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_name=domain['name'],
+            project_domain_name=domain['name'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
@@ -3541,89 +3623,6 @@ class TestAuth(test_v3.RestfulTestCase):
         # authenticate
         self.config_fixture.config(group='resource',
                                    domain_name_url_safe='strict')
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_authenticate_fails_to_project_if_domain_unsafe(self):
-        """Verify authenticate to a project using unsafe domain name fails."""
-        # Start with url name restrictions off, so we can create the unsafe
-        # named domain
-        self.config_fixture.config(group='resource',
-                                   domain_name_url_safe='off')
-        unsafe_name = 'i am not / safe'
-        domain = unit.new_domain_ref(name=unsafe_name)
-        self.resource_api.create_domain(domain['id'], domain)
-        # Add a (safely named) project to that domain
-        project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
-        role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.create_grant(
-            role_member['id'],
-            user_id=self.user['id'],
-            project_id=project['id'])
-
-        # An auth request via project ID, but specifying domain by name
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_name=project['name'],
-            project_domain_name=domain['name'])
-
-        # Since name url restriction is off, we should be able to authenticate
-        self.v3_create_token(auth_data)
-
-        # Set the name url restriction to new, which should still allow us to
-        # authenticate
-        self.config_fixture.config(group='resource',
-                                   project_name_url_safe='new')
-        self.v3_create_token(auth_data)
-
-        # Set the name url restriction to strict and we should fail to
-        # authenticate
-        self.config_fixture.config(group='resource',
-                                   domain_name_url_safe='strict')
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
-
-    def test_project_scope_if_domain_and_project_name_clash(self):
-        """Authenticate to a project with the same name as its domain."""
-        domain = unit.new_project_ref(is_domain=True)
-        domain = self.resource_api.create_project(domain['id'], domain)
-        project = unit.new_project_ref(domain_id=domain['id'],
-                                       name=domain['name'])
-        self.resource_api.create_project(project['id'], project)
-        role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.add_role_to_user_and_project(
-            self.user['id'], project['id'], role_member['id'])
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_name=project['name'],
-            project_domain_name=domain['name'])
-
-        r = self.v3_create_token(auth_data)
-        self.assertEqual(project['id'], r.result['token']['project']['id'])
-
-    def test_project_scope_fails_if_domain_name_only_matches_request(self):
-        """Authenticate fails to a project when only domain name matches."""
-        domain = unit.new_project_ref(is_domain=True)
-        domain = self.resource_api.create_project(domain['id'], domain)
-        role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.create_grant(
-            role_member['id'],
-            user_id=self.user['id'],
-            domain_id=domain['id'])
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_name=domain['name'],
-            project_domain_name=domain['name'])
-
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
