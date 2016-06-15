@@ -471,6 +471,69 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
         self.assertEqual(project['id'], r.result['token']['project']['id'])
 
+    def test_implicit_project_id_scoped_token_with_user_id_no_catalog(self):
+        self._create_project_and_set_as_default_project()
+
+        # create a project scoped token that isn't scoped to the default
+        # project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
+
+        # ensure the project id in the token matches the one we as for
+        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
+        self.assertEqual(self.project['id'],
+                         r.result['token']['project']['id'])
+
+    def test_project_scoped_token_catalog_attributes(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.v3_create_token(auth_data)
+
+        catalog = r.result['token']['catalog']
+        self.assertEqual(1, len(catalog))
+        catalog = catalog[0]
+
+        self.assertEqual(self.service['id'], catalog['id'])
+        self.assertEqual(self.service['name'], catalog['name'])
+        self.assertEqual(self.service['type'], catalog['type'])
+
+        endpoint = catalog['endpoints']
+        self.assertEqual(1, len(endpoint))
+        endpoint = endpoint[0]
+
+        self.assertEqual(self.endpoint['id'], endpoint['id'])
+        self.assertEqual(self.endpoint['interface'], endpoint['interface'])
+        self.assertEqual(self.endpoint['region_id'], endpoint['region_id'])
+        self.assertEqual(self.endpoint['url'], endpoint['url'])
+
+    def test_project_scoped_token_catalog_excludes_disabled_endpoint(self):
+        # Create a disabled endpoint
+        disabled_endpoint_ref = copy.copy(self.endpoint)
+        disabled_endpoint_id = uuid.uuid4().hex
+        disabled_endpoint_ref.update({
+            'id': disabled_endpoint_id,
+            'enabled': False,
+            'interface': 'internal'
+        })
+        self.catalog_api.create_endpoint(disabled_endpoint_id,
+                                         disabled_endpoint_ref)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        resp = self.v3_create_token(auth_data)
+
+        # make sure the disabled endpoint id isn't in the list of endpoints
+        endpoints = resp.result['token']['catalog'][0]['endpoints']
+        endpoint_ids = [endpoint['id'] for endpoint in endpoints]
+        self.assertNotIn(disabled_endpoint_id, endpoint_ids)
+
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
@@ -2716,46 +2779,6 @@ class TestAuthKerberos(TestAuthExternalDomain):
 
 class TestAuth(test_v3.RestfulTestCase):
 
-    def test_implicit_project_id_scoped_token_with_user_id_no_catalog(self):
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
-        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
-        self.assertEqual(self.project['id'],
-                         r.result['token']['project']['id'])
-
-    def test_auth_catalog_attributes(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.v3_create_token(auth_data)
-
-        catalog = r.result['token']['catalog']
-        self.assertEqual(1, len(catalog))
-        catalog = catalog[0]
-
-        self.assertEqual(self.service['id'], catalog['id'])
-        self.assertEqual(self.service['name'], catalog['name'])
-        self.assertEqual(self.service['type'], catalog['type'])
-
-        endpoint = catalog['endpoints']
-        self.assertEqual(1, len(endpoint))
-        endpoint = endpoint[0]
-
-        self.assertEqual(self.endpoint['id'], endpoint['id'])
-        self.assertEqual(self.endpoint['interface'], endpoint['interface'])
-        self.assertEqual(self.endpoint['region_id'], endpoint['region_id'])
-        self.assertEqual(self.endpoint['url'], endpoint['url'])
-
-    def _check_disabled_endpoint_result(self, catalog, disabled_endpoint_id):
-        endpoints = catalog[0]['endpoints']
-        endpoint_ids = [ep['id'] for ep in endpoints]
-        self.assertEqual([self.endpoint_id], endpoint_ids)
-
     def test_auth_catalog_disabled_service(self):
         """On authenticate, get a catalog that excludes disabled services."""
         # although the child endpoint is enabled, the service is disabled
@@ -2772,28 +2795,6 @@ class TestAuth(test_v3.RestfulTestCase):
         r = self.v3_create_token(auth_data)
 
         self.assertEqual([], r.result['token']['catalog'])
-
-    def test_auth_catalog_disabled_endpoint(self):
-        """On authenticate, get a catalog that excludes disabled endpoints."""
-        # Create a disabled endpoint that's like the enabled one.
-        disabled_endpoint_ref = copy.copy(self.endpoint)
-        disabled_endpoint_id = uuid.uuid4().hex
-        disabled_endpoint_ref.update({
-            'id': disabled_endpoint_id,
-            'enabled': False,
-            'interface': 'internal'
-        })
-        self.catalog_api.create_endpoint(disabled_endpoint_id,
-                                         disabled_endpoint_ref)
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.v3_create_token(auth_data)
-
-        self._check_disabled_endpoint_result(r.result['token']['catalog'],
-                                             disabled_endpoint_id)
 
     def test_project_id_scoped_token_with_user_id_unauthorized(self):
         project = unit.new_project_ref(domain_id=self.domain_id)
