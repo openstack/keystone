@@ -222,6 +222,28 @@ class TokenAPITests(object):
         user['enabled'] = enabled
         self.identity_api.update_user(user['id'], user)
 
+    def _create_project_and_set_as_default_project(self):
+        # create a new project
+        ref = unit.new_project_ref(domain_id=self.domain_id)
+        r = self.post('/projects', body={'project': ref})
+        project = self.assertValidProjectResponse(r, ref)
+
+        # grant the user a role on the project
+        self.put(
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'user_id': self.user['id'],
+                'project_id': project['id'],
+                'role_id': self.role['id']})
+
+        # make the new project the user's default project
+        body = {'user': {'default_project_id': project['id']}}
+        r = self.patch('/users/%(user_id)s' % {
+            'user_id': self.user['id']},
+            body=body)
+        self.assertValidUserResponse(r)
+
+        return project
+
     def assertTimestampEqual(self, expected, value):
         # Compare two timestamps but ignore the microseconds part
         # of the expected timestamp. Keystone does not track microseconds and
@@ -266,6 +288,17 @@ class TokenAPITests(object):
         self._revoke_token(unscoped_token)
         self._validate_token(unscoped_token,
                              expected_status=http_client.NOT_FOUND)
+
+    def test_create_explicit_unscoped_token(self):
+        self._create_project_and_set_as_default_project()
+
+        # explicitly ask for an unscoped token
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            unscoped="unscoped")
+        r = self.post('/auth/tokens', body=auth_data, noauth=True)
+        self.assertValidUnscopedTokenResponse(r)
 
     def test_unscoped_token_is_invalid_after_disabling_user(self):
         unscoped_token = self._get_unscoped_token()
@@ -392,6 +425,14 @@ class TokenAPITests(object):
                           self.token_provider_api.validate_v2_token,
                           scoped_token)
 
+    def test_create_project_scoped_token_with_project_id_and_user_id(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidProjectScopedTokenResponse(r)
+
     def test_validate_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
         self._validate_token(project_scoped_token)
@@ -402,6 +443,33 @@ class TokenAPITests(object):
         self._revoke_token(project_scoped_token)
         self._validate_token(project_scoped_token,
                              expected_status=http_client.NOT_FOUND)
+
+    def test_project_scoped_token_is_scoped_to_default_project(self):
+        project = self._create_project_and_set_as_default_project()
+
+        # attempt to authenticate without requesting a project
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+
+        # ensure the project id in the token matches the default project id
+        self.assertValidProjectScopedTokenResponse(r)
+        self.assertEqual(project['id'], r.result['token']['project']['id'])
+
+    def test_project_scoped_token_no_catalog_is_scoped_to_default_project(
+            self):
+        project = self._create_project_and_set_as_default_project()
+
+        # attempt to authenticate without requesting a project or catalog
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
+
+        # ensure the project id in the token matches the default project id
+        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
+        self.assertEqual(project['id'], r.result['token']['project']['id'])
 
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
@@ -2647,71 +2715,6 @@ class TestAuthKerberos(TestAuthExternalDomain):
 
 
 class TestAuth(test_v3.RestfulTestCase):
-
-    def test_project_id_scoped_token_with_user_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            project_id=self.project['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidProjectScopedTokenResponse(r)
-
-    def _second_project_as_default(self):
-        ref = unit.new_project_ref(domain_id=self.domain_id)
-        r = self.post('/projects', body={'project': ref})
-        project = self.assertValidProjectResponse(r, ref)
-
-        # grant the user a role on the project
-        self.put(
-            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
-                'user_id': self.user['id'],
-                'project_id': project['id'],
-                'role_id': self.role['id']})
-
-        # set the user's preferred project
-        body = {'user': {'default_project_id': project['id']}}
-        r = self.patch('/users/%(user_id)s' % {
-            'user_id': self.user['id']},
-            body=body)
-        self.assertValidUserResponse(r)
-
-        return project
-
-    def test_default_project_id_scoped_token_with_user_id(self):
-        project = self._second_project_as_default()
-
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidProjectScopedTokenResponse(r)
-        self.assertEqual(project['id'], r.result['token']['project']['id'])
-
-    def test_default_project_id_scoped_token_with_user_id_no_catalog(self):
-        project = self._second_project_as_default()
-
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.post('/auth/tokens?nocatalog', body=auth_data, noauth=True)
-        self.assertValidProjectScopedTokenResponse(r, require_catalog=False)
-        self.assertEqual(project['id'], r.result['token']['project']['id'])
-
-    def test_explicit_unscoped_token(self):
-        self._second_project_as_default()
-
-        # attempt to authenticate without requesting a project
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            unscoped="unscoped")
-        r = self.post('/auth/tokens', body=auth_data, noauth=True)
-
-        self.assertIsNone(r.result['token'].get('project'))
-        self.assertIsNone(r.result['token'].get('domain'))
-        self.assertIsNone(r.result['token'].get('scope'))
 
     def test_implicit_project_id_scoped_token_with_user_id_no_catalog(self):
         # attempt to authenticate without requesting a project
