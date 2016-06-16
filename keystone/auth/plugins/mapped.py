@@ -39,10 +39,10 @@ class Mapped(auth.AuthMethodHandler):
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 
-    def authenticate(self, context, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload, auth_context):
         """Authenticate mapped user and set an authentication context.
 
-        :param context: keystone's request context
+        :param request: keystone's request context
         :param auth_payload: the content of the authentication for a
                              given method
         :param auth_context: user authentication context, a dictionary
@@ -55,13 +55,19 @@ class Mapped(auth.AuthMethodHandler):
         """
         if 'id' in auth_payload:
             token_ref = self._get_token_ref(auth_payload)
-            handle_scoped_token(context, auth_payload, auth_context, token_ref,
+            handle_scoped_token(request.context_dict,
+                                auth_payload,
+                                auth_context,
+                                token_ref,
                                 self.federation_api,
                                 self.identity_api,
                                 self.token_provider_api)
         else:
-            handle_unscoped_token(context, auth_payload, auth_context,
-                                  self.resource_api, self.federation_api,
+            handle_unscoped_token(request.context_dict,
+                                  auth_payload,
+                                  auth_context,
+                                  self.resource_api,
+                                  self.federation_api,
                                   self.identity_api)
 
 

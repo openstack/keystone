@@ -39,21 +39,21 @@ class Token(auth.AuthMethodHandler):
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 
-    def authenticate(self, context, auth_payload, user_context):
+    def authenticate(self, request, auth_payload, user_context):
         if 'id' not in auth_payload:
             raise exception.ValidationError(attribute='id',
                                             target='token')
         token_ref = self._get_token_ref(auth_payload)
         if token_ref.is_federated_user and self.federation_api:
             mapped.handle_scoped_token(
-                context, auth_payload, user_context, token_ref,
+                request.context_dict, auth_payload, user_context, token_ref,
                 self.federation_api, self.identity_api,
                 self.token_provider_api)
         else:
-            token_authenticate(context, auth_payload, user_context, token_ref)
+            token_authenticate(request, auth_payload, user_context, token_ref)
 
 
-def token_authenticate(context, auth_payload, user_context, token_ref):
+def token_authenticate(request, auth_payload, user_context, token_ref):
     try:
 
         # Do not allow tokens used for delegation to
@@ -69,7 +69,7 @@ def token_authenticate(context, auth_payload, user_context, token_ref):
             if token_ref.project_scoped or token_ref.domain_scoped:
                 raise exception.Forbidden(action=_("rescope a scoped token"))
 
-        wsgi.validate_token_bind(context, token_ref)
+        wsgi.validate_token_bind(request.context_dict, token_ref)
 
         # New tokens maintain the audit_id of the original token in the
         # chain (if possible) as the second element in the audit data

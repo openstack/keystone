@@ -30,30 +30,30 @@ CONF = cfg.CONF
 
 @six.add_metaclass(abc.ABCMeta)
 class Base(auth.AuthMethodHandler):
-    def authenticate(self, context, auth_info, auth_context):
+    def authenticate(self, request, auth_info, auth_context):
         """Use REMOTE_USER to look up the user in the identity backend.
 
         auth_context is an in-out variable that will be updated with the
         user_id from the actual user from the REMOTE_USER env variable.
         """
-        try:
-            REMOTE_USER = context['environment']['REMOTE_USER']
-        except KeyError:
+        if not request.remote_user:
             msg = _('No authenticated user')
             raise exception.Unauthorized(msg)
+
         try:
-            user_ref = self._authenticate(REMOTE_USER, context)
-            auth_context['user_id'] = user_ref['id']
-            if ('kerberos' in CONF.token.bind and
-                (context['environment'].get('AUTH_TYPE', '').lower()
-                 == 'negotiate')):
-                auth_context['bind']['kerberos'] = user_ref['name']
+            user_ref = self._authenticate(request)
         except Exception:
-            msg = _('Unable to lookup user %s') % (REMOTE_USER)
+            msg = _('Unable to lookup user %s') % request.remote_user
             raise exception.Unauthorized(msg)
 
+        auth_context['user_id'] = user_ref['id']
+        auth_type = (request.auth_type or '').lower()
+
+        if 'kerberos' in CONF.token.bind and auth_type == 'negotiate':
+            auth_context['bind']['kerberos'] = user_ref['name']
+
     @abc.abstractmethod
-    def _authenticate(self, remote_user, context):
+    def _authenticate(self, request):
         """Look up the user in the identity backend.
 
         Return user_ref
@@ -63,39 +63,35 @@ class Base(auth.AuthMethodHandler):
 
 @dependency.requires('identity_api')
 class DefaultDomain(Base):
-    def _authenticate(self, remote_user, context):
+    def _authenticate(self, request):
         """Use remote_user to look up the user in the identity backend."""
-        domain_id = CONF.identity.default_domain_id
-        user_ref = self.identity_api.get_user_by_name(remote_user, domain_id)
-        return user_ref
+        return self.identity_api.get_user_by_name(
+            request.remote_user,
+            CONF.identity.default_domain_id)
 
 
 @dependency.requires('identity_api', 'resource_api')
 class Domain(Base):
-    def _authenticate(self, remote_user, context):
+    def _authenticate(self, request):
         """Use remote_user to look up the user in the identity backend.
 
         The domain will be extracted from the REMOTE_DOMAIN environment
         variable if present. If not, the default domain will be used.
         """
-        username = remote_user
-        try:
-            domain_name = context['environment']['REMOTE_DOMAIN']
-        except KeyError:
-            domain_id = CONF.identity.default_domain_id
+        if request.remote_domain:
+            ref = self.resource_api.get_domain_by_name(request.remote_domain)
+            domain_id = ref['id']
         else:
-            domain_ref = self.resource_api.get_domain_by_name(domain_name)
-            domain_id = domain_ref['id']
+            domain_id = CONF.identity.default_domain_id
 
-        user_ref = self.identity_api.get_user_by_name(username, domain_id)
-        return user_ref
+        return self.identity_api.get_user_by_name(request.remote_user,
+                                                  domain_id)
 
 
 class KerberosDomain(Domain):
     """Allows `kerberos` as a method."""
 
-    def _authenticate(self, remote_user, context):
-        auth_type = context['environment'].get('AUTH_TYPE')
-        if auth_type != 'Negotiate':
+    def _authenticate(self, request):
+        if request.auth_type != 'Negotiate':
             raise exception.Unauthorized(_("auth_type is not Negotiate"))
-        return super(KerberosDomain, self)._authenticate(remote_user, context)
+        return super(KerberosDomain, self)._authenticate(request)
