@@ -352,6 +352,108 @@ class TokenAPITests(object):
                           self.token_provider_api.validate_token,
                           unscoped_token)
 
+    def test_create_domain_token_scoped_with_domain_id_and_user_id(self):
+        # grant the user a role on the domain
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_scoped_with_domain_id_and_username(self):
+        # grant the user a role on the domain
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_id=self.domain['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_scoped_with_domain_id(self):
+        # grant the user a role on the domain
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_name=self.domain['name'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_scoped_with_domain_name(self):
+        # grant the user a role on the domain
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_name=self.domain['name'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_scoped_with_domain_name_and_username(self):
+        # grant the user a role on the domain
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_id=self.domain['id'],
+            password=self.user['password'],
+            domain_name=self.domain['name'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_with_only_domain_name_and_username(self):
+        # grant the user a role on the domain
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_name=self.domain['name'],
+            password=self.user['password'],
+            domain_name=self.domain['name'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
+    def test_create_domain_token_with_group_role(self):
+        group = unit.new_group_ref(domain_id=self.domain_id)
+        group = self.identity_api.create_group(group)
+
+        # add user to group
+        self.identity_api.add_user_to_group(self.user['id'], group['id'])
+
+        # grant the domain role to group
+        path = '/domains/%s/groups/%s/roles/%s' % (
+            self.domain['id'], group['id'], self.role['id'])
+        self.put(path=path)
+
+        # now get a domain-scoped token
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+
     def test_validate_domain_scoped_token(self):
         # Grant user access to domain
         self.assignment_api.create_grant(self.role['id'],
@@ -3008,115 +3110,6 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertIn(role_admin['id'], roles_ids)
         self.assertNotIn(role_foo_domain1['id'], roles_ids)
         self.assertNotIn(role_group_domain1['id'], roles_ids)
-
-    def test_domain_id_scoped_token_with_user_id(self):
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_id=self.domain['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_id_scoped_token_with_user_domain_id(self):
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_id=self.domain['id'],
-            password=self.user['password'],
-            domain_id=self.domain['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_id_scoped_token_with_user_domain_name(self):
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_name=self.domain['name'],
-            password=self.user['password'],
-            domain_id=self.domain['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_name_scoped_token_with_user_id(self):
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_name=self.domain['name'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_name_scoped_token_with_user_domain_id(self):
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_id=self.domain['id'],
-            password=self.user['password'],
-            domain_name=self.domain['name'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_name_scoped_token_with_user_domain_name(self):
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_name=self.domain['name'],
-            password=self.user['password'],
-            domain_name=self.domain['name'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_scope_token_with_group_role(self):
-        group = unit.new_group_ref(domain_id=self.domain_id)
-        group = self.identity_api.create_group(group)
-
-        # add user to group
-        self.identity_api.add_user_to_group(self.user['id'], group['id'])
-
-        # grant the domain role to group
-        path = '/domains/%s/groups/%s/roles/%s' % (
-            self.domain['id'], group['id'], self.role['id'])
-        self.put(path=path)
-
-        # now get a domain-scoped token
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_id=self.domain['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
-
-    def test_domain_scope_token_with_name(self):
-        # grant the domain role to user
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain['id'], self.user['id'], self.role['id'])
-        self.put(path=path)
-        # now get a domain-scoped token
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_name=self.domain['name'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidDomainScopedTokenResponse(r)
 
     def test_domain_scope_failed(self):
         auth_data = self.build_authentication_request(
