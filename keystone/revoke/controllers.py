@@ -22,7 +22,7 @@ from keystone.i18n import _
 class RevokeController(controller.V3Controller):
     @controller.protected()
     def list_revoke_events(self, request):
-        since = request.context_dict['query_string'].get('since')
+        since = request.params.get('since')
         last_fetch = None
         if since:
             try:

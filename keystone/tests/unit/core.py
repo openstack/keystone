@@ -574,11 +574,10 @@ class TestCase(BaseTestCase):
     def make_request(self, path='/', **kwargs):
         context = {}
 
-        for k in ('is_admin', 'query_string'):
-            try:
-                context[k] = kwargs.pop(k)
-            except KeyError:
-                pass
+        try:
+            context['is_admin'] = kwargs.pop('is_admin')
+        except KeyError:
+            pass
 
         req = request.Request.blank(path=path, **kwargs)
         req.context_dict.update(context)

@@ -240,7 +240,7 @@ class OAuthControllerV3(controller.V3Controller):
         h, b, s = request_verifier.create_request_token_response(
             url,
             http_method='POST',
-            body=request.context_dict['query_string'],
+            body=request.params,
             headers=req_headers)
 
         if (not b) or int(s) > 399:
@@ -305,7 +305,7 @@ class OAuthControllerV3(controller.V3Controller):
         h, b, s = access_verifier.create_access_token_response(
             url,
             http_method='POST',
-            body=request.context_dict['query_string'],
+            body=request.params,
             headers=headers)
         params = oauth1.extract_non_oauth_params(b)
         if params:

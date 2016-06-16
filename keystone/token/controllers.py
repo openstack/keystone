@@ -432,7 +432,7 @@ class Auth(controller.V2Controller):
         the content body.
 
         """
-        belongs_to = request.context_dict['query_string'].get('belongsTo')
+        belongs_to = request.params.get('belongsTo')
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 
     @controller.v2_deprecated
@@ -445,7 +445,7 @@ class Auth(controller.V2Controller):
         Returns metadata about the token along any associated roles.
 
         """
-        belongs_to = request.context_dict['query_string'].get('belongsTo')
+        belongs_to = request.params.get('belongsTo')
         # TODO(ayoung) validate against revocation API
         return self.token_provider_api.validate_v2_token(token_id, belongs_to)
 

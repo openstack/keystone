@@ -216,20 +216,19 @@ class TrustV3(controller.V3Controller):
 
     @controller.protected()
     def list_trusts(self, request):
-        query = request.context_dict['query_string']
         trusts = []
-        if not query:
+        if not request.params:
             self.assert_admin(request.context_dict)
             trusts += self.trust_api.list_trusts()
-        if 'trustor_user_id' in query:
-            user_id = query['trustor_user_id']
+        if 'trustor_user_id' in request.params:
+            user_id = request.params['trustor_user_id']
             calling_user_id = self._get_user_id(request.context_dict)
             if user_id != calling_user_id:
                 raise exception.Forbidden()
             trusts += (self.trust_api.
                        list_trusts_for_trustor(user_id))
-        if 'trustee_user_id' in query:
-            user_id = query['trustee_user_id']
+        if 'trustee_user_id' in request.params:
+            user_id = request.params['trustee_user_id']
             calling_user_id = self._get_user_id(request.context_dict)
             if user_id != calling_user_id:
                 raise exception.Forbidden()

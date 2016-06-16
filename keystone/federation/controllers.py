@@ -250,7 +250,7 @@ class MappingController(_ControllerBase):
 @dependency.requires('federation_api')
 class Auth(auth_controllers.Auth):
 
-    def _get_sso_origin_host(self, context):
+    def _get_sso_origin_host(self, request):
         """Validate and return originating dashboard URL.
 
         Make sure the parameter is specified in the request's URL as well its
@@ -264,13 +264,14 @@ class Auth(auth_controllers.Auth):
         :returns: URL with the originating dashboard
 
         """
-        if 'origin' in context['query_string']:
-            origin = context['query_string']['origin']
-            host = urllib.parse.unquote_plus(origin)
-        else:
+        origin = request.params.get('origin')
+
+        if not origin:
             msg = _('Request must have an origin query parameter')
             LOG.error(msg)
             raise exception.ValidationError(msg)
+
+        host = urllib.parse.unquote_plus(origin)
 
         # change trusted_dashboard hostnames to lowercase before comparison
         trusted_dashboards = [k_utils.lower_case_hostname(trusted)
@@ -312,7 +313,7 @@ class Auth(auth_controllers.Auth):
             LOG.error(msg)
             raise exception.Unauthorized(msg)
 
-        host = self._get_sso_origin_host(request.context_dict)
+        host = self._get_sso_origin_host(request)
 
         ref = self.federation_api.get_idp_from_remote_id(remote_id)
         # NOTE(stevemar): the returned object is a simple dict that
@@ -325,7 +326,7 @@ class Auth(auth_controllers.Auth):
         return self.render_html_response(host, token_id)
 
     def federated_idp_specific_sso_auth(self, request, idp_id, protocol_id):
-        host = self._get_sso_origin_host(request.context_dict)
+        host = self._get_sso_origin_host(request)
 
         # NOTE(lbragstad): We validate that the Identity Provider actually
         # exists in the Mapped authentication plugin.
