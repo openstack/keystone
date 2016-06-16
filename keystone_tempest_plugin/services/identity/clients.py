@@ -12,6 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
+from six.moves import http_client
 from tempest import config
 from tempest.lib.common import rest_client
 
@@ -48,16 +51,27 @@ class Federation(Identity):
 
     def _delete(self, entity_id, **kwargs):
         url = self._build_path(entity_id)
-        return super(Federation, self).delete(url, **kwargs)
+        resp, body = super(Federation, self).delete(url, **kwargs)
+        self.expected_success(http_client.NO_CONTENT, resp.status)
+        return rest_client.ResponseBody(resp, body)
 
     def _get(self, entity_id=None, **kwargs):
         url = self._build_path(entity_id)
-        return super(Federation, self).get(url, **kwargs)
+        resp, body = super(Federation, self).get(url, **kwargs)
+        self.expected_success(http_client.OK, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)
 
     def _patch(self, entity_id, body, **kwargs):
         url = self._build_path(entity_id)
-        return super(Federation, self).patch(url, body, **kwargs)
+        resp, body = super(Federation, self).patch(url, body, **kwargs)
+        self.expected_success(http_client.OK, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)
 
     def _put(self, entity_id, body, **kwargs):
         url = self._build_path(entity_id)
-        return super(Federation, self).put(url, body, **kwargs)
+        resp, body = super(Federation, self).put(url, body, **kwargs)
+        self.expected_success(http_client.CREATED, resp.status)
+        body = json.loads(body)
+        return rest_client.ResponseBody(resp, body)

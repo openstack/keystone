@@ -31,30 +31,19 @@ class IdentityProvidersClient(clients.Federation):
                        (boolean) and remote_ids (list).
         """
         put_body = json.dumps({'identity_provider': kwargs})
-        resp, body = self._put(idp_id, put_body)
-        self.expected_success(201, resp.status)
-        body = json.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._put(idp_id, put_body)
 
     def list_identity_providers(self):
         """List the identity providers."""
-        resp, body = self._get()
-        self.expected_success(200, resp.status)
-        body = json.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._get()
 
     def show_identity_provider(self, idp_id):
         """Get an identity provider."""
-        resp, body = self._get(idp_id)
-        self.expected_success(200, resp.status)
-        body = json.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._get(idp_id)
 
     def delete_identity_provider(self, idp_id):
         """Delete an identity provider."""
-        resp, body = self._delete(idp_id)
-        self.expected_success(204, resp.status)
-        return rest_client.ResponseBody(resp, body)
+        return self._delete(idp_id)
 
     def update_identity_provider(self, idp_id, **kwargs):
         """Update an identity provider.
@@ -64,10 +53,7 @@ class IdentityProvidersClient(clients.Federation):
                        enabled (boolean) and remote_ids (list).
         """
         patch_body = json.dumps({'identity_provider': kwargs})
-        resp, body = self._patch(idp_id, patch_body)
-        self.expected_success(200, resp.status)
-        body = json.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._patch(idp_id, patch_body)
 
     def add_protocol_and_mapping(self, idp_id, protocol_id, mapping_id):
         """Add a protocol and mapping to an identity provider."""

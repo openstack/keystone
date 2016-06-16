@@ -115,6 +115,10 @@ class IndentityProvidersTest(base.BaseIdentityTest):
         # The identity provider should be disabled
         self.assertFalse(idp['enabled'])
 
+        idp_get = self.idps_client.show_identity_provider(
+            idp_id)['identity_provider']
+        self.assertFalse(idp_get['enabled'])
+
     def _assert_protocol_attributes(self, protocol, protocol_id,
                                     mapping_id=None):
         self.assertIn('id', protocol)

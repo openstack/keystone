@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_serialization import jsonutils
-
-from tempest.lib.common import rest_client
+import json
 
 from keystone_tempest_plugin.services.identity import clients
 
@@ -25,36 +23,22 @@ class MappingRulesClient(clients.Federation):
 
     def create_mapping_rule(self, mapping_id, rules):
         """Create a mapping rule."""
-        put_body = jsonutils.dumps({'mapping': rules})
-        resp, body = self._put(mapping_id, put_body)
-        self.expected_success(201, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        put_body = json.dumps({'mapping': rules})
+        return self._put(mapping_id, put_body)
 
     def list_mapping_rules(self):
         """List the mapping rules."""
-        resp, body = self._get()
-        self.expected_success(200, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._get()
 
     def show_mapping_rule(self, mapping_id):
         """Get a mapping rule."""
-        resp, body = self._get(mapping_id)
-        self.expected_success(200, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._get(mapping_id)
 
     def delete_mapping_rule(self, mapping_id):
         """Delete a mapping rule."""
-        resp, body = self._delete(mapping_id)
-        self.expected_success(204, resp.status)
-        return rest_client.ResponseBody(resp, body)
+        return self._delete(mapping_id)
 
     def update_mapping_rule(self, mapping_id, rules):
         """Update a mapping rule."""
-        patch_body = jsonutils.dumps({'mapping': rules})
-        resp, body = self._patch(mapping_id, patch_body)
-        self.expected_success(200, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        patch_body = json.dumps({'mapping': rules})
+        return self._patch(mapping_id, patch_body)
