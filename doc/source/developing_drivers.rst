@@ -72,24 +72,12 @@ The TLDR; steps (and too long didn't write yet):
 5. Configure your new driver in ``keystone.conf``
 6. Sit back and enjoy!
 
-Driver Versioning
------------------
+Driver Interface Changes
+------------------------
 
-In the past the driver class was named ``Driver`` and changes would
-sometimes be devastating to developers that depend on our driver
-contracts. To help alleviate some of the issues we are now creating
-version driver classes, e.g. ``DriverV8``.
-
-We'll be supporting the current driver version for at least one version back.
-This gives developers a full cycle to update their drivers. Some cases, such
-as critical security flaws, may require a change to be introduced that breaks
-compatibility. These special cases will be communicated as widely as possible
-via the typical OpenStack communication channels.
-
-As new driver interface versions are added old ones will be moved to a
-"deprecated" state and will output deprecation messages when used. When a
-driver version moves from "deprecated" to "unsupported" it will be
-removed from the keystone source tree.
+We no longer support driver versioning. Thus, if a driver interface
+changes, you will need to upgrade your custom driver to meet the
+new driver contract.
 
 Removing Methods
 ~~~~~~~~~~~~~~~~
@@ -100,31 +88,16 @@ There is no reason why methods removed from the Keystone interface need to be
 removed from custom drivers.
 
 Adding Methods
---------------
+~~~~~~~~~~~~~~
 
-The most common API changes will be adding method to support new
-features. We'll do our best to add methods in a way that is backward
-compatible. The new version of the driver will define the new method as
-an ``abc.abstractmethod`` that must be implemented by driver
-implementations. When possible we'll also go back to our supported drivers and
-add the method, with a default implementation.
-
-For example, given a ``thing.DriverV8`` that added a new method
-``list_things_by_name()``, we will go back to ``thing.DriverV7`` and
-implement that method. This is good because in many cases your driver
-will just work, but there are a couple of unfortunate side effects.
-First if you have already used that method name you will have to rename
-your method and cut a new version. Second is that the default
-implementation may cause a performance penalty due to its naive
-implementation.
+The most common API changes will be adding methods to support new
+features. The new method must be implemented by custom driver
+implementations.
 
 Updating Methods
 ~~~~~~~~~~~~~~~~
 
-We will try not to update existing methods in ways that will break old
-driver implementations. That means that:
-
-* We will respect existing parameters and not just delete them. If they are
-  to be removed we will respect their behavior and deprecate them in older
-  versions.
-* We will add new parameters as optional with backward compatible defaults.
+We will do our best not to update existing methods in ways that will break
+custom driver implementations. However, if that is not possible, again you
+will need to upgrade your custom driver implementation to meet the new
+driver contract.
