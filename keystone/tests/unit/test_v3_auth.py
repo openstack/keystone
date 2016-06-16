@@ -454,6 +454,15 @@ class TokenAPITests(object):
         r = self.v3_create_token(auth_data)
         self.assertValidDomainScopedTokenResponse(r)
 
+    def test_create_domain_token_without_grant_returns_unauthorized(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain['id'])
+        # this fails because the user does not have a role on self.domain
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
     def test_validate_domain_scoped_token(self):
         # Grant user access to domain
         self.assignment_api.create_grant(self.role['id'],
@@ -3110,14 +3119,6 @@ class TestAuth(test_v3.RestfulTestCase):
         self.assertIn(role_admin['id'], roles_ids)
         self.assertNotIn(role_foo_domain1['id'], roles_ids)
         self.assertNotIn(role_group_domain1['id'], roles_ids)
-
-    def test_domain_scope_failed(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            domain_id=self.domain['id'])
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
 
     def test_auth_with_id(self):
         auth_data = self.build_authentication_request(
