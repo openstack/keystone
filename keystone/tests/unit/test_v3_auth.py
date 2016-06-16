@@ -233,6 +233,29 @@ class TokenAPITests(object):
             value,
             "%s != %s" % (expected, value))
 
+    def test_create_unscoped_token_with_user_id(self):
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+
+    def test_create_unscoped_token_with_user_domain_id(self):
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_id=self.domain['id'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+
+    def test_create_unscoped_token_with_user_domain_name(self):
+        auth_data = self.build_authentication_request(
+            username=self.user['name'],
+            user_domain_name=self.domain['name'],
+            password=self.user['password'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+
     def test_validate_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
         self._validate_token(unscoped_token)
@@ -2624,29 +2647,6 @@ class TestAuthKerberos(TestAuthExternalDomain):
 
 
 class TestAuth(test_v3.RestfulTestCase):
-
-    def test_unscoped_token_with_user_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
-    def test_unscoped_token_with_user_domain_id(self):
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_id=self.domain['id'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
-    def test_unscoped_token_with_user_domain_name(self):
-        auth_data = self.build_authentication_request(
-            username=self.user['name'],
-            user_domain_name=self.domain['name'],
-            password=self.user['password'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
 
     def test_project_id_scoped_token_with_user_id(self):
         auth_data = self.build_authentication_request(
