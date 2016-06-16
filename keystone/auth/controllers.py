@@ -502,10 +502,10 @@ class Auth(controller.V3Controller):
         # The 'external' method allows any 'REMOTE_USER' based authentication
         # In some cases the server can set REMOTE_USER as '' instead of
         # dropping it, so this must be filtered out
-        if request.context_dict['environment'].get('REMOTE_USER'):
+        if request.remote_user:
             try:
                 external = get_auth_method('external')
-                external.authenticate(request.context_dict,
+                external.authenticate(request,
                                       auth_info,
                                       auth_context)
             except exception.AuthMethodNotSupported:
@@ -526,7 +526,7 @@ class Auth(controller.V3Controller):
         auth_response = {'methods': []}
         for method_name in auth_info.get_method_names():
             method = get_auth_method(method_name)
-            resp = method.authenticate(request.context_dict,
+            resp = method.authenticate(request,
                                        auth_info.get_method_data(method_name),
                                        auth_context)
             if resp:
