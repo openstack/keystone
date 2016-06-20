@@ -1151,6 +1151,28 @@ class TokenAPITests(object):
 
         self.assertEqual(v2_issued_at, v3_issued_at)
 
+    def test_create_v3_project_token_from_v2_project_token(self):
+        r = self.admin_request(
+            path='/v2.0/tokens',
+            method='POST',
+            body={
+                'auth': {
+                    'passwordCredentials': {
+                        'userId': self.default_domain_user['id'],
+                        'password': self.default_domain_user['password']
+                    },
+                    'tenantId': self.default_domain_project['id']
+                }
+            })
+        v2_token_data = r.result
+        v2_token = v2_token_data['access']['token']['id']
+
+        auth_data = self.build_authentication_request(
+            token=v2_token,
+            project_id=self.default_domain_project['id'])
+        r = self.v3_create_token(auth_data)
+        self.assertValidScopedTokenResponse(r)
+
     def test_v2_token_deleted_on_v3(self):
         # Create a v2 token.
         body = {
@@ -3251,29 +3273,6 @@ class TestAuthKerberos(TestAuthExternalDomain):
 
 
 class TestAuth(test_v3.RestfulTestCase):
-
-    def get_v2_token(self, tenant_id=None):
-        body = {
-            'auth': {
-                'passwordCredentials': {
-                    'username': self.default_domain_user['name'],
-                    'password': self.default_domain_user['password'],
-                },
-            },
-        }
-        r = self.admin_request(method='POST', path='/v2.0/tokens', body=body)
-        return r
-
-    def test_validate_v2_scoped_token_with_v3_api(self):
-        v2_response = self.get_v2_token(
-            tenant_id=self.default_domain_project['id'])
-        result = v2_response.result
-        v2_token = result['access']['token']['id']
-        auth_data = self.build_authentication_request(
-            token=v2_token,
-            project_id=self.default_domain_project['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidScopedTokenResponse(r)
 
     def test_remote_user_no_realm(self):
         api = auth.controllers.Auth()
