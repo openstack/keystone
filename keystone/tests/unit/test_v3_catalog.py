@@ -339,11 +339,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_filter_list_services_by_name(self):
         """Call ``GET /services?name=<some name>``."""
-        target_ref = self._create_random_service()
-
         # create unrelated services
         self._create_random_service()
         self._create_random_service()
+
+        # create the desired service
+        target_ref = self._create_random_service()
 
         response = self.get('/services?name=' + target_ref['name'])
         self.assertValidServiceListResponse(response, ref=target_ref)
@@ -353,6 +354,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
         filtered_service = filtered_service_list[0]
         self.assertEqual(target_ref['name'], filtered_service['name'])
+
+    def test_filter_list_services_by_name_with_list_limit(self):
+        """Call ``GET /services?name=<some name>``."""
+        self.config_fixture.config(list_limit=1)
+
+        self.test_filter_list_services_by_name()
 
     def test_get_service(self):
         """Call ``GET /services/{service_id}``."""

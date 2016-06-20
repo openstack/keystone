@@ -38,7 +38,7 @@ def truncated(f):
                 _('Cannot truncate a driver call without hints list as '
                   'first parameter after self '))
 
-        if hints.limit is None:
+        if hints.limit is None or hints.filters:
             return f(self, hints, *args, **kwargs)
 
         # A limit is set, so ask for one more entry than we need
