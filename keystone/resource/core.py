@@ -692,6 +692,10 @@ class Manager(manager.Manager):
         try:
             # Retrieve the corresponding project that acts as a domain
             project = self.driver.get_project(domain_id)
+            # the DB backend might not operate in case sensitive mode,
+            # therefore verify for exact match of IDs
+            if domain_id != project['id']:
+                raise exception.DomainNotFound(domain_id=domain_id)
         except exception.ProjectNotFound:
             raise exception.DomainNotFound(domain_id=domain_id)
 
