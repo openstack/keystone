@@ -3653,10 +3653,6 @@ class TestAuthKerberos(TestAuthExternalDomain):
             methods=['kerberos', 'password', 'token'])
 
 
-class TestAuth(test_v3.RestfulTestCase):
-    pass
-
-
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
     content_type = 'json'
 
@@ -4784,16 +4780,6 @@ class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
         self.config_fixture.config(group='trust',
                                    enabled=True)
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
-
-
-class TestAuthFernetTokenProvider(TestAuth):
-    def setUp(self):
-        super(TestAuthFernetTokenProvider, self).setUp()
-
-    def config_overrides(self):
-        super(TestAuthFernetTokenProvider, self).config_overrides()
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
-        self.config_fixture.config(group='token', provider='fernet')
 
 
 class TestAuthTOTP(test_v3.RestfulTestCase):
