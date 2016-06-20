@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_serialization import jsonutils
-
-from tempest.lib.common import rest_client
+import json
 
 from keystone_tempest_plugin.services.identity import clients
 
@@ -31,31 +29,20 @@ class ServiceProvidersClient(clients.Federation):
                        (str). Optional: description (str), enabled (boolean)
                        and relay_state_prefix (str).
         """
-        put_body = jsonutils.dumps({'service_provider': kwargs})
-        resp, body = self._put(sp_id, put_body)
-        self.expected_success(201, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        put_body = json.dumps({'service_provider': kwargs})
+        return self._put(sp_id, put_body)
 
     def list_service_providers(self):
         """List the service providers."""
-        resp, body = self._get()
-        self.expected_success(200, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._get()
 
     def show_service_provider(self, sp_id):
         """Get a service provider."""
-        resp, body = self._get(sp_id)
-        self.expected_success(200, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        return self._get(sp_id)
 
     def delete_service_provider(self, sp_id):
         """Delete a service provider."""
-        resp, body = self._delete(sp_id)
-        self.expected_success(204, resp.status)
-        return rest_client.ResponseBody(resp, body)
+        return self._delete(sp_id)
 
     def update_service_provider(self, sp_id, **kwargs):
         """Update a service provider.
@@ -65,11 +52,8 @@ class ServiceProvidersClient(clients.Federation):
                        (str), description (str), enabled (boolean) and
                        relay_state_prefix (str).
         """
-        patch_body = jsonutils.dumps({'service_provider': kwargs})
-        resp, body = self._patch(sp_id, patch_body)
-        self.expected_success(200, resp.status)
-        body = jsonutils.loads(body)
-        return rest_client.ResponseBody(resp, body)
+        patch_body = json.dumps({'service_provider': kwargs})
+        return self._patch(sp_id, patch_body)
 
     def get_service_providers_in_token(self):
         """Get the service providers list present in the token.

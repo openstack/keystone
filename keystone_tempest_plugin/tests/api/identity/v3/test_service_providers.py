@@ -161,9 +161,13 @@ class ServiceProvidersTest(base.BaseIdentityTest):
         # The service provider should be now disabled
         self.assertFalse(sp['enabled'])
 
+        sp_get = self.sps_client.show_service_provider(sp_id)[
+            'service_provider']
+        self.assertFalse(sp_get['enabled'])
+
     @test.attr(type=['negative'])
     @decorators.idempotent_id('91ce1183-1a15-4598-ae5f-85cfa98a1c77')
-    def test_service_provider_update_with_bad_attributes(self):
+    def test_service_provider_update_with_bad_attributes_fails(self):
         sp_id = data_utils.rand_uuid_hex()
         self._create_sp(sp_id, fixtures.sp_ref())
 

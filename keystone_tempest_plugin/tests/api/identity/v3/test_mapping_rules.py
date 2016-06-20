@@ -50,7 +50,7 @@ class MappingRulesTest(base.BaseIdentityTest):
 
     @test.attr(type=['negative'])
     @decorators.idempotent_id('341dac45-ce1f-4f15-afdc-1f9a7d7d7c40')
-    def test_mapping_rules_create_without_mandatory_attributes(self):
+    def test_mapping_rules_create_without_mandatory_attributes_fails(self):
         mapping_id = data_utils.rand_uuid_hex()
         self.assertRaises(
             lib_exc.BadRequest,
@@ -96,3 +96,8 @@ class MappingRulesTest(base.BaseIdentityTest):
             mapping_id, mapping_ref)['mapping']
         self._assert_mapping_rules_attributes(
             mapping, mapping_id, mapping_ref)
+
+        mapping_get = self.mappings_client.show_mapping_rule(mapping_id)[
+            'mapping']
+        self._assert_mapping_rules_attributes(
+            mapping_get, mapping_id, mapping)
