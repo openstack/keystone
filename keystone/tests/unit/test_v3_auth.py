@@ -3264,12 +3264,6 @@ class TestAuth(test_v3.RestfulTestCase):
         r = self.admin_request(method='POST', path='/v2.0/tokens', body=body)
         return r
 
-    def test_validate_v2_unscoped_token_with_v3_api(self):
-        v2_token = self.get_v2_token().result['access']['token']['id']
-        auth_data = self.build_authentication_request(token=v2_token)
-        r = self.v3_create_token(auth_data)
-        self.assertValidUnscopedTokenResponse(r)
-
     def test_validate_v2_scoped_token_with_v3_api(self):
         v2_response = self.get_v2_token(
             tenant_id=self.default_domain_project['id'])
