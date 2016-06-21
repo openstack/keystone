@@ -35,7 +35,9 @@ def upgrade(migrate_engine):
         sql.Column('protocol_id', sql.String(64), nullable=False),
         sql.Column('unique_id', sql.String(255), nullable=False),
         sql.Column('display_name', sql.String(255), nullable=True),
-        sql.UniqueConstraint('idp_id', 'protocol_id', 'unique_id'))
+        sql.UniqueConstraint('idp_id', 'protocol_id', 'unique_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8')
     federated_table.create(migrate_engine, checkfirst=True)
 
     migrate.ForeignKeyConstraint(
