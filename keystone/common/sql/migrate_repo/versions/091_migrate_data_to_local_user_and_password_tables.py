@@ -54,11 +54,29 @@ def upgrade(migrate_engine):
     if password_values:
         password_table.insert().values(password_values).execute()
 
+    # NOTE(gnuoy): the `domain_id` unique constraint is not guaranteed to
+    # be a fixed name, such as 'ixu_user_name_domain_id`, so we need to
+    # search for the correct constraint that only affects
+    # user_table.c.domain_id and drop that constraint. (Fix based on
+    # morganfainbergs fix in 088_domain_specific_roles.py)
+    to_drop = None
+    if migrate_engine.name == 'mysql':
+        for index in user_table.indexes:
+            if (index.unique and len(index.columns) == 2 and
+                    'domain_id' in index.columns and 'name' in index.columns):
+                to_drop = index
+                break
+    else:
+        for index in user_table.constraints:
+            if (len(index.columns) == 2 and 'domain_id' in index.columns and
+                    'name' in index.columns):
+                to_drop = index
+                break
     # remove domain_id and name unique constraint
-    if migrate_engine.name != 'sqlite':
+    if migrate_engine.name != 'sqlite' and to_drop is not None:
         migrate.UniqueConstraint(user_table.c.domain_id,
                                  user_table.c.name,
-                                 name='ixu_user_name_domain_id').drop()
+                                 name=to_drop.name).drop()
 
     # drop user columns
     user_table.c.domain_id.drop()
