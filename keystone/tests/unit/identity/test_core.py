@@ -192,10 +192,10 @@ class TestShadowUsers(unit.TestCase):
                                                     fed_user['display_name'])
         )
         self.assertIsNotNone(user['id'])
-        self.assertEqual(len(user.keys()), 4)
+        self.assertEqual(4, len(user.keys()))
         self.assertIsNotNone(user['name'])
         self.assertIsNone(user['domain_id'])
-        self.assertEqual(user['enabled'], True)
+        self.assertEqual(True, user['enabled'])
 
     def test_shadow_existing_federated_user(self):
         fed_user = unit.new_federated_user_ref()

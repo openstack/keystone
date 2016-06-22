@@ -272,7 +272,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         url_by_name = '/users?name__endswith=of'
         r = self.get(url_by_name, auth=self.auth)
         self.assertEqual(1, len(r.result.get('users')))
-        self.assertEqual(r.result.get('users')[0]['id'], user_list[7]['id'])
+        self.assertEqual(user_list[7]['id'], r.result.get('users')[0]['id'])
 
         url_by_name = '/users?name__iendswith=OF'
         r = self.get(url_by_name, auth=self.auth)

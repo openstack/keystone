@@ -669,8 +669,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         r = self.post(
             '/projects',
             body={'project': ref_child})
-        self.assertEqual(r.result['project']['domain_id'],
-                         self.project['domain_id'])
+        self.assertEqual(self.project['domain_id'],
+                         r.result['project']['domain_id'])
         ref_child['domain_id'] = self.domain['id']
         self.assertValidProjectResponse(r, ref_child)
 

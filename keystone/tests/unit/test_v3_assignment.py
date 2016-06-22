@@ -1633,10 +1633,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                 'role_id': role1['id']})
         rs_role = self.get(collection_url_role)
         # Make sure all entities were created successfully
-        self.assertEqual(rs_domain.status_int, http_client.OK)
-        self.assertEqual(rs_project.status_int, http_client.OK)
-        self.assertEqual(rs_group.status_int, http_client.OK)
-        self.assertEqual(rs_user.status_int, http_client.OK)
+        self.assertEqual(http_client.OK, rs_domain.status_int)
+        self.assertEqual(http_client.OK, rs_project.status_int)
+        self.assertEqual(http_client.OK, rs_group.status_int)
+        self.assertEqual(http_client.OK, rs_user.status_int)
         # Make sure we can get back the correct number of entities
         self.assertValidRoleAssignmentListResponse(
             rs_domain,
