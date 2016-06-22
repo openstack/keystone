@@ -20,11 +20,14 @@ from keystone.tests.unit import fakeldap
 class LDAPDatabase(fixtures.Fixture):
     """A fixture for setting up and tearing down an LDAP database."""
 
+    def __init__(self, dbclass=fakeldap.FakeLdap):
+        self._dbclass = dbclass
+
     def setUp(self):
         super(LDAPDatabase, self).setUp()
         self.clear()
         common_ldap._HANDLERS.clear()
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
+        common_ldap.register_handler('fake://', self._dbclass)
         # TODO(dstanek): switch the flow here
         self.addCleanup(self.clear)
         self.addCleanup(common_ldap._HANDLERS.clear)
