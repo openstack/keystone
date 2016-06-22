@@ -156,7 +156,6 @@ class TestMapped(unit.TestCase):
             self.assertEqual(method_name, auth_payload['protocol'])
 
     def test_mapped_with_remote_user(self):
-        # external plugin should fail and pass to mapped plugin
         method_name = 'saml2'
         auth_data = {'methods': [method_name]}
         # put the method name in the payload so its easier to correlate
