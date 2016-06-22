@@ -27,6 +27,7 @@ from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import fakeldap
 from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit.ksfixtures import ldapdb
 
 
 CONF = cfg.CONF
@@ -205,19 +206,12 @@ class LDAPDeleteTreeTest(unit.TestCase):
     def setUp(self):
         super(LDAPDeleteTreeTest, self).setUp()
 
-        common_ldap.register_handler('fake://',
-                                     fakeldap.FakeLdapNoSubtreeDelete)
+        self.useFixture(
+            ldapdb.LDAPDatabase(dbclass=fakeldap.FakeLdapNoSubtreeDelete))
         self.useFixture(database.Database(self.sql_driver_version_overrides))
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
-
-        self.addCleanup(self.clear_database)
-        self.addCleanup(common_ldap._HANDLERS.clear)
-
-    def clear_database(self):
-        for shelf in fakeldap.FakeShelves:
-            fakeldap.FakeShelves[shelf].clear()
 
     def config_overrides(self):
         super(LDAPDeleteTreeTest, self).config_overrides()
@@ -375,18 +369,12 @@ class LDAPPagedResultsTest(unit.TestCase):
 
     def setUp(self):
         super(LDAPPagedResultsTest, self).setUp()
-        self.clear_database()
 
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
-        self.addCleanup(common_ldap._HANDLERS.clear)
+        self.useFixture(ldapdb.LDAPDatabase())
         self.useFixture(database.Database(self.sql_driver_version_overrides))
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
-
-    def clear_database(self):
-        for shelf in fakeldap.FakeShelves:
-            fakeldap.FakeShelves[shelf].clear()
 
     def config_overrides(self):
         super(LDAPPagedResultsTest, self).config_overrides()

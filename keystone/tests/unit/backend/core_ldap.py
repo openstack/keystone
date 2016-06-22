@@ -15,11 +15,10 @@ import ldap
 from oslo_config import cfg
 
 from keystone.common import cache
-from keystone.identity.backends.ldap import common as common_ldap
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
-from keystone.tests.unit import fakeldap
 from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit.ksfixtures import ldapdb
 
 
 CONF = cfg.CONF
@@ -39,21 +38,14 @@ class BaseBackendLdapCommon(object):
 
     def setUp(self):
         super(BaseBackendLdapCommon, self).setUp()
+        self.useFixture(ldapdb.LDAPDatabase())
 
-        common_ldap.register_handler('fake://', fakeldap.FakeLdap)
         self.load_backends()
         self.load_fixtures(default_fixtures)
-
-        self.addCleanup(common_ldap._HANDLERS.clear)
-        self.addCleanup(self.clear_database)
 
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""
         return self.resource_api.get_domain(CONF.identity.default_domain_id)
-
-    def clear_database(self):
-        for shelf in fakeldap.FakeShelves:
-            fakeldap.FakeShelves[shelf].clear()
 
     def get_config(self, domain_id):
         # Only one conf structure unless we are using separate domain backends
@@ -111,7 +103,6 @@ class BaseBackendLdapIdentitySqlEverythingElse(unit.SQLDriverOverrides):
     def setUp(self):
         sqldb = self.useFixture(database.Database())
         super(BaseBackendLdapIdentitySqlEverythingElse, self).setUp()
-        self.clear_database()
         self.load_backends()
         cache.configure_cache()
 
