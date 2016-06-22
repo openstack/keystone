@@ -106,8 +106,8 @@ class ResourceTests(object):
         project_name = project['name'] = (project['name'] + '    ')
         project_returned = self.resource_api.create_project(project_id,
                                                             project)
-        self.assertEqual(project_returned['id'], project_id)
-        self.assertEqual(project_returned['name'], project_name.strip())
+        self.assertEqual(project_id, project_returned['id'])
+        self.assertEqual(project_name.strip(), project_returned['name'])
 
     def test_create_duplicate_project_name_in_different_domains(self):
         new_domain = unit.new_domain_ref()
@@ -256,11 +256,11 @@ class ResourceTests(object):
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
         project_create = self.resource_api.create_project(project_id, project)
-        self.assertEqual(project_create['id'], project_id)
+        self.assertEqual(project_id, project_create['id'])
         project_name = project['name'] = (project['name'] + '    ')
         project_update = self.resource_api.update_project(project_id, project)
-        self.assertEqual(project_update['id'], project_id)
-        self.assertEqual(project_update['name'], project_name.strip())
+        self.assertEqual(project_id, project_update['id'])
+        self.assertEqual(project_name.strip(), project_update['name'])
 
     def test_delete_domain_with_user_group_project_links(self):
         # TODO(chungg):add test case once expected behaviour defined
