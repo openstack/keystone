@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
 import sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import orm
@@ -63,25 +65,39 @@ class User(sql.ModelBase, sql.DictBase):
     def name(cls):
         return LocalUser.name
 
-    # password property
+    # password properties
+    @hybrid_property
+    def password_ref(self):
+        """Return the current password."""
+        if self.local_user and self.local_user.passwords:
+            return self.local_user.passwords[-1]
+        return None
+
     @hybrid_property
     def password(self):
-        if self.local_user and self.local_user.passwords:
-            return self.local_user.passwords[0].password
-        else:
-            return None
+        if self.password_ref:
+            return self.password_ref.password
+        return None
+
+    @hybrid_property
+    def password_expires_at(self):
+        if self.password_ref:
+            return self.password_ref.expires_at
+        return None
 
     @password.setter
     def password(self, value):
-        if not value:
-            if self.local_user and self.local_user.passwords:
-                self.local_user.passwords = []
-        else:
-            if not self.local_user:
-                self.local_user = LocalUser()
-            if not self.local_user.passwords:
-                self.local_user.passwords.append(Password())
-            self.local_user.passwords[0].password = value
+        now = datetime.datetime.utcnow()
+        if not self.local_user:
+            self.local_user = LocalUser()
+        # set all previous passwords to be expired
+        for ref in self.local_user.passwords:
+            if not ref.expires_at or ref.expires_at > now:
+                ref.expires_at = now
+        new_password_ref = Password()
+        new_password_ref.password = value
+        new_password_ref.created_at = now
+        self.local_user.passwords.append(new_password_ref)
 
     @password.expression
     def password(cls):
@@ -126,17 +142,23 @@ class LocalUser(sql.ModelBase, sql.DictBase):
                                  single_parent=True,
                                  cascade='all,delete-orphan',
                                  lazy='subquery',
-                                 backref='local_user')
+                                 backref='local_user',
+                                 order_by='Password.created_at')
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
 class Password(sql.ModelBase, sql.DictBase):
     __tablename__ = 'password'
-    attributes = ['id', 'local_user_id', 'password']
+    attributes = ['id', 'local_user_id', 'password', 'created_at',
+                  'expires_at']
     id = sql.Column(sql.Integer, primary_key=True)
     local_user_id = sql.Column(sql.Integer, sql.ForeignKey('local_user.id',
                                ondelete='CASCADE'))
     password = sql.Column(sql.String(128))
+    # created_at default set here to safe guard in case it gets missed
+    created_at = sql.Column(sql.DateTime, nullable=False,
+                            default=datetime.datetime.utcnow)
+    expires_at = sql.Column(sql.DateTime, nullable=True)
 
 
 class FederatedUser(sql.ModelBase, sql.ModelDictMixin):

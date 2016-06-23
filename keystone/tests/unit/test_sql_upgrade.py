@@ -1381,6 +1381,59 @@ class SqlUpgradeTests(SqlMigrateBase):
             self.assertFalse(self.does_constraint_exist('user',
                                                         constraint_name))
 
+    def test_migration_105_add_password_date_columns(self):
+        def add_user_model_record(session):
+            # add a user
+            user = {'id': uuid.uuid4().hex}
+            self.insert_dict(session, 'user', user)
+            # add a local user
+            local_user = {
+                'id': 1,
+                'user_id': user['id'],
+                'domain_id': 'default',
+                'name': uuid.uuid4().hex
+            }
+            self.insert_dict(session, 'local_user', local_user)
+            # add a password
+            password = {
+                'local_user_id': local_user['id'],
+                'password': uuid.uuid4().hex
+            }
+            self.insert_dict(session, 'password', password)
+        self.upgrade(104)
+        session = self.sessionmaker()
+        password_name = 'password'
+        # columns before
+        self.assertTableColumns(password_name,
+                                ['id',
+                                 'local_user_id',
+                                 'password'])
+        # add record and verify table count is greater than zero
+        add_user_model_record(session)
+        password_table = sqlalchemy.Table(password_name, self.metadata,
+                                          autoload=True)
+        cnt = session.query(password_table).count()
+        self.assertGreater(cnt, 0)
+        self.metadata.clear()
+        self.upgrade(105)
+        # columns after
+        self.assertTableColumns(password_name,
+                                ['id',
+                                 'local_user_id',
+                                 'password',
+                                 'created_at',
+                                 'expires_at'])
+        password_table = sqlalchemy.Table(password_name, self.metadata,
+                                          autoload=True)
+        # verify created_at is not null
+        null_created_at_cnt = (
+            session.query(password_table).filter_by(created_at=None).count())
+        self.assertEqual(null_created_at_cnt, 0)
+        # verify expires_at is null
+        null_expires_at_cnt = (
+            session.query(password_table).filter_by(expires_at=None).count())
+        self.assertGreater(null_expires_at_cnt, 0)
+
 
 class MySQLOpportunisticUpgradeTestCase(SqlUpgradeTests):
     FIXTURE = test_base.MySQLOpportunisticFixture
