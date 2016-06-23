@@ -57,12 +57,14 @@ driver`.
 
 password_expires_days = cfg.IntOpt(
     'password_expires_days',
-    default=0,
-    min=0,
+    default=None,
+    min=1,
     help=utils.fmt("""
-The number of days which a password will be considered valid before requiring
-the user to change it. Setting the value to zero (the default) disables this
-feature. This feature depends on the `sql` backend for the `[identity] driver`.
+The number of days for which a password will be considered valid
+before requiring it to be changed. This feature is disabled by default. If
+enabled, new password changes will have an expiration date, however existing
+passwords would not be impacted. This feature depends on the `sql` backend for
+the `[identity] driver`.
 """))
 
 unique_last_password_count = cfg.IntOpt(

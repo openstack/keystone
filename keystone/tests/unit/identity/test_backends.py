@@ -121,6 +121,13 @@ class IdentityTests(object):
         self.user_foo.pop('password')
         self.assertDictEqual(self.user_foo, user_ref)
 
+    def test_get_user_returns_required_attributes(self):
+        user_ref = self.identity_api.get_user(self.user_foo['id'])
+        self.assertIn('id', user_ref)
+        self.assertIn('name', user_ref)
+        self.assertIn('enabled', user_ref)
+        self.assertIn('password_expires_at', user_ref)
+
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_get_user(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)

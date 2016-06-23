@@ -107,6 +107,7 @@ class IdentityDriverV8Tests(object):
             'password': uuid.uuid4().hex,
             'enabled': True,
             'default_project_id': uuid.uuid4().hex,
+            'password_expires_at': None
         }
         if self.driver.is_domain_aware():
             user['domain_id'] = uuid.uuid4().hex

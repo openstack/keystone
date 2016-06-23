@@ -67,6 +67,8 @@ class Identity(base.IdentityDriverV8):
             raise AssertionError(_('Invalid user / password'))
         elif not user_ref.enabled:
             raise exception.UserDisabled(user_id=user_id)
+        elif user_ref.password_is_expired:
+            raise exception.PasswordExpired(user_id=user_id)
         # successful auth, reset failed count if present
         if user_ref.local_user.failed_auth_count:
             self._reset_failed_auth(user_id)
@@ -165,7 +167,7 @@ class Identity(base.IdentityDriverV8):
                 old_user_dict[k] = user[k]
             new_user = model.User.from_dict(old_user_dict)
             for attr in model.User.attributes:
-                if attr != 'id':
+                if attr not in model.User.readonly_attributes:
                     setattr(user_ref, attr, getattr(new_user, attr))
             user_ref.extra = new_user.extra
             return base.filter_user(

@@ -43,6 +43,8 @@ def filter_user(user_ref):
         except KeyError:  # nosec
             # ok to not have extra in the user_ref.
             pass
+        if 'password_expires_at' not in user_ref:
+            user_ref['password_expires_at'] = None
     return user_ref
 
 
@@ -60,6 +62,9 @@ class IdentityDriverV8(object):
     * the domain_id should not be returned in user / group refs. They'll be
       overwritten.
 
+    The password_expires_at in the user schema is a read-only attribute,
+    meaning that it is expected in the response, but not in the request.
+
     User schema (if driver is domain aware)::
 
         type: object
@@ -72,6 +77,8 @@ class IdentityDriverV8(object):
                 type: string
             password:
                 type: string
+            password_expires_at:
+                type: datetime
             enabled:
                 type: boolean
             default_project_id:
@@ -89,6 +96,8 @@ class IdentityDriverV8(object):
                 type: string
             password:
                 type: string
+            password_expires_at:
+                type: datetime
             enabled:
                 type: boolean
             default_project_id:
