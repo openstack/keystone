@@ -706,22 +706,11 @@ class TestCase(BaseTestCase):
         kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
 
         self.clear_auth_plugin_registry()
-        drivers, _unused = common.setup_backends(
-            load_extra_backends_fn=self.load_extra_backends)
+        drivers, _unused = common.setup_backends()
 
         for manager_name, manager in drivers.items():
             setattr(self, manager_name, manager)
         self.addCleanup(self.cleanup_instance(*list(drivers.keys())))
-
-    def load_extra_backends(self):
-        """Override to load managers that aren't loaded by default.
-
-        This is useful to load managers initialized by extensions. No extra
-        backends are loaded by default.
-
-        :returns: dict of name -> manager
-        """
-        return {}
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.
