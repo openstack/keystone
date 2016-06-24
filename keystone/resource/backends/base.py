@@ -516,7 +516,7 @@ class V9ResourceWrapperForV8Driver(ResourceDriverV9):
 
         If the filter includes domain_id==None, then we should only list
         domains (convert to a project acting as a domain) since regular
-        projcets always have a non-None value for domain_id.
+        projects always have a non-None value for domain_id.
 
         Likewise, if the filter includes domain_id==<non-None value>, then we
         should only list projects.

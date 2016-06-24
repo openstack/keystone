@@ -335,7 +335,7 @@ class LDAPHandler(object):
 
     Native Keystone values cannot be passed directly into and from the
     python-ldap API. Type conversion must occur at the LDAP API
-    boudary, examples of type conversions are:
+    boundary, examples of type conversions are:
 
         * booleans map to the strings 'TRUE' and 'FALSE'
 
@@ -381,7 +381,7 @@ class LDAPHandler(object):
         subclassing
 
             To perform the wrapping operations in the correct order
-            the type convesion class would have to subclass each of
+            the type conversion class would have to subclass each of
             the API providers. This is awkward, doubles the number of
             classes, and does not scale well. It requires the type
             conversion class to be aware of all possible API
@@ -839,7 +839,7 @@ class PooledLDAPHandler(LDAPHandler):
 class KeystoneLDAPHandler(LDAPHandler):
     """Convert data types and perform logging.
 
-    This LDAP inteface wraps the python-ldap based interfaces. The
+    This LDAP interface wraps the python-ldap based interfaces. The
     python-ldap interfaces require string values encoded in UTF-8. The
     OpenStack logging framework at the time of this writing is not
     capable of accepting strings encoded in UTF-8, the log functions

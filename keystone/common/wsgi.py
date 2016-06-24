@@ -805,7 +805,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
         body['error']['identity'] = error.authentication
     elif isinstance(error, exception.Unauthorized):
         # NOTE(gyee): we only care about the request environment in the
-        # context. Also, its OK to pass the environemt as it is read-only in
+        # context. Also, its OK to pass the environment as it is read-only in
         # Application.base_url()
         local_context = {}
         if request:

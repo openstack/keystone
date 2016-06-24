@@ -110,7 +110,7 @@ class DomainConfigDriverV8(object):
                        parameter is ignored
 
         The option is uniquely defined by domain_id, group and option,
-        irrespective of whether it is sensistive ot not.
+        irrespective of whether it is sensitive ot not.
 
         """
         raise exception.NotImplemented()  # pragma: no cover

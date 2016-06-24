@@ -67,7 +67,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
     def get_scoped_token(self, user):
         """Convenience method for getting scoped token.
 
-        This method doesn't do any token validaton.
+        This method doesn't do any token validation.
 
         :param user: A dictionary with user information like 'username',
                      'password', 'domain_id'

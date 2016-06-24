@@ -630,7 +630,7 @@ DOMAIN_CONF_FTAIL = '.conf'
 def _domain_config_finder(conf_dir):
     """Return a generator of all domain config files found in a directory.
 
-    Donmain configs match the filename pattern of
+    Domain configs match the filename pattern of
     'keystone.<domain_name>.conf'.
 
     :returns: generator yeilding (filename, domain_name) tuples
