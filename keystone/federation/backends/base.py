@@ -274,7 +274,7 @@ class FederationDriverBase(object):
 
         :param sp_id: id of the service provider
         :type sp_id: string
-        :param sp: service prvider object
+        :param sp: service provider object
         :type sp: dict
 
         :returns: service provider ref
