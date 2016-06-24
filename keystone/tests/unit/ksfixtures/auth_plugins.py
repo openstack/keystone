@@ -47,8 +47,6 @@ class LoadAuthPlugins(fixtures.Fixture):
 
     def setUp(self):
         super(LoadAuthPlugins, self).setUp()
-        if auth.controllers.AUTH_PLUGINS_LOADED:
-            raise Exception('auth_plugins already loaded')
 
         AUTH_METHODS = auth.controllers.AUTH_METHODS
         for method_name in self.method_names:
