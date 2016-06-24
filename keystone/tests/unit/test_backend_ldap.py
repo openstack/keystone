@@ -3012,33 +3012,26 @@ class DomainSpecificLDAPandSQLIdentity(
 
     """
 
+    DOMAIN_COUNT = 2
+    DOMAIN_SPECIFIC_COUNT = 2
+
     def setUp(self):
-        sqldb = self.useFixture(database.Database())
+        self.domain_count = self.DOMAIN_COUNT
+        self.domain_specific_count = self.DOMAIN_SPECIFIC_COUNT
+
+        self.useFixture(database.Database())
         super(DomainSpecificLDAPandSQLIdentity, self).setUp()
-        self.initial_setup(sqldb)
+        self.assert_backends()
 
-    def initial_setup(self, sqldb):
-        # We aren't setting up any initial data ahead of switching to
-        # domain-specific operation, so make the switch straight away.
-        self.config_fixture.config(
-            group='identity', domain_specific_drivers_enabled=True,
-            domain_config_dir=(
-                unit.TESTCONF + '/domain_configs_one_sql_one_ldap'))
-        self.config_fixture.config(group='identity_mapping',
-                                   backward_compatible_ids=False)
-
-        self.load_backends()
-        sqldb.recreate()
-
-        self.domain_count = 2
-        self.domain_specific_count = 2
+    def load_fixtures(self, fixtures):
         self.setup_initial_domains()
-        self.users = {}
 
-        self.ldapdb.clear()
-        self.load_fixtures(default_fixtures)
+        super(DomainSpecificLDAPandSQLIdentity, self).load_fixtures(fixtures)
+
+        self.users = {}
         self.create_users_across_domains()
 
+    def assert_backends(self):
         _assert_backends(
             self,
             assignment='sql',
@@ -3055,6 +3048,16 @@ class DomainSpecificLDAPandSQLIdentity(
         # BaseLDAPIdentity causes this option to use LDAP.
         self.config_fixture.config(group='resource', driver='sql')
         self.config_fixture.config(group='assignment', driver='sql')
+
+        # We aren't setting up any initial data ahead of switching to
+        # domain-specific operation, so make the switch straight away.
+        self.config_fixture.config(
+            group='identity', domain_specific_drivers_enabled=True,
+            domain_config_dir=(
+                unit.TESTCONF + '/domain_configs_one_sql_one_ldap'))
+
+        self.config_fixture.config(group='identity_mapping',
+                                   backward_compatible_ids=False)
 
     def get_config(self, domain_id):
         # Get the config for this domain, will return CONF
@@ -3204,30 +3207,10 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
 
     """
 
-    def initial_setup(self, sqldb):
-        # We aren't setting up any initial data ahead of switching to
-        # domain-specific operation, so make the switch straight away.
-        self.config_fixture.config(
-            group='identity', domain_specific_drivers_enabled=True,
-            domain_config_dir=(
-                unit.TESTCONF + '/domain_configs_default_ldap_one_sql'))
-        # Part of the testing counts how many new mappings get created as
-        # we create users, so ensure we are NOT using mapping for the default
-        # LDAP domain so this doesn't confuse the calculation.
-        self.config_fixture.config(group='identity_mapping',
-                                   backward_compatible_ids=True)
+    DOMAIN_COUNT = 2
+    DOMAIN_SPECIFIC_COUNT = 1
 
-        self.load_backends()
-        sqldb.recreate()
-
-        self.domain_count = 2
-        self.domain_specific_count = 1
-        self.setup_initial_domains()
-        self.users = {}
-
-        self.load_fixtures(default_fixtures)
-        self.create_users_across_domains()
-
+    def assert_backends(self):
         _assert_backends(self,
                          assignment='sql',
                          identity='ldap',
@@ -3236,8 +3219,19 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
     def config_overrides(self):
         super(DomainSpecificSQLIdentity, self).config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
-        self.config_fixture.config(group='resource', driver='sql')
-        self.config_fixture.config(group='assignment', driver='sql')
+
+        # We aren't setting up any initial data ahead of switching to
+        # domain-specific operation, so make the switch straight away.
+        self.config_fixture.config(
+            group='identity', domain_specific_drivers_enabled=True,
+            domain_config_dir=(
+                unit.TESTCONF + '/domain_configs_default_ldap_one_sql'))
+
+        # Part of the testing counts how many new mappings get created as
+        # we create users, so ensure we are NOT using mapping for the default
+        # LDAP domain so this doesn't confuse the calculation.
+        self.config_fixture.config(group='identity_mapping',
+                                   backward_compatible_ids=True)
 
     def get_config(self, domain_id):
         if domain_id == CONF.identity.default_domain_id:
