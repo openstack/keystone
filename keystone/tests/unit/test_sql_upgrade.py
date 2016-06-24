@@ -1434,6 +1434,18 @@ class SqlUpgradeTests(SqlMigrateBase):
             session.query(password_table).filter_by(expires_at=None).count())
         self.assertGreater(null_expires_at_cnt, 0)
 
+    def test_migration_106_allow_password_column_to_be_nullable(self):
+        password_table_name = 'password'
+        self.upgrade(105)
+        password_table = sqlalchemy.Table(password_table_name, self.metadata,
+                                          autoload=True)
+        self.assertFalse(password_table.c.password.nullable)
+        self.metadata.clear()
+        self.upgrade(106)
+        password_table = sqlalchemy.Table(password_table_name, self.metadata,
+                                          autoload=True)
+        self.assertTrue(password_table.c.password.nullable)
+
 
 class MySQLOpportunisticUpgradeTestCase(SqlUpgradeTests):
     FIXTURE = test_base.MySQLOpportunisticFixture

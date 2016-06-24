@@ -134,7 +134,11 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
             # code that referenced the domain table was removed in the Mitaka
             # release, hence this migration will not cause problems when
             # running a mixture of Mitaka and Newton versions of keystone.
-            102
+            102,
+
+            # Migration 106 simply allows the password column to be nullable.
+            # This change would not impact a rolling upgrade.
+            106
         ]
 
         # NOTE(xek): We start requiring things be additive in Newton, so

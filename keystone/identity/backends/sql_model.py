@@ -154,7 +154,7 @@ class Password(sql.ModelBase, sql.DictBase):
     id = sql.Column(sql.Integer, primary_key=True)
     local_user_id = sql.Column(sql.Integer, sql.ForeignKey('local_user.id',
                                ondelete='CASCADE'))
-    password = sql.Column(sql.String(128))
+    password = sql.Column(sql.String(128), nullable=True)
     # created_at default set here to safe guard in case it gets missed
     created_at = sql.Column(sql.DateTime, nullable=False,
                             default=datetime.datetime.utcnow)
