@@ -298,6 +298,17 @@ class ResourceTests(resource_tests.ResourceTests):
             'N/A: LDAP does not support multiple domains')
 
 
+class LDAPTestSetup(unit.TestCase):
+    """Common setup for LDAP tests."""
+
+    def setUp(self):
+        super(LDAPTestSetup, self).setUp()
+        self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+        self.config_fixture.config(group='os_inherit', enabled=False)
+
+
 class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
     def setUp(self):
@@ -3285,16 +3296,11 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
             'domain2')
 
 
-class LdapFilterTests(identity_tests.FilterTests, unit.TestCase):
+class LdapFilterTests(identity_tests.FilterTests, LDAPTestSetup):
 
     def setUp(self):
+        self.useFixture(database.Database())
         super(LdapFilterTests, self).setUp()
-        sqldb = self.useFixture(database.Database())
-        self.useFixture(ldapdb.LDAPDatabase())
-
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        sqldb.recreate()
         _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
