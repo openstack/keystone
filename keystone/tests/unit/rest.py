@@ -16,9 +16,9 @@ from oslo_serialization import jsonutils
 from six.moves import http_client
 import webtest
 
-from keystone.auth import controllers as auth_controllers
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 
 
@@ -58,8 +58,7 @@ class RestfulTestCase(unit.TestCase):
     def setUp(self, app_conf='keystone'):
         super(RestfulTestCase, self).setUp()
 
-        # Will need to reset the plug-ins
-        self.addCleanup(setattr, auth_controllers, 'AUTH_METHODS', {})
+        self.auth_plugin_config_override()
 
         self.useFixture(database.Database(self.sql_driver_version_overrides))
         self.load_backends()
@@ -71,6 +70,12 @@ class RestfulTestCase(unit.TestCase):
         self.admin_app = webtest.TestApp(
             self.loadapp(app_conf, name='admin'))
         self.addCleanup(delattr, self, 'admin_app')
+
+    def auth_plugin_config_override(self, methods=None, **method_classes):
+        self.useFixture(
+            ksfixtures.ConfigAuthPlugins(self.config_fixture,
+                                         methods,
+                                         **method_classes))
 
     def request(self, app, path, body=None, headers=None, token=None,
                 expected_status=None, **kwargs):

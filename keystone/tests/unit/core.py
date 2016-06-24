@@ -638,13 +638,6 @@ class TestCase(BaseTestCase):
                 'keystone.notifications=INFO',
                 'keystone.identity.backends.ldap.common=INFO',
             ])
-        self.auth_plugin_config_override()
-
-    def auth_plugin_config_override(self, methods=None, **method_classes):
-        self.useFixture(
-            ksfixtures.ConfigAuthPlugins(self.config_fixture,
-                                         methods,
-                                         **method_classes))
 
     def _assert_config_overrides_called(self):
         assert self.__config_overrides_called is True
@@ -692,9 +685,6 @@ class TestCase(BaseTestCase):
         # Ensure Notification subscriptions and resource types are empty
         self.addCleanup(notifications.clear_subscribers)
         self.addCleanup(notifications.reset_notifier)
-
-        # Reset the auth-plugin registry
-        self.addCleanup(self.clear_auth_plugin_registry)
 
         self.addCleanup(setattr, controllers, '_VERSIONS', [])
 
