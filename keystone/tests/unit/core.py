@@ -41,16 +41,13 @@ from sqlalchemy import exc
 import testtools
 from testtools import testcase
 
-from keystone import auth
 from keystone.common import dependency
-from keystone.common.kvs import core as kvs_core
 from keystone.common import request
 from keystone.common import sql
 import keystone.conf
 from keystone import exception
 from keystone.identity.backends.ldap import common as ks_ldap
 from keystone import notifications
-from keystone.server import common
 from keystone.tests.unit import ksfixtures
 from keystone.version import controllers
 from keystone.version import service
@@ -694,23 +691,7 @@ class TestCase(BaseTestCase):
 
     def load_backends(self):
         """Initialize each manager and assigns them to an attribute."""
-        # TODO(blk-u): Shouldn't need to clear the registry here, but some
-        # tests call load_backends multiple times. These should be fixed to
-        # only call load_backends once.
-        dependency.reset()
-
-        # TODO(morganfainberg): Shouldn't need to clear the registry here, but
-        # some tests call load_backends multiple times.  Since it is not
-        # possible to re-configure a backend, we need to clear the list.  This
-        # should eventually be removed once testing has been cleaned up.
-        kvs_core.KEY_VALUE_STORE_REGISTRY.clear()
-
-        self.clear_auth_plugin_registry()
-        drivers, _unused = common.setup_backends()
-
-        for manager_name, manager in drivers.items():
-            setattr(self, manager_name, manager)
-        self.addCleanup(self.cleanup_instance(*list(drivers.keys())))
+        self.useFixture(ksfixtures.BackendLoader(self))
 
     def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.
@@ -816,10 +797,6 @@ class TestCase(BaseTestCase):
 
     def loadapp(self, config, name='main'):
         return service.loadapp(self._paste_config(config), name=name)
-
-    def clear_auth_plugin_registry(self):
-        auth.controllers.AUTH_METHODS.clear()
-        auth.controllers.AUTH_PLUGINS_LOADED = False
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
         """Assert that two datetimes are nearly equal within a small delta.
