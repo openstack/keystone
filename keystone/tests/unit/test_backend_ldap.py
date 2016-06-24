@@ -120,9 +120,185 @@ def create_group_container(identity_api):
                     ('ou', ['Groups'])])
 
 
-class BaseLDAPIdentity(identity_tests.IdentityTests,
-                       assignment_tests.AssignmentTests,
-                       resource_tests.ResourceTests):
+class IdentityTests(identity_tests.IdentityTests):
+
+    def test_delete_user_with_group_project_domain_links(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_delete_group_with_user_project_domain_links(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_create_duplicate_user_name_in_different_domains(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_create_duplicate_group_name_in_different_domains(self):
+        self.skipTest(
+            'N/A: LDAP does not support multiple domains')
+
+    def test_move_user_between_domains(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_move_user_between_domains_with_clashing_names_fails(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_move_group_between_domains(self):
+        self.skipTest(
+            'N/A: LDAP does not support multiple domains')
+
+    def test_move_group_between_domains_with_clashing_names_fails(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_arbitrary_attributes_are_returned_from_get_user(self):
+        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
+
+    def test_new_arbitrary_attributes_are_returned_from_update_user(self):
+        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
+
+    def test_updated_arbitrary_attributes_are_returned_from_update_user(self):
+        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
+
+
+class AssignmentTests(assignment_tests.AssignmentTests):
+
+    def test_get_role_assignment_by_domain_not_found(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_del_role_assignment_by_domain_not_found(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_and_remove_role_grant_by_user_and_domain(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_and_remove_correct_role_grant_from_a_mix(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_role_grant_by_group_and_cross_domain_project(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_role_grant_by_user_and_cross_domain_project(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_multi_role_grant_by_user_group_on_project_domain(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_delete_role_with_user_and_group_grants(self):
+        self.skipTest('Blocked by bug 1101287')
+
+    def test_list_role_assignment_containing_names(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_roles_for_user_and_domain(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_get_roles_for_groups_on_domain(self):
+        self.skipTest('Blocked by bug: 1390125')
+
+    def test_get_roles_for_groups_on_project(self):
+        self.skipTest('Blocked by bug: 1390125')
+
+    def test_list_domains_for_groups(self):
+        self.skipTest('N/A: LDAP does not support multiple domains')
+
+    def test_list_projects_for_groups(self):
+        self.skipTest('Blocked by bug: 1390125')
+
+    def test_multi_group_grants_on_project_domain(self):
+        self.skipTest('Blocked by bug 1101287')
+
+
+class ResourceTests(resource_tests.ResourceTests):
+
+    def test_create_duplicate_project_name_in_different_domains(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_move_project_between_domains(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_move_project_between_domains_with_clashing_names_fails(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_domain_delete_hierarchy(self):
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_cache_layer_domain_crud(self):
+        # TODO(morganfainberg): This also needs to be removed when full LDAP
+        # implementation is submitted.  No need to duplicate the above test,
+        # just skip this time.
+        self.skipTest('Domains are read-only against LDAP')
+
+    def test_domain_crud(self):
+        self.skipTest(
+            'N/A: Not relevant for multi ldap testing')
+
+    def test_create_project_with_parent_id_and_without_domain_id(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_create_domain_under_regular_project_hierarchy_fails(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_create_project_passing_is_domain_flag_true(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_check_leaf_projects(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_list_projects_in_subtree(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_list_projects_in_subtree_with_circular_reference(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_list_project_parents(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_update_project_enabled_cascade(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_cannot_enable_cascade_with_parent_disabled(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_hierarchical_projects_crud(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_create_project_under_disabled_one(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_create_project_with_invalid_parent(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_update_project_parent(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_enable_project_with_disabled_parent(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_disable_hierarchical_leaf_project(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_disable_hierarchical_not_leaf_project(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_delete_hierarchical_leaf_project(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_delete_hierarchical_not_leaf_project(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_check_hierarchy_depth(self):
+        self.skipTest('Resource LDAP has been removed')
+
+    def test_list_projects_for_alternate_domain(self):
+        self.skipTest(
+            'N/A: LDAP does not support multiple domains')
+
+
+class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
     def setUp(self):
         super(BaseLDAPIdentity, self).setUp()
@@ -378,45 +554,6 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
                           domain_id=new_domain['id'],
                           role_id='member')
 
-    def test_get_role_assignment_by_domain_not_found(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_del_role_assignment_by_domain_not_found(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_and_remove_role_grant_by_user_and_domain(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_and_remove_correct_role_grant_from_a_mix(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_role_grant_by_group_and_cross_domain_project(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_role_grant_by_user_and_cross_domain_project(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_multi_role_grant_by_user_group_on_project_domain(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_delete_role_with_user_and_group_grants(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_delete_user_with_group_project_domain_links(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_delete_group_with_user_project_domain_links(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_list_role_assignment_containing_names(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
     def test_list_projects_for_user(self):
         domain = self._get_domain_fixture()
         user1 = self.new_user_ref(domain_id=domain['id'])
@@ -530,53 +667,6 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
         user_projects = self.assignment_api.list_projects_for_user(
             new_user['id'])
         self.assertEqual(3, len(user_projects))
-
-    def test_create_duplicate_user_name_in_different_domains(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_create_duplicate_project_name_in_different_domains(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_create_duplicate_group_name_in_different_domains(self):
-        self.skipTest(
-            'N/A: LDAP does not support multiple domains')
-
-    def test_move_user_between_domains(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_move_user_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_move_group_between_domains(self):
-        self.skipTest(
-            'N/A: LDAP does not support multiple domains')
-
-    def test_move_group_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_move_project_between_domains(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_move_project_between_domains_with_clashing_names_fails(self):
-        self.skipTest('Domains are read-only against LDAP')
-
-    def test_get_roles_for_user_and_domain(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_get_roles_for_groups_on_domain(self):
-        self.skipTest('Blocked by bug: 1390125')
-
-    def test_get_roles_for_groups_on_project(self):
-        self.skipTest('Blocked by bug: 1390125')
-
-    def test_list_domains_for_groups(self):
-        self.skipTest('N/A: LDAP does not support multiple domains')
-
-    def test_list_projects_for_groups(self):
-        self.skipTest('Blocked by bug: 1390125')
-
-    def test_domain_delete_hierarchy(self):
-        self.skipTest('Domains are read-only against LDAP')
 
     def test_list_role_assignments_unfiltered(self):
         new_domain = self._get_domain_fixture()
@@ -869,21 +959,6 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
         self.assertRaises(exception.Conflict,
                           super(BaseLDAPIdentity, self).test_update_user_name)
 
-    def test_arbitrary_attributes_are_returned_from_get_user(self):
-        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
-
-    def test_new_arbitrary_attributes_are_returned_from_update_user(self):
-        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
-
-    def test_updated_arbitrary_attributes_are_returned_from_update_user(self):
-        self.skipTest("Using arbitrary attributes doesn't work under LDAP")
-
-    def test_cache_layer_domain_crud(self):
-        # TODO(morganfainberg): This also needs to be removed when full LDAP
-        # implementation is submitted.  No need to duplicate the above test,
-        # just skip this time.
-        self.skipTest('Domains are read-only against LDAP')
-
     def test_user_id_comma(self):
         """Even if the user has a , in their ID, groups can be listed."""
         # Create a user with a , in their ID
@@ -1009,9 +1084,6 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
         # ref.
         self.assertNotIn('enabled', group_info)
 
-    def test_project_enabled_ignored_disable_error(self):
-        self.skipTest('Resource LDAP has been removed')
-
     def test_list_role_assignment_by_domain(self):
         """Multiple domain assignments are not supported."""
         self.assertRaises(
@@ -1026,9 +1098,6 @@ class BaseLDAPIdentity(identity_tests.IdentityTests,
              exception.ValidationError),
             super(BaseLDAPIdentity, self).
             test_list_role_assignment_by_user_with_domain_group_roles)
-
-    def test_domain_crud(self):
-        self.skipTest('Resource LDAP has been removed')
 
     def test_list_role_assignment_using_sourced_groups_with_domains(self):
         """Multiple domain assignments are not supported."""
@@ -1132,12 +1201,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
             project1['id'])
         self.assertEqual(0, len(list))
 
-    def test_configurable_forbidden_project_actions(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_project_filter(self):
-        self.skipTest('Resource LDAP has been removed')
-
     def test_dumb_member(self):
         self.config_fixture.config(group='ldap', use_dumb_member=True)
         self.ldapdb.clear()
@@ -1147,12 +1210,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         self.assertRaises(exception.UserNotFound,
                           self.identity_api.get_user,
                           dumb_id)
-
-    def test_project_attribute_mapping(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_project_attribute_ignore(self):
-        self.skipTest('Resource LDAP has been removed')
 
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(group='ldap', user_enabled_mask=2,
@@ -1545,12 +1602,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                           ref['id'],
                           ref)
 
-    def test_cache_layer_domain_crud(self):
-        # TODO(morganfainberg): This also needs to be removed when full LDAP
-        # implementation is submitted.  No need to duplicate the above test,
-        # just skip this time.
-        self.skipTest('Domains are read-only against LDAP')
-
     def test_domain_rename_invalidates_get_domain_by_name_cache(self):
         parent = super(LDAPIdentity, self)
         self.assertRaises(
@@ -1649,72 +1700,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                           self.resource_api.update_project,
                           project['id'], project)
 
-    def test_delete_is_domain_project(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_domain_under_regular_project_hierarchy_fails(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_not_is_domain_project_under_is_domain_hierarchy(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_project_passing_is_domain_flag_true(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_project_with_parent_id_and_without_domain_id(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_check_leaf_projects(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_list_projects_in_subtree(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_list_projects_in_subtree_with_circular_reference(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_list_project_parents(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_update_project_enabled_cascade(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_cannot_enable_cascade_with_parent_disabled(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_hierarchical_projects_crud(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_project_under_disabled_one(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_project_with_invalid_parent(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_create_leaf_project_with_invalid_domain(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_update_project_parent(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_enable_project_with_disabled_parent(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_disable_hierarchical_leaf_project(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_disable_hierarchical_not_leaf_project(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_delete_hierarchical_leaf_project(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_delete_hierarchical_not_leaf_project(self):
-        self.skipTest('Resource LDAP has been removed')
-
-    def test_check_hierarchy_depth(self):
-        self.skipTest('Resource LDAP has been removed')
-
     def test_multi_role_grant_by_user_group_on_project_domain(self):
         # This is a partial implementation of the standard test that
         # is defined in unit.assignment.test_backends.py.  It omits
@@ -1761,10 +1746,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         combined_role_list = self.assignment_api.get_roles_for_user_and_domain(
             user1['id'], CONF.identity.default_domain_id)
         self.assertEqual(0, len(combined_role_list))
-
-    def test_list_projects_for_alternate_domain(self):
-        self.skipTest(
-            'N/A: LDAP does not support multiple domains')
 
     def test_get_default_domain_by_name(self):
         domain = self._get_domain_fixture()
@@ -1971,9 +1952,6 @@ class LDAPLimitTests(unit.TestCase, identity_tests.LimitTests):
         config_files = super(LDAPLimitTests, self).config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
-
-    def test_list_projects_filtered_and_limited(self):
-        self.skipTest("ldap for storing projects is deprecated")
 
 
 class LDAPIdentityEnabledEmulation(LDAPIdentity):
@@ -2771,11 +2749,6 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.skipTest("Doesn't apply since LDAP config has no affect on the "
                       "SQL identity backend.")
 
-    def test_project_enabled_ignored_disable_error(self):
-        # Override
-        self.skipTest("Doesn't apply since LDAP configuration is ignored for "
-                      "SQL assignment backend.")
-
     def test_list_role_assignments_filtered_by_role(self):
         # Domain roles are supported by the SQL Assignment backend
         base = super(BaseLDAPIdentity, self)
@@ -3096,10 +3069,6 @@ class DomainSpecificLDAPandSQLIdentity(
         self.skipTest(
             'N/A: Not relevant for multi ldap testing')
 
-    def test_domain_crud(self):
-        self.skipTest(
-            'N/A: Not relevant for multi ldap testing')
-
     def test_not_delete_domain_with_enabled_subdomains(self):
         self.skipTest(
             'N/A: Not relevant for multi ldap testing')
@@ -3190,11 +3159,6 @@ class DomainSpecificLDAPandSQLIdentity(
         # Override.
         self.skipTest("Doesn't apply since LDAP config has no affect on the "
                       "SQL identity backend.")
-
-    def test_project_enabled_ignored_disable_error(self):
-        # Override
-        self.skipTest("Doesn't apply since LDAP configuration is ignored for "
-                      "SQL assignment backend.")
 
     def test_list_role_assignments_filtered_by_role(self):
         # Domain roles are supported by the SQL Assignment backend
