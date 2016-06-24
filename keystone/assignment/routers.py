@@ -18,7 +18,6 @@
 import functools
 
 from keystone.assignment import controllers
-
 from keystone.common import json_home
 from keystone.common import router
 from keystone.common import wsgi

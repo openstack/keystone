@@ -32,7 +32,6 @@ from keystone.version import controllers
 
 CONF = keystone.conf.CONF
 
-
 v2_MEDIA_TYPES = [
     {
         "base": "application/json",
