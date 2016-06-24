@@ -12,7 +12,6 @@
 
 """Main entry point into the Resource service."""
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 import six
@@ -24,13 +23,14 @@ from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 from keystone import notifications
 from keystone.resource.backends import base
 from keystone.resource.config_backends import base as config_base
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 MEMOIZE = cache.get_memoization_decorator(group='resource')
 

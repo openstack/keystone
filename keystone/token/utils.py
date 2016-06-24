@@ -11,7 +11,11 @@
 # under the License.
 
 from keystoneclient.common import cms
-from oslo_config import cfg
+
+import keystone.conf
+
+
+CONF = keystone.conf.CONF
 
 
 def generate_unique_id(token_id):
@@ -24,4 +28,4 @@ def generate_unique_id(token_id):
               returns the passed-in value (such as a UUID token ID or an
               existing hash).
     """
-    return cms.cms_hash_token(token_id, mode=cfg.CONF.token.hash_algorithm)
+    return cms.cms_hash_token(token_id, mode=CONF.token.hash_algorithm)

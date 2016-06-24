@@ -16,18 +16,18 @@ import uuid
 
 import fixtures
 import mock
-from oslo_config import cfg
 from oslo_log import log
 from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import controller
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 # NOTE(morganfainberg): To be removed when admin_token_auth middleware is

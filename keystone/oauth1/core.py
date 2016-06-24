@@ -20,13 +20,13 @@ import uuid
 
 import oauthlib.common
 from oauthlib import oauth1
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _LE
 from keystone import notifications
@@ -53,7 +53,7 @@ class Token(object):
         self.verifier = verifier
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

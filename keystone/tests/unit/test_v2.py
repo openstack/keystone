@@ -16,20 +16,20 @@ import time
 import uuid
 
 from keystoneclient.common import cms
-from oslo_config import cfg
 from oslo_serialization import jsonutils
 import six
 from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import extension as keystone_extension
+import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
 from keystone.tests.unit.schema import v2
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class CoreApiTests(object):

@@ -29,7 +29,6 @@ import uuid
 import warnings
 
 import fixtures
-from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_context import context as oslo_context
 from oslo_context import fixture as oslo_ctx_fixture
@@ -43,11 +42,11 @@ import testtools
 from testtools import testcase
 
 from keystone import auth
-from keystone.common import config
 from keystone.common import dependency
 from keystone.common.kvs import core as kvs_core
 from keystone.common import request
 from keystone.common import sql
+import keystone.conf
 from keystone import exception
 from keystone.identity.backends.ldap import common as ks_ldap
 from keystone import notifications
@@ -57,8 +56,8 @@ from keystone.version import controllers
 from keystone.version import service
 
 
-config.configure()
-config.set_config_defaults()
+keystone.conf.configure()
+keystone.conf.set_config_defaults()
 
 PID = six.text_type(os.getpid())
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +76,7 @@ def _calc_tmpdir():
 
 TMPDIR = _calc_tmpdir()
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 log.register_options(CONF)
 
 IN_MEM_DB_CONN_STRING = 'sqlite://'
@@ -664,7 +663,7 @@ class TestCase(BaseTestCase):
         def mocked_register_auth_plugin_opt(conf, opt):
             self.config_fixture.register_opt(opt, group='auth')
         self.useFixture(fixtures.MockPatchObject(
-            config, '_register_auth_plugin_opt',
+            keystone.conf.auth, '_register_auth_plugin_opt',
             new=mocked_register_auth_plugin_opt))
 
         self.sql_driver_version_overrides = {}

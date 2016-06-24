@@ -17,20 +17,20 @@ from __future__ import absolute_import
 import copy
 import threading
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 import six
 
 from keystone.common import kvs
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 from keystone import token
 from keystone.token import provider
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 STORE_CONF_LOCK = threading.Lock()

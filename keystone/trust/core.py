@@ -16,18 +16,18 @@
 
 import abc
 
-from oslo_config import cfg
 import six
 from six.moves import zip
 
 from keystone.common import dependency
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @dependency.requires('identity_api')

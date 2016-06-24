@@ -24,7 +24,6 @@ import itertools
 import re
 import wsgiref.util
 
-from oslo_config import cfg
 import oslo_i18n
 from oslo_log import log
 from oslo_serialization import jsonutils
@@ -39,6 +38,7 @@ from keystone.common import dependency
 from keystone.common import json_home
 from keystone.common import request as request_mod
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LI
@@ -46,7 +46,7 @@ from keystone.i18n import _LW
 from keystone.models import token_model
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 # Environment variable used to pass the request context

@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 from oslo_log import versionutils
 
+import keystone.conf
 from keystone.token.persistence.backends import memcache
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class Token(memcache.Token):

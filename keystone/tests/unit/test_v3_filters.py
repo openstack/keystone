@@ -13,10 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 from oslo_serialization import jsonutils
 from six.moves import range
 
+import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import filtering
 from keystone.tests.unit import ksfixtures
@@ -24,7 +24,7 @@ from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class IdentityTestFilteredCase(filtering.FilterTests,

@@ -25,12 +25,12 @@ from oslo_log import versionutils
 from oslo_serialization import jsonutils
 import pbr.version
 
-from keystone.common import config
 from keystone.common import driver_hints
 from keystone.common import openssl
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.federation import idp
 from keystone.federation import utils as mapping_engine
@@ -39,7 +39,7 @@ from keystone.server import backends
 from keystone import token
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
@@ -955,9 +955,9 @@ command_opt = cfg.SubCommandOpt('command',
 def main(argv=None, config_files=None):
     CONF.register_cli_opt(command_opt)
 
-    config.configure()
+    keystone.conf.configure()
     sql.initialize()
-    config.set_default_for_default_log_levels()
+    keystone.conf.set_default_for_default_log_levels()
 
     CONF(args=argv[1:],
          project='keystone',
@@ -966,5 +966,5 @@ def main(argv=None, config_files=None):
          default_config_files=config_files)
     if not CONF.default_config_files:
         LOG.warning(_LW('Config file not found, using default configs.'))
-    config.setup_logging()
+    keystone.conf.setup_logging()
     CONF.command.cmd_class.main()

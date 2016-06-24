@@ -16,18 +16,18 @@ import hashlib
 import uuid
 
 from keystoneclient.common import cms
-from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 from six.moves import range
 
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import utils as test_utils
 from keystone.token import provider
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 NULL_OBJECT = object()
 
 

@@ -12,18 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 
 from keystone.common import dependency
 from keystone.common import manager
+import keystone.conf
 from keystone.endpoint_policy.backends import base
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

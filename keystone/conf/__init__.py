@@ -1,0 +1,189 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import logging
+
+from oslo_cache import core as cache
+from oslo_config import cfg
+from oslo_log import log
+import oslo_messaging
+from oslo_middleware import cors
+from osprofiler import opts as profiler
+
+from keystone.conf import assignment
+from keystone.conf import auth
+from keystone.conf import base
+from keystone.conf import catalog
+from keystone.conf import credential
+from keystone.conf import domain_config
+from keystone.conf import endpoint_filter
+from keystone.conf import endpoint_policy
+from keystone.conf import eventlet_server
+from keystone.conf import federation
+from keystone.conf import fernet_tokens
+from keystone.conf import identity
+from keystone.conf import identity_mapping
+from keystone.conf import kvs
+from keystone.conf import ldap
+from keystone.conf import memcache
+from keystone.conf import oauth1
+from keystone.conf import os_inherit
+from keystone.conf import paste_deploy
+from keystone.conf import policy
+from keystone.conf import resource
+from keystone.conf import revoke
+from keystone.conf import role
+from keystone.conf import saml
+from keystone.conf import shadow_users
+from keystone.conf import signing
+from keystone.conf import token
+from keystone.conf import tokenless_auth
+from keystone.conf import trust
+
+
+CONF = cfg.CONF
+
+
+conf_modules = [
+    assignment,
+    auth,
+    base,
+    catalog,
+    credential,
+    domain_config,
+    endpoint_filter,
+    endpoint_policy,
+    eventlet_server,
+    federation,
+    fernet_tokens,
+    identity,
+    identity_mapping,
+    kvs,
+    ldap,
+    memcache,
+    oauth1,
+    os_inherit,
+    paste_deploy,
+    policy,
+    resource,
+    revoke,
+    role,
+    saml,
+    shadow_users,
+    signing,
+    token,
+    tokenless_auth,
+    trust,
+]
+
+
+# Options are registered when keystone.conf is first imported.
+for module in conf_modules:
+    module.register_opts(CONF)
+
+
+oslo_messaging.set_transport_defaults(control_exchange='keystone')
+
+
+def set_default_for_default_log_levels():
+    """Set the default for the default_log_levels option for keystone.
+
+    Keystone uses some packages that other OpenStack services don't use that do
+    logging. This will set the default_log_levels default level for those
+    packages.
+
+    This function needs to be called before CONF().
+
+    """
+    extra_log_level_defaults = [
+        'dogpile=INFO',
+        'routes=INFO',
+    ]
+
+    log.register_options(CONF)
+    log.set_defaults(default_log_levels=log.get_default_log_levels() +
+                     extra_log_level_defaults)
+
+
+def setup_logging():
+    """Set up logging for the keystone package."""
+    log.setup(CONF, 'keystone')
+    logging.captureWarnings(True)
+
+
+def configure(conf=None):
+    if conf is None:
+        conf = CONF
+
+    conf.register_cli_opt(
+        cfg.BoolOpt('standard-threads', default=False,
+                    help='Do not monkey-patch threading system modules.'))
+    conf.register_cli_opt(
+        cfg.StrOpt('pydev-debug-host',
+                   help='Host to connect to for remote debugger.'))
+    conf.register_cli_opt(
+        cfg.PortOpt('pydev-debug-port',
+                    help='Port to connect to for remote debugger.'))
+
+    for module in conf_modules:
+        module.register_opts(conf)
+
+    # register any non-default auth methods here (used by extensions, etc)
+    auth.setup_authentication()
+
+    # add oslo.cache related config options
+    cache.configure(conf)
+
+
+def set_external_opts_defaults():
+    """Update default configuration options for oslo.middleware."""
+    # CORS Defaults
+    # TODO(krotscheck): Update with https://review.openstack.org/#/c/285368/
+    cfg.set_defaults(cors.CORS_OPTS,
+                     allow_headers=['X-Auth-Token',
+                                    'X-Openstack-Request-Id',
+                                    'X-Subject-Token',
+                                    'X-Project-Id',
+                                    'X-Project-Name',
+                                    'X-Project-Domain-Id',
+                                    'X-Project-Domain-Name',
+                                    'X-Domain-Id',
+                                    'X-Domain-Name'],
+                     expose_headers=['X-Auth-Token',
+                                     'X-Openstack-Request-Id',
+                                     'X-Subject-Token'],
+                     allow_methods=['GET',
+                                    'PUT',
+                                    'POST',
+                                    'DELETE',
+                                    'PATCH']
+                     )
+
+    # configure OSprofiler options
+    profiler.set_defaults(CONF, enabled=False, trace_sqlalchemy=False)
+
+    # Oslo.cache is always enabled by default for request-local caching
+    # TODO(morganfainberg): Fix this to not use internal interface when
+    # oslo.cache has proper interface to set defaults added. This is is
+    # just a bad way to do this.
+    opts = cache._opts.list_opts()
+    for opt_list in opts:
+        if opt_list[0] == 'cache':
+            for o in opt_list[1]:
+                if o.name == 'enabled':
+                    o.default = True
+
+
+def set_config_defaults():
+    """Override all configuration default values for keystone."""
+    set_default_for_default_log_levels()
+    set_external_opts_defaults()

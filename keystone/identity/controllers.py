@@ -14,19 +14,19 @@
 
 """Workflow Logic the Identity service."""
 
-from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.identity import schema
 from keystone import notifications
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

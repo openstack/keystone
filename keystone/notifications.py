@@ -19,7 +19,6 @@ import functools
 import inspect
 import socket
 
-from oslo_config import cfg
 from oslo_log import log
 import oslo_messaging
 from oslo_utils import reflection
@@ -33,6 +32,7 @@ from pycadf import resource
 from keystone.i18n import _, _LE
 from keystone.common import dependency
 from keystone.common import utils
+import keystone.conf
 
 _CATALOG_HELPER_OBJ = None
 
@@ -69,7 +69,7 @@ _notifier = None
 SERVICE = 'identity'
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 # NOTE(morganfainberg): Special case notifications that are only used
 # internally for handling token persistence token deletions

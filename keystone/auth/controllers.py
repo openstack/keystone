@@ -15,7 +15,6 @@
 import sys
 
 from keystoneclient.common import cms
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
@@ -23,11 +22,11 @@ from oslo_utils import importutils
 import six
 import stevedore
 
-from keystone.common import config
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants
 from keystone.i18n import _, _LI, _LW
@@ -36,7 +35,7 @@ from keystone.resource import controllers as resource_controllers
 
 LOG = log.getLogger(__name__)
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 # registry of authentication methods
 AUTH_METHODS = {}
@@ -75,7 +74,7 @@ def load_auth_methods():
         return
     # config.setup_authentication should be idempotent, call it to ensure we
     # have setup all the appropriate configuration options we may need.
-    config.setup_authentication()
+    keystone.conf.auth.setup_authentication()
     for plugin in set(CONF.auth.methods):
         AUTH_METHODS[plugin] = load_auth_method(plugin)
     AUTH_PLUGINS_LOADED = True
@@ -389,7 +388,7 @@ class Auth(controller.V3Controller):
 
     def __init__(self, *args, **kw):
         super(Auth, self).__init__(*args, **kw)
-        config.setup_authentication()
+        keystone.conf.auth.setup_authentication()
 
     def authenticate_for_token(self, request, auth=None):
         """Authenticate user and issue a token."""

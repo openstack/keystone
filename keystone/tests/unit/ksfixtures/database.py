@@ -15,14 +15,14 @@ import functools
 import os
 
 import fixtures
-from oslo_config import cfg
 from oslo_db import options as db_options
 
 from keystone.common import sql
+import keystone.conf
 from keystone.tests import unit
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def run_once(f):

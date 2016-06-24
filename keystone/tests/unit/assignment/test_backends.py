@@ -13,15 +13,15 @@
 import uuid
 
 import mock
-from oslo_config import cfg
 from six.moves import range
 from testtools import matchers
 
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class AssignmentTestHelperMixin(object):

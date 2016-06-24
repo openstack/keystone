@@ -15,14 +15,14 @@
 import abc
 import datetime
 
-from oslo_config import cfg
 from oslo_utils import timeutils
 import six
 
+import keystone.conf
 from keystone import exception
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def revoked_before_cutoff_time():

@@ -16,7 +16,6 @@ import uuid
 
 import fixtures
 import mock
-from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 from pycadf import cadftaxonomy
@@ -24,12 +23,13 @@ from pycadf import cadftype
 from pycadf import eventfactory
 from pycadf import resource as cadfresource
 
+import keystone.conf
 from keystone import notifications
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 EXP_RESOURCE_TYPE = uuid.uuid4().hex
 CREATED_OPERATION = notifications.ACTIONS.created

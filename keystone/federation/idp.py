@@ -15,7 +15,6 @@ import os
 import subprocess  # nosec : see comments in the code below
 import uuid
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import fileutils
 from oslo_utils import importutils
@@ -33,12 +32,13 @@ if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LE
 
 
 LOG = log.getLogger(__name__)
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class SAMLGenerator(object):

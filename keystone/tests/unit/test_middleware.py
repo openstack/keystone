@@ -16,12 +16,12 @@ import copy
 import hashlib
 import uuid
 
-from oslo_config import cfg
 from six.moves import http_client
 import webtest
 
 from keystone.common import authorization
 from keystone.common import tokenless_auth
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone import middleware
@@ -30,7 +30,7 @@ from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_backend_sql
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class MiddlewareRequestTestBase(unit.TestCase):

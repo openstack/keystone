@@ -15,11 +15,11 @@ import oslo_messaging
 import osprofiler.notifier
 import osprofiler.web
 
-from keystone.common import config
+import keystone.conf
 from keystone.i18n import _LI
 
 
-CONF = config.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

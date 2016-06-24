@@ -15,7 +15,6 @@
 import functools
 import sys
 
-from oslo_config import cfg
 from oslo_log import log
 from paste import deploy
 import routes
@@ -24,6 +23,7 @@ from keystone.assignment import routers as assignment_routers
 from keystone.auth import routers as auth_routers
 from keystone.catalog import routers as catalog_routers
 from keystone.common import wsgi
+import keystone.conf
 from keystone.credential import routers as credential_routers
 from keystone.endpoint_policy import routers as endpoint_policy_routers
 from keystone.federation import routers as federation_routers
@@ -42,7 +42,7 @@ from keystone.version import controllers
 from keystone.version import routers
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

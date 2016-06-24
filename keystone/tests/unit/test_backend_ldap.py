@@ -20,7 +20,6 @@ import uuid
 import fixtures
 import ldap
 import mock
-from oslo_config import cfg
 from oslo_log import versionutils
 import pkg_resources
 from six.moves import http_client
@@ -29,6 +28,7 @@ from testtools import matchers
 
 from keystone.common import cache
 from keystone.common import driver_hints
+import keystone.conf
 from keystone import exception
 from keystone import identity
 from keystone.identity.backends.ldap import common as common_ldap
@@ -44,7 +44,7 @@ from keystone.tests.unit.resource import test_backends as resource_tests
 from keystone.tests.unit.utils import wip
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def _assert_backends(testcase, **kwargs):

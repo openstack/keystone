@@ -17,7 +17,6 @@ import uuid
 
 from cryptography import fernet
 import msgpack
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 import six
@@ -26,13 +25,14 @@ from six.moves import urllib
 
 from keystone.auth import plugins as auth_plugins
 from keystone.common import utils as ks_utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LI
 from keystone.token import provider
 from keystone.token.providers.fernet import utils
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 # Fernet byte indexes as as computed by pypi/keyless_fernet and defined in

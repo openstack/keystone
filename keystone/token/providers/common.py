@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 import six
@@ -21,6 +20,7 @@ from six.moves.urllib import parse
 from keystone.common import controller as common_controller
 from keystone.common import dependency
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.i18n import _, _LE
@@ -29,7 +29,7 @@ from keystone.token import provider
 
 
 LOG = log.getLogger(__name__)
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @dependency.requires('catalog_api', 'resource_api', 'assignment_api')

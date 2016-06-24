@@ -14,14 +14,17 @@
 
 import uuid
 
-from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
 import six
 
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
+
+
+CONF = keystone.conf.CONF
 
 
 class ExceptionTestCase(unit.BaseTestCase):
@@ -115,7 +118,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
     def setUp(self):
         super(UnexpectedExceptionTestCase, self).setUp()
         self.exc_str = uuid.uuid4().hex
-        self.config_fixture = self.useFixture(config_fixture.Config(cfg.CONF))
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_unexpected_error_no_debug(self):
         self.config_fixture.config(debug=False)
@@ -181,7 +184,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
 
     def setUp(self):
         super(SecurityErrorTestCase, self).setUp()
-        self.config_fixture = self.useFixture(config_fixture.Config(cfg.CONF))
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_unauthorized_exposure(self):
         self.config_fixture.config(debug=False)

@@ -14,12 +14,12 @@
 
 import datetime
 
-from oslo_config import cfg
 from oslo_utils import timeutils
 from six.moves import reload_module
 
 from keystone.common import dependency
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
@@ -31,7 +31,7 @@ from keystone.token.providers import pkiz
 from keystone.token.providers import uuid
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 FUTURE_DELTA = datetime.timedelta(seconds=CONF.token.expiration)
 CURRENT_DATE = timeutils.utcnow()

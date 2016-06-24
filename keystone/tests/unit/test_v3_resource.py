@@ -12,19 +12,19 @@
 
 import uuid
 
-from oslo_config import cfg
 from six.moves import http_client
 from six.moves import range
 from testtools import matchers
 
 from keystone.common import controller
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils as test_utils
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class ResourceTestCase(test_v3.RestfulTestCase,

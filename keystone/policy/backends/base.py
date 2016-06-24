@@ -13,11 +13,11 @@
 import abc
 import six
 
+import keystone.conf
 from keystone import exception
-from oslo_config import cfg
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)

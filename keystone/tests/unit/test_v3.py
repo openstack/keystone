@@ -15,7 +15,6 @@
 import uuid
 
 import mock
-from oslo_config import cfg
 import oslo_context.context
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
@@ -27,6 +26,7 @@ from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
 from keystone.common.validation import validators
+import keystone.conf
 from keystone import exception
 from keystone import middleware
 from keystone.middleware import auth as middleware_auth
@@ -35,7 +35,7 @@ from keystone.tests import unit
 from keystone.tests.unit import rest
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 DEFAULT_DOMAIN_ID = 'default'
 
 TIME_FORMAT = unit.TIME_FORMAT

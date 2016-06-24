@@ -12,17 +12,18 @@
 
 import uuid
 
-from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
 
 from keystone.auth.plugins import mapped
+import keystone.conf
 from keystone import exception
 from keystone.federation import utils as mapping_utils
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
 
 
+CONF = keystone.conf.CONF
 FAKE_MAPPING_ID = uuid.uuid4().hex
 
 
@@ -741,7 +742,7 @@ class TestUnicodeAssertionData(unit.BaseTestCase):
 
     def setUp(self):
         super(TestUnicodeAssertionData, self).setUp()
-        self.config_fixture = self.useFixture(config_fixture.Config(cfg.CONF))
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(group='federation',
                                    assertion_prefix='PFX')
 

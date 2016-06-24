@@ -18,10 +18,10 @@ import uuid
 import fixtures
 import ldap.dn
 import mock
-from oslo_config import cfg
 from testtools import matchers
 
 from keystone.common import driver_hints
+import keystone.conf
 from keystone.identity.backends.ldap import common as common_ldap
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
@@ -30,7 +30,7 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class DnCompareTest(unit.BaseTestCase):

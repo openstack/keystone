@@ -21,11 +21,12 @@ from oslo_log import log
 from oslo_utils import timeutils
 import six
 
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
@@ -268,6 +269,7 @@ def get_remote_id_parameter(protocol):
     try:
         remote_id_parameter = CONF[protocol]['remote_id_attribute']
     except AttributeError:
+        # TODO(dolph): Move configuration registration to keystone.conf
         CONF.register_opt(cfg.StrOpt('remote_id_attribute'),
                           group=protocol)
         try:

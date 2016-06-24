@@ -14,17 +14,17 @@
 
 """Main entry point into the Policy service."""
 
-from oslo_config import cfg
 from oslo_log import versionutils
 
 from keystone.common import dependency
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone import notifications
 from keystone.policy.backends import base
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @dependency.provider('policy_api')

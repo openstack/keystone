@@ -15,15 +15,15 @@ import uuid
 
 import fixtures
 import mock
-from oslo_config import cfg
 from testtools import matchers
 
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):

@@ -27,11 +27,11 @@ import re
 import shelve
 
 import ldap
-from oslo_config import cfg
 from oslo_log import log
 import six
 from six import moves
 
+import keystone.conf
 from keystone import exception
 from keystone.identity.backends.ldap import common
 
@@ -45,7 +45,7 @@ SCOPE_NAMES = {
 CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
 
 LOG = log.getLogger(__name__)
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def _internal_attr(attr_name, value_or_values):

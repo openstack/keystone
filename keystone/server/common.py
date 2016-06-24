@@ -12,31 +12,30 @@
 #    under the License.
 
 
-from oslo_config import cfg
 from oslo_log import log
 
-from keystone.common import config
 from keystone.common import dependency
 from keystone.common import sql
+import keystone.conf
 from keystone.i18n import _LW
 from keystone.server import backends
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
 def configure(version=None, config_files=None,
               pre_setup_logging_fn=lambda: None):
-    config.configure()
+    keystone.conf.configure()
     sql.initialize()
-    config.set_config_defaults()
+    keystone.conf.set_config_defaults()
 
     CONF(project='keystone', version=version,
          default_config_files=config_files)
 
     pre_setup_logging_fn()
-    config.setup_logging()
+    keystone.conf.setup_logging()
 
     if CONF.insecure_debug:
         LOG.warning(_LW(

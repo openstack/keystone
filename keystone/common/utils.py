@@ -25,7 +25,6 @@ import os
 import pwd
 import uuid
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import reflection
@@ -36,11 +35,12 @@ import six
 from six import moves
 
 from keystone.common import authorization
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 WHITELISTED_PROPERTIES = [
     'tenant_id', 'project_id', 'user_id',

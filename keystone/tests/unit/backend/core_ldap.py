@@ -12,16 +12,16 @@
 
 import ldap
 
-from oslo_config import cfg
 
 from keystone.common import cache
+import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def create_group_container(identity_api):

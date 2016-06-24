@@ -13,13 +13,13 @@
 """Main entry point into the Revoke service."""
 
 import oslo_cache
-from oslo_config import cfg
 from oslo_log import versionutils
 
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import revoke_model
@@ -27,7 +27,7 @@ from keystone import notifications
 from keystone.revoke.backends import base
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 EXTENSION_DATA = {

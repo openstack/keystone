@@ -17,19 +17,19 @@
 
 import uuid
 
-from oslo_config import cfg
 
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import validation
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.resource import schema
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @dependency.requires('resource_api')

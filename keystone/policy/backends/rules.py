@@ -15,15 +15,15 @@
 
 """Policy engine for keystone."""
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_policy import policy as common_policy
 
+import keystone.conf
 from keystone import exception
 from keystone.policy.backends import base
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

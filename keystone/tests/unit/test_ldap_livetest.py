@@ -16,16 +16,16 @@ import subprocess
 import uuid
 
 import ldap.modlist
-from oslo_config import cfg
 from six.moves import range
 
+import keystone.conf
 from keystone import exception
 from keystone.identity.backends import ldap as identity_ldap
 from keystone.tests import unit
 from keystone.tests.unit import test_backend_ldap
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def create_object(dn, attrs):

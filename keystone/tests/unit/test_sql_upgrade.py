@@ -38,7 +38,6 @@ import migrate
 from migrate.versioning import api as versioning_api
 from migrate.versioning import repository
 import mock
-from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import migration
 from oslo_db.sqlalchemy import test_base
@@ -48,13 +47,14 @@ from testtools import matchers
 
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 # NOTE(morganfainberg): This should be updated when each DB migration collapse
 # is done to mirror the expected structure of the DB in the format of

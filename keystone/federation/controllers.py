@@ -14,7 +14,6 @@
 
 import string
 
-from oslo_config import cfg
 from oslo_log import log
 from six.moves import urllib
 import webob
@@ -26,6 +25,7 @@ from keystone.common import dependency
 from keystone.common import utils as k_utils
 from keystone.common import validation
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.federation import idp as keystone_idp
 from keystone.federation import schema
@@ -34,7 +34,7 @@ from keystone.i18n import _
 from keystone.models import token_model
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

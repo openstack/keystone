@@ -11,7 +11,6 @@
 # under the License.
 
 from keystonemiddleware import auth_token
-from oslo_config import cfg
 from oslo_context import context as oslo_context
 from oslo_log import log
 from oslo_log import versionutils
@@ -20,6 +19,7 @@ from keystone.common import authorization
 from keystone.common import dependency
 from keystone.common import tokenless_auth
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
@@ -28,7 +28,7 @@ from keystone.middleware import core
 from keystone.models import token_model
 from keystone.token.providers import common
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 __all__ = ('AuthContextMiddleware',)

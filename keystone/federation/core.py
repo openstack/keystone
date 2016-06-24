@@ -12,13 +12,13 @@
 
 """Main entry point into the Federation service."""
 
-from oslo_config import cfg
 from oslo_log import versionutils
 
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.federation.backends import base
 from keystone.federation import utils
@@ -27,7 +27,7 @@ from keystone.federation import utils
 # This is a general cache region for service providers.
 MEMOIZE = cache.get_memoization_decorator(group='federation')
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 EXTENSION_DATA = {
     'name': 'OpenStack Federation APIs',
     'namespace': 'http://docs.openstack.org/identity/api/ext/'

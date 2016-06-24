@@ -17,7 +17,6 @@
 import copy
 
 from oslo_cache import core as oslo_cache
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 
@@ -27,13 +26,14 @@ from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LI, _LE
 from keystone import notifications
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 # This is a general cache region for assignment administration (CRUD

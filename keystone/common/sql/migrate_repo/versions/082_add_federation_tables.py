@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 import sqlalchemy as sql
 
 from keystone.common.sql import migration_helpers
+import keystone.conf
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 _RELAY_STATE_PREFIX = 'relay_state_prefix'
 
 

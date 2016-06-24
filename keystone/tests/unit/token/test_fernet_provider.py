@@ -20,8 +20,8 @@ import msgpack
 from oslo_utils import timeutils
 from six.moves import urllib
 
-from keystone.common import config
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.tests import unit
@@ -33,7 +33,7 @@ from keystone.token.providers.fernet import token_formatters
 from keystone.token.providers.fernet import utils as fernet_utils
 
 
-CONF = config.CONF
+CONF = keystone.conf.CONF
 
 
 class TestFernetTokenProvider(unit.TestCase):

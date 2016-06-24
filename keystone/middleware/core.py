@@ -12,16 +12,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _LW
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 # Header used to transmit the auth token

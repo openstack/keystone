@@ -16,14 +16,14 @@
 import os
 import subprocess  # nosec : see comments in the code below
 
-from oslo_config import cfg
 from oslo_log import log
 
 from keystone.common import utils
+import keystone.conf
 from keystone.i18n import _LI, _LE, _LW
 
 LOG = log.getLogger(__name__)
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 PUBLIC_DIR_PERMS = 0o755        # -rwxr-xr-x
 PRIVATE_DIR_PERMS = 0o750       # -rwxr-x---

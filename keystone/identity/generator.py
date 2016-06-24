@@ -16,15 +16,15 @@
 
 import abc
 
-from oslo_config import cfg
 import six
 
 from keystone.common import dependency
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @dependency.provider('id_generator_api')

@@ -17,7 +17,6 @@ import uuid
 
 import fixtures
 import mock
-from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 from oslotest import mockpatch
@@ -26,12 +25,13 @@ from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.common import dependency
+import keystone.conf
 from keystone.i18n import _
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):

@@ -14,13 +14,13 @@
 
 import abc
 
-from oslo_config import cfg
 import six
 
+import keystone.conf
 from keystone import exception
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def filter_user(user_ref):

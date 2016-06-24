@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 import webob
 from webob.descriptors import environ_getter
 
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
@@ -21,7 +21,7 @@ from keystone.i18n import _
 # Environment variable used to pass the request context
 CONTEXT_ENV = 'openstack.context'
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class Request(webob.Request):

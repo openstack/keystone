@@ -14,15 +14,15 @@ import os
 import stat
 
 from cryptography import fernet
-from oslo_config import cfg
 from oslo_log import log
 
+import keystone.conf
 from keystone.i18n import _LE, _LW, _LI
 
 
 LOG = log.getLogger(__name__)
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def validate_key_repository(requires_write=False):

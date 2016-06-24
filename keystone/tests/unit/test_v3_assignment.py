@@ -13,16 +13,16 @@
 import random
 import uuid
 
-from oslo_config import cfg
 from six.moves import http_client
 from six.moves import range
 from testtools import matchers
 
+import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class AssignmentTestCase(test_v3.RestfulTestCase,

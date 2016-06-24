@@ -20,7 +20,6 @@ import uuid
 
 from keystoneclient.common import cms
 import mock
-from oslo_config import cfg
 from oslo_log import versionutils
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
@@ -34,6 +33,7 @@ from testtools import testcase
 from keystone import auth
 from keystone.auth.plugins import totp
 from keystone.common import utils
+import keystone.conf
 from keystone.contrib.revoke import routers
 from keystone import exception
 from keystone.policy.backends import rules
@@ -42,7 +42,8 @@ from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
-CONF = cfg.CONF
+
+CONF = keystone.conf.CONF
 
 
 class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):

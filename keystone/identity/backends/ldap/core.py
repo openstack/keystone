@@ -15,12 +15,12 @@ from __future__ import absolute_import
 import uuid
 
 import ldap.filter
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 import six
 
 from keystone.common import driver_hints
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.identity.backends import base
@@ -28,7 +28,7 @@ from keystone.identity.backends.ldap import common as common_ldap
 from keystone.identity.backends.ldap import models
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 _DEPRECATION_MSG = _('%s for the LDAP identity backend has been deprecated in '

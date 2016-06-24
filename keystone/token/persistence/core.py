@@ -17,7 +17,6 @@
 import abc
 import copy
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 import six
@@ -25,12 +24,13 @@ import six
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _LW
 from keystone.token import utils
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 MEMOIZE = cache.get_memoization_decorator(group='token')
 REVOCATION_MEMOIZE = cache.get_memoization_decorator(group='token',

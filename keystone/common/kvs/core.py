@@ -22,12 +22,12 @@ from dogpile.cache import proxy
 from dogpile.cache import region
 from dogpile.cache import util as dogpile_util
 from dogpile.core import nameregistry
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import importutils
 from oslo_utils import reflection
 
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LI
@@ -39,7 +39,7 @@ __all__ = ('KeyValueStore', 'KeyValueStoreLock', 'LockTimeout',
 
 
 BACKENDS_REGISTERED = False
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 KEY_VALUE_STORE_REGISTRY = weakref.WeakValueDictionary()
 LOCK_WINDOW = 1
 LOG = log.getLogger(__name__)

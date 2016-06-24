@@ -14,15 +14,15 @@
 
 import sys
 
-from oslo_config import cfg
 from oslo_log import log
 import six
 
 from keystone.common import dependency
+import keystone.conf
 from keystone import exception
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

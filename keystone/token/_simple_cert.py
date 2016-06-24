@@ -14,7 +14,6 @@
 # it is only used in support of the PKI/PKIz token providers.
 import functools
 
-from oslo_config import cfg
 import webob
 
 from keystone.common import controller
@@ -22,10 +21,11 @@ from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import json_home
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 EXTENSION_DATA = {
     'name': 'OpenStack Simple Certificate API',
     'namespace': 'http://docs.openstack.org/identity/api/ext/'

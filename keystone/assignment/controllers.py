@@ -18,7 +18,6 @@
 import functools
 import uuid
 
-from oslo_config import cfg
 from oslo_log import log
 from six.moves import urllib
 
@@ -28,12 +27,13 @@ from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import validation
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

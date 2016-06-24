@@ -14,11 +14,12 @@
 
 import uuid
 
-from oslo_config import cfg
 from six.moves import range
 
+import keystone.conf
 
-CONF = cfg.CONF
+
+CONF = keystone.conf.CONF
 
 
 class FilterTests(object):

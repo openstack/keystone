@@ -15,17 +15,17 @@
 import abc
 import copy
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
 import six
 
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.i18n import _LE
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

@@ -17,7 +17,6 @@ import functools
 import uuid
 
 import mock
-from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options
 from six.moves import range
@@ -27,6 +26,7 @@ from testtools import matchers
 
 from keystone.common import driver_hints
 from keystone.common import sql
+import keystone.conf
 from keystone import exception
 from keystone.identity.backends import sql_model as identity_sql
 from keystone.resource.backends import base as resource
@@ -43,7 +43,7 @@ from keystone.tests.unit.trust import test_backends as trust_tests
 from keystone.token.persistence.backends import sql as token_sql
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class SqlTests(unit.SQLDriverOverrides, unit.TestCase):

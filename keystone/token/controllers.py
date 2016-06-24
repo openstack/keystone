@@ -17,7 +17,6 @@ import sys
 
 from keystone.common import utils
 from keystoneclient.common import cms
-from oslo_config import cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
@@ -26,13 +25,14 @@ import six
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone.token import provider
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

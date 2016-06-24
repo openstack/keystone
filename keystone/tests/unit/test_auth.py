@@ -19,7 +19,6 @@ import string
 import uuid
 
 import mock
-from oslo_config import cfg
 import oslo_utils.fixture
 from oslo_utils import timeutils
 import six
@@ -28,7 +27,7 @@ from testtools import matchers
 from keystone import assignment
 from keystone import auth
 from keystone.common import authorization
-from keystone.common import config
+import keystone.conf
 from keystone import exception
 from keystone.models import token_model
 from keystone.tests import unit
@@ -39,7 +38,7 @@ from keystone import token
 from keystone import trust
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 HOST = ''.join(random.choice(string.ascii_lowercase) for x in range(
@@ -1389,5 +1388,5 @@ class NonDefaultAuthTest(unit.TestCase):
     def test_add_non_default_auth_method(self):
         self.config_fixture.config(group='auth',
                                    methods=['password', 'token', 'custom'])
-        config.setup_authentication()
+        keystone.conf.auth.setup_authentication()
         self.assertTrue(hasattr(CONF.auth, 'custom'))

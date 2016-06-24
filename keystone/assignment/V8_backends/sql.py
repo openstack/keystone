@@ -12,17 +12,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 import sqlalchemy
 from sqlalchemy.sql.expression import false
 
 from keystone.assignment.backends import base
 from keystone.common import sql
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class AssignmentType(object):

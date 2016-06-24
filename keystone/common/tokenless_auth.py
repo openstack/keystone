@@ -15,18 +15,18 @@
 
 import hashlib
 
-from oslo_config import cfg
 from oslo_log import log
 
 from keystone.auth import controllers
 from keystone.common import dependency
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
 from keystone.i18n import _
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

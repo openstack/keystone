@@ -20,7 +20,6 @@ CONF() because it sets up configuration options.
 """
 import functools
 
-from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import enginefacade
@@ -35,11 +34,12 @@ from sqlalchemy import types as sql_types
 
 from keystone.common import driver_hints
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 ModelBase = declarative.declarative_base()

@@ -17,16 +17,16 @@ import os
 import uuid
 
 import mock
-from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 
+import keystone.conf
 from keystone import exception
 from keystone import identity
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class TestDomainConfigs(unit.BaseTestCase):

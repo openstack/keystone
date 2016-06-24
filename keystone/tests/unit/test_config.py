@@ -14,14 +14,13 @@
 
 import uuid
 
-from oslo_config import cfg
-
-from keystone.common import config
+import keystone.conf
 from keystone import exception
+from keystone.server import wsgi
 from keystone.tests import unit
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class ConfigTestCase(unit.TestCase):
@@ -36,14 +35,14 @@ class ConfigTestCase(unit.TestCase):
 
     def test_paste_config(self):
         self.assertEqual(unit.dirs.etc('keystone-paste.ini'),
-                         config.find_paste_config())
+                         wsgi.find_paste_config())
         self.config_fixture.config(group='paste_deploy',
                                    config_file=uuid.uuid4().hex)
         self.assertRaises(exception.ConfigFileNotFound,
-                          config.find_paste_config)
+                          wsgi.find_paste_config)
         self.config_fixture.config(group='paste_deploy', config_file='')
         self.assertEqual(unit.dirs.etc('keystone.conf.sample'),
-                         config.find_paste_config())
+                         wsgi.find_paste_config())
 
     def test_config_default(self):
         self.assertIs(None, CONF.auth.password)

@@ -26,10 +26,10 @@ from oslo_log import versionutils
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
 from keystone.common import cache
 from keystone.common import clean
-from keystone.common import config
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.identity.backends import base as identity_interface
@@ -39,7 +39,7 @@ from keystone.identity.shadow_backends import base as shadow_interface
 from keystone import notifications
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 LOG = log.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class DomainConfigs(dict):
         # config dict to make sure we call the right driver
         domain_config = {}
         domain_config['cfg'] = cfg.ConfigOpts()
-        config.configure(conf=domain_config['cfg'])
+        keystone.conf.configure(conf=domain_config['cfg'])
         domain_config['cfg'](args=[], project='keystone',
                              default_config_files=file_list)
         domain_config['driver'] = self._load_driver(domain_config)
@@ -254,7 +254,7 @@ class DomainConfigs(dict):
 
         domain_config = {}
         domain_config['cfg'] = cfg.ConfigOpts()
-        config.configure(conf=domain_config['cfg'])
+        keystone.conf.configure(conf=domain_config['cfg'])
         domain_config['cfg'](args=[], project='keystone',
                              default_config_files=[])
 

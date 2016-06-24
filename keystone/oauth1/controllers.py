@@ -14,7 +14,6 @@
 
 """Extensions supporting OAuth1."""
 
-from oslo_config import cfg
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 
@@ -23,6 +22,7 @@ from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import validation
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
@@ -31,7 +31,7 @@ from keystone.oauth1 import schema
 from keystone.oauth1 import validator
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 def _emit_user_oauth_consumer_token_invalidate(payload):

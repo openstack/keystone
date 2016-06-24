@@ -20,7 +20,6 @@ import uuid
 import fixtures
 from lxml import etree
 import mock
-from oslo_config import cfg
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
@@ -34,6 +33,7 @@ if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
 from keystone.auth import controllers as auth_controllers
+import keystone.conf
 from keystone.contrib.federation import routers
 from keystone import exception
 from keystone.federation import controllers as federation_controllers
@@ -49,7 +49,7 @@ from keystone.tests.unit import utils
 from keystone.token.providers import common as token_common
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 ROOTDIR = os.path.dirname(os.path.abspath(__file__))
 XMLDIR = os.path.join(ROOTDIR, 'saml2/')
 

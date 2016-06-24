@@ -12,14 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_config import cfg
 
 from keystone.catalog.backends import sql
 from keystone.common import dependency
 from keystone.common import utils
+import keystone.conf
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 @dependency.requires('catalog_api')

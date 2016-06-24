@@ -15,7 +15,6 @@
 
 import itertools
 
-from oslo_config import cfg
 import sqlalchemy
 from sqlalchemy.sql import true
 
@@ -23,11 +22,12 @@ from keystone.catalog.backends import base
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class Region(sql.ModelBase, sql.DictBase):

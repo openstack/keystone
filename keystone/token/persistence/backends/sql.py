@@ -15,18 +15,18 @@
 import copy
 import functools
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
 
 from keystone.common import sql
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _LI
 from keystone import token
 from keystone.token import provider
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 

@@ -14,18 +14,18 @@ import copy
 import uuid
 
 import mock
-from oslo_config import cfg
 from six.moves import range
 from testtools import matchers
 
 from keystone.common import driver_hints
+import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import utils as test_utils
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class ResourceTests(object):
