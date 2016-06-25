@@ -43,6 +43,7 @@ from keystone.conf import resource
 from keystone.conf import revoke
 from keystone.conf import role
 from keystone.conf import saml
+from keystone.conf import security_compliance
 from keystone.conf import shadow_users
 from keystone.conf import signing
 from keystone.conf import token
@@ -78,6 +79,7 @@ conf_modules = [
     revoke,
     role,
     saml,
+    security_compliance,
     shadow_users,
     signing,
     token,
