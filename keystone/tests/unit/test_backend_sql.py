@@ -234,7 +234,7 @@ class SqlIdentity(SqlTests,
         with sql.session_for_read() as session:
             new_user_ref = self.identity_api._get_user(session,
                                                        new_user_dict['id'])
-            self.assertFalse(new_user_ref.password)
+            self.assertIsNone(new_user_ref.password)
 
     def test_update_user_with_null_password(self):
         user_dict = unit.new_user_ref(
@@ -247,7 +247,7 @@ class SqlIdentity(SqlTests,
         with sql.session_for_read() as session:
             new_user_ref = self.identity_api._get_user(session,
                                                        new_user_dict['id'])
-            self.assertFalse(new_user_ref.password)
+            self.assertIsNone(new_user_ref.password)
 
     def test_delete_user_with_project_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
