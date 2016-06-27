@@ -28,7 +28,7 @@
     "identity:update_endpoint": "rule:cloud_admin",
     "identity:delete_endpoint": "rule:cloud_admin",
 
-    "identity:get_domain": "rule:cloud_admin or rule:admin_and_matching_domain_id",
+    "identity:get_domain": "rule:cloud_admin or rule:admin_and_matching_domain_id or token.project.domain.id:%(target.domain.id)s",
     "identity:list_domains": "rule:cloud_admin",
     "identity:create_domain": "rule:cloud_admin",
     "identity:update_domain": "rule:cloud_admin",
@@ -45,7 +45,7 @@
 
     "admin_and_matching_target_user_domain_id": "rule:admin_required and domain_id:%(target.user.domain_id)s",
     "admin_and_matching_user_domain_id": "rule:admin_required and domain_id:%(user.domain_id)s",
-    "identity:get_user": "rule:cloud_admin or rule:admin_and_matching_target_user_domain_id",
+    "identity:get_user": "rule:cloud_admin or rule:admin_and_matching_target_user_domain_id or rule:owner",
     "identity:list_users": "rule:cloud_admin or rule:admin_and_matching_domain_id",
     "identity:create_user": "rule:cloud_admin or rule:admin_and_matching_user_domain_id",
     "identity:update_user": "rule:cloud_admin or rule:admin_and_matching_target_user_domain_id",

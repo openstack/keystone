@@ -688,9 +688,9 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         else:
             return (expected_status, expected_status, expected_status)
 
-    def _test_user_management(self, domain_id, expected=None):
+    def _test_user_management(self, user_id, domain_id, expected=None):
         status_OK, status_created, status_no_data = self._stati(expected)
-        entity_url = '/users/%s' % self.just_a_user['id']
+        entity_url = '/users/%s' % user_id
         list_url = '/users?domain_id=%s' % domain_id
 
         self.get(entity_url, auth=self.auth,
@@ -861,7 +861,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             domain_id=self.domainA['id'])
 
         self._test_user_management(
-            self.domainA['id'], expected=exception.ForbiddenAction.code)
+            self.domain_admin_user['id'], self.domainA['id'],
+            expected=exception.ForbiddenAction.code)
 
         # Now, authenticate with a user that does have the domain admin role
         self.auth = self.build_authentication_request(
@@ -869,7 +870,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             password=self.domain_admin_user['password'],
             domain_id=self.domainA['id'])
 
-        self._test_user_management(self.domainA['id'])
+        self._test_user_management(self.just_a_user['id'], self.domainA['id'])
 
     def test_user_management_normalized_keys(self):
         """Illustrate the inconsistent handling of hyphens in keys.
@@ -956,7 +957,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             password=self.cloud_admin_user['password'],
             project_id=self.admin_project['id'])
 
-        self._test_user_management(self.domainA['id'])
+        self._test_user_management(self.just_a_user['id'], self.domainA['id'])
 
     def test_group_management(self):
         # First, authenticate with a user that does not have the domain

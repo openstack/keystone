@@ -28,7 +28,7 @@
     "identity:update_endpoint": "rule:admin_required",
     "identity:delete_endpoint": "rule:admin_required",
 
-    "identity:get_domain": "rule:admin_required",
+    "identity:get_domain": "rule:admin_required or token.project.domain.id:%(target.domain.id)s",
     "identity:list_domains": "rule:admin_required",
     "identity:create_domain": "rule:admin_required",
     "identity:update_domain": "rule:admin_required",
@@ -41,7 +41,7 @@
     "identity:update_project": "rule:admin_required",
     "identity:delete_project": "rule:admin_required",
 
-    "identity:get_user": "rule:admin_required",
+    "identity:get_user": "rule:admin_or_owner",
     "identity:list_users": "rule:admin_required",
     "identity:create_user": "rule:admin_required",
     "identity:update_user": "rule:admin_required",
