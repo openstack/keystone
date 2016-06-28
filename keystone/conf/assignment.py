@@ -18,11 +18,13 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     help=utils.fmt("""
-Entrypoint for the assignment backend driver in the keystone.assignment
-namespace. Only an SQL driver is supplied. If an assignment driver is not
-specified, the identity driver will choose the assignment driver (driver
-selection based on `[identity]/driver` option is deprecated and will be removed
-in the "O" release).
+Entry point for the assignment backend driver (where role assignments are
+stored) in the `keystone.assignment` namespace. Only a SQL driver is supplied
+by keystone itself. If an assignment driver is not specified, the identity
+driver will choose the assignment driver based on the deprecated
+`[identity]/driver` option (the behavior will be removed in the "O" release).
+Unless you are writing proprietary drivers for keystone, you do not need to set
+this option.
 """))
 
 prohibited_implied_role = cfg.ListOpt(
