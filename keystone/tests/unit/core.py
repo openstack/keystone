@@ -562,6 +562,19 @@ class BaseTestCase(testtools.TestCase):
         if not os.environ.get(env_var):
             self.skipTest('Env variable %s is not set.' % env_var)
 
+    def skip_test_overrides(self, *args, **kwargs):
+        if self._check_for_method_in_parents(self._testMethodName):
+            return super(BaseTestCase, self).skipTest(*args, **kwargs)
+        raise Exception('%r is not a previously defined test method'
+                        % self._testMethodName)
+
+    def _check_for_method_in_parents(self, name):
+        # skip first to get to parents
+        for cls in self.__class__.__mro__[1:]:
+            if hasattr(cls, name):
+                return True
+        return False
+
 
 class TestCase(BaseTestCase):
 
