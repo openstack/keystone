@@ -24,7 +24,6 @@ release and will be removed in the O release.
 admin_token = cfg.StrOpt(
     'admin_token',
     secret=True,
-    default=None,
     help=utils.fmt("""
 A "shared secret" that can be used to bootstrap Keystone. This "token" does not
 represent a user, and carries no explicit authorization. If set to `None`, the

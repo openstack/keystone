@@ -66,7 +66,6 @@ value to 0 disables this feature.
 
 password_regex = cfg.StrOpt(
     'password_regex',
-    default=None,
     help=utils.fmt("""
 Regular expression used to validate password strength requirements. Setting the
 value to None disables this feature. The following is an example of a pattern
