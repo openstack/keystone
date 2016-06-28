@@ -171,7 +171,7 @@ class AssignmentTests(assignment_tests.AssignmentTests):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
-        self.skip_test_overrides('Blocked by bug 1101287')
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
     def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
@@ -189,7 +189,7 @@ class AssignmentTests(assignment_tests.AssignmentTests):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
     def test_delete_role_with_user_and_group_grants(self):
-        self.skip_test_overrides('Blocked by bug 1101287')
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
     def test_list_role_assignment_containing_names(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
@@ -198,19 +198,25 @@ class AssignmentTests(assignment_tests.AssignmentTests):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
     def test_get_roles_for_groups_on_domain(self):
-        self.skip_test_overrides('Blocked by bug: 1390125')
+        self.skip_test_overrides(
+            'N/A: LDAP does not implement get_roles_for_groups; '
+            'see bug 1333712 for details')
 
     def test_get_roles_for_groups_on_project(self):
-        self.skip_test_overrides('Blocked by bug: 1390125')
+        self.skip_test_overrides(
+            'N/A: LDAP does not implement get_roles_for_groups; '
+            'see bug 1333712 for details')
 
     def test_list_domains_for_groups(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
     def test_list_projects_for_groups(self):
-        self.skip_test_overrides('Blocked by bug: 1390125')
+        self.skip_test_overrides(
+            'N/A: LDAP does not implement list_projects_for_groups; '
+            'see bug 1333712 for details')
 
     def test_multi_group_grants_on_project_domain(self):
-        self.skip_test_overrides('Blocked by bug 1101287')
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
 
 class ResourceTests(resource_tests.ResourceTests):
@@ -730,9 +736,6 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
         dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
         self.assertNotIn(dumb_id, user_ids)
-
-    def test_multi_group_grants_on_project_domain(self):
-        self.skip_test_overrides('Blocked by bug 1101287')
 
     def test_list_group_members_missing_entry(self):
         """List group members with deleted user.
@@ -3114,9 +3117,6 @@ class DomainSpecificLDAPandSQLIdentity(
             self.identity_api.list_users(
                 domain_scope=self.domains['domain1']['id']),
             matchers.HasLength(1))
-
-    def test_list_projects_for_user_with_grants(self):
-        self.skip_test_overrides('Blocked by bug 1221805')
 
     def test_user_id_comma(self):
         self.skip_test_overrides('Only valid if it is guaranteed to be '
