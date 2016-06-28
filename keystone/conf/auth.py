@@ -26,31 +26,42 @@ Allowed authentication methods.
 password = cfg.StrOpt(  # nosec : This is the name of the plugin, not
     'password',         # a password that needs to be protected.
     help=utils.fmt("""
-Entrypoint for the password auth plugin module in the keystone.auth.password
-namespace.
+Entry point for the password auth plugin module in the `keystone.auth.password`
+namespace. You do not need to set this unless you are overriding keystone's own
+password authentication plugin.
 """))
 
 token = cfg.StrOpt(
     'token',
     help=utils.fmt("""
-Entrypoint for the token auth plugin module in the keystone.auth.token
-namespace.
+Entry point for the token auth plugin module in the `keystone.auth.token`
+namespace. You do not need to set this unless you are overriding keystone's own
+token authentication plugin.
 """))
 
 # deals with REMOTE_USER authentication
 external = cfg.StrOpt(
     'external',
     help=utils.fmt("""
-Entrypoint for the external (REMOTE_USER) auth plugin module in the
-keystone.auth.external namespace. Supplied drivers are DefaultDomain and
-Domain. The default driver is DefaultDomain.
+Entry point for the external (`REMOTE_USER`) auth plugin module in the
+`keystone.auth.external` namespace. Supplied drivers are `DefaultDomain` and
+`Domain`. The default driver is `DefaultDomain`, which assumes that all users
+identified by the username specified to keystone in the `REMOTE_USER` variable
+exist within the context of the default domain. The `Domain` option expects an
+additional environment variable be presented to keystone, `REMOTE_DOMAIN`,
+containing the domain name of the `REMOTE_USER` (if `REMOTE_DOMAIN` is not set,
+then the default domain will be used instead). You do not need to set this
+unless you are taking advantage of "external authentication", where the
+application server (such as Apache) is handling authentication instead of
+keystone.
 """))
 
 oauth1 = cfg.StrOpt(
     'oauth1',
     help=utils.fmt("""
-Entrypoint for the oAuth1.0 auth plugin module in the keystone.auth.oauth1
-namespace.
+Entry point for the OAuth 1.0a auth plugin module in the `keystone.auth.oauth1`
+namespace. You do not need to set this unless you are overriding keystone's own
+`oauth1` authentication plugin.
 """))
 
 GROUP_NAME = __name__.split('.')[-1]
