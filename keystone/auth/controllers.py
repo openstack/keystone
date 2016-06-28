@@ -189,7 +189,7 @@ class AuthInfo(object):
             else:
                 domain_ref = self.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
-            LOG.exception(six.text_type(e))
+            LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
         self._assert_domain_is_enabled(domain_ref)
         return domain_ref
@@ -453,7 +453,7 @@ class Auth(controller.V3Controller):
         try:
             user_ref = self.identity_api.get_user(auth_context['user_id'])
         except exception.UserNotFound as e:
-            LOG.exception(six.text_type(e))
+            LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
 
         default_project_id = user_ref.get('default_project_id')
