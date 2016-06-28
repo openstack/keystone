@@ -2346,10 +2346,6 @@ class LdapIdentityWithMapping(
         self.identity_api.get_user(user1['id'])
         self.identity_api.get_user(user2['id'])
 
-    def test_get_roles_for_user_and_project_user_group_same_id(self):
-        self.skipTest('N/A: We never generate the same ID for a user and '
-                      'group in our mapping table')
-
     def test_list_domains(self):
         domains = self.resource_api.list_domains()
         default_domain = unit.new_domain_ref(
@@ -3065,14 +3061,6 @@ class DomainSpecificLDAPandSQLIdentity(
         self.skipTest(
             'N/A: Not relevant for multi ldap testing')
 
-    def test_list_domains_non_default_domain_id(self):
-        self.skipTest(
-            'N/A: Not relevant for multi ldap testing')
-
-    def test_not_delete_domain_with_enabled_subdomains(self):
-        self.skipTest(
-            'N/A: Not relevant for multi ldap testing')
-
     def test_delete_domain(self):
         # With this restricted multi LDAP class, tests that use multiple
         # domains and identity, are still not supported
@@ -3129,18 +3117,8 @@ class DomainSpecificLDAPandSQLIdentity(
                 domain_scope=self.domains['domain1']['id']),
             matchers.HasLength(1))
 
-    def test_add_role_grant_to_user_and_project_returns_not_found(self):
-        self.skipTest('Blocked by bug 1101287')
-
-    def test_get_role_grants_for_user_and_project_returns_not_found(self):
-        self.skipTest('Blocked by bug 1101287')
-
     def test_list_projects_for_user_with_grants(self):
         self.skipTest('Blocked by bug 1221805')
-
-    def test_get_roles_for_user_and_project_user_group_same_id(self):
-        self.skipTest('N/A: We never generate the same ID for a user and '
-                      'group in our mapping table')
 
     def test_user_id_comma(self):
         self.skipTest('Only valid if it is guaranteed to be talking to '
