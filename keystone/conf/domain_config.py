@@ -19,24 +19,27 @@ driver = cfg.StrOpt(
     'driver',
     default='sql',
     help=utils.fmt("""
-Entrypoint for the domain config backend driver in the
-keystone.resource.domain_config namespace.
+Entry point for the domain-specific configuration driver in the
+`keystone.resource.domain_config` namespace. Only a `sql` option is provided by
+keystone, so there is no reason to set this unless you are providing a custom
+entry point.
 """))
 
 caching = cfg.BoolOpt(
     'caching',
     default=True,
     help=utils.fmt("""
-Toggle for domain config caching. This has no effect unless global caching is
-enabled.
+Toggle for caching of the domain-specific configuration backend. This has no
+effect unless global caching is enabled. There is normally no reason to disable
+this.
 """))
 
 cache_time = cfg.IntOpt(
     'cache_time',
     default=300,
     help=utils.fmt("""
-TTL (in seconds) to cache domain config data. This has no effect unless domain
-config caching is enabled.
+Time-to-live (TTL, in seconds) to cache domain-specific configuration data.
+This has no effect unless `[domain_config] caching` is enabled.
 """))
 
 
