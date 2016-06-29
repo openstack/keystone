@@ -155,20 +155,9 @@ representation or not. Role create and role update schemas are available at
 
 You will need to update their properties to include a `description` attribute::
 
-    role_create = {
-        'properties': {
-            'name': parameter_types.name,
-            'description': parameter_types.description
-        }
-        ...
-    }
-
-    role_update = {
-        'properties': {
-            'name': parameter_types.name,
-            'description': parameter_types.description
-        }
-        ...
+    _role_properties = {
+        'name': parameter_types.name,
+        'description': parameter_types.description
     }
 
 Besides doing the entity validation using such schemas, controllers pass and
