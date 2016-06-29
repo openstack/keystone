@@ -21,9 +21,9 @@ from osprofiler import opts as profiler
 
 from keystone.conf import assignment
 from keystone.conf import auth
-from keystone.conf import base
 from keystone.conf import catalog
 from keystone.conf import credential
+from keystone.conf import default
 from keystone.conf import domain_config
 from keystone.conf import endpoint_filter
 from keystone.conf import endpoint_policy
@@ -57,9 +57,9 @@ CONF = cfg.CONF
 conf_modules = [
     assignment,
     auth,
-    base,
     catalog,
     credential,
+    default,
     domain_config,
     endpoint_filter,
     endpoint_policy,
