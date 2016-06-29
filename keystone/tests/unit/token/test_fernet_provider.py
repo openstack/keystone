@@ -129,6 +129,7 @@ class TestValidate(unit.TestCase):
         protocol = uuid.uuid4().hex
         auth_context = {
             'user_id': user_ref['id'],
+            'user_name': user_ref['name'],
             'group_ids': group_ids,
             federation_constants.IDENTITY_PROVIDER: identity_provider,
             federation_constants.PROTOCOL: protocol,
@@ -140,7 +141,7 @@ class TestValidate(unit.TestCase):
         token = token_data['token']
         exp_user_info = {
             'id': user_ref['id'],
-            'name': user_ref['id'],
+            'name': user_ref['name'],
             'domain': {'id': CONF.federation.federated_domain_name,
                        'name': CONF.federation.federated_domain_name, },
             federation_constants.FEDERATION: {
