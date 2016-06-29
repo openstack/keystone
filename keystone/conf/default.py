@@ -21,7 +21,8 @@ release and will be removed in the O release.
 """)
 
 _DEPRECATE_PROXY_SSL = utils.fmt("""
-Use oslo.middleware.http_proxy_to_wsgi configuration instead.
+This option has been deprecated in the N release and will be removed in the P
+release. Use oslo.middleware.http_proxy_to_wsgi configuration instead.
 """)
 
 admin_token = cfg.StrOpt(
