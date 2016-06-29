@@ -108,16 +108,16 @@ class TenantTestCase(unit.TestCase):
         """Test that get project does not return is_domain projects."""
         project = self._create_is_domain_project()
 
-        request = self.make_request(is_admin=True)
-        request.context_dict['query_string']['name'] = project['name']
+        request = self.make_request(is_admin=True,
+                                    query_string='name=%s' % project['name'])
 
         self.assertRaises(
             exception.ProjectNotFound,
             self.tenant_controller.get_all_projects,
             request)
 
-        request = self.make_request(is_admin=True)
-        request.context_dict['query_string']['name'] = project['id']
+        request = self.make_request(is_admin=True,
+                                    query_string='name=%s' % project['id'])
 
         self.assertRaises(
             exception.ProjectNotFound,

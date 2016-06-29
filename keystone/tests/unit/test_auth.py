@@ -410,8 +410,7 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            self.make_request(is_admin=True,
-                              query_string={'belongsTo': 'BAR'}),
+            self.make_request(is_admin=True, query_string='belongsTo=BAR'),
             token_id=unscoped_token_id)
 
     def test_belongs_to(self):
@@ -427,14 +426,13 @@ class AuthWithToken(AuthTest):
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            self.make_request(is_admin=True, query_string={'belongsTo': 'me'}),
+            self.make_request(is_admin=True, query_string='belongsTo=me'),
             token_id=scoped_token_id)
 
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            self.make_request(is_admin=True,
-                              query_string={'belongsTo': 'BAR'}),
+            self.make_request(is_admin=True, query_string='belongsTo=BAR'),
             token_id=scoped_token_id)
 
     def test_token_auth_with_binding(self):

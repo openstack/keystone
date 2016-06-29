@@ -159,8 +159,9 @@ class FederatedSetupMixin(object):
                               assertion='EMPLOYEE_ASSERTION',
                               environment=None):
         api = federation_controllers.Auth()
-        request = self.make_request(environ=environment or {})
-        self._inject_assertion(request, assertion)
+        environment = environment or {}
+        environment.update(getattr(mapping_fixtures, assertion))
+        request = self.make_request(environ=environment)
         if idp is None:
             idp = self.IDP
         r = api.federated_authentication(request, idp, self.PROTOCOL)
@@ -206,10 +207,9 @@ class FederatedSetupMixin(object):
             }
         }
 
-    def _inject_assertion(self, request, variant, query_string=None):
+    def _inject_assertion(self, request, variant):
         assertion = getattr(mapping_fixtures, variant)
         request.context_dict['environment'].update(assertion)
-        request.context_dict['query_string'] = query_string or []
 
     def load_federation_sample_data(self):
         """Inject additional data."""
@@ -1764,8 +1764,8 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             'another_bad_idea': tuple(range(10)),
             'yet_another_bad_param': dict(zip(uuid.uuid4().hex, range(32)))
         }
+        environ.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environ)
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION')
         r = api.authenticate_for_token(request, self.UNSCOPED_V3_SAML2_REQ)
         self.assertIsNotNone(r.headers.get('X-Subject-Token'))
 
@@ -1856,8 +1856,8 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def test_issue_token_from_rules_without_user(self):
         api = auth_controllers.Auth()
-        request = self.make_request()
-        self._inject_assertion(request, 'BAD_TESTER_ASSERTION')
+        environ = copy.deepcopy(mapping_fixtures.BAD_TESTER_ASSERTION)
+        request = self.make_request(environ=environ)
         self.assertRaises(exception.Unauthorized,
                           api.authenticate_for_token,
                           request, self.UNSCOPED_V3_SAML2_REQ)
@@ -3643,10 +3643,10 @@ class WebSSOTests(FederatedTokenTests):
         self.assertIn(self.TRUSTED_DASHBOARD.encode('utf-8'), resp.body)
 
     def test_federated_sso_auth(self):
-        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
+                       'QUERY_STRING': 'origin=%s' % self.ORIGIN}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        query_string = {'origin': self.ORIGIN}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
         resp = self.api.federated_sso_auth(request, self.PROTOCOL)
         # `resp.body` will be `str` in Python 2 and `bytes` in Python 3
         # which is why expected value: `self.TRUSTED_DASHBOARD`
@@ -3655,17 +3655,14 @@ class WebSSOTests(FederatedTokenTests):
 
     def test_get_sso_origin_host_case_insensitive(self):
         # test lowercase hostname in trusted_dashboard
-        context = {
-            'query_string': {
-                'origin': "http://horizon.com",
-            },
-        }
-        host = self.api._get_sso_origin_host(context)
+        environ = {'QUERY_STRING': 'origin=http://horizon.com'}
+        request = self.make_request(environ=environ)
+        host = self.api._get_sso_origin_host(request)
         self.assertEqual("http://horizon.com", host)
         # test uppercase hostname in trusted_dashboard
         self.config_fixture.config(group='federation',
                                    trusted_dashboard=['http://Horizon.com'])
-        host = self.api._get_sso_origin_host(context)
+        host = self.api._get_sso_origin_host(request)
         self.assertEqual("http://horizon.com", host)
 
     def test_federated_sso_auth_with_protocol_specific_remote_id(self):
@@ -3673,10 +3670,10 @@ class WebSSOTests(FederatedTokenTests):
             group=self.PROTOCOL,
             remote_id_attribute=self.PROTOCOL_REMOTE_ID_ATTR)
 
-        environment = {self.PROTOCOL_REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        environment = {self.PROTOCOL_REMOTE_ID_ATTR: self.REMOTE_IDS[0],
+                       'QUERY_STRING': 'origin=%s' % self.ORIGIN}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        query_string = {'origin': self.ORIGIN}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
         resp = self.api.federated_sso_auth(request, self.PROTOCOL)
         # `resp.body` will be `str` in Python 2 and `bytes` in Python 3
         # which is why expected value: `self.TRUSTED_DASHBOARD`
@@ -3684,61 +3681,61 @@ class WebSSOTests(FederatedTokenTests):
         self.assertIn(self.TRUSTED_DASHBOARD.encode('utf-8'), resp.body)
 
     def test_federated_sso_auth_bad_remote_id(self):
-        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        environment = {self.REMOTE_ID_ATTR: self.IDP,
+                       'QUERY_STRING': 'origin=%s' % self.ORIGIN}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        query_string = {'origin': self.ORIGIN}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
         self.assertRaises(exception.IdentityProviderNotFound,
                           self.api.federated_sso_auth,
                           request, self.PROTOCOL)
 
     def test_federated_sso_missing_query(self):
         environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION')
         self.assertRaises(exception.ValidationError,
                           self.api.federated_sso_auth,
                           request, self.PROTOCOL)
 
     def test_federated_sso_missing_query_bad_remote_id(self):
         environment = {self.REMOTE_ID_ATTR: self.IDP}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION')
         self.assertRaises(exception.ValidationError,
                           self.api.federated_sso_auth,
                           request, self.PROTOCOL)
 
     def test_federated_sso_untrusted_dashboard(self):
-        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
+                       'QUERY_STRING': 'origin=%s' % uuid.uuid4().hex}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        query_string = {'origin': uuid.uuid4().hex}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
         self.assertRaises(exception.Unauthorized,
                           self.api.federated_sso_auth,
                           request, self.PROTOCOL)
 
     def test_federated_sso_untrusted_dashboard_bad_remote_id(self):
-        environment = {self.REMOTE_ID_ATTR: self.IDP}
+        environment = {self.REMOTE_ID_ATTR: self.IDP,
+                       'QUERY_STRING': 'origin=%s' % uuid.uuid4().hex}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         request = self.make_request(environ=environment)
-        query_string = {'origin': uuid.uuid4().hex}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
         self.assertRaises(exception.Unauthorized,
                           self.api.federated_sso_auth,
                           request, self.PROTOCOL)
 
     def test_federated_sso_missing_remote_id(self):
-        request = self.make_request()
-        query_string = {'origin': self.ORIGIN}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
+        environment = copy.deepcopy(mapping_fixtures.EMPLOYEE_ASSERTION)
+        request = self.make_request(environ=environment,
+                                    query_string='origin=%s' % self.ORIGIN)
         self.assertRaises(exception.Unauthorized,
                           self.api.federated_sso_auth,
                           request, self.PROTOCOL)
 
     def test_identity_provider_specific_federated_authentication(self):
         environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
-        request = self.make_request(environ=environment)
-        query_string = {'origin': self.ORIGIN}
-        self._inject_assertion(request, 'EMPLOYEE_ASSERTION', query_string)
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
+        request = self.make_request(environ=environment,
+                                    query_string='origin=%s' % self.ORIGIN)
         resp = self.api.federated_idp_specific_sso_auth(request,
                                                         self.idp['id'],
                                                         self.PROTOCOL)

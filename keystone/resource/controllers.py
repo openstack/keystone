@@ -40,7 +40,7 @@ class Tenant(controller.V2Controller):
         """Get a list of all tenants for an admin user."""
         self.assert_admin(request.context_dict)
 
-        name = request.context_dict['query_string'].get('name')
+        name = request.params.get('name')
         if name:
             return self._get_project_by_name(name)
 
@@ -55,8 +55,8 @@ class Tenant(controller.V2Controller):
                        for tenant_ref in tenant_refs
                        if not tenant_ref.get('is_domain')]
         params = {
-            'limit': request.context_dict['query_string'].get('limit'),
-            'marker': request.context_dict['query_string'].get('marker'),
+            'limit': request.params.get('limit'),
+            'marker': request.params.get('marker'),
         }
         return self.format_project_list(tenant_refs, **params)
 
@@ -263,14 +263,15 @@ class ProjectV3(controller.V3Controller):
         hints = ProjectV3.build_driver_hints(request.context_dict, filters)
         # If 'is_domain' has not been included as a query, we default it to
         # False (which in query terms means '0'
-        if 'is_domain' not in request.context_dict['query_string']:
+        if 'is_domain' not in request.params:
             hints.add_filter('is_domain', '0')
         refs = self.resource_api.list_projects(hints=hints)
         return ProjectV3.wrap_collection(request.context_dict,
                                          refs, hints=hints)
 
-    def _expand_project_ref(self, context, ref):
-        params = context['query_string']
+    def _expand_project_ref(self, request, ref):
+        params = request.params
+        context = request.context_dict
 
         parents_as_list = 'parents_as_list' in params and (
             self.query_filter_is_true(params['parents_as_list']))
@@ -316,7 +317,7 @@ class ProjectV3(controller.V3Controller):
     @controller.protected()
     def get_project(self, request, project_id):
         ref = self.resource_api.get_project(project_id)
-        self._expand_project_ref(request.context_dict, ref)
+        self._expand_project_ref(request, ref)
         return ProjectV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()

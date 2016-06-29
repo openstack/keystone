@@ -392,8 +392,7 @@ class Auth(controller.V3Controller):
 
     def authenticate_for_token(self, request, auth=None):
         """Authenticate user and issue a token."""
-        query_string = request.context_dict['query_string']
-        include_catalog = 'nocatalog' not in query_string
+        include_catalog = 'nocatalog' not in request.params
 
         try:
             auth_info = AuthInfo.create(request.context_dict, auth=auth)
@@ -558,8 +557,7 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def validate_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
-        query_string = request.context_dict['query_string']
-        include_catalog = 'nocatalog' not in query_string
+        include_catalog = 'nocatalog' not in request.params
         token_data = self.token_provider_api.validate_v3_token(
             token_id)
         if not include_catalog and 'catalog' in token_data['token']:
@@ -571,8 +569,7 @@ class Auth(controller.V3Controller):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
 
-        query_string = request.context_dict['query_string']
-        audit_id_only = 'audit_id_only' in query_string
+        audit_id_only = 'audit_id_only' in request.params
 
         tokens = self.token_provider_api.list_revoked_tokens()
 

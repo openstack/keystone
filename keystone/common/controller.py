@@ -720,7 +720,7 @@ class V3Controller(wsgi.Application):
         ref['id'] = uuid.uuid4().hex
         return ref
 
-    def _get_domain_id_for_list_request(self, context):
+    def _get_domain_id_for_list_request(self, request):
         """Get the domain_id for a v3 list call.
 
         If we running with multiple domain drivers, then the caller must
@@ -731,10 +731,11 @@ class V3Controller(wsgi.Application):
             # We don't need to specify a domain ID in this case
             return
 
-        if context['query_string'].get('domain_id') is not None:
-            return context['query_string'].get('domain_id')
+        domain_id = request.params.get('domain_id')
+        if domain_id:
+            return domain_id
 
-        token_ref = utils.get_token_ref(context)
+        token_ref = utils.get_token_ref(request.context_dict)
 
         if token_ref.domain_scoped:
             return token_ref.domain_id

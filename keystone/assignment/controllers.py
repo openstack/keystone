@@ -58,8 +58,8 @@ class TenantAssignment(controller.V2Controller):
         tenant_refs = [self.v3_to_v2_project(ref) for ref in tenant_refs
                        if ref['domain_id'] == CONF.identity.default_domain_id]
         params = {
-            'limit': request.context_dict['query_string'].get('limit'),
-            'marker': request.context_dict['query_string'].get('marker'),
+            'limit': request.params.get('limit'),
+            'marker': request.params.get('marker'),
         }
         return self.format_project_list(tenant_refs, **params)
 
@@ -333,6 +333,8 @@ class RoleV3(controller.V3Controller):
     def list_roles_wrapper(self, request):
         # If there is no domain_id filter defined, then we only want to return
         # global roles, so we set the domain_id filter to None.
+        # NOTE(jamielennox): this is still using context_dict because it's
+        # writing to the query dict. Why is it writing to the query dict?
         params = request.context_dict['query_string']
         if 'domain_id' not in params:
             request.context_dict['query_string']['domain_id'] = None
@@ -871,7 +873,7 @@ class RoleAssignmentV3(controller.V3Controller):
             msg = _('Specify a user or group, not both')
             raise exception.ValidationError(msg)
 
-    def _list_role_assignments(self, context, filters, include_subtree=False):
+    def _list_role_assignments(self, request, filters, include_subtree=False):
         """List role assignments to user and groups on domains and projects.
 
         Return a list of all existing role assignments in the system, filtered
@@ -894,7 +896,7 @@ class RoleAssignmentV3(controller.V3Controller):
         both user and group ids or domain and project ids is invalid as well.
 
         """
-        params = context['query_string']
+        params = request.params
         effective = 'effective' in params and (
             self.query_filter_is_true(params['effective']))
         include_names = ('include_names' in params and
@@ -928,15 +930,16 @@ class RoleAssignmentV3(controller.V3Controller):
             inherited=inherited, effective=effective,
             include_names=include_names)
 
-        formatted_refs = [self._format_entity(context, ref) for ref in refs]
+        formatted_refs = [self._format_entity(request.context_dict, ref)
+                          for ref in refs]
 
-        return self.wrap_collection(context, formatted_refs)
+        return self.wrap_collection(request.context_dict, formatted_refs)
 
     @controller.filterprotected('group.id', 'role.id',
                                 'scope.domain.id', 'scope.project.id',
                                 'scope.OS-INHERIT:inherited_to', 'user.id')
     def list_role_assignments(self, request, filters):
-        return self._list_role_assignments(request.context_dict, filters)
+        return self._list_role_assignments(request, filters)
 
     def _check_list_tree_protection(self, context, protection_info):
         """Check protection for list assignment for tree API.
@@ -958,11 +961,11 @@ class RoleAssignmentV3(controller.V3Controller):
                                 'scope.OS-INHERIT:inherited_to', 'user.id',
                                 callback=_check_list_tree_protection)
     def list_role_assignments_for_tree(self, request, filters):
-        if not request.context_dict['query_string'].get('scope.project.id'):
+        if not request.params.get('scope.project.id'):
             msg = _('scope.project.id must be specified if include_subtree '
                     'is also specified')
             raise exception.ValidationError(message=msg)
-        return self._list_role_assignments(request.context_dict, filters,
+        return self._list_role_assignments(request, filters,
                                            include_subtree=True)
 
     def list_role_assignments_wrapper(self, request):
@@ -974,7 +977,7 @@ class RoleAssignmentV3(controller.V3Controller):
         protected entry point.
 
         """
-        params = request.context_dict['query_string']
+        params = request.params
         if 'include_subtree' in params and (
                 self.query_filter_is_true(params['include_subtree'])):
             return self.list_role_assignments_for_tree(request)

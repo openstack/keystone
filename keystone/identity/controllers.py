@@ -43,10 +43,8 @@ class User(controller.V2Controller):
     def get_users(self, request):
         # NOTE(termie): i can't imagine that this really wants all the data
         #               about every single user in the system...
-        if 'name' in request.context_dict['query_string']:
-            return self.get_user_by_name(
-                request,
-                request.context_dict['query_string'].get('name'))
+        if 'name' in request.params:
+            return self.get_user_by_name(request, request.params['name'])
 
         self.assert_admin(request.context_dict)
         user_list = self.identity_api.list_users(
@@ -230,7 +228,7 @@ class UserV3(controller.V3Controller):
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_users(self, request, filters):
         hints = UserV3.build_driver_hints(request.context_dict, filters)
-        domain = self._get_domain_id_for_list_request(request.context_dict)
+        domain = self._get_domain_id_for_list_request(request)
         refs = self.identity_api.list_users(domain_scope=domain, hints=hints)
         return UserV3.wrap_collection(request.context_dict, refs, hints=hints)
 
@@ -323,7 +321,7 @@ class GroupV3(controller.V3Controller):
     @controller.filterprotected('domain_id', 'name')
     def list_groups(self, request, filters):
         hints = GroupV3.build_driver_hints(request.context_dict, filters)
-        domain = self._get_domain_id_for_list_request(request.context_dict)
+        domain = self._get_domain_id_for_list_request(request)
         refs = self.identity_api.list_groups(domain_scope=domain, hints=hints)
         return GroupV3.wrap_collection(request.context_dict, refs, hints=hints)
 

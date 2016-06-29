@@ -52,7 +52,7 @@ class OAuth(auth.AuthMethodHandler):
         result, request = access_verifier.validate_protected_resource_request(
             url,
             http_method='POST',
-            body=request.context_dict['query_string'],
+            body=request.params,
             headers=request.headers,
             realms=None
         )
