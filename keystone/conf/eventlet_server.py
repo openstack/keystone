@@ -16,9 +16,9 @@ from keystone.conf import utils
 
 
 _DEPRECATE_EVENTLET_MSG = utils.fmt("""
-Support for running keystone under eventlet has been removed in the N release.
-These options remain for backwards compatibility because they are used for URL
-substitutions.
+Support for running keystone under eventlet has been removed in the Newton
+release. These options remain for backwards compatibility because they are used
+for URL substitutions.
 """)
 
 
@@ -44,7 +44,7 @@ public_port = cfg.PortOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_EVENTLET_MSG,
     help=utils.fmt("""
-The port number which the public service listens on.
+The port number for the public service to listen on.
 """))
 
 admin_bind_host = cfg.StrOpt(
@@ -69,7 +69,7 @@ admin_port = cfg.PortOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_EVENTLET_MSG,
     help=utils.fmt("""
-The port number which the admin service listens on.
+The port number for the admin service to listen on.
 """))
 
 
