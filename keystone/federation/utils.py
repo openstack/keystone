@@ -352,6 +352,8 @@ def validate_groups(group_ids, mapping_id, identity_api):
         is 0.
 
     """
+    # TODO(rderose): remove cardinality check, as federated users can now
+    #                receive direct role assignments
     validate_groups_cardinality(group_ids, mapping_id)
     validate_groups_in_backend(group_ids, mapping_id, identity_api)
 
