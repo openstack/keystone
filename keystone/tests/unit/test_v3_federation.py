@@ -154,8 +154,8 @@ class FederatedSetupMixin(object):
         self.assertIn('identity_provider', user['OS-FEDERATION'])
         self.assertIn('protocol', user['OS-FEDERATION'])
 
-        # Make sure user_id is url safe
-        self.assertEqual(urllib.parse.quote(user['name']), user['id'])
+        # Make sure user_name is url safe
+        self.assertEqual(urllib.parse.quote(user['name']), user['name'])
 
     def _issue_unscoped_token(self,
                               idp=None,
@@ -2502,6 +2502,21 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self.assertRaises(exception.Unauthorized,
                           self._issue_unscoped_token,
                           assertion='ANOTHER_LOCAL_USER_ASSERTION')
+
+    def test_user_name_and_id_in_federation_token(self):
+        r = self._issue_unscoped_token(assertion='EMPLOYEE_ASSERTION')
+        token = r.json_body['token']
+        self.assertEqual(
+            mapping_fixtures.EMPLOYEE_ASSERTION['UserName'],
+            token['user']['name'])
+        self.assertNotEqual(token['user']['name'], token['user']['id'])
+        r = self.v3_create_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_EMPLOYEE)
+        token = r.json_body['token']
+        self.assertEqual(
+            mapping_fixtures.EMPLOYEE_ASSERTION['UserName'],
+            token['user']['name'])
+        self.assertNotEqual(token['user']['name'], token['user']['id'])
 
 
 class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
