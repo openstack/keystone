@@ -19,11 +19,12 @@
             "domain_id": "default",
             "description": null,
             "enabled": true,
-            "id": "fff603a0829d41e48bc0dd0d72ad61ce"
+            "id": "fff603a0829d41e48bc0dd0d72ad61ce",
             "name": "Paul",
             "links": {
                 "self": "http://example.com/identity/v3/users/fff603a0829d41e48bc0dd0d72ad61ce"
-            }
+            },
+            "password_expires_at": "2016-11-06T15:32:17.000000"
         }
     ]
 }
