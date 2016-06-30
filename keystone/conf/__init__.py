@@ -88,11 +88,6 @@ conf_modules = [
 ]
 
 
-# Options are registered when keystone.conf is first imported.
-for module in conf_modules:
-    module.register_opts(CONF)
-
-
 oslo_messaging.set_transport_defaults(control_exchange='keystone')
 
 
