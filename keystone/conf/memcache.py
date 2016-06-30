@@ -19,7 +19,14 @@ servers = cfg.ListOpt(
     'servers',
     default=['localhost:11211'],
     help=utils.fmt("""
-Memcache servers in the format of "host:port".
+Comma-separated list of memcached servers in the format of
+`host:port,host:port` that keystone should use for the `memcache` token
+persistence provider and other memcache-backed KVS drivers. This configuration
+value is NOT used for intermediary caching between keystone and other backends,
+such as SQL and LDAP (for that, see the `[cache]` section). Multiple keystone
+servers in the same deployment should use the same set of memcached servers to
+ensure that data (such as UUID tokens) created by one node is available to the
+others.
 """))
 
 dead_retry = cfg.IntOpt(
@@ -27,8 +34,8 @@ dead_retry = cfg.IntOpt(
     default=5 * 60,
     help=utils.fmt("""
 Number of seconds memcached server is considered dead before it is tried again.
-This is used by the key value store system (e.g. token pooled memcached
-persistence backend).
+This is used by the key value store system (including, the `memcache` and
+`memcache_pool` options for the `[token] driver` persistence backend).
 """))
 
 socket_timeout = cfg.IntOpt(
@@ -36,7 +43,8 @@ socket_timeout = cfg.IntOpt(
     default=3,
     help=utils.fmt("""
 Timeout in seconds for every call to a server. This is used by the key value
-store system (e.g. token pooled memcached persistence backend).
+store system (including, the `memcache` and `memcache_pool` options for the
+`[token] driver` persistence backend).
 """))
 
 pool_maxsize = cfg.IntOpt(
@@ -44,8 +52,8 @@ pool_maxsize = cfg.IntOpt(
     default=10,
     help=utils.fmt("""
 Max total number of open connections to every memcached server. This is used by
-the key value store system (e.g. token pooled memcached persistence
-backend).
+the key value store system (including, the `memcache` and `memcache_pool`
+options for the `[token] driver` persistence backend).
 """))
 
 pool_unused_timeout = cfg.IntOpt(
@@ -53,8 +61,9 @@ pool_unused_timeout = cfg.IntOpt(
     default=60,
     help=utils.fmt("""
 Number of seconds a connection to memcached is held unused in the pool before
-it is closed. This is used by the key value store system (e.g. token pooled
-memcached persistence backend).
+it is closed. This is used by the key value store system (including, the
+`memcache` and `memcache_pool` options for the `[token] driver` persistence
+backend).
 """))
 
 pool_connection_get_timeout = cfg.IntOpt(
@@ -62,8 +71,9 @@ pool_connection_get_timeout = cfg.IntOpt(
     default=10,
     help=utils.fmt("""
 Number of seconds that an operation will wait to get a memcache client
-connection. This is used by the key value store system (e.g. token pooled
-memcached persistence backend).
+connection. This is used by the key value store system (including, the
+`memcache` and `memcache_pool` options for the `[token] driver` persistence
+backend).
 """))
 
 
