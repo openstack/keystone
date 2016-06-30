@@ -20,20 +20,22 @@ enabled = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=utils.fmt("""
-The option to enable the OS-ENDPOINT-POLICY extension has been deprecated in
-the M release and will be removed in the O release. The OS-ENDPOINT-POLICY
-extension will be enabled by default.
+The option to enable the OS-ENDPOINT-POLICY API extension has been deprecated
+in the M release and will be removed in the O release. The OS-ENDPOINT-POLICY
+API extension will be enabled by default.
 """),
     help=utils.fmt("""
-Enable endpoint_policy functionality.
+Enable endpoint-policy functionality, which allows policies to be associated
+with either specific endpoints, or endpoints of a given service type.
 """))
 
 driver = cfg.StrOpt(
     'driver',
     default='sql',
     help=utils.fmt("""
-Entrypoint for the endpoint policy backend driver in the
-keystone.endpoint_policy namespace.
+Entry point for the endpoint policy driver in the `keystone.endpoint_policy`
+namespace. Only a `sql` driver is provided by keystone, so there is no reason
+to set this unless you are providing a custom entry point.
 """))
 
 
