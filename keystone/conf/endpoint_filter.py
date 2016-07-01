@@ -19,15 +19,20 @@ driver = cfg.StrOpt(
     'driver',
     default='sql',
     help=utils.fmt("""
-Entrypoint for the endpoint filter backend driver in the
-keystone.endpoint_filter namespace.
+Entry point for the endpoint filter driver in the
+`keystone.endpoint_filter` namespace. Only a `sql` option is provided by
+keystone, so there is no reason to set this unless you are providing a custom
+entry point.
 """))
 
 return_all_endpoints_if_no_filter = cfg.BoolOpt(
     'return_all_endpoints_if_no_filter',
     default=True,
     help=utils.fmt("""
-Toggle to return all active endpoints if no filter exists.
+This controls keystone's behavior if the configured endpoint filters do not
+result in any endpoints for a user + project pair (and therefore a potentially
+empty service catalog). If set to true, keystone will return the entire service
+catalog. If set to false, keystone will return an empty service catalog.
 """))
 
 
