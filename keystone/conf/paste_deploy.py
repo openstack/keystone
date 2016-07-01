@@ -19,7 +19,10 @@ config_file = cfg.StrOpt(
     'config_file',
     default='keystone-paste.ini',
     help=utils.fmt("""
-Name of the paste configuration file that defines the available pipelines.
+Name of (or absolute path to) the Paste Deploy configuration file that composes
+middleware and the keystone application itself into actual WSGI entry points.
+See http://pythonpaste.org/deploy/ for additional documentation on the file's
+format.
 """))
 
 
