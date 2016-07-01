@@ -25,6 +25,7 @@ Directory containing Fernet token keys.
 max_active_keys = cfg.IntOpt(
     'max_active_keys',
     default=3,
+    min=1,
     help=utils.fmt("""
 This controls how many keys are held in rotation by keystone-manage
 fernet_rotate before they are discarded. The default value of 3 means that
