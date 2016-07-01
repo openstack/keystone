@@ -1167,10 +1167,9 @@ class BaseLdap(object):
         self.auth_pool_conn_lifetime = conf.ldap.auth_pool_connection_lifetime
 
         if self.options_name is not None:
-            self.suffix = conf.ldap.suffix
-            dn = '%s_tree_dn' % self.options_name
-            self.tree_dn = (getattr(conf.ldap, dn)
-                            or '%s,%s' % (self.DEFAULT_OU, self.suffix))
+            self.tree_dn = (
+                getattr(conf.ldap, '%s_tree_dn' % self.options_name)
+                or '%s,%s' % (self.DEFAULT_OU, conf.ldap.suffix))
 
             idatt = '%s_id_attribute' % self.options_name
             self.id_attr = getattr(conf.ldap, idatt) or self.DEFAULT_ID_ATTR
