@@ -400,11 +400,19 @@ class EndpointFilterV3Controller(controller.V3Controller):
                                        payload):
         project_or_endpoint_id = payload['resource_info']
         if resource_type == 'project':
-            self.catalog_api.delete_association_by_project(
-                project_or_endpoint_id)
+            try:
+                self.catalog_api.delete_association_by_project(
+                    project_or_endpoint_id)
+            except exception.NotImplemented:
+                # Some catalog drivers don't support this
+                pass
         else:
-            self.catalog_api.delete_association_by_endpoint(
-                project_or_endpoint_id)
+            try:
+                self.catalog_api.delete_association_by_endpoint(
+                    project_or_endpoint_id)
+            except exception.NotImplemented:
+                # Some catalog drivers don't support this
+                pass
 
     @controller.protected()
     def add_endpoint_to_project(self, context, project_id, endpoint_id):
@@ -572,9 +580,13 @@ class ProjectEndpointGroupV3Controller(controller.V3Controller):
     def _on_project_delete(self, service, resource_type,
                            operation, payload):
         project_id = payload['resource_info']
-        (self.catalog_api.
-            delete_endpoint_group_association_by_project(
-                project_id))
+        try:
+            (self.catalog_api.
+             delete_endpoint_group_association_by_project(
+                 project_id))
+        except exception.NotImplemented:
+            # Some catalog drivers don't support this
+            pass
 
     @controller.protected()
     def get_endpoint_group_in_project(self, context, endpoint_group_id,
