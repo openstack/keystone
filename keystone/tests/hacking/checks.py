@@ -395,6 +395,19 @@ class CheckForLoggingIssues(BaseASTChecker):
                 continue
             return []
 
+        def is_in_args(node, name):
+            if (len(node.args) > 0 and isinstance(node.args[0], ast.Name)
+                    and name in (a.id for a in node.args)):
+                return True
+            return False
+
+        def is_in_kwargs(node, name):
+            for keyword in node.keywords:
+                if (isinstance(keyword.value, ast.Name)
+                        and keyword.value.id == name):
+                    return True
+            return False
+
         peers = find_peers(node)
         for peer in peers:
             if isinstance(peer, ast.Raise):
@@ -402,13 +415,13 @@ class CheckForLoggingIssues(BaseASTChecker):
                     exc = peer.exc
                 else:
                     exc = peer.type
-                if (isinstance(exc, ast.Call) and
-                        len(exc.args) > 0 and
-                        isinstance(exc.args[0], ast.Name) and
-                        name in (a.id for a in exc.args)):
-                    return True
-                else:
-                    return False
+                if isinstance(exc, ast.Call):
+                    if is_in_args(exc, name):
+                        return True
+                    elif is_in_kwargs(exc, name):
+                        return True
+
+                return False
             elif isinstance(peer, ast.Assign):
                 if name in (t.id for t in peer.targets if hasattr(t, 'id')):
                     return False
