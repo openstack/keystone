@@ -18,9 +18,10 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     help=utils.fmt("""
-Entrypoint for the resource backend driver in the keystone.resource namespace.
-Only an SQL driver is supplied. If a resource driver is not specified, the
-assignment driver will choose the resource driver.
+Entry point for the resource driver in the `keystone.resource` namespace. Only
+a `sql` driver is supplied by keystone. If a resource driver is not specified,
+the assignment driver will choose the resource driver to maintain backwards
+compatibility with older configuration files.
 """))
 
 caching = cfg.BoolOpt(
@@ -36,7 +37,7 @@ cache_time = cfg.IntOpt(
     'cache_time',
     deprecated_opts=[cfg.DeprecatedOpt('cache_time', group='assignment')],
     help=utils.fmt("""
-TTL (in seconds) to cache resource data. This has no effect unless global
+Time to cache resource data in seconds. This has no effect unless global
 caching is enabled.
 """))
 
@@ -50,15 +51,21 @@ Maximum number of entities that will be returned in a resource collection.
 admin_project_domain_name = cfg.StrOpt(
     'admin_project_domain_name',
     help=utils.fmt("""
-Name of the domain that owns the `admin_project_name`. Defaults to None.
+Name of the domain that owns the `admin_project_name`. If left unset, then
+there is no admin project. `[resource] admin_project_name` must also be set to
+use this option.
 """))
 
 admin_project_name = cfg.StrOpt(
     'admin_project_name',
     help=utils.fmt("""
-Special project for performing administrative operations on remote services.
-Tokens scoped to this project will contain the key/value
-`is_admin_project=true`. Defaults to None.
+This is a special project which represents cloud-level administrator privileges
+across services. Tokens scoped to this project will contain a true
+`is_admin_project` attribute to indicate to policy systems that the role
+assignments on that specific project should apply equally across every project.
+If left unset, then there is no admin project, and thus no explicit means of
+cross-project role assignments. `[resource] admin_project_domain_name` must
+also be set to use this option.
 """))
 
 project_name_url_safe = cfg.StrOpt(
@@ -66,10 +73,11 @@ project_name_url_safe = cfg.StrOpt(
     choices=['off', 'new', 'strict'],
     default='off',
     help=utils.fmt("""
-Whether the names of projects are restricted from containing url reserved
-characters. If set to new, attempts to create or update a project with a url
-unsafe name will return an error. In addition, if set to strict, attempts to
-scope a token using an unsafe project name will return an error.
+This controls whether the names of projects are restricted from containing
+URL-reserved characters. If set to `new`, attempts to create or update a
+project with a URL-unsafe name will fail. If set to `strict`, attempts to scope
+a token with a URL-unsafe project name will fail, thereby forcing all project
+names to be updated to be URL-safe.
 """))
 
 domain_name_url_safe = cfg.StrOpt(
@@ -77,10 +85,11 @@ domain_name_url_safe = cfg.StrOpt(
     choices=['off', 'new', 'strict'],
     default='off',
     help=utils.fmt("""
-Whether the names of domains are restricted from containing url reserved
-characters. If set to new, attempts to create or update a domain with a url
-unsafe name will return an error. In addition, if set to strict, attempts to
-scope a token using a domain name which is unsafe will return an error.
+This controls whether the names of domains are restricted from containing
+URL-reserved characters. If set to `new`, attempts to create or update a domain
+with a URL-unsafe name will fail. If set to `strict`, attempts to scope a token
+with a URL-unsafe domain name will fail, thereby forcing all domain names to be
+updated to be URL-safe.
 """))
 
 
