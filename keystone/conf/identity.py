@@ -21,7 +21,7 @@ default_domain_id = cfg.StrOpt(
     default='default',
     help=utils.fmt("""
 This references the domain to use for all Identity API v2 requests (which are
-not aware of domains). A domain with this ID will be optionally created for you
+not aware of domains). A domain with this ID can optionally be created for you
 by `keystone-manage bootstrap`. The domain referenced by this ID cannot be
 deleted on the v3 API, to prevent accidentally breaking the v2 API. There is
 nothing special about this domain, other than the fact that it must exist to
