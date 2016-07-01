@@ -305,7 +305,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 name=u'Default')
             self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
 
-    def load_sample_data(self):
+    def load_sample_data(self, create_region_and_endpoints=True):
         self._populate_default_domain()
         self.domain = unit.new_domain_ref()
         self.domain_id = self.domain['id']
@@ -354,22 +354,24 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             self.default_domain_project_id,
             self.role_id)
 
-        self.region = unit.new_region_ref()
-        self.region_id = self.region['id']
-        self.catalog_api.create_region(self.region)
+        if create_region_and_endpoints:
+            self.region = unit.new_region_ref()
+            self.region_id = self.region['id']
+            self.catalog_api.create_region(self.region)
 
-        self.service = unit.new_service_ref()
-        self.service_id = self.service['id']
-        self.catalog_api.create_service(self.service_id, self.service.copy())
+            self.service = unit.new_service_ref()
+            self.service_id = self.service['id']
+            self.catalog_api.create_service(self.service_id,
+                                            self.service.copy())
 
-        self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
-                                              interface='public',
-                                              region_id=self.region_id)
-        self.endpoint_id = self.endpoint['id']
-        self.catalog_api.create_endpoint(self.endpoint_id,
-                                         self.endpoint.copy())
-        # The server adds 'enabled' and defaults to True.
-        self.endpoint['enabled'] = True
+            self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
+                                                  interface='public',
+                                                  region_id=self.region_id)
+            self.endpoint_id = self.endpoint['id']
+            self.catalog_api.create_endpoint(self.endpoint_id,
+                                             self.endpoint.copy())
+            # The server adds 'enabled' and defaults to True.
+            self.endpoint['enabled'] = True
 
     def create_new_default_project_for_user(self, user_id, domain_id,
                                             enable_project=True):
