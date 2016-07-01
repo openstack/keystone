@@ -19,8 +19,9 @@ backends = cfg.ListOpt(
     'backends',
     default=[],
     help=utils.fmt("""
-Extra dogpile.cache backend modules to register with the dogpile.cache
-library.
+Extra `dogpile.cache` backend modules to register with the `dogpile.cache`
+library. It is not necessary to set this value unless you are providing a
+custom KVS backend beyond what `dogpile.cache` already supports.
 """))
 
 config_prefix = cfg.StrOpt(
@@ -28,24 +29,33 @@ config_prefix = cfg.StrOpt(
     default='keystone.kvs',
     help=utils.fmt("""
 Prefix for building the configuration dictionary for the KVS region. This
-should not need to be changed unless there is another dogpile.cache region with
-the same configuration name.
+should not need to be changed unless there is another `dogpile.cache` region
+with the same configuration name.
 """))
 
 enable_key_mangler = cfg.BoolOpt(
     'enable_key_mangler',
     default=True,
     help=utils.fmt("""
-Toggle to disable using a key-mangling function to ensure fixed length keys.
-This is toggle-able for debugging purposes, it is highly recommended to always
-leave this set to true.
+Set to false to disable using a key-mangling function, which ensures
+fixed-length keys are used in the KVS store. This is configurable for debugging
+purposes, and it is therefore highly recommended to always leave this set to
+true.
 """))
 
 default_lock_timeout = cfg.IntOpt(
     'default_lock_timeout',
     default=5,
+    min=0,
     help=utils.fmt("""
-Default lock timeout (in seconds) for distributed locking.
+Number of seconds after acquiring a distributed lock that the backend should
+consider the lock to be expired. This option should be tuned relative to the
+longest amount of time that it takes to perform a successful operation. If this
+value is set too low, then a cluster will end up performing work redundantly.
+If this value is set too high, then a cluster will not be able to efficiently
+recover and retry after a failed operation. A non-zero value is recommended if
+the backend supports lock timeouts, as zero prevents locks from expiring
+altogether.
 """))
 
 
