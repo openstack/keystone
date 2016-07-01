@@ -1408,13 +1408,13 @@ class RevokeApiTestCase(V2TestCase):
             revoke_by_id=False)
 
     def test_fetch_revocation_list_admin_200(self):
-        self.skipTest('Revoke API disables revocation_list.')
+        self.skip_test_overrides('Revoke API disables revocation_list.')
 
     def test_fetch_revocation_list_md5(self):
-        self.skipTest('Revoke API disables revocation_list.')
+        self.skip_test_overrides('Revoke API disables revocation_list.')
 
     def test_fetch_revocation_list_sha256(self):
-        self.skipTest('Revoke API disables revocation_list.')
+        self.skip_test_overrides('Revoke API disables revocation_list.')
 
 
 class TestFernetTokenProviderV2(RestfulTestCase):

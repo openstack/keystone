@@ -82,10 +82,12 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         self.assertEqual(1, len(catalog_ref['RegionOne']))
 
     def test_get_catalog_endpoint_disabled(self):
-        self.skipTest("Templated backend doesn't have disabled endpoints")
+        self.skip_test_overrides(
+            "Templated backend doesn't have disabled endpoints")
 
     def test_get_v3_catalog_endpoint_disabled(self):
-        self.skipTest("Templated backend doesn't have disabled endpoints")
+        self.skip_test_overrides(
+            "Templated backend doesn't have disabled endpoints")
 
     def assert_catalogs_equal(self, expected, observed):
         sort_key = lambda d: d['id']
@@ -156,10 +158,10 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         self.assert_catalogs_equal(exp_catalog, catalog_ref)
 
     def test_list_regions_filtered_by_parent_region_id(self):
-        self.skipTest('Templated backend does not support hints')
+        self.skip_test_overrides('Templated backend does not support hints')
 
     def test_service_filtering(self):
-        self.skipTest("Templated backend doesn't support filtering")
+        self.skip_test_overrides("Templated backend doesn't support filtering")
 
     def test_list_services_with_hints(self):
         hints = {}
@@ -181,73 +183,74 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     # from unit.catalog.test_backends.CatalogTests.
 
     def test_region_crud(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_cache_layer_region_crud(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_region(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_create_region_with_duplicate_id(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_delete_region_returns_not_found(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_create_region_invalid_parent_region_returns_not_found(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_avoid_creating_circular_references_in_regions_update(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     @mock.patch.object(catalog.Driver,
                        "_ensure_no_circle_in_hierarchical_regions")
     def test_circular_regions_can_be_deleted(self, mock_ensure_on_circle):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_service_crud(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_cache_layer_service_crud(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_service(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_delete_service_with_endpoint(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_cache_layer_delete_service_with_endpoint(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_delete_service_returns_not_found(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_update_endpoint_nonexistent_service(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_create_endpoint_nonexistent_region(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_update_endpoint_nonexistent_region(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_get_endpoint_returns_not_found(self):
-        self.skipTest("Templated backend doesn't use IDs for endpoints.")
+        self.skip_test_overrides(
+            "Templated backend doesn't use IDs for endpoints.")
 
     def test_delete_endpoint_returns_not_found(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_create_endpoint(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_update_endpoint(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_list_endpoints(self):
         expected_urls = set(['http://localhost:$(public_port)s/v2.0',
@@ -258,4 +261,4 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_endpoint(self):
-        self.skipTest(BROKEN_WRITE_FUNCTIONALITY_MSG)
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
