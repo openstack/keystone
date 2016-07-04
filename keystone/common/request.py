@@ -32,11 +32,12 @@ class Request(webob.Request):
         # allow middleware up the stack to provide context, params and headers.
         context = self.environ.get(CONTEXT_ENV, {})
 
+        # NOTE(jamielennox): The webob package throws UnicodeError when a
+        # param cannot be decoded. If we make webob iterate them now we can
+        # catch this and throw an error early rather than on access.
         try:
-            context['query_string'] = dict(self.params.items())
+            self.params.items()
         except UnicodeDecodeError:
-            # The webob package throws UnicodeError when a request cannot be
-            # decoded. Raise ValidationError instead to avoid an UnknownError.
             msg = _('Query string is not UTF-8 encoded')
             raise exception.ValidationError(msg)
 

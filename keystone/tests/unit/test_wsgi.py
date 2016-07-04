@@ -39,7 +39,7 @@ class FakeApp(wsgi.Application):
 
 class FakeAttributeCheckerApp(wsgi.Application):
     def index(self, request):
-        return request.context_dict['query_string']
+        return request.params.mixed()
 
     def assert_attribute(self, body, attr):
         """Assert that the given request has a certain attribute."""
@@ -89,7 +89,7 @@ class ApplicationTest(BaseWSGITest):
     def test_query_string_available(self):
         class FakeApp(wsgi.Application):
             def index(self, request):
-                return request.context_dict['query_string']
+                return request.params.mixed()
         req = self._make_request(url='/?1=2')
         resp = req.get_response(FakeApp())
         self.assertEqual({'1': '2'}, jsonutils.loads(resp.body))
@@ -211,7 +211,7 @@ class ApplicationTest(BaseWSGITest):
     def test_improperly_encoded_params(self):
         class FakeApp(wsgi.Application):
             def index(self, request):
-                return request.context_dict['query_string']
+                return request.params.mixed()
         # this is high bit set ASCII, copy & pasted from Windows.
         # aka code page 1252. It is not valid UTF8.
         req = self._make_request(url='/?name=nonexit%E8nt')
@@ -221,7 +221,7 @@ class ApplicationTest(BaseWSGITest):
     def test_properly_encoded_params(self):
         class FakeApp(wsgi.Application):
             def index(self, request):
-                return request.context_dict['query_string']
+                return request.params.mixed()
         # nonexitènt encoded as UTF-8
         req = self._make_request(url='/?name=nonexit%C3%A8nt')
         resp = req.get_response(FakeApp())
