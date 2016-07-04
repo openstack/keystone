@@ -118,6 +118,9 @@ class RevokeEvent(object):
         if self.issued_before is not None:
             event['issued_before'] = utils.isotime(self.issued_before,
                                                    subsecond=True)
+        if self.revoked_at is not None:
+            event['revoked_at'] = utils.isotime(self.revoked_at,
+                                                subsecond=True)
         return event
 
     def key_for_name(self, name):

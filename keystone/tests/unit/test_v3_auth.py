@@ -3342,6 +3342,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.assertIsNotNone(events[0]['issued_before'])
         self.assertIsNotNone(events_response['links'])
         del (events_response['events'][0]['issued_before'])
+        del (events_response['events'][0]['revoked_at'])
         del (events_response['links'])
         expected_response = {'events': [{'project_id': project_id}]}
         self.assertEqual(expected_response, events_response)
@@ -3356,6 +3357,8 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.assertIsNotNone(events_response['links'])
         del (events_response['events'][0]['issued_before'])
         del (events_response['events'][1]['issued_before'])
+        del (events_response['events'][0]['revoked_at'])
+        del (events_response['events'][1]['revoked_at'])
         del (events_response['links'])
         expected_response = {'events': [{'project_id': domain_id},
                                         {'domain_id': domain_id}]}
@@ -3369,6 +3372,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.assertIsNotNone(events[0]['issued_before'])
         self.assertIsNotNone(events_response['links'])
         del (events_response['events'][0]['issued_before'])
+        del (events_response['events'][0]['revoked_at'])
         del (events_response['links'])
 
         expected_response = {'events': [kwargs]}
