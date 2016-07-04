@@ -218,9 +218,8 @@ def filterprotected(*filters, **callback):
                 target = dict()
                 if filters:
                     for item in filters:
-                        if item in request.context_dict['query_string']:
-                            i = request.context_dict['query_string'][item]
-                            target[item] = i
+                        if item in request.params:
+                            target[item] = request.params[item]
 
                     LOG.debug('RBAC: Adding query filter params (%s)', (
                         ', '.join(['%s=%s' % (item, target[item])
@@ -631,25 +630,23 @@ class V3Controller(wsgi.Application):
         return refs
 
     @classmethod
-    def build_driver_hints(cls, context, supported_filters):
+    def build_driver_hints(cls, request, supported_filters):
         """Build list hints based on the context query string.
 
-        :param context: contains the query_string from which any list hints can
-                        be extracted
+        :param request: the current request
         :param supported_filters: list of filters supported, so ignore any
                                   keys in query_dict that are not in this list.
 
         """
-        query_dict = context['query_string']
         hints = driver_hints.Hints()
 
-        if query_dict is None:
+        if not request.params:
             return hints
 
-        for key in query_dict:
+        for key, value in request.params.items():
             # Check if this is an exact filter
             if supported_filters is None or key in supported_filters:
-                hints.add_filter(key, query_dict[key])
+                hints.add_filter(key, value)
                 continue
 
             # Check if it is an inexact filter
@@ -678,7 +675,7 @@ class V3Controller(wsgi.Application):
                 if comparator.startswith('i'):
                     case_sensitive = False
                     comparator = comparator[1:]
-                hints.add_filter(base_key, query_dict[key],
+                hints.add_filter(base_key, value,
                                  comparator=comparator,
                                  case_sensitive=case_sensitive)
 

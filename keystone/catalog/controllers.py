@@ -235,7 +235,7 @@ class RegionV3(controller.V3Controller):
 
     @controller.filterprotected('parent_region_id')
     def list_regions(self, request, filters):
-        hints = RegionV3.build_driver_hints(request.context_dict, filters)
+        hints = RegionV3.build_driver_hints(request, filters)
         refs = self.catalog_api.list_regions(hints)
         return RegionV3.wrap_collection(request.context_dict,
                                         refs,
@@ -279,7 +279,7 @@ class ServiceV3(controller.V3Controller):
 
     @controller.filterprotected('type', 'name')
     def list_services(self, request, filters):
-        hints = ServiceV3.build_driver_hints(request.context_dict, filters)
+        hints = ServiceV3.build_driver_hints(request, filters)
         refs = self.catalog_api.list_services(hints=hints)
         return ServiceV3.wrap_collection(request.context_dict,
                                          refs,
@@ -361,7 +361,7 @@ class EndpointV3(controller.V3Controller):
 
     @controller.filterprotected('interface', 'service_id', 'region_id')
     def list_endpoints(self, request, filters):
-        hints = EndpointV3.build_driver_hints(request.context_dict, filters)
+        hints = EndpointV3.build_driver_hints(request, filters)
         refs = self.catalog_api.list_endpoints(hints=hints)
         return EndpointV3.wrap_collection(request.context_dict,
                                           refs,

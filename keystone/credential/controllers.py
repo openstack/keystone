@@ -84,7 +84,7 @@ class CredentialV3(controller.V3Controller):
 
     @controller.filterprotected('user_id', 'type')
     def list_credentials(self, request, filters):
-        hints = CredentialV3.build_driver_hints(request.context_dict, filters)
+        hints = CredentialV3.build_driver_hints(request, filters)
         refs = self.credential_api.list_credentials(hints)
         ret_refs = [self._blob_to_json(r) for r in refs]
         return CredentialV3.wrap_collection(request.context_dict, ret_refs,
