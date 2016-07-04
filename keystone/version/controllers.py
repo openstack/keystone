@@ -87,10 +87,10 @@ class MimeTypes(object):
     JSON_HOME = 'application/json-home'
 
 
-def v3_mime_type_best_match(context):
+def v3_mime_type_best_match(request):
 
     # accept_header is a WebOb MIMEAccept object so supports best_match.
-    accept_header = context['accept_header']
+    accept_header = request.accept
 
     if not accept_header:
         return MimeTypes.JSON
@@ -161,7 +161,7 @@ class Version(wsgi.Application):
 
     def get_versions(self, request):
 
-        req_mime_type = v3_mime_type_best_match(request.context_dict)
+        req_mime_type = v3_mime_type_best_match(request)
         if req_mime_type == MimeTypes.JSON_HOME:
             v3_json_home = request_v3_json_home('/v3')
             return wsgi.render_response(
@@ -198,7 +198,7 @@ class Version(wsgi.Application):
     def get_version_v3(self, request):
         versions = self._get_versions_list(request.context_dict)
         if 'v3' in _VERSIONS:
-            req_mime_type = v3_mime_type_best_match(request.context_dict)
+            req_mime_type = v3_mime_type_best_match(request)
 
             if req_mime_type == MimeTypes.JSON_HOME:
                 return wsgi.render_response(
