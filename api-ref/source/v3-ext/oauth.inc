@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-=======================
-OAuth OAuth (OS-OAUTH1)
-=======================
+===============
+ OS-OAUTH1 API
+===============
 
 Enables users to delegate roles to third-party consumers through
 `The OAuth 1.0 Protocol <http://tools.ietf.org/html/rfc5849>`_.
