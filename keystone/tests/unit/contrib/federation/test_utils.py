@@ -14,6 +14,7 @@ import uuid
 
 from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
+import webob
 
 from keystone.auth.plugins import mapped
 import keystone.conf
@@ -548,15 +549,15 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         as it was not explicitly specified in the mapping.
 
         """
+        request = webob.Request.blank('/')
         mapping = mapping_fixtures.MAPPING_USER_IDS
         rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
         assertion = mapping_fixtures.ADMIN_ASSERTION
         mapped_properties = rp.process(assertion)
-        context = {'environment': {}}
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
         unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            context, mapped_properties)
+            request, mapped_properties)
         self.assertEqual('bob', unique_id)
         self.assertEqual('bob', display_name)
 
@@ -581,17 +582,17 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         not to change it.
 
         """
+        request = webob.Request.blank('/')
         testcases = [(mapping_fixtures.CUSTOMER_ASSERTION, 'bwilliams'),
                      (mapping_fixtures.EMPLOYEE_ASSERTION, 'tbo')]
         for assertion, exp_user_name in testcases:
             mapping = mapping_fixtures.MAPPING_USER_IDS
             rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
             mapped_properties = rp.process(assertion)
-            context = {'environment': {}}
             self.assertIsNotNone(mapped_properties)
             self.assertValidMappedUserObject(mapped_properties)
             unique_id, display_name = (
-                mapped.get_user_unique_id_and_display_name(context,
+                mapped.get_user_unique_id_and_display_name(request,
                                                            mapped_properties)
             )
             self.assertEqual(exp_user_name, display_name)
@@ -761,8 +762,10 @@ class TestUnicodeAssertionData(unit.BaseTestCase):
         # pulled from the HTTP headers. These bytes may be decodable as
         # ISO-8859-1 according to Section 3.2.4 of RFC 7230. Let's assume
         # that our web server plugins are correctly encoding the data.
-        context = dict(environment=mapping_fixtures.UNICODE_NAME_ASSERTION)
-        data = mapping_utils.get_assertion_params_from_env(context)
+        request = webob.Request.blank(
+            '/path',
+            environ=mapping_fixtures.UNICODE_NAME_ASSERTION)
+        data = mapping_utils.get_assertion_params_from_env(request)
         # NOTE(dstanek): keystone.auth.plugins.mapped
         return dict(data)
 

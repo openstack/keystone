@@ -307,7 +307,7 @@ class Auth(auth_controllers.Auth):
     def federated_sso_auth(self, request, protocol_id):
         try:
             remote_id_name = utils.get_remote_id_parameter(protocol_id)
-            remote_id = request.context_dict['environment'][remote_id_name]
+            remote_id = request.environ[remote_id_name]
         except KeyError:
             msg = _('Missing entity ID from environment')
             LOG.error(msg)
@@ -437,8 +437,7 @@ class DomainV3(controller.V3Controller):
         :returns: list of accessible domains
 
         """
-        env = request.context_dict['environment']
-        auth_context = env[authorization.AUTH_CONTEXT_ENV]
+        auth_context = request.environ[authorization.AUTH_CONTEXT_ENV]
         domains = self.assignment_api.list_domains_for_groups(
             auth_context['group_ids'])
         domains = domains + self.assignment_api.list_domains_for_user(
@@ -465,8 +464,7 @@ class ProjectAssignmentV3(controller.V3Controller):
         :returns: list of accessible projects
 
         """
-        env = request.context_dict['environment']
-        auth_context = env[authorization.AUTH_CONTEXT_ENV]
+        auth_context = request.environ[authorization.AUTH_CONTEXT_ENV]
         projects = self.assignment_api.list_projects_for_groups(
             auth_context['group_ids'])
         projects = projects + self.assignment_api.list_projects_for_user(

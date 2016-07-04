@@ -55,7 +55,7 @@ class Mapped(auth.AuthMethodHandler):
         """
         if 'id' in auth_payload:
             token_ref = self._get_token_ref(auth_payload)
-            handle_scoped_token(request.context_dict,
+            handle_scoped_token(request,
                                 auth_payload,
                                 auth_context,
                                 token_ref,
@@ -63,7 +63,7 @@ class Mapped(auth.AuthMethodHandler):
                                 self.identity_api,
                                 self.token_provider_api)
         else:
-            handle_unscoped_token(request.context_dict,
+            handle_unscoped_token(request,
                                   auth_payload,
                                   auth_context,
                                   self.resource_api,
@@ -71,7 +71,7 @@ class Mapped(auth.AuthMethodHandler):
                                   self.identity_api)
 
 
-def handle_scoped_token(context, auth_payload, auth_context, token_ref,
+def handle_scoped_token(request, auth_payload, auth_context, token_ref,
                         federation_api, identity_api, token_provider_api):
     utils.validate_expiration(token_ref)
     token_audit_id = token_ref.audit_id
@@ -81,7 +81,7 @@ def handle_scoped_token(context, auth_payload, auth_context, token_ref,
     group_ids = token_ref.federation_group_ids
     send_notification = functools.partial(
         notifications.send_saml_audit_notification, 'authenticate',
-        context, user_id, group_ids, identity_provider, protocol,
+        request.context_dict, user_id, group_ids, identity_provider, protocol,
         token_audit_id)
 
     utils.assert_enabled_identity_provider(federation_api, identity_provider)
@@ -106,7 +106,7 @@ def handle_scoped_token(context, auth_payload, auth_context, token_ref,
     auth_context[federation_constants.PROTOCOL] = protocol
 
 
-def handle_unscoped_token(context, auth_payload, auth_context,
+def handle_unscoped_token(request, auth_payload, auth_context,
                           resource_api, federation_api, identity_api):
 
     def is_ephemeral_user(mapped_properties):
@@ -125,7 +125,7 @@ def handle_unscoped_token(context, auth_payload, auth_context,
                                                      METHOD_NAME)
         auth_context['user_id'] = user_info.user_id
 
-    assertion = extract_assertion_data(context)
+    assertion = extract_assertion_data(request)
     identity_provider = auth_payload['identity_provider']
     protocol = auth_payload['protocol']
 
@@ -152,7 +152,7 @@ def handle_unscoped_token(context, auth_payload, auth_context,
 
         if is_ephemeral_user(mapped_properties):
             unique_id, display_name = (
-                get_user_unique_id_and_display_name(context, mapped_properties)
+                get_user_unique_id_and_display_name(request, mapped_properties)
             )
             user = identity_api.shadow_federated_user(identity_provider,
                                                       protocol, unique_id,
@@ -171,7 +171,8 @@ def handle_unscoped_token(context, auth_payload, auth_context,
         # send off failed authentication notification, raise the exception
         # after sending the notification
         outcome = taxonomy.OUTCOME_FAILURE
-        notifications.send_saml_audit_notification('authenticate', context,
+        notifications.send_saml_audit_notification('authenticate',
+                                                   request.context_dict,
                                                    user_id, group_ids,
                                                    identity_provider,
                                                    protocol, token_id,
@@ -179,15 +180,16 @@ def handle_unscoped_token(context, auth_payload, auth_context,
         raise
     else:
         outcome = taxonomy.OUTCOME_SUCCESS
-        notifications.send_saml_audit_notification('authenticate', context,
+        notifications.send_saml_audit_notification('authenticate',
+                                                   request.context_dict,
                                                    user_id, group_ids,
                                                    identity_provider,
                                                    protocol, token_id,
                                                    outcome)
 
 
-def extract_assertion_data(context):
-    assertion = dict(utils.get_assertion_params_from_env(context))
+def extract_assertion_data(request):
+    assertion = dict(utils.get_assertion_params_from_env(request))
     return assertion
 
 
@@ -217,7 +219,7 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
     return mapped_properties, mapping_id
 
 
-def get_user_unique_id_and_display_name(context, mapped_properties):
+def get_user_unique_id_and_display_name(request, mapped_properties):
     """Setup federated username.
 
     Function covers all the cases for properly setting user id, a primary
@@ -233,7 +235,7 @@ def get_user_unique_id_and_display_name(context, mapped_properties):
     3) If user_id is not set and user_name is, set user_id as url safe version
        of user_name.
 
-    :param context: authentication context
+    :param request: current request object
     :param mapped_properties: Properties issued by a RuleProcessor.
     :type: dictionary
 
@@ -246,7 +248,7 @@ def get_user_unique_id_and_display_name(context, mapped_properties):
     user = mapped_properties['user']
 
     user_id = user.get('id')
-    user_name = user.get('name') or context['environment'].get('REMOTE_USER')
+    user_name = user.get('name') or request.remote_user
 
     if not any([user_id, user_name]):
         msg = _("Could not map user while setting ephemeral user identity. "

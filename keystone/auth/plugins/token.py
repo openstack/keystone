@@ -46,7 +46,7 @@ class Token(auth.AuthMethodHandler):
         token_ref = self._get_token_ref(auth_payload)
         if token_ref.is_federated_user and self.federation_api:
             mapped.handle_scoped_token(
-                request.context_dict, auth_payload, user_context, token_ref,
+                request, auth_payload, user_context, token_ref,
                 self.federation_api, self.identity_api,
                 self.token_provider_api)
         else:
