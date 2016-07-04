@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-=======================================
-Domains (domains, users, groups, roles)
-=======================================
+=========
+ Domains
+=========
 
 A domain is a collection of users, groups, and projects. Each group
 and project is owned by exactly one domain.

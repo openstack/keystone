@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-===================================================
-Service catalog and endpoints (services, endpoints)
-===================================================
+===============================
+ Service catalog and endpoints
+===============================
 
 A service is an OpenStack web service that you can access through a
 URL, or endpoint.

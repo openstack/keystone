@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-======================
-Groups (groups, users)
-======================
+========
+ Groups
+========
 
 A group is a collection of users. Each group is owned by a domain.
 

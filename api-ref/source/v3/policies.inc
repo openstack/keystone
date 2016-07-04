@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-===================
-Policies (policies)
-===================
+==========
+ Policies
+==========
 
 A policy is an arbitrarily serialized policy engine rule set to be
 consumed by a remote service.

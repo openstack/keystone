@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-======================================
-Users (users, groups, projects, roles)
-======================================
+=======
+ Users
+=======
 
 A user is an individual API consumer that is owned by a domain. A
 role explicitly associates a user with projects or domains. A user
