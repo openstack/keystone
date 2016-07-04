@@ -38,7 +38,7 @@ class Tenant(controller.V2Controller):
     @controller.v2_deprecated
     def get_all_projects(self, request, **kw):
         """Get a list of all tenants for an admin user."""
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         name = request.params.get('name')
         if name:
@@ -70,7 +70,7 @@ class Tenant(controller.V2Controller):
     @controller.v2_deprecated
     def get_project(self, request, tenant_id):
         # TODO(termie): this stuff should probably be moved to middleware
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         ref = self.resource_api.get_project(tenant_id)
         self._assert_not_is_domain_project(tenant_id, ref)
         return {'tenant': self.v3_to_v2_project(ref)}
@@ -96,7 +96,7 @@ class Tenant(controller.V2Controller):
                     'allowed in v2.')
             raise exception.ValidationError(message=msg)
 
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         self.resource_api.ensure_default_domain_exists()
 
@@ -110,7 +110,7 @@ class Tenant(controller.V2Controller):
 
     @controller.v2_deprecated
     def update_project(self, request, tenant_id, tenant):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         self._assert_not_is_domain_project(tenant_id)
         # Remove domain_id and is_domain if specified - a v2 api caller
         # should not be specifying that
@@ -124,7 +124,7 @@ class Tenant(controller.V2Controller):
 
     @controller.v2_deprecated
     def delete_project(self, request, tenant_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         self._assert_not_is_domain_project(tenant_id)
         initiator = notifications._get_request_audit_info(request.context_dict)
         self.resource_api.delete_project(tenant_id, initiator)

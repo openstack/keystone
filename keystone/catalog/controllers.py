@@ -37,25 +37,25 @@ class Service(controller.V2Controller):
 
     @controller.v2_deprecated
     def get_services(self, request):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         service_list = self.catalog_api.list_services()
         return {'OS-KSADM:services': service_list}
 
     @controller.v2_deprecated
     def get_service(self, request, service_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         service_ref = self.catalog_api.get_service(service_id)
         return {'OS-KSADM:service': service_ref}
 
     @controller.v2_deprecated
     def delete_service(self, request, service_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         initiator = notifications._get_request_audit_info(request.context_dict)
         self.catalog_api.delete_service(service_id, initiator)
 
     @controller.v2_deprecated
     def create_service(self, request, OS_KSADM_service):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         service_id = uuid.uuid4().hex
         service_ref = OS_KSADM_service.copy()
         service_ref['id'] = service_id
@@ -71,7 +71,7 @@ class Endpoint(controller.V2Controller):
     @controller.v2_deprecated
     def get_endpoints(self, request):
         """Merge matching v3 endpoint refs into legacy refs."""
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         legacy_endpoints = {}
         v3_endpoints = {}
         for endpoint in self.catalog_api.list_endpoints():
@@ -131,7 +131,7 @@ class Endpoint(controller.V2Controller):
     @controller.v2_deprecated
     def create_endpoint(self, request, endpoint):
         """Create three v3 endpoint refs based on a legacy ref."""
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         # according to the v2 spec publicurl is mandatory
         self._require_attribute(endpoint, 'publicurl')
@@ -186,7 +186,7 @@ class Endpoint(controller.V2Controller):
     @controller.v2_deprecated
     def delete_endpoint(self, request, endpoint_id):
         """Delete up to three v3 endpoint refs based on a legacy ref ID."""
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         initiator = notifications._get_request_audit_info(request.context_dict)
 
         deleted_at_least_one = False

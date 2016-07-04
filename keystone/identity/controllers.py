@@ -35,7 +35,7 @@ class User(controller.V2Controller):
 
     @controller.v2_deprecated
     def get_user(self, request, user_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         ref = self.identity_api.get_user(user_id)
         return {'user': self.v3_to_v2_user(ref)}
 
@@ -46,14 +46,14 @@ class User(controller.V2Controller):
         if 'name' in request.params:
             return self.get_user_by_name(request, request.params['name'])
 
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         user_list = self.identity_api.list_users(
             CONF.identity.default_domain_id)
         return {'users': self.v3_to_v2_user(user_list)}
 
     @controller.v2_deprecated
     def get_user_by_name(self, request, user_name):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         ref = self.identity_api.get_user_by_name(
             user_name, CONF.identity.default_domain_id)
         return {'user': self.v3_to_v2_user(ref)}
@@ -64,7 +64,7 @@ class User(controller.V2Controller):
         user = self._normalize_OSKSADM_password_on_request(user)
         user = self.normalize_username_in_request(user)
         user = self._normalize_dict(user)
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         if 'name' not in user or not user['name']:
             msg = _('Name field is required and cannot be empty')
@@ -96,7 +96,7 @@ class User(controller.V2Controller):
     def update_user(self, request, user_id, user):
         # NOTE(termie): this is really more of a patch than a put
         user = self.normalize_username_in_request(user)
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         if 'enabled' in user and not isinstance(user['enabled'], bool):
             msg = _('Enabled field should be a boolean')
@@ -168,7 +168,7 @@ class User(controller.V2Controller):
 
     @controller.v2_deprecated
     def delete_user(self, request, user_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         initiator = notifications._get_request_audit_info(request.context_dict)
         self.identity_api.delete_user(user_id, initiator)
 

@@ -17,6 +17,7 @@ import uuid
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from six.moves import http_client
 
+from keystone.common import request
 from keystone.common import utils
 from keystone.contrib.ec2 import controllers
 from keystone import exception
@@ -258,8 +259,10 @@ class V2CredentialEc2Controller(unit.TestCase):
         is raised but not caught if the user is not an admin.
         """
         # make a non-admin user
-        context = {'is_admin': False, 'token_id': uuid.uuid4().hex}
+        req = request.Request.blank('/')
+        req.context_dict['is_admin'] = False
+        req.context_dict['token_id'] = uuid.uuid4().hex
 
         # check if user is admin
         # no exceptions should be raised
-        self.controller._is_admin(context)
+        self.controller._is_admin(req)

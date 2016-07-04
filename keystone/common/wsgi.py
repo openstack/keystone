@@ -272,7 +272,7 @@ class Application(BaseApplication):
     def _normalize_dict(self, d):
         return {self._normalize_arg(k): v for (k, v) in d.items()}
 
-    def assert_admin(self, context):
+    def assert_admin(self, request):
         """Ensure the user is an admin.
 
         :raises keystone.exception.Unauthorized: if a token could not be
@@ -282,10 +282,10 @@ class Application(BaseApplication):
             does not have the admin role
 
         """
-        if not context['is_admin']:
-            user_token_ref = utils.get_token_ref(context)
+        if not request.context_dict['is_admin']:
+            user_token_ref = utils.get_token_ref(request.context_dict)
 
-            validate_token_bind(context, user_token_ref)
+            validate_token_bind(request.context_dict, user_token_ref)
             creds = copy.deepcopy(user_token_ref.metadata)
 
             try:

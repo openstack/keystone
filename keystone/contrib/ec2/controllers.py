@@ -286,27 +286,27 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
     @controller.v2_ec2_deprecated
     def get_credential(self, request, user_id, credential_id):
-        if not self._is_admin(request.context_dict):
+        if not self._is_admin(request):
             self._assert_identity(request.context_dict, user_id)
         return super(Ec2Controller, self).get_credential(user_id,
                                                          credential_id)
 
     @controller.v2_ec2_deprecated
     def get_credentials(self, request, user_id):
-        if not self._is_admin(request.context_dict):
+        if not self._is_admin(request):
             self._assert_identity(request.context_dict, user_id)
         return super(Ec2Controller, self).get_credentials(user_id)
 
     @controller.v2_ec2_deprecated
     def create_credential(self, request, user_id, tenant_id):
-        if not self._is_admin(request.context_dict):
+        if not self._is_admin(request):
             self._assert_identity(request.context_dict, user_id)
         return super(Ec2Controller, self).create_credential(
             request.context_dict, user_id, tenant_id)
 
     @controller.v2_ec2_deprecated
     def delete_credential(self, request, user_id, credential_id):
-        if not self._is_admin(request.context_dict):
+        if not self._is_admin(request):
             self._assert_identity(request.context_dict, user_id)
             self._assert_owner(user_id, credential_id)
         return super(Ec2Controller, self).delete_credential(user_id,
@@ -325,7 +325,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
         if token_ref.user_id != user_id:
             raise exception.Forbidden(_('Token belongs to another user'))
 
-    def _is_admin(self, context):
+    def _is_admin(self, request):
         """Wrap admin assertion error return statement.
 
         :param context: standard context
@@ -335,7 +335,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
         try:
             # NOTE(morganfainberg): policy_api is required for assert_admin
             # to properly perform policy enforcement.
-            self.assert_admin(context)
+            self.assert_admin(request)
             return True
         except (exception.Forbidden, exception.Unauthorized):
             return False
