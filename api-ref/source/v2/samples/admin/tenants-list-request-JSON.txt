@@ -1,0 +1,5 @@
+GET /v2.0/tenants HTTP/1.1
+Host: identity.api.openstack.org
+Content-Type: application/json
+X-Auth-Token: fa8426a0-8eaf-4d22-8e13-7c1b16a9370c
+Accept: application/json

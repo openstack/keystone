@@ -1,0 +1,10 @@
+{
+    "user": {
+        "username": "new-user",
+        "name": "new-user",
+        "id": "71767c619a90479ab21626abf76aa46c",
+        "enabled": true,
+        "email": "new-user@example.com",
+        "tenantId": "40429f980fac419bbfec372a5607c154"
+    }
+}

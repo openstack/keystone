@@ -1,0 +1,16 @@
+{
+    "extension": {
+        "updated": "2013-07-07T12:00:0-00:00",
+        "name": "OpenStack OAUTH1 API",
+        "links": [
+            {
+                "href": "https://github.com/openstack/identity-api",
+                "type": "text/html",
+                "rel": "describedby"
+            }
+        ],
+        "namespace": "http://docs.openstack.org/identity/api/ext/OS-OAUTH1/v1.0",
+        "alias": "OS-OAUTH1",
+        "description": "OpenStack OAuth 1.0a Delegated Auth Mechanism."
+    }
+}

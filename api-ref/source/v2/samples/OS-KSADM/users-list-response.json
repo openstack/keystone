@@ -1,0 +1,17 @@
+{
+    "users": [
+        {
+            "id": "u1000",
+            "name": "jqsmith",
+            "email": "john.smith@example.org",
+            "enabled": true
+        },
+        {
+            "id": "u1001",
+            "name": "jqsmith",
+            "email": "john.smith@example.org",
+            "enabled": true
+        }
+    ],
+    "users_links": []
+}

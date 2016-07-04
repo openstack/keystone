@@ -1,0 +1,17 @@
+{
+    "OS-KSADM:services": [
+        {
+            "id": "123",
+            "name": "nova",
+            "type": "compute",
+            "description": "OpenStack Compute Service"
+        },
+        {
+            "id": "234",
+            "name": "glance",
+            "type": "image",
+            "description": "OpenStack Image Service"
+        }
+    ],
+    "OS-KSADM:services_links": []
+}
