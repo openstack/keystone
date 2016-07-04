@@ -38,20 +38,6 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         },
     }
 
-    # TODO(davechen): This method is copied from `keystone.tests.unit.
-    # test_v3_auth.TokenAPITests`, move this method into utils.py to avoid
-    # the duplication?
-    def assertTimestampEqual(self, expected, value):
-        # Compare two timestamps but ignore the microseconds part
-        # of the expected timestamp. Keystone does not track microseconds and
-        # is working to eliminate microseconds from it's datetimes used.
-        expected = timeutils.parse_isotime(expected).replace(microsecond=0)
-        value = timeutils.parse_isotime(value).replace(microsecond=0)
-        self.assertEqual(
-            expected,
-            value,
-            "%s != %s" % (expected, value))
-
     def test_get_empty_list(self):
         resp = self.get('/OS-REVOKE/events')
         self.assertEqual([], resp.json_body['events'])
