@@ -1,0 +1,177 @@
+# variables in header
+Location:
+  format: uri
+  in: header
+  required: false
+  type: string
+Location_1:
+  description: |
+    The location.
+  format: uri
+  in: header
+  required: false
+  type: string
+
+# variables in path
+roleId:
+  description: |
+    The role ID.
+  in: path
+  required: false
+  type: string
+serviceId:
+  description: |
+    The service ID.
+  in: path
+  required: false
+  type: string
+tenantId:
+  description: |
+    The tenant ID.
+  in: path
+  required: false
+  type: string
+type_1:
+  description: |
+    The credential type.
+  in: path
+  required: false
+  type: string
+userId:
+  description: |
+    The user ID.
+  in: path
+  required: false
+  type: string
+
+# variables in query
+
+# variables in body
+description:
+  description: |
+    Description about the service.
+  in: body
+  required: true
+  type: string
+description_1:
+  description: |
+    Description about the tenant.
+  in: body
+  required: true
+  type: string
+description_2:
+  description: |
+    The role description.
+  in: body
+  required: true
+  type: string
+email:
+  description: |
+    The user email.
+  in: body
+  required: true
+  type: string
+enabled:
+  description: |
+    Indicates whether the tenant is enabled or
+    disabled. Default is ``true``.
+  in: body
+  required: true
+  type: boolean
+enabled_1:
+  description: |
+    Indicates whether the user is enabled (``true``)
+    or disabled(``false``). The default value is ``true``.
+  in: body
+  required: true
+  type: boolean
+id:
+  description: |
+    The UUID of the service.
+  in: body
+  required: true
+  type: string
+id_1:
+  description: |
+    The tenant ID.
+  in: body
+  required: true
+  type: string
+id_2:
+  description: |
+    The user ID.
+  in: body
+  required: true
+  type: string
+id_3:
+  description: |
+    The role ID.
+  in: body
+  required: true
+  type: integer
+name:
+  description: |
+    The service name.
+  in: body
+  required: true
+  type: string
+name_1:
+  description: |
+    The tenant name.
+  in: body
+  required: true
+  type: string
+name_2:
+  description: |
+    The user name.
+  in: body
+  required: true
+  type: string
+name_3:
+  description: |
+    The role name.
+  in: body
+  required: true
+  type: string
+roles:
+  description: |
+    A ``roles`` object.
+  in: body
+  required: true
+  type: string
+roles_links:
+  description: |
+    Role links.
+  in: body
+  required: true
+  type: object
+tenant:
+  description: |
+    The tenant object.
+  in: body
+  required: true
+  type: string
+type:
+  description: |
+    The type of the service.
+  in: body
+  required: true
+  type: string
+user:
+  description: |
+    The ``user`` object.
+  in: body
+  required: true
+  type: string
+users:
+  description: |
+    The ``users`` object.
+  in: body
+  required: true
+  type: array
+users_links:
+  description: |
+    The links of ``users`` object.
+  in: body
+  required: true
+  type: array
