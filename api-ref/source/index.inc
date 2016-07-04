@@ -24,6 +24,10 @@ Contents:
    v3/service-catalog
    v3/users
 
+   v3-ext/identity_v3_OS-ENDPOINT-POLICY-ext.inc
+   v3-ext/inherit.inc
+   v3-ext/trust.inc
+
 
 Indices and tables
 ==================
