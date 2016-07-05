@@ -940,3 +940,30 @@ class TestCatalogAPISQLRegions(unit.TestCase):
         for k in keys:
             self.assertEqual(ref.get(k), entity[k], k)
         self.assertEqual(entity['region_id'], entity['region'])
+
+
+class TestCatalogAPITemplatedProject(test_v3.RestfulTestCase):
+    """Templated Catalog doesn't support full API.
+
+    Eg. No region/endpoint creation.
+
+    """
+
+    def config_overrides(self):
+        super(TestCatalogAPITemplatedProject, self).config_overrides()
+        self.config_fixture.config(group='catalog', driver='templated')
+
+    def load_fixtures(self, fixtures):
+        self.load_sample_data(create_region_and_endpoints=False)
+
+    def test_project_delete(self):
+        """Deleting a project should not result in an 500 ISE.
+
+        The EndpointFilter extension of the Catalog API will create a
+        notification when a project is deleted (attempting to clean up
+        project->endpoint relationships). In the case of a templated catalog,
+        no deletions (via catalog_api.delete_association_by_project) can be
+        performed and result in a NotImplemented exception. We catch this
+        exception and ignore it since it is expected.
+        """
+        self.resource_api.delete_project(self.project_id)
