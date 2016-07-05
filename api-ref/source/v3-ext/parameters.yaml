@@ -83,6 +83,18 @@ blob:
   in: body
   required: true
   type: object
+consumer_id:
+  description: |
+    The ID of the consumer.
+  in: path
+  required: false
+  type: string
+description:
+  description: |
+    The consumer description.
+  in: body
+  required: false
+  type: string
 endpoints:
   description: |
     An ``endpoints`` object.
@@ -214,6 +226,12 @@ remaining_uses:
   in: body
   required: false
   type: boolean
+requested_project_id:
+  description: |
+    The ID of the requested project.
+  in: body
+  required: true
+  type: string
 roles:
   description: |
     A roles object.

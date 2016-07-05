@@ -6,6 +6,7 @@
 
 .. rest_expand_all::
 
-.. include:: identity_v3_OS-ENDPOINT-POLICY-ext.inc
+.. include:: endpoint-policy.inc
 .. include:: inherit.inc
+.. include:: oauth.inc
 .. include:: trust.inc

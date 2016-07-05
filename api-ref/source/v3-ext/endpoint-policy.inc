@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-=================================================
-OS-ENDPOINT-POLICY extension (OS-ENDPOINT-POLICY)
-=================================================
+========================
+ OS-ENDPOINT-POLICY API
+========================
 
 Creates, verifies, and deletes associations between service
 endpoints and policies. Such associations enable an endpoint to

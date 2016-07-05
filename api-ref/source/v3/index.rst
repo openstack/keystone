@@ -11,7 +11,6 @@
 .. include:: domains.inc
 .. include:: domains-config-v3.inc
 .. include:: groups.inc
-.. include:: identity_v3_OS-OAUTH1.inc
 .. include:: policies.inc
 .. include:: projects.inc
 .. include:: regions-v3.inc

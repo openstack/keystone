@@ -29,12 +29,6 @@ access_token_id:
   in: path
   required: true
   type: string
-consumer_id:
-  description: |
-    The ID of the consumer.
-  in: path
-  required: false
-  type: string
 credential_id:
   description: |
     The UUID for the credential.
@@ -1175,12 +1169,6 @@ regions:
   in: body
   required: true
   type: array
-requested_project_id:
-  description: |
-    The ID of the requested project.
-  in: body
-  required: true
-  type: string
 role:
   description: |
     A ``role`` object.

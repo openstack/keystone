@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-=================================
-OS-INHERIT extension (OS-INHERIT)
-=================================
+================
+ OS-INHERIT API
+================
 
 Enables projects to inherit role assignments from either their
 owning domain or projects that are higher in the hierarchy.
