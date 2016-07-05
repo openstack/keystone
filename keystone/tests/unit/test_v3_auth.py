@@ -245,17 +245,6 @@ class TokenAPITests(object):
 
         return project
 
-    def assertTimestampEqual(self, expected, value):
-        # Compare two timestamps but ignore the microseconds part
-        # of the expected timestamp. Keystone does not track microseconds and
-        # is working to eliminate microseconds from it's datetimes used.
-        expected = timeutils.parse_isotime(expected).replace(microsecond=0)
-        value = timeutils.parse_isotime(value).replace(microsecond=0)
-        self.assertEqual(
-            expected,
-            value,
-            "%s != %s" % (expected, value))
-
     def test_auth_with_token_as_different_user_fails(self):
         # get the token for a user. This is self.user which is different from
         # self.default_domain_user.

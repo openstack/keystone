@@ -823,6 +823,17 @@ class TestCase(BaseTestCase):
 
         self.assertTrue(abs(a - b).seconds <= delta, msg)
 
+    def assertTimestampEqual(self, expected, value):
+        # Compare two timestamps but ignore the microseconds part
+        # of the expected timestamp. Keystone does not track microseconds and
+        # is working to eliminate microseconds from it's datetimes used.
+        expected = timeutils.parse_isotime(expected).replace(microsecond=0)
+        value = timeutils.parse_isotime(value).replace(microsecond=0)
+        self.assertEqual(
+            expected,
+            value,
+            "%s != %s" % (expected, value))
+
     def assertNotEmpty(self, l):
         self.assertTrue(len(l))
 
