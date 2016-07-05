@@ -2187,7 +2187,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                  expected_status=http_client.BAD_REQUEST)
 
     def test_get_role_assignments_for_project_tree(self):
-        """Get role_assignment?scope.project.id=X?include_subtree``.
+        """Get role_assignment?scope.project.id=X&include_subtree``.
 
         Test Plan:
 
@@ -2255,7 +2255,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, non_inher_entity_root)
 
     def test_get_effective_role_assignments_for_project_tree(self):
-        """Get role_assignment ?project_id=X?include_subtree=True?effective``.
+        """Get role_assignment ?project_id=X&include_subtree=True&effective``.
 
         Test Plan:
 

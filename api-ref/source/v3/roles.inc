@@ -29,7 +29,7 @@ examples are:
 - List all role assignments for a specified project and its sub-
   projects:
 
-  ::     GET /role_assignments?scope.project.id={project_id}?includ
+  ::     GET /role_assignments?scope.project.id={project_id}&includ
   e_subtree=true
 
   If you specify ``include_subtree=true``, you must also specify
