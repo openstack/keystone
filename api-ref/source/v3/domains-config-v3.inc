@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-==================================================================
-Domain configuration (domains, config) (since v3.4) (EXPERIMENTAL)
-==================================================================
+======================
+ Domain configuration
+======================
 
 You can manage domain-specific configuration options.
 

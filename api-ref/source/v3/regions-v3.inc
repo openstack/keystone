@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-==============================
-Regions (regions) (since v3.2)
-==============================
+=========
+ Regions
+=========
 
 A region is a general division of an OpenStack deployment. You can
 associate zero or more sub-regions with a region to create a tree-

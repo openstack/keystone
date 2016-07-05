@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-=========================
-Credentials (credentials)
-=========================
+=============
+ Credentials
+=============
 
 In exchange for a set of authentication credentials that the user
 submits, the Identity service generates and returns a token. A

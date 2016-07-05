@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-==================================================
-Authentication and token management (auth, tokens)
-==================================================
+=====================================
+ Authentication and token management
+=====================================
 
 In exchange for a set of authentication credentials, the Identity
 service generates tokens. A token represents the authenticated

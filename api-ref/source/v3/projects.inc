@@ -1,8 +1,8 @@
 .. -*- rst -*-
 
-=========================================
-Projects (projects, users, groups, roles)
-=========================================
+==========
+ Projects
+==========
 
 A project is the base unit of ownership. Resources are owned by a
 specific project. A project is owned by a specific domain.
