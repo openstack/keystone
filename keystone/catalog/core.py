@@ -16,7 +16,6 @@
 """Main entry point into the Catalog service."""
 
 from oslo_cache import core as oslo_cache
-from oslo_log import log
 from oslo_log import versionutils
 
 from keystone.catalog.backends import base
@@ -31,7 +30,6 @@ from keystone import notifications
 
 
 CONF = keystone.conf.CONF
-LOG = log.getLogger(__name__)
 
 
 # This is a general cache region for catalog administration (CRUD operations).
