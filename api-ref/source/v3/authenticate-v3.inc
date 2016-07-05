@@ -16,8 +16,8 @@ scope. You can scope a token to a project or domain, or the token
 can be unscoped. You cannot scope a token to both a project and
 domain.
 
-Tokens have IDs, which the Identity API returns in the ``X-Subject-
-Token`` response header.
+Tokens have IDs, which the Identity API returns in the
+``X-Subject-Token`` response header.
 
 Also, validates an authentication token and lists the domains,
 projects, roles, and endpoints to which the token gives access.
@@ -419,8 +419,8 @@ Revokes a token.
 
 This call is similar to the HEAD ``/auth/tokens`` call except that
 the ``X-Subject-Token`` token is immediately not valid, regardless
-of the ``expires_at`` attribute value. An additional ``X-Auth-
-Token`` is not required.
+of the ``expires_at`` attribute value. An additional
+``X-Auth-Token`` is not required.
 
 Error response codes:413,415,405,404,403,401,400,503,409,
 
