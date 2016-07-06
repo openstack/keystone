@@ -65,7 +65,7 @@ class TenantAssignment(controller.V2Controller):
 
     @controller.v2_deprecated
     def get_project_users(self, request, tenant_id, **kw):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         user_refs = []
         user_ids = self.assignment_api.list_user_ids_for_project(tenant_id)
         for user_id in user_ids:
@@ -88,13 +88,13 @@ class Role(controller.V2Controller):
 
     @controller.v2_deprecated
     def get_role(self, request, role_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         return {'role': self.role_api.get_role(role_id)}
 
     @controller.v2_deprecated
     def create_role(self, request, role):
         role = self._normalize_dict(role)
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         if 'name' not in role or not role['name']:
             msg = _('Name field is required and cannot be empty')
@@ -115,13 +115,13 @@ class Role(controller.V2Controller):
 
     @controller.v2_deprecated
     def delete_role(self, request, role_id):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         initiator = notifications._get_request_audit_info(request.context_dict)
         self.role_api.delete_role(role_id, initiator)
 
     @controller.v2_deprecated
     def get_roles(self, request):
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         return {'roles': self.role_api.list_roles()}
 
 
@@ -138,7 +138,7 @@ class RoleAssignmentV2(controller.V2Controller):
         not implementing them in hopes that the idea will die off.
 
         """
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         # NOTE(davechen): Router without project id is defined,
         # but we don't plan on implementing this.
         if tenant_id is None:
@@ -157,7 +157,7 @@ class RoleAssignmentV2(controller.V2Controller):
         not implementing them in hopes that the idea will die off.
 
         """
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         if tenant_id is None:
             raise exception.NotImplemented(
                 message=_('User roles not supported: tenant_id required'))
@@ -176,7 +176,7 @@ class RoleAssignmentV2(controller.V2Controller):
         not implementing them in hopes that the idea will die off.
 
         """
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         if tenant_id is None:
             raise exception.NotImplemented(
                 message=_('User roles not supported: tenant_id required'))
@@ -197,7 +197,7 @@ class RoleAssignmentV2(controller.V2Controller):
         up the appropriate data when we need to delete them.
 
         """
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         tenants = self.assignment_api.list_projects_for_user(user_id)
         o = []
         for tenant in tenants:
@@ -224,7 +224,7 @@ class RoleAssignmentV2(controller.V2Controller):
         a role.
 
         """
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         # TODO(termie): for now we're ignoring the actual role
         tenant_id = role.get('tenantId')
         role_id = role.get('roleId')
@@ -247,7 +247,7 @@ class RoleAssignmentV2(controller.V2Controller):
         we remove the user from the tenant.
 
         """
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         # TODO(termie): for now we're ignoring the actual role
         role_ref_ref = urllib.parse.parse_qs(role_ref_id)
         tenant_id = role_ref_ref.get('tenantId')[0]

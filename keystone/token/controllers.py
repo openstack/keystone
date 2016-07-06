@@ -450,7 +450,7 @@ class Auth(controller.V2Controller):
     def delete_token(self, request, token_id):
         """Delete a token, effectively invalidating it for authz."""
         # TODO(termie): this stuff should probably be moved to middleware
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
         self.token_provider_api.revoke_token(token_id)
 
     @controller.v2_deprecated
@@ -475,7 +475,7 @@ class Auth(controller.V2Controller):
     @controller.v2_deprecated
     def endpoints(self, request, token_id):
         """Return a list of endpoints available to the token."""
-        self.assert_admin(request.context_dict)
+        self.assert_admin(request)
 
         token_ref = self._get_token_ref(token_id)
 

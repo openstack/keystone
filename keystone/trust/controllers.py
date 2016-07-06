@@ -218,7 +218,7 @@ class TrustV3(controller.V3Controller):
     def list_trusts(self, request):
         trusts = []
         if not request.params:
-            self.assert_admin(request.context_dict)
+            self.assert_admin(request)
             trusts += self.trust_api.list_trusts()
         if 'trustor_user_id' in request.params:
             user_id = request.params['trustor_user_id']
