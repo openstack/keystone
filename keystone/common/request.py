@@ -40,7 +40,6 @@ class Request(webob.Request):
             msg = _('Query string is not UTF-8 encoded')
             raise exception.ValidationError(msg)
 
-        context['headers'] = dict(self.headers.items())
         context['path'] = self.environ['PATH_INFO']
         scheme = self.environ.get(CONF.secure_proxy_ssl_header)
         if scheme:

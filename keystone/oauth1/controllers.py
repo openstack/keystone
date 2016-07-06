@@ -214,10 +214,9 @@ class OAuthControllerV3(controller.V3Controller):
     member_name = 'not_used'
 
     def create_request_token(self, request):
-        headers = request.context_dict['headers']
-        oauth_headers = oauth1.get_oauth_headers(headers)
+        oauth_headers = oauth1.get_oauth_headers(request.headers)
         consumer_id = oauth_headers.get('oauth_consumer_key')
-        requested_project_id = headers.get('Requested-Project-Id')
+        requested_project_id = request.headers.get('Requested-Project-Id')
 
         if not consumer_id:
             raise exception.ValidationError(
@@ -233,7 +232,7 @@ class OAuthControllerV3(controller.V3Controller):
         url = self.base_url(request.context_dict, request.context_dict['path'])
 
         req_headers = {'Requested-Project-Id': requested_project_id}
-        req_headers.update(headers)
+        req_headers.update(request.headers)
         request_verifier = oauth1.RequestTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
@@ -270,8 +269,7 @@ class OAuthControllerV3(controller.V3Controller):
         return response
 
     def create_access_token(self, request):
-        headers = request.context_dict['headers']
-        oauth_headers = oauth1.get_oauth_headers(headers)
+        oauth_headers = oauth1.get_oauth_headers(request.headers)
         consumer_id = oauth_headers.get('oauth_consumer_key')
         request_token_id = oauth_headers.get('oauth_token')
         oauth_verifier = oauth_headers.get('oauth_verifier')
@@ -306,7 +304,7 @@ class OAuthControllerV3(controller.V3Controller):
             url,
             http_method='POST',
             body=request.params,
-            headers=headers)
+            headers=request.headers)
         params = oauth1.extract_non_oauth_params(b)
         if params:
             msg = _('There should not be any non-oauth parameters')
