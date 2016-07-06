@@ -23,6 +23,7 @@ import oslo_utils.fixture
 from oslo_utils import timeutils
 import six
 from testtools import matchers
+import webob
 
 from keystone import assignment
 from keystone import auth
@@ -123,18 +124,19 @@ class AuthTest(unit.TestCase):
 class AuthBadRequests(AuthTest):
     def test_no_external_auth(self):
         """Verify that _authenticate_external() raises exception if N/A."""
+        request = webob.Request.blank('/')
         self.assertRaises(
             token.controllers.ExternalAuthNotApplicable,
             self.controller._authenticate_external,
-            context={}, auth={})
+            request, auth={})
 
     def test_empty_remote_user(self):
         """Verify exception is raised when REMOTE_USER is an empty string."""
-        context = {'environment': {'REMOTE_USER': ''}}
+        request = webob.Request.blank('/', environ={'REMOTE_USER': ''})
         self.assertRaises(
             token.controllers.ExternalAuthNotApplicable,
             self.controller._authenticate_external,
-            context=context, auth={})
+            request, auth={})
 
     def test_no_token_in_auth(self):
         """Verify that _authenticate_token() raises exception if no token."""

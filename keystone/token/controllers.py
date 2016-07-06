@@ -87,17 +87,14 @@ class Auth(controller.V2Controller):
 
         if "token" in auth:
             # Try to authenticate using a token
-            auth_info = self._authenticate_token(
-                request.context_dict, auth)
+            auth_info = self._authenticate_token(request, auth)
         else:
             # Try external authentication
             try:
-                auth_info = self._authenticate_external(
-                    request.context_dict, auth)
+                auth_info = self._authenticate_external(request, auth)
             except ExternalAuthNotApplicable:
                 # Try local authentication
-                auth_info = self._authenticate_local(
-                    request.context_dict, auth)
+                auth_info = self._authenticate_local(request, auth)
 
         user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id = auth_info
         # Validate that the auth info is valid and nothing is disabled
@@ -159,7 +156,7 @@ class Auth(controller.V2Controller):
             if token_model_ref.project_scoped or token_model_ref.domain_scoped:
                 raise exception.Forbidden(action=_("rescope a scoped token"))
 
-    def _authenticate_token(self, context, auth):
+    def _authenticate_token(self, request, auth):
         """Try to authenticate using an already existing token.
 
         Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
@@ -185,7 +182,7 @@ class Auth(controller.V2Controller):
         except exception.NotFound as e:
             raise exception.Unauthorized(e)
 
-        wsgi.validate_token_bind(context, token_model_ref)
+        wsgi.validate_token_bind(request.context_dict, token_model_ref)
 
         self._restrict_scope(token_model_ref)
         user_id = token_model_ref.user_id
@@ -254,7 +251,7 @@ class Auth(controller.V2Controller):
         return (current_user_ref, tenant_ref, metadata_ref, expiry, bind,
                 audit_id)
 
-    def _authenticate_local(self, context, auth):
+    def _authenticate_local(self, request, auth):
         """Try to authenticate against the identity backend.
 
         Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
@@ -298,7 +295,7 @@ class Auth(controller.V2Controller):
 
         try:
             user_ref = self.identity_api.authenticate(
-                context,
+                request.context_dict,
                 user_id=user_id,
                 password=password)
         except AssertionError as e:
@@ -314,16 +311,16 @@ class Auth(controller.V2Controller):
         audit_id = None
         return (user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id)
 
-    def _authenticate_external(self, context, auth):
+    def _authenticate_external(self, request, auth):
         """Try to authenticate an external user via REMOTE_USER variable.
 
         Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
         """
-        environment = context.get('environment', {})
-        if not environment.get('REMOTE_USER'):
+        username = request.environ.get('REMOTE_USER')
+
+        if not username:
             raise ExternalAuthNotApplicable()
 
-        username = environment['REMOTE_USER']
         try:
             user_ref = self.identity_api.get_user_by_name(
                 username, CONF.identity.default_domain_id)
@@ -339,7 +336,7 @@ class Auth(controller.V2Controller):
         expiry = provider.default_expire_time()
         bind = None
         if ('kerberos' in CONF.token.bind and
-                environment.get('AUTH_TYPE', '').lower() == 'negotiate'):
+                request.environ.get('AUTH_TYPE', '').lower() == 'negotiate'):
             bind = {'kerberos': username}
         audit_id = None
 
