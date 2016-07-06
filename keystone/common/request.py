@@ -56,7 +56,6 @@ class Request(webob.Request):
         # values by the container and processed by the pipeline. The complete
         # set is not yet known.
         context['environment'] = self.environ
-        context['accept_header'] = self.accept
 
         context.setdefault('is_admin', False)
         return context
