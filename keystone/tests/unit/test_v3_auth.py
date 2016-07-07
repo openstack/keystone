@@ -159,37 +159,40 @@ class TokenAPITests(object):
         self.v3_token = r.headers.get('X-Subject-Token')
         self.headers = {'X-Subject-Token': r.headers.get('X-Subject-Token')}
 
-    def _make_auth_request(self, auth_data):
-        resp = self.post('/auth/tokens', body=auth_data)
-        token = resp.headers.get('X-Subject-Token')
-        return token
-
     def _get_unscoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'])
-        return self._make_auth_request(auth_data)
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidUnscopedTokenResponse(r)
+        return r.headers.get('X-Subject-Token')
 
     def _get_domain_scoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'],
             domain_id=self.domain_id)
-        return self._make_auth_request(auth_data)
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidDomainScopedTokenResponse(r)
+        return r.headers.get('X-Subject-Token')
 
     def _get_project_scoped_token(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'],
             project_id=self.project_id)
-        return self._make_auth_request(auth_data)
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectScopedTokenResponse(r)
+        return r.headers.get('X-Subject-Token')
 
     def _get_trust_scoped_token(self, trustee_user, trust):
         auth_data = self.build_authentication_request(
             user_id=trustee_user['id'],
             password=trustee_user['password'],
             trust_id=trust['id'])
-        return self._make_auth_request(auth_data)
+        r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectScopedTokenResponse(r)
+        return r.headers.get('X-Subject-Token')
 
     def _create_trust(self, impersonation=False):
         # Create a trustee user
@@ -307,11 +310,13 @@ class TokenAPITests(object):
 
     def test_validate_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
-        self._validate_token(unscoped_token)
+        r = self._validate_token(unscoped_token)
+        self.assertValidUnscopedTokenResponse(r)
 
     def test_revoke_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
-        self._validate_token(unscoped_token)
+        r = self._validate_token(unscoped_token)
+        self.assertValidUnscopedTokenResponse(r)
         self._revoke_token(unscoped_token)
         self._validate_token(unscoped_token,
                              expected_status=http_client.NOT_FOUND)
@@ -373,7 +378,8 @@ class TokenAPITests(object):
     def test_unscoped_token_is_invalid_after_disabling_user(self):
         unscoped_token = self._get_unscoped_token()
         # Make sure the token is valid
-        self._validate_token(unscoped_token)
+        r = self._validate_token(unscoped_token)
+        self.assertValidUnscopedTokenResponse(r)
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -384,7 +390,8 @@ class TokenAPITests(object):
     def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
         unscoped_token = self._get_unscoped_token()
         # Make sure the token is valid
-        self._validate_token(unscoped_token)
+        r = self._validate_token(unscoped_token)
+        self.assertValidUnscopedTokenResponse(r)
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -401,7 +408,8 @@ class TokenAPITests(object):
     def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
         unscoped_token = self._get_unscoped_token()
         # Make sure the token is valid
-        self._validate_token(unscoped_token)
+        r = self._validate_token(unscoped_token)
+        self.assertValidUnscopedTokenResponse(r)
         # Disable the user's domain
         self.domain['enabled'] = False
         self.resource_api.update_domain(self.domain['id'], self.domain)
@@ -413,7 +421,8 @@ class TokenAPITests(object):
     def test_unscoped_token_is_invalid_after_changing_user_password(self):
         unscoped_token = self._get_unscoped_token()
         # Make sure the token is valid
-        self._validate_token(unscoped_token)
+        r = self._validate_token(unscoped_token)
+        self.assertValidUnscopedTokenResponse(r)
         # Change user's password
         self.user['password'] = 'Password1'
         self.identity_api.update_user(self.user['id'], self.user)
@@ -576,8 +585,9 @@ class TokenAPITests(object):
                                          user_id=self.user['id'],
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
-        resp = self._validate_token(domain_scoped_token)
-        resp_json = json.loads(resp.body)
+        r = self._validate_token(domain_scoped_token)
+        self.assertValidDomainScopedTokenResponse(r)
+        resp_json = json.loads(r.body)
         self.assertIsNotNone(resp_json['token']['catalog'])
         self.assertIsNotNone(resp_json['token']['roles'])
         self.assertIsNotNone(resp_json['token']['domain'])
@@ -589,7 +599,8 @@ class TokenAPITests(object):
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
         # Make sure the token is valid
-        self._validate_token(domain_scoped_token)
+        r = self._validate_token(domain_scoped_token)
+        self.assertValidDomainScopedTokenResponse(r)
         # Disable user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -604,7 +615,8 @@ class TokenAPITests(object):
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
         # Make sure the token is valid
-        self._validate_token(domain_scoped_token)
+        r = self._validate_token(domain_scoped_token)
+        self.assertValidDomainScopedTokenResponse(r)
         # Delete access to domain
         self.assignment_api.delete_grant(self.role['id'],
                                          user_id=self.user['id'],
@@ -621,7 +633,8 @@ class TokenAPITests(object):
                                          domain_id=self.domain['id'])
         domain_scoped_token = self._get_domain_scoped_token()
         # Make sure the token is valid
-        self._validate_token(domain_scoped_token)
+        r = self._validate_token(domain_scoped_token)
+        self.assertValidDomainScopedTokenResponse(r)
         # Disable domain
         self.domain['enabled'] = False
         self.resource_api.update_domain(self.domain['id'], self.domain)
@@ -653,11 +666,13 @@ class TokenAPITests(object):
 
     def test_validate_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
-        self._validate_token(project_scoped_token)
+        r = self._validate_token(project_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
     def test_revoke_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
-        self._validate_token(project_scoped_token)
+        r = self._validate_token(project_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         self._revoke_token(project_scoped_token)
         self._validate_token(project_scoped_token,
                              expected_status=http_client.NOT_FOUND)
@@ -957,7 +972,8 @@ class TokenAPITests(object):
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
-        self._validate_token(project_scoped_token)
+        r = self._validate_token(project_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
@@ -968,7 +984,8 @@ class TokenAPITests(object):
     def test_project_scoped_token_invalid_after_changing_user_password(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
-        self._validate_token(project_scoped_token)
+        r = self._validate_token(project_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         # Update user's password
         self.user['password'] = 'Password1'
         self.identity_api.update_user(self.user['id'], self.user)
@@ -980,7 +997,8 @@ class TokenAPITests(object):
     def test_project_scoped_token_invalid_after_disabling_project(self):
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
-        self._validate_token(project_scoped_token)
+        r = self._validate_token(project_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         # Disable project
         self.project['enabled'] = False
         self.resource_api.update_project(self.project['id'], self.project)
@@ -1001,7 +1019,8 @@ class TokenAPITests(object):
                                          project_id=self.project['id'])
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
-        self._validate_token(project_scoped_token)
+        r = self._validate_token(project_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         # Delete access to project
         self.assignment_api.delete_grant(self.role['id'],
                                          user_id=self.user['id'],
@@ -1031,19 +1050,22 @@ class TokenAPITests(object):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
     def test_validate_a_trust_scoped_token_impersonated(self):
         trustee_user, trust = self._create_trust(impersonation=True)
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
     def test_revoke_trust_scoped_token(self):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         self._revoke_token(trust_scoped_token)
         self._validate_token(trust_scoped_token,
                              expected_status=http_client.NOT_FOUND)
@@ -1052,7 +1074,8 @@ class TokenAPITests(object):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
         # Disable trustee
         trustee_update_ref = dict(enabled=False)
@@ -1066,7 +1089,8 @@ class TokenAPITests(object):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
         # Change trustee's password
         trustee_update_ref = dict(password='Password1')
         self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
@@ -1079,7 +1103,8 @@ class TokenAPITests(object):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
         # Disable the trustor
         trustor_update_ref = dict(enabled=False)
@@ -1093,7 +1118,8 @@ class TokenAPITests(object):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
         # Change trustor's password
         trustor_update_ref = dict(password='Password1')
@@ -1107,7 +1133,8 @@ class TokenAPITests(object):
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         # Validate a trust scoped token
-        self._validate_token(trust_scoped_token)
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
 
         # Disable trustor's domain
         self.domain['enabled'] = False

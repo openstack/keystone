@@ -147,8 +147,14 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 'required': ['kerberos'],
                 'additionalProperties': False,
             },
-            'expires_at': {'type': 'string'},
-            'issued_at': {'type': 'string'},
+            'expires_at': {
+                'type': 'string',
+                'pattern': unit.TIME_FORMAT_REGEX,
+            },
+            'issued_at': {
+                'type': 'string',
+                'pattern': unit.TIME_FORMAT_REGEX,
+            },
             'methods': {
                 'type': 'array',
                 'items': {
