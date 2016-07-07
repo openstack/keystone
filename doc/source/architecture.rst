@@ -163,21 +163,21 @@ directory as ``base.py``. The classes are named after the keystone release in wh
 they were introduced. For eg. ``DriverV8`` for keystone release version 8.
 The corresponding drivers for the services are:
 
-* :mod:`keystone.assignment.core.AssignmentDriverV8`
-* :mod:`keystone.assignment.core.RoleDriverV8`
-* :mod:`keystone.catalog.core.CatalogDriverV8`
-* :mod:`keystone.credential.core.CredentialDriverV8`
-* :mod:`keystone.endpoint_policy.core.EndpointPolicyDriverV8`
-* :mod:`keystone.federation.core.FederationDriverV8`
-* :mod:`keystone.identity.core.IdentityDriverV8`
-* :mod:`keystone.identity.core.MappingDriverV8`
-* :mod:`keystone.oauth1.core.Oauth1DriverV8`
-* :mod:`keystone.policy.core.PolicyDriverV8`
-* :mod:`keystone.resource.core.DomainConfigDriverV8`
-* :mod:`keystone.resource.core.ResourceDriverV8`
-* :mod:`keystone.revoke.core.RevokeDriverV8`
-* :mod:`keystone.token.core.TokenDriverV8`
-* :mod:`keystone.trust.core.TrustDriverV8`
+* :mod:`keystone.assignment.backends.base.AssignmentDriverV9`
+* :mod:`keystone.assignment.backends.base.RoleDriverV9`
+* :mod:`keystone.catalog.backends.base.CatalogDriverV8`
+* :mod:`keystone.credential.backends.base.CredentialDriverV8`
+* :mod:`keystone.endpoint_policy.backends.base.EndpointPolicyDriverV8`
+* :mod:`keystone.federation.backends.base.FederationDriverV9`
+* :mod:`keystone.identity.backends.base.IdentityDriverV8`
+* :mod:`keystone.identity.backends.base.MappingDriverV8`
+* :mod:`keystone.oauth1.backends.base.Oauth1DriverV8`
+* :mod:`keystone.policy.backends.base.PolicyDriverV8`
+* :mod:`keystone.resource.backends.base.DomainConfigDriverV8`
+* :mod:`keystone.resource.backends.base.ResourceDriverV9`
+* :mod:`keystone.revoke.backends.base.RevokeDriverV8`
+* :mod:`keystone.token.backends.base.TokenDriverV8`
+* :mod:`keystone.trust.backends.base.TrustDriverV8`
 
 If you implement a backend driver for one of the Keystone services, you're
 expected to subclass from these classes.
