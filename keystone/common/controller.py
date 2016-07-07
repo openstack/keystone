@@ -129,7 +129,7 @@ def protected(callback=None):
                 prep_info = {'f_name': f.__name__,
                              'input_attr': kwargs}
                 callback(self,
-                         request.context_dict,
+                         request,
                          prep_info,
                          *args,
                          **kwargs)
@@ -235,7 +235,7 @@ def filterprotected(*filters, **callback):
                                  'input_attr': kwargs,
                                  'filter_attr': target}
                     callback['callback'](self,
-                                         request.context_dict,
+                                         request,
                                          prep_info,
                                          **kwargs)
                 else:
@@ -792,7 +792,7 @@ class V3Controller(wsgi.Application):
         """Override v2 filter to let domain_id out for v3 calls."""
         return ref
 
-    def check_protection(self, context, prep_info, target_attr=None):
+    def check_protection(self, request, prep_info, target_attr=None):
         """Provide call protection for complex target attributes.
 
         As well as including the standard parameters from the original API
@@ -801,13 +801,13 @@ class V3Controller(wsgi.Application):
         they can be referenced by policy rules.
 
         """
-        if 'is_admin' in context and context['is_admin']:
+        if request.context.is_admin:
             LOG.warning(_LW('RBAC: Bypassing authorization'))
         else:
             action = 'identity:%s' % prep_info['f_name']
             # TODO(henry-nash) need to log the target attributes as well
             creds = _build_policy_check_credentials(self, action,
-                                                    context,
+                                                    request.context_dict,
                                                     prep_info['input_attr'])
             # Build the dict the policy engine will check against from both the
             # parameters passed into the call we are protecting (which was

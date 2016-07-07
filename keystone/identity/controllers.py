@@ -203,17 +203,17 @@ class UserV3(controller.V3Controller):
         super(UserV3, self).__init__()
         self.get_member_from_driver = self.identity_api.get_user
 
-    def _check_user_and_group_protection(self, context, prep_info,
+    def _check_user_and_group_protection(self, request, prep_info,
                                          user_id, group_id):
         ref = {}
         ref['user'] = self.identity_api.get_user(user_id)
         ref['group'] = self.identity_api.get_group(group_id)
-        self.check_protection(context, prep_info, ref)
+        self.check_protection(request, prep_info, ref)
 
-    def _check_group_protection(self, context, prep_info, group_id):
+    def _check_group_protection(self, request, prep_info, group_id):
         ref = {}
         ref['group'] = self.identity_api.get_group(group_id)
-        self.check_protection(context, prep_info, ref)
+        self.check_protection(request, prep_info, ref)
 
     @controller.protected()
     @validation.validated(schema.user_create, 'user')
@@ -303,10 +303,10 @@ class GroupV3(controller.V3Controller):
         super(GroupV3, self).__init__()
         self.get_member_from_driver = self.identity_api.get_group
 
-    def _check_user_protection(self, context, prep_info, user_id):
+    def _check_user_protection(self, request, prep_info, user_id):
         ref = {}
         ref['user'] = self.identity_api.get_user(user_id)
-        self.check_protection(context, prep_info, ref)
+        self.check_protection(request, prep_info, ref)
 
     @controller.protected()
     @validation.validated(schema.group_create, 'group')

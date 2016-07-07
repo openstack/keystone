@@ -593,7 +593,7 @@ class GrantAssignmentV3(controller.V3Controller):
                 context['path'].startswith('/OS-INHERIT') and
                 context['path'].endswith('/inherited_to_projects'))
 
-    def _check_grant_protection(self, context, protection, role_id=None,
+    def _check_grant_protection(self, request, protection, role_id=None,
                                 user_id=None, group_id=None,
                                 domain_id=None, project_id=None,
                                 allow_no_user=False):
@@ -621,7 +621,7 @@ class GrantAssignmentV3(controller.V3Controller):
         else:
             ref['project'] = self.resource_api.get_project(project_id)
 
-        self.check_protection(context, protection, ref)
+        self.check_protection(request, protection, ref)
 
     @controller.protected(callback=_check_grant_protection)
     def create_grant(self, request, role_id, user_id=None,
@@ -941,7 +941,7 @@ class RoleAssignmentV3(controller.V3Controller):
     def list_role_assignments(self, request, filters):
         return self._list_role_assignments(request, filters)
 
-    def _check_list_tree_protection(self, context, protection_info):
+    def _check_list_tree_protection(self, request, protection_info):
         """Check protection for list assignment for tree API.
 
         The policy rule might want to inspect the domain of any project filter
@@ -954,7 +954,7 @@ class RoleAssignmentV3(controller.V3Controller):
             if filter == 'scope.project.id' and value:
                 ref['project'] = self.resource_api.get_project(value)
 
-        self.check_protection(context, protection_info, ref)
+        self.check_protection(request, protection_info, ref)
 
     @controller.filterprotected('group.id', 'role.id',
                                 'scope.domain.id', 'scope.project.id',
