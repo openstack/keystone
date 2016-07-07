@@ -92,7 +92,7 @@ class BaseCertificateConfigure(object):
                       {'to_exec': to_exec,
                        'retcode': e.returncode,
                        'output': e.output})
-            raise e
+            raise
 
     def clean_up_existing_files(self):
         files_to_clean = [self.ssl_dictionary['ca_private_key'],
