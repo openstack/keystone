@@ -13,6 +13,7 @@
 # under the License.
 
 from oslo_serialization import jsonutils
+from six.moves import http_client
 import webob
 
 from keystone.common import extension
@@ -169,11 +170,14 @@ class Version(wsgi.Application):
                 headers=(('Content-Type', MimeTypes.JSON_HOME),))
 
         versions = self._get_versions_list(request.context_dict)
-        return wsgi.render_response(status=(300, 'Multiple Choices'), body={
-            'versions': {
-                'values': list(versions.values())
-            }
-        })
+        return wsgi.render_response(
+            status=(http_client.MULTIPLE_CHOICES,
+                    http_client.responses[http_client.MULTIPLE_CHOICES]),
+            body={
+                'versions': {
+                    'values': list(versions.values())
+                }
+            })
 
     def get_version_v2(self, request):
         versions = self._get_versions_list(request.context_dict)

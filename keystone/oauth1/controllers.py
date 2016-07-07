@@ -16,6 +16,7 @@
 
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
+from six.moves import http_client
 
 from keystone.common import controller
 from keystone.common import dependency
@@ -262,9 +263,11 @@ class OAuthControllerV3(controller.V3Controller):
             result += expiry_bit
 
         headers = [('Content-Type', 'application/x-www-urlformencoded')]
-        response = wsgi.render_response(result,
-                                        status=(201, 'Created'),
-                                        headers=headers)
+        response = wsgi.render_response(
+            result,
+            status=(http_client.CREATED,
+                    http_client.responses[http_client.CREATED]),
+            headers=headers)
 
         return response
 
@@ -341,9 +344,11 @@ class OAuthControllerV3(controller.V3Controller):
             result += expiry_bit
 
         headers = [('Content-Type', 'application/x-www-urlformencoded')]
-        response = wsgi.render_response(result,
-                                        status=(201, 'Created'),
-                                        headers=headers)
+        response = wsgi.render_response(
+            result,
+            status=(http_client.CREATED,
+                    http_client.responses[http_client.CREATED]),
+            headers=headers)
 
         return response
 

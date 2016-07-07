@@ -17,6 +17,7 @@
 
 import uuid
 
+from six.moves import http_client
 
 from keystone.common import controller
 from keystone.common import dependency
@@ -188,8 +189,10 @@ class DomainConfigV3(controller.V3Controller):
             # Return status code 200, since config already existed
             return wsgi.render_response(body={self.member_name: ref})
         else:
-            return wsgi.render_response(body={self.member_name: ref},
-                                        status=(201, 'Created'))
+            return wsgi.render_response(
+                body={self.member_name: ref},
+                status=(http_client.CREATED,
+                        http_client.responses[http_client.CREATED]))
 
     @controller.protected()
     def get_domain_config(self, request, domain_id, group=None, option=None):
