@@ -29,6 +29,7 @@ from keystone.i18n import _, _LE, _LW
 from keystone import notifications
 from keystone.resource.backends import base
 from keystone.resource.config_backends import base as config_base
+from keystone.token import provider as token_provider
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
@@ -415,6 +416,15 @@ class Manager(manager.Manager):
                 # If the domain is being disabled, issue the disable
                 # notification as well
                 if original_project_enabled and not project_enabled:
+                    # NOTE(lbragstad): When a domain is disabled, we have to
+                    # invalidate the entire token cache. With persistent
+                    # tokens, we did something similar where all tokens for a
+                    # specific domain were deleted when that domain was
+                    # disabled. This effectively offers the same behavior for
+                    # non-persistent tokens by removing them from the cache and
+                    # requiring the authorization context to be rebuilt the
+                    # next time they're validated.
+                    token_provider.TOKENS_REGION.invalidate()
                     notifications.Audit.disabled(self._DOMAIN, project_id,
                                                  public=False)
 
