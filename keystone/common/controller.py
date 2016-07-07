@@ -123,7 +123,7 @@ def protected(callback=None):
     def wrapper(f):
         @functools.wraps(f)
         def inner(self, request, *args, **kwargs):
-            if request.context_dict.get('is_admin', False):
+            if request.context.is_admin:
                 LOG.warning(_LW('RBAC: Bypassing authorization'))
             elif callback is not None:
                 prep_info = {'f_name': f.__name__,
@@ -205,7 +205,7 @@ def filterprotected(*filters, **callback):
     def _filterprotected(f):
         @functools.wraps(f)
         def wrapper(self, request, **kwargs):
-            if not request.context_dict['is_admin']:
+            if not request.context.is_admin:
                 # The target dict for the policy check will include:
                 #
                 # - Any query filter parameters

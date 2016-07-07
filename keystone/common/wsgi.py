@@ -282,7 +282,7 @@ class Application(BaseApplication):
             does not have the admin role
 
         """
-        if not request.context_dict['is_admin']:
+        if not request.context.is_admin:
             user_token_ref = utils.get_token_ref(request.context_dict)
 
             validate_token_bind(request.context_dict, user_token_ref)
