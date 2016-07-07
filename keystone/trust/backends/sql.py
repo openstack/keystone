@@ -19,7 +19,7 @@ from six.moves import range
 
 from keystone.common import sql
 from keystone import exception
-from keystone import trust
+from keystone.trust.backends import base
 
 
 # The maximum number of iterations that will be attempted for optimistic
@@ -56,7 +56,7 @@ class TrustRole(sql.ModelBase):
     role_id = sql.Column(sql.String(64), primary_key=True, nullable=False)
 
 
-class Trust(trust.TrustDriverV8):
+class Trust(base.TrustDriverV8):
     @sql.handle_conflicts(conflict_type='trust')
     def create_trust(self, trust_id, trust, roles):
         with sql.session_for_write() as session:
