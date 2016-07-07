@@ -3121,6 +3121,23 @@ class DomainSpecificLDAPandSQLIdentity(
                 domain_scope=self.domains['domain1']['id']),
             matchers.HasLength(1))
 
+    def test_get_domain_mapping_list_is_used(self):
+        # before get_domain_mapping_list was introduced, it was required to
+        # make N calls to the database for N users, and it was slow.
+        # get_domain_mapping_list solves this problem and should be used
+        # when multiple users are fetched from domain-specific backend.
+        for i in range(5):
+            unit.create_user(self.identity_api,
+                             domain_id=self.domains['domain1']['id'])
+
+        with mock.patch.multiple(self.id_mapping_api,
+                                 get_domain_mapping_list=mock.DEFAULT,
+                                 get_id_mapping=mock.DEFAULT) as mocked:
+            self.identity_api.list_users(
+                domain_scope=self.domains['domain1']['id'])
+            mocked['get_domain_mapping_list'].assert_called()
+            mocked['get_id_mapping'].assert_not_called()
+
     def test_user_id_comma(self):
         self.skip_test_overrides('Only valid if it is guaranteed to be '
                                  'talking to the fakeldap backend')

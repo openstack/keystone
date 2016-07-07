@@ -573,8 +573,8 @@ class Manager(manager.Manager):
             return self._set_domain_id_and_mapping_for_single_ref(
                 ref, domain_id, driver, entity_type, conf)
         elif isinstance(ref, list):
-            return [self._set_domain_id_and_mapping(
-                    x, domain_id, driver, entity_type) for x in ref]
+            return self._set_domain_id_and_mapping_for_list(
+                ref, domain_id, driver, entity_type, conf)
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
@@ -582,6 +582,16 @@ class Manager(manager.Manager):
         """Return whether entity from driver needs domain added or mapping."""
         return (driver is not self.driver or not driver.generates_uuids() or
                 not driver.is_domain_aware())
+
+    def _insert_new_public_id(self, local_entity, ref, driver):
+        # Need to create a mapping. If the driver generates UUIDs
+        # then pass the local UUID in as the public ID to use.
+        public_id = None
+        if driver.generates_uuids():
+            public_id = ref['id']
+        ref['id'] = self.id_mapping_api.create_id_mapping(
+            local_entity, public_id)
+        LOG.debug('Created new mapping to public ID: %s', ref['id'])
 
     def _set_domain_id_and_mapping_for_single_ref(self, ref, domain_id,
                                                   driver, entity_type, conf):
@@ -600,15 +610,59 @@ class Manager(manager.Manager):
                 LOG.debug('Found existing mapping to public ID: %s',
                           ref['id'])
             else:
-                # Need to create a mapping. If the driver generates UUIDs
-                # then pass the local UUID in as the public ID to use.
-                if driver.generates_uuids():
-                    public_id = ref['id']
-                ref['id'] = self.id_mapping_api.create_id_mapping(
-                    local_entity, public_id)
-                LOG.debug('Created new mapping to public ID: %s',
-                          ref['id'])
+                self._insert_new_public_id(local_entity, ref, driver)
         return ref
+
+    def _set_domain_id_and_mapping_for_list(self, ref_list, domain_id, driver,
+                                            entity_type, conf):
+        """Set domain id and mapping for a list of refs.
+
+        The method modifies refs in-place.
+        """
+        if not ref_list:
+            return []
+
+        for r in ref_list:
+            self._insert_domain_id_if_needed(r, driver, domain_id, conf)
+
+        if not self._is_mapping_needed(driver):
+            return ref_list
+
+        # build a map of refs for fast look-up
+        refs_map = {}
+        for r in ref_list:
+            refs_map[(r['id'], entity_type, r['domain_id'])] = r
+
+        # NOTE(breton): there are cases when the driver is not domain aware and
+        # no domain_id was explicitely provided for list operation. domain_id
+        # gets inserted into refs, but not passed into this method. Lets use
+        # domain_id from one of the refs.
+        if not domain_id:
+            domain_id = ref_list[0]['domain_id']
+
+        # fetch all mappings for the domain, lookup the user at the map built
+        # at previous step and replace his id.
+        domain_mappings = self.id_mapping_api.get_domain_mapping_list(
+            domain_id)
+        for _mapping in domain_mappings:
+            idx = (_mapping.local_id, _mapping.entity_type, _mapping.domain_id)
+            try:
+                ref = refs_map.pop(idx)
+                # due to python specifics, `ref` still points to an item in
+                # `ref_list`. That's why when we change it here, it gets
+                # changed in `ref_list`.
+                ref['id'] = _mapping.public_id
+            except KeyError:
+                pass  # some old entry, skip it
+
+        # at this point, all known refs were granted a public_id. For the refs
+        # left, there are no mappings. They need to be created.
+        for ref in refs_map.values():
+            local_entity = {'domain_id': ref['domain_id'],
+                            'local_id': ref['id'],
+                            'entity_type': entity_type}
+            self._insert_new_public_id(local_entity, ref, driver)
+        return ref_list
 
     def _insert_domain_id_if_needed(self, ref, driver, domain_id, conf):
         """Insert the domain ID into the ref, if required.

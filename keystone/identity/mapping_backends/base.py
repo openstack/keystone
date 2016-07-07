@@ -35,6 +35,15 @@ class MappingDriverV8(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
+    def get_domain_mapping_list(self, domain_id):
+        """Return mappings for the domain.
+
+        :param domain_id: Domain ID to get mappings for.
+        :returns: list of mappings.
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
     def get_id_mapping(self, public_id):
         """Return the local mapping.
 
