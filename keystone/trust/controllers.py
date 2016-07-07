@@ -119,13 +119,10 @@ class TrustV3(controller.V3Controller):
         The user creating the trust must be the trustor.
 
         """
-        env = request.context_dict.get('environment', {})
-        auth_context = env.get('KEYSTONE_AUTH_CONTEXT', {})
-
         # Check if delegated via trust
-        if auth_context.get('is_delegated_auth'):
+        if request.auth_context.get('is_delegated_auth'):
             # Redelegation case
-            src_trust_id = auth_context['trust_id']
+            src_trust_id = request.auth_context['trust_id']
             if not src_trust_id:
                 raise exception.Forbidden(
                     _('Redelegation allowed for delegated by trust only'))

@@ -19,7 +19,6 @@ from six.moves import urllib
 import webob
 
 from keystone.auth import controllers as auth_controllers
-from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils as k_utils
@@ -437,11 +436,10 @@ class DomainV3(controller.V3Controller):
         :returns: list of accessible domains
 
         """
-        auth_context = request.environ[authorization.AUTH_CONTEXT_ENV]
         domains = self.assignment_api.list_domains_for_groups(
-            auth_context['group_ids'])
+            request.auth_context['group_ids'])
         domains = domains + self.assignment_api.list_domains_for_user(
-            auth_context['user_id'])
+            request.auth_context['user_id'])
         # remove duplicates
         domains = [dict(t) for t in set([tuple(d.items()) for d in domains])]
         return DomainV3.wrap_collection(request.context_dict, domains)
@@ -464,11 +462,10 @@ class ProjectAssignmentV3(controller.V3Controller):
         :returns: list of accessible projects
 
         """
-        auth_context = request.environ[authorization.AUTH_CONTEXT_ENV]
         projects = self.assignment_api.list_projects_for_groups(
-            auth_context['group_ids'])
+            request.auth_context['group_ids'])
         projects = projects + self.assignment_api.list_projects_for_user(
-            auth_context['user_id'])
+            request.auth_context['user_id'])
         # remove duplicates
         projects = [dict(t) for t in set([tuple(d.items()) for d in projects])]
         return ProjectAssignmentV3.wrap_collection(request.context_dict,
