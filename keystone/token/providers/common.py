@@ -352,6 +352,19 @@ class V3TokenDataHelper(object):
         if CONF.trust.enabled and trust and 'OS-TRUST:trust' not in token_data:
             trustor_user_ref = (self.identity_api.get_user(
                                 trust['trustor_user_id']))
+            trustee_user_ref = (self.identity_api.get_user(
+                                trust['trustee_user_id']))
+            try:
+                self.resource_api.assert_domain_enabled(
+                    trustor_user_ref['domain_id'])
+            except AssertionError:
+                raise exception.TokenNotFound(_('Trustor domain is disabled.'))
+            try:
+                self.resource_api.assert_domain_enabled(
+                    trustee_user_ref['domain_id'])
+            except AssertionError:
+                raise exception.TokenNotFound(_('Trustee domain is disabled.'))
+
             try:
                 self.identity_api.assert_user_enabled(trust['trustor_user_id'])
             except AssertionError:
