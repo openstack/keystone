@@ -12,8 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone import auth
 from keystone.auth import plugins as auth_plugins
+from keystone.auth.plugins import base
 from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
@@ -23,7 +23,7 @@ METHOD_NAME = 'password'
 
 
 @dependency.requires('identity_api')
-class Password(auth.AuthMethodHandler):
+class Password(base.AuthMethodHandler):
 
     def authenticate(self, request, auth_payload, auth_context):
         """Try to authenticate against the identity backend."""
