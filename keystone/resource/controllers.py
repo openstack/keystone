@@ -189,7 +189,7 @@ class DomainConfigV3(controller.V3Controller):
             return wsgi.render_response(body={self.member_name: ref})
         else:
             return wsgi.render_response(body={self.member_name: ref},
-                                        status=('201', 'Created'))
+                                        status=(201, 'Created'))
 
     @controller.protected()
     def get_domain_config(self, request, domain_id, group=None, option=None):
