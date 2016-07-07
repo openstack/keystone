@@ -602,9 +602,9 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def get_auth_projects(self, request):
-        auth_context = self.get_auth_context(request.context_dict)
+        user_id = request.auth_context.get('user_id')
+        group_ids = request.auth_context.get('group_ids')
 
-        user_id = auth_context.get('user_id')
         user_refs = []
         if user_id:
             try:
@@ -613,7 +613,6 @@ class Auth(controller.V3Controller):
                 # federated users have an id but they don't link to anything
                 pass
 
-        group_ids = auth_context.get('group_ids')
         grp_refs = []
         if group_ids:
             grp_refs = self.assignment_api.list_projects_for_groups(group_ids)
@@ -624,9 +623,9 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def get_auth_domains(self, request):
-        auth_context = self.get_auth_context(request.context_dict)
+        user_id = request.auth_context.get('user_id')
+        group_ids = request.auth_context.get('group_ids')
 
-        user_id = auth_context.get('user_id')
         user_refs = []
         if user_id:
             try:
@@ -635,7 +634,6 @@ class Auth(controller.V3Controller):
                 # federated users have an id but they don't link to anything
                 pass
 
-        group_ids = auth_context.get('group_ids')
         grp_refs = []
         if group_ids:
             grp_refs = self.assignment_api.list_domains_for_groups(group_ids)
@@ -646,9 +644,8 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def get_auth_catalog(self, request):
-        auth_context = self.get_auth_context(request.context_dict)
-        user_id = auth_context.get('user_id')
-        project_id = auth_context.get('project_id')
+        user_id = request.auth_context.get('user_id')
+        project_id = request.auth_context.get('project_id')
 
         if not project_id:
             raise exception.Forbidden(

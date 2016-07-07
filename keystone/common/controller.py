@@ -450,12 +450,6 @@ class V3Controller(wsgi.Application):
 
         return '%s/%s/%s' % (endpoint, 'v3', path.lstrip('/'))
 
-    def get_auth_context(self, context):
-        # TODO(dolphm): this method of accessing the auth context is terrible,
-        # but context needs to be refactored to always have reasonable values.
-        env_context = context.get('environment', {})
-        return env_context.get(authorization.AUTH_CONTEXT_ENV, {})
-
     @classmethod
     def full_url(cls, context, path=None):
         url = cls.base_url(context, path)
