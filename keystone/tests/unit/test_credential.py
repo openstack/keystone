@@ -17,6 +17,7 @@ import uuid
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from six.moves import http_client
 
+from keystone.common import context
 from keystone.common import request
 from keystone.common import utils
 from keystone.contrib.ec2 import controllers
@@ -260,6 +261,7 @@ class V2CredentialEc2Controller(unit.TestCase):
         """
         # make a non-admin user
         req = request.Request.blank('/')
+        req.context = context.RequestContext(is_admin=False)
         req.context_dict['is_admin'] = False
         req.context_dict['token_id'] = uuid.uuid4().hex
 
