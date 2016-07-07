@@ -1,0 +1,12 @@
+---
+features:
+  - >
+    [`blueprint domain-config-as-stable <https://blueprints.launchpad.net/keystone/+spec/domain-config-as-stable>`_]
+    The domain config via API is now marked as stable.
+deprecations:
+  - >
+    [`blueprint domain-config-as-stable  <https://blueprints.launchpad.net/keystone/+spec/domain-config-as-stable>`_]
+    Deprecated ``keystone-manage domain_config_upload``.  The keystone team recommends
+    setting domain config options via the API instead.  The ``domain_config_upload``
+    command line option may be removed in the 'P' release.
+
