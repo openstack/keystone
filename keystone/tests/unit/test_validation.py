@@ -14,7 +14,6 @@
 import uuid
 
 import six
-import testtools
 
 from keystone.assignment import schema as assignment_schema
 from keystone.catalog import schema as catalog_schema
@@ -118,94 +117,6 @@ def expected_validation_failure(msg):
             self.assertIn(msg, six.text_type(e))
         return wrapped
     return wrapper
-
-
-class ValidatedDecoratorTests(unit.BaseTestCase):
-
-    entity_schema = {
-        'type': 'object',
-        'properties': {
-            'name': parameter_types.name,
-        },
-        'required': ['name'],
-    }
-
-    valid_entity = {
-        'name': uuid.uuid4().hex,
-    }
-
-    invalid_entity = {
-        'name': 1.0,  # NOTE(dstanek): this is the incorrect type for name
-    }
-
-    @validation.validated(entity_create, 'entity')
-    def create_entity(self, entity):
-        """Used to test cases where validated param is the only param."""
-
-    @validation.validated(entity_create_optional_body, 'entity')
-    def create_entity_optional_body(self, entity):
-        """Used to test cases where there is an optional body."""
-
-    @validation.validated(entity_update, 'entity')
-    def update_entity(self, entity_id, entity):
-        """Used to test cases where validated param is not the only param."""
-
-    def test_calling_create_with_valid_entity_kwarg_succeeds(self):
-        self.create_entity(entity=self.valid_entity)
-
-    def test_calling_create_with_empty_entity_kwarg_succeeds(self):
-        """Test the case when client passing in an empty kwarg reference."""
-        self.create_entity_optional_body(entity={})
-
-    @expected_validation_failure('Expecting to find entity in request body')
-    def test_calling_create_with_kwarg_as_None_fails(self):
-        self.create_entity(entity=None)
-
-    def test_calling_create_with_valid_entity_arg_succeeds(self):
-        self.create_entity(self.valid_entity)
-
-    def test_calling_create_with_empty_entity_arg_succeeds(self):
-        """Test the case when client passing in an empty entity reference."""
-        self.create_entity_optional_body({})
-
-    @expected_validation_failure("Invalid input for field 'name'")
-    def test_calling_create_with_invalid_entity_fails(self):
-        self.create_entity(self.invalid_entity)
-
-    @expected_validation_failure('Expecting to find entity in request body')
-    def test_calling_create_with_entity_arg_as_None_fails(self):
-        self.create_entity(None)
-
-    @expected_validation_failure('Expecting to find entity in request body')
-    def test_calling_create_without_an_entity_fails(self):
-        self.create_entity()
-
-    def test_using_the_wrong_name_with_the_decorator_fails(self):
-        with testtools.ExpectedException(TypeError):
-            @validation.validated(self.entity_schema, 'entity_')
-            def function(entity):
-                pass
-
-    # NOTE(dstanek): below are the test cases for making sure the validation
-    # works when the validated param is not the only param. Since all of the
-    # actual validation cases are tested above these test are for a sanity
-    # check.
-
-    def test_calling_update_with_valid_entity_succeeds(self):
-        self.update_entity(uuid.uuid4().hex, self.valid_entity)
-
-    @expected_validation_failure("Invalid input for field 'name'")
-    def test_calling_update_with_invalid_entity_fails(self):
-        self.update_entity(uuid.uuid4().hex, self.invalid_entity)
-
-    def test_calling_update_with_empty_entity_kwarg_succeeds(self):
-        """Test the case when client passing in an empty entity reference."""
-        global entity_update
-        original_entity_update = entity_update.copy()
-        # pop 'minProperties' from schema so that empty body is allowed.
-        entity_update.pop('minProperties')
-        self.update_entity(uuid.uuid4().hex, entity={})
-        entity_update = original_entity_update
 
 
 class EntityValidationTestCase(unit.BaseTestCase):
