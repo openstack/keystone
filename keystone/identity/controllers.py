@@ -216,8 +216,8 @@ class UserV3(controller.V3Controller):
         self.check_protection(context, prep_info, ref)
 
     @controller.protected()
-    @validation.validated(schema.user_create, 'user')
     def create_user(self, request, user):
+        validation.lazy_validate(schema.user_create, user)
         # The manager layer will generate the unique ID for users
         ref = self._normalize_dict(user)
         ref = self._normalize_domain_id(request.context_dict, ref)
@@ -253,8 +253,8 @@ class UserV3(controller.V3Controller):
         return UserV3.wrap_member(context, ref)
 
     @controller.protected()
-    @validation.validated(schema.user_update, 'user')
     def update_user(self, request, user_id, user):
+        validation.lazy_validate(schema.user_update, user)
         return self._update_user(request.context_dict, user_id, user)
 
     @controller.protected(callback=_check_user_and_group_protection)
@@ -309,8 +309,8 @@ class GroupV3(controller.V3Controller):
         self.check_protection(context, prep_info, ref)
 
     @controller.protected()
-    @validation.validated(schema.group_create, 'group')
     def create_group(self, request, group):
+        validation.lazy_validate(schema.group_create, group)
         # The manager layer will generate the unique ID for groups
         ref = self._normalize_dict(group)
         ref = self._normalize_domain_id(request.context_dict, ref)
@@ -337,8 +337,8 @@ class GroupV3(controller.V3Controller):
         return GroupV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.group_update, 'group')
     def update_group(self, request, group_id, group):
+        validation.lazy_validate(schema.group_update, group)
         self._require_matching_id(group_id, group)
         self._require_matching_domain_id(
             group_id, group, self.identity_api.get_group)

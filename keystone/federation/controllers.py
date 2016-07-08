@@ -89,8 +89,9 @@ class IdentityProvider(_ControllerBase):
         return {cls.member_name: ref}
 
     @controller.protected()
-    @validation.validated(schema.identity_provider_create, 'identity_provider')
     def create_identity_provider(self, request, idp_id, identity_provider):
+        validation.lazy_validate(schema.identity_provider_create,
+                                 identity_provider)
         identity_provider = self._normalize_dict(identity_provider)
         identity_provider.setdefault('enabled', False)
         idp_ref = self.federation_api.create_idp(idp_id, identity_provider)
@@ -115,8 +116,9 @@ class IdentityProvider(_ControllerBase):
         self.federation_api.delete_idp(idp_id)
 
     @controller.protected()
-    @validation.validated(schema.identity_provider_update, 'identity_provider')
     def update_identity_provider(self, request, idp_id, identity_provider):
+        validation.lazy_validate(schema.identity_provider_update,
+                                 identity_provider)
         identity_provider = self._normalize_dict(identity_provider)
         idp_ref = self.federation_api.update_idp(idp_id, identity_provider)
         return IdentityProvider.wrap_member(request.context_dict, idp_ref)
@@ -178,16 +180,16 @@ class FederationProtocol(_ControllerBase):
         return {cls.member_name: ref}
 
     @controller.protected()
-    @validation.validated(schema.protocol_create, 'protocol')
     def create_protocol(self, request, idp_id, protocol_id, protocol):
+        validation.lazy_validate(schema.protocol_create, protocol)
         ref = self._normalize_dict(protocol)
         ref = self.federation_api.create_protocol(idp_id, protocol_id, ref)
         response = FederationProtocol.wrap_member(request.context_dict, ref)
         return wsgi.render_response(body=response, status=('201', 'Created'))
 
     @controller.protected()
-    @validation.validated(schema.protocol_update, 'protocol')
     def update_protocol(self, request, idp_id, protocol_id, protocol):
+        validation.lazy_validate(schema.protocol_update, protocol)
         ref = self._normalize_dict(protocol)
         ref = self.federation_api.update_protocol(idp_id, protocol_id,
                                                   protocol)
@@ -383,13 +385,13 @@ class Auth(auth_controllers.Auth):
                 ('X-sp-url', service_provider['sp_url'].encode('utf-8')),
                 ('X-auth-url', service_provider['auth_url'].encode('utf-8'))]
 
-    @validation.validated(schema.saml_create, 'auth')
     def create_saml_assertion(self, request, auth):
         """Exchange a scoped token for a SAML assertion.
 
         :param auth: Dictionary that contains a token and service provider ID
         :returns: SAML Assertion based on properties from the token
         """
+        validation.lazy_validate(schema.saml_create, auth)
         t = self._create_base_saml_assertion(request.context_dict, auth)
         (response, service_provider) = t
 
@@ -398,13 +400,13 @@ class Auth(auth_controllers.Auth):
                                     status=('200', 'OK'),
                                     headers=headers)
 
-    @validation.validated(schema.saml_create, 'auth')
     def create_ecp_assertion(self, context, auth):
         """Exchange a scoped token for an ECP assertion.
 
         :param auth: Dictionary that contains a token and service provider ID
         :returns: ECP Assertion based on properties from the token
         """
+        validation.lazy_validate(schema.saml_create, auth)
         t = self._create_base_saml_assertion(context, auth)
         (saml_assertion, service_provider) = t
         relay_state_prefix = service_provider['relay_state_prefix']
@@ -483,8 +485,9 @@ class ServiceProvider(_ControllerBase):
                                     'links', 'relay_state_prefix', 'sp_url'])
 
     @controller.protected()
-    @validation.validated(schema.service_provider_create, 'service_provider')
     def create_service_provider(self, request, sp_id, service_provider):
+        validation.lazy_validate(schema.service_provider_create,
+                                 service_provider)
         service_provider = self._normalize_dict(service_provider)
         service_provider.setdefault('enabled', False)
         service_provider.setdefault('relay_state_prefix',
@@ -511,8 +514,9 @@ class ServiceProvider(_ControllerBase):
         self.federation_api.delete_sp(sp_id)
 
     @controller.protected()
-    @validation.validated(schema.service_provider_update, 'service_provider')
     def update_service_provider(self, request, sp_id, service_provider):
+        validation.lazy_validate(schema.service_provider_update,
+                                 service_provider)
         service_provider = self._normalize_dict(service_provider)
         sp_ref = self.federation_api.update_sp(sp_id, service_provider)
         return ServiceProvider.wrap_member(request.context_dict, sp_ref)

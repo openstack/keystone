@@ -25,8 +25,8 @@ class PolicyV3(controller.V3Controller):
     member_name = 'policy'
 
     @controller.protected()
-    @validation.validated(schema.policy_create, 'policy')
     def create_policy(self, request, policy):
+        validation.lazy_validate(schema.policy_create, policy)
         ref = self._assign_unique_id(self._normalize_dict(policy))
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.policy_api.create_policy(ref['id'], ref, initiator)
@@ -45,8 +45,8 @@ class PolicyV3(controller.V3Controller):
         return PolicyV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.policy_update, 'policy')
     def update_policy(self, request, policy_id, policy):
+        validation.lazy_validate(schema.policy_update, policy)
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.policy_api.update_policy(policy_id, policy, initiator)
         return PolicyV3.wrap_member(request.context_dict, ref)

@@ -220,8 +220,8 @@ class RegionV3(controller.V3Controller):
         return self.create_region(context, region)
 
     @controller.protected()
-    @validation.validated(schema.region_create, 'region')
     def create_region(self, request, region):
+        validation.lazy_validate(schema.region_create, region)
         ref = self._normalize_dict(region)
 
         if not ref.get('id'):
@@ -247,8 +247,8 @@ class RegionV3(controller.V3Controller):
         return RegionV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.region_update, 'region')
     def update_region(self, request, region_id, region):
+        validation.lazy_validate(schema.region_update, region)
         self._require_matching_id(region_id, region)
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.update_region(region_id, region, initiator)
@@ -270,8 +270,8 @@ class ServiceV3(controller.V3Controller):
         self.get_member_from_driver = self.catalog_api.get_service
 
     @controller.protected()
-    @validation.validated(schema.service_create, 'service')
     def create_service(self, request, service):
+        validation.lazy_validate(schema.service_create, service)
         ref = self._assign_unique_id(self._normalize_dict(service))
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.create_service(ref['id'], ref, initiator)
@@ -291,8 +291,8 @@ class ServiceV3(controller.V3Controller):
         return ServiceV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.service_update, 'service')
     def update_service(self, request, service_id, service):
+        validation.lazy_validate(schema.service_update, service)
         self._require_matching_id(service_id, service)
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.catalog_api.update_service(service_id, service, initiator)
@@ -350,8 +350,8 @@ class EndpointV3(controller.V3Controller):
         return endpoint
 
     @controller.protected()
-    @validation.validated(schema.endpoint_create, 'endpoint')
     def create_endpoint(self, request, endpoint):
+        validation.lazy_validate(schema.endpoint_create, endpoint)
         utils.check_endpoint_url(endpoint['url'])
         ref = self._assign_unique_id(self._normalize_dict(endpoint))
         ref = self._validate_endpoint_region(ref, request.context_dict)
@@ -373,8 +373,8 @@ class EndpointV3(controller.V3Controller):
         return EndpointV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.endpoint_update, 'endpoint')
     def update_endpoint(self, request, endpoint_id, endpoint):
+        validation.lazy_validate(schema.endpoint_update, endpoint)
         self._require_matching_id(endpoint_id, endpoint)
 
         endpoint = self._validate_endpoint_region(endpoint.copy(),
@@ -488,9 +488,9 @@ class EndpointGroupV3Controller(controller.V3Controller):
                                                               path=path)
 
     @controller.protected()
-    @validation.validated(schema.endpoint_group_create, 'endpoint_group')
     def create_endpoint_group(self, request, endpoint_group):
         """Create an Endpoint Group with the associated filters."""
+        validation.lazy_validate(schema.endpoint_group_create, endpoint_group)
         ref = self._assign_unique_id(self._normalize_dict(endpoint_group))
         self._require_attribute(ref, 'filters')
         self._require_valid_filter(ref)
@@ -516,10 +516,10 @@ class EndpointGroupV3Controller(controller.V3Controller):
             request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.endpoint_group_update, 'endpoint_group')
     def update_endpoint_group(self, request, endpoint_group_id,
                               endpoint_group):
         """Update fixed values and/or extend the filters."""
+        validation.lazy_validate(schema.endpoint_group_update, endpoint_group)
         if 'filters' in endpoint_group:
             self._require_valid_filter(endpoint_group)
         ref = self.catalog_api.update_endpoint_group(endpoint_group_id,

@@ -320,13 +320,13 @@ class RoleV3(controller.V3Controller):
             return self.create_role(context, role=role)
 
     @controller.protected()
-    @validation.validated(schema.role_create, 'role')
     def create_role(self, request, role):
+        validation.lazy_validate(schema.role_create, role)
         return self._create_role(request.context_dict, role)
 
     @controller.protected()
-    @validation.validated(schema.role_create, 'role')
     def create_domain_role(self, request, role):
+        validation.lazy_validate(schema.role_create, role)
         return self._create_role(request.context_dict, role)
 
     def list_roles_wrapper(self, request):
@@ -368,13 +368,13 @@ class RoleV3(controller.V3Controller):
             return self.update_role(context, role_id=role_id, role=role)
 
     @controller.protected()
-    @validation.validated(schema.role_update, 'role')
     def update_role(self, request, role_id, role):
+        validation.lazy_validate(schema.role_update, role)
         return self._update_role(request.context_dict, role_id, role)
 
     @controller.protected()
-    @validation.validated(schema.role_update, 'role')
     def update_domain_role(self, request, role_id, role):
+        validation.lazy_validate(schema.role_update, role)
         return self._update_role(request.context_dict, role_id, role)
 
     def delete_role_wrapper(self, context, role_id):

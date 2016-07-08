@@ -140,8 +140,8 @@ class DomainV3(controller.V3Controller):
         self.get_member_from_driver = self.resource_api.get_domain
 
     @controller.protected()
-    @validation.validated(schema.domain_create, 'domain')
     def create_domain(self, request, domain):
+        validation.lazy_validate(schema.domain_create, domain)
         ref = self._assign_unique_id(self._normalize_dict(domain))
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.resource_api.create_domain(ref['id'], ref, initiator)
@@ -160,8 +160,8 @@ class DomainV3(controller.V3Controller):
         return DomainV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.domain_update, 'domain')
     def update_domain(self, request, domain_id, domain):
+        validation.lazy_validate(schema.domain_update, domain)
         self._require_matching_id(domain_id, domain)
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.resource_api.update_domain(domain_id, domain, initiator)
@@ -237,8 +237,8 @@ class ProjectV3(controller.V3Controller):
         self.get_member_from_driver = self.resource_api.get_project
 
     @controller.protected()
-    @validation.validated(schema.project_create, 'project')
     def create_project(self, request, project):
+        validation.lazy_validate(schema.project_create, project)
         ref = self._assign_unique_id(self._normalize_dict(project))
 
         if not ref.get('is_domain'):
@@ -321,8 +321,8 @@ class ProjectV3(controller.V3Controller):
         return ProjectV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
-    @validation.validated(schema.project_update, 'project')
     def update_project(self, request, project_id, project):
+        validation.lazy_validate(schema.project_update, project)
         self._require_matching_id(project_id, project)
         self._require_matching_domain_id(
             project_id, project, self.resource_api.get_project)

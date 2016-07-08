@@ -59,16 +59,16 @@ class ConsumerCrudV3(controller.V3Controller):
         return controller.V3Controller.base_url(context, path=path)
 
     @controller.protected()
-    @validation.validated(schema.consumer_create, 'consumer')
     def create_consumer(self, request, consumer):
+        validation.lazy_validate(schema.consumer_create, consumer)
         ref = self._assign_unique_id(self._normalize_dict(consumer))
         initiator = notifications._get_request_audit_info(request.context_dict)
         consumer_ref = self.oauth_api.create_consumer(ref, initiator)
         return ConsumerCrudV3.wrap_member(request.context_dict, consumer_ref)
 
     @controller.protected()
-    @validation.validated(schema.consumer_update, 'consumer')
     def update_consumer(self, request, consumer_id, consumer):
+        validation.lazy_validate(schema.consumer_update, consumer)
         self._require_matching_id(consumer_id, consumer)
         ref = self._normalize_dict(consumer)
         initiator = notifications._get_request_audit_info(request.context_dict)
