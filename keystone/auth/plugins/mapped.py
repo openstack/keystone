@@ -15,8 +15,8 @@ import functools
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
 
-from keystone import auth
 from keystone.auth import plugins as auth_plugins
+from keystone.auth.plugins import base
 from keystone.common import dependency
 from keystone import exception
 from keystone.federation import constants as federation_constants
@@ -31,7 +31,7 @@ METHOD_NAME = 'mapped'
 
 @dependency.requires('federation_api', 'identity_api',
                      'resource_api', 'token_provider_api')
-class Mapped(auth.AuthMethodHandler):
+class Mapped(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']

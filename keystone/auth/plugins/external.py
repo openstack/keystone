@@ -18,7 +18,7 @@ import abc
 
 import six
 
-from keystone import auth
+from keystone.auth.plugins import base
 from keystone.common import dependency
 import keystone.conf
 from keystone import exception
@@ -29,7 +29,7 @@ CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Base(auth.AuthMethodHandler):
+class Base(base.AuthMethodHandler):
     def authenticate(self, request, auth_info, auth_context):
         """Use REMOTE_USER to look up the user in the identity backend.
 

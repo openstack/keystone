@@ -17,6 +17,7 @@ import uuid
 import mock
 
 from keystone import auth
+from keystone.auth.plugins import base
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import auth_plugins
@@ -32,7 +33,7 @@ EXPECTED_RESPONSE = uuid.uuid4().hex
 DEMO_USER_ID = uuid.uuid4().hex
 
 
-class SimpleChallengeResponse(auth.AuthMethodHandler):
+class SimpleChallengeResponse(base.AuthMethodHandler):
     def authenticate(self, context, auth_payload, user_context):
         if 'response' in auth_payload:
             if auth_payload['response'] != EXPECTED_RESPONSE:

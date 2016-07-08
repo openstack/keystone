@@ -13,4 +13,3 @@
 # under the License.
 
 from keystone.auth import controllers  # noqa
-from keystone.auth.core import *  # noqa

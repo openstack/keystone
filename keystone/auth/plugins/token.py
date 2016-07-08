@@ -15,7 +15,7 @@
 from oslo_log import log
 import six
 
-from keystone import auth
+from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
 from keystone.common import dependency
 from keystone.common import wsgi
@@ -31,7 +31,7 @@ CONF = keystone.conf.CONF
 
 
 @dependency.requires('federation_api', 'identity_api', 'token_provider_api')
-class Token(auth.AuthMethodHandler):
+class Token(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']

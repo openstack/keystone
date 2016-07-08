@@ -325,7 +325,7 @@ How to Implement an Authentication Plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All authentication plugins must extend the
-:class:`keystone.auth.core.AuthMethodHandler` class and implement the
+:class:`keystone.auth.plugins.base.AuthMethodHandler` class and implement the
 ``authenticate()`` method. The ``authenticate()`` method expects the following
 parameters.
 
