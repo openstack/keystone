@@ -269,8 +269,7 @@ class ProjectAssignmentV3(controller.V3Controller):
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_user_projects(self, request, filters, user_id):
-        hints = ProjectAssignmentV3.build_driver_hints(request.context_dict,
-                                                       filters)
+        hints = ProjectAssignmentV3.build_driver_hints(request, filters)
         refs = self.assignment_api.list_projects_for_user(user_id,
                                                           hints=hints)
         return ProjectAssignmentV3.wrap_collection(request.context_dict,
@@ -331,26 +330,18 @@ class RoleV3(controller.V3Controller):
         return self._create_role(request.context_dict, role)
 
     def list_roles_wrapper(self, request):
-        # If there is no domain_id filter defined, then we only want to return
-        # global roles, so we set the domain_id filter to None.
-        # NOTE(jamielennox): this is still using context_dict because it's
-        # writing to the query dict. Why is it writing to the query dict?
-        params = request.context_dict['query_string']
-        if 'domain_id' not in params:
-            request.context_dict['query_string']['domain_id'] = None
-
-        if request.context_dict['query_string']['domain_id'] is not None:
+        if request.params.get('domain_id'):
             return self.list_domain_roles(request)
         else:
             return self.list_roles(request)
 
     @controller.filterprotected('name', 'domain_id')
     def list_roles(self, request, filters):
-        return self._list_roles(request.context_dict, filters)
+        return self._list_roles(request, filters)
 
     @controller.filterprotected('name', 'domain_id')
     def list_domain_roles(self, request, filters):
-        return self._list_roles(request.context_dict, filters)
+        return self._list_roles(request, filters)
 
     def get_role_wrapper(self, context, role_id):
         if self._is_domain_role_target(role_id):
@@ -415,11 +406,10 @@ class RoleV3(controller.V3Controller):
         ref = self.role_api.create_role(ref['id'], ref, initiator)
         return RoleV3.wrap_member(context, ref)
 
-    def _list_roles(self, context, filters):
-        hints = RoleV3.build_driver_hints(context, filters)
-        refs = self.role_api.list_roles(
-            hints=hints)
-        return RoleV3.wrap_collection(context, refs, hints=hints)
+    def _list_roles(self, request, filters):
+        hints = RoleV3.build_driver_hints(request, filters)
+        refs = self.role_api.list_roles(hints=hints)
+        return RoleV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     def _get_role(self, context, role_id):
         ref = self.role_api.get_role(role_id)
@@ -434,6 +424,22 @@ class RoleV3(controller.V3Controller):
     def _delete_role(self, context, role_id):
         initiator = notifications._get_request_audit_info(context)
         self.role_api.delete_role(role_id, initiator)
+
+    @classmethod
+    def build_driver_hints(cls, request, supported_filters):
+        # NOTE(jamielennox): To handle the default case of no domain_id defined
+        # the role_assignment backend does some hackery to distinguish between
+        # global and domain scoped roles. This backend behaviour relies upon a
+        # value of domain_id being set (not just defaulting to None). Manually
+        # set the empty filter if its not provided.
+
+        hints = super(RoleV3, cls).build_driver_hints(request,
+                                                      supported_filters)
+
+        if not request.params.get('domain_id'):
+            hints.add_filter('domain_id', None)
+
+        return hints
 
 
 @dependency.requires('role_api')

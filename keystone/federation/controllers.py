@@ -99,7 +99,7 @@ class IdentityProvider(_ControllerBase):
 
     @controller.filterprotected('id', 'enabled')
     def list_identity_providers(self, request, filters):
-        hints = self.build_driver_hints(request.context_dict, filters)
+        hints = self.build_driver_hints(request, filters)
         ref = self.federation_api.list_idps(hints=hints)
         ref = [self.filter_params(x) for x in ref]
         return IdentityProvider.wrap_collection(request.context_dict,
@@ -495,7 +495,7 @@ class ServiceProvider(_ControllerBase):
 
     @controller.filterprotected('id', 'enabled')
     def list_service_providers(self, request, filters):
-        hints = self.build_driver_hints(request.context_dict, filters)
+        hints = self.build_driver_hints(request, filters)
         ref = self.federation_api.list_sps(hints=hints)
         ref = [self.filter_params(x) for x in ref]
         return ServiceProvider.wrap_collection(request.context_dict,

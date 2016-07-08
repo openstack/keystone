@@ -149,7 +149,7 @@ class DomainV3(controller.V3Controller):
 
     @controller.filterprotected('enabled', 'name')
     def list_domains(self, request, filters):
-        hints = DomainV3.build_driver_hints(request.context_dict, filters)
+        hints = DomainV3.build_driver_hints(request, filters)
         refs = self.resource_api.list_domains(hints=hints)
         return DomainV3.wrap_collection(request.context_dict,
                                         refs, hints=hints)
@@ -260,7 +260,7 @@ class ProjectV3(controller.V3Controller):
     @controller.filterprotected('domain_id', 'enabled', 'name',
                                 'parent_id', 'is_domain')
     def list_projects(self, request, filters):
-        hints = ProjectV3.build_driver_hints(request.context_dict, filters)
+        hints = ProjectV3.build_driver_hints(request, filters)
         # If 'is_domain' has not been included as a query, we default it to
         # False (which in query terms means '0'
         if 'is_domain' not in request.params:
