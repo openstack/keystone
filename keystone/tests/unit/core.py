@@ -594,7 +594,8 @@ class TestCase(BaseTestCase):
 
         if not environ.get(context.REQUEST_CONTEXT_ENV):
             environ[context.REQUEST_CONTEXT_ENV] = context.RequestContext(
-                is_admin=is_admin)
+                is_admin=is_admin,
+                authenticated=kwargs.pop('authenticated', True))
 
         req = request.Request.blank(path=path, **kwargs)
         req.context_dict['is_admin'] = is_admin

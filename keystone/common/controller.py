@@ -79,32 +79,7 @@ def _build_policy_check_credentials(self, action, context, kwargs):
         'action': action,
         'kwargs': kwargs_str})
 
-    # see if auth context has already been created. If so use it.
-    if ('environment' in context and
-            authorization.AUTH_CONTEXT_ENV in context['environment']):
-        LOG.debug('RBAC: using auth context from the request environment')
-        return context['environment'].get(authorization.AUTH_CONTEXT_ENV)
-
-    # There is no current auth context, build it from the incoming token.
-    # TODO(morganfainberg): Collapse this logic with AuthContextMiddleware
-    # in a sane manner as this just mirrors the logic in AuthContextMiddleware
-    try:
-        LOG.debug('RBAC: building auth context from the incoming auth token')
-        token_ref = token_model.KeystoneToken(
-            token_id=context['token_id'],
-            token_data=self.token_provider_api.validate_token(
-                context['token_id']))
-        # NOTE(jamielennox): whilst this maybe shouldn't be within this
-        # function it would otherwise need to reload the token_ref from
-        # backing store.
-        wsgi.validate_token_bind(context, token_ref)
-    except exception.TokenNotFound:
-        LOG.warning(_LW('RBAC: Invalid token'))
-        raise exception.Unauthorized()
-
-    auth_context = authorization.token_to_auth_context(token_ref)
-
-    return auth_context
+    return context['environment'].get(authorization.AUTH_CONTEXT_ENV, {})
 
 
 def protected(callback=None):
@@ -123,6 +98,8 @@ def protected(callback=None):
     def wrapper(f):
         @functools.wraps(f)
         def inner(self, request, *args, **kwargs):
+            request.assert_authenticated()
+
             if request.context.is_admin:
                 LOG.warning(_LW('RBAC: Bypassing authorization'))
             elif callback is not None:
@@ -205,6 +182,8 @@ def filterprotected(*filters, **callback):
     def _filterprotected(f):
         @functools.wraps(f)
         def wrapper(self, request, **kwargs):
+            request.assert_authenticated()
+
             if not request.context.is_admin:
                 # The target dict for the policy check will include:
                 #

@@ -4699,23 +4699,6 @@ class TestTrustChain(test_v3.RestfulTestCase):
                       expected_status=http_client.FORBIDDEN)
 
 
-class TestAPIProtectionWithoutAuthContextMiddleware(test_v3.RestfulTestCase):
-    def test_api_protection_with_no_auth_context_in_env(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.default_domain_user['id'],
-            password=self.default_domain_user['password'],
-            project_id=self.project['id'])
-        token = self.get_requested_token(auth_data)
-        auth_controller = auth.controllers.Auth()
-        # all we care is that auth context is not in the environment and
-        # 'token_id' is used to build the auth context instead
-        request = self.make_request()
-        request.context_dict['subject_token_id'] = token
-        request.context_dict['token_id'] = token
-        r = auth_controller.validate_token(request)
-        self.assertEqual(http_client.OK, r.status_code)
-
-
 class TestAuthContext(unit.TestCase):
     def setUp(self):
         super(TestAuthContext, self).setUp()
