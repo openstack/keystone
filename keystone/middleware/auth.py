@@ -214,11 +214,23 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         request_context.user_id = auth_context.get('user_id')
         request_context.project_id = auth_context.get('project_id')
         request_context.domain_id = auth_context.get('domain_id')
+        request_context.domain_name = auth_context.get('domain_name')
         request_context.user_domain_id = auth_context.get('user_domain_id')
         request_context.roles = auth_context.get('roles')
 
         project_domain_id = auth_context.get('project_domain_id')
         request_context.project_domain_id = project_domain_id
+
+        is_delegated_auth = auth_context.get('is_delegated_auth', False)
+        request_context.is_delegated_auth = is_delegated_auth
+
+        request_context.trust_id = auth_context.get('trust_id')
+        request_context.trustor_id = auth_context.get('trustor_id')
+        request_context.trustee_id = auth_context.get('trustee_id')
+
+        access_token_id = auth_context.get('access_token_id')
+        request_context.oauth_consumer_id = auth_context.get('consumer_id')
+        request_context.oauth_acess_token_id = access_token_id
 
         LOG.debug('RBAC: auth_context: %s', auth_context)
         request.environ[authorization.AUTH_CONTEXT_ENV] = auth_context
