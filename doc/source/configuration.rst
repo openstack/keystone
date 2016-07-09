@@ -503,10 +503,9 @@ disabled.
     * ``dogpile.cache.redis`` - `Redis`_ backend
     * ``dogpile.cache.dbm`` - local DBM file backend
     * ``dogpile.cache.memory`` - in-memory cache
-    * ``keystone.cache.mongo`` - MongoDB as caching backend
-    * ``keystone.cache.memcache_pool`` - An eventlet-safe implementation of
-      ``dogpile.cache.memcached``. This implementation also provides client
-      connection re-use.
+    * ``oslo_cache.mongo`` - MongoDB as caching backend
+    * ``oslo_cache.memcache_pool`` - Memcache with pooling.
+      This implementation also provides client connection re-use.
 
         .. WARNING::
             ``dogpile.cache.memory`` is not suitable for use outside of unit
