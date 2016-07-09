@@ -14,7 +14,7 @@
 
 from keystone.common import driver_hints
 from keystone.common import sql
-from keystone import credential
+from keystone.credential.backends import base
 from keystone import exception
 
 
@@ -30,7 +30,7 @@ class CredentialModel(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob())
 
 
-class Credential(credential.CredentialDriverV8):
+class Credential(base.CredentialDriverV8):
 
     # credential crud
 
