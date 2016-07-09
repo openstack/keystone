@@ -14,9 +14,7 @@
 
 """Main entry point into the Trust service."""
 
-import abc
-
-import six
+from oslo_log import versionutils
 from six.moves import zip
 
 from keystone.common import dependency
@@ -25,6 +23,7 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
+from keystone.trust.backends import base
 
 
 CONF = keystone.conf.CONF
@@ -203,57 +202,13 @@ class Manager(manager.Manager):
         notifications.Audit.deleted(self._TRUST, trust_id, initiator)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class TrustDriverV8(object):
-
-    @abc.abstractmethod
-    def create_trust(self, trust_id, trust, roles):
-        """Create a new trust.
-
-        :returns: a new trust
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_trust(self, trust_id, deleted=False):
-        """Get a trust by the trust id.
-
-        :param trust_id: the trust identifier
-        :type trust_id: string
-        :param deleted: return the trust even if it is deleted, expired, or
-                        has no consumptions left
-        :type deleted: bool
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_trusts(self):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_trusts_for_trustee(self, trustee):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def list_trusts_for_trustor(self, trustor):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_trust(self, trust_id):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def consume_use(self, trust_id):
-        """Consume one use of a trust.
-
-        One use of a trust is consumed when the trust was created with a
-        limitation on its uses, provided there are still uses available.
-
-        :raises keystone.exception.TrustUseLimitReached: If no remaining uses
-            for trust.
-        :raises keystone.exception.TrustNotFound: If the trust doesn't exist.
-        """
-        raise exception.NotImplemented()  # pragma: no cover
+@versionutils.deprecated(
+    versionutils.deprecated.NEWTON,
+    what='keystone.trust.TrustDriverV8',
+    in_favor_of='keystone.trust.backends.base.TrustDriverV8',
+    remove_in=+1)
+class TrustDriverV8(base.TrustDriverV8):
+    pass
 
 
-Driver = manager.create_legacy_driver(TrustDriverV8)
+Driver = manager.create_legacy_driver(base.TrustDriverV8)
