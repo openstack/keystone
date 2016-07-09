@@ -30,14 +30,16 @@ may not match the value of the user's `enabled` column in the user table.
 
 lockout_failure_attempts = cfg.IntOpt(
     'lockout_failure_attempts',
-    default=0,
-    min=0,
+    default=None,
+    min=1,
     help=utils.fmt("""
 The maximum number of times that a user can fail to authenticate before the
 user account is locked for the number of seconds specified by
-`[security_compliance] lockout_duration`. Setting this value to zero (the
-default) disables this feature. This feature depends on the `sql` backend for
-the `[identity] driver`.
+`[security_compliance] lockout_duration`. This feature is disabled by
+default. If this feature is enabled and `[security_compliance]
+lockout_duration` is not set, then users may be locked out indefinitely
+until the user is explicitly enabled via the API. This feature depends on
+the `sql` backend for the `[identity] driver`.
 """))
 
 lockout_duration = cfg.IntOpt(
