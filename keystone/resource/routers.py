@@ -53,7 +53,6 @@ class Routers(wsgi.RoutersBase):
             patch_action='update_domain_config_only',
             delete_action='delete_domain_config',
             rel=json_home.build_v3_resource_relation('domain_config'),
-            status=json_home.Status.STABLE,
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID
             })
@@ -67,7 +66,6 @@ class Routers(wsgi.RoutersBase):
             patch_action='update_domain_config_group',
             delete_action='delete_domain_config',
             rel=json_home.build_v3_resource_relation('domain_config_group'),
-            status=json_home.Status.STABLE,
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group': config_group_param
@@ -80,7 +78,6 @@ class Routers(wsgi.RoutersBase):
             patch_action='update_domain_config',
             delete_action='delete_domain_config',
             rel=json_home.build_v3_resource_relation('domain_config_option'),
-            status=json_home.Status.STABLE,
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group': config_group_param,
@@ -92,8 +89,7 @@ class Routers(wsgi.RoutersBase):
             mapper, config_controller,
             path='/domains/config/default',
             get_action='get_domain_config_default',
-            rel=json_home.build_v3_resource_relation('domain_config_default'),
-            status=json_home.Status.STABLE)
+            rel=json_home.build_v3_resource_relation('domain_config_default'))
 
         self._add_resource(
             mapper, config_controller,
@@ -101,7 +97,6 @@ class Routers(wsgi.RoutersBase):
             get_action='get_domain_config_default',
             rel=json_home.build_v3_resource_relation(
                 'domain_config_default_group'),
-            status=json_home.Status.STABLE,
             path_vars={
                 'group': config_group_param
             })
@@ -112,7 +107,6 @@ class Routers(wsgi.RoutersBase):
             get_action='get_domain_config_default',
             rel=json_home.build_v3_resource_relation(
                 'domain_config_default_option'),
-            status=json_home.Status.STABLE,
             path_vars={
                 'group': config_group_param,
                 'option': json_home.build_v3_parameter_relation(
