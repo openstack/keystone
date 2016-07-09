@@ -2482,6 +2482,10 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
     # FIXME(lbragstad): Remove this test from this class and inherit the
     # version in TokenAPITest once bug 1532280 is fixed.
     def test_trust_token_is_invalid_when_trustee_domain_disabled(self):
+        # Remove this once revocation for domains is handled properly
+        self.config_fixture.config(
+            group='cache',
+            enabled=False)
         # create a new domain with new user in that domain
         new_domain_ref = unit.new_domain_ref()
         self.resource_api.create_domain(new_domain_ref['id'], new_domain_ref)
@@ -2525,8 +2529,9 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
             '/domains/%(domain_id)s' % {'domain_id': new_domain_ref['id']},
             body=disable_body)
 
-        # this should return Not Found once bug 1532280 is fixed!
-        self._validate_token(trust_scoped_token)
+        # ensure the project-scoped token from the trust is invalid
+        self._validate_token(trust_scoped_token,
+                             expected_status=http_client.NOT_FOUND)
 
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
