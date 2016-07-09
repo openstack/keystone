@@ -490,8 +490,7 @@ class V3TokenDataHelper(object):
         if service_providers:
             token_data['service_providers'] = service_providers
 
-    def _populate_token_dates(self, token_data, expires=None, trust=None,
-                              issued_at=None):
+    def _populate_token_dates(self, token_data, expires=None, issued_at=None):
         if not expires:
             expires = provider.default_expire_time()
         if not isinstance(expires, six.string_types):
@@ -538,7 +537,7 @@ class V3TokenDataHelper(object):
             self._populate_service_catalog(token_data, user_id, domain_id,
                                            project_id, trust)
         self._populate_service_providers(token_data)
-        self._populate_token_dates(token_data, expires=expires, trust=trust,
+        self._populate_token_dates(token_data, expires=expires,
                                    issued_at=issued_at)
         self._populate_oauth_section(token_data, access_token)
         return {'token': token_data}
