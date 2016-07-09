@@ -112,13 +112,13 @@ class TrustV3(controller.V3Controller):
         return trust_roles
 
     @controller.protected()
-    @validation.validated(schema.trust_create, 'trust')
     def create_trust(self, request, trust):
         """Create a new trust.
 
         The user creating the trust must be the trustor.
 
         """
+        validation.lazy_validate(schema.trust_create, trust)
         # Check if delegated via trust
         if request.auth_context.get('is_delegated_auth'):
             # Redelegation case

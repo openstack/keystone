@@ -62,8 +62,8 @@ class CredentialV3(controller.V3Controller):
             return super(CredentialV3, self)._assign_unique_id(ref)
 
     @controller.protected()
-    @validation.validated(schema.credential_create, 'credential')
     def create_credential(self, request, credential):
+        validation.lazy_validate(schema.credential_create, credential)
         trust_id = self._get_trust_id_for_request(request.context_dict)
         ref = self._assign_unique_id(self._normalize_dict(credential),
                                      trust_id)
@@ -97,8 +97,8 @@ class CredentialV3(controller.V3Controller):
         return CredentialV3.wrap_member(request.context_dict, ret_ref)
 
     @controller.protected()
-    @validation.validated(schema.credential_update, 'credential')
     def update_credential(self, request, credential_id, credential):
+        validation.lazy_validate(schema.credential_update, credential)
         self._require_matching_id(credential_id, credential)
 
         ref = self.credential_api.update_credential(credential_id, credential)
