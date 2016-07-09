@@ -15,6 +15,7 @@
 import string
 
 from oslo_log import log
+from six.moves import http_client
 from six.moves import urllib
 import webob
 
@@ -95,7 +96,9 @@ class IdentityProvider(_ControllerBase):
         identity_provider.setdefault('enabled', False)
         idp_ref = self.federation_api.create_idp(idp_id, identity_provider)
         response = IdentityProvider.wrap_member(request.context_dict, idp_ref)
-        return wsgi.render_response(body=response, status=(201, 'Created'))
+        return wsgi.render_response(
+            body=response, status=(http_client.CREATED,
+                                   http_client.responses[http_client.CREATED]))
 
     @controller.filterprotected('id', 'enabled')
     def list_identity_providers(self, request, filters):
@@ -183,7 +186,9 @@ class FederationProtocol(_ControllerBase):
         ref = self._normalize_dict(protocol)
         ref = self.federation_api.create_protocol(idp_id, protocol_id, ref)
         response = FederationProtocol.wrap_member(request.context_dict, ref)
-        return wsgi.render_response(body=response, status=(201, 'Created'))
+        return wsgi.render_response(
+            body=response, status=(http_client.CREATED,
+                                   http_client.responses[http_client.CREATED]))
 
     @controller.protected()
     @validation.validated(schema.protocol_update, 'protocol')
@@ -222,7 +227,9 @@ class MappingController(_ControllerBase):
         mapping_ref = self.federation_api.create_mapping(mapping_id, ref)
         response = MappingController.wrap_member(request.context_dict,
                                                  mapping_ref)
-        return wsgi.render_response(body=response, status=(201, 'Created'))
+        return wsgi.render_response(
+            body=response, status=(http_client.CREATED,
+                                   http_client.responses[http_client.CREATED]))
 
     @controller.protected()
     def list_mappings(self, request):
@@ -394,9 +401,10 @@ class Auth(auth_controllers.Auth):
         (response, service_provider) = t
 
         headers = self._build_response_headers(service_provider)
-        return wsgi.render_response(body=response.to_string(),
-                                    status=(200, 'OK'),
-                                    headers=headers)
+        return wsgi.render_response(
+            body=response.to_string(),
+            status=(http_client.OK, http_client.responses[http_client.OK]),
+            headers=headers)
 
     @validation.validated(schema.saml_create, 'auth')
     def create_ecp_assertion(self, context, auth):
@@ -414,9 +422,10 @@ class Auth(auth_controllers.Auth):
                                                relay_state_prefix)
 
         headers = self._build_response_headers(service_provider)
-        return wsgi.render_response(body=ecp_assertion.to_string(),
-                                    status=(200, 'OK'),
-                                    headers=headers)
+        return wsgi.render_response(
+            body=ecp_assertion.to_string(),
+            status=(http_client.OK, http_client.responses[http_client.OK]),
+            headers=headers)
 
 
 @dependency.requires('assignment_api', 'resource_api')
@@ -491,7 +500,9 @@ class ServiceProvider(_ControllerBase):
                                     CONF.saml.relay_state_prefix)
         sp_ref = self.federation_api.create_sp(sp_id, service_provider)
         response = ServiceProvider.wrap_member(request.context_dict, sp_ref)
-        return wsgi.render_response(body=response, status=(201, 'Created'))
+        return wsgi.render_response(
+            body=response, status=(http_client.CREATED,
+                                   http_client.responses[http_client.CREATED]))
 
     @controller.filterprotected('id', 'enabled')
     def list_service_providers(self, request, filters):
@@ -529,5 +540,7 @@ class SAMLMetadataV3(_ControllerBase):
         except IOError as e:
             # Raise HTTP 500 in case Metadata file cannot be read.
             raise exception.MetadataFileError(reason=e)
-        return wsgi.render_response(body=metadata, status=(200, 'OK'),
-                                    headers=[('Content-Type', 'text/xml')])
+        return wsgi.render_response(
+            body=metadata, status=(http_client.OK,
+                                   http_client.responses[http_client.OK]),
+            headers=[('Content-Type', 'text/xml')])

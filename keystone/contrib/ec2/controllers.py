@@ -39,6 +39,7 @@ import uuid
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils
 import six
+from six.moves import http_client
 
 from keystone.common import controller
 from keystone.common import dependency
@@ -435,4 +436,6 @@ def render_token_data_response(token_id, token_data):
     headers = [('X-Subject-Token', token_id)]
 
     return wsgi.render_response(body=token_data,
-                                status=(200, 'OK'), headers=headers)
+                                status=(http_client.OK,
+                                        http_client.responses[http_client.OK]),
+                                headers=headers)

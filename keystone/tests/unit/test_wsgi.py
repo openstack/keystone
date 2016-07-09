@@ -107,7 +107,8 @@ class ApplicationTest(BaseWSGITest):
 
     def test_render_response_custom_status(self):
         resp = wsgi.render_response(
-            status=(http_client.NOT_IMPLEMENTED, 'Not Implemented'))
+            status=(http_client.NOT_IMPLEMENTED,
+                    http_client.responses[http_client.NOT_IMPLEMENTED]))
         self.assertEqual('501 Not Implemented', resp.status)
         self.assertEqual(http_client.NOT_IMPLEMENTED, resp.status_int)
 
