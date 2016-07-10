@@ -543,8 +543,8 @@ class Manager(manager.Manager):
           single domain/driver LDAP configurations were previously supported).
         - If the driver does support UUIDs, then we always create a mapping
           entry, but use the local UUID as the public ID.  The exception to
-        - this is that if we just have single driver (i.e. not using specific
-          multi-domain configs), then we don't both with the mapping at all.
+          this is that if we just have single driver (i.e. not using specific
+          multi-domain configs), then we don't bother with the mapping at all.
 
         """
         conf = CONF.identity
