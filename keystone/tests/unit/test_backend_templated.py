@@ -262,3 +262,21 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_endpoint(self):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
+
+    def test_delete_endpoint_group_association_by_project(self):
+        # Deleting endpoint group association is not supported by the templated
+        # driver, but it should be silent about it and not raise an error.
+        self.catalog_api.delete_endpoint_group_association_by_project(
+            uuid.uuid4().hex)
+
+    def test_delete_association_by_endpoint(self):
+        # Deleting endpoint association is not supported by the templated
+        # driver, but it should be silent about it and not raise an error.
+        self.catalog_api.delete_association_by_endpoint(
+            uuid.uuid4().hex)
+
+    def test_delete_association_by_project(self):
+        # Deleting endpoint association is not supported by the templated
+        # driver, but it should be silent about it and not raise an error.
+        self.catalog_api.delete_association_by_project(
+            uuid.uuid4().hex)
