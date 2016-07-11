@@ -19,31 +19,36 @@ trusted_issuer = cfg.MultiStrOpt(
     'trusted_issuer',
     default=[],
     help=utils.fmt("""
-The list of trusted issuers to further filter the certificates that are allowed
-to participate in the X.509 tokenless authorization. If the option is absent
-then no certificates will be allowed. The naming format for the attributes of a
-Distinguished Name(DN) must be separated by a comma and contain no spaces. This
-configuration option may be repeated for multiple values. For example:
-trusted_issuer=CN=john,OU=keystone,O=openstack
-trusted_issuer=CN=mary,OU=eng,O=abc
+The list of distinguished names which identify trusted issuers of client
+certificates allowed to use X.509 tokenless authorization. If the option is
+absent then no certificates will be allowed. The format for the values of a
+distinguished name (DN) must be separated by a comma and contain no spaces.
+Furthermore, because an individual DN may contain commas, this configuration
+option may be repeated multiple times to represent multiple values. For
+example, keystone.conf would include two consecutive lines in order to trust
+two different DNs, such as `trusted_issuer = CN=john,OU=keystone,O=openstack`
+and `trusted_issuer = CN=mary,OU=eng,O=abc`.
 """))
 
 protocol = cfg.StrOpt(
     'protocol',
     default='x509',
     help=utils.fmt("""
-The protocol name for the X.509 tokenless authorization along with the option
-issuer_attribute below can look up its corresponding mapping.
+The federated protocol ID used to represent X.509 tokenless authorization. This
+is used in combination with the value of `[tokenless_auth] issuer_attribute` to
+find a corresponding federated mapping. In a typical deployment, there is no
+reason to change this value.
 """))
 
 issuer_attribute = cfg.StrOpt(
     'issuer_attribute',
     default='SSL_CLIENT_I_DN',
     help=utils.fmt("""
-The issuer attribute that is served as an IdP ID for the X.509 tokenless
-authorization along with the protocol to look up its corresponding mapping. It
-is the environment variable in the WSGI environment that references to the
-issuer of the client certificate.
+The name of the WSGI environment variable used to pass the issuer of the client
+certificate to keystone. This attribute is used as an identity provider ID
+for the X.509 tokenless authorization along with the protocol to look up its
+corresponding mapping. In a typical deployment, there is no reason to change
+this value.
 """))
 
 
