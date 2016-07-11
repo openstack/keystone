@@ -16,9 +16,9 @@ from keystone.conf import utils
 
 
 _DEPRECATE_INHERIT_MSG = utils.fmt("""
-The option to enable the OS-INHERIT extension has been deprecated in the M
-release and will be removed in the O release. The OS-INHERIT extension will be
-enabled by default.
+The option to disable the OS-INHERIT functionality has been deprecated in the
+Mitaka release and will be removed in the Ocata release. Starting in the Ocata
+release, OS-INHERIT functionality will always be enabled.
 """)
 
 
@@ -28,9 +28,8 @@ enabled = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_INHERIT_MSG,
     help=utils.fmt("""
-role-assignment inheritance to projects from owning domain or from projects
-higher in the hierarchy can be optionally disabled. In the future, this option
-will be removed and the hierarchy will be always enabled.
+This allows domain-based role assignments to be inherited to projects owned by
+that domain, or from parent projects to child projects.
 """))
 
 
