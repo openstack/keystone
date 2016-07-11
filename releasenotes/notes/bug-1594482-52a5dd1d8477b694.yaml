@@ -1,0 +1,8 @@
+---
+fixes:
+  - >
+    [`bug 1594482 <https://bugs.launchpad.net/keystone/+bug/1594482>`_]
+    When using list_limit config option, the GET /services?name={service_name}
+    API was first truncating the list and afterwards filtering by name.
+    The API was fixed to first filter by name and only afterwards truncate the
+    result list to the desired limit.

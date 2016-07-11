@@ -353,7 +353,11 @@ def _limit(query, hints):
 
     # If we satisfied all the filters, set an upper limit if supplied
     if hints.limit:
-        query = query.limit(hints.limit['limit'])
+        original_len = query.count()
+        limit_query = query.limit(hints.limit['limit'])
+        if limit_query.count() < original_len:
+            hints.limit['truncated'] = True
+            query = limit_query
     return query
 
 
