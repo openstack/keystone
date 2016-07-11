@@ -14,6 +14,7 @@ import webob
 from webob.descriptors import environ_getter
 
 from keystone.common import authorization
+from keystone.common import context
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -74,3 +75,4 @@ class Request(webob.Request):
 
     auth_type = environ_getter('AUTH_TYPE', None)
     remote_domain = environ_getter('REMOTE_DOMAIN', None)
+    context = environ_getter(context.REQUEST_CONTEXT_ENV, None)
