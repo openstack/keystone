@@ -76,14 +76,14 @@ class UserController(identity.controllers.User):
 
         update_dict = {'password': user['password'], 'id': user_id}
 
-        old_admin = request.context_dict.pop('is_admin', False)
-        request.context_dict['is_admin'] = True
+        old_admin = request.context.is_admin
+        request.context.is_admin = True
 
         super(UserController, self).set_user_password(request,
                                                       user_id,
                                                       update_dict)
 
-        request.context_dict['is_admin'] = old_admin
+        request.context.is_admin = old_admin
 
         # Issue a new token based upon the original token data. This will
         # always be a V2.0 token.

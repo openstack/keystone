@@ -41,6 +41,7 @@ from sqlalchemy import exc
 import testtools
 from testtools import testcase
 
+from keystone.common import context
 from keystone.common import dependency
 from keystone.common import request
 from keystone.common import sql
@@ -588,15 +589,15 @@ class TestCase(BaseTestCase):
         return ksfixtures.Policy(dirs.etc('policy.json'), self.config_fixture)
 
     def make_request(self, path='/', **kwargs):
-        context = {}
+        is_admin = kwargs.pop('is_admin', False)
+        environ = kwargs.setdefault('environ', {})
 
-        try:
-            context['is_admin'] = kwargs.pop('is_admin')
-        except KeyError:
-            pass
+        if not environ.get(context.REQUEST_CONTEXT_ENV):
+            environ[context.REQUEST_CONTEXT_ENV] = context.RequestContext(
+                is_admin=is_admin)
 
         req = request.Request.blank(path=path, **kwargs)
-        req.context_dict.update(context)
+        req.context_dict['is_admin'] = is_admin
 
         return req
 

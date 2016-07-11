@@ -34,8 +34,9 @@ def _trustor_trustee_only(trust, user_id):
         raise exception.Forbidden()
 
 
-def _admin_trustor_only(context, trust, user_id):
-    if user_id != trust.get('trustor_user_id') and not context['is_admin']:
+def _admin_trustor_only(request, trust, user_id):
+    if (user_id != trust.get('trustor_user_id') and
+            not request.context.is_admin):
         raise exception.Forbidden()
 
 
@@ -246,7 +247,7 @@ class TrustV3(controller.V3Controller):
     def delete_trust(self, request, trust_id):
         trust = self.trust_api.get_trust(trust_id)
         user_id = self._get_user_id(request.context_dict)
-        _admin_trustor_only(request.context_dict, trust, user_id)
+        _admin_trustor_only(request, trust, user_id)
         initiator = notifications._get_request_audit_info(request.context_dict)
         self.trust_api.delete_trust(trust_id, initiator)
 
