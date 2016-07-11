@@ -16,8 +16,8 @@ from keystone.conf import utils
 
 
 _DEPRECATED_LDAP_WRITE = utils.fmt("""
-Write support for Identity LDAP backends has been deprecated in the M release
-and will be removed in the O release.
+Write support for the LDAP identity backend has been deprecated in the Mitaka
+release and will be removed in the Ocata release.
 """)
 
 
@@ -33,36 +33,42 @@ connection.
 user = cfg.StrOpt(
     'user',
     help=utils.fmt("""
-User BindDN to query the LDAP server.
+The user name of the administrator bind DN to use when querying the LDAP
+server, if your LDAP server requires it.
 """))
 
 password = cfg.StrOpt(
     'password',
     secret=True,
     help=utils.fmt("""
-Password for the BindDN to query the LDAP server.
+The password of the administrator bind DN to use when querying the LDAP server,
+if your LDAP server requires it.
 """))
 
 suffix = cfg.StrOpt(
     'suffix',
     default='cn=example,cn=com',
     help=utils.fmt("""
-LDAP server suffix
+The default LDAP server suffix to use, if a DN is not defined via either
+`[ldap] user_tree_dn` or `[ldap] group_tree_dn`.
 """))
 
 use_dumb_member = cfg.BoolOpt(
     'use_dumb_member',
     default=False,
     help=utils.fmt("""
-If true, will add a dummy member to groups. This is required if the objectclass
-for groups requires the "member" attribute.
-    """))
+If true, keystone will add a dummy member based on the `[ldap] dumb_member`
+option when creating new groups. This is required if the object class for
+groups requires the `member` attribute. This option is only used for write
+operations.
+"""))
 
 dumb_member = cfg.StrOpt(
     'dumb_member',
     default='cn=dumb,dc=nonexistent',
     help=utils.fmt("""
-DN of the "dummy member" to use when "use_dumb_member" is enabled.
+DN of the "dummy member" to use when `[ldap] use_dumb_member` is enabled. This
+option is only used for write operations.
 """))
 
 allow_subtree_delete = cfg.BoolOpt(
@@ -70,7 +76,8 @@ allow_subtree_delete = cfg.BoolOpt(
     default=False,
     help=utils.fmt("""
 Delete subtrees using the subtree delete control. Only enable this option if
-your LDAP server supports subtree deletion.
+your LDAP server supports subtree deletion. This option is only used for write
+operations.
 """))
 
 query_scope = cfg.StrOpt(
@@ -78,15 +85,22 @@ query_scope = cfg.StrOpt(
     default='one',
     choices=['one', 'sub'],
     help=utils.fmt("""
-The LDAP scope for queries, "one" represents oneLevel/singleLevel and "sub"
-represents subtree/wholeSubtree options.
+The search scope which defines how deep to search within the search base. A
+value of `one` (representing `oneLevel` or `singleLevel`) indicates a search of
+objects immediately below to the base object, but does not include the base
+object itself. A value of `sub` (representing `subtree` or `wholeSubtree`)
+indicates a search of both the base object itself and the entire subtree below
+it.
 """))
 
 page_size = cfg.IntOpt(
     'page_size',
     default=0,
+    min=0,
     help=utils.fmt("""
-Maximum results per page; a value of zero ("0") disables paging.
+Defines the maximum number of results per page that keystone should request
+from the LDAP server when listing objects. A value of zero (`0`) disables
+paging.
 """))
 
 alias_dereferencing = cfg.StrOpt(
@@ -94,12 +108,17 @@ alias_dereferencing = cfg.StrOpt(
     default='default',
     choices=['never', 'searching', 'always', 'finding', 'default'],
     help=utils.fmt("""
-The LDAP dereferencing option for queries. The "default" option falls back to
-using default dereferencing configured by your ldap.conf.
+The LDAP dereferencing option to use for queries involving aliases. A value of
+`default` falls back to using default dereferencing behavior configured by your
+`ldap.conf`. A value of `never` prevents aliases from being dereferenced at
+all. A value of `searching` dereferences aliases only after name resolution. A
+value of `finding` dereferences aliases only during name resolution. A value of
+`always` dereferences aliases in all cases.
 """))
 
 debug_level = cfg.IntOpt(
     'debug_level',
+    min=-1,
     help=utils.fmt("""
 Sets the LDAP debugging level for LDAP calls. A value of 0 means that debugging
 is not enabled. This value is a bitmask, consult your LDAP documentation for
@@ -109,114 +128,125 @@ possible values.
 chase_referrals = cfg.BoolOpt(
     'chase_referrals',
     help=utils.fmt("""
-Override the system's default referral chasing behavior for queries.
+Sets keystone's referral chasing behavior across directory partitions. If left
+unset, the system's default behavior will be used.
 """))
 
 user_tree_dn = cfg.StrOpt(
     'user_tree_dn',
     help=utils.fmt("""
-Search base for users. Defaults to the suffix value.
+The search base to use for users. Defaults to the `[ldap] suffix` value.
 """))
 
 user_filter = cfg.StrOpt(
     'user_filter',
     help=utils.fmt("""
-LDAP search filter for users.
+The LDAP search filter to use for users.
 """))
 
 user_objectclass = cfg.StrOpt(
     'user_objectclass',
     default='inetOrgPerson',
     help=utils.fmt("""
-LDAP objectclass for users.
+The LDAP object class to use for users.
 """))
 
 user_id_attribute = cfg.StrOpt(
     'user_id_attribute',
     default='cn',
     help=utils.fmt("""
-LDAP attribute mapped to user id. WARNING: must not be a multivalued
-attribute.
+The LDAP attribute mapped to user IDs in keystone. This must NOT be a
+multivalued attribute. User IDs are expected to be globally unique across
+keystone domains and URL-safe.
 """))
 
 user_name_attribute = cfg.StrOpt(
     'user_name_attribute',
     default='sn',
     help=utils.fmt("""
-LDAP attribute mapped to user name.
+The LDAP attribute mapped to user names in keystone. User names are expected to
+be unique only within a keystone domain and are not expected to be URL-safe.
 """))
 
 user_description_attribute = cfg.StrOpt(
     'user_description_attribute',
     default='description',
     help=utils.fmt("""
-LDAP attribute mapped to user description.
+The LDAP attribute mapped to user descriptions in keystone.
 """))
 
 user_mail_attribute = cfg.StrOpt(
     'user_mail_attribute',
     default='mail',
     help=utils.fmt("""
-LDAP attribute mapped to user email.
+The LDAP attribute mapped to user emails in keystone.
 """))
 
 user_pass_attribute = cfg.StrOpt(
     'user_pass_attribute',
     default='userPassword',
     help=utils.fmt("""
-LDAP attribute mapped to password.
+The LDAP attribute mapped to user passwords in keystone.
 """))
 
 user_enabled_attribute = cfg.StrOpt(
     'user_enabled_attribute',
     default='enabled',
     help=utils.fmt("""
-LDAP attribute mapped to user enabled flag.
+The LDAP attribute mapped to the user enabled attribute in keystone. If setting
+this option to `userAccountControl`, then you may be interested in setting
+`[ldap] user_enabled_mask` and `[ldap] user_enabled_default` as well.
 """))
 
 user_enabled_invert = cfg.BoolOpt(
     'user_enabled_invert',
     default=False,
     help=utils.fmt("""
-Invert the meaning of the boolean enabled values. Some LDAP servers use a
-boolean lock attribute where "true" means an account is disabled. Setting
-"user_enabled_invert = true" will allow these lock attributes to be used. This
-setting will have no effect if "user_enabled_mask" or "user_enabled_emulation"
-settings are in use.
+Logically negate the boolean value of the enabled attribute obtained from the
+LDAP server. Some LDAP servers use a boolean lock attribute where "true" means
+an account is disabled. Setting `[ldap] user_enabled_invert = true` will allow
+these lock attributes to be used. This option will have no effect if either the
+`[ldap] user_enabled_mask` or `[ldap] user_enabled_emulation` options are in
+use.
 """))
 
 user_enabled_mask = cfg.IntOpt(
     'user_enabled_mask',
     default=0,
+    min=0,
     help=utils.fmt("""
-Bitmask integer to indicate the bit that the enabled value is stored in if the
-LDAP server represents "enabled" as a bit on an integer rather than a boolean.
-A value of "0" indicates the mask is not used. If this is not set to "0" the
-typical value is "2". This is typically used when "user_enabled_attribute =
-userAccountControl".
+Bitmask integer to select which bit indicates the enabled value if the LDAP
+server represents "enabled" as a bit on an integer rather than as a discrete
+boolean. A value of `0` indicates that the mask is not used. If this is not set
+to `0` the typical value is `2`. This is typically used when `[ldap]
+user_enabled_attribute = userAccountControl`. Setting this option causes
+keystone to ignore the value of `[ldap] user_enabled_invert`.
 """))
 
 user_enabled_default = cfg.StrOpt(
     'user_enabled_default',
     default='True',
     help=utils.fmt("""
-Default value to enable users. This should match an appropriate int value if
-the LDAP server uses non-boolean (bitmask) values to indicate if a user is
-enabled or disabled. If this is not set to "True" the typical value is "512".
-This is typically used when "user_enabled_attribute = userAccountControl".
+The default value to enable users. This should match an appropriate integer
+value if the LDAP server uses non-boolean (bitmask) values to indicate if a
+user is enabled or disabled. If this is not set to `True`, then the typical
+value is `512`. This is typically used when `[ldap] user_enabled_attribute =
+userAccountControl`.
 """))
 
 user_attribute_ignore = cfg.ListOpt(
     'user_attribute_ignore',
     default=['default_project_id'],
     help=utils.fmt("""
-List of attributes stripped off the user on update.
+List of user attributes to ignore on create and update. This is only used for
+write operations.
 """))
 
 user_default_project_id_attribute = cfg.StrOpt(
     'user_default_project_id_attribute',
     help=utils.fmt("""
-LDAP attribute mapped to default_project_id for users.
+The LDAP attribute mapped to a user's default_project_id in keystone. This is
+most commonly used when keystone has write access to LDAP.
 """))
 
 user_allow_create = cfg.BoolOpt(
@@ -225,7 +255,7 @@ user_allow_create = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
-Allow user creation in LDAP backend.
+If enabled, keystone is allowed to create users in the LDAP server.
 """))
 
 user_allow_update = cfg.BoolOpt(
@@ -234,7 +264,7 @@ user_allow_update = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
-Allow user updates in LDAP backend.
+If enabled, keystone is allowed to update users in the LDAP server.
 """))
 
 user_allow_delete = cfg.BoolOpt(
@@ -243,94 +273,114 @@ user_allow_delete = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
-Allow user deletion in LDAP backend.
+If enabled, keystone is allowed to delete users in the LDAP server.
 """))
 
 user_enabled_emulation = cfg.BoolOpt(
     'user_enabled_emulation',
     default=False,
     help=utils.fmt("""
-If true, Keystone uses an alternative method to determine if a user is enabled
-or not by checking if they are a member of the "user_enabled_emulation_dn"
-group.
+If enabled, keystone uses an alternative method to determine if a user is
+enabled or not by checking if they are a member of the group defined by the
+`[ldap] user_enabled_emulation_dn` option. Enabling this option causes keystone
+to ignore the value of `[ldap] user_enabled_invert`.
 """))
 
 user_enabled_emulation_dn = cfg.StrOpt(
     'user_enabled_emulation_dn',
     help=utils.fmt("""
 DN of the group entry to hold enabled users when using enabled emulation.
+Setting this option has no effect unless `[ldap] user_enabled_emulation` is
+also enabled.
 """))
 
 user_enabled_emulation_use_group_config = cfg.BoolOpt(
     'user_enabled_emulation_use_group_config',
     default=False,
     help=utils.fmt("""
-Use the "group_member_attribute" and "group_objectclass" settings to determine
-membership in the emulated enabled group.
+Use the `[ldap] group_member_attribute` and `[ldap] group_objectclass` settings
+to determine membership in the emulated enabled group. Enabling this option has
+no effect unless `[ldap] user_enabled_emulation` is also enabled.
 """))
 
 user_additional_attribute_mapping = cfg.ListOpt(
     'user_additional_attribute_mapping',
     default=[],
     help=utils.fmt("""
-List of additional LDAP attributes used for mapping additional attribute
-mappings for users. Attribute mapping format is <ldap_attr>:<user_attr>, where
-ldap_attr is the attribute in the LDAP entry and user_attr is the Identity API
-attribute.
+A list of LDAP attribute to keystone user attribute pairs used for mapping
+additional attributes to users in keystone. The expected format is
+`<ldap_attr>:<user_attr>`, where `ldap_attr` is the attribute in the LDAP
+object and `user_attr` is the attribute which should appear in the identity
+API.
 """))
 
 group_tree_dn = cfg.StrOpt(
     'group_tree_dn',
     help=utils.fmt("""
-Search base for groups. Defaults to the suffix value.
+The search base to use for groups. Defaults to the `[ldap] suffix` value.
 """))
 
 group_filter = cfg.StrOpt(
     'group_filter',
     help=utils.fmt("""
-LDAP search filter for groups.
+The LDAP search filter to use for groups.
 """))
 
 group_objectclass = cfg.StrOpt(
     'group_objectclass',
     default='groupOfNames',
     help=utils.fmt("""
-LDAP objectclass for groups.
+The LDAP object class to use for groups. If setting this option to
+`posixGroup`, you may also be interested in enabling the `[ldap]
+group_members_are_ids` option.
 """))
 
 group_id_attribute = cfg.StrOpt(
     'group_id_attribute',
     default='cn',
     help=utils.fmt("""
-LDAP attribute mapped to group id.
+The LDAP attribute mapped to group IDs in keystone. This must NOT be a
+multivalued attribute. Group IDs are expected to be globally unique across
+keystone domains and URL-safe.
 """))
 
 group_name_attribute = cfg.StrOpt(
     'group_name_attribute',
     default='ou',
     help=utils.fmt("""
-LDAP attribute mapped to group name.
+The LDAP attribute mapped to group names in keystone. Group names are expected
+to be unique only within a keystone domain and are not expected to be URL-safe.
 """))
 
 group_member_attribute = cfg.StrOpt(
     'group_member_attribute',
     default='member',
     help=utils.fmt("""
-LDAP attribute mapped to show group membership.
+The LDAP attribute used to indicate that a user is a member of the group.
+"""))
+
+group_members_are_ids = cfg.BoolOpt(
+    'group_members_are_ids',
+    default=False,
+    help=utils.fmt("""
+Enable this option if the members of the group object class are keystone user
+IDs rather than LDAP DNs. This is the case when using `posixGroup` as the group
+object class in Open Directory.
 """))
 
 group_desc_attribute = cfg.StrOpt(
     'group_desc_attribute',
     default='description',
     help=utils.fmt("""
-LDAP attribute mapped to group description.
+The LDAP attribute mapped to group descriptions in keystone.
 """))
 
 group_attribute_ignore = cfg.ListOpt(
     'group_attribute_ignore',
     default=[],
     help=utils.fmt("""
-List of attributes stripped off the group on update.
+List of group attributes to ignore on create and update. This is only used for
+write operations.
 """))
 
 group_allow_create = cfg.BoolOpt(
@@ -339,7 +389,7 @@ group_allow_create = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
-Allow group creation in LDAP backend.
+If enabled, keystone is allowed to create groups in the LDAP server.
 """))
 
 group_allow_update = cfg.BoolOpt(
@@ -348,7 +398,7 @@ group_allow_update = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
-Allow group update in LDAP backend.
+If enabled, keystone is allowed to update groups in the LDAP server.
 """))
 
 group_allow_delete = cfg.BoolOpt(
@@ -357,36 +407,44 @@ group_allow_delete = cfg.BoolOpt(
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
-Allow group deletion in LDAP backend.
+If enabled, keystone is allowed to delete groups in the LDAP server.
 """))
 
 group_additional_attribute_mapping = cfg.ListOpt(
     'group_additional_attribute_mapping',
     default=[],
     help=utils.fmt("""
-Additional attribute mappings for groups. Attribute mapping format is
-<ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry and
-user_attr is the Identity API attribute.
+A list of LDAP attribute to keystone group attribute pairs used for mapping
+additional attributes to groups in keystone. The expected format is
+`<ldap_attr>:<group_attr>`, where `ldap_attr` is the attribute in the LDAP
+object and `group_attr` is the attribute which should appear in the identity
+API.
 """))
-
 
 tls_cacertfile = cfg.StrOpt(
     'tls_cacertfile',
     help=utils.fmt("""
-CA certificate file path for communicating with LDAP servers.
+An absolute path to a CA certificate file to use when communicating with LDAP
+servers. This option will take precedence over `[ldap] tls_cacertdir`, so there
+is no reason to set both.
 """))
 
 tls_cacertdir = cfg.StrOpt(
     'tls_cacertdir',
     help=utils.fmt("""
-CA certificate directory path for communicating with LDAP servers.
+An absolute path to a CA certificate directory to use when communicating with
+LDAP servers. There is no reason to set this option if you've also set `[ldap]
+tls_cacertfile`.
 """))
 
 use_tls = cfg.BoolOpt(
     'use_tls',
     default=False,
     help=utils.fmt("""
-Enable TLS for communicating with LDAP servers.
+Enable TLS when communicating with LDAP servers. You should also set the
+`[ldap] tls_cacertfile` and `[ldap] tls_cacertdir` options when using this
+option. Do not set this option if you are using LDAP over SSL (LDAPS) instead
+of TLS.
 """))
 
 tls_req_cert = cfg.StrOpt(
@@ -394,82 +452,95 @@ tls_req_cert = cfg.StrOpt(
     default='demand',
     choices=['demand', 'never', 'allow'],
     help=utils.fmt("""
-Specifies what checks to perform on client certificates in an incoming TLS
-session.
+Specifies which checks to perform against client certificates on incoming TLS
+sessions. If set to `demand`, then a certificate will always be requested and
+required from the LDAP server. If set to `allow`, then a certificate will
+always be requested but not required from the LDAP server. If set to `never`,
+then a certificate will never be requested.
 """))
 
 use_pool = cfg.BoolOpt(
     'use_pool',
     default=True,
     help=utils.fmt("""
-Enable LDAP connection pooling.
+Enable LDAP connection pooling for queries to the LDAP server. There is
+typically no reason to disable this.
 """))
 
 pool_size = cfg.IntOpt(
     'pool_size',
     default=10,
+    min=1,
     help=utils.fmt("""
-Connection pool size.
+The size of the LDAP connection pool. This option has no effect unless `[ldap]
+use_pool` is also enabled.
 """))
 
 pool_retry_max = cfg.IntOpt(
     'pool_retry_max',
     default=3,
+    min=0,
     help=utils.fmt("""
-Maximum count of reconnect trials.
+The maximum number of times to attempt reconnecting to the LDAP server before
+aborting. A value of zero prevents retries. This option has no effect unless
+`[ldap] use_pool` is also enabled.
 """))
 
 pool_retry_delay = cfg.FloatOpt(
     'pool_retry_delay',
     default=0.1,
     help=utils.fmt("""
-Time span in seconds to wait between two reconnect trials.
+The number of seconds to wait before attempting to reconnect to the LDAP
+server. This option has no effect unless `[ldap] use_pool` is also enabled.
 """))
 
 pool_connection_timeout = cfg.IntOpt(
     'pool_connection_timeout',
     default=-1,
+    min=-1,
     help=utils.fmt("""
-Connector timeout in seconds. Value -1 indicates indefinite wait for
-response.
+The connection timeout to use with the LDAP server. A value of `-1` means that
+connections will never timeout. This option has no effect unless `[ldap]
+use_pool` is also enabled.
 """))
 
 pool_connection_lifetime = cfg.IntOpt(
     'pool_connection_lifetime',
     default=600,
+    min=1,
     help=utils.fmt("""
-Connection lifetime in seconds.
+The maximum connection lifetime to the LDAP server in seconds. When this
+lifetime is exceeded, the connection will be unbound and removed from the
+connection pool. This option has no effect unless `[ldap] use_pool` is also
+enabled.
 """))
 
 use_auth_pool = cfg.BoolOpt(
     'use_auth_pool',
     default=True,
     help=utils.fmt("""
-Enable LDAP connection pooling for end user authentication. If use_pool is
-disabled, then this setting is meaningless and is not used at all.
+Enable LDAP connection pooling for end user authentication. There is typically
+no reason to disable this.
 """))
 
 auth_pool_size = cfg.IntOpt(
     'auth_pool_size',
     default=100,
+    min=1,
     help=utils.fmt("""
-End user auth connection pool size.
+The size of the connection pool to use for end user authentication. This option
+has no effect unless `[ldap] use_auth_pool` is also enabled.
 """))
 
 auth_pool_connection_lifetime = cfg.IntOpt(
     'auth_pool_connection_lifetime',
     default=60,
+    min=1,
     help=utils.fmt("""
-End user auth connection lifetime in seconds.
-"""))
-
-group_members_are_ids = cfg.BoolOpt(
-    'group_members_are_ids',
-    default=False,
-    help=utils.fmt("""
-If the members of the group objectclass are user IDs rather than DNs, set this
-to true. This is the case when using posixGroup as the group objectclass and
-OpenDirectory.
+The maximum end user authentication connection lifetime to the LDAP server in
+seconds. When this lifetime is exceeded, the connection will be unbound and
+removed from the connection pool. This option has no effect unless `[ldap]
+use_auth_pool` is also enabled.
 """))
 
 
@@ -514,6 +585,7 @@ ALL_OPTS = [
     group_id_attribute,
     group_name_attribute,
     group_member_attribute,
+    group_members_are_ids,
     group_desc_attribute,
     group_attribute_ignore,
     group_allow_create,
@@ -533,7 +605,6 @@ ALL_OPTS = [
     use_auth_pool,
     auth_pool_size,
     auth_pool_connection_lifetime,
-    group_members_are_ids,
 ]
 
 
