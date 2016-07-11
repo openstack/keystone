@@ -19,16 +19,18 @@ driver = cfg.StrOpt(
     'driver',
     default='sql',
     help=utils.fmt("""
-Entrypoint for an implementation of the backend for persisting revocation
-events in the keystone.revoke namespace. Supplied drivers are kvs and sql.
+Entry point for the token revocation backend driver in the `keystone.revoke`
+namespace. Keystone only provides a `sql` driver, so there is no reason to set
+this option unless you are providing a custom entry point.
 """))
 
 expiration_buffer = cfg.IntOpt(
     'expiration_buffer',
     default=1800,
+    min=0,
     help=utils.fmt("""
-This value (calculated in seconds) is added to token expiration before a
-revocation event may be removed from the backend.
+The number of seconds after a token has expired before a corresponding
+revocation event may be purged from the backend.
 """))
 
 caching = cfg.BoolOpt(
@@ -46,7 +48,7 @@ cache_time = cfg.IntOpt(
         cfg.DeprecatedOpt('revocation_cache_time', group='token')],
     help=utils.fmt("""
 Time to cache the revocation list and the revocation events (in seconds). This
-has no effect unless global and token caching are enabled.
+has no effect unless global and `[revoke] caching` are both enabled.
 """))
 
 
