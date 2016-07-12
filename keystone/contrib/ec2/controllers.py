@@ -364,7 +364,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
     def __init__(self):
         super(Ec2ControllerV3, self).__init__()
 
-    def _check_credential_owner_and_user_id_match(self, context, prep_info,
+    def _check_credential_owner_and_user_id_match(self, request, prep_info,
                                                   user_id, credential_id):
         # NOTE(morganfainberg): this method needs to capture the arguments of
         # the method that is decorated with @controller.protected() (with
@@ -378,7 +378,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         ref['credential'] = self.credential_api.get_credential(credential_id)
         # NOTE(morganfainberg): policy_api is required for this
         # check_protection to properly be able to perform policy enforcement.
-        self.check_protection(context, prep_info, ref)
+        self.check_protection(request, prep_info, ref)
 
     def authenticate(self, context, credentials=None, ec2Credentials=None):
         (user_ref, project_ref, metadata_ref, roles_ref,
