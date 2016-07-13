@@ -49,8 +49,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
    - policy_id: policy_id
+   - endpoint_id: endpoint_id
 
 
 Verify a policy and endpoint association
@@ -69,8 +69,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
    - policy_id: policy_id
+   - endpoint_id: endpoint_id
 
 
 Delete a policy and endpoint association
@@ -87,8 +87,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
    - policy_id: policy_id
+   - endpoint_id: endpoint_id
 
 
 Associate policy and service-type endpoint
@@ -108,8 +108,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - service_id: service_id
    - policy_id: policy_id
+   - service_id: service_id
 
 
 Verify a policy and service-type endpoint association
@@ -128,8 +128,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - service_id: service_id
    - policy_id: policy_id
+   - service_id: service_id
 
 
 Delete a policy and service-type endpoint association
@@ -146,8 +146,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - service_id: service_id
    - policy_id: policy_id
+   - service_id: service_id
 
 
 Show policy for endpoint
