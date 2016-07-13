@@ -12,8 +12,8 @@ List user global roles
 
 Lists global roles for a user. Excludes tenant roles.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -47,7 +47,8 @@ Create user (admin endpoint)
 
 Creates a user.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -89,8 +90,8 @@ Lists all users.
 To show detailed information about a user by name, include the
 ``name`` query parameter in the request.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
@@ -118,7 +119,8 @@ Update user (admin endpoint)
 
 Updates a user.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -155,7 +157,8 @@ Delete user (admin endpoint)
 
 Deletes a user.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -189,8 +192,8 @@ name:
 - `Show details for user <http://developer.openstack.org/api-ref-
   identity-admin-v2.html#admin-showUser>`_.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
