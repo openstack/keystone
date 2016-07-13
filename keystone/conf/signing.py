@@ -22,9 +22,11 @@ certfile = cfg.StrOpt(
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
-Path of the certfile for token signing. For non-production environments, you
-may be interested in using `keystone-manage pki_setup` to generate self-signed
-certificates.
+Absolute path to the public certificate file to use for signing PKI and PKIZ
+tokens. Set this together with `[signing] keyfile`. For non-production
+environments, you may be interested in using `keystone-manage pki_setup` to
+generate self-signed certificates. There is no reason to set this option unless
+you are using either a `pki` or `pkiz` `[token] provider`.
 """))
 
 keyfile = cfg.StrOpt(
@@ -33,7 +35,9 @@ keyfile = cfg.StrOpt(
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
-Path of the keyfile for token signing.
+Absolute path to the private key file to use for signing PKI and PKIZ tokens.
+Set this together with `[signing] certfile`. There is no reason to set this
+option unless you are using either a `pki` or `pkiz` `[token] provider`.
 """))
 
 ca_certs = cfg.StrOpt(
@@ -42,7 +46,12 @@ ca_certs = cfg.StrOpt(
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     default='/etc/keystone/ssl/certs/ca.pem',
     help=utils.fmt("""
-Path of the CA for token signing.
+Absolute path to the public certificate authority (CA) file to use when
+creating self-signed certificates with `keystone-manage pki_setup`. Set this
+together with `[signing] ca_key`. There is no reason to set this option unless
+you are using a `pki` or `pkiz` `[token] provider` value in a non-production
+environment. Use a `[signing] certfile` issued from a trusted certificate
+authority instead.
 """))
 
 ca_key = cfg.StrOpt(
@@ -51,7 +60,12 @@ ca_key = cfg.StrOpt(
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
-Path of the CA key for token signing.
+Absolute path to the private certificate authority (CA) key file to use when
+creating self-signed certificates with `keystone-manage pki_setup`. Set this
+together with `[signing] ca_certs`. There is no reason to set this option
+unless you are using a `pki` or `pkiz` `[token] provider` value in a
+non-production environment. Use a `[signing] certfile` issued from a trusted
+certificate authority instead.
 """))
 
 key_size = cfg.IntOpt(
@@ -61,7 +75,10 @@ key_size = cfg.IntOpt(
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
-Key size (in bits) for token signing cert (auto generated certificate).
+Key size (in bits) to use when generating a self-signed token signing
+certificate. There is no reason to set this option unless you are using a `pki`
+or `pkiz` `[token] provider` value in a non-production environment. Use a
+`[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
 valid_days = cfg.IntOpt(
@@ -70,7 +87,10 @@ valid_days = cfg.IntOpt(
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
-Days the token signing cert is valid for (auto generated certificate).
+The validity period (in days) to use when generating a self-signed token
+signing certificate. There is no reason to set this option unless you are using
+a `pki` or `pkiz` `[token] provider` value in a non-production environment. Use
+a `[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
 cert_subject = cfg.StrOpt(
@@ -79,7 +99,10 @@ cert_subject = cfg.StrOpt(
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     default=('/C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com'),
     help=utils.fmt("""
-Certificate subject (auto generated certificate) for token signing.
+The certificate subject to use when generating a self-signed token signing
+certificate. There is no reason to set this option unless you are using a `pki`
+or `pkiz` `[token] provider` value in a non-production environment. Use a
+`[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
 
