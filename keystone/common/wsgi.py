@@ -92,27 +92,31 @@ def validate_token_bind(context, token_ref):
 
     for bind_type, identifier in bind.items():
         if bind_type == 'kerberos':
-            if not (context['environment'].get('AUTH_TYPE', '').lower()
-                    == 'negotiate'):
-                LOG.info(_LI("Kerberos credentials required and not present"))
-                raise exception.Unauthorized()
+            if (context['environment'].get('AUTH_TYPE', '').lower() !=
+                    'negotiate'):
+                msg = _('Kerberos credentials required and not present')
+                LOG.info(msg)
+                raise exception.Unauthorized(msg)
 
-            if not context['environment'].get('REMOTE_USER') == identifier:
-                LOG.info(_LI("Kerberos credentials do not match "
-                             "those in bind"))
-                raise exception.Unauthorized()
+            if context['environment'].get('REMOTE_USER') != identifier:
+                msg = _('Kerberos credentials do not match those in bind')
+                LOG.info(msg)
+                raise exception.Unauthorized(msg)
 
-            LOG.info(_LI("Kerberos bind authentication successful"))
+            LOG.info(_LI('Kerberos bind authentication successful'))
 
         elif bind_mode == 'permissive':
-            LOG.debug(("Ignoring unknown bind for permissive mode: "
-                       "{%(bind_type)s: %(identifier)s}"),
-                      {'bind_type': bind_type, 'identifier': identifier})
+            LOG.debug(("Ignoring unknown bind (due to permissive mode): "
+                       "{%(bind_type)s: %(identifier)s}"), {
+                           'bind_type': bind_type,
+                           'identifier': identifier})
         else:
-            LOG.info(_LI("Couldn't verify unknown bind: "
-                         "{%(bind_type)s: %(identifier)s}"),
-                     {'bind_type': bind_type, 'identifier': identifier})
-            raise exception.Unauthorized()
+            msg = _('Could not verify unknown bind: {%(bind_type)s: '
+                    '%(identifier)s}') % {
+                        'bind_type': bind_type,
+                        'identifier': identifier}
+            LOG.info(msg)
+            raise exception.Unauthorized(msg)
 
 
 def best_match_language(req):
