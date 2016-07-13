@@ -19,8 +19,11 @@ driver = cfg.StrOpt(
     'driver',
     default='sql',
     help=utils.fmt("""
-Entrypoint for the shadow users backend driver in the
-keystone.identity.shadow_users namespace.
+Entry point for the shadow users backend driver in the
+`keystone.identity.shadow_users` namespace. This driver is used for persisting
+local user references to externally-managed identities (via federation, LDAP,
+etc). Keystone only provides a `sql` driver, so there is no reason to change
+this option unless you are providing a custom entry point.
 """))
 
 
