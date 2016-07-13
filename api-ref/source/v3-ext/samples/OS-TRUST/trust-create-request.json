@@ -1,14 +1,15 @@
 {
     "trust": {
-        "expires_at": "2014-12-30T23:59:59.999999Z",
-        "impersonation": false,
-        "project_id": "'$PROJECT_ID'",
+        "expires_at": "2013-02-27T18:30:59.999999Z",
+        "impersonation": true,
+        "allow_redelegation": true,
+        "project_id": "ddef321",
         "roles": [
             {
-                "name": "admin"
+                "name": "member"
             }
         ],
-        "trustee_user_id": "'$DEMO_USER_ID'",
-        "trustor_user_id": "'$ADMIN_USER_ID'"
+        "trustee_user_id": "86c0d5",
+        "trustor_user_id": "a0fdfd"
     }
 }

@@ -1,0 +1,17 @@
+{
+    "auth": {
+        "identity": {
+            "methods": [
+                "token"
+            ],
+            "token": {
+                "id": "e80b74"
+            }
+        },
+        "scope": {
+            "OS-TRUST:trust": {
+                "id": "de0945a"
+            }
+        }
+    }
+}
