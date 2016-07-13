@@ -16,7 +16,8 @@ Grant roles to user on tenant
 
 Grants a role to a user for a tenant.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -35,7 +36,8 @@ Revoke role from user on tenant
 
 Revokes a role from a user for a tenant.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -54,8 +56,8 @@ Shows service information by ID
 
 Shows information for a service, by ID.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -88,7 +90,8 @@ Delete service (admin extension)
 
 Deletes a service.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -105,8 +108,8 @@ List users on a tenant
 
 Lists all users for a tenant.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -130,7 +133,7 @@ Enable user
 Enables a user.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -169,8 +172,8 @@ List roles (admin extension)
 
 Lists all roles.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
@@ -197,8 +200,8 @@ List users (admin extension)
 
 Lists all users.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
@@ -225,7 +228,8 @@ Create user (admin extension)
 
 Creates a user.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -263,8 +267,8 @@ Show role information by name
 
 Shows information for a role, by name.
 
-Normal response codes: 200
-Error response codes:203,413,415,405,404,403,401,400,503,409,
+Normal response codes: 200,203
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Response Parameters
 -------------------
@@ -290,7 +294,8 @@ Grant global role to user
 
 Grants a global role to a user.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -308,7 +313,8 @@ Delete global role from user
 
 Deletes a global role from a user.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -326,8 +332,8 @@ List services (admin extension)
 
 Lists all services.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
@@ -353,7 +359,8 @@ Create service (admin extension)
 
 Creates a service.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request Example
 ---------------
@@ -380,8 +387,8 @@ Show service information by name
 
 Shows information for a service, by name.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
@@ -407,7 +414,8 @@ Create role (admin extension)
 
 Creates a role.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request Example
 ---------------
@@ -430,7 +438,8 @@ Create tenant
 
 Creates a tenant.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request Example
 ---------------
@@ -457,8 +466,8 @@ List global roles for user
 
 Lists global roles for a user.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -482,7 +491,7 @@ Update tenant
 Updates a tenant.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -527,7 +536,8 @@ Delete tenant
 
 Deletes a tenant.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -544,8 +554,8 @@ Show role details, by ID
 
 Shows details for a role, by ID.
 
-Normal response codes: 200
-Error response codes:203,413,415,405,404,403,401,400,503,409,
+Normal response codes: 200,203
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -578,7 +588,8 @@ Delete role (admin extension)
 
 Deletes a role.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -596,7 +607,7 @@ Update user (admin extension)
 Updates a user.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -636,7 +647,8 @@ Delete user (admin extension)
 
 Deletes a user.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
