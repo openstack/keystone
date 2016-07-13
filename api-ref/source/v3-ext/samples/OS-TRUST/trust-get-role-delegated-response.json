@@ -1,0 +1,9 @@
+{
+    "role": {
+        "id": "c1648e",
+        "links": {
+            "self": "http://identity:35357/v3/roles/c1648e"
+        },
+        "name": "manager"
+    }
+}

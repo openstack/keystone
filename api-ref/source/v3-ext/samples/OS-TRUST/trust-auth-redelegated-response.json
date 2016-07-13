@@ -1,0 +1,45 @@
+{
+    "token": {
+        "expires_at": "2013-02-27T18:30:59.999999Z",
+        "issued_at": "2013-02-27T16:30:59.999999Z",
+        "methods": [
+            "password"
+        ],
+        "OS-TRUST:trust": {
+            "id": "fe0aef",
+            "impersonation": false,
+            "redelegated_trust_id": "3ba234",
+            "redelegation_count": 2,
+            "links": {
+                "self": "http://identity:35357/v3/trusts/fe0aef"
+            },
+            "trustee_user": {
+                "id": "0ca8f6",
+                "links": {
+                    "self": "http://identity:35357/v3/users/0ca8f6"
+                }
+            },
+            "trustor_user": {
+                "id": "bd263c",
+                "links": {
+                    "self": "http://identity:35357/v3/users/bd263c"
+                }
+            }
+        },
+        "user": {
+            "domain": {
+                "id": "1789d1",
+                "links": {
+                    "self": "http://identity:35357/v3/domains/1789d1"
+                },
+                "name": "example.com"
+            },
+            "email": "joe@example.com",
+            "id": "0ca8f6",
+            "links": {
+                "self": "http://identity:35357/v3/users/0ca8f6"
+            },
+            "name": "Joe"
+        }
+    }
+}

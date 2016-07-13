@@ -67,6 +67,12 @@ service_id:
   in: path
   required: false
   type: string
+trust_id:
+  description: |
+    The trust ID.
+  in: path
+  required: false
+  type: string
 user_id:
   description: |
     The UUID of the user.
@@ -77,6 +83,14 @@ user_id:
 # variables in query
 
 # variables in body
+allow_redelegation:
+  description: |
+    If set to `true` then a trust between a ``trustor`` and any third-party
+    user may be issued by the ``trustee`` just like a regular trust.
+    If set to `false`, stops further redelegation. `false` by default.
+  in: body
+  required: false
+  type: boolean
 blob:
   description: |
     The policy rule itself, as a serialized blob.
@@ -121,9 +135,13 @@ id_2:
   type: string
 impersonation:
   description: |
-    The impersonation flag. Default is false.
+    If set to `true`, then the user attribute of tokens generated based on the
+    trust will represent that of the ``trustor`` rather than the ``trustee``,
+    thus allowing the ``trustee`` to impersonate the ``trustor``. If impersonation
+    is set to `false`, then the token’s user attribute will represent that of the
+    ``trustee``.
   in: body
-  required: false
+  required: true
   type: boolean
 interface:
   description: |
@@ -138,7 +156,7 @@ interface:
   type: string
 links:
   description: |
-    Trust links.
+    A links object.
   in: body
   required: true
   type: object
@@ -213,6 +231,37 @@ project_id_1:
   in: body
   required: true
   type: string
+redelegated_trust_id:
+  description: |
+    Returned with redelegated trust provides information about the predecessor
+    in the trust chain.
+  in: body
+  required: false
+  type: string
+redelegation_count:
+  description: |
+    Specifies the maximum remaining depth of the redelegated trust chain.
+    Each subsequent trust has this field decremented by `1` automatically.
+    The initial ``trustor`` issuing new trust that can be redelegated, must
+    set ``allow_redelegation`` to `true` and may set ``redelegation_count``
+    to an integer value less than or equal to ``max_redelegation_count``
+    configuration parameter in order to limit the possible length of derivated
+    trust chains. The trust issued by the trustor using a project-scoped token
+    (not redelegating), in which ``allow_redelegation`` is set to `true` (the new
+    trust is redelegatable), will be populated with the value specified in the
+    ``max_redelegation_count`` configuration parameter if ``redelegation_count``
+    is not set or set to `null`. If ``allow_redelegation`` is set to `false`
+    then ``redelegation_count`` will be set to `0` in the trust.
+
+    If the trust is being issued by the ``trustee`` of a redelegatable trust-scoped
+    token (redelegation case) then ``redelegation_count`` should not be set, as it
+    will automatically be set to the value in the redelegatable trust-scoped token
+    decremented by `1`. Note, if the resulting value is `0`, this means that the new
+    trust will not be redelegatable, regardless of the value of ``allow_redelegation``.
+
+  in: body
+  required: false
+  type: integer
 region:
   description: |
     (Deprecated in v3.2) The geographic location of
@@ -222,7 +271,11 @@ region:
   type: string
 remaining_uses:
   description: |
-    Remaining uses flag. Default is null.
+    Specifies how many times the trust can be used to obtain a token. This value
+    is decreased each time a token is issued through the trust. Once it reaches
+    `0`, no further tokens will be issued through the trust. The default value is
+    `null`, meaning there is no limit on the number of tokens issued through the
+    trust. If redelegation is enabled it must not be set.
   in: body
   required: false
   type: boolean
@@ -265,18 +318,61 @@ trust:
   in: body
   required: true
   type: object
+trust_expires_at:
+  description: |
+    Specifies the expiration time of the trust. A trust may be revoked ahead of
+    expiration. If the value represents a time in the past, the trust is deactivated.
+    In the redelegation case it must not exceed the value of the corresponding
+    ``expires_at`` field of the redelegated trust or it may be omitted, then the
+    ``expires_at`` value is copied from the redelegated trust.
+  in: body
+  required: false
+  type: string
+trust_links:
+  description: |
+    A trust links object. Includes ``next``, ``previous``, and ``self`` links for trusts.
+  in: body
+  required: true
+  type: object
+trust_project_id:
+  description: |
+    Identifies the project upon which the trustor is delegating authorization.
+  in: body
+  required: false
+  type: string
+trust_roles:
+  description: |
+    Specifies the subset of the trustor’s roles on the ``project_id`` to be granted
+    to the ``trustee`` when the token is consumed. The ``trustor`` must already be
+    granted these roles in the project referenced by the ``project_id`` attribute.
+    If redelegation is used (when trust-scoped token is used and consumed trust has
+    ``allow_redelegation`` set to `true`) this parameter should contain redelegated
+    trust’s roles only.
+
+    Roles are only provided when the trust is created, and are subsequently available
+    as a separate read-only collection. Each role can be specified by either ``id`` or
+    ``name``.
+  in: body
+  required: false
+  type: list
 trustee_user_id:
   description: |
-    The trustee user ID.
+    Represents the user who is capable of consuming the trust.
   in: body
   required: true
   type: string
 trustor_user_id:
   description: |
-    The trustor user ID.
+    Represents the user who created the trust, and who’s authorization is being delegated.
   in: body
   required: true
   type: string
+trusts:
+  description: |
+    An array of trust objects.
+  in: body
+  required: true
+  type: array
 type:
   description: |
     The MIME media type of the serialized policy
