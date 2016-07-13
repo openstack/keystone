@@ -133,6 +133,18 @@ name_3:
   in: body
   required: true
   type: string
+new_password:
+  description: |
+    User's new password
+  in: body
+  required: true
+  type: string
+original_password:
+  description: |
+    User's old password
+  in: body
+  required: true
+  type: string
 roles:
   description: |
     A ``roles`` object.
