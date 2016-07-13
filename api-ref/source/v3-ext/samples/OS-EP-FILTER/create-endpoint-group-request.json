@@ -1,0 +1,10 @@
+{
+    "endpoint_group": {
+        "description": "endpoint group description",
+        "filters": {
+            "interface": "admin",
+            "service_id": "1b501"
+        }
+        "name": "endpoint group name"
+    }
+}
