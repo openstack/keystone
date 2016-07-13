@@ -212,6 +212,10 @@ class MissingGroups(Unauthorized):
                        "mapping %(mapping_id)s")
 
 
+class UserDisabled(Unauthorized):
+    message_format = _("The account is disabled for user: %(user_id)s")
+
+
 class AuthMethodNotSupported(AuthPluginException):
     message_format = _("Attempted to authenticate with an unsupported method.")
 

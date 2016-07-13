@@ -827,7 +827,9 @@ class Manager(manager.Manager):
         ref = driver.authenticate(entity_id, password)
         ref = self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
-        return self._shadow_nonlocal_user(ref)
+        ref = self._shadow_nonlocal_user(ref)
+        self.shadow_users_api.set_last_active_at(ref['id'])
+        return ref
 
     def _assert_default_project_id_is_not_domain(self, default_project_id):
         if default_project_id:
@@ -1260,6 +1262,7 @@ class Manager(manager.Manager):
             }
             user_dict = self.shadow_users_api.create_federated_user(
                 federated_dict)
+        self.shadow_users_api.set_last_active_at(user_dict['id'])
         return user_dict
 
 
