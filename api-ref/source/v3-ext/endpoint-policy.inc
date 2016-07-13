@@ -212,7 +212,7 @@ Request
 Associate policy and service-type endpoint in a region
 ======================================================
 
-.. rest_method::  PUT /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/regions/{region_id}
+.. rest_method::  PUT /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}/regions/{region_id}
 
 Associates a policy and an endpoint of a service type in a region.
 
@@ -226,14 +226,15 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - region_id: region_id
    - policy_id: policy_id
+   - service_id: service_id
+   - region_id: region_id
 
 
 Verify a policy and service-type endpoint in a region association
 =================================================================
 
-.. rest_method::  GET /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/regions/{region_id}
+.. rest_method::  GET /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}/regions/{region_id}
 
 Verifies an association between a policy and service-type endpoint in a region.
 
@@ -246,14 +247,15 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - region_id: region_id
    - policy_id: policy_id
+   - service_id: service_id
+   - region_id: region_id
 
 
 Delete a policy and service-type endpoint in a region association
 =================================================================
 
-.. rest_method::  DELETE /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/regions/{region_id}
+.. rest_method::  DELETE /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}/regions/{region_id}
 
 Deletes an association between a policy and service-type endpoint in a region.
 
@@ -264,8 +266,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - region_id: region_id
    - policy_id: policy_id
+   - service_id: service_id
+   - region_id: region_id
 
 
 List policy and service endpoint associations
