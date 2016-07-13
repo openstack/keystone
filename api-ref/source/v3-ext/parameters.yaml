@@ -76,6 +76,15 @@ user_id:
 
 # variables in query
 
+since:
+  description: |
+    A timestamp used to limit the list of results to events
+    that occurred on or after the specified time.
+    (RFC 1123 format date time)
+  in: query
+  required: false
+  type: string
+
 # variables in body
 blob:
   description: |
@@ -229,6 +238,108 @@ remaining_uses:
 requested_project_id:
   description: |
     The ID of the requested project.
+  in: body
+  required: true
+  type: string
+revoke_audit_chain_id:
+  description: |
+    Specifies a group of tokens based upon the ``audit_id`` of the
+    first token in the chain.
+
+    If a revocation event specifies the ``audit_chain_id`` any
+    token that is part of the token chain (based upon the original
+    token at the start of the chain) will be revoked, including
+    the original token at the start of the chain.
+
+    If an event is issued for ``audit_chain_id`` then the event cannot
+    contain an ``audit_id``.
+  in: body
+  required: true
+  type: string
+revoke_audit_id:
+  description: |
+    Specifies the unique identifier (UUID) assigned to the token
+    itself.
+
+    This will revoke a single token only. This attribute mirrors
+    the use of the Token Revocation List (the mechanism used
+    prior to revocation events) but does not utilize data that
+    could convey authorization (the token id).
+
+    If an event is issued for ``audit_id`` then the event cannot
+    contain an ``audit_chain_id``.
+  in: body
+  required: true
+  type: string
+revoke_consumer_id:
+  description: |
+    Revoke tokens issued to a specific OAuth consumer, as part
+    of the OS-OAUTH1 API extension.
+  in: body
+  required: true
+  type: string
+revoke_domain_id:
+  description: |
+    Revoke tokens scoped to a particular domain.
+  in: body
+  required: true
+  type: string
+revoke_events:
+  description: |
+    List of recovation events.
+  in: body
+  required: true
+  type: string
+revoke_expires_at:
+  description: |
+    Specifies the exact expiration time of one or more tokens to
+    be revoked.
+
+    This attribute is useful for revoking chains of tokens, such
+    as those produced when re-scoping an existing token. When a
+    token is issued based on initial authentication, it is given
+    an expires_at value. When a token is used to get another
+    token, the new token will have the same expires_at value as
+    the original.
+  in: body
+  required: true
+  type: string
+revoke_issued_before:
+  description: |
+    (string, ISO 8601 extended format date time with
+    microseconds).
+
+    Tokens issued before this time are considered revoked.
+
+    This attribute can be used to determine how long the
+    expiration event is valid. It can also be used in
+    queries to filter events, so that only a subset that
+    have occurred since the last request are returned.
+  in: body
+  required: true
+  type: string
+revoke_project_id:
+  description: |
+    Revoke tokens scoped to a particular project.
+  in: body
+  required: true
+  type: string
+revoke_role_id:
+  description: |
+    Revoke tokens issued with a specific role.
+  in: body
+  required: true
+  type: string
+revoke_trust_id:
+  description: |
+    Revoke tokens issued as the result of a particular
+    trust, as part of the OS-TRUST API extension.
+  in: body
+  required: true
+  type: string
+revoke_user_id:
+  description: |
+    Revoke tokens expressing the identity of a particular user.
   in: body
   required: true
   type: string

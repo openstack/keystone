@@ -1,0 +1,22 @@
+{
+    "events": [
+        {
+            "issued_before": "2014-02-27T18:30:59.999999Z",
+            "user_id": "f287de"
+        },
+        {
+            "audit_id": "VcxU2JYqT8OzfUVvrjEITQ",
+            "issued_before": "2014-02-27T18:30:59.999999Z"
+        },
+        {
+            "audit_chain_id": "VcxU2JYqT8OzfUVvrjEITQ",
+            "issued_before": "2014-02-27T18:30:59.999999Z",
+            "project_id": "976bf9"
+        },
+        {
+            "domain_id": "be2c70",
+            "issued_before": "2014-02-2805:15:59.999999Z",
+            "user_id": "f287de"
+        }
+    ]
+}
