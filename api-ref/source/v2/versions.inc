@@ -12,8 +12,8 @@ Show version details
 
 Shows details for the Identity API v2.0.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Example
 ----------------
@@ -29,8 +29,8 @@ List versions
 
 Lists information about all Identity API versions.
 
-Normal response codes: 200
-Error response codes:300,413,405,404,403,401,400,503,
+Normal response codes: 200,300
+Error response codes: 413,405,404,403,401,400,503
 
 Response Example
 ----------------
