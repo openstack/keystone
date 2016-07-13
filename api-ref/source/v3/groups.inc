@@ -10,14 +10,13 @@ When you grant a role to a group, you explicitly associate that
 group with a project or domain. This action is equivalent to
 granting the role to each group member on that project and domain.
 
-When you grant a role to a group, that role is automatically
-granted to any user that you add to the group. When you revoke a
-role from a group, that role is automatically revoked from any user
-that you remove from the group. Any token that authenticates that
-user, project, and domain is revoked.
+When you grant a role to a group, that role is automatically granted to any
+user within the group. When you revoke a role from a group, that role is
+automatically revoked from any user within the group. Any token that
+authenticates that user, project, and domain is revoked.
 
-As with users, a group without any role grants is useless from the
-perspective an OpenStack service and has no access to resources.
+As with users, a group without any role assignments is useless from the
+perspective of an OpenStack service and has no access to resources.
 However, a group without role grants is permitted as a way of
 acquiring or loading users and groups from external sources before
 mapping them to projects and domains.
@@ -150,7 +149,8 @@ Remove user from group
 
 Removes a user from a group.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes:413,415,405,404,403,401,400,503,409,
 
 Request
 -------
@@ -168,7 +168,8 @@ Check whether user belongs to group
 
 Validates that a user belongs to a group.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes:413,405,404,403,401,400,503,
 
 Request
 -------
@@ -223,7 +224,8 @@ Create group
 
 Creates a group.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes:413,415,405,404,403,401,400,503,409,
 
 Request
 -------
