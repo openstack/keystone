@@ -4,13 +4,13 @@
         "expires_at": "2013-02-27T18:30:59.999999Z",
         "impersonation": true,
         "links": {
-            "self": "http://identity:35357/v3/OS-TRUST/trusts/987fe8"
+            "self": "http://example.com/identity/v3/OS-TRUST/trusts/987fe8"
         },
         "roles": [
             {
                 "id": "ed7b78",
                 "links": {
-                    "self": "http://identity:35357/v3/roles/ed7b78"
+                    "self": "http://example.com/identity/v3/roles/ed7b78"
                 },
                 "name": "member"
             }
@@ -18,7 +18,7 @@
         "roles_links": {
             "next": null,
             "previous": null,
-            "self": "http://identity:35357/v3/OS-TRUST/trusts/1ff900/roles"
+            "self": "http://example.com/identity/v3/OS-TRUST/trusts/1ff900/roles"
         },
         "project_id": "0f1233",
         "trustee_user_id": "be34d1",

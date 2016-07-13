@@ -2,7 +2,7 @@
     "role": {
         "id": "1e443fa8cee3482a8a2b6954dd5c8f12",
         "links": {
-            "self": "http://localhost:5000/v3/roles/1e443fa8cee3482a8a2b6954dd5c8f12"
+            "self": "http://example.com/identity/v3/roles/1e443fa8cee3482a8a2b6954dd5c8f12"
         },
         "name": "developer"
     }

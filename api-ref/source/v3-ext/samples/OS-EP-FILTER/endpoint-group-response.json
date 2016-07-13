@@ -7,7 +7,7 @@
         },
         "id": "ac4861",
         "links": {
-            "self": "http://identity:35357/v3/OS-EP-FILTER/endpoint_groups/ac4861"
+            "self": "http://example.com/identity/v3/OS-EP-FILTER/endpoint_groups/ac4861"
         },
         "name": "endpoint group name"
     }

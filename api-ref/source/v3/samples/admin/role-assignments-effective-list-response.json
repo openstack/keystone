@@ -2,7 +2,7 @@
     "role_assignments": [
         {
             "links": {
-                "assignment": "http://identity:35357/v3/domains/161718/users/313233/roles/123456"
+                "assignment": "http://example.com/identity/v3/domains/161718/users/313233/roles/123456"
             },
             "role": {
                 "id": "123456"
@@ -18,8 +18,8 @@
         },
         {
             "links": {
-                "assignment": "http://identity:35357/v3/projects/456789/groups/101112/roles/123456",
-                "membership": "http://identity:35357/v3/groups/101112/users/313233"
+                "assignment": "http://example.com/identity/v3/projects/456789/groups/101112/roles/123456",
+                "membership": "http://example.com/identity/v3/groups/101112/users/313233"
             },
             "role": {
                 "id": "123456"
@@ -35,7 +35,7 @@
         }
     ],
     "links": {
-        "self": "http://identity:35357/v3/role_assignments?effective",
+        "self": "http://example.com/identity/v3/role_assignments?effective",
         "previous": null,
         "next": null
     }

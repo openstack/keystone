@@ -3,7 +3,7 @@
         "id": "v3.4",
         "links": [
             {
-                "href": "http://localhost:5000/v3/",
+                "href": "http://example.com/identity/v3/",
                 "rel": "self"
             }
         ],

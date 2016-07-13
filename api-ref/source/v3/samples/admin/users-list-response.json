@@ -2,7 +2,7 @@
     "links": {
         "next": null,
         "previous": null,
-        "self": "http://localhost:5000/v3/users"
+        "self": "http://example.com/identity/v3/users"
     },
     "users": [
         {
@@ -11,7 +11,7 @@
             "enabled": true,
             "id": "2844b2a08be147a08ef58317d6471f1f",
             "links": {
-                "self": "http://localhost:5000/v3/users/2844b2a08be147a08ef58317d6471f1f"
+                "self": "http://example.com/identity/v3/users/2844b2a08be147a08ef58317d6471f1f"
             },
             "name": "glance"
         },
@@ -21,7 +21,7 @@
             "enabled": true,
             "id": "4ab84ab39de54f4d96eaff8f2145a7cd",
             "links": {
-                "self": "http://localhost:5000/v3/users/4ab84ab39de54f4d96eaff8f2145a7cd"
+                "self": "http://example.com/identity/v3/users/4ab84ab39de54f4d96eaff8f2145a7cd"
             },
             "name": "swiftusertest1"
         },
@@ -31,7 +31,7 @@
             "enabled": true,
             "id": "56696a9a04864d63877a3d06a6f0b24b",
             "links": {
-                "self": "http://localhost:5000/v3/users/56696a9a04864d63877a3d06a6f0b24b"
+                "self": "http://example.com/identity/v3/users/56696a9a04864d63877a3d06a6f0b24b"
             },
             "name": "swift"
         },
@@ -41,7 +41,7 @@
             "enabled": true,
             "id": "5acb638d15da44fc8de41b9a4bd41875",
             "links": {
-                "self": "http://localhost:5000/v3/users/5acb638d15da44fc8de41b9a4bd41875"
+                "self": "http://example.com/identity/v3/users/5acb638d15da44fc8de41b9a4bd41875"
             },
             "name": "alt_demo"
         },
@@ -51,7 +51,7 @@
             "enabled": true,
             "id": "7596e862b1af473c8ed6ae99d35b51e3",
             "links": {
-                "self": "http://localhost:5000/v3/users/7596e862b1af473c8ed6ae99d35b51e3"
+                "self": "http://example.com/identity/v3/users/7596e862b1af473c8ed6ae99d35b51e3"
             },
             "name": "demo"
         },
@@ -61,7 +61,7 @@
             "enabled": true,
             "id": "802edb2141b44e77bbde241417450749",
             "links": {
-                "self": "http://localhost:5000/v3/users/802edb2141b44e77bbde241417450749"
+                "self": "http://example.com/identity/v3/users/802edb2141b44e77bbde241417450749"
             },
             "name": "nova"
         },
@@ -71,7 +71,7 @@
             "enabled": true,
             "id": "9aca3883784647fe9aff3a50d922489a",
             "links": {
-                "self": "http://localhost:5000/v3/users/9aca3883784647fe9aff3a50d922489a"
+                "self": "http://example.com/identity/v3/users/9aca3883784647fe9aff3a50d922489a"
             },
             "name": "swiftusertest4"
         },
@@ -81,7 +81,7 @@
             "enabled": true,
             "id": "a1251b011f9345e68c2458b841152034",
             "links": {
-                "self": "http://localhost:5000/v3/users/a1251b011f9345e68c2458b841152034"
+                "self": "http://example.com/identity/v3/users/a1251b011f9345e68c2458b841152034"
             },
             "name": "swiftusertest3"
         },
@@ -91,7 +91,7 @@
             "enabled": true,
             "id": "a43f46eb318041f6b712143862e3ad70",
             "links": {
-                "self": "http://localhost:5000/v3/users/a43f46eb318041f6b712143862e3ad70"
+                "self": "http://example.com/identity/v3/users/a43f46eb318041f6b712143862e3ad70"
             },
             "name": "neutron"
         },
@@ -101,7 +101,7 @@
             "enabled": true,
             "id": "b964a9e51c0046a4a84d3f83a135a97c",
             "links": {
-                "self": "http://localhost:5000/v3/users/b964a9e51c0046a4a84d3f83a135a97c"
+                "self": "http://example.com/identity/v3/users/b964a9e51c0046a4a84d3f83a135a97c"
             },
             "name": "admin"
         },
@@ -111,7 +111,7 @@
             "enabled": true,
             "id": "dc87e591c0d247d5ac04e873bd8a1646",
             "links": {
-                "self": "http://localhost:5000/v3/users/dc87e591c0d247d5ac04e873bd8a1646"
+                "self": "http://example.com/identity/v3/users/dc87e591c0d247d5ac04e873bd8a1646"
             },
             "name": "cinder"
         },
@@ -121,7 +121,7 @@
             "enabled": true,
             "id": "ed214dc1c2c6468b926c96eca6c8aee9",
             "links": {
-                "self": "http://localhost:5000/v3/users/ed214dc1c2c6468b926c96eca6c8aee9"
+                "self": "http://example.com/identity/v3/users/ed214dc1c2c6468b926c96eca6c8aee9"
             },
             "name": "glance-swift"
         },
@@ -131,7 +131,7 @@
             "enabled": true,
             "id": "f4f6587b058a4f46a00242549b430d37",
             "links": {
-                "self": "http://localhost:5000/v3/users/f4f6587b058a4f46a00242549b430d37"
+                "self": "http://example.com/identity/v3/users/f4f6587b058a4f46a00242549b430d37"
             },
             "name": "swiftusertest2"
         }

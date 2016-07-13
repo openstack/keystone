@@ -5,7 +5,7 @@
         "impersonation": true,
         "redelegation_count": 10,
         "links": {
-            "self": "http://identity:35357/v3/OS-TRUST/trusts/1ff900"
+            "self": "http://example.com/identity/v3/OS-TRUST/trusts/1ff900"
         },
         "project_id": "ddef321",
         "remaining_uses": null,
@@ -13,7 +13,7 @@
             {
                 "id": "ed7b78",
                 "links": {
-                    "self": "http://identity:35357/v3/roles/ed7b78"
+                    "self": "http://example.com/identity/v3/roles/ed7b78"
                 },
                 "name": "member"
             }
@@ -21,7 +21,7 @@
         "roles_links": {
             "next": null,
             "previous": null,
-            "self": "http://identity:35357/v3/OS-TRUST/trusts/1ff900/roles"
+            "self": "http://example.com/identity/v3/OS-TRUST/trusts/1ff900/roles"
         },
         "trustee_user_id": "86c0d5",
         "trustor_user_id": "a0fdfd"
