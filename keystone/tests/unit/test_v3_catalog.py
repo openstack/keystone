@@ -959,11 +959,17 @@ class TestCatalogAPITemplatedProject(test_v3.RestfulTestCase):
     def test_project_delete(self):
         """Deleting a project should not result in an 500 ISE.
 
-        The EndpointFilter extension of the Catalog API will create a
-        notification when a project is deleted (attempting to clean up
-        project->endpoint relationships). In the case of a templated catalog,
-        no deletions (via catalog_api.delete_association_by_project) can be
-        performed and result in a NotImplemented exception. We catch this
-        exception and ignore it since it is expected.
+        Deleting a project will create a notification, which the EndpointFilter
+        functionality will use to clean up any project->endpoint and
+        project->endpoint_group relationships. The templated catalog does not
+        support such relationships, but the act of attempting to delete them
+        should not cause a NotImplemented exception to be exposed to an API
+        caller.
+
+        Deleting an endpoint has a similar notification and clean up
+        mechanism, but since we do not allow deletion of endpoints with the
+        templated catalog, there is no testing to do for that action.
         """
-        self.resource_api.delete_project(self.project_id)
+        self.delete(
+            '/projects/%(project_id)s' % {
+                'project_id': self.project_id})

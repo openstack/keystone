@@ -249,6 +249,14 @@ class Manager(manager.Manager):
             endpoint_group_id, project_id)
         COMPUTED_CATALOG_REGION.invalidate()
 
+    def delete_endpoint_group_association_by_project(self, project_id):
+        try:
+            self.driver.delete_endpoint_group_association_by_project(
+                project_id)
+        except exception.NotImplemented:
+            # Some catalog drivers don't support this
+            pass
+
     def get_endpoint_groups_for_project(self, project_id):
         # recover the project endpoint group memberships and for each
         # membership recover the endpoint group
@@ -308,6 +316,20 @@ class Manager(manager.Manager):
                     filtered_endpoints[endpoint_ref['id']] = endpoint_ref
 
         return filtered_endpoints
+
+    def delete_association_by_endpoint(self, endpoint_id):
+        try:
+            self.driver.delete_association_by_endpoint(endpoint_id)
+        except exception.NotImplemented:
+            # Some catalog drivers don't support this
+            pass
+
+    def delete_association_by_project(self, project_id):
+        try:
+            self.driver.delete_association_by_project(project_id)
+        except exception.NotImplemented:
+            # Some catalog drivers don't support this
+            pass
 
 
 @versionutils.deprecated(
