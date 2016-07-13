@@ -1,5 +1,6 @@
 {
     "project": {
+        "is_domain": false,
         "description": null,
         "domain_id": "default",
         "enabled": true,
