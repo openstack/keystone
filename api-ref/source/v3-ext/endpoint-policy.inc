@@ -42,7 +42,7 @@ Associates a policy and an endpoint.
 If an association already exists between the endpoint and another
 policy, this call replaces that association.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -62,7 +62,7 @@ Verifies an association between a policy and an endpoint.
 
 A HEAD version of this API is also supported.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -80,7 +80,7 @@ Delete a policy and endpoint association
 
 Deletes an association between a policy and an endpoint.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -101,7 +101,7 @@ Associates a policy and any endpoint of a service type.
 If an association already exists between the endpoint of a service
 type and another policy, this call replaces that association.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -121,7 +121,7 @@ Verifies an association between a policy and an endpoint of a service type.
 
 A HEAD version of this API is also supported.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -139,7 +139,7 @@ Delete a policy and service-type endpoint association
 
 Deletes an association between a policy and an endpoint of a service type.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -219,7 +219,7 @@ Associates a policy and an endpoint of a service type in a region.
 If an association already exists between the service in a region
 and another policy, this call replaces that association.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -240,7 +240,7 @@ Verifies an association between a policy and service-type endpoint in a region.
 
 A HEAD version of this API is also supported.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -259,7 +259,7 @@ Delete a policy and service-type endpoint in a region association
 
 Deletes an association between a policy and service-type endpoint in a region.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
