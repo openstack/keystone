@@ -12,8 +12,8 @@ Show tenant details, by ID
 
 Shows details for a tenant, by ID.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -36,8 +36,8 @@ List roles for user
 
 Lists roles for a user on a tenant. Excludes global roles.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -72,8 +72,8 @@ List tenants (admin endpoint)
 
 Lists all tenants.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Example
 ----------------
@@ -89,8 +89,8 @@ Show tenant details, by name
 
 Shows details for a tenant, by name.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
