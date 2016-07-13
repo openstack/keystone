@@ -32,6 +32,65 @@ region associations, the extension examines any parent regions in
 ascending order. The extension does not combine polices.
 
 
+Associate policy and endpoint
+=============================
+
+.. rest_method::  PUT /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}
+
+Associates a policy and an endpoint.
+
+If an association already exists between the endpoint and another
+policy, this call replaces that association.
+
+Error response codes:204,
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - endpoint_id: endpoint_id
+   - policy_id: policy_id
+
+
+Verify a policy and endpoint association
+========================================
+
+.. rest_method::  GET /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}
+
+Verifies an association between a policy and an endpoint.
+
+A HEAD version of this API is also supported.
+
+Error response codes:204,
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - endpoint_id: endpoint_id
+   - policy_id: policy_id
+
+
+Delete a policy and endpoint association
+========================================
+
+.. rest_method::  DELETE /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}
+
+Deletes an association between a policy and an endpoint.
+
+Error response codes:204,
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - endpoint_id: endpoint_id
+   - policy_id: policy_id
+
+
 Associate policy and service-type endpoint
 ==========================================
 
@@ -247,62 +306,3 @@ Response Example
 
 .. literalinclude:: samples/OS-ENDPOINT-POLICY/policy-endpoint-associations-list-response.json
    :language: javascript
-
-
-Associate policy and endpoint
-=============================
-
-.. rest_method::  PUT /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}
-
-Associates a policy and an endpoint.
-
-If an association already exists between the endpoint and another
-policy, this call replaces that association.
-
-Error response codes:204,
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - endpoint_id: endpoint_id
-   - policy_id: policy_id
-
-
-Verify a policy and endpoint association
-========================================
-
-.. rest_method::  GET /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}
-
-Verifies an association between a policy and an endpoint.
-
-A HEAD version of this API is also supported.
-
-Error response codes:204,
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - endpoint_id: endpoint_id
-   - policy_id: policy_id
-
-
-Delete a policy and endpoint association
-========================================
-
-.. rest_method::  DELETE /v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}
-
-Deletes an association between a policy and an endpoint.
-
-Error response codes:204,
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - endpoint_id: endpoint_id
-   - policy_id: policy_id
