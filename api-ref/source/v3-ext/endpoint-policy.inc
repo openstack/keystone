@@ -306,3 +306,44 @@ Response Example
 
 .. literalinclude:: samples/OS-ENDPOINT-POLICY/policy-endpoint-associations-list-response.json
    :language: javascript
+
+
+Show the effective policy associated with an endpoint
+=====================================================
+
+.. rest_method:: GET /v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy
+
+Returns the policy that is currently associated with the given endpoint, by
+working through the ordered sequence of methods of association. The first
+association that is found will be returned. If the region of the endpoint has a
+parent, then region associations will be examined up the region tree in
+ascending order.
+
+A HEAD version of this API is also supported.
+
+Normal response codes: 200
+Error response codes:
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - endpoint_id: endpoint_id
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - policy: policy
+   - type: type
+   - blob: blob
+   - links: links
+   - id: id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-ENDPOINT-POLICY/policy-show-response.json
+   :language: javascript
