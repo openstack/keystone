@@ -55,7 +55,8 @@ Create consumer
 
 Enables a user to create a consumer.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -79,7 +80,7 @@ List consumers
 Lists consumers.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Response Example
 ----------------
@@ -96,7 +97,7 @@ Get authorized access token
 Gets an authorized access token.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -120,7 +121,8 @@ Revoke access token
 
 Enables a user to revoke an access token, which prevents the consumer from requesting new Identity Service API tokens. Also, revokes any Identity Service API tokens that were issued to the consumer through that access token.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -155,7 +157,7 @@ You must provide all required OAuth parameters in the request. See
 <http://oauth.net/core/1.0a/#auth_step1>`_.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Response Example
 ----------------
@@ -194,7 +196,7 @@ Example OAuth-specific object in a token:
    }
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 
 List authorized access tokens
@@ -205,7 +207,7 @@ List authorized access tokens
 Lists authorized access tokens.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -229,7 +231,7 @@ Show consumer details
 Shows details for a consumer.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -255,7 +257,8 @@ Deletes a consumer.
 When you delete a consumer, any associated request tokens, access
 tokens, and Identity API tokens are also deleted.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -276,7 +279,7 @@ If you try to update any attribute other than description, the HTTP
 400 Bad Request error is returned.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -312,7 +315,7 @@ request. See `Consumer Obtains a Request Token
 <http://oauth.net/core/1.0a/#auth_step1>`_.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -336,7 +339,7 @@ List roles for an access token
 Lists associated roles for an access token.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -355,7 +358,7 @@ Show role details for an access token
 Shows details for a role for an access token.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503
 
 Request
 -------
