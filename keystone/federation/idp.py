@@ -387,11 +387,11 @@ def _sign_assertion(assertion):
 
     This method utilizes ``xmlsec1`` binary and signs SAML assertions in a
     separate process. ``xmlsec1`` cannot read input data from stdin so the
-    prepared assertion needs to be serialized and stored in a temporary
-    file. This file will be deleted immediately after ``xmlsec1`` returns.
-    The signed assertion is redirected to a standard output and read using
-    subprocess.PIPE redirection. A ``saml.Assertion`` class is created
-    from the signed string again and returned.
+    prepared assertion needs to be serialized and stored in a temporary file.
+    This file will be deleted immediately after ``xmlsec1`` returns. The signed
+    assertion is redirected to a standard output and read using
+    ``subprocess.PIPE`` redirection. A ``saml.Assertion`` class is created from
+    the signed string again and returned.
 
     Parameters that are required in the CONF::
     * xmlsec_binary
@@ -400,18 +400,25 @@ def _sign_assertion(assertion):
     :returns: XML <Assertion> object
 
     """
-    xmlsec_binary = CONF.saml.xmlsec1_binary
-    idp_private_key = CONF.saml.keyfile
-    idp_public_key = CONF.saml.certfile
+    # Ensure that the configured certificate paths do not contain any commas,
+    # before we string format a comma in between them and cause xmlsec1 to
+    # explode like a thousand fiery supernovas made entirely of unsigned SAML.
+    for option in ('keyfile', 'certfile'):
+        if ',' in getattr(CONF.saml, option, ''):
+            raise exception.UnexpectedError(_LE(
+                'The configuration value in `keystone.conf [saml] %s` cannot '
+                'contain a comma (`,`). Please fix your configuration.') %
+                option)
 
     # xmlsec1 --sign --privkey-pem privkey,cert --id-attr:ID <tag> <file>
     certificates = '%(idp_private_key)s,%(idp_public_key)s' % {
-        'idp_public_key': idp_public_key,
-        'idp_private_key': idp_private_key
+        'idp_public_key': CONF.saml.certfile,
+        'idp_private_key': CONF.saml.keyfile,
     }
 
-    command_list = [xmlsec_binary, '--sign', '--privkey-pem', certificates,
-                    '--id-attr:ID', 'Assertion']
+    command_list = [
+        CONF.saml.xmlsec1_binary, '--sign', '--privkey-pem', certificates,
+        '--id-attr:ID', 'Assertion']
 
     file_path = None
     try:

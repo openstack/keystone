@@ -3004,6 +3004,38 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
         self.assertEqual(self.PROJECT_DOMAIN,
                          project_domain_attribute.attribute_value[0].text)
 
+    def test_comma_in_certfile_path(self):
+        self.config_fixture.config(
+            group='saml',
+            certfile=CONF.saml.certfile + ',')
+        generator = keystone_idp.SAMLGenerator()
+        self.assertRaises(
+            exception.UnexpectedError,
+            generator.samlize_token,
+            self.ISSUER,
+            self.RECIPIENT,
+            self.SUBJECT,
+            self.SUBJECT_DOMAIN,
+            self.ROLES,
+            self.PROJECT,
+            self.PROJECT_DOMAIN)
+
+    def test_comma_in_keyfile_path(self):
+        self.config_fixture.config(
+            group='saml',
+            keyfile=CONF.saml.keyfile + ',')
+        generator = keystone_idp.SAMLGenerator()
+        self.assertRaises(
+            exception.UnexpectedError,
+            generator.samlize_token,
+            self.ISSUER,
+            self.RECIPIENT,
+            self.SUBJECT,
+            self.SUBJECT_DOMAIN,
+            self.ROLES,
+            self.PROJECT,
+            self.PROJECT_DOMAIN)
+
     def test_verify_assertion_object(self):
         """Test that the Assertion object is built properly.
 
