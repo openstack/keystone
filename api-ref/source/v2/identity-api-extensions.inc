@@ -12,8 +12,8 @@ Show extension details
 
 Shows details for an extension, by alias.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -47,8 +47,8 @@ List extensions
 
 Lists available extensions.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
