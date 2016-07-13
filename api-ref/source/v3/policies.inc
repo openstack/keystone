@@ -29,7 +29,8 @@ Create policy
 
 Creates a policy.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -70,7 +71,7 @@ List policies
 Lists policies.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -107,7 +108,7 @@ Show policy details
 Shows details for a policy.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -144,7 +145,7 @@ Update policy
 Updates a policy.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -191,7 +192,8 @@ Delete policy
 
 Deletes a policy.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
