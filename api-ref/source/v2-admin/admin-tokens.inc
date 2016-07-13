@@ -12,8 +12,8 @@ List endoints for token
 
 Lists the endpoints associated with a token.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -62,8 +62,8 @@ The deployment determines how long expired tokens are stored.
 To view the ``trust`` object, you need to set ``trust`` enable on
 the keystone configuration.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request Example
 ---------------
@@ -114,8 +114,8 @@ Returns the permissions relevant to a particular client. Valid
 tokens are in the ``/tokens/{tokenId}`` path. If the token is not
 valid, this call returns the ``itemNotFound (404)`` response code.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -138,8 +138,8 @@ Validate token (admin)
 
 Validates a token and confirms that it belongs to a tenant, for performance.
 
-Normal response codes: 200
-Error response codes:203,204,413,405,404,403,401,400,503,
+Normal response codes: 200,203,204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -156,7 +156,8 @@ Delete token
 
 Deletes a token.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
