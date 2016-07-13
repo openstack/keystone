@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
+
 from oslo_config import cfg
 
 from keystone.conf import constants
@@ -20,87 +22,123 @@ bind = cfg.ListOpt(
     'bind',
     default=[],
     help=utils.fmt("""
-External auth mechanisms that should add bind information to token, e.g.,
-kerberos,x509.
+This is a list of external authentication mechanisms which should add token
+binding metadata to tokens, such as `kerberos` or `x509`. Binding metadata is
+enforced according to the `[token] enforce_token_bind` option.
 """))
 
 enforce_token_bind = cfg.StrOpt(
     'enforce_token_bind',
     default='permissive',
+    choices=['disabled', 'permissive', 'strict', 'required'],
     help=utils.fmt("""
-Enforcement policy on tokens presented to Keystone with bind information. One
-of disabled, permissive, strict, required or a specifically required bind mode,
-e.g., kerberos or x509 to require binding to that authentication.
+This controls the token binding enforcement policy on tokens presented to
+keystone with token binding metadata (as specified by the `[token] bind`
+option). `disabled` completely bypasses token binding validation. `permissive`
+and `strict` do not require tokens to have binding metadata (but will validate
+it if present), whereas `required` will always demand tokens to having binding
+metadata. `permissive` will allow unsupported binding metadata to pass through
+without validation (usually to be validated at another time by another
+component), whereas `strict` and `required` will demand that the included
+binding metadata be supported by keystone.
 """))
 
 expiration = cfg.IntOpt(
     'expiration',
     default=3600,
     help=utils.fmt("""
-Amount of time a token should remain valid (in seconds).
+The amount of time that a token should remain valid (in seconds). Drastically
+reducing this value may break "long-running" operations that involve multiple
+services to coordinate together, and will force users to authenticate with
+keystone more frequently. Drastically increasing this value will increase load
+on the `[token] driver`, as more tokens will be simultaneously valid. Keystone
+tokens are also bearer tokens, so a shorter duration will also reduce the
+potential security impact of a compromised token.
 """))
 
 provider = cfg.StrOpt(
     'provider',
     default='uuid',
     help=utils.fmt("""
-Controls the token construction, validation, and revocation operations.
-Entrypoint in the keystone.token.provider namespace. Core providers are
-[fernet|pkiz|pki|uuid].
+Entry point for the token provider in the `keystone.token.provider` namespace.
+The token provider controls the token construction, validation, and revocation
+operations. Keystone includes `fernet`, `pkiz`, `pki`, and `uuid` token
+providers. `uuid` tokens must be persisted (using the backend specified in the
+`[token] driver` option), but do not require any extra configuration or setup.
+`fernet` tokens do not need to be persisted at all, but require that you run
+`keystone-manage fernet_setup` (also see the `keystone-manage fernet_rotate`
+command). `pki` and `pkiz` tokens can be validated offline, without making HTTP
+calls to keystone, but require that certificates be installed and distributed
+to facilitate signing tokens and later validating those signatures.
 """))
 
 driver = cfg.StrOpt(
     'driver',
     default='sql',
     help=utils.fmt("""
-Entrypoint for the token persistence backend driver in the
-keystone.token.persistence namespace. Supplied drivers are kvs, memcache,
-memcache_pool, and sql.
+Entry point for the token persistence backend driver in the
+`keystone.token.persistence` namespace. Keystone provides `kvs`, `memcache`,
+`memcache_pool`, and `sql` drivers. The `kvs` backend depends on the
+configuration in the `[kvs]` section. The `memcache` and `memcache_pool`
+options depend on the configuration in the `[memcache]` section. The `sql`
+option (default) depends on the options in your `[database]` section. If you're
+using the `fernet` `[token] provider`, this backend will not be utilized to
+persist tokens at all.
 """))
 
 caching = cfg.BoolOpt(
     'caching',
     default=True,
     help=utils.fmt("""
-Toggle for token system caching. This has no effect unless global caching is
-enabled.
+Toggle for caching token creation and validation data. This has no effect
+unless global caching is enabled.
 """))
 
 cache_time = cfg.IntOpt(
     'cache_time',
     help=utils.fmt("""
-Time to cache tokens (in seconds). This has no effect unless global and token
-caching are enabled.
+The number of seconds to cache token creation and validation data. This has no
+effect unless both global and `[token] caching` are enabled.
 """))
 
 revoke_by_id = cfg.BoolOpt(
     'revoke_by_id',
     default=True,
     help=utils.fmt("""
-Revoke token by token identifier. Setting revoke_by_id to true enables various
-forms of enumerating tokens, e.g. `list tokens for user`. These enumerations
-are processed to determine the list of tokens to revoke. Only disable if you
-are switching to using the Revoke extension with a backend other than KVS,
-which stores events in memory.
+This toggles support for revoking individual tokens by the token identifier and
+thus various token enumeration operations (such as listing all tokens issued to
+a specific user). These operations are used to determine the list of tokens to
+consider revoked. Do not disable this option if you're using the `kvs`
+`[revoke] driver`.
 """))
 
 allow_rescope_scoped_token = cfg.BoolOpt(
     'allow_rescope_scoped_token',
     default=True,
     help=utils.fmt("""
-Allow rescoping of scoped token. Setting allow_rescoped_scoped_token to false
-prevents a user from exchanging a scoped token for any other token.
+This toggles whether scoped tokens may be be re-scoped to a new project or
+domain, thereby preventing users from exchanging a scoped token (including
+those with a default project scope) for any other token. This forces users to
+either authenticate for unscoped tokens (and later exchange that unscoped token
+for tokens with a more specific scope) or to provide their credentials in every
+request for a scoped token to avoid re-scoping altogether.
 """))
 
+# This attribute only exists in Python 2.7.8+ or 3.2+
+hash_algorithm_choices = getattr(hashlib, 'algorithms_guaranteed', None)
 hash_algorithm = cfg.StrOpt(
     'hash_algorithm',
     default='md5',
+    choices=hash_algorithm_choices,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
-The hash algorithm to use for PKI tokens. This can be set to any algorithm that
-hashlib supports. WARNING: Before changing this value, the auth_token
-middleware must be configured with the hash_algorithms, otherwise token
+This controls the hash algorithm to use to uniquely identify PKI tokens without
+having to transmit the entire token to keystone (which may be several
+kilobytes). This can be set to any algorithm that hashlib supports. WARNING:
+Before changing this value, the `auth_token` middleware protecting all other
+services must be configured with the set of hash algorithms to expect from
+keystone (both your old and new value for this option), otherwise token
 revocation will not be processed correctly.
 """))
 
@@ -108,8 +146,9 @@ infer_roles = cfg.BoolOpt(
     'infer_roles',
     default=True,
     help=utils.fmt("""
-Add roles to token that are not explicitly added, but that are linked
-implicitly to other roles.
+This controls whether roles should be included with tokens that are not
+directly assigned to the token's scope, but are instead linked implicitly to
+other role assignments.
 """))
 
 
