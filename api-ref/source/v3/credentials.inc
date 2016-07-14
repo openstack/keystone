@@ -27,7 +27,8 @@ required when you specify the ``ec2`` type. To specify other
 credentials, such as ``access_key``, change the type and contents
 of the data blob.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -71,7 +72,7 @@ Optionally, you can include the ``user_id`` query parameter in the
 URI to filter the response by a user.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -108,7 +109,7 @@ Show credential details
 Shows details for a credential.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -145,7 +146,7 @@ Update credential
 Updates a credential.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -192,7 +193,8 @@ Delete credential
 
 Deletes a credential.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
