@@ -229,7 +229,7 @@ next:
   type: string
 oauth_expires_at:
   description: |
-    The date and time when a request token expires.
+    The date and time when an oauth token expires.
 
     The date and time stamp format is `ISO 8601
     <https://en.wikipedia.org/wiki/ISO_8601>`_:
@@ -247,6 +247,18 @@ oauth_expires_at:
     ``null``, the token never expires.
   in: body
   required: false
+  type: string
+oauth_token:
+  description: |
+    The key value for the oauth token that the Identity API returns.
+  in: body
+  required: true
+  type: string
+oauth_token_secret:
+  description: |
+    The secret value associated with the oauth Token.
+  in: body
+  required: true
   type: string
 policy:
   description: |

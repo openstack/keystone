@@ -78,7 +78,20 @@ Request
 Request Example
 ---------------
 
-.. literalinclude:: ./samples/OS-OAUTH1/consumers-create-request.json
+.. literalinclude:: ./samples/OS-OAUTH1/consumer-create-request.json
+   :language: javascript
+
+Response
+--------
+
+Status: 201 Created
+
+The ``secret`` is only returned once, during consumer creation.
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/OS-OAUTH1/consumer-create-response.json
    :language: javascript
 
 
@@ -90,7 +103,7 @@ Delete consumer
 Deletes a consumer.
 
 When you delete a consumer, any associated request tokens, access
-tokens, and Identity API tokens are also deleted.
+tokens, and Identity API tokens are also revoked.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
@@ -157,7 +170,7 @@ Update consumer
 
 Updates the description for a consumer.
 
-If you try to update any attribute other than description, the HTTP
+If you try to update any attribute other than ``description``, an HTTP
 400 Bad Request error is returned.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
@@ -191,7 +204,7 @@ Create request token
 
 Enables a consumer to get an unauthorized request token.
 
-Supported signature methods: HMAC-SHA1.
+Supported signature methods: ``HMAC-SHA1``
 
 The consumer must provide all required OAuth parameters in the
 request. See `Consumer Obtains a Request Token
@@ -214,6 +227,15 @@ Response Example
 
 .. literalinclude:: ./samples/OS-OAUTH1/request-token-create-response.txt
    :language: javascript
+
+Response
+--------
+
+.. rest_parameters:: parameters.yaml
+
+    - oauth_token: oauth_token
+    - oauth_token_secret: oauth_token_secret
+    - oauth_expires_at: oauth_expires_at
 
 
 Authorize request token
@@ -247,23 +269,16 @@ Create access token
 
 .. rest_method::  POST /v3/OS-OAUTH1/access_token
 
-Enables a consumer to create an access token by exchanging a request token for an access token.
+Enables a consumer to obtain an access token by exchanging a request token.
 
-After the user authorizes the request token, the consumer exchanges
-the authorized request token and OAuth verifier for an access
-token.
+After a user authorizes the request token, the consumer exchanges the authorized
+request token and OAuth verifier for an access token.
 
-Supported signature methods: HMAC-SHA1.
+Supported signature methods: ``HMAC-SHA1``
 
 The consumer must provide all required OAuth parameters in the
-request. See `Consumer Obtains a Request Token
-<http://oauth.net/core/1.0a/#auth_step1>`_.
-
-Supported signature methods: HMAC-SHA1.
-
-You must provide all required OAuth parameters in the request. See
-`Consumer Obtains a Request Token
-<http://oauth.net/core/1.0a/#auth_step1>`_.
+request. See `Consumer Requests an Access Token
+<http://oauth.net/core/1.0a/#auth_step3>`_.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/access_tokens``
 
@@ -275,6 +290,15 @@ Response Example
 
 .. literalinclude:: ./samples/OS-OAUTH1/access-token-create-response.txt
    :language: javascript
+
+Response
+--------
+
+.. rest_parameters:: parameters.yaml
+
+    - oauth_token: oauth_token
+    - oauth_token_secret: oauth_token_secret
+    - oauth_expires_at: oauth_expires_at
 
 
 Get authorized access token
@@ -407,11 +431,10 @@ The token represents the delegated authorization and identity
 (impersonation) of the authorizing user. The roles and scope of the
 generated token match those that the consumer initially requested.
 
-Supported signature methods: HMAC-SHA1.
+Supported signature methods: ``HMAC-SHA1``
 
 The consumer must provide required OAuth parameters in the request.
-See `Consumer Obtains a Request Token
-<http://oauth.net/core/1.0a/#auth_step1>`_.
+See `Accessing Protected Resources <http://oauth.net/core/1.0a/#anchor12>`_.
 
 The returned token is scoped to the requested project and with the
 requested roles. In addition to the standard token response, the
