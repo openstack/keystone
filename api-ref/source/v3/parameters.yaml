@@ -112,6 +112,13 @@ domain_id_7:
   in: query
   required: false
   type: string
+effective_query:
+  description: |
+    Returns the effective assignments, including any assignments gained by
+    virtue of group membership.
+  in: query
+  required: false
+  type: key-only (no value required)
 enabled_11:
   description: |
     Filters the response by either enabled (``true``)
@@ -141,6 +148,31 @@ enabled_9:
   in: query
   required: false
   type: string
+group_id_query:
+  description: |
+    Filters the response by a group ID.
+  in: query
+  required: false
+  type: string
+include_names_query:
+  description: |
+    If set to true, then the names of any entities returned will be include as
+    well as their IDs. Any value other than ``0`` (including no value) will be
+    interpreted as true.
+  in: query
+  required: false
+  type: boolean
+  min_version: 3.6
+include_subtree_query:
+  description: |
+    If set to true, then relevant assignments in the project hierarchy below
+    the project specified in the ``scope.project_id`` query parameter are also
+    included in the response. Any value other than ``0`` (including no value)
+    for ``include_subtree`` will be interpreted as true.
+  in: query
+  required: false
+  type: boolean
+  min_version: 3.6
 interface_2:
   description: |
     Filters the response by an interface.
@@ -156,12 +188,6 @@ name_10:
 name_13:
   description: |
     Filters the response by a project name.
-  in: query
-  required: false
-  type: string
-name_14:
-  description: |
-    Filters the response by a role name.
   in: query
   required: false
   type: string
@@ -191,6 +217,30 @@ parent_region_id_1:
   in: query
   required: false
   type: string
+role_id_query:
+  description: |
+    Filters the response by a role ID.
+  in: query
+  required: false
+  type: string
+role_name_query:
+  description: |
+    Filters the response by a role name.
+  in: query
+  required: false
+  type: string
+scope_domain_id_query:
+  description: |
+    Filters the response by a domain ID.
+  in: query
+  required: false
+  type: string
+scope_project_id_query:
+  description: |
+    Filters the response by a project ID.
+  in: query
+  required: false
+  type: string
 service_id_3:
   description: |
     Filters the response by a service ID.
@@ -212,7 +262,7 @@ type_5:
   in: query
   required: false
   type: string
-user_id_3:
+user_id_query:
   description: |
     Filters the response by a user ID.
   in: query

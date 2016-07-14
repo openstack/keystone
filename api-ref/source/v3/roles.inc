@@ -368,7 +368,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - name: role_name_query
 
 Response Parameters
 -------------------
@@ -491,6 +491,20 @@ Lists role assignments.
 
 Normal response codes: 200
 Error response codes: 413,405,404,403,401,400,503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - effective: effective_query
+   - include_names: include_names_query
+   - include_subtree: include_subtree_query
+   - group.id: group_id_query
+   - role.id: role_id_query
+   - scope.domain.id: scope_domain_id_query
+   - scope.project.id: scope_project_id_query
+   - user.id: user_id_query
 
 Response Parameters
 -------------------
