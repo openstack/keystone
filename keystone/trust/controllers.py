@@ -121,9 +121,9 @@ class TrustV3(controller.V3Controller):
         """
         validation.lazy_validate(schema.trust_create, trust)
         # Check if delegated via trust
-        if request.auth_context.get('is_delegated_auth'):
+        if request.context.is_delegated_auth:
             # Redelegation case
-            src_trust_id = request.auth_context['trust_id']
+            src_trust_id = request.context.trust_id
             if not src_trust_id:
                 raise exception.Forbidden(
                     _('Redelegation allowed for delegated by trust only'))

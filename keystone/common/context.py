@@ -29,6 +29,16 @@ class RequestContext(oslo_context.RequestContext):
         self.username = kwargs.pop('username', None)
         self.user_domain_name = kwargs.pop('user_domain_name', None)
         self.project_domain_name = kwargs.pop('project_domain_name', None)
+
+        self.is_delegated_auth = kwargs.pop('is_delegated_auth', False)
+
+        self.trust_id = kwargs.pop('trust_id', None)
+        self.trustor_id = kwargs.pop('trustor_id', None)
+        self.trustee_id = kwargs.pop('trustee_id', None)
+
+        self.oauth_consumer_id = kwargs.pop('oauth_consumer_id', None)
+        self.oauth_access_token_id = kwargs.pop('oauth_access_token_id', None)
+
         self.authenticated = kwargs.pop('authenticated', False)
         super(RequestContext, self).__init__(**kwargs)
 

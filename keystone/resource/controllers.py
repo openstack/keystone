@@ -298,11 +298,9 @@ class ProjectV3(controller.V3Controller):
                     'params at the same time.')
             raise exception.ValidationError(msg)
 
-        user_id = request.auth_context.get('user_id')
-
         if parents_as_list:
             parents = self.resource_api.list_project_parents(
-                ref['id'], user_id)
+                ref['id'], request.context.user_id)
             ref['parents'] = [ProjectV3.wrap_member(context, p)
                               for p in parents]
         elif parents_as_ids:
@@ -310,7 +308,7 @@ class ProjectV3(controller.V3Controller):
 
         if subtree_as_list:
             subtree = self.resource_api.list_projects_in_subtree(
-                ref['id'], user_id)
+                ref['id'], request.context.user_id)
             ref['subtree'] = [ProjectV3.wrap_member(context, p)
                               for p in subtree]
         elif subtree_as_ids:
