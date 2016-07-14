@@ -36,6 +36,7 @@ This page lists the Identity API operations in the following order:
 * `Roles`_
 * `Service catalog and endpoints`_
 * `Users`_
+* `OS-INHERIT API`_
 
 .. rest_expand_all::
 
@@ -44,6 +45,7 @@ This page lists the Identity API operations in the following order:
 .. include:: domains.inc
 .. include:: domains-config-v3.inc
 .. include:: groups.inc
+.. include:: inherit.inc
 .. include:: policies.inc
 .. include:: projects.inc
 .. include:: regions-v3.inc
