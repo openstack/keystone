@@ -154,6 +154,7 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         # The request context stores itself in thread-local memory for logging.
         request_context = context.RequestContext(
             request_id=request.environ.get('openstack.request_id'),
+            authenticated=False,
             overwrite=True)
         request.environ[context.REQUEST_CONTEXT_ENV] = request_context
 
@@ -202,6 +203,9 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
                       'the certificate issuer is not trusted. No auth '
                       'context will be set.')
             return
+
+        # set authenticated to flag to keystone that a token has been validated
+        request_context.authenticated = True
 
         # The attributes of request_context are put into the logs. This is a
         # common pattern for all the OpenStack services. In all the other

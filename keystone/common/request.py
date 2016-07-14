@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
+
 import webob
 from webob.descriptors import environ_getter
 
@@ -17,13 +19,14 @@ from keystone.common import authorization
 from keystone.common import context
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LW
 
 
 # Environment variable used to pass the request context
 CONTEXT_ENV = 'openstack.context'
 
 CONF = keystone.conf.CONF
+LOG = logging.getLogger(__name__)
 
 
 class Request(webob.Request):
@@ -72,6 +75,20 @@ class Request(webob.Request):
     @property
     def auth_context(self):
         return self.environ.get(authorization.AUTH_CONTEXT_ENV, {})
+
+    def assert_authenticated(self):
+        """Ensure that the current request has been authenticated."""
+        if not self.context:
+            LOG.warning(_LW('An authenticated call was made and there is '
+                            'no request.context. This means the '
+                            'auth_context middleware is not in place. You '
+                            'must have this middleware in your pipeline '
+                            'to perform authenticated calls'))
+            raise exception.Unauthorized()
+
+        if not self.context.authenticated:
+            # auth_context didn't decode anything we can use
+            raise exception.Unauthorized()
 
     auth_type = environ_getter('AUTH_TYPE', None)
     remote_domain = environ_getter('REMOTE_DOMAIN', None)
