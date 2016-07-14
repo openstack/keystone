@@ -17,19 +17,19 @@ roleId:
   description: |
     The role ID.
   in: path
-  required: false
+  required: true
   type: string
 serviceId:
   description: |
     The service ID.
   in: path
-  required: false
+  required: true
   type: string
 tenantId:
   description: |
     The tenant ID.
   in: path
-  required: false
+  required: true
   type: string
 type_1:
   description: |
@@ -41,7 +41,7 @@ userId:
   description: |
     The user ID.
   in: path
-  required: false
+  required: true
   type: string
 
 # variables in query
