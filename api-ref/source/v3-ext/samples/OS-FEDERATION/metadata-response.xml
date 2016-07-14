@@ -1,0 +1,29 @@
+Headers:
+    Content-Type: text/xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata"
+   xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" entityID="k2k.com/v3/OS-FEDERATION/idp"
+   validUntil="2014-08-19T21:24:17.411289Z">
+  <ns0:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <ns0:KeyDescriptor use="signing">
+      <ns1:KeyInfo>
+        <ns1:X509Data>
+          <ns1:X509Certificate>MIIDpTCCAo0CAREwDQYJKoZIhvcNAQEFBQAwgZ</ns1:X509Certificate>
+        </ns1:X509Data>
+      </ns1:KeyInfo>
+    </ns0:KeyDescriptor>
+  </ns0:IDPSSODescriptor>
+  <ns0:Organization>
+    <ns0:OrganizationName xml:lang="en">openstack</ns0:OrganizationName>
+    <ns0:OrganizationDisplayName xml:lang="en">openstack</ns0:OrganizationDisplayName>
+    <ns0:OrganizationURL xml:lang="en">openstack</ns0:OrganizationURL>
+  </ns0:Organization>
+  <ns0:ContactPerson contactType="technical">
+    <ns0:Company>openstack</ns0:Company>
+    <ns0:GivenName>first</ns0:GivenName>
+    <ns0:SurName>lastname</ns0:SurName>
+    <ns0:EmailAddress>admin@example.com</ns0:EmailAddress>
+    <ns0:TelephoneNumber>555-555-5555</ns0:TelephoneNumber>
+  </ns0:ContactPerson>
+</ns0:EntityDescriptor>

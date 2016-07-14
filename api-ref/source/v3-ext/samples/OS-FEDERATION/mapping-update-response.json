@@ -1,0 +1,36 @@
+{
+    "mapping": {
+        "id": "ACME",
+        "links": {
+            "self": "http://identity:35357/v3/OS-FEDERATION/mappings/ACME"
+        },
+        "rules": [
+            {
+                "local": [
+                    {
+                        "user": {
+                            "name": "{0}"
+                        }
+                    },
+                    {
+                        "group": {
+                            "id": "0cd5e9"
+                        }
+                    }
+                ],
+                "remote": [
+                    {
+                        "type": "UserName"
+                    },
+                    {
+                        "type": "orgPersonType",
+                        "any_one_of": [
+                            "Contractor",
+                            "SubContractor"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

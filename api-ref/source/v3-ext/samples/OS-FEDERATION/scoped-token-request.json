@@ -1,0 +1,17 @@
+{
+    "auth": {
+        "identity": {
+            "methods": [
+                "token"
+            ],
+            "token": {
+                "id": "--federated-token-id--"
+            }
+        },
+        "scope": {
+            "project": {
+                "id": "263fd9"
+            }
+        }
+    }
+}
