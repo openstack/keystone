@@ -165,23 +165,22 @@ class Ec2ControllerCommon(object):
 
         return user_ref, tenant_ref, metadata_ref, roles_ref, catalog_ref
 
-    def create_credential(self, context, user_id, tenant_id):
+    def create_credential(self, request, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
 
         Generates a new set of credentials that map the user/tenant
         pair.
 
-        :param context: standard context
+        :param request: current request
         :param user_id: id of user
         :param tenant_id: id of tenant
         :returns: credential: dict of ec2 credential
         """
         self.identity_api.get_user(user_id)
         self.resource_api.get_project(tenant_id)
-        trust_id = self._get_trust_id_for_request(context)
         blob = {'access': uuid.uuid4().hex,
                 'secret': uuid.uuid4().hex,
-                'trust_id': trust_id}
+                'trust_id': request.context.trust_id}
         credential_id = utils.hash_access_key(blob['access'])
         cred_ref = {'user_id': user_id,
                     'project_id': tenant_id,
@@ -303,7 +302,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
         if not self._is_admin(request):
             self._assert_identity(request.context_dict, user_id)
         return super(Ec2Controller, self).create_credential(
-            request.context_dict, user_id, tenant_id)
+            request, user_id, tenant_id)
 
     @controller.v2_ec2_deprecated
     def delete_credential(self, request, user_id, credential_id):
@@ -408,7 +407,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
     @controller.protected()
     def ec2_create_credential(self, request, user_id, tenant_id):
         ref = super(Ec2ControllerV3, self).create_credential(
-            request.context_dict, user_id, tenant_id)
+            request, user_id, tenant_id)
         return Ec2ControllerV3.wrap_member(request.context_dict,
                                            ref['credential'])
 
