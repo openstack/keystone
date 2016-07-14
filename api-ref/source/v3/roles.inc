@@ -71,7 +71,8 @@ Grant role to group on project
 
 Grants a role to a group on a project.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -90,7 +91,8 @@ Check whether group has role on project
 
 Validates that a group has a role on a project.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -109,7 +111,8 @@ Revoke role from group on project
 
 Revokes a role from a group on a project.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -128,7 +131,8 @@ Grant role to user on project
 
 Grants a role to a user on a project.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -147,7 +151,8 @@ Check whether user has role on project
 
 Validates that a user has a role on a project.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -166,7 +171,8 @@ Revoke role from user on project
 
 Revokes a role from a user on a project.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -186,7 +192,7 @@ List roles for user on project
 Lists roles for a user on a project.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -211,7 +217,7 @@ List roles for group on project
 Lists roles for a group on a project.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -235,7 +241,8 @@ Grant role to group on domain
 
 Grants a role to a group on a domain.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -254,7 +261,8 @@ Check whether group has role on domain
 
 Validates that a group has a role on a domain.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -273,7 +281,8 @@ Revoke role from group on domain
 
 Revokes a role from a group on a domain.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -293,7 +302,7 @@ List roles for user on domain
 Lists roles for a user on a domain.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -328,7 +337,7 @@ List roles
 Lists roles.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -361,7 +370,8 @@ Create role
 
 Creates a role.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -395,7 +405,8 @@ Grant role to user on domain
 
 Grants a role to a user on a domain.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -414,7 +425,8 @@ Check whether user has role on domain
 
 Validates that a user has a role on a domain.
 
-Error response codes:204,413,405,404,403,401,400,503,
+Normal response codes: 204
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -433,7 +445,8 @@ Revoke role from user on domain
 
 Revokes a role from a user on a domain.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -453,7 +466,7 @@ List role assignments
 Lists role assignments.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
 -------------------
@@ -477,7 +490,7 @@ Show role details
 Shows details for a role.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
@@ -511,7 +524,7 @@ Update role
 Updates a role.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -552,7 +565,8 @@ Delete role
 
 Deletes a role.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
@@ -570,7 +584,7 @@ List roles for group on domain
 Lists roles for a group on a domain.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Request
 -------
