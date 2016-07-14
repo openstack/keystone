@@ -282,7 +282,7 @@ Request
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-INHERIT/group-roles-domain-list-response.json
+.. literalinclude:: samples/admin/group-roles-domain-list-response.json
    :language: javascript
 
 
@@ -351,7 +351,7 @@ Error response codes: 413,405,404,403,401,400,503
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-INHERIT/role-assignments-effective-list-response.json
+.. literalinclude:: samples/admin/role-assignments-effective-list-response.json
    :language: javascript
 
 
@@ -375,7 +375,7 @@ Request
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-INHERIT/user-roles-domain-list-response.json
+.. literalinclude:: samples/admin/user-roles-domain-list-response.json
    :language: javascript
 
 
@@ -402,7 +402,7 @@ Request
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-INHERIT/group-roles-list-response.json
+.. literalinclude:: samples/admin/group-roles-list-response.json
    :language: javascript
 
 
@@ -429,5 +429,5 @@ Request
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-INHERIT/user-roles-list-response.json
+.. literalinclude:: samples/admin/user-roles-list-response.json
    :language: javascript
