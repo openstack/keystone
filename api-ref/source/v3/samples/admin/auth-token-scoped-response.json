@@ -18,6 +18,7 @@
             "id": "5b50efd009b540559104ee3c03bbb2b7",
             "name": "admin"
         },
+        "is_domain": false,
         "catalog": [
             {
                 "endpoints": [
