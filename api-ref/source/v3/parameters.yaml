@@ -41,6 +41,12 @@ domain_id:
   in: path
   required: true
   type: string
+domain_id_path:
+  description: |
+    The domain ID.
+  in: path
+  required: true
+  type: string
 endpoint_id:
   description: |
     The endpoint ID.
@@ -55,6 +61,12 @@ group_1:
   required: false
   type: string
 group_id:
+  description: |
+    The group ID.
+  in: path
+  required: true
+  type: string
+group_id_path:
   description: |
     The group ID.
   in: path
@@ -80,6 +92,12 @@ project_id:
   in: path
   required: true
   type: string
+project_id_path:
+  description: |
+    The project ID.
+  in: path
+  required: true
+  type: string
 region_id_2:
   description: |
     The region ID.
@@ -92,6 +110,12 @@ role_id:
   in: path
   required: true
   type: string
+role_id_path:
+  description: |
+    The role ID.
+  in: path
+  required: true
+  type: string
 service_id_2:
   description: |
     The service ID.
@@ -99,6 +123,12 @@ service_id_2:
   required: false
   type: string
 user_id:
+  description: |
+    The user ID.
+  in: path
+  required: true
+  type: string
+user_id_path:
   description: |
     The user ID.
   in: path
@@ -867,6 +897,18 @@ ldap:
   in: body
   required: true
   type: object
+link_collection:
+  description: |
+    The link to the collection of resources.
+  in: body
+  required: true
+  type: string
+link_response_body:
+  description: |
+    The link to the resources in question.
+  in: body
+  required: true
+  type: string
 links:
   description: |
     The links for the ``credential`` resource.
@@ -1221,19 +1263,43 @@ regions:
   type: array
 role:
   description: |
-    A ``role`` object.
+    A ``role`` object, containing:
   in: body
   required: true
   type: object
 role_assignments:
   description: |
-    A ``role_assignments`` object.
+    A list of ``role_assignment`` objects.
   in: body
   required: true
   type: array
+role_id_response_body:
+  description: |
+    The role ID.
+  in: body
+  required: true
+  type: string
+role_name_create_body:
+  description: |
+    The role name.
+  in: body
+  required: true
+  type: string
+role_name_response_body:
+  description: |
+    The role name.
+  in: body
+  required: true
+  type: string
+role_name_update_body:
+  description: |
+    The new role name.
+  in: body
+  required: false
+  type: string
 roles:
   description: |
-    A ``roles`` object.
+    A list of ``role`` objects, each containing:
   in: body
   required: true
   type: array
