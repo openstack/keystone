@@ -45,6 +45,18 @@ class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self.load_backends()
         cli.TokenFlush.main()
 
+    # NOTE(ravelar): the following method tests that the token_flush command,
+    # when used in conjunction with an unsupported token driver like kvs,
+    # will yield a LOG.warning message informing the user that the
+    # command had no effect.
+    def test_token_flush_excepts_not_implemented_and_logs_warning(self):
+        self.useFixture(database.Database())
+        self.load_backends()
+        self.config_fixture.config(group='token', driver='memcache')
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.WARN))
+        cli.TokenFlush.main()
+        self.assertIn("token_flush command had no effect", log_info.output)
+
 
 class CliNoConfigTestCase(unit.BaseTestCase):
 

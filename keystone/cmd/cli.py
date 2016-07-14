@@ -540,7 +540,14 @@ class TokenFlush(BaseApp):
     @classmethod
     def main(cls):
         token_manager = token.persistence.PersistenceManager()
-        token_manager.flush_expired_tokens()
+        try:
+            token_manager.flush_expired_tokens()
+        except exception.NotImplemented:
+            # NOTE(ravelar159): Stop NotImplemented from unsupported token
+            # driver when using token_flush and print out warning instead
+            LOG.warning(_LW('Token driver %s does not support token_flush. '
+                            'The token_flush command had no effect.'),
+                        CONF.token.driver)
 
 
 class MappingPurge(BaseApp):
