@@ -1,0 +1,18 @@
+{
+    "endpoints": [
+        {
+            "adminurl": "http://host-1:8774/v1.1/$(tenant_id)s",
+            "id": "8f9531231e044e218824b0e58688d262",
+            "internalurl": "http://host-1:8774/v1.1/$(tenant_id)s",
+            "publicurl": "http://host-1:8774/v1.1/$(tenant_id)s",
+            "region": "RegionOne"
+        },
+        {
+            "adminurl": "http://host-1:8774/v1.1/$(tenant_id)s",
+            "id": "8f9531231e044e218824b0e58688d263",
+            "internalurl": "http://host-1:8774/v1.1/$(tenant_id)s",
+            "publicurl": "http://host-1:8774/v1.1/$(tenant_id)s",
+            "region": "RegionOne"
+        }
+    ]
+}

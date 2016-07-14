@@ -1,0 +1,71 @@
+# variables in header
+
+# variables in path
+id_path:
+  description: |
+    Endpoint ID
+  in: path
+  required: true
+  type: string
+
+# variables in query
+
+# variables in body
+adminurl:
+  description: |
+    Admin URL
+  in: body
+  required: true
+  type: string
+endpoint:
+  description: |
+    Endpoint object. Contains ``publicURL``, ``adminURL``,
+    ``internalURL``, ``id`` and ``region`` for the endpoint.
+  in: body
+  required: true
+  type: object
+endpoint_create:
+  description: |
+    Endpoint object, containing ``region``, ``service_id``,
+    ``publicurl``, ``adminurl``, ``internalurl``.
+  in: body
+  required: true
+  type: object
+endpoints_list:
+  description: |
+    One or more ``endpoint`` objects. Each object
+    shows the ``adminURL``, ``region``, ``internalURL``, ``id``, and
+    ``publicURL`` for the endpoint.
+  in: body
+  required: true
+  type: list
+id:
+  description: |
+    Endpoint ID
+  in: body
+  required: true
+  type: string
+internalurl:
+  description: |
+    Internal URL
+  in: body
+  required: true
+  type: string
+publicurl:
+  description: |
+    Public URL
+  in: body
+  required: true
+  type: string
+region:
+  description: |
+    Region of the endpoint
+  in: body
+  required: true
+  type: string
+service_id:
+  description: |
+    Service ID
+  in: body
+  required: true
+  type: string
