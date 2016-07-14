@@ -1,0 +1,29 @@
+{
+    "projects": [
+        {
+            "domain_id": "1789d1",
+            "enabled": true,
+            "id": "263fd9",
+            "links": {
+                "self": "http://identity:35357/v3/projects/263fd9"
+            },
+            "name": "a project name 1",
+            "description": "a project description 1"
+        },
+        {
+            "domain_id": "1789d1",
+            "enabled": true,
+            "id": "61a1b7",
+            "links": {
+                "self": "http://identity:35357/v3/projects/61a1b7"
+            },
+            "name": "a project name 2",
+            "description": "a project description 2"
+            }
+    ],
+    "links": {
+        "self": "http://identity:35357/v3/OS-EP-FILTER/endpoints/6fedc0/projects",
+        "previous": null,
+        "next": null
+    }
+}

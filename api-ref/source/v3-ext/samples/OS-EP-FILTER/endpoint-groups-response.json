@@ -1,0 +1,36 @@
+{
+    "endpoint_groups": [
+        {
+            "endpoint_group": {
+                "description": "endpoint group description #1",
+                "filters": {
+                    "interface": "admin",
+                    "service_id": "1b501a"
+                },
+                "id": "ac4861",
+                "links": {
+                    "self": "http://identity:35357/v3/OS-EP-FILTER/endpoint_groups/ac4861"
+                },
+                "name": "endpoint group name #1"
+            }
+        },
+        {
+            "endpoint_group": {
+                "description": "endpoint group description #2",
+                "filters": {
+                    "interface": "admin"
+                },
+                "id": "3de68c",
+                "links": {
+                    "self": "http://identity:35357/v3/OS-EP-FILTER/endpoint_groups/3de68c"
+                },
+                "name": "endpoint group name #2"
+            }
+        }
+        ],
+    "links": {
+        "self": "https://identity:35357/v3/OS-EP-FILTER/endpoint_groups",
+        "previous": null,
+        "next": null
+    }
+}

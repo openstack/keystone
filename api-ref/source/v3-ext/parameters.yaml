@@ -19,6 +19,12 @@ domain_id:
   in: path
   required: true
   type: string
+endpoint_group_id:
+  description: |
+    The UUID of the endpoint group.
+  in: path
+  required: false
+  type: string
 endpoint_id:
   description: |
     The endpoint ID.
@@ -117,6 +123,27 @@ description:
     The consumer description.
   in: body
   required: false
+  type: string
+eg_description:
+  description: |
+    The endpoint group description.
+  in: body
+  required: false
+  type: string
+eg_filters:
+  description: |
+    Describes the filtering performed by the endpoint group. The filter used must
+    be an ``endpoint`` property, such as ``interface``, ``service_id``,
+    ``region_id`` and ``enabled``. Note that if using ``interface`` as a filter,
+    the only available values are ``public``, ``internal`` and ``admin``.
+  in: body
+  required: true
+  type: object
+eg_name:
+  description: |
+    User-facing name of the service.
+  in: body
+  required: true
   type: string
 endpoints:
   description: |

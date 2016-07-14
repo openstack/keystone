@@ -1,0 +1,45 @@
+{
+    "endpoints": [
+        {
+            "enabled": true,
+            "id": "6fedc0"
+            "interface": "admin",
+            "legacy_endpoint_id": "6fedc0",
+            "links": {
+                "self": "http://identity:35357/v3/endpoints/6fedc0"
+            },
+            "region": "RegionOne",
+            "service_id": "1b501a",
+            "url": "http://localhost:9292"
+        },
+        {
+            "enabled": true,
+            "id": "b501aa"
+            "interface": "internal",
+            "legacy_endpoint_id": "b501aa",
+            "links": {
+                "self": "http://identity:35357/v3/endpoints/b501aa"
+            },
+            "region": "RegionOne",
+            "service_id": "1b501a",
+            "url": "http://localhost:9292"
+        },
+        {
+            "enabled": true,
+            "id": "b7c573"
+            "interface": "public",
+            "legacy_endpoint_id": "b7c573",
+            "links": {
+                "self": "http://identity:35357/v3/endpoints/b7c573"
+            },
+            "region": "RegionOne",
+            "service_id": "1b501a",
+            "url": "http://localhost:9292"
+        }
+    ],
+    "links": {
+        "self": "http://identity:35357/v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}/endpoints",
+        "previous": null,
+        "next": null
+    }
+}
