@@ -8,3 +8,4 @@
 
 .. include:: ksadm-admin.inc
 .. include:: ksec2-admin.inc
+.. include:: kscrud.inc
