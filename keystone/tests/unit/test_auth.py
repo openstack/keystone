@@ -850,6 +850,20 @@ class AuthWithTrust(AuthTest):
         req = self.make_request(environ=environ)
         req.context_dict['token_id'] = token_id
 
+        # NOTE(jamielennox): This wouldn't be necessary if these were calls via
+        # the wsgi interface instead of directly creating a request to pass to
+        # a controller.
+        req.context.auth_token = token_id
+        req.context.user_id = auth_context.get('user_id')
+        req.context.project_id = auth_context.get('project_id')
+        req.context.domain_id = auth_context.get('domain_id')
+        req.context.domain_name = auth_context.get('domain_name')
+        req.context.user_domain_id = auth_context.get('user_domain_id')
+        req.context.roles = auth_context.get('roles')
+        req.context.trust_id = auth_context.get('trust_id')
+        req.context.trustor_id = auth_context.get('trustor_id')
+        req.context.trustee_id = auth_context.get('trustee_id')
+
         return req
 
     def create_trust(self, trust_data, trustor_name, expires_at=None,
@@ -969,19 +983,6 @@ class AuthWithTrust(AuthTest):
         role_ids = [self.role_browser['id'], self.role_member['id']]
         for role in new_trust['roles']:
             self.assertIn(role['id'], role_ids)
-
-    def test_get_trust_without_auth_context(self):
-        """Verify a trust cannot be retrieved if auth context is missing."""
-        unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        request = self._create_auth_request(
-            unscoped_token['access']['token']['id'])
-        new_trust = self.trust_controller.create_trust(
-            request, trust=self.sample_data)['trust']
-        # Delete the auth context before calling get_trust().
-        del request.context_dict['environment'][authorization.AUTH_CONTEXT_ENV]
-        self.assertRaises(exception.Forbidden,
-                          self.trust_controller.get_trust, request,
-                          new_trust['id'])
 
     def test_create_trust_no_impersonation(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'],
