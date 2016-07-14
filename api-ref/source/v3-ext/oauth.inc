@@ -4,48 +4,56 @@
  OS-OAUTH1 API
 ===============
 
-Enables users to delegate roles to third-party consumers through
-`The OAuth 1.0 Protocol <http://tools.ietf.org/html/rfc5849>`_.
+Provide the ability for identity users to delegate roles to third party
+consumers via the `OAuth 1.0a specification <http://oauth.net/core/1.0a/>`__.
+Requires v3.0+ of the Identity API. An OAuth-derived token will provide
+a means of acting on behalf of the authorizing user.
 
-A user is an Identity API user who delegates its roles and who
-authorizes request tokens.
+Overview
+========
 
-A consumer is a third-party application that uses OAuth to access a
-protected resource.
+Definitions
+-----------
 
-Administrative users use an OAuth-derived token to act on behalf of
-the authorizing user.
+- *User:* An Identity API service user, the entity whose role(s) will be
+  delegated, and the entity that authorizes Request Tokens.
 
-The consumer uses a request token to get authorization from the
-user. The consumer provides an OAuth verifier string with the
-request token in exchange for an access token.
+- *Request Token:* A token used by the Consumer to obtain authorization from
+  the User, and exchanged with an OAuth Verifier for an Access Token.
 
-The consumer uses an access token to request Identity API tokens on
-behalf of the authorizing user instead of using the credentials for
-the user.
+- *Access Token:* A token used by the Consumer to request new Identity API
+  tokens on behalf of the authorizing User, instead of using the User’s
+  credentials.
 
-Request and access tokens use token keys to identify themselves.
-For OpenStack purposes, the token key is the token ID. The consumer
-uses a token secret to establish ownership of a token. Both request
-and access tokens have token secrets.
+- *Token Key:* A key used by the token to identify itself. Both Request Tokens
+  and Access Tokens have Token Keys. For OpenStack purposes, the Token Key is
+  the Token ID.
 
-Delegated authentication through OAuth occurs as follows:
+- *Token Secret:* A secret used by the Consumer to establish ownership of a
+  given Token. Both Request Tokens and Access Tokens have Token Secrets.
 
-- A user creates a consumer.
+- *OAuth Verifier:* A string that must be provided with the corresponding
+  Request Token in exchange for an Access Token.
 
-- The consumer gets an unauthorized request token. Then, the
-  consumer uses the request token to initiate user authorization.
+Delegated Authentication Flow
+-----------------------------
 
-- The user authorizes the request token.
+Delegated Authentication via OAuth is done in five steps:
 
-- The consumer exchanges the authorized request token and the OAuth
-  verifier for an access token.
+#. An Identity API service User `creates a Consumer
+   <#create-consumer>`__.
 
- The authorizing user receives the request token key from the
-  consumer out-of-band.
+#. The Consumer `obtains an unauthorized Request Token
+   <#create-request-token>`__.
 
-- The consumer uses the access token to request an Identity API
-  token.
+#. The User `authorizes the Request Token
+   <#authorize-request-token>`__.
+
+#. The Consumer `exchanges the Request Token for an Access Token
+   <#create-access-token>`__.
+
+#. The Consumer `uses the Access Token to request an Identity API service Token
+   <#authenticate-with-identity-api>`__.
 
 
 Create consumer
@@ -166,8 +174,8 @@ Response Example
    :language: javascript
 
 
-Get an Identity Service token
-=============================
+Authenticate with Identity API
+==============================
 
 .. rest_method::  POST /v3/auth/tokens
 
@@ -300,9 +308,8 @@ Response Example
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-update-response.json
    :language: javascript
 
-
-Show unauthorized request token
-===============================
+Create request token
+====================
 
 .. rest_method::  POST /v3/OS-OAUTH1/request_token
 
@@ -329,6 +336,22 @@ Response Example
 
 .. literalinclude:: ./samples/OS-OAUTH1/request-token-create-response.txt
    :language: javascript
+
+
+Authorize request token
+=======================
+
+.. rest_method::  POST /v3//OS-OAUTH1/authorize/{request_token_id}
+
+Request
+-------
+
+TBD
+
+Response Example
+----------------
+
+TBD
 
 
 List roles for an access token
