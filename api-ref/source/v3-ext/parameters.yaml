@@ -5,79 +5,79 @@ access_token_id:
   description: |
     The UUID of the access token.
   in: path
-  required: false
+  required: true
   type: string
 consumer_id:
   description: |
     The UUID of the consumer.
   in: path
-  required: false
+  required: true
   type: string
 domain_id:
   description: |
     The UUID of the domain.
   in: path
-  required: false
+  required: true
   type: string
 endpoint_id:
   description: |
     The endpoint ID.
   in: path
-  required: false
+  required: true
   type: string
 group_id:
   description: |
     The UUID of the group.
   in: path
-  required: false
+  required: true
   type: string
 name:
   description: |
     The name of the group.
   in: path
-  required: false
+  required: true
   type: string
 policy_id:
   description: |
     The policy ID.
   in: path
-  required: false
+  required: true
   type: string
 project_id:
   description: |
     The UUID of the project.
   in: path
-  required: false
+  required: true
   type: string
 region_id:
   description: |
     The region ID.
   in: path
-  required: false
+  required: true
   type: string
 role_id:
   description: |
     The UUID of the role.
   in: path
-  required: false
+  required: true
   type: string
 service_id:
   description: |
     The service ID.
   in: path
-  required: false
+  required: true
   type: string
 trust_id:
   description: |
     The trust ID.
   in: path
-  required: false
+  required: true
   type: string
 user_id:
   description: |
     The UUID of the user.
   in: path
-  required: false
+  required: true
   type: string
 
 # variables in query

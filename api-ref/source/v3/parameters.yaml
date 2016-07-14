@@ -33,19 +33,19 @@ credential_id:
   description: |
     The UUID for the credential.
   in: path
-  required: false
+  required: true
   type: string
 domain_id:
   description: |
     Filters the response by a domain ID.
   in: path
-  required: false
+  required: true
   type: string
 endpoint_id:
   description: |
     The endpoint ID.
   in: path
-  required: false
+  required: true
   type: string
 group_1:
   description: |
@@ -58,7 +58,7 @@ group_id:
   description: |
     The group ID.
   in: path
-  required: false
+  required: true
   type: string
 option:
   description: |
@@ -66,19 +66,19 @@ option:
     value is ``url`` or ``user_tree_dn``. For the ``identity`` group,
     a valid value is ``driver``.
   in: path
-  required: false
+  required: true
   type: string
 policy_id:
   description: |
     The policy ID.
   in: path
-  required: false
+  required: true
   type: string
 project_id:
   description: |
     The project ID.
   in: path
-  required: false
+  required: true
   type: string
 region_id_2:
   description: |
@@ -90,7 +90,7 @@ role_id:
   description: |
     The role ID.
   in: path
-  required: false
+  required: true
   type: string
 service_id_2:
   description: |
@@ -102,7 +102,7 @@ user_id:
   description: |
     The user ID.
   in: path
-  required: false
+  required: true
   type: string
 
 # variables in query

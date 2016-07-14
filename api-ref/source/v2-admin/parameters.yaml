@@ -19,13 +19,13 @@ tokenId:
     The authentication token for which to perform the
     operation.
   in: path
-  required: false
+  required: true
   type: string
 userId:
   description: |
     The user ID.
   in: path
-  required: false
+  required: true
   type: string
 
 # variables in query
