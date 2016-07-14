@@ -164,7 +164,6 @@ a parent, the extension examines the region associations up the
 region tree in ascending order.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -199,7 +198,6 @@ Check policy and service endpoint association
 Checks whether a policy is associated with an endpoint.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -279,7 +277,6 @@ List policy and service endpoint associations
 Lists all the endpoints that are currently associated with a policy through any of the association methods.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -325,7 +322,6 @@ ascending order.
 A HEAD version of this API is also supported.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
