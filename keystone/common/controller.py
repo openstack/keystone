@@ -240,7 +240,7 @@ def filterprotected(*filters, **callback):
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
 
-    def _normalize_domain_id(self, context, ref):
+    def _normalize_domain_id(self, request, ref):
         """Fill in domain_id since v2 calls are not domain-aware.
 
         This will overwrite any domain_id that was inadvertently
@@ -716,7 +716,7 @@ class V3Controller(wsgi.Application):
                 _LW('No domain information specified as part of list request'))
             raise exception.Unauthorized()
 
-    def _get_domain_id_from_token(self, context):
+    def _get_domain_id_from_token(self, request):
         """Get the domain_id for a v3 create call.
 
         In the case of a v3 create entity call that does not specify a domain
@@ -724,43 +724,40 @@ class V3Controller(wsgi.Application):
         being used.
 
         """
-        try:
-            token_ref = utils.get_token_ref(context)
-        except exception.Unauthorized:
-            if context.get('is_admin'):
-                raise exception.ValidationError(
-                    _('You have tried to create a resource using the admin '
-                      'token. As this token is not within a domain you must '
-                      'explicitly include a domain for this resource to '
-                      'belong to.'))
-            raise
+        # return if domain scoped
+        if request.context.domain_id:
+            return request.context.domain_id
 
-        if token_ref.domain_scoped:
-            return token_ref.domain_id
-        else:
-            # TODO(henry-nash): We should issue an exception here since if
-            # a v3 call does not explicitly specify the domain_id in the
-            # entity, it should be using a domain scoped token.  However,
-            # the current tempest heat tests issue a v3 call without this.
-            # This is raised as bug #1283539.  Once this is fixed, we
-            # should remove the line below and replace it with an error.
-            #
-            # Ahead of actually changing the code to raise an exception, we
-            # issue a deprecation warning.
-            versionutils.report_deprecated_feature(
-                LOG,
-                _LW('Not specifying a domain during a create user, group or '
-                    'project call, and relying on falling back to the '
-                    'default domain, is deprecated as of Liberty. There is no '
-                    'plan to remove this compatibility, however, future API '
-                    'versions may remove this, so please specify the domain '
-                    'explicitly or use a domain-scoped token.'))
-            return CONF.identity.default_domain_id
+        if request.context.is_admin:
+            raise exception.ValidationError(
+                _('You have tried to create a resource using the admin '
+                  'token. As this token is not within a domain you must '
+                  'explicitly include a domain for this resource to '
+                  'belong to.'))
 
-    def _normalize_domain_id(self, context, ref):
+        # TODO(henry-nash): We should issue an exception here since if
+        # a v3 call does not explicitly specify the domain_id in the
+        # entity, it should be using a domain scoped token.  However,
+        # the current tempest heat tests issue a v3 call without this.
+        # This is raised as bug #1283539.  Once this is fixed, we
+        # should remove the line below and replace it with an error.
+        #
+        # Ahead of actually changing the code to raise an exception, we
+        # issue a deprecation warning.
+        versionutils.report_deprecated_feature(
+            LOG,
+            _LW('Not specifying a domain during a create user, group or '
+                'project call, and relying on falling back to the '
+                'default domain, is deprecated as of Liberty. There is no '
+                'plan to remove this compatibility, however, future API '
+                'versions may remove this, so please specify the domain '
+                'explicitly or use a domain-scoped token.'))
+        return CONF.identity.default_domain_id
+
+    def _normalize_domain_id(self, request, ref):
         """Fill in domain_id if not specified in a v3 call."""
         if not ref.get('domain_id'):
-            ref['domain_id'] = self._get_domain_id_from_token(context)
+            ref['domain_id'] = self._get_domain_id_from_token(request)
         return ref
 
     @staticmethod

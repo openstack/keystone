@@ -105,7 +105,7 @@ class Tenant(controller.V2Controller):
         initiator = notifications._get_request_audit_info(request.context_dict)
         tenant = self.resource_api.create_project(
             tenant_ref['id'],
-            self._normalize_domain_id(request.context_dict, tenant_ref),
+            self._normalize_domain_id(request, tenant_ref),
             initiator)
         return {'tenant': self.v3_to_v2_project(tenant)}
 
@@ -245,7 +245,7 @@ class ProjectV3(controller.V3Controller):
         ref = self._assign_unique_id(self._normalize_dict(project))
 
         if not ref.get('is_domain'):
-            ref = self._normalize_domain_id(request.context_dict, ref)
+            ref = self._normalize_domain_id(request, ref)
         # Our API requires that you specify the location in the hierarchy
         # unambiguously. This could be by parent_id or, if it is a top level
         # project, just by providing a domain_id.
