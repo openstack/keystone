@@ -5,22 +5,22 @@
             "domain_id": "161718",
             "enabled": true,
             "id": "456788",
-            "parent_id": "212223",
             "links": {
                 "self": "http://example.com/identity/v3/projects/456788"
             },
             "name": "a project name"
+            "parent_id": "212223",
         },
         {
             "description": "description of this project",
             "domain_id": "161718",
             "enabled": true,
             "id": "456789",
-            "parent_id": "212223",
             "links": {
                 "self": "http://example.com/identity/v3/projects/456789"
             },
             "name": "another domain"
+            "parent_id": "212223",
         }
     ],
     "links": {
