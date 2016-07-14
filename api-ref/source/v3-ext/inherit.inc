@@ -23,7 +23,7 @@ The API applies the inherited role to the existing and future owned
 projects. The inherited role does not appear as a role in a domain-
 scoped token.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -43,7 +43,6 @@ Check project role for user in domain
 Checks whether a user has an inherited project role in a domain.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -62,7 +61,7 @@ Revoke project role from user in domain
 
 Revokes an inherited project role from a user in a domain.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -88,7 +87,7 @@ existing and future projects.
 A group can have both a regular, non-inherited role assignment and
 an inherited role assignment in the same project.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -108,7 +107,6 @@ Check role for group
 Checks whether a group has a role assignment with the ``inherited_to_projects`` flag in a project.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -127,7 +125,7 @@ Revoke role from group
 
 Revokes an inherited role from a group in a project.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -150,7 +148,7 @@ The API applies the inherited role to owned projects, both existing
 and future. The inherited role does not appear as a role in a
 domain-scoped token.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -170,7 +168,6 @@ Check project role for group in domain
 Checks whether a group has an inherited project role in a domain.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -189,7 +186,7 @@ Revoke project role from group in domain
 
 Revokes an inherited project role from a group in a domain.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -215,7 +212,7 @@ existing and future projects.
 A user can have both a regular, non-inherited role assignment and
 an inherited role assignment in the same project.
 
-Error response codes:204,
+Normal response codes: 204
 
 Request
 -------
@@ -235,7 +232,6 @@ Check role for user
 Checks whether a user has a role assignment with the ``inherited_to_projects`` flag in a project.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -254,7 +250,7 @@ Revoke role from user
 
 Revokes an inherited role from a user in a project.
 
-Error response codes:204
+Normal response codes: 204
 
 Request
 -------
@@ -274,7 +270,6 @@ List project roles for group in domain
 Lists the project roles that a group inherits from a parent project in a domain.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -351,7 +346,7 @@ An example response for an API call with the ``effective`` query
 string:
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413,405,404,403,401,400,503
 
 Response Example
 ----------------
@@ -368,7 +363,6 @@ List project roles for user in domain
 Lists the project roles that a user inherits from a parent project in a domain.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -396,7 +390,6 @@ The list shows only roles that the group project inherits from the
 parent project.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
@@ -424,7 +417,6 @@ The list shows only roles that the user project inherits from the
 parent project.
 
 Normal response codes: 200
-Error response codes:
 
 Request
 -------
