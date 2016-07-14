@@ -82,7 +82,7 @@ class User(controller.V2Controller):
         self.resource_api.ensure_default_domain_exists()
 
         # The manager layer will generate the unique ID for users
-        user_ref = self._normalize_domain_id(request.context_dict, user.copy())
+        user_ref = self._normalize_domain_id(request, user.copy())
         initiator = notifications._get_request_audit_info(request.context_dict)
         new_user_ref = self.v3_to_v2_user(
             self.identity_api.create_user(user_ref, initiator))
@@ -220,7 +220,7 @@ class UserV3(controller.V3Controller):
         validation.lazy_validate(schema.user_create, user)
         # The manager layer will generate the unique ID for users
         ref = self._normalize_dict(user)
-        ref = self._normalize_domain_id(request.context_dict, ref)
+        ref = self._normalize_domain_id(request, ref)
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.identity_api.create_user(ref, initiator)
         return UserV3.wrap_member(request.context_dict, ref)
@@ -313,7 +313,7 @@ class GroupV3(controller.V3Controller):
         validation.lazy_validate(schema.group_create, group)
         # The manager layer will generate the unique ID for groups
         ref = self._normalize_dict(group)
-        ref = self._normalize_domain_id(request.context_dict, ref)
+        ref = self._normalize_domain_id(request, ref)
         initiator = notifications._get_request_audit_info(request.context_dict)
         ref = self.identity_api.create_group(ref, initiator)
         return GroupV3.wrap_member(request.context_dict, ref)
