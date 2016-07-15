@@ -150,7 +150,6 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - name: name
    - url: url
    - region: region
    - interface: interface
@@ -169,7 +168,6 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - name: name
    - links: links
    - url: url
    - region: region
@@ -257,7 +255,6 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - name: name
    - url: url
    - enabled: enabled
    - interface: interface
@@ -276,7 +273,6 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - name: name
    - links: links
    - url: url
    - region: region
