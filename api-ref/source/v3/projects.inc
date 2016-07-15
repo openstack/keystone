@@ -4,19 +4,28 @@
  Projects
 ==========
 
-A project is the base unit of ownership. Resources are owned by a
+A project is the base unit of resource ownership. Resources are owned by a
 specific project. A project is owned by a specific domain.
 
-(Since v3.4) You can create a hierarchy of projects by setting a
-parent ID when you create projects. All projects in a hierarchy
-must be owned by the same domain.
+(Since Identity API v3.4) You can create a hierarchy of projects by setting a
+``parent_id`` when you create a project. All projects in a hierarchy must be
+owned by the same domain.
 
-(Since v3.6) Optionally, you can create a project that behaves both
-as a project and a domain. As a domain, the project provides a name
-space in which you can create users, groups, and other projects. If
-you create a project that behaves as a domain, you cannot update
-this project to behave like a regular project.
+(Since Identity API v3.6) Projects may, in addition to acting as containers for
+OpenStack resources, act as a domain (by setting the attribute ``is_domain`` to
+``true``), in which case it provides a namespace in which users, groups and
+other projects can be created. In fact, a domain created using the
+``POST /domains`` API will actually be represented as a project with
+``is_domain`` set to ``true`` with no parent (``parent_id`` is null).
 
+Given this, all projects are considered part of a project hierarchy. Projects
+created in a domain prior to v3.6 are represented as a two-level hierarchy,
+with a project that has ``is_domain`` set to ``true`` as the root and all other
+projects referencing the root as their parent.
+
+A project acting as a domain can potentially also act as a container for
+OpenStack resources, although this depends on whether the policy rule for the
+relevant resource creation allows this.
 
 List projects
 =============
@@ -66,6 +75,12 @@ Create project
 .. rest_method::  POST /v3/projects
 
 Creates a project.
+
+Projects that are acting as a domain (i.e. with ``parent_id`` set to
+``true``) must also be specified with no parent (i.e. if ``parent_id`` is
+included it must be null). Issuing a create project request for a project
+acting as a domain with a ``parent_id`` that is not null will fail with a
+``Bad Request (400)`` response code being returned.
 
 Normal response codes: 201
 Error response codes: 413,415,405,404,403,401,400,503,409
@@ -218,7 +233,7 @@ Enable or disable project and its subtree
 
 .. rest_method::  PATCH /v3/projects/{project_id}/cascade
 
-(Since v3.6) Enables or disables a project and its entire subtree.
+(Since Identity API v3.6) Enables or disables a project and its entire subtree.
 
 A project subtree includes all projects beneath the parent project
 in the hierarchy.
@@ -228,9 +243,8 @@ this call fails and returns the ``Bad Request (400)`` response
 code.
 
 If you perform this action against a project that acts as a domain
-(``is_domain`` is set to ``true``, this call fails and returns the
+(``is_domain`` is set to ``true``), this call fails and returns the
 ``Forbidden (403)`` response code.
-
 
 Normal response codes: 200
 Error response codes: 413,415,405,404,403,401,400,503,409
@@ -277,10 +291,10 @@ Delete project subtree
 
 .. rest_method::  DELETE /v3/projects/{project_id}/cascade
 
-(Since v3.6) Deletes a project and its entire subtree.
+(Since Identity API v3.6) Deletes a project and its entire subtree.
 
 A project subtree includes all projects beneath the parent project
-in the hierarchy. You must disable the projects in the subtree
+in the hierarchy. You must disable all the projects in the subtree
 before you perform this operation.
 
 Normal response codes: 204
