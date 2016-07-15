@@ -5,7 +5,6 @@
         "links": {
             "self": "http://example.com/identity/v3/endpoints/828384"
         },
-        "name": "the internal volume endpoint",
         "region_id": "north",
         "service_id": "686766",
         "url": "http://example.com/identity/v3/endpoints/828384"
