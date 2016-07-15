@@ -28,8 +28,11 @@ from keystone.common import dependency
 from keystone.common.sql import migration_helpers
 import keystone.conf
 from keystone.i18n import _
+from keystone.identity.mapping_backends import mapping as identity_mapping
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit.ksfixtures import ldapdb
 
 
 CONF = keystone.conf.CONF
@@ -596,3 +599,64 @@ class CliDBSyncTestCase(unit.BaseTestCase):
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(migration_helpers.contract_schema)
+
+
+class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
+
+    def setUp(self):
+        sqldb = self.useFixture(database.Database())
+        super(TestMappingPopulate, self).setUp()
+        self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
+        self.ldapdb.clear()
+
+        self.load_backends()
+
+        sqldb.recreate()
+        self.load_fixtures(default_fixtures)
+
+    def config_files(self):
+        self.config_fixture.register_cli_opt(cli.command_opt)
+        config_files = super(TestMappingPopulate, self).config_files()
+        config_files.append(unit.dirs.tests_conf('backend_ldap_sql.conf'))
+        return config_files
+
+    def config_overrides(self):
+        super(TestMappingPopulate, self).config_overrides()
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(group='identity_mapping',
+                                   backward_compatible_ids=False)
+
+    def config(self, config_files):
+        CONF(args=['mapping_populate', '--domain-name', 'Default'],
+             project='keystone',
+             default_config_files=config_files)
+
+    def test_mapping_populate(self):
+        # mapping_populate should create id mappings. Test plan:
+        # 0. Purge mappings
+        # 1. Fetch user list directly via backend. It will not create any
+        #    mappings because it bypasses identity manager
+        # 2. Verify that users have no public_id yet
+        # 3. Execute mapping_populate. It should create id mappings
+        # 4. For the same users verify that they have public_id now
+        purge_filter = {}
+        self.id_mapping_api.purge_mappings(purge_filter)
+        hints = None
+        users = self.identity_api.driver.list_users(hints)
+        for user in users:
+            local_entity = {
+                'domain_id': CONF.identity.default_domain_id,
+                'local_id': user['id'],
+                'entity_type': identity_mapping.EntityType.USER}
+            self.assertIsNone(self.id_mapping_api.get_public_id(local_entity))
+
+        dependency.reset()  # backends are loaded again in the command handler
+        cli.MappingPopulate.main()
+
+        for user in users:
+            local_entity = {
+                'domain_id': CONF.identity.default_domain_id,
+                'local_id': user['id'],
+                'entity_type': identity_mapping.EntityType.USER}
+            self.assertIsNotNone(
+                self.id_mapping_api.get_public_id(local_entity))

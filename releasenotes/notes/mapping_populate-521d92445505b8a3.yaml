@@ -1,0 +1,13 @@
+---
+prelude: >
+    Add ``keystone-manage mapping_populate`` command, which
+    should be used when domain-specific LDAP backend is
+    used.
+features:
+  - Add ``keystone-manage mapping_populate`` command.
+    This command will pre-populate a mapping table with all
+    users from LDAP, in order to improve future query
+    performance. It should be used when an LDAP is first
+    configured, or after calling ``keystone-manage mapping_purge``,
+    before any queries related to the domain are made. For more
+    information see ``keystone-manage mapping_populate --help``

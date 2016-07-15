@@ -280,6 +280,15 @@ with the following command:
 
     $ keystone-manage mapping_purge --all
 
+Generating public IDs in the first run may take a while, and most probably
+first API requests to fetch user list will fail by timeout. To prevent this,
+``mapping_populate`` command should be executed. It should be executed right after
+LDAP has been configured or after ``mapping_purge``.
+
+.. code-block:: bash
+
+    $ keystone-manage mapping_populate --domain DOMAINA
+
 Public ID Generators
 --------------------
 
@@ -1308,6 +1317,7 @@ through the normal REST API. At the moment, the following calls are supported:
 * ``fernet_rotate``: Rotate keys in the Fernet key repository.
 * ``fernet_setup``: Setup a Fernet key repository.
 * ``mapping_engine``: Test your federation mapping rules.
+* ``mapping_populate``: Prepare domain-specific LDAP backend
 * ``mapping_purge``: Purge the identity mapping table.
 * ``pki_setup``: Initialize the certificates used to sign tokens.
 * ``saml_idp_metadata``: Generate identity provider metadata.
