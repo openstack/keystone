@@ -207,18 +207,28 @@ Response Example
 Authorize request token
 =======================
 
-.. rest_method::  POST /v3//OS-OAUTH1/authorize/{request_token_id}
+.. rest_method::  POST /v3/OS-OAUTH1/authorize/{request_token_id}
+
+To authorize the Request Token, the authorizing user must have access to the
+requested project. Upon successful authorization, an OAuth Verifier code is
+returned. The Consumer receives the OAuth Verifier from the User out-of-band.
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/authorize_request_token``
+
+Normal response codes: 200
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
 
-TBD
+.. literalinclude:: ./samples/OS-OAUTH1/authorize-request-token-request.json
+   :language: javascript
 
 Response Example
 ----------------
 
-TBD
-
+.. literalinclude:: ./samples/OS-OAUTH1/authorize-request-token-response.json
+   :language: javascript
 
 Create access token
 ===================
