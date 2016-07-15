@@ -9,4 +9,5 @@
 .. include:: admin-tenants.inc
 .. include:: admin-tokens.inc
 .. include:: admin-users.inc
+.. include:: admin-endpoints.inc
 .. include:: admin-versions.inc

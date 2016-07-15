@@ -1,0 +1,9 @@
+{
+    "endpoint": {
+        "adminurl": null,
+        "internalurl": null,
+        "publicurl": "http://host-3:8774/v1.1/$(tenant_id)s",
+        "region": "RegionOne",
+        "service_id": "aea0aa3723e34ee3a5ac49ce86d4cc6e"
+    }
+}

@@ -25,7 +25,7 @@ Request
 Response Example
 ----------------
 
-.. literalinclude:: samples/admin/endpoints-list-response.json
+.. literalinclude:: samples/admin/token-endpoints-list-response.json
    :language: javascript
 
 
