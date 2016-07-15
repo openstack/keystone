@@ -122,7 +122,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         # NOTE(morganfainberg): Pass an empty context, it isn't used by
         # `authenticate` method.
         bootstrap.identity_manager.authenticate(
-            {},
+            self.make_request(),
             user['id'],
             bootstrap.password)
 
@@ -175,7 +175,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
         # Sanity check that the original password works again.
         bootstrap.identity_manager.authenticate(
-            {},
+            self.make_request(),
             user_id,
             bootstrap.password)
 

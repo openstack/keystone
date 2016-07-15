@@ -31,7 +31,7 @@ class Password(base.AuthMethodHandler):
 
         try:
             self.identity_api.authenticate(
-                request.context_dict,
+                request,
                 user_id=user_info.user_id,
                 password=user_info.password)
         except AssertionError:

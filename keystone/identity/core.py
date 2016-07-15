@@ -821,7 +821,7 @@ class Manager(manager.Manager):
     @notifications.emit_event('authenticate')
     @domains_configured
     @exception_translated('assertion')
-    def authenticate(self, context, user_id, password):
+    def authenticate(self, request, user_id, password):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
         ref = driver.authenticate(entity_id, password)
@@ -1219,11 +1219,11 @@ class Manager(manager.Manager):
                                                 group_entity_id)
 
     @domains_configured
-    def change_password(self, context, user_id, original_password,
+    def change_password(self, request, user_id, original_password,
                         new_password):
 
         # authenticate() will raise an AssertionError if authentication fails
-        self.authenticate(context, user_id, original_password)
+        self.authenticate(request, user_id, original_password)
 
         update_dict = {'password': new_password}
         self.update_user(user_id, update_dict)

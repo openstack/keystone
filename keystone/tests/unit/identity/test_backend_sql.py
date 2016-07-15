@@ -44,7 +44,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         user = self._create_user(self.user_dict, last_active_at.date())
         self.assertRaises(exception.UserDisabled,
                           self.identity_api.authenticate,
-                          context={},
+                          self.make_request(),
                           user_id=user['id'],
                           password=self.password)
         # verify that the user is actually disabled
@@ -53,7 +53,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         # set the user to enabled and authenticate
         user['enabled'] = True
         self.identity_api.update_user(user['id'], user)
-        user = self.identity_api.authenticate(context={},
+        user = self.identity_api.authenticate(self.make_request(),
                                               user_id=user['id'],
                                               password=self.password)
         self.assertTrue(user['enabled'])
@@ -64,7 +64,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
             datetime.datetime.utcnow() -
             datetime.timedelta(days=self.max_inactive_days - 1)).date()
         user = self._create_user(self.user_dict, last_active_at)
-        user = self.identity_api.authenticate(context={},
+        user = self.identity_api.authenticate(self.make_request(),
                                               user_id=user['id'],
                                               password=self.password)
         self.assertTrue(user['enabled'])

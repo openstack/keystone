@@ -65,7 +65,7 @@ class UserController(identity.controllers.User):
 
         try:
             user_ref = self.identity_api.authenticate(
-                request.context_dict,
+                request,
                 user_id=token_ref.user_id,
                 password=original_password)
             if not user_ref.get('enabled', True):
