@@ -80,6 +80,27 @@ Request Example
    :language: javascript
 
 
+Delete consumer
+===============
+
+.. rest_method::  DELETE /v3/OS-OAUTH1/consumers/{consumer_id}
+
+Deletes a consumer.
+
+When you delete a consumer, any associated request tokens, access
+tokens, and Identity API tokens are also deleted.
+
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - consumer_id: consumer_id
+
+
 List consumers
 ==============
 
@@ -94,140 +115,6 @@ Response Example
 ----------------
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumers-list-response.json
-   :language: javascript
-
-
-Get authorized access token
-===========================
-
-.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}
-
-Gets an authorized access token.
-
-Normal response codes: 200
-Error response codes: 413, 405, 404, 403, 401, 400, 503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id
-   - access_token_id: access_token_id
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-OAUTH1/access-token-show-response.json
-   :language: javascript
-
-
-Revoke access token
-===================
-
-.. rest_method::  DELETE /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}
-
-Enables a user to revoke an access token, which prevents the consumer from requesting new Identity Service API tokens. Also, revokes any Identity Service API tokens that were issued to the consumer through that access token.
-
-Normal response codes: 204
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id
-   - access_token_id: access_token_id
-
-
-Create access token
-===================
-
-.. rest_method::  POST /v3/OS-OAUTH1/access_token
-
-Enables a consumer to create an access token by exchanging a request token for an access token.
-
-After the user authorizes the request token, the consumer exchanges
-the authorized request token and OAuth verifier for an access
-token.
-
-Supported signature methods: HMAC-SHA1.
-
-The consumer must provide all required OAuth parameters in the
-request. See `Consumer Obtains a Request Token
-<http://oauth.net/core/1.0a/#auth_step1>`_.
-
-Supported signature methods: HMAC-SHA1.
-
-You must provide all required OAuth parameters in the request. See
-`Consumer Obtains a Request Token
-<http://oauth.net/core/1.0a/#auth_step1>`_.
-
-Normal response codes: 200
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-OAUTH1/access-token-create-response.txt
-   :language: javascript
-
-
-Authenticate with Identity API
-==============================
-
-.. rest_method::  POST /v3/auth/tokens
-
-Enables a consumer to get an Identity Service authentication token.
-
-The token represents the delegated authorization and identity
-(impersonation) of the authorizing user. The roles and scope of the
-generated token match those that the consumer initially requested.
-
-Supported signature methods: HMAC-SHA1.
-
-The consumer must provide required OAuth parameters in the request.
-See `Consumer Obtains a Request Token
-<http://oauth.net/core/1.0a/#auth_step1>`_.
-
-The returned token is scoped to the requested project and with the
-requested roles. In addition to the standard token response, the
-token has an OAuth-specific object.
-
-Example OAuth-specific object in a token:
-
-.. code-block:: json
-
-   "OS-OAUTH1": {
-       "access_token_id": "cce0b8be7"
-   }
-
-Normal response codes: 200
-Error response codes: 413, 405, 404, 403, 401, 400, 503
-
-
-List authorized access tokens
-=============================
-
-.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens
-
-Lists authorized access tokens.
-
-Normal response codes: 200
-Error response codes: 413, 405, 404, 403, 401, 400, 503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-OAUTH1/access-tokens-list-response.json
    :language: javascript
 
 
@@ -253,27 +140,6 @@ Response Example
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-show-response.json
    :language: javascript
-
-
-Delete consumer
-===============
-
-.. rest_method::  DELETE /v3/OS-OAUTH1/consumers/{consumer_id}
-
-Deletes a consumer.
-
-When you delete a consumer, any associated request tokens, access
-tokens, and Identity API tokens are also deleted.
-
-Normal response codes: 204
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - consumer_id: consumer_id
 
 
 Update consumer
@@ -354,6 +220,109 @@ Response Example
 TBD
 
 
+Create access token
+===================
+
+.. rest_method::  POST /v3/OS-OAUTH1/access_token
+
+Enables a consumer to create an access token by exchanging a request token for an access token.
+
+After the user authorizes the request token, the consumer exchanges
+the authorized request token and OAuth verifier for an access
+token.
+
+Supported signature methods: HMAC-SHA1.
+
+The consumer must provide all required OAuth parameters in the
+request. See `Consumer Obtains a Request Token
+<http://oauth.net/core/1.0a/#auth_step1>`_.
+
+Supported signature methods: HMAC-SHA1.
+
+You must provide all required OAuth parameters in the request. See
+`Consumer Obtains a Request Token
+<http://oauth.net/core/1.0a/#auth_step1>`_.
+
+Normal response codes: 200
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/OS-OAUTH1/access-token-create-response.txt
+   :language: javascript
+
+
+Get authorized access token
+===========================
+
+.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}
+
+Gets an authorized access token.
+
+Normal response codes: 200
+Error response codes: 413, 405, 404, 403, 401, 400, 503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id
+   - access_token_id: access_token_id
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/OS-OAUTH1/access-token-show-response.json
+   :language: javascript
+
+
+Revoke access token
+===================
+
+.. rest_method::  DELETE /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}
+
+Enables a user to revoke an access token, which prevents the consumer from
+requesting new Identity Service API tokens. Also, revokes any Identity Service
+API tokens that were issued to the consumer through that access token.
+
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id
+   - access_token_id: access_token_id
+
+
+List authorized access tokens
+=============================
+
+.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens
+
+Lists authorized access tokens.
+
+Normal response codes: 200
+Error response codes: 413, 405, 404, 403, 401, 400, 503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/OS-OAUTH1/access-tokens-list-response.json
+   :language: javascript
+
+
 List roles for an access token
 ==============================
 
@@ -391,3 +360,36 @@ Request
    - user_id: user_id
    - role_id: role_id
    - access_token_id: access_token_id
+
+
+Authenticate with Identity API
+==============================
+
+.. rest_method::  POST /v3/auth/tokens
+
+Enables a consumer to get an Identity Service authentication token.
+
+The token represents the delegated authorization and identity
+(impersonation) of the authorizing user. The roles and scope of the
+generated token match those that the consumer initially requested.
+
+Supported signature methods: HMAC-SHA1.
+
+The consumer must provide required OAuth parameters in the request.
+See `Consumer Obtains a Request Token
+<http://oauth.net/core/1.0a/#auth_step1>`_.
+
+The returned token is scoped to the requested project and with the
+requested roles. In addition to the standard token response, the
+token has an OAuth-specific object.
+
+Example OAuth-specific object in a token:
+
+.. code-block:: json
+
+   "OS-OAUTH1": {
+       "access_token_id": "cce0b8be7"
+   }
+
+Normal response codes: 200
+Error response codes: 413, 405, 404, 403, 401, 400, 503
