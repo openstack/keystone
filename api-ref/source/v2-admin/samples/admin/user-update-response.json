@@ -1,0 +1,9 @@
+{
+    "user": {
+        "id": "a0ae37b",
+        "name": "demo",
+        "email": "updated_email@example.org",
+        "username": "demo",
+        "enabled": true
+    }
+}
