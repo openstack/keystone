@@ -196,3 +196,21 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         self.id_mapping_api.purge_mappings({})
         self.assertThat(mapping_sql.list_id_mappings(),
                         matchers.HasLength(initial_mappings))
+
+    def test_create_duplicate_mapping(self):
+        local_entity = {
+            'domain_id': self.domainA['id'],
+            'local_id': uuid.uuid4().hex,
+            'entity_type': mapping.EntityType.USER}
+        public_id1 = self.id_mapping_api.create_id_mapping(local_entity)
+
+        # second call should be successful and return the same
+        # public_id as above
+        public_id2 = self.id_mapping_api.create_id_mapping(local_entity)
+        self.assertEqual(public_id1, public_id2)
+
+        # even if public_id was specified, it should not be used,
+        # and still the same public_id should be returned
+        public_id3 = self.id_mapping_api.create_id_mapping(
+            local_entity, public_id=uuid.uuid4().hex)
+        self.assertEqual(public_id1, public_id3)
