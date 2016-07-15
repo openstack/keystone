@@ -81,7 +81,7 @@ def handle_scoped_token(request, auth_payload, auth_context, token_ref,
     group_ids = token_ref.federation_group_ids
     send_notification = functools.partial(
         notifications.send_saml_audit_notification, 'authenticate',
-        request.context_dict, user_id, group_ids, identity_provider, protocol,
+        request, user_id, group_ids, identity_provider, protocol,
         token_audit_id)
 
     utils.assert_enabled_identity_provider(federation_api, identity_provider)
@@ -171,7 +171,7 @@ def handle_unscoped_token(request, auth_payload, auth_context,
         # after sending the notification
         outcome = taxonomy.OUTCOME_FAILURE
         notifications.send_saml_audit_notification('authenticate',
-                                                   request.context_dict,
+                                                   request,
                                                    user_id, group_ids,
                                                    identity_provider,
                                                    protocol, token_id,
@@ -180,7 +180,7 @@ def handle_unscoped_token(request, auth_payload, auth_context,
     else:
         outcome = taxonomy.OUTCOME_SUCCESS
         notifications.send_saml_audit_notification('authenticate',
-                                                   request.context_dict,
+                                                   request,
                                                    user_id, group_ids,
                                                    identity_provider,
                                                    protocol, token_id,

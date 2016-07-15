@@ -1631,7 +1631,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         super(FederatedTokenTests, self).setUp()
         self._notifications = []
 
-        def fake_saml_notify(action, context, user_id, group_ids,
+        def fake_saml_notify(action, request, user_id, group_ids,
                              identity_provider, protocol, token_id, outcome):
             note = {
                 'action': action,

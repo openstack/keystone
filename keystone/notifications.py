@@ -481,19 +481,18 @@ class CadfNotificationWrapper(object):
     def __call__(self, f):
         @functools.wraps(f)
         def wrapper(wrapped_self, request, user_id, *args, **kwargs):
-            # Always send a notification.
-            initiator = _get_request_audit_info(request.context_dict, user_id)
+            """Alway send a notification."""
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             try:
                 result = f(wrapped_self, request, user_id, *args, **kwargs)
             except Exception:
                 # For authentication failure send a cadf event as well
-                _send_audit_notification(self.action, initiator,
+                _send_audit_notification(self.action, request.audit_initiator,
                                          taxonomy.OUTCOME_FAILURE,
                                          target, self.event_type)
                 raise
             else:
-                _send_audit_notification(self.action, initiator,
+                _send_audit_notification(self.action, request.audit_initiator,
                                          taxonomy.OUTCOME_SUCCESS,
                                          target, self.event_type)
                 return result
@@ -603,15 +602,15 @@ class CadfRoleAssignmentNotificationWrapper(object):
         return wrapper
 
 
-def send_saml_audit_notification(action, context, user_id, group_ids,
+def send_saml_audit_notification(action, request, user_id, group_ids,
                                  identity_provider, protocol, token_id,
                                  outcome):
     """Send notification to inform observers about SAML events.
 
     :param action: Action being audited
     :type action: str
-    :param context: Current request context to collect request info from
-    :type context: dict
+    :param request: Current request to collect request info from
+    :type request: keystone.common.request.Request
     :param user_id: User ID from Keystone token
     :type user_id: str
     :param group_ids: List of Group IDs from Keystone token
@@ -625,7 +624,7 @@ def send_saml_audit_notification(action, context, user_id, group_ids,
     :param outcome: One of :class:`pycadf.cadftaxonomy`
     :type outcome: str
     """
-    initiator = _get_request_audit_info(context)
+    initiator = request.audit_initiator
     target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
     audit_type = SAML_AUDIT_TYPE
     user_id = user_id or taxonomy.UNKNOWN

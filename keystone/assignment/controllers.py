@@ -30,7 +30,6 @@ from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
-from keystone import notifications
 
 
 CONF = keystone.conf.CONF
@@ -106,15 +105,15 @@ class Role(controller.V2Controller):
             role_id = uuid.uuid4().hex
 
         role['id'] = role_id
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        role_ref = self.role_api.create_role(role_id, role, initiator)
+        role_ref = self.role_api.create_role(role_id,
+                                             role,
+                                             request.audit_initiator)
         return {'role': role_ref}
 
     @controller.v2_deprecated
     def delete_role(self, request, role_id):
         self.assert_admin(request)
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        self.role_api.delete_role(role_id, initiator)
+        self.role_api.delete_role(role_id, request.audit_initiator)
 
     @controller.v2_deprecated
     def get_roles(self, request):
@@ -319,12 +318,12 @@ class RoleV3(controller.V3Controller):
     @controller.protected()
     def create_role(self, request, role):
         validation.lazy_validate(schema.role_create, role)
-        return self._create_role(request.context_dict, role)
+        return self._create_role(request, role)
 
     @controller.protected()
     def create_domain_role(self, request, role):
         validation.lazy_validate(schema.role_create, role)
-        return self._create_role(request.context_dict, role)
+        return self._create_role(request, role)
 
     def list_roles_wrapper(self, request):
         if request.params.get('domain_id'):
@@ -348,11 +347,11 @@ class RoleV3(controller.V3Controller):
 
     @controller.protected()
     def get_role(self, request, role_id):
-        return self._get_role(request.context_dict, role_id)
+        return self._get_role(request, role_id)
 
     @controller.protected()
     def get_domain_role(self, request, role_id):
-        return self._get_role(request.context_dict, role_id)
+        return self._get_role(request, role_id)
 
     def update_role_wrapper(self, context, role_id, role):
         # Since we don't allow you change whether a role is global or domain
@@ -367,12 +366,12 @@ class RoleV3(controller.V3Controller):
     @controller.protected()
     def update_role(self, request, role_id, role):
         validation.lazy_validate(schema.role_update, role)
-        return self._update_role(request.context_dict, role_id, role)
+        return self._update_role(request, role_id, role)
 
     @controller.protected()
     def update_domain_role(self, request, role_id, role):
         validation.lazy_validate(schema.role_update, role)
-        return self._update_role(request.context_dict, role_id, role)
+        return self._update_role(request, role_id, role)
 
     def delete_role_wrapper(self, context, role_id):
         if self._is_domain_role_target(role_id):
@@ -382,13 +381,13 @@ class RoleV3(controller.V3Controller):
 
     @controller.protected()
     def delete_role(self, request, role_id):
-        return self._delete_role(request.context_dict, role_id)
+        return self._delete_role(request, role_id)
 
     @controller.protected()
     def delete_domain_role(self, request, role_id):
-        return self._delete_role(request.context_dict, role_id)
+        return self._delete_role(request, role_id)
 
-    def _create_role(self, context, role):
+    def _create_role(self, request, role):
         if role['name'] == CONF.member_role_name:
             # Use the configured member role ID when creating the configured
             # member role name. This avoids the potential of creating a
@@ -398,29 +397,27 @@ class RoleV3(controller.V3Controller):
             role = self._assign_unique_id(role)
 
         ref = self._normalize_dict(role)
-
-        initiator = notifications._get_request_audit_info(context)
-        ref = self.role_api.create_role(ref['id'], ref, initiator)
-        return RoleV3.wrap_member(context, ref)
+        ref = self.role_api.create_role(ref['id'],
+                                        ref,
+                                        request.audit_initiator)
+        return RoleV3.wrap_member(request.context_dict, ref)
 
     def _list_roles(self, request, filters):
         hints = RoleV3.build_driver_hints(request, filters)
         refs = self.role_api.list_roles(hints=hints)
         return RoleV3.wrap_collection(request.context_dict, refs, hints=hints)
 
-    def _get_role(self, context, role_id):
+    def _get_role(self, request, role_id):
         ref = self.role_api.get_role(role_id)
-        return RoleV3.wrap_member(context, ref)
+        return RoleV3.wrap_member(request.context_dict, ref)
 
-    def _update_role(self, context, role_id, role):
+    def _update_role(self, request, role_id, role):
         self._require_matching_id(role_id, role)
-        initiator = notifications._get_request_audit_info(context)
-        ref = self.role_api.update_role(role_id, role, initiator)
-        return RoleV3.wrap_member(context, ref)
+        ref = self.role_api.update_role(role_id, role, request.audit_initiator)
+        return RoleV3.wrap_member(request.context_dict, ref)
 
-    def _delete_role(self, context, role_id):
-        initiator = notifications._get_request_audit_info(context)
-        self.role_api.delete_role(role_id, initiator)
+    def _delete_role(self, request, role_id):
+        self.role_api.delete_role(role_id, request.audit_initiator)
 
     @classmethod
     def build_driver_hints(cls, request, supported_filters):
