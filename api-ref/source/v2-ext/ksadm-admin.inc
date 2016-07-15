@@ -569,21 +569,3 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - roleId: roleId
-
-
-Delete user (admin extension)
-=============================
-
-.. rest_method::  DELETE /v2.0/users/{userId}
-
-Deletes a user.
-
-Normal response codes: 204
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
