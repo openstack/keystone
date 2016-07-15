@@ -55,7 +55,6 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_addition_auth_steps(self):
@@ -69,7 +68,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
         auth_data[METHOD_NAME] = {
             'test': 'test'}
         auth_data = {'identity': auth_data}
-        auth_info = auth.controllers.AuthInfo.create(None, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         try:
             self.api.authenticate(self.make_request(), auth_info, auth_context)
@@ -84,7 +83,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
         auth_data[METHOD_NAME] = {
             'response': EXPECTED_RESPONSE}
         auth_data = {'identity': auth_data}
-        auth_info = auth.controllers.AuthInfo.create(None, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.api.authenticate(self.make_request(), auth_info, auth_context)
         self.assertEqual(DEMO_USER_ID, auth_context['user_id'])
@@ -94,7 +93,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
         auth_data[METHOD_NAME] = {
             'response': uuid.uuid4().hex}
         auth_data = {'identity': auth_data}
-        auth_info = auth.controllers.AuthInfo.create(None, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,
                           self.api.authenticate,
@@ -145,8 +144,7 @@ class TestMapped(unit.TestCase):
                     method_name: {'protocol': method_name},
                 }
             }
-            auth_info = auth.controllers.AuthInfo.create(request.context_dict,
-                                                         auth_data)
+            auth_info = auth.controllers.AuthInfo.create(auth_data)
             auth_context = {'extras': {},
                             'method_names': [],
                             'user_id': uuid.uuid4().hex}
@@ -173,7 +171,7 @@ class TestMapped(unit.TestCase):
         with mock.patch.object(auth.plugins.mapped.Mapped,
                                'authenticate',
                                return_value=None) as authenticate:
-            auth_info = auth.controllers.AuthInfo.create(None, auth_data)
+            auth_info = auth.controllers.AuthInfo.create(auth_data)
             request = self.make_request(environ={'REMOTE_USER': 'foo@idp.com'})
             self.api.authenticate(request, auth_info, auth_context)
             # make sure Mapped plugin got invoked with the correct payload

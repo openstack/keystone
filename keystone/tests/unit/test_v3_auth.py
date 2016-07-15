@@ -56,7 +56,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data['identity']['token'] = {'id': uuid.uuid4().hex}
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_unsupported_auth_method(self):
@@ -65,7 +64,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_missing_auth_method_data(self):
@@ -73,7 +71,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_project_name_no_domain(self):
@@ -83,7 +80,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
             project_name='abc')['auth']
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_both_project_and_domain_in_scope(self):
@@ -94,7 +90,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
             domain_name='test')['auth']
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_get_method_names_duplicates(self):
@@ -104,8 +99,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
             password='test')['auth']
         auth_data['identity']['methods'] = ['password', 'token',
                                             'password', 'password']
-        context = None
-        auth_info = auth.controllers.AuthInfo.create(context, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(auth_data)
         self.assertEqual(['password', 'token'],
                          auth_info.get_method_names())
 
@@ -113,8 +107,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data = self.build_authentication_request(
             user_id='test',
             password='test')['auth']
-        context = None
-        auth_info = auth.controllers.AuthInfo.create(context, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(auth_data)
 
         method_name = uuid.uuid4().hex
         self.assertRaises(exception.ValidationError,
@@ -129,7 +122,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data['scope']['domain'] = []
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
     def test_empty_project_in_scope(self):
@@ -140,7 +132,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data['scope']['project'] = []
         self.assertRaises(exception.ValidationError,
                           auth.controllers.AuthInfo.create,
-                          None,
                           auth_data)
 
 
@@ -2070,7 +2061,7 @@ class TokenAPITests(object):
         auth_data['identity']['methods'] = ["password", "external"]
         auth_data['identity']['external'] = {}
         api = auth.controllers.Auth()
-        auth_info = auth.controllers.AuthInfo(None, auth_data)
+        auth_info = auth.controllers.AuthInfo(auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,

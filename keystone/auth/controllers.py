@@ -132,13 +132,12 @@ class AuthInfo(object):
     """Encapsulation of "auth" request."""
 
     @staticmethod
-    def create(context, auth=None, scope_only=False):
-        auth_info = AuthInfo(context, auth=auth)
+    def create(auth=None, scope_only=False):
+        auth_info = AuthInfo(auth=auth)
         auth_info._validate_and_normalize_auth_data(scope_only)
         return auth_info
 
-    def __init__(self, context, auth=None):
-        self.context = context
+    def __init__(self, auth=None):
         self.auth = auth
         self._scope_data = (None, None, None, None)
         # self._scope_data is (domain_id, project_id, trust_ref, unscoped)
@@ -395,7 +394,7 @@ class Auth(controller.V3Controller):
         include_catalog = 'nocatalog' not in request.params
 
         try:
-            auth_info = AuthInfo.create(request.context_dict, auth=auth)
+            auth_info = AuthInfo.create(auth=auth)
             auth_context = AuthContext(extras={},
                                        method_names=[],
                                        bind={})

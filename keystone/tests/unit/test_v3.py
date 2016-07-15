@@ -1315,8 +1315,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         if not auth_data:
             auth_data = self.build_authentication_request(
                 kerberos=kerberos)['auth']
-        no_context = None
-        auth_info = auth.controllers.AuthInfo.create(no_context, auth_data)
+        auth_info = auth.controllers.AuthInfo.create(auth_data)
         auth_context = {'extras': {}, 'method_names': []}
         return self.make_request(environ=environment), auth_info, auth_context
 
