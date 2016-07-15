@@ -64,9 +64,8 @@ class CredentialV3(controller.V3Controller):
     @controller.protected()
     def create_credential(self, request, credential):
         validation.lazy_validate(schema.credential_create, credential)
-        trust_id = self._get_trust_id_for_request(request.context_dict)
         ref = self._assign_unique_id(self._normalize_dict(credential),
-                                     trust_id)
+                                     request.context.trust_id)
         ref = self.credential_api.create_credential(ref['id'], ref)
         return CredentialV3.wrap_member(request.context_dict, ref)
 
