@@ -3,20 +3,20 @@
         {
             "id": "123456",
             "links": {
-                "self": "http://identity:35357/v3/roles/123456"
+                "self": "http://example.com/identity/v3/roles/123456"
             },
             "name": "admin"
         },
         {
             "id": "123457",
             "links": {
-                "self": "http://identity:35357/v3/roles/123457"
+                "self": "http://example.com/identity/v3/roles/123457"
             },
             "name": "manager"
         }
     ],
     "links": {
-        "self": "http://identity:35357/v3/projects/456789/groups/101112/roles",
+        "self": "http://example.com/identity/v3/projects/456789/groups/101112/roles",
         "previous": null,
         "next": null
     }

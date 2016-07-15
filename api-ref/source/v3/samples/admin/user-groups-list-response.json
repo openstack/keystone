@@ -5,7 +5,7 @@
             "domain_id": "1789d1",
             "id": "ea167b",
             "links": {
-                "self": "https://identity:35357/v3/groups/ea167b"
+                "self": "https://example.com/identity/v3/groups/ea167b"
             },
             "name": "Developers"
         },
@@ -14,13 +14,13 @@
             "domain_id": "1789d1",
             "id": "a62db1",
             "links": {
-                "self": "https://identity:35357/v3/groups/a62db1"
+                "self": "https://example.com/identity/v3/groups/a62db1"
             },
             "name": "Secure Developers"
         }
     ],
     "links": {
-        "self": "http://identity:35357/v3/users/9fe1d3/groups",
+        "self": "http://example.com/identity/v3/users/9fe1d3/groups",
         "previous": null,
         "next": null
     }

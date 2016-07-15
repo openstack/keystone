@@ -3,7 +3,7 @@
         "id": "7fea2d",
         "description": "My consumer",
         "links": {
-            "self": "http://identity:35357/v3/OS-OAUTH1/consumers/7fea2d"
+            "self": "http://example.com/identity/v3/OS-OAUTH1/consumers/7fea2d"
         }
     }
 }

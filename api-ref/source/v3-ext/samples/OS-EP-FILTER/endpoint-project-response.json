@@ -4,7 +4,7 @@
         "enabled": true,
         "id": "263fd9",
         "links": {
-            "self": "http://identity:35357/v3/projects/263fd9"
+            "self": "http://example.com/identity/v3/projects/263fd9"
         },
         "name": "project name #1",
         "description": "project description #1"

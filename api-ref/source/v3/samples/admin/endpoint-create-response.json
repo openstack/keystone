@@ -2,9 +2,9 @@
     "endpoint": {
         "region_id": "RegionOne",
         "links": {
-            "self": "http://localhost:5000/v3/endpoints/e9b475a8742d4ff1a81b353c5a37e138"
+            "self": "http://example.com/identity/v3/endpoints/e9b475a8742d4ff1a81b353c5a37e138"
         },
-        "url": "http://identity:35357/v3/endpoints/828384",
+        "url": "http://example.com/identity/v3/endpoints/828384",
         "region": "RegionOne",
         "enabled": true,
         "interface": "public",

@@ -3,14 +3,14 @@
         {
             "id": "c1648e",
             "links": {
-                "self": "http://identity:35357/v3/roles/c1648e"
+                "self": "http://example.com/identity/v3/roles/c1648e"
             },
             "name": "manager"
         },
         {
             "id": "ed7b78",
             "links": {
-                "self": "http://identity:35357/v3/roles/ed7b78"
+                "self": "http://example.com/identity/v3/roles/ed7b78"
             },
             "name": "member"
         }

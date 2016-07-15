@@ -3,7 +3,7 @@
         "parent_region_id": "RegionOne",
         "id": "RegionOneSubRegion",
         "links": {
-            "self": "http://localhost:5000/v3/regions/RegionOneSubRegion"
+            "self": "http://example.com/identity/v3/regions/RegionOneSubRegion"
         },
         "description": "My subregion"
     }

@@ -4,7 +4,7 @@
         "id": "01c3d5b92f7841ac83fb4b26173c12c7",
         "interface": "admin",
         "links": {
-            "self": "http://localhost:5000/v3/endpoints/01c3d5b92f7841ac83fb4b26173c12c7"
+            "self": "http://example.com/identity/v3/endpoints/01c3d5b92f7841ac83fb4b26173c12c7"
         },
         "region": "RegionOne",
         "region_id": "RegionOne",

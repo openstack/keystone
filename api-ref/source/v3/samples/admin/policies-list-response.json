@@ -2,7 +2,7 @@
     "links": {
         "next": null,
         "previous": null,
-        "self": "http://localhost:5000/v3/policies"
+        "self": "http://example.com/identity/v3/policies"
     },
     "policies": [
         {
@@ -13,7 +13,7 @@
             },
             "id": "717273",
             "links": {
-                "self": "http://identity:35357/v3/policies/717273"
+                "self": "http://example.com/identity/v3/policies/717273"
             },
             "project_id": "456789",
             "type": "application/json",
@@ -27,7 +27,7 @@
             },
             "id": "717274",
             "links": {
-                "self": "http://identity:35357/v3/policies/717274"
+                "self": "http://example.com/identity/v3/policies/717274"
             },
             "project_id": "456789",
             "type": "application/json",

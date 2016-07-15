@@ -9,7 +9,7 @@
                 },
                 "id": "ac4861",
                 "links": {
-                    "self": "http://identity:35357/v3/OS-EP-FILTER/endpoint_groups/ac4861"
+                    "self": "http://example.com/identity/v3/OS-EP-FILTER/endpoint_groups/ac4861"
                 },
                 "name": "endpoint group name #1"
             }
@@ -22,14 +22,14 @@
                 },
                 "id": "3de68c",
                 "links": {
-                    "self": "http://identity:35357/v3/OS-EP-FILTER/endpoint_groups/3de68c"
+                    "self": "http://example.com/identity/v3/OS-EP-FILTER/endpoint_groups/3de68c"
                 },
                 "name": "endpoint group name #2"
             }
         }
         ],
     "links": {
-        "self": "https://identity:35357/v3/OS-EP-FILTER/endpoint_groups",
+        "self": "https://example.com/identity/v3/OS-EP-FILTER/endpoint_groups",
         "previous": null,
         "next": null
     }

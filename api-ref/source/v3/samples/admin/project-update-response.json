@@ -3,7 +3,7 @@
         "is_domain": true,
         "description": "My updated project",
         "links": {
-            "self": "http://localhost:5000/v3/projects/93ebbcc35335488b96ff9cd7d18cbb2e"
+            "self": "http://example.com/identity/v3/projects/93ebbcc35335488b96ff9cd7d18cbb2e"
         },
         "extra": {
             "is_domain": true

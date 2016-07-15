@@ -4,7 +4,7 @@
         "enabled": true,
         "id": "161718",
         "links": {
-            "self": "http://identity:35357/v3/domains/161718"
+            "self": "http://example.com/identity/v3/domains/161718"
         },
         "name": "myDomain"
     }

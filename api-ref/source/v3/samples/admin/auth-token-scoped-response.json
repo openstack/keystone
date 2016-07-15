@@ -164,21 +164,21 @@
                 "endpoints": [
                     {
                         "region_id": "RegionOne",
-                        "url": "http://23.253.248.171:35357/v2.0",
+                        "url": "http://example.com/identity_v2_admin/v2.0",
                         "region": "RegionOne",
                         "interface": "admin",
                         "id": "0ceeb58592274caea5bc942a07d5473f"
                     },
                     {
                         "region_id": "RegionOne",
-                        "url": "http://23.253.248.171:5000/v2.0",
+                        "url": "http://example.com/identity/v2.0",
                         "region": "RegionOne",
                         "interface": "internal",
                         "id": "8126f2c7021d413e9c98ec3a0ba0fd58"
                     },
                     {
                         "region_id": "RegionOne",
-                        "url": "http://23.253.248.171:5000/v2.0",
+                        "url": "http://example.com/identity/v2.0",
                         "region": "RegionOne",
                         "interface": "public",
                         "id": "c693879254544e3fb502e795a3f6acc8"
