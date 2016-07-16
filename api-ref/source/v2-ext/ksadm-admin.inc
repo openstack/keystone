@@ -140,34 +140,6 @@ Response Example
    :language: javascript
 
 
-List roles (admin extension)
-============================
-
-.. rest_method::  GET /v2.0/OS-KSADM/
-
-Lists all roles.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - roles_links: roles_links
-   - roles: roles
-   - description: description
-   - name: name
-   - id: id
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/roles-list-response.json
-   :language: javascript
-
-
 Create user (admin extension)
 =============================
 
@@ -205,71 +177,6 @@ Response Parameters
    - email: email
    - name: name
    - id: id
-
-
-Show role information by name
-=============================
-
-.. rest_method::  GET /v2.0/OS-KSADM/roles/{role_name}
-
-Shows information for a role, by name.
-
-Normal response codes: 200,203
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - Location: Location
-   - description: description
-   - name: name
-   - id: id
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/role-show-response.json
-   :language: javascript
-
-
-Grant global role to user
-=========================
-
-.. rest_method::  PUT /v2.0/users/{userId}/roles/OS-KSADM/{roleId}
-
-Grants a global role to a user.
-
-Normal response codes: 201
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-   - roleId: roleId
-
-
-Delete global role from user
-============================
-
-.. rest_method::  DELETE /v2.0/users/{userId}/roles/OS-KSADM/{roleId}
-
-Deletes a global role from a user.
-
-Normal response codes: 204
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-   - roleId: roleId
 
 
 List services (admin extension)
@@ -354,10 +261,10 @@ Response Example
    :language: javascript
 
 
-Create role (admin extension)
-=============================
+Create a role
+=============
 
-.. rest_method::  POST /v2.0/OS-KSADM
+.. rest_method::  POST /v2.0/OS-KSADM/roles
 
 Creates a role.
 
@@ -378,12 +285,40 @@ Response Parameters
    - Location: Location
 
 
-Show role details, by ID
-========================
+List all roles
+==============
 
-.. rest_method::  GET /v2.0/OS-KSADM/{roleId}
+.. rest_method::  GET /v2.0/OS-KSADM/roles
 
-Shows details for a role, by ID.
+Lists all roles.
+
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - roles_links: roles_links
+   - roles: roles
+   - description: description
+   - name: name
+   - id: id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-KSADM/roles-list-response.json
+   :language: javascript
+
+
+Show a role
+===========
+
+.. rest_method::  GET /v2.0/OS-KSADM/roles/{roleId}
+
+Shows details for a role.
 
 Normal response codes: 200,203
 Error response codes: 413,415,405,404,403,401,400,503,409
@@ -412,10 +347,75 @@ Response Example
    :language: javascript
 
 
-Delete role (admin extension)
+Show role information by name
 =============================
 
-.. rest_method::  DELETE /v2.0/OS-KSADM/{roleId}
+.. rest_method::  GET /v2.0/OS-KSADM/roles/{role_name}
+
+Shows information for a role, by name.
+
+Normal response codes: 200,203
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - Location: Location
+   - description: description
+   - name: name
+   - id: id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-KSADM/role-show-response.json
+   :language: javascript
+
+
+Grant global role to user
+=========================
+
+.. rest_method::  PUT /v2.0/users/{userId}/roles/OS-KSADM/{roleId}
+
+Grants a global role to a user.
+
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: userId
+   - roleId: roleId
+
+
+Delete global role from user
+============================
+
+.. rest_method::  DELETE /v2.0/users/{userId}/roles/OS-KSADM/{roleId}
+
+Deletes a global role from a user.
+
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: userId
+   - roleId: roleId
+
+
+Delete a role
+=============
+
+.. rest_method::  DELETE /v2.0/OS-KSADM/roles/{roleId}
 
 Deletes a role.
 
