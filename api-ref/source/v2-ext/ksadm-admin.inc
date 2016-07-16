@@ -312,44 +312,6 @@ Request
 
    - roleId: roleId
 
-    
-Grant global role to user
-=========================
-
-.. rest_method::  PUT /v2.0/users/{userId}/roles/OS-KSADM/{roleId}
-
-Grants a global role to a user.
-
-Normal response codes: 201
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-   - roleId: roleId
-
-
-Delete global role from user
-============================
-
-.. rest_method::  DELETE /v2.0/users/{userId}/roles/OS-KSADM/{roleId}
-
-Deletes a global role from a user.
-
-Normal response codes: 204
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-   - roleId: roleId
-
 
 Grant roles to user on tenant
 =============================
