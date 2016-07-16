@@ -127,6 +127,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - userId: userId
    - username: username
    - enabled: enabled
    - email: email
@@ -144,10 +145,17 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
+   - users: users
    - enabled: enabled
    - email: email
    - name: name
    - id: id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/admin/user-update-response.json
+   :language: javascript
 
 
 Delete user (admin endpoint)
