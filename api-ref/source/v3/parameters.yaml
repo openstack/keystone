@@ -265,6 +265,14 @@ scope_domain_id_query:
   in: query
   required: false
   type: string
+scope_os_inherit_inherited_to:
+  description: |
+    Filters based on role assignments that are inherited.
+    The only value of ``inherited_to`` that is currently
+    supported is ``projects``.
+  in: query
+  required: false
+  type: string
 scope_project_id_query:
   description: |
     Filters the response by a project ID.

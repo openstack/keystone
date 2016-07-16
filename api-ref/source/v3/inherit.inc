@@ -12,16 +12,18 @@ both projects and domains. To access project inheritance, the
 Identity service server must run at least API v3.4.
 
 
-Assign role to user owned by domain projects
-============================================
+Assign role to user on projects owned by domain
+===============================================
 
 .. rest_method::  PUT /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
 
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/index.html#assign-role-to-user-owned-by-domain-projects``
+
 Assigns a role to a user in projects owned by a domain.
 
-The API applies the inherited role to the existing and future owned
-projects. The inherited role does not appear as a role in a domain-
-scoped token.
+The inherited role is only applied to the owned projects (both existing and
+future projects), and will not appear as a role in a domain scoped token.
 
 Normal response codes: 204
 
@@ -30,17 +32,44 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - role_id: role_id
    - domain_id: domain_id
+   - role_id: role_id
+   - user_id: user_id
 
 
-Check project role for user in domain
-=====================================
+Assign role to group on projects owned by a domain
+==================================================
 
-.. rest_method::  HEAD /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
+.. rest_method::  PUT /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
 
-Checks whether a user has an inherited project role in a domain.
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#assign-role-to-group-in-domain-projects``
+
+The inherited role is only applied to the owned projects (both existing and
+future projects), and will not appear as a role in a domain scoped token.
+
+Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id
+   - group_id: group_id
+   - role_id: role_id
+
+
+List user's inherited project roles on a domain
+===============================================
+
+.. rest_method::  GET /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#list-project-roles-for-user-in-domain``
+
+The list only contains those role assignments to the domain that were specified
+as being inherited to projects within that domain.
 
 Normal response codes: 200
 
@@ -49,15 +78,95 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - role_id: role_id
    - domain_id: domain_id
+   - user_id: user_id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/admin/user-roles-domain-list-response.json
+   :language: javascript
 
 
-Revoke project role from user in domain
-=======================================
+List group's inherited project roles on domain
+==============================================
+
+.. rest_method::  GET /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#list-project-roles-for-group-in-domain``
+
+The list only contains those role assignments to the domain that were specified
+as being inherited to projects within that domain.
+
+Normal response codes: 200
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id
+   - group_id: group_id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/admin/group-roles-domain-list-response.json
+   :language: javascript
+
+
+Check if user has an inherited project role on domain
+=====================================================
+
+.. rest_method::  HEAD /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#check-project-role-for-user-in-domain``
+
+Checks whether a user has an inherited project role in a domain.
+
+Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id
+   - role_id: role_id
+   - user_id: user_id
+
+
+Check if group has an inherited project role on domain
+======================================================
+
+.. rest_method::  HEAD /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#check-project-role-for-group-in-domain``
+
+Checks whether a group has an inherited project role in a domain.
+
+Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id
+   - group_id: group_id
+   - role_id: role_id
+
+
+Revoke an inherited project role from user on domain
+====================================================
 
 .. rest_method::  DELETE /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#revoke-role-from-user``
 
 Revokes an inherited project role from a user in a domain.
 
@@ -68,121 +177,18 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - domain_id: domain_id
+   - role_id: role_id
    - user_id: user_id
-   - role_id: role_id
-   - domain_id: domain_id
 
 
-Assign role to group
-====================
-
-.. rest_method::  PUT /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
-
-Assigns a role to a group in projects in a subtree.
-
-The API anchors the inherited role assignment to a project and
-applies it to its subtree in the projects hierarchy to both
-existing and future projects.
-
-A group can have both a regular, non-inherited role assignment and
-an inherited role assignment in the same project.
-
-Normal response codes: 204
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id
-   - role_id: role_id
-   - project_id: project_id
-
-
-Check role for group
-====================
-
-.. rest_method::  HEAD /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
-
-Checks whether a group has a role assignment with the ``inherited_to_projects`` flag in a project.
-
-Normal response codes: 200
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id
-   - role_id: role_id
-   - project_id: project_id
-
-
-Revoke role from group
-======================
-
-.. rest_method::  DELETE /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
-
-Revokes an inherited role from a group in a project.
-
-Normal response codes: 204
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id
-   - role_id: role_id
-   - project_id: project_id
-
-
-Assign role to group in domain projects
-=======================================
-
-.. rest_method::  PUT /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
-
-Assigns a role to a group in projects owned by a domain.
-
-The API applies the inherited role to owned projects, both existing
-and future. The inherited role does not appear as a role in a
-domain-scoped token.
-
-Normal response codes: 204
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id
-   - role_id: role_id
-   - domain_id: domain_id
-
-
-Check project role for group in domain
-======================================
-
-.. rest_method::  HEAD /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
-
-Checks whether a group has an inherited project role in a domain.
-
-Normal response codes: 200
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id
-   - role_id: role_id
-   - domain_id: domain_id
-
-
-Revoke project role from group in domain
-========================================
+Revoke an inherited project role from group on domain
+=====================================================
 
 .. rest_method::  DELETE /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#revoke-project-role-from-group-in-domain``
 
 Revokes an inherited project role from a group in a domain.
 
@@ -193,62 +199,25 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - domain_id: domain_id
    - group_id: group_id
    - role_id: role_id
-   - domain_id: domain_id
 
 
-Assign role to user
-===================
+Assign role to user on projects in a subtree
+============================================
 
 .. rest_method::  PUT /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
 
-Assigns a role to a user in projects in a subtree.
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#assign-role-to-user``
 
-The API anchors the inherited role assignment to a project and
-applies it to its subtree in the projects hierarchy to both
-existing and future projects.
+The inherited role assignment is anchored to a project and applied to its
+subtree in the projects hierarchy (both existing and future projects).
 
-A user can have both a regular, non-inherited role assignment and
-an inherited role assignment in the same project.
-
-Normal response codes: 204
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id
-   - role_id: role_id
-   - project_id: project_id
-
-
-Check role for user
-===================
-
-.. rest_method::  HEAD /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
-
-Checks whether a user has a role assignment with the ``inherited_to_projects`` flag in a project.
-
-Normal response codes: 200
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id
-   - role_id: role_id
-   - project_id: project_id
-
-
-Revoke role from user
-=====================
-
-.. rest_method::  DELETE /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
-
-Revokes an inherited role from a user in a project.
+* Note: It is possible for a user to have both a regular (non-inherited) and an
+  inherited role assignment on the same project.
+* Note: The request doesn't require a body, which will be ignored if provided.
 
 Normal response codes: 204
 
@@ -257,19 +226,27 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - role_id: role_id
    - project_id: project_id
+   - role_id: role_id
+   - user_id: user_id
 
 
-List project roles for group in domain
-======================================
+Assign role to group on projects in a subtree
+=============================================
 
-.. rest_method::  GET /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
+.. rest_method::  PUT /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
 
-Lists the project roles that a group inherits from a parent project in a domain.
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#assign-role-to-group``
 
-Normal response codes: 200
+The inherited role assignment is anchored to a project and applied to its
+subtree in the projects hierarchy (both existing and future projects).
+
+* Note: It is possible for a group to have both a regular (non-inherited) and
+  an inherited role assignment on the same project.
+* Note: The request doesn't require a body, which will be ignored if provided.
+
+Normal response codes: 204
 
 Request
 -------
@@ -277,90 +254,20 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - group_id: group_id
-   - domain_id: domain_id
-
-Response Example
-----------------
-
-.. literalinclude:: samples/admin/group-roles-domain-list-response.json
-   :language: javascript
+   - project_id: project_id
+   - role_id: role_id
 
 
-List effective role assignments
-===============================
+List user's inherited project roles on project
+==============================================
 
-.. rest_method::  GET /v3/role_assignments
+.. rest_method::  GET /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/inherited_to_projects
 
-Lists role assignments.
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#list-inherited-roles-for-user``
 
-The scope section in the list response is extended to allow the
-representation of role assignments that are inherited to projects.
-
-The list of all role assignments can be long. To filter the list,
-use the query parameters.
-
-Some typical examples are:
-
-``GET /role_assignments?user.id={user_id}`` lists all role
-assignments for a user.
-
-``GET /role_assignments?scope.project.id={project_id}`` lists all
-role assignments for a project.
-
-Each role assignment entity in the collection contains a link to
-the assignment that created this entity.
-
-Use the ``effective`` query parameter to list effective assignments
-at the user, project, and domain level. This parameter allows for
-the effects of group membership as well as inheritance from the
-parent domain or project, for role assignments that were made using
-OS-INHERIT assignment APIs.
-
-The group role assignment entities themselves are not returned in
-the collection. Because, like group membership, the effects of
-inheritance have already been allowed for, the role assignment
-entities themselves that specify the inheritance are not returned
-in the collection. This represents the effective role assignments
-that would be included in a scoped token. You can use the other
-query parameters with the ``effective`` parameter.
-
-For example, to determine what a user can actually do, issue this
-request: ``GET /role_assignments?user.id={user_id} & effective``
-
-To get the equivalent set of role assignments that would be
-included in the token response of a project-scoped token, issue
-``GET /role_assignments?user.id={user_id} &
-scope.project.id={project_id} & effective``
-
-In the response, the entity ``links`` section for entities that are
-included by virtue of group members also contains a url that you
-can use to access the membership of the group.
-
-Use the ``scope.OS-INHERIT:inherited_to`` query parameter to filter
-the response by inherited role assignments. The ``scope.OS-
-INHERIT:inherited_to`` value of ``projects`` is currently
-supported. This value indicates that this role is inherited to all
-projects of the owning domain or parent project.
-
-An example response for an API call with the ``effective`` query
-string:
-
-Normal response codes: 200
-Error response codes: 413,405,404,403,401,400,503
-
-Response Example
-----------------
-
-.. literalinclude:: samples/admin/role-assignments-effective-list-response.json
-   :language: javascript
-
-
-List project roles for user in domain
-=====================================
-
-.. rest_method::  GET /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/inherited_to_projects
-
-Lists the project roles that a user inherits from a parent project in a domain.
+The list only contains those roles assigned to this project that were specified
+as being inherited to its subtree.
 
 Normal response codes: 200
 
@@ -369,25 +276,26 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id
    - user_id: user_id
-   - domain_id: domain_id
 
 Response Example
 ----------------
 
-.. literalinclude:: samples/admin/user-roles-domain-list-response.json
+.. literalinclude:: samples/admin/user-roles-list-response.json
    :language: javascript
 
 
-List roles for group
-====================
+List group's inherited project roles on project
+===============================================
 
 .. rest_method::  GET /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/inherited_to_projects
 
-Lists the project roles that a group in a project inherits from a parent project.
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#list-roles-for-group``
 
-The list shows only roles that the group project inherits from the
-parent project.
+The list only contains those roles assigned to this project that were specified
+as being inherited to its subtree.
 
 Normal response codes: 200
 
@@ -406,15 +314,15 @@ Response Example
    :language: javascript
 
 
-List inherited roles for user
-=============================
+Check if user has an inherited project role on project
+======================================================
 
-.. rest_method::  GET /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/inherited_to_projects
+.. rest_method::  HEAD /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
 
-Lists the project roles that a user in a project inherits from a parent project.
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#check-role-for-user``
 
-The list shows only roles that the user project inherits from the
-parent project.
+Checks whether a user has a role assignment with the ``inherited_to_projects`` flag in a project.
 
 Normal response codes: 200
 
@@ -423,11 +331,177 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
    - project_id: project_id
+   - role_id: role_id
+   - user_id: user_id
 
-Response Example
-----------------
 
-.. literalinclude:: samples/admin/user-roles-list-response.json
+Check if group has an inherited project role on project
+=======================================================
+
+.. rest_method::  HEAD /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#check-role-for-group``
+
+Checks whether a group has a role assignment with the ``inherited_to_projects`` flag in a project.
+
+Normal response codes: 200
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id
+   - project_id: project_id
+   - role_id: role_id
+
+
+Revoke an inherited project role from user on project
+=====================================================
+
+.. rest_method::  DELETE /v3/OS-INHERIT/projects/{project_id}/users/{user_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#revoke-role-from-user``
+
+Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id
+   - role_id: role_id
+   - user_id: user_id
+
+
+Revoke an inherited project role from group on project
+======================================================
+
+.. rest_method::  DELETE /v3/OS-INHERIT/projects/{project_id}/groups/{group_id}/roles/{role_id}/inherited_to_projects
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#revoke-role-from-group``
+
+Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id
+   - project_id: project_id
+   - role_id: role_id
+
+
+List effective role assignments
+===============================
+
+.. rest_method::  GET /v3/role_assignments
+
+Relationship:
+``http://developer.openstack.org/api-ref/identity/v3/?expanded=#list-effective-role-assignments``
+
+Optional query parameters:
+
+.. rest_parameters:: parameters.yaml
+
+   - effective: effective_query
+   - include_names: include_names_query
+   - include_subtree: include_subtree_query
+   - group_id: group_id_query
+   - role_id: role_id_query
+   - scope.domain.id: scope_domain_id_query
+   - scope.OS-INHERIT:inherited_to: scope_os_inherit_inherited_to
+   - scope.project.id: scope_project_id_query
+   - user_id: user_id_query
+
+Get a list of role assignments.
+
+If no query parameters are specified, then this API will return a list of all
+role assignments.
+
+.. literalinclude:: samples/admin/role-assignments-list-response.json
    :language: javascript
+
+Since this list is likely to be very long, this API would typically always be
+used with one of more of the filter queries. Some typical examples are:
+
+``GET /v3/role_assignments?user.id={user_id}`` would list all role assignments
+involving the specified user.
+
+``GET /v3/role_assignments?scope.project.id={project_id}`` would list all role
+assignments involving the specified project.
+
+It is also possible to list all role assignments within
+a tree of projects:
+``GET /v3/role_assignments?scope.project.id={project_id}?include_subtree=true``
+would list all role assignments involving the specified project and all
+sub-projects. ``include_subtree=true`` can only be specified in conjunction
+with ``scope.project.id``, specifiying it without this will result in an
+HTTP 400 Bad Request being returned.
+
+Each role assignment entity in the collection contains a link to the assignment
+that gave rise to this entity.
+
+The scope section in the list response is extended to allow the representation
+of role assignments that are inherited to projects.
+
+.. literalinclude:: samples/admin/role-assignments-list-include-subtree-response.json
+   :language: javascript
+
+The query filter ``scope.OS-INHERIT:inherited_to`` can be used to filter based
+on role assignments that are inherited. The only value of
+``scope.OS-INHERIT:inherited_to`` that is currently supported is ``projects``,
+indicating that this role is inherited to all projects of the owning domain or
+parent project.
+
+If the query parameter ``effective`` is specified, rather than simply returning
+a list of role assignments that have been made, the API returns a list of
+effective assignments at the user, project and domain level, having allowed for
+the effects of group membership, role inference rules as well as inheritance
+from the parent domain or project. Since the effects of group membership have
+already been allowed for, the group role assignment entities themselves will
+not be returned in the collection. Likewise, since the effects of inheritance
+have already been allowed for, the role assignment entities themselves that
+specify the inheritance will also not be returned in the collection. This
+represents the effective role assignments that would be included in a scoped
+token. The same set of query parameters can also be used in combination with
+the ``effective`` parameter.
+
+For example:
+
+``GET /v3/role_assignments?user.id={user_id}&effective`` would, in other words,
+answer the question "what can this user actually do?".
+
+``GET
+/v3/role_assignments?user.id={user_id}&scope.project.id={project_id}&effective``
+would return the equivalent set of role assignments that would be included in
+the token response of a project scoped token.
+
+An example response for an API call with the query parameter ``effective``
+specified is given below:
+
+.. literalinclude:: samples/admin/role-assignments-effective-list-response.json
+   :language: javascript
+
+The entity ``links`` section of a response using the ``effective`` query
+parameter also contains, for entities that are included by virtue of group
+membership, a url that can be used to access the membership of the group.
+
+If the query parameter ``include_names`` is specified, rather than simply
+returning the entity IDs in the role assignments, the collection will
+additionally include the names of the entities. For example:
+
+``GET /v3/role_assignments?user.id={user_id}&effective&include_names=true``
+would return:
+
+.. literalinclude::samples/admin/role-assignments-effective-list-include-names-response.json
+   :language: javascript
+
+Normal response codes: 200
+Error response codes:  400, 401, 403, 404, 405, 413, 503

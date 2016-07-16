@@ -1,0 +1,60 @@
+{
+        "role_assignments": [
+            {
+                "links": {
+                    "assignment": "http://example.com/identity/v3/domains/161718/users/313233/roles/123456"
+                },
+                "role": {
+                    "id": "123456",
+                    "name": "admin"
+                },
+                "scope": {
+                    "domain": {
+                        "id": "161718",
+                        "name": "Default"
+                    }
+                },
+                "user": {
+                    "domain": {
+                        "id": "161718",
+                        "name": "Default"
+                    },
+                    "id": "313233",
+                    "name": "admin"
+                }
+            },
+            {
+                "links": {
+                    "assignment": "http://example.com/identity/v3/projects/456789/groups/101112/roles/123456",
+                    "membership": "http://example.com/identity/v3/groups/101112/users/313233"
+                },
+                "role": {
+                    "id": "123456",
+                    "name": "admin"
+                },
+                "scope": {
+                    "project": {
+                        "domain": {
+                            "id": "161718",
+                            "name": "Default"
+                        }
+                        "id": "456789",
+                        "name": "admin"
+                    }
+                },
+                "user": {
+                    "domain": {
+                        "id": "161718",
+                        "name": "Default"
+                    },
+                    "id": "313233",
+                    "name": "admin"
+                }
+            }
+        ],
+        "links": {
+            "self": "http://example.com/identity/v3/role_assignments?effective&include_names=true",
+            "previous": null,
+            "next": null
+        }
+    }
