@@ -52,7 +52,7 @@ Request
 Shows service information by ID
 ===============================
 
-.. rest_method::  GET /v2.0/services/{serviceId}
+.. rest_method::  GET /v2.0/OS-KSADM/services/{serviceId}
 
 Shows information for a service, by ID.
 
@@ -86,7 +86,7 @@ Response Example
 Delete service (admin extension)
 ================================
 
-.. rest_method::  DELETE /v2.0/services/{serviceId}
+.. rest_method::  DELETE /v2.0/OS-KSADM/services/{serviceId}
 
 Deletes a service.
 
@@ -275,7 +275,7 @@ Request
 List services (admin extension)
 ===============================
 
-.. rest_method::  GET /v2.0/services
+.. rest_method::  GET /v2.0/OS-KSADM/services
 
 Lists all services.
 
@@ -302,7 +302,7 @@ Response Example
 Create service (admin extension)
 ================================
 
-.. rest_method::  POST /v2.0/services
+.. rest_method::  POST /v2.0/OS-KSADM/services
 
 Creates a service.
 
@@ -330,7 +330,7 @@ Response Parameters
 Show service information by name
 ================================
 
-.. rest_method::  GET /v2.0/services/{serviceName}
+.. rest_method::  GET /v2.0/OS-KSADM/services/{serviceName}
 
 Shows information for a service, by name.
 
