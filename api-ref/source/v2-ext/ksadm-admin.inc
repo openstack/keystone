@@ -100,31 +100,6 @@ Request
 
    - serviceId: serviceId
 
-
-List users on a tenant
-======================
-
-.. rest_method::  GET /v2.0/tenants/{tenantId}/users
-
-Lists all users for a tenant.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tenantId: tenantId
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/users-list-response.json
-   :language: javascript
-
-
 Enable user
 ===========
 
@@ -403,34 +378,6 @@ Response Parameters
    - Location: Location
 
 
-Create tenant
-=============
-
-.. rest_method::  POST /v2.0/tenants
-
-Creates a tenant.
-
-Normal response codes: 201
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request Example
----------------
-
-.. literalinclude:: samples/OS-KSADM/tenantwithoutid-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
-
-
 List global roles for user
 ==========================
 
@@ -453,70 +400,6 @@ Response Example
 
 .. literalinclude:: samples/OS-KSADM/user-roles-list-response.json
    :language: javascript
-
-
-Update tenant
-=============
-
-.. rest_method::  POST /v2.0/tenants/{tenantId}
-
-Updates a tenant.
-
-Normal response codes: 200
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
-   - tenantId: tenantId
-
-Request Example
----------------
-
-.. literalinclude:: samples/OS-KSADM/tenant-update-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/tenant-show-response.json
-   :language: javascript
-
-
-Delete tenant
-=============
-
-.. rest_method::  DELETE /v2.0/tenants/{tenantId}
-
-Deletes a tenant.
-
-Normal response codes: 204
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tenantId: tenantId
 
 
 Show role details, by ID
