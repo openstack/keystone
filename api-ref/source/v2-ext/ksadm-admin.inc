@@ -140,45 +140,6 @@ Response Example
    :language: javascript
 
 
-Create user (admin extension)
-=============================
-
-.. rest_method::  POST /v2.0/users
-
-Creates a user.
-
-Normal response codes: 201
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - name: name
-   - enabled: enabled
-   - id: id
-   - user: user
-   - users_links: users_links
-   - email: email
-
-Request Example
----------------
-
-.. literalinclude:: samples/OS-KSADM/userwithoutid-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - enabled: enabled
-   - email: email
-   - name: name
-   - id: id
-
-
 List services (admin extension)
 ===============================
 
