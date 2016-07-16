@@ -5,100 +5,8 @@ OS-KSADM admin extension
 ========================
 
 Supports create, read, update, and delete (CRUD) operations for
-users, tenants, roles, and services. Requires administrator
-privileges.
+roles, and services. Requires administrator privileges.
 
-
-Grant roles to user on tenant
-=============================
-
-.. rest_method::  PUT /v2.0/tenants/{tenantId}/users/{userId}/roles/OS-KSADM/{roleId}
-
-Grants a role to a user for a tenant.
-
-Normal response codes: 201
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-   - roleId: roleId
-   - tenantId: tenantId
-
-
-Revoke role from user on tenant
-===============================
-
-.. rest_method::  DELETE /v2.0/tenants/{tenantId}/users/{userId}/roles/OS-KSADM/{roleId}
-
-Revokes a role from a user for a tenant.
-
-Normal response codes: 204
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-   - roleId: roleId
-   - tenantId: tenantId
-
-
-Shows service information by ID
-===============================
-
-.. rest_method::  GET /v2.0/OS-KSADM/services/{serviceId}
-
-Shows information for a service, by ID.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - serviceId: serviceId
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - type: type
-   - description: description
-   - name: name
-   - id: id
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/service-show-response.json
-   :language: javascript
-
-
-Delete service (admin extension)
-================================
-
-.. rest_method::  DELETE /v2.0/OS-KSADM/services/{serviceId}
-
-Deletes a service.
-
-Normal response codes: 204
-Error response codes: 413,415,405,404,403,401,400,503,409
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - serviceId: serviceId
 
 Enable user
 ===========
@@ -140,33 +48,6 @@ Response Example
    :language: javascript
 
 
-List services (admin extension)
-===============================
-
-.. rest_method::  GET /v2.0/OS-KSADM/services
-
-Lists all services.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - type: type
-   - description: description
-   - name: name
-   - id: id
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/services-list-response.json
-   :language: javascript
-
-
 Create service (admin extension)
 ================================
 
@@ -195,6 +76,67 @@ Response Parameters
    - id: id
 
 
+List services (admin extension)
+===============================
+
+.. rest_method::  GET /v2.0/OS-KSADM/services
+
+Lists all services.
+
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - type: type
+   - description: description
+   - name: name
+   - id: id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-KSADM/services-list-response.json
+   :language: javascript
+
+
+Shows service information by ID
+===============================
+
+.. rest_method::  GET /v2.0/OS-KSADM/services/{serviceId}
+
+Shows information for a service, by ID.
+
+Normal response codes: 200,203
+Error response codes: 413,405,404,403,401,400,503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - serviceId: serviceId
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - type: type
+   - description: description
+   - name: name
+   - id: id
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-KSADM/service-show-response.json
+   :language: javascript
+
+
 Show service information by name
 ================================
 
@@ -220,6 +162,24 @@ Response Example
 
 .. literalinclude:: samples/OS-KSADM/service-show-response.json
    :language: javascript
+
+
+Delete service (admin extension)
+================================
+
+.. rest_method::  DELETE /v2.0/OS-KSADM/services/{serviceId}
+
+Deletes a service.
+
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - serviceId: serviceId
 
 
 Create a role
@@ -335,6 +295,24 @@ Response Example
    :language: javascript
 
 
+Delete a role
+=============
+
+.. rest_method::  DELETE /v2.0/OS-KSADM/roles/{roleId}
+
+Deletes a role.
+
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - roleId: roleId
+
+    
 Grant global role to user
 =========================
 
@@ -373,12 +351,32 @@ Request
    - roleId: roleId
 
 
-Delete a role
-=============
+Grant roles to user on tenant
+=============================
 
-.. rest_method::  DELETE /v2.0/OS-KSADM/roles/{roleId}
+.. rest_method::  PUT /v2.0/tenants/{tenantId}/users/{userId}/roles/OS-KSADM/{roleId}
 
-Deletes a role.
+Grants a role to a user for a tenant.
+
+Normal response codes: 201
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: userId
+   - roleId: roleId
+   - tenantId: tenantId
+
+
+Revoke role from user on tenant
+===============================
+
+.. rest_method::  DELETE /v2.0/tenants/{tenantId}/users/{userId}/roles/OS-KSADM/{roleId}
+
+Revokes a role from a user for a tenant.
 
 Normal response codes: 204
 Error response codes: 413,415,405,404,403,401,400,503,409
@@ -388,4 +386,6 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - userId: userId
    - roleId: roleId
+   - tenantId: tenantId
