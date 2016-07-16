@@ -108,7 +108,7 @@ Response Parameters
 Response Example
 ----------------
 
-.. literalinclude:: samples/admin/user-show-response.json
+.. literalinclude:: samples/admin/users-list-response.json
    :language: javascript
 
 

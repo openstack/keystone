@@ -1,0 +1,19 @@
+{
+    "users": [
+        {
+            "id": "3c9530e",
+            "name": "admin",
+            "email": "admin@example.org",
+            "username": "admin",
+            "enabled": true
+        },
+        {
+            "id": "a0ae37b",
+            "name": "demo",
+            "email": "demo@example.org",
+            "username": "demo",
+            "enabled": true
+        }
+    ],
+    "users_links": []
+}
