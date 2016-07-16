@@ -136,7 +136,7 @@ Response Parameters
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-KSADM/user-show-response.json
+.. literalinclude:: samples/OS-KSADM/userwithenabledonly-show-response.json
    :language: javascript
 
 
@@ -376,30 +376,6 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - Location: Location
-
-
-List global roles for user
-==========================
-
-.. rest_method::  GET /v2.0/users/{userId}/roles
-
-Lists global roles for a user.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - userId: userId
-
-Response Example
-----------------
-
-.. literalinclude:: samples/OS-KSADM/user-roles-list-response.json
-   :language: javascript
 
 
 Show role details, by ID
