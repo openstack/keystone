@@ -98,11 +98,11 @@ project_id_path:
   in: path
   required: true
   type: string
-region_id_2:
+region_id_path:
   description: |
     The region ID.
   in: path
-  required: false
+  required: true
   type: string
 role_id:
   description: |
@@ -261,7 +261,7 @@ parent_id_2:
   in: query
   required: false
   type: string
-parent_region_id_1:
+parent_region_id_query:
   description: |
     Filters the response by a parent region, by ID.
   in: query
@@ -452,12 +452,6 @@ description_2:
   in: body
   required: false
   type: string
-description_3:
-  description: |
-    The region description.
-  in: body
-  required: false
-  type: string
 description_4:
   description: |
     The service description.
@@ -483,6 +477,18 @@ description_8:
   required: true
   type: string
 description_9:
+  description: |
+    The region description.
+  in: body
+  required: true
+  type: string
+description_region_request_body:
+  description: |
+    The region description.
+  in: body
+  required: false
+  type: string
+description_region_response_body:
   description: |
     The region description.
   in: body
@@ -912,12 +918,6 @@ id_12:
   in: body
   required: true
   type: string
-id_13:
-  description: |
-    The ID for the region.
-  in: body
-  required: true
-  type: string
 id_2:
   description: |
     A token ID.
@@ -966,6 +966,18 @@ id_9:
     characters in the region ID that are not allowed in a URI, you
     must URL-encode the ID. If you omit an ID, the API assigns an ID
     to the region.
+  in: body
+  required: false
+  type: string
+id_region_response_body:
+  description: |
+    The ID for the region.
+  in: body
+  required: true
+  type: string
+id_region_resquest_body:
+  description: |
+    The ID for the region.
   in: body
   required: false
   type: string
@@ -1124,12 +1136,6 @@ links_5:
   in: body
   required: true
   type: object
-links_6:
-  description: |
-    The links for the ``region`` resource.
-  in: body
-  required: true
-  type: object
 links_7:
   description: |
     The links for the ``role`` resource.
@@ -1139,6 +1145,12 @@ links_7:
 links_8:
   description: |
     The links for the ``service`` resource.
+  in: body
+  required: true
+  type: object
+links_region:
+  description: |
+    The links for the ``region`` resource.
   in: body
   required: true
   type: object
@@ -1289,17 +1301,24 @@ parent_id_1:
   in: body
   required: true
   type: string
-parent_region_id:
+parent_region_id_2:
+  description: |
+    If the region is a child of another region, the
+    ID for the parent region. Otherwise, this value is ``null``.
+  in: body
+  required: true
+  type: string
+parent_region_id_request_body:
   description: |
     To make this region a child of another region,
     set this parameter to the ID of the parent region.
   in: body
   required: false
   type: string
-parent_region_id_2:
+parent_region_id_response_body:
   description: |
-    If the region is a child of another region, the
-    ID for the parent region. Otherwise, this value is ``null``.
+    To make this region a child of another region,
+    set this parameter to the ID of the parent region.
   in: body
   required: true
   type: string
@@ -1358,12 +1377,6 @@ region:
   in: body
   required: true
   type: string
-region_1:
-  description: |
-    A ``region`` object.
-  in: body
-  required: true
-  type: object
 region_2:
   description: |
     (Deprecated in v3.2) The geographic location of
@@ -1385,9 +1398,15 @@ region_id_1:
   in: body
   required: false
   type: string
-regions:
+region_object:
   description: |
-    A ``regions`` object.
+    A ``region`` object, containing the following:
+  in: body
+  required: true
+  type: object
+regions_object:
+  description: |
+    A list of ``region`` object, each containing the following:
   in: body
   required: true
   type: array
