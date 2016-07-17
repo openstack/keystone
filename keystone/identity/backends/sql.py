@@ -188,6 +188,23 @@ class Identity(base.IdentityDriverV8):
                                '%(unique_cnt)d') % {'unique_cnt': unique_cnt}
                     raise exception.PasswordValidationError(detail=detail)
 
+    def change_password(self, user_id, new_password):
+        with sql.session_for_write() as session:
+            user_ref = session.query(model.User).get(user_id)
+            if user_ref.password_ref and user_ref.password_ref.self_service:
+                self._validate_minimum_password_age(user_ref)
+            user_ref.password = utils.hash_password(new_password)
+            user_ref.password_ref.self_service = True
+
+    def _validate_minimum_password_age(self, user_ref):
+        min_age_days = CONF.security_compliance.minimum_password_age
+        min_age = (user_ref.password_created_at +
+                   datetime.timedelta(days=min_age_days))
+        if datetime.datetime.utcnow() < min_age:
+            days_left = (min_age - datetime.datetime.utcnow()).days
+            raise exception.PasswordAgeValidationError(
+                min_age_days=min_age_days, days_left=days_left)
+
     def add_user_to_group(self, user_id, group_id):
         with sql.session_for_write() as session:
             self.get_group(group_id)

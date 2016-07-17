@@ -77,7 +77,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         last_active_at = (
             datetime.datetime.utcnow() -
             datetime.timedelta(self.max_inactive_days + 1)).date()
-        self._update_user(user['id'], last_active_at)
+        self._update_user_last_active_at(user['id'], last_active_at)
         # get user and verify that the user is actually disabled
         user = self.identity_api.get_user(user['id'])
         self.assertFalse(user['enabled'])
@@ -94,7 +94,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         last_active_at = (
             datetime.datetime.utcnow() -
             datetime.timedelta(self.max_inactive_days - 1)).date()
-        self._update_user(user['id'], last_active_at)
+        self._update_user_last_active_at(user['id'], last_active_at)
         # get user and verify that the user is still enabled
         user = self.identity_api.get_user(user['id'])
         self.assertTrue(user['enabled'])
@@ -147,7 +147,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
             session.add(user_ref)
             return base.filter_user(user_ref.to_dict())
 
-    def _update_user(self, user_id, last_active_at):
+    def _update_user_last_active_at(self, user_id, last_active_at):
         with sql.session_for_write() as session:
             user_ref = session.query(model.User).get(user_id)
             user_ref.last_active_at = last_active_at
@@ -465,3 +465,85 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
                 user_ref._get_password_expires_at(password_created_at))
             session.add(user_ref)
         return base.filter_user(user_ref.to_dict())
+
+
+class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
+    def setUp(self):
+        super(MinimumPasswordAgeTests, self).setUp()
+        self.config_fixture.config(
+            group='security_compliance',
+            minimum_password_age=1)
+        self.initial_password = uuid.uuid4().hex
+        self.user = self._create_new_user(self.initial_password)
+
+    def test_user_cannot_change_password_before_min_age(self):
+        # user can change password after create
+        new_password = uuid.uuid4().hex
+        self.assertValidChangePassword(self.user['id'], self.initial_password,
+                                       new_password)
+        # user cannot change password before min age
+        self.assertRaises(exception.PasswordAgeValidationError,
+                          self.identity_api.change_password,
+                          self.make_request(),
+                          user_id=self.user['id'],
+                          original_password=new_password,
+                          new_password=uuid.uuid4().hex)
+
+    def test_user_can_change_password_after_min_age(self):
+        # user can change password after create
+        new_password = uuid.uuid4().hex
+        self.assertValidChangePassword(self.user['id'], self.initial_password,
+                                       new_password)
+        # set password_created_at so that the min password age has past
+        password_created_at = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(
+                days=CONF.security_compliance.minimum_password_age + 1))
+        self._update_password_created_at(self.user['id'], password_created_at)
+        # user can change their password after min password age has past
+        self.assertValidChangePassword(self.user['id'], new_password,
+                                       uuid.uuid4().hex)
+
+    def test_user_can_change_password_after_admin_reset(self):
+        # user can change password after create
+        new_password = uuid.uuid4().hex
+        self.assertValidChangePassword(self.user['id'], self.initial_password,
+                                       new_password)
+        # user cannot change password before min age
+        self.assertRaises(exception.PasswordAgeValidationError,
+                          self.identity_api.change_password,
+                          self.make_request(),
+                          user_id=self.user['id'],
+                          original_password=new_password,
+                          new_password=uuid.uuid4().hex)
+        # admin reset
+        new_password = uuid.uuid4().hex
+        self.user['password'] = new_password
+        self.identity_api.update_user(self.user['id'], self.user)
+        # user can change password after admin reset
+        self.assertValidChangePassword(self.user['id'], new_password,
+                                       uuid.uuid4().hex)
+
+    def assertValidChangePassword(self, user_id, password, new_password):
+        self.identity_api.change_password(self.make_request(),
+                                          user_id=user_id,
+                                          original_password=password,
+                                          new_password=new_password)
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user_id,
+                                       password=new_password)
+
+    def _create_new_user(self, password):
+        user = {
+            'name': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'enabled': True,
+            'password': password
+        }
+        return self.identity_api.create_user(user)
+
+    def _update_password_created_at(self, user_id, password_create_at):
+        with sql.session_for_write() as session:
+            user_ref = session.query(model.User).get(user_id)
+            for password_ref in user_ref.local_user.passwords:
+                password_ref.created_at = password_create_at

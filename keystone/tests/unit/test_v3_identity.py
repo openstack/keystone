@@ -455,6 +455,25 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             password=new_password)
         self.v3_create_token(new_password_auth)
 
+    def test_admin_password_reset_with_min_password_age_enabled(self):
+        # enable minimum_password_age, this should have no effect on admin
+        # password reset
+        self.config_fixture.config(group='security_compliance',
+                                   minimum_password_age=1)
+        # create user
+        user_ref = unit.create_user(self.identity_api,
+                                    domain_id=self.domain['id'])
+        # administrative password reset
+        new_password = uuid.uuid4().hex
+        r = self.patch('/users/%s' % user_ref['id'],
+                       body={'user': {'password': new_password}})
+        self.assertValidUserResponse(r, user_ref)
+        # authenticate with new password
+        new_password_auth = self.build_authentication_request(
+            user_id=user_ref['id'],
+            password=new_password)
+        self.v3_create_token(new_password_auth)
+
     def test_update_user_domain_id(self):
         """Call ``PATCH /users/{user_id}`` with domain_id."""
         user = unit.new_user_ref(domain_id=self.domain['id'])
@@ -791,6 +810,27 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         # new password works
         self.get_request_token(new_password,
                                expected_status=http_client.CREATED)
+
+    def test_changing_password_with_min_password_age(self):
+        # enable minimum_password_age and attempt to change password
+        new_password = uuid.uuid4().hex
+        self.config_fixture.config(group='security_compliance',
+                                   minimum_password_age=1)
+        # able to change password after create user
+        self.change_password(password=new_password,
+                             original_password=self.user_ref['password'],
+                             expected_status=http_client.NO_CONTENT)
+        # 2nd change password should fail due to minimum password age
+        self.token = self.get_request_token(new_password, http_client.CREATED)
+        self.change_password(password=uuid.uuid4().hex,
+                             original_password=new_password,
+                             expected_status=http_client.BAD_REQUEST)
+        # disable minimum_password_age and attempt to change password
+        self.config_fixture.config(group='security_compliance',
+                                   minimum_password_age=0)
+        self.change_password(password=uuid.uuid4().hex,
+                             original_password=new_password,
+                             expected_status=http_client.NO_CONTENT)
 
     def test_changing_password_with_missing_original_password_fails(self):
         r = self.change_password(password=uuid.uuid4().hex,

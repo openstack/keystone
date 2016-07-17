@@ -272,6 +272,20 @@ class IdentityDriverV8(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
+    def change_password(self, user_id, new_password):
+        """Self-service password change.
+
+        :param str user_id: User ID.
+        :param str new_password: New password.
+
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+        :raises keystone.exception.PasswordValidation: If password fails
+            validation
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
     def add_user_to_group(self, user_id, group_id):
         """Add a user to a group.
 

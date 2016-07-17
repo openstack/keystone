@@ -87,6 +87,12 @@ class User(sql.ModelBase, sql.DictBase):
         return None
 
     @hybrid_property
+    def password_created_at(self):
+        if self.password_ref:
+            return self.password_ref.created_at
+        return None
+
+    @hybrid_property
     def password_expires_at(self):
         if self.password_ref:
             return self.password_ref.expires_at
@@ -230,6 +236,8 @@ class Password(sql.ModelBase, sql.DictBase):
     created_at = sql.Column(sql.DateTime, nullable=False,
                             default=datetime.datetime.utcnow)
     expires_at = sql.Column(sql.DateTime, nullable=True)
+    self_service = sql.Column(sql.Boolean, default=False, nullable=False,
+                              server_default='0')
 
 
 class FederatedUser(sql.ModelBase, sql.ModelDictMixin):

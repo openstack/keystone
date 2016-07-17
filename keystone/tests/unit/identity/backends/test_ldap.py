@@ -22,6 +22,7 @@ class TestIdentityDriver(core.BaseTestCase,
                          test_base.IdentityDriverV8Tests):
 
     allows_name_update = False
+    allows_self_service_change_password = False
     expected_is_domain_aware = False
     expected_default_assignment_driver = 'sql'
     expected_is_sql = False
