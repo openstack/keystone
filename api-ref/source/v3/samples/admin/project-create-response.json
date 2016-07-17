@@ -1,14 +1,14 @@
 {
     "project": {
-        "is_domain": true,
         "description": "My new project",
+        "domain_id": "default",
+        "enabled": true,
+        "id": "93ebbcc35335488b96ff9cd7d18cbb2e",
+        "is_domain": false,
         "links": {
             "self": "http://example.com/identity/v3/projects/93ebbcc35335488b96ff9cd7d18cbb2e"
         },
-        "enabled": true,
-        "id": "93ebbcc35335488b96ff9cd7d18cbb2e",
-        "parent_id": null,
-        "domain_id": "default",
-        "name": "myNewProject"
+        "name": "myNewProject",
+        "parent_id": "default"
     }
 }

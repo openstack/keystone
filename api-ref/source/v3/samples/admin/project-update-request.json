@@ -1,8 +1,6 @@
 {
     "project": {
         "description": "My updated project",
-        "domain_id": "default",
-        "enabled": true,
         "name": "myUpdatedProject"
     }
 }

@@ -9,6 +9,6 @@
             "self": "http://example.com/identity/v3/projects/0c4e939acacf4376bdcd1129f1a054ad"
         },
         "name": "admin",
-        "parent_id": null
+        "parent_id": "default"
     }
 }
