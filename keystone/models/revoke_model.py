@@ -111,7 +111,7 @@ class RevokeEvent(object):
             event['OS-TRUST:trust_id'] = self.trust_id
         if self.consumer_id is not None:
             event['OS-OAUTH1:consumer_id'] = self.consumer_id
-        if self.consumer_id is not None:
+        if self.access_token_id is not None:
             event['OS-OAUTH1:access_token_id'] = self.access_token_id
         if self.expires_at is not None:
             event['expires_at'] = utils.isotime(self.expires_at)
