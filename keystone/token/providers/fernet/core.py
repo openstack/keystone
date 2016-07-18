@@ -25,7 +25,7 @@ from keystone.token.providers.fernet import token_formatters as tf
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('trust_api', 'oauth_api')
+@dependency.requires('trust_api', 'oauth_api', 'identity_api')
 class Provider(common.BaseProvider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)
@@ -124,11 +124,14 @@ class Provider(common.BaseProvider):
             'protocol': {'id': protocol_id}
         }
 
+        user_dict = self.identity_api.get_user(user_id)
+        user_name = user_dict['name']
+
         token_dict = {
             'user': {
                 federation_constants.FEDERATION: federated_info,
                 'id': user_id,
-                'name': user_id,
+                'name': user_name,
                 'domain': {'id': CONF.federation.federated_domain_name,
                            'name': CONF.federation.federated_domain_name, },
             }
