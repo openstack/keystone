@@ -3592,13 +3592,8 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
                           auth_context)
 
 
-class TestAuthExternalDomain(test_v3.RestfulTestCase):
+class AuthExternalDomainBehavior(object):
     content_type = 'json'
-
-    def config_overrides(self):
-        super(TestAuthExternalDomain, self).config_overrides()
-        self.kerberos = False
-        self.auth_plugin_config_override(external='Domain')
 
     def test_remote_user_with_realm(self):
         api = auth.controllers.Auth()
@@ -3646,6 +3641,37 @@ class TestAuthExternalDomain(test_v3.RestfulTestCase):
         r = self.v3_create_token(auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertEqual(self.user['name'], token['bind']['kerberos'])
+
+
+class TestAuthExternalDomainBehaviorWithUUID(AuthExternalDomainBehavior,
+                                             test_v3.RestfulTestCase):
+    def config_overrides(self):
+        super(TestAuthExternalDomainBehaviorWithUUID, self).config_overrides()
+        self.kerberos = False
+        self.auth_plugin_config_override(external='Domain')
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+class TestAuthExternalDomainBehaviorWithPKI(AuthExternalDomainBehavior,
+                                            test_v3.RestfulTestCase):
+    def config_overrides(self):
+        super(TestAuthExternalDomainBehaviorWithPKI, self).config_overrides()
+        self.kerberos = False
+        self.auth_plugin_config_override(external='Domain')
+        self.config_fixture.config(group='token', provider='pki')
+
+
+class TestAuthExternalDomainBehaviorWithPKIZ(AuthExternalDomainBehavior,
+                                             test_v3.RestfulTestCase):
+    def config_overrides(self):
+        super(TestAuthExternalDomainBehaviorWithPKIZ, self).config_overrides()
+        self.kerberos = False
+        self.auth_plugin_config_override(external='Domain')
+        self.config_fixture.config(group='token', provider='pkiz')
+
+
+# NOTE(lbragstad): The Fernet token provider doesn't support bind
+# authentication so we don't inhereit TestAuthExternalDomain here to test it.
 
 
 class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
@@ -3704,7 +3730,7 @@ class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
                          token['bind']['kerberos'])
 
 
-class TestAuthKerberos(TestAuthExternalDomain):
+class TestAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestAuthKerberos, self).config_overrides()
