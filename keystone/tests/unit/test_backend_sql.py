@@ -813,10 +813,49 @@ class SqlImpliedRoles(SqlTests, assignment_tests.ImpliedRoleTests):
     pass
 
 
-class SqlTokenCacheInvalidation(SqlTests, token_tests.TokenCacheInvalidation):
+class SqlTokenCacheInvalidationWithUUID(SqlTests,
+                                        token_tests.TokenCacheInvalidation):
     def setUp(self):
-        super(SqlTokenCacheInvalidation, self).setUp()
+        super(SqlTokenCacheInvalidationWithUUID, self).setUp()
         self._create_test_data()
+
+    def config_overrides(self):
+        super(SqlTokenCacheInvalidationWithUUID, self).config_overrides()
+        # NOTE(lbragstad): The TokenCacheInvalidation tests are coded to work
+        # against a persistent token backend. Only run these with token
+        # providers that issue persistent tokens.
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+class SqlTokenCacheInvalidationWithPKI(SqlTests,
+                                       token_tests.TokenCacheInvalidation):
+    def setUp(self):
+        super(SqlTokenCacheInvalidationWithPKI, self).setUp()
+        self._create_test_data()
+
+    def config_overrides(self):
+        super(SqlTokenCacheInvalidationWithPKI, self).config_overrides()
+        # NOTE(lbragstad): The TokenCacheInvalidation tests are coded to work
+        # against a persistent token backend. Only run these with token
+        # providers that issue persistent tokens.
+        self.config_fixture.config(group='token', provider='pki')
+
+
+class SqlTokenCacheInvalidationWithPKIZ(SqlTests,
+                                        token_tests.TokenCacheInvalidation):
+    def setUp(self):
+        super(SqlTokenCacheInvalidationWithPKIZ, self).setUp()
+        self._create_test_data()
+
+    def config_overrides(self):
+        super(SqlTokenCacheInvalidationWithPKIZ, self).config_overrides()
+        # NOTE(lbragstad): The TokenCacheInvalidation tests are coded to work
+        # against a persistent token backend. Only run these with token
+        # providers that issue persistent tokens.
+        self.config_fixture.config(group='token', provider='pkiz')
+
+# NOTE(lbragstad): The Fernet token provider doesn't persist tokens in a
+# backend, so running the TokenCacheInvalidation tests here doesn't make sense.
 
 
 class SqlFilterTests(SqlTests, identity_tests.FilterTests):
