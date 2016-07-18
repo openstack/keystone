@@ -256,7 +256,7 @@ class AuthBadRequests(AuthTest):
                           empty_request, body_dict)
 
 
-class AuthWithToken(AuthTest):
+class AuthWithToken(object):
     def test_unscoped_token(self):
         """Verify getting an unscoped token with password creds."""
         body_dict = _build_user_auth(username='FOO',
@@ -614,7 +614,13 @@ class AuthWithToken(AuthTest):
         return [None, None]
 
 
-class FernetAuthWithToken(AuthWithToken):
+class UUIDAuthWithToken(AuthWithToken, AuthTest):
+    def config_overrides(self):
+        super(UUIDAuthWithToken, self).config_overrides()
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+class FernetAuthWithToken(AuthWithToken, AuthTest):
     def config_overrides(self):
         super(FernetAuthWithToken, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
@@ -630,6 +636,18 @@ class FernetAuthWithToken(AuthWithToken):
 
     def test_deleting_role_revokes_token(self):
         self.skip_test_overrides('Fernet with v2.0 and revocation is broken')
+
+
+class PKIAuthWithToken(AuthWithToken, AuthTest):
+    def config_overrides(self):
+        super(PKIAuthWithToken, self).config_overrides()
+        self.config_fixture.config(group='token', provider='pki')
+
+
+class PKIZAuthWithToken(AuthWithToken, AuthTest):
+    def config_overrides(self):
+        super(PKIZAuthWithToken, self).config_overrides()
+        self.config_fixture.config(group='token', provider='pkiz')
 
 
 class AuthWithPasswordCredentials(AuthTest):
