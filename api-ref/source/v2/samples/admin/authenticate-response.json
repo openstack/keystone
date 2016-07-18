@@ -141,11 +141,11 @@
             {
                 "endpoints": [
                     {
-                        "adminURL": "http://23.253.72.207:35357/v2.0",
+                        "adminURL": "http://example.com/identity_v2_admin",
                         "region": "RegionOne",
-                        "internalURL": "http://23.253.72.207:5000/v2.0",
+                        "internalURL": "http://example.com/identity",
                         "id": "26af053673df4ef3a2340c4239e21ea2",
-                        "publicURL": "http://23.253.72.207:5000/v2.0"
+                        "publicURL": "http://example.com/identity"
                     }
                 ],
                 "endpoints_links": [],

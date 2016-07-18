@@ -5,7 +5,7 @@
                 "id": "v3.4",
                 "links": [
                     {
-                        "href": "http://localhost:35357/v3/",
+                        "href": "http://example.com/identity/v3/",
                         "rel": "self"
                     }
                 ],
@@ -22,7 +22,7 @@
                 "id": "v2.0",
                 "links": [
                     {
-                        "href": "http://localhost:35357/v2.0/",
+                        "href": "http://example.com/identity/v2.0/",
                         "rel": "self"
                     },
                     {
