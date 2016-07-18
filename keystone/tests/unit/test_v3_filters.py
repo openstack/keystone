@@ -13,6 +13,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+
+import freezegun
 from oslo_serialization import jsonutils
 from six.moves import range
 
@@ -208,16 +211,26 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         - Ensure we can filter on it
 
         """
-        self._set_policy({"identity:list_users": []})
-        user = self.user1
-        user['name'] = '%my%name%'
-        self.identity_api.update_user(user['id'], user)
+        # NOTE(lbragstad): Since Fernet tokens do not support sub-second
+        # precision we must freeze the clock and ensure we increment the time
+        # by a full second after a recovation event has occured. Otherwise the
+        # token will be considered revoked even though it is actually a valid
+        # token.
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
 
-        url_by_name = '/users?name=%my%name%'
-        r = self.get(url_by_name, auth=self.auth)
+            self._set_policy({"identity:list_users": []})
+            user = self.user1
+            user['name'] = '%my%name%'
+            self.identity_api.update_user(user['id'], user)
 
-        self.assertEqual(1, len(r.result.get('users')))
-        self.assertEqual(user['id'], r.result.get('users')[0]['id'])
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            url_by_name = '/users?name=%my%name%'
+            r = self.get(url_by_name, auth=self.auth)
+
+            self.assertEqual(1, len(r.result.get('users')))
+            self.assertEqual(user['id'], r.result.get('users')[0]['id'])
 
     def test_inexact_filters(self):
         # Create 20 users
