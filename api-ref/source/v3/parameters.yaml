@@ -136,7 +136,7 @@ user_id_path:
   type: string
 
 # variables in query
-domain_id_7:
+domain_id_query:
   description: |
     Filters the response by a domain ID.
   in: query
@@ -181,6 +181,12 @@ enabled_9:
 group_id_query:
   description: |
     Filters the response by a group ID.
+  in: query
+  required: false
+  type: string
+group_name_query:
+  description: |
+    Filters the response by a group name.
   in: query
   required: false
   type: string
@@ -709,13 +715,75 @@ extras:
   type: object
 group:
   description: |
-    A ``group`` object.
+    A ``group`` object, containing:
   in: body
   required: true
   type: object
+group_description_request_body:
+  description: |
+    The description of the group.
+  in: body
+  required: true
+  type: string
+group_description_response_body:
+  description: |
+    The description of the group.
+  in: body
+  required: true
+  type: string
+group_description_update_request_body:
+  description: |
+    The new description of the group.
+  in: body
+  required: false
+  type: string
+group_domain_id_request_body:
+  description: |
+    The ID of the domain of the group.
+  in: body
+  required: true
+  type: string
+group_domain_id_response_body:
+  description: |
+    The ID of the domain of the group.
+  in: body
+  required: true
+  type: string
+group_domain_id_update_request_body:
+  description: |
+    The ID of the new domain for the group. The ability to change the domain
+    of a group is now deprecated, and will be removed in subsequent release.
+    It is already disabled by default in most Identity service implementations.
+  in: body
+  required: false
+  type: string
+group_id_response_body:
+  description: |
+    The ID of the group.
+  in: body
+  required: true
+  type: string
+group_name_request_body:
+  description: |
+    The name of the group.
+  in: body
+  required: true
+  type: string
+group_name_response_body:
+  description: |
+    The name of the group.
+  in: body
+  required: true
+  type: string
+group_name_update_request_body:
+  description: |
+    The new name of the group.
+  in: body
+  required: false
+  type: string
 groups:
   description: |
-    A ``groups`` object.
+    A list of ``group`` objects, each containing:
   in: body
   required: true
   type: array

@@ -1,19 +1,29 @@
 {
-    "users": [
-        {
-            "name": "admin",
-            "links": {
-                "self": "http://example.com/identity/v3/users/fff603a0829d41e48bc0dd0d72ad61ce"
-            },
-            "domain_id": "default",
-            "enabled": true,
-            "email": null,
-            "id": "fff603a0829d41e48bc0dd0d72ad61ce"
-        }
-    ],
     "links": {
         "self": "http://example.com/identity/v3/groups/9ce0ad4e58a84d7a97b92f7955d10c92/users",
         "previous": null,
         "next": null
-    }
+    },
+    "users": [
+        {
+            "domain_id": "default",
+            "description": null,
+            "enabled": true,
+            "id": "acd565a08293c1e48bc0dd0d72ad5d5d"
+            "name": "Henry",
+            "links": {
+                "self": "http://example.com/identity/v3/users/acd565a08293c1e48bc0dd0d72ad5d5d"
+            }
+        },
+        {
+            "domain_id": "default",
+            "description": null,
+            "enabled": true,
+            "id": "fff603a0829d41e48bc0dd0d72ad61ce"
+            "name": "Paul",
+            "links": {
+                "self": "http://example.com/identity/v3/users/fff603a0829d41e48bc0dd0d72ad61ce"
+            }
+        }
+    ]
 }
