@@ -834,7 +834,7 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
-                          context={},
+                          self.make_request(),
                           user_id=user['id'],
                           password=None)
 
@@ -2075,7 +2075,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             CONF.identity.default_domain_id)
         driver.user.enabled_emulation_dn = 'cn=test,dc=test'
         self.identity_api.authenticate(
-            context={},
+            self.make_request(),
             user_id=self.user_foo['id'],
             password=self.user_foo['password'])
 
@@ -2441,7 +2441,7 @@ class BaseMultiLDAPandSQLIdentity(object):
         for user_num in range(self.domain_count):
             user = 'user%s' % user_num
             self.identity_api.authenticate(
-                context={},
+                self.make_request(),
                 user_id=self.users[user]['id'],
                 password=self.users[user]['password'])
 

@@ -480,12 +480,12 @@ class CadfNotificationWrapper(object):
 
     def __call__(self, f):
         @functools.wraps(f)
-        def wrapper(wrapped_self, context, user_id, *args, **kwargs):
+        def wrapper(wrapped_self, request, user_id, *args, **kwargs):
             """Alway send a notification."""
-            initiator = _get_request_audit_info(context, user_id)
+            initiator = _get_request_audit_info(request.context_dict, user_id)
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             try:
-                result = f(wrapped_self, context, user_id, *args, **kwargs)
+                result = f(wrapped_self, request, user_id, *args, **kwargs)
             except Exception:
                 # For authentication failure send a cadf event as well
                 _send_audit_notification(self.action, initiator,

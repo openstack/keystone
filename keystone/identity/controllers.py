@@ -289,7 +289,7 @@ class UserV3(controller.V3Controller):
                                             attribute='password')
         try:
             self.identity_api.change_password(
-                request.context_dict, user_id, original_password, password)
+                request, user_id, original_password, password)
         except AssertionError:
             raise exception.Unauthorized()
 

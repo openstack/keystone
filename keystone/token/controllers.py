@@ -295,7 +295,7 @@ class Auth(controller.V2Controller):
 
         try:
             user_ref = self.identity_api.authenticate(
-                request.context_dict,
+                request,
                 user_id=user_id,
                 password=password)
         except AssertionError as e:

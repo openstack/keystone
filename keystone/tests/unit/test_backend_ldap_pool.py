@@ -176,7 +176,7 @@ class LdapPoolCommonTestMixin(object):
         # authenticate so that connection is added to pool before password
         # change
         user_ref = self.identity_api.authenticate(
-            context={},
+            self.make_request(),
             user_id=self.user_sna['id'],
             password=self.user_sna['password'])
 
@@ -191,7 +191,7 @@ class LdapPoolCommonTestMixin(object):
         # now authenticate again to make sure new password works with
         # connection pool
         user_ref2 = self.identity_api.authenticate(
-            context={},
+            self.make_request(),
             user_id=self.user_sna['id'],
             password=new_password)
 
@@ -203,7 +203,7 @@ class LdapPoolCommonTestMixin(object):
         # password..so no old bind is maintained in this case.
         self.assertRaises(AssertionError,
                           self.identity_api.authenticate,
-                          context={},
+                          self.make_request(),
                           user_id=self.user_sna['id'],
                           password=old_password)
 

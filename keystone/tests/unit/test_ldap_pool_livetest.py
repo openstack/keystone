@@ -113,7 +113,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         user = self.identity_api.create_user(user_dict)
 
         self.identity_api.authenticate(
-            context={},
+            self.make_request(),
             user_id=user['id'],
             password=password)
 
@@ -183,7 +183,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         # use case in a deployment.
         # This can happen in multiple concurrent connections case only.
         user_ref = self.identity_api.authenticate(
-            context={}, user_id=user['id'], password=old_password)
+            self.make_request(), user_id=user['id'], password=old_password)
 
         self.assertDictEqual(user, user_ref)
 
