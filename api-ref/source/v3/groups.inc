@@ -6,21 +6,19 @@
 
 A group is a collection of users. Each group is owned by a domain.
 
-When you grant a role to a group, you explicitly associate that
-group with a project or domain. This action is equivalent to
-granting the role to each group member on that project and domain.
+You can use groups to ease the task of managing role assignments for users.
+Assigning a role to a group on a project or domain is equivalent to
+assigning the role to each group member on that project or domain.
 
-When you grant a role to a group, that role is automatically granted to any
-user within the group. When you revoke a role from a group, that role is
-automatically revoked from any user within the group. Any token that
-authenticates that user, project, and domain is revoked.
+When you unassign a role from a group, that role is automatically unassigned
+from any user that is a member of the group. Any tokens that authenticates those
+users to the relevant project or domain are revoked.
 
 As with users, a group without any role assignments is useless from the
 perspective of an OpenStack service and has no access to resources.
-However, a group without role grants is permitted as a way of
+However, a group without role assignments is permitted as a way of
 acquiring or loading users and groups from external sources before
 mapping them to projects and domains.
-
 
 Show group details
 ==================
@@ -37,7 +35,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
+   - group_id: group_id_path
 
 Response Parameters
 -------------------
@@ -45,11 +43,11 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - group: group
-   - name: name
-   - links: links
-   - domain_id: domain_id
-   - id: id
-   - description: description
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
 
 Response Example
 ----------------
@@ -76,11 +74,11 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - group_id: group_id_path
    - group: group
-   - description: description
-   - name: name
-   - domain_id: domain_id
-   - group_id: group_id
+   - description: group_description_update_request_body
+   - domain_id: group_domain_id_update_request_body
+   - name: group_name_update_request_body
 
 Request Example
 ---------------
@@ -94,11 +92,11 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - group: group
-   - name: name
-   - links: links
-   - domain_id: domain_id
-   - id: id
-   - description: description
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
 
 Response Example
 ----------------
@@ -121,7 +119,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
+   - group_id: group_id_path
 
 
 Add user to group
@@ -138,8 +136,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - group_id: group_id
+   - user_id: user_id_path
+   - group_id: group_id_path
 
 
 Remove user from group
@@ -157,8 +155,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - group_id: group_id
+   - user_id: user_id_path
+   - group_id: group_id_path
 
 
 Check whether user belongs to group
@@ -176,8 +174,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - group_id: group_id
+   - user_id: user_id_path
+   - group_id: group_id_path
 
 
 List users in group
@@ -195,20 +193,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - name: name
-   - links: links
-   - enabled: enabled
-   - domain_id: domain_id
-   - email: email
-   - id: id
-   - users: users
+   - group_id: group_id_path
 
 Response Example
 ----------------
@@ -233,9 +218,9 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - group: group
-   - description: description
-   - name: name
-   - domain_id: domain_id
+   - description: group_description_request_body
+   - domain_id: group_domain_id_request_body
+   - name: group_name_request_body
 
 Request Example
 ---------------
@@ -249,12 +234,17 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - group: group
-   - name: name
-   - links: links
-   - domain_id: domain_id
-   - id: id
-   - description: description
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
 
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/group-show-response.json
+   :language: javascript
 
 List groups
 ===========
@@ -271,20 +261,21 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
-   - domain_id: domain_id
+   - name: group_name_query
+   - domain_id: domain_id_query
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
-   - links: links
-   - domain_id: domain_id
+   - links: link_collection
    - groups: groups
-   - id: id
-   - description: description
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
 
 Response Example
 ----------------
