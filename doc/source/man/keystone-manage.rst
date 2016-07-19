@@ -43,6 +43,7 @@ Available commands:
 * ``bootstrap``: Perform the basic bootstrap process.
 * ``db_sync``: Sync the database.
 * ``db_version``: Print the current migration version of the database.
+* ``doctor``: Diagnose common problems with keystone deployments.
 * ``domain_config_upload``: Upload domain configuration file.
 * ``fernet_rotate``: Rotate keys in the Fernet key repository.
 * ``fernet_setup``: Setup a Fernet key repository.

@@ -25,6 +25,7 @@ from oslo_log import versionutils
 from oslo_serialization import jsonutils
 import pbr.version
 
+from keystone.cmd import doctor
 from keystone.common import driver_hints
 from keystone.common import openssl
 from keystone.common import sql
@@ -359,6 +360,22 @@ class BootStrap(BaseApp):
     def main(cls):
         klass = cls()
         klass.do_bootstrap()
+
+
+class Doctor(BaseApp):
+    """Diagnose common problems with keystone deployments."""
+
+    name = 'doctor'
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(Doctor, cls).add_argument_parser(subparsers)
+        return parser
+
+    @staticmethod
+    def main():
+        # Return a non-zero exit code if we detect any symptoms.
+        raise SystemExit(doctor.diagnose())
 
 
 class DbSync(BaseApp):
@@ -942,6 +959,7 @@ CMDS = [
     BootStrap,
     DbSync,
     DbVersion,
+    Doctor,
     DomainConfigUpload,
     FernetRotate,
     FernetSetup,
