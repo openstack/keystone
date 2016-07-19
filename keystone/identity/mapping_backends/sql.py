@@ -65,12 +65,17 @@ class Mapping(base.MappingDriverV8):
 
     def create_id_mapping(self, local_entity, public_id=None):
         entity = local_entity.copy()
-        with sql.session_for_write() as session:
-            if public_id is None:
-                public_id = self.id_generator_api.generate_public_ID(entity)
-            entity['public_id'] = public_id
-            mapping_ref = IDMapping.from_dict(entity)
-            session.add(mapping_ref)
+        try:
+            with sql.session_for_write() as session:
+                if public_id is None:
+                    public_id = self.id_generator_api.generate_public_ID(
+                        entity)
+                entity['public_id'] = public_id
+                mapping_ref = IDMapping.from_dict(entity)
+                session.add(mapping_ref)
+        except sql.DBDuplicateEntry:
+            # something else created the mapping already. We can use it.
+            public_id = self.get_public_id(local_entity)
         return public_id
 
     def delete_id_mapping(self, public_id):
