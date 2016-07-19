@@ -45,9 +45,6 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
                                                     enforce_token_bind=bind)
 
     def fetch_token(self, token):
-        if CONF.admin_token and token == CONF.admin_token:
-            return {}
-
         try:
             return self.token_provider_api.validate_token(token)
         except exception.TokenNotFound:
@@ -138,10 +135,12 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
 
     @wsgi.middleware_exceptions
     def process_request(self, request):
-        resp = super(AuthContextMiddleware, self).process_request(request)
+        context_env = request.environ.get(core.CONTEXT_ENV, {})
+        if not context_env.get('is_admin', False):
+            resp = super(AuthContextMiddleware, self).process_request(request)
 
-        if resp:
-            return resp
+            if resp:
+                return resp
 
         # NOTE(jamielennox): function is split so testing can check errors from
         # fill_context. There is no actual reason for fill_context to raise
