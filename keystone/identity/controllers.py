@@ -174,6 +174,7 @@ class User(controller.V2Controller):
 
     @controller.v2_deprecated
     def set_user_enabled(self, request, user_id, user):
+        validation.lazy_validate(schema.enable_user_v2, user)
         return self.update_user(request, user_id, user)
 
     @controller.v2_deprecated

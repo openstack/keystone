@@ -1398,6 +1398,44 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
             },
             expected_status=http_client.OK)
 
+    def test_enable_or_disable_user(self):
+        token = self.get_scoped_token()
+        user_id = self.user_badguy['id']
+
+        self.assertFalse(self.user_badguy['enabled'])
+
+        def _admin_request(body, status):
+            resp = self.admin_request(
+                method='PUT',
+                path='/v2.0/users/%s/OS-KSADM/enabled' % user_id,
+                token=token,
+                body=body,
+                expected_status=status)
+            return resp
+
+        # Enable the user.
+        body = {'user': {'enabled': True}}
+        resp = _admin_request(body, http_client.OK)
+        self.assertTrue(resp.json['user']['enabled'])
+
+        # Disable the user.
+        body = {'user': {'enabled': False}}
+        resp = _admin_request(body, http_client.OK)
+        self.assertFalse(resp.json['user']['enabled'])
+
+        # Attributes other than `enabled` are not allowed.
+        body = {
+            'user': {
+                'description': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex
+            }
+        }
+        _admin_request(body, http_client.BAD_REQUEST)
+
+        #  `enabled` is boolean, type other than boolean is not allowed.
+        body = {'user': {'enabled': uuid.uuid4().hex}}
+        _admin_request(body, http_client.BAD_REQUEST)
+
 
 class RevokeApiTestCase(V2TestCase):
     def config_overrides(self):
