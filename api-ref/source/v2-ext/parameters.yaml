@@ -175,6 +175,12 @@ user:
   in: body
   required: true
   type: string
+username:
+  description: |
+    The user name.
+  in: body
+  required: false
+  type: string
 users:
   description: |
     The ``users`` object.

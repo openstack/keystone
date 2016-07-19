@@ -28,7 +28,49 @@ Request
 Request Example
 ---------------
 
-.. literalinclude:: samples/OS-KSADM/userwithenabledonly-enable-request.json
+.. literalinclude:: samples/OS-KSADM/user-set-enabled-request.json
+   :language: javascript
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - email: email
+   - enabled: enabled
+   - id: id
+   - name: name
+   - username: username
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-KSADM/user-show-response.json
+   :language: javascript
+
+
+Set user password
+=================
+
+.. rest_method::  PUT /v2.0/users/{userId}/OS-KSADM/password
+
+Sets a user's password
+
+Normal response codes: 200
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: userId
+   - password: new_password
+
+Request Example
+---------------
+
+.. literalinclude:: samples/OS-KSADM/user-set-password-request.json
    :language: javascript
 
 Response Parameters
@@ -40,11 +82,12 @@ Response Parameters
    - email: email
    - name: name
    - id: id
+   - username: username
 
 Response Example
 ----------------
 
-.. literalinclude:: samples/OS-KSADM/userwithenabledonly-show-response.json
+.. literalinclude:: samples/OS-KSADM/user-show-response.json
    :language: javascript
 
 
