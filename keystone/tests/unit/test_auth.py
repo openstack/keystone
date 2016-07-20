@@ -742,7 +742,7 @@ class AuthWithPasswordCredentials(AuthTest):
         self.controller.authenticate(self.make_request(), body_dict)
 
 
-class AuthWithRemoteUser(AuthTest):
+class AuthWithRemoteUser(object):
     def test_unscoped_remote_authn(self):
         """Verify getting an unscoped token with external authn."""
         body_dict = _build_user_auth(
@@ -821,6 +821,45 @@ class AuthWithRemoteUser(AuthTest):
         token = self.controller.authenticate(self.request_with_remote_user,
                                              body_dict)
         self.assertNotIn('bind', token['access']['token'])
+
+
+class FernetAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
+
+    def config_overrides(self):
+        super(FernetAuthWithRemoteUser, self).config_overrides()
+        self.config_fixture.config(group='token', provider='fernet')
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+
+    def test_bind_with_kerberos(self):
+        self.config_fixture.config(group='token', bind=['kerberos'])
+        body_dict = _build_user_auth(tenant_name="BAR")
+        # NOTE(lbragstad): Bind authentication is not supported by the Fernet
+        # provider.
+        self.assertRaises(exception.NotImplemented,
+                          self.controller.authenticate,
+                          self.request_with_remote_user,
+                          body_dict)
+
+
+class UUIDAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
+
+    def config_overrides(self):
+        super(UUIDAuthWithRemoteUser, self).config_overrides()
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+class PKIAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
+
+    def config_overrides(self):
+        super(PKIAuthWithRemoteUser, self).config_overrides()
+        self.config_fixture.config(group='token', provider='pki')
+
+
+class PKIZAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
+
+    def config_overrides(self):
+        super(PKIZAuthWithRemoteUser, self).config_overrides()
+        self.config_fixture.config(group='token', provider='pkiz')
 
 
 class AuthWithTrust(AuthTest):
