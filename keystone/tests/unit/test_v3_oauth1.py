@@ -389,7 +389,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertValidListLinks(resp.result['links'])
 
 
-class AuthTokenTests(OAuthFlowTests):
+class AuthTokenTests(object):
 
     def test_keystone_token_is_valid(self):
         self.test_oauth_flow()
@@ -611,7 +611,7 @@ class AuthTokenTests(OAuthFlowTests):
                  expected_status=http_client.FORBIDDEN)
 
 
-class FernetAuthTokenTests(AuthTokenTests):
+class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
 
     def config_overrides(self):
         super(FernetAuthTokenTests, self).config_overrides()
@@ -619,8 +619,14 @@ class FernetAuthTokenTests(AuthTokenTests):
         self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
 
     def test_delete_keystone_tokens_by_consumer_id(self):
-        # NOTE(lbragstad): Fernet tokens are never persisted in the backend.
-        pass
+        self.skipTest('Fernet tokens are never persisted in the backend.')
+
+
+class UUIDAuthTokenTests(AuthTokenTests, OAuthFlowTests):
+
+    def config_overrides(self):
+        super(UUIDAuthTokenTests, self).config_overrides()
+        self.config_fixture.config(group='token', provider='uuid')
 
 
 class MaliciousOAuth1Tests(OAuth1Tests):
