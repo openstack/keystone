@@ -136,9 +136,23 @@ user_id_path:
   type: string
 
 # variables in query
+domain_enabled_query:
+  description: |
+    If set to true, then only domains that are enabled will be returned, if set
+    to false only that are disabled will be returned. Any value other than
+    ``0``, including no value, will be interpreted as true.
+  in: query
+  required: false
+  type: string
 domain_id_query:
   description: |
     Filters the response by a domain ID.
+  in: query
+  required: false
+  type: string
+domain_name_query:
+  description: |
+    Filters the response by a domain name.
   in: query
   required: false
   type: string
@@ -476,7 +490,7 @@ description_9:
   type: string
 domain:
   description: |
-    A ``domain`` object.
+    A ``domain`` object, containing:
   in: body
   required: true
   type: object
@@ -494,6 +508,56 @@ domain_2:
   in: body
   required: false
   type: object
+domain_description_request_body:
+  description: |
+    The description of the domain.
+  in: body
+  required: false
+  type: string
+domain_description_response_body:
+  description: |
+    The description of the domain.
+  in: body
+  required: true
+  type: string
+domain_description_update_request_body:
+  description: |
+    The new description of the domain.
+  in: body
+  required: false
+  type: string
+domain_enabled_request_body:
+  description: |
+    If set to ``true``, domain is created enabled. If set to
+    ``false``, domain is created disabled. The default is ``true``.
+
+    Users can only authorize against an enabled domain (and any of its
+    projects). In addition, users can only authenticate if the domain that owns
+    them is also enabled. Disabling a domain prevents both of these things.
+  in: body
+  required: false
+  type: string
+domain_enabled_response_body:
+  description: |
+    If set to ``true``, domain is enabled. If set to
+    ``false``, domain is disabled.
+  in: body
+  required: true
+  type: string
+domain_enabled_update_request_body:
+  description: |
+    If set to ``true``, domain is enabled. If set to
+    ``false``, domain is disabled. The default is ``true``.
+
+    Users can only authorize against an enabled domain (and any of its
+    projects). In addition, users can only authenticate if the domain that owns
+    them is also enabled. Disabling a domain prevents both of these things.
+    When you disable a domain, all tokens that are authorized for that domain
+    become no longer valid. If you reenable the domain, these tokens
+    are not re-enabled.
+  in: body
+  required: false
+  type: string
 domain_id_1:
   description: |
     The ID of the domain that owns the group.  If you
@@ -534,9 +598,39 @@ domain_id_6:
   in: body
   required: true
   type: string
+domain_id_response_body:
+  description: |
+    The ID of the domain.
+  in: body
+  required: true
+  type: string
+domain_link_response_body:
+  description: |
+    The links to the ``domain`` resource.
+  in: body
+  required: true
+  type: object
+domain_name_request_body:
+  description: |
+    The name of the domain.
+  in: body
+  required: true
+  type: string
+domain_name_response_body:
+  description: |
+    The name of the domain.
+  in: body
+  required: true
+  type: string
+domain_name_update_request_body:
+  description: |
+    The new name of the domain.
+  in: body
+  required: false
+  type: string
 domains:
   description: |
-    A ``domains`` object.
+    A list of ``domain`` objects, each containing:
   in: body
   required: true
   type: array
@@ -595,22 +689,6 @@ enabled_10:
     appear in the service catalog:  - ``false``. The service and its
     endpoints do not appear in the   service catalog.  - ``true``. The
     service and its endpoints appear in the service   catalog.
-  in: body
-  required: true
-  type: boolean
-enabled_12:
-  description: |
-    Indicates whether the domain is enabled or
-    disabled.  If set to ``true``, the domain is enabled. Users can
-    authorize against an enabled domain and any of its projects. Users
-    that are owned by an enabled domain can authenticate and receive
-    additional authorization.  If set to ``false``, the domain is
-    disabled. Users cannot authorize against a disabled domain or any
-    of its projects. Users that are owned by a disabled domain cannot
-    authenticate or receive additional authorization. All tokens that
-    are authorized for a disabled domain or its projects become no
-    longer valid. If you reenable the domain, these tokens are not re-
-    enabled.
   in: body
   required: true
   type: boolean
@@ -988,12 +1066,6 @@ link_response_body:
 links:
   description: |
     The links for the ``credential`` resource.
-  in: body
-  required: true
-  type: object
-links_1:
-  description: |
-    The links for the ``domain`` resource.
   in: body
   required: true
   type: object
