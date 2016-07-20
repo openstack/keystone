@@ -3674,7 +3674,7 @@ class TestAuthExternalDomainBehaviorWithPKIZ(AuthExternalDomainBehavior,
 # authentication so we don't inhereit TestAuthExternalDomain here to test it.
 
 
-class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
+class TestAuthExternalDefaultDomain(object):
     content_type = 'json'
 
     def config_overrides(self):
@@ -3728,6 +3728,30 @@ class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertEqual(self.default_domain_user['name'],
                          token['bind']['kerberos'])
+
+
+class UUIDAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
+                                    test_v3.RestfulTestCase):
+
+    def config_overrides(self):
+        super(UUIDAuthExternalDefaultDomain, self).config_overrides()
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+class PKIAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
+                                   test_v3.RestfulTestCase):
+
+    def config_overrides(self):
+        super(PKIAuthExternalDefaultDomain, self).config_overrides()
+        self.config_fixture.config(group='token', provider='pki')
+
+
+class PKIZAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
+                                    test_v3.RestfulTestCase):
+
+    def config_overrides(self):
+        super(PKIZAuthExternalDefaultDomain, self).config_overrides()
+        self.config_fixture.config(group='token', provider='pkiz')
 
 
 class UUIDAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
