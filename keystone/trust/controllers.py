@@ -34,12 +34,6 @@ def _trustor_trustee_only(trust, user_id):
         raise exception.Forbidden()
 
 
-def _admin_trustor_only(request, trust, user_id):
-    if (user_id != trust.get('trustor_user_id') and
-            not request.context.is_admin):
-        raise exception.Forbidden()
-
-
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',
                      'role_api', 'token_provider_api', 'trust_api')
 class TrustV3(controller.V3Controller):
@@ -132,10 +126,20 @@ class TrustV3(controller.V3Controller):
         else:
             redelegated_trust = None
 
-        if trust.get('project_id'):
-            self._require_role(trust)
-        self._require_user_is_trustor(request.context_dict, trust)
-        self._require_trustee_exists(trust['trustee_user_id'])
+        if trust.get('project_id') and not trust.get('roles'):
+            msg = _('At least one role should be specified.')
+            raise exception.Forbidden(msg)
+
+        user_id = self._get_user_id(request.context_dict)
+
+        # the creating user must be the trustor
+        if user_id != trust.get('trustor_user_id'):
+            msg = _("The authenticated user should match the trustor.")
+            raise exception.Forbidden(msg)
+
+        # ensure trustee exists
+        self.identity_api.get_user(trust['trustee_user_id'])
+
         all_roles = self.role_api.list_roles()
         # Normalize roles
         normalized_roles = self._normalize_role_list(trust, all_roles)
@@ -151,20 +155,6 @@ class TrustV3(controller.V3Controller):
                                                 initiator)
         self._fill_in_roles(request.context_dict, new_trust, all_roles)
         return TrustV3.wrap_member(request.context_dict, new_trust)
-
-    def _require_trustee_exists(self, trustee_user_id):
-        self.identity_api.get_user(trustee_user_id)
-
-    def _require_user_is_trustor(self, context, trust):
-        user_id = self._get_user_id(context)
-        if user_id != trust.get('trustor_user_id'):
-            raise exception.Forbidden(
-                _("The authenticated user should match the trustor."))
-
-    def _require_role(self, trust):
-        if not trust.get('roles'):
-            raise exception.Forbidden(
-                _('At least one role should be specified.'))
 
     def _get_trustor_roles(self, trust):
         original_trust = trust.copy()
@@ -204,14 +194,6 @@ class TrustV3(controller.V3Controller):
             raise exception.ValidationExpirationError()
         return expiration_time
 
-    def _check_role_for_trust(self, context, trust_id, role_id):
-        """Check if a role has been assigned to a trust."""
-        trust = self.trust_api.get_trust(trust_id)
-        user_id = self._get_user_id(context)
-        _trustor_trustee_only(trust, user_id)
-        if not any(role['id'] == role_id for role in trust['roles']):
-            raise exception.RoleNotFound(role_id=role_id)
-
     @controller.protected()
     def list_trusts(self, request):
         trusts = []
@@ -247,7 +229,11 @@ class TrustV3(controller.V3Controller):
     def delete_trust(self, request, trust_id):
         trust = self.trust_api.get_trust(trust_id)
         user_id = self._get_user_id(request.context_dict)
-        _admin_trustor_only(request, trust, user_id)
+
+        if (user_id != trust.get('trustor_user_id') and
+                not request.context.is_admin):
+            raise exception.Forbidden()
+
         initiator = notifications._get_request_audit_info(request.context_dict)
         self.trust_api.delete_trust(trust_id, initiator)
 
@@ -262,7 +248,13 @@ class TrustV3(controller.V3Controller):
     @controller.protected()
     def get_role_for_trust(self, request, trust_id, role_id):
         """Get a role that has been assigned to a trust."""
-        self._check_role_for_trust(request.context_dict, trust_id, role_id)
+        trust = self.trust_api.get_trust(trust_id)
+        user_id = self._get_user_id(request.context_dict)
+        _trustor_trustee_only(trust, user_id)
+
+        if not any(role['id'] == role_id for role in trust['roles']):
+            raise exception.RoleNotFound(role_id=role_id)
+
         role = self.role_api.get_role(role_id)
         return assignment.controllers.RoleV3.wrap_member(request.context_dict,
                                                          role)
