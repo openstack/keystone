@@ -17,6 +17,7 @@ from keystone.assignment import schema as assignment_schema
 from keystone.catalog import schema as catalog_schema
 from keystone.common.validation import validators
 from keystone import exception
+from keystone.identity import schema as identity_schema
 from keystone.resource import schema as resource_schema
 from keystone.tests import unit
 
@@ -302,3 +303,60 @@ class ServiceValidationTestCase(unit.BaseTestCase):
         self.assertRaises(exception.SchemaValidationError,
                           self.create_validator.validate,
                           request)
+
+
+class UserValidationTestCase(unit.BaseTestCase):
+    """Test for V2 User API Validation."""
+
+    def setUp(self):
+        super(UserValidationTestCase, self).setUp()
+
+        schema_user_update = identity_schema.user_update_v2
+        self.update_validator = validators.SchemaValidator(schema_user_update)
+
+    def test_validate_user_update_succeeds_with_name(self):
+        request = {
+            'name': uuid.uuid4().hex,
+            'enabled': True
+        }
+        self.update_validator.validate(request)
+
+    def test_validate_user_update_succeeds_with_username(self):
+        request = {
+            'username': uuid.uuid4().hex,
+            'enabled': True
+        }
+        self.update_validator.validate(request)
+
+    def test_validate_user_update_succeeds_with_no_params(self):
+        request = {}
+        self.update_validator.validate(request)
+
+    def test_validate_user_update_fails_with_invalid_name(self):
+        for invalid_name in _INVALID_NAMES:
+            request = {
+                'name': invalid_name
+            }
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_validator.validate,
+                              request)
+
+    def test_validate_user_update_with_enabled(self):
+        """Validate `enabled` as boolean-like values."""
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request = {
+                'name': uuid.uuid4().hex,
+                'enabled': valid_enabled
+            }
+            self.update_validator.validate(request)
+
+    def test_validate_user_update_with_invalid_enabled_fails(self):
+        """Exception is raised when `enabled` isn't a boolean-like value."""
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request = {
+                'name': uuid.uuid4().hex,
+                'enabled': invalid_enabled
+            }
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_validator.validate,
+                              request)

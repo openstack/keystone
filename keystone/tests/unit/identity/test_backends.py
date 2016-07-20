@@ -447,31 +447,6 @@ class IdentityTests(object):
                           user['id'],
                           user)
 
-    def test_update_user_blank_name_fails(self):
-        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        user['name'] = ''
-        self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
-                          user['id'],
-                          user)
-
-    def test_update_user_invalid_name_fails(self):
-        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-
-        user['name'] = None
-        self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
-                          user['id'],
-                          user)
-
-        user['name'] = 123
-        self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
-                          user['id'],
-                          user)
-
     def test_list_users(self):
         users = self.identity_api.list_users(
             domain_scope=self._set_domain_scope(
@@ -567,19 +542,6 @@ class IdentityTests(object):
 
         user_ref = self.identity_api.get_user(user_ref['id'])
         self.assertEqual(changed_name, user_ref['name'])
-
-    def test_update_user_enable_fails(self):
-        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        user_ref = self.identity_api.get_user(user['id'])
-        self.assertTrue(user_ref['enabled'])
-
-        # Strings are not valid boolean values
-        user['enabled'] = 'false'
-        self.assertRaises(exception.ValidationError,
-                          self.identity_api.update_user,
-                          user['id'],
-                          user)
 
     def test_add_user_to_group(self):
         domain = self._get_domain_fixture()

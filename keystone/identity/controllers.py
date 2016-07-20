@@ -95,12 +95,9 @@ class User(controller.V2Controller):
     @controller.v2_deprecated
     def update_user(self, request, user_id, user):
         # NOTE(termie): this is really more of a patch than a put
+        validation.lazy_validate(schema.user_update_v2, user)
         user = self.normalize_username_in_request(user)
         self.assert_admin(request)
-
-        if 'enabled' in user and not isinstance(user['enabled'], bool):
-            msg = _('Enabled field should be a boolean')
-            raise exception.ValidationError(message=msg)
 
         default_project_id = user.pop('tenantId', None)
         if default_project_id is not None:
