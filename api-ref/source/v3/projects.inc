@@ -42,25 +42,26 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
-   - parent_id: parent_id
-   - name: name
-   - enabled: enabled
+   - domain_id: domain_id_query
+   - enabled: project_enabled_query
+   - name: project_name_query
+   - parent_id: parent_id_query
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - is_domain: is_domain
-   - description: description
-   - links: links
-   - enabled: enabled
-   - domain_id: domain_id
-   - parent_id: parent_id
-   - id: id
+   - links: link_collection
    - projects: projects
-   - name: name
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id_response_body
+   - links: link_response_body
+   - name: project_name_response_body
+   - parent_id: project_parent_id_response_body
 
 Response Example
 ----------------
@@ -74,13 +75,7 @@ Create project
 
 .. rest_method::  POST /v3/projects
 
-Creates a project.
-
-Projects that are acting as a domain (i.e. with ``parent_id`` set to
-``true``) must also be specified with no parent (i.e. if ``parent_id`` is
-included it must be null). Issuing a create project request for a project
-acting as a domain with a ``parent_id`` that is not null will fail with a
-``Bad Request (400)`` response code being returned.
+Creates a project, including a project acting as a domain.
 
 Normal response codes: 201
 Error response codes: 413,415,405,404,403,401,400,503,409
@@ -90,18 +85,21 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - is_domain: is_domain
-   - description: description
-   - enabled: enabled
    - project: project
-   - parent_id: parent_id
-   - domain_id: domain_id
-   - name: name
+   - is_domain: is_domain_request_body
+   - description: project_description_request_body
+   - domain_id: project_domain_id_request_body
+   - enabled: project_enabled_request_body
+   - name: project_name_request_body
+   - parent_id: project_parent_id_request_body
 
-Request Example
----------------
+Request Examples
+----------------
 
 .. literalinclude:: ./samples/admin/project-create-request.json
+   :language: javascript
+
+.. literalinclude:: ./samples/admin/project-create-domain-request.json
    :language: javascript
 
 Response Parameters
@@ -109,15 +107,15 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - is_domain: is_domain
-   - description: description
-   - links: links
-   - enabled: enabled
-   - domain_id: domain_id
    - project: project
-   - parent_id: parent_id
-   - id: id
-   - name: name
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id_response_body
+   - links: link_response_body
+   - name: project_name_response_body
+   - parent_id: project_parent_id_response_body
 
 
 Show project details
@@ -135,22 +133,22 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - is_domain: is_domain
-   - description: description
-   - links: links
-   - enabled: enabled
-   - domain_id: domain_id
    - project: project
-   - parent_id: parent_id
-   - id: id
-   - name: name
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id_response_body
+   - links: link_response_body
+   - name: project_name_response_body
+   - parent_id: project_parent_id_response_body
 
 Response Example
 ----------------
@@ -174,13 +172,12 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - description: description
-   - enabled: enabled
+   - project_id: project_id_path
    - project: project
-   - parent_id: parent_id
-   - domain_id: domain_id
-   - name: name
-   - project_id: project_id
+   - description: project_description_request_body
+   - domain_id: project_domain_id_update_request_body
+   - enabled: project_enabled_update_request_body
+   - name: project_name_update_request_body
 
 Request Example
 ---------------
@@ -193,15 +190,15 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - is_domain: is_domain
-   - description: description
-   - links: links
-   - enabled: enabled
-   - domain_id: domain_id
    - project: project
-   - parent_id: parent_id
-   - id: id
-   - name: name
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id_response_body
+   - name: project_name_response_body
+   - links: link_response_body
+   - parent_id: project_parent_id_response_body
 
 Response Example
 ----------------
@@ -225,7 +222,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
 
 
 Enable or disable project and its subtree
@@ -233,7 +230,7 @@ Enable or disable project and its subtree
 
 .. rest_method::  PATCH /v3/projects/{project_id}/cascade
 
-(Since Identity API v3.6) Enables or disables a project and its entire subtree.
+(Since Identity API v3.7) Enables or disables a project and its entire subtree.
 
 A project subtree includes all projects beneath the parent project
 in the hierarchy.
@@ -254,9 +251,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - project_id: project_id_path
    - project: project
-   - enabled: enabled
-   - project_id: project_id
+   - enabled: project_enabled_cascade_request_body
 
 Request Example
 ---------------
@@ -269,15 +266,15 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - is_domain: is_domain
-   - description: description
-   - links: links
-   - enabled: enabled
-   - domain_id: domain_id
    - project: project
-   - parent_id: parent_id
-   - id: id
-   - name: name
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id_response_body
+   - name: project_name_response_body
+   - links: link_response_body
+   - parent_id: project_parent_id_response_body
 
 Response Example
 ----------------
@@ -291,7 +288,7 @@ Delete project subtree
 
 .. rest_method::  DELETE /v3/projects/{project_id}/cascade
 
-(Since Identity API v3.6) Deletes a project and its entire subtree.
+(Since Identity API v3.7) Deletes a project and its entire subtree.
 
 A project subtree includes all projects beneath the parent project
 in the hierarchy. You must disable all the projects in the subtree
@@ -305,4 +302,4 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
