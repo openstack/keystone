@@ -49,6 +49,7 @@ Getting Started
 
     installing
     configuration
+    performance
     apache-httpd
     policy_mapping
     configuringservices
