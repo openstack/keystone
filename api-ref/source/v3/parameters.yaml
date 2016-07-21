@@ -163,13 +163,6 @@ effective_query:
   in: query
   required: false
   type: key-only (no value required)
-enabled_11:
-  description: |
-    Filters the response by either enabled (``true``)
-    or disabled (``false``) users.
-  in: query
-  required: false
-  type: string
 enabled_6:
   description: |
     Filters the response by either enabled (``true``)
@@ -189,6 +182,13 @@ enabled_9:
   description: |
     Filters the response by either enabled (``true``)
     or disabled (``false``) projects.
+  in: query
+  required: false
+  type: string
+enabled_user_query:
+  description: |
+    Filters the response by either enabled (``true``)
+    or disabled (``false``) users.
   in: query
   required: false
   type: string
@@ -241,7 +241,7 @@ name_13:
   in: query
   required: false
   type: string
-name_16:
+name_user_query:
   description: |
     Filters the response by a user name.
   in: query
@@ -396,7 +396,7 @@ credentials:
   in: body
   required: true
   type: array
-default_project_id:
+default_project_id_request_body:
   description: |
     The ID of the default project for the user.
     Setting this attribute does not grant any actual authorization on
@@ -410,11 +410,17 @@ default_project_id:
   in: body
   required: false
   type: string
-default_project_id_1:
+default_project_id_response_body:
   description: |
     The ID of the default project for the user.
   in: body
-  required: true
+  required: false
+  type: string
+default_project_id_update_body:
+  description: |
+    The new ID of the default project for the user.
+  in: body
+  required: false
   type: string
 description:
   description: |
@@ -455,12 +461,6 @@ description_3:
 description_4:
   description: |
     The service description.
-  in: body
-  required: false
-  type: string
-description_5:
-  description: |
-    The user description.
   in: body
   required: false
   type: string
@@ -592,7 +592,7 @@ domain_id_5:
   in: body
   required: true
   type: string
-domain_id_6:
+domain_id_response_body:
   description: |
     The ID of the domain for the user.
   in: body
@@ -721,18 +721,6 @@ enabled_3:
   in: body
   required: false
   type: boolean
-enabled_4:
-  description: |
-    Enables or disables the user.  An enabled user
-    can authenticate and receive authorization.  A disabled user
-    cannot authenticate or receive authorization. Additionally, all
-    tokens that the user holds become no longer valid. If you reenable
-    this user, pre-existing tokens do not become valid.  To enable the
-    user, set to ``true``. To disable the user, set to ``false``.
-    Default is ``true``.
-  in: body
-  required: false
-  type: boolean
 enabled_5:
   description: |
     Enables or disables the project and its subtree.
@@ -754,12 +742,31 @@ enabled_7:
   in: body
   required: true
   type: boolean
-enabled_8:
+enabled_user_request_body:
+  description: |
+    If the user is enabled, this value is ``true``.
+    If the user is disabled, this value is ``false``.
+  in: body
+  required: false
+  type: boolean
+enabled_user_response_body:
   description: |
     If the user is enabled, this value is ``true``.
     If the user is disabled, this value is ``false``.
   in: body
   required: true
+  type: boolean
+enabled_user_update_body:
+  description: |
+    Enables or disables the user.  An enabled user
+    can authenticate and receive authorization.  A disabled user
+    cannot authenticate or receive authorization. Additionally, all
+    tokens that the user holds become no longer valid. If you reenable
+    this user, pre-existing tokens do not become valid.  To enable the
+    user, set to ``true``. To disable the user, set to ``false``.
+    Default is ``true``.
+  in: body
+  required: false
   type: boolean
 endpoint:
   description: |
@@ -911,12 +918,6 @@ id_13:
   in: body
   required: true
   type: string
-id_14:
-  description: |
-    The user ID.
-  in: body
-  required: true
-  type: string
 id_2:
   description: |
     A token ID.
@@ -967,6 +968,12 @@ id_9:
     to the region.
   in: body
   required: false
+  type: string
+id_user_body:
+  description: |
+    The user ID.
+  in: body
+  required: true
   type: string
 identity:
   description: |
@@ -1093,12 +1100,6 @@ links_13:
   in: body
   required: true
   type: object
-links_14:
-  description: |
-    The links for the ``users`` resource.
-  in: body
-  required: true
-  type: object
 links_2:
   description: |
     The links for the ``endpoint`` resource.
@@ -1141,7 +1142,7 @@ links_8:
   in: body
   required: true
   type: object
-links_9:
+links_user:
   description: |
     The links for the ``user`` resource.
   in: body
@@ -1196,12 +1197,6 @@ name_1:
 name_11:
   description: |
     The name of the group.
-  in: body
-  required: true
-  type: string
-name_12:
-  description: |
-    The user name. Must be unique within the domain.
   in: body
   required: true
   type: string
@@ -1266,13 +1261,6 @@ name_7:
   in: body
   required: false
   type: string
-name_8:
-  description: |
-    The user name, which must be unique within the
-    owning domain.
-  in: body
-  required: true
-  type: string
 name_9:
   description: |
     The project name. The project can have the same
@@ -1321,17 +1309,11 @@ password:
   in: body
   required: true
   type: string
-password_1:
+password_request_body:
   description: |
     The password for the user.
   in: body
-  required: true
-  type: string
-password_2:
-  description: |
-    The new password for the user.
-  in: body
-  required: true
+  required: false
   type: string
 policies:
   description: |
@@ -1597,6 +1579,20 @@ user:
   in: body
   required: true
   type: object
+user_domain_id_request_body:
+  description: |
+    The ID of the domain for the user.
+  in: body
+  required: false
+  type: string
+user_domain_id_update_body:
+  description: |
+    The ID of the new domain for the user. The ability to change the domain
+    of a user is now deprecated, and will be removed in subequent release.
+    It is already disabled by default in most Identity service implementations.
+  in: body
+  required: false
+  type: string
 user_id_1:
   description: |
     The ID of the user who owns the credential.
@@ -1621,6 +1617,36 @@ user_id_5:
   in: body
   required: false
   type: string
+user_name_create_request_body:
+  description: |
+    The user name. Must be unique within the owning domain.
+  in: body
+  required: true
+  type: string
+user_name_response_body:
+  description: |
+    The user name. Must be unique within the owning domain.
+  in: body
+  required: true
+  type: string
+user_name_update_body:
+  description: |
+    The new name for the user. Must be unique within the owning domain.
+  in: body
+  required: false
+  type: string
+user_object:
+  description: |
+    A ``user`` object, containing:
+  in: body
+  required: true
+  type: object
+user_password_update_body:
+  description: |
+    The new password for the user.
+  in: body
+  required: true
+  type: string
 user_tree_dn:
   description: |
     The base distinguished name (DN) of LDAP, from
@@ -1643,4 +1669,9 @@ users:
   in: body
   required: true
   type: array
-
+users_object:
+  description: |
+    A list of ``user`` object, each containing:
+  in: body
+  required: true
+  type: array

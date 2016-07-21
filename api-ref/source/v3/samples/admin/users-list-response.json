@@ -7,7 +7,6 @@
     "users": [
         {
             "domain_id": "default",
-            "email": null,
             "enabled": true,
             "id": "2844b2a08be147a08ef58317d6471f1f",
             "links": {
@@ -17,7 +16,6 @@
         },
         {
             "domain_id": "default",
-            "email": "test@example.com",
             "enabled": true,
             "id": "4ab84ab39de54f4d96eaff8f2145a7cd",
             "links": {
@@ -27,7 +25,6 @@
         },
         {
             "domain_id": "default",
-            "email": null,
             "enabled": true,
             "id": "56696a9a04864d63877a3d06a6f0b24b",
             "links": {
@@ -37,7 +34,6 @@
         },
         {
             "domain_id": "default",
-            "email": "alt_demo@example.com",
             "enabled": true,
             "id": "5acb638d15da44fc8de41b9a4bd41875",
             "links": {
@@ -47,7 +43,6 @@
         },
         {
             "domain_id": "default",
-            "email": "demo@example.com",
             "enabled": true,
             "id": "7596e862b1af473c8ed6ae99d35b51e3",
             "links": {
@@ -57,7 +52,6 @@
         },
         {
             "domain_id": "default",
-            "email": null,
             "enabled": true,
             "id": "802edb2141b44e77bbde241417450749",
             "links": {
@@ -67,7 +61,6 @@
         },
         {
             "domain_id": "592ab0800d3745baaf45c610fa41950a",
-            "email": "test4@example.com",
             "enabled": true,
             "id": "9aca3883784647fe9aff3a50d922489a",
             "links": {
@@ -77,7 +70,6 @@
         },
         {
             "domain_id": "default",
-            "email": "test3@example.com",
             "enabled": true,
             "id": "a1251b011f9345e68c2458b841152034",
             "links": {
@@ -87,7 +79,6 @@
         },
         {
             "domain_id": "default",
-            "email": null,
             "enabled": true,
             "id": "a43f46eb318041f6b712143862e3ad70",
             "links": {
@@ -97,7 +88,6 @@
         },
         {
             "domain_id": "default",
-            "email": null,
             "enabled": true,
             "id": "b964a9e51c0046a4a84d3f83a135a97c",
             "links": {
@@ -107,7 +97,6 @@
         },
         {
             "domain_id": "default",
-            "email": null,
             "enabled": true,
             "id": "dc87e591c0d247d5ac04e873bd8a1646",
             "links": {
@@ -117,7 +106,6 @@
         },
         {
             "domain_id": "default",
-            "email": "glance-swift@example.com",
             "enabled": true,
             "id": "ed214dc1c2c6468b926c96eca6c8aee9",
             "links": {
@@ -127,7 +115,6 @@
         },
         {
             "domain_id": "default",
-            "email": "test2@example.com",
             "enabled": true,
             "id": "f4f6587b058a4f46a00242549b430d37",
             "links": {
