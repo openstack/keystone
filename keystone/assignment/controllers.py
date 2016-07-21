@@ -93,12 +93,9 @@ class Role(controller.V2Controller):
 
     @controller.v2_deprecated
     def create_role(self, request, role):
+        validation.lazy_validate(schema.role_create_v2, role)
         role = self._normalize_dict(role)
         self.assert_admin(request)
-
-        if 'name' not in role or not role['name']:
-            msg = _('Name field is required and cannot be empty')
-            raise exception.ValidationError(message=msg)
 
         if role['name'] == CONF.member_role_name:
             # Use the configured member role ID when creating the configured
