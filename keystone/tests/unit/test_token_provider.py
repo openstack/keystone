@@ -750,7 +750,7 @@ class TestTokenProvider(unit.TestCase):
 
         dependency.reset()
         self.assertIsInstance(token.provider.Manager().driver,
-                              uuid.Provider)
+                              fernet.Provider)
 
         dependency.reset()
         self.config_fixture.config(group='token', provider='uuid')
