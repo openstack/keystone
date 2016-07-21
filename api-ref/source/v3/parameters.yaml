@@ -1663,6 +1663,12 @@ user_tree_dn_1:
   in: body
   required: false
   type: string
+user_update_password_body:
+  description: |
+    The new password for the user.
+  in: body
+  required: false
+  type: string
 users:
   description: |
     A ``users`` object.
