@@ -1437,38 +1437,43 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                              expected_status=http_client.UNAUTHORIZED)
 
     def _test_crud_inherited_and_direct_assignment_on_target(self, target_url):
-        # Create a new role to avoid assignments loaded from sample data
-        role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            # Create a new role to avoid assignments loaded from sample data
+            role = unit.new_role_ref()
+            self.role_api.create_role(role['id'], role)
 
-        # Define URLs
-        direct_url = '%s/users/%s/roles/%s' % (
-            target_url, self.user_id, role['id'])
-        inherited_url = '/OS-INHERIT/%s/inherited_to_projects' % direct_url
+            # Define URLs
+            direct_url = '%s/users/%s/roles/%s' % (
+                target_url, self.user_id, role['id'])
+            inherited_url = '/OS-INHERIT/%s/inherited_to_projects' % direct_url
 
-        # Create the direct assignment
-        self.put(direct_url)
-        # Check the direct assignment exists, but the inherited one does not
-        self.head(direct_url)
-        self.head(inherited_url, expected_status=http_client.NOT_FOUND)
+            # Create the direct assignment
+            self.put(direct_url)
+            # Check the direct assignment exists, but the inherited one does
+            # not
+            self.head(direct_url)
+            self.head(inherited_url, expected_status=http_client.NOT_FOUND)
 
-        # Now add the inherited assignment
-        self.put(inherited_url)
-        # Check both the direct and inherited assignment exist
-        self.head(direct_url)
-        self.head(inherited_url)
+            # Now add the inherited assignment
+            self.put(inherited_url)
+            # Check both the direct and inherited assignment exist
+            self.head(direct_url)
+            self.head(inherited_url)
 
-        # Delete indirect assignment
-        self.delete(inherited_url)
-        # Check the direct assignment exists, but the inherited one does not
-        self.head(direct_url)
-        self.head(inherited_url, expected_status=http_client.NOT_FOUND)
+            # Delete indirect assignment
+            self.delete(inherited_url)
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+            # Check the direct assignment exists, but the inherited one does
+            # not
+            self.head(direct_url)
+            self.head(inherited_url, expected_status=http_client.NOT_FOUND)
 
-        # Now delete the inherited assignment
-        self.delete(direct_url)
-        # Check that none of them exist
-        self.head(direct_url, expected_status=http_client.NOT_FOUND)
-        self.head(inherited_url, expected_status=http_client.NOT_FOUND)
+            # Now delete the inherited assignment
+            self.delete(direct_url)
+            # Check that none of them exist
+            self.head(direct_url, expected_status=http_client.NOT_FOUND)
+            self.head(inherited_url, expected_status=http_client.NOT_FOUND)
 
     def test_crud_inherited_and_direct_assignment_on_domains(self):
         self._test_crud_inherited_and_direct_assignment_on_target(
