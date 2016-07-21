@@ -168,7 +168,7 @@ class Provider(common.BaseProvider):
             methods.append('token')
         project_id = token_data['access']['token'].get('tenant', {}).get('id')
         domain_id = None
-        trust_id = None
+        trust_id = token_data['access'].get('trust', {}).get('id')
         access_token_id = None
         federated_info = None
         return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
