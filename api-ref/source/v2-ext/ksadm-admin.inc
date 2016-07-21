@@ -8,12 +8,12 @@ Supports create, read, update, and delete (CRUD) operations for
 roles, and services. Requires administrator privileges.
 
 
-Enable user
-===========
+Enable (Disable) user
+=====================
 
 .. rest_method::  PUT /v2.0/users/{userId}/OS-KSADM/enabled
 
-Enables a user.
+Enables or disables a user.
 
 Normal response codes: 200
 Error response codes: 413,415,405,404,403,401,400,503,409
@@ -24,6 +24,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - userId: userId
+   - enabled: enabled
 
 Request Example
 ---------------
