@@ -90,6 +90,11 @@ class V2TokenDataHelper(object):
                    'API.')
             raise exception.Unauthorized(msg)
 
+        if 'OS-FEDERATION' in v3_token['user']:
+            msg = _('Unable to validate Federation tokens using the version '
+                    'v2.0 API.')
+            raise exception.Unauthorized(msg)
+
         # Set user roles
         user['roles'] = []
         role_ids = []
