@@ -132,7 +132,6 @@ Request
    - enabled: enabled
    - email: email
    - name: name
-   - userId: userId
 
 Request Example
 ---------------
