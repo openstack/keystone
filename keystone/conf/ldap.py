@@ -56,6 +56,8 @@ The default LDAP server suffix to use, if a DN is not defined via either
 use_dumb_member = cfg.BoolOpt(
     'use_dumb_member',
     default=False,
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
 If true, keystone will add a dummy member based on the `[ldap] dumb_member`
 option when creating new groups. This is required if the object class for
@@ -66,6 +68,8 @@ operations.
 dumb_member = cfg.StrOpt(
     'dumb_member',
     default='cn=dumb,dc=nonexistent',
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
 DN of the "dummy member" to use when `[ldap] use_dumb_member` is enabled. This
 option is only used for write operations.
@@ -74,6 +78,8 @@ option is only used for write operations.
 allow_subtree_delete = cfg.BoolOpt(
     'allow_subtree_delete',
     default=False,
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
 Delete subtrees using the subtree delete control. Only enable this option if
 your LDAP server supports subtree deletion. This option is only used for write
@@ -237,6 +243,8 @@ userAccountControl`.
 user_attribute_ignore = cfg.ListOpt(
     'user_attribute_ignore',
     default=['default_project_id'],
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
 List of user attributes to ignore on create and update. This is only used for
 write operations.
@@ -378,6 +386,8 @@ The LDAP attribute mapped to group descriptions in keystone.
 group_attribute_ignore = cfg.ListOpt(
     'group_attribute_ignore',
     default=[],
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATED_LDAP_WRITE,
     help=utils.fmt("""
 List of group attributes to ignore on create and update. This is only used for
 write operations.
