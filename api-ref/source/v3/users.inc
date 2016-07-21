@@ -79,7 +79,7 @@ Request
    - domain_id: user_domain_id_update_body
    - enabled: enabled_user_update_body
    - name: user_name_update_body
-   - password: user_password_update_body
+   - password: user_update_password_body
 
 Request Example
 ---------------
