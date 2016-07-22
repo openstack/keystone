@@ -9,6 +9,7 @@
         "links": {
             "self": "https://example.com/identity/v3/users/ff4e51"
         },
-        "name": "James Doe"
+        "name": "James Doe",
+        "password_expires_at": "2016-11-06T15:32:17.000000"
     }
 }

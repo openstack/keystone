@@ -46,6 +46,7 @@ Response Parameters
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body
+   - password_expires_at: password_expires_at
 
 Response Example
 ----------------
@@ -99,6 +100,7 @@ Response Parameters
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body
+   - password_expires_at: password_expires_at
 
 Response Example
 ----------------
@@ -213,6 +215,7 @@ Response Parameters
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body
+   - password_expires_at: password_expires_at
 
 
 List users
@@ -247,6 +250,7 @@ Response Parameters
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body
+   - password_expires_at: password_expires_at
 
 Response Example
 ----------------
