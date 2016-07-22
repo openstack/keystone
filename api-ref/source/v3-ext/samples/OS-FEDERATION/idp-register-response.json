@@ -1,0 +1,12 @@
+{
+    "identity_provider": {
+        "description": "Stores ACME identities",
+        "remote_ids": ["acme_id_1", "acme_id_2"],
+        "enabled": true,
+        "id": "ACME",
+        "links": {
+            "protocols": "http://identity:35357/v3/OS-FEDERATION/identity_providers/ACME/protocols",
+            "self": "http://identity:35357/v3/OS-FEDERATION/identity_providers/ACME"
+        }
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "mapping": {
+        "rules": [
+            {
+                "local": [
+                    {
+                        "user": {
+                            "name": "{0}"
+                        }
+                    },
+                    {
+                        "group": {
+                            "id": "0cd5e9"
+                        }
+                    }
+                ],
+                "remote": [
+                    {
+                        "type": "UserName"
+                    },
+                    {
+                        "type": "orgPersonType",
+                        "not_any_of": [
+                            "Contractor",
+                            "Guest"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

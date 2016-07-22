@@ -1,0 +1,22 @@
+{
+    "token": {
+        "methods": [
+            "mapped"
+        ],
+        "user": {
+            "domain": {
+                "id": "Federated"
+            },
+            "id": "username%40example.com",
+            "name": "username@example.com",
+            "OS-FEDERATION": {
+                "identity_provider": "ACME",
+                "protocol": "SAML",
+                "groups": [
+                    {"id": "abc123"},
+                    {"id": "bcd234"}
+                ]
+            }
+        }
+    }
+}

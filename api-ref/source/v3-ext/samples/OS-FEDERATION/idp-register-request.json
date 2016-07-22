@@ -1,0 +1,7 @@
+{
+    "identity_provider": {
+        "description": "Stores ACME identities.",
+        "remote_ids": ["acme_id_1", "acme_id_2"],
+        "enabled": true
+    }
+}

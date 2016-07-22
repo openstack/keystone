@@ -1,0 +1,8 @@
+{
+    "service_provider": {
+        "auth_url": "https://example.com:5000/v3/OS-FEDERATION/identity_providers/acme/protocols/saml2/auth",
+        "description": "Remote Service Provider",
+        "enabled": true,
+        "sp_url": "https://example.com:5000/Shibboleth.sso/SAML2/ECP"
+    }
+}

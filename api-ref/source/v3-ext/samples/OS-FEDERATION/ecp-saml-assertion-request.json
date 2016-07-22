@@ -1,0 +1,17 @@
+{
+    "auth": {
+        "identity": {
+            "methods": [
+                "token"
+            ],
+            "token": {
+                "id": "--token_id--"
+            }
+        },
+        "scope": {
+            "service_provider": {
+                "id": "--sp_id--"
+            }
+        }
+    }
+}

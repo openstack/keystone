@@ -11,6 +11,7 @@ This page describes these Identity API v3 extensions:
 * `OS-TRUST API`_
 * `OS-REVOKE API`_
 * `OS-EP-FILTER API`_
+* `OS-FEDERATION API`_
 
 .. rest_expand_all::
 
@@ -19,3 +20,4 @@ This page describes these Identity API v3 extensions:
 .. include:: trust.inc
 .. include:: revoke.inc
 .. include:: ep-filter.inc
+.. include:: federation.inc
