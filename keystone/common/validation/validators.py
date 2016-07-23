@@ -11,10 +11,42 @@
 # under the License.
 """Internal implementation of request body validating middleware."""
 
+import re
+
 import jsonschema
+from oslo_config import cfg
+from oslo_log import log
+import six
 
 from keystone import exception
-from keystone.i18n import _
+from keystone.i18n import _, _LE
+
+
+CONF = cfg.CONF
+LOG = log.getLogger(__name__)
+
+
+# TODO(rderose): extend schema validation and add this check there
+def validate_password(password):
+    pattern = CONF.security_compliance.password_regex
+    if pattern:
+        if not isinstance(password, six.string_types):
+            detail = _("Password must be a string type")
+            raise exception.PasswordValidationError(detail=detail)
+        try:
+            if not re.match(pattern, password):
+                pattern_desc = (
+                    CONF.security_compliance.password_regex_description)
+                detail = _("The password does not meet the requirements: "
+                           "%(message)s") % {'message': pattern_desc}
+                raise exception.PasswordValidationError(detail=detail)
+        except re.error:
+            msg = _LE("Unable to validate password due to invalid regular "
+                      "expression - password_regex: ")
+            LOG.error(msg, pattern)
+            detail = _("Unable to validate password due to invalid "
+                       "configuration")
+            raise exception.PasswordValidationError(detail=detail)
 
 
 class SchemaValidator(object):
