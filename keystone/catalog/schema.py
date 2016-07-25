@@ -13,6 +13,11 @@
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 
+_service_properties_type = {
+    'type': 'string',
+    'minLength': 1,
+    'maxLength': 255
+}
 
 _region_properties = {
     'description': {
@@ -42,21 +47,37 @@ region_update = {
     'additionalProperties': True
 }
 
+# Schema for Service v2
+
+_service_properties_v2 = {
+    'enabled': parameter_types.boolean,
+    'description': {
+        'type': ['string', 'null']
+    },
+    'name': parameter_types.name,
+    'type': _service_properties_type
+}
+
+service_create_v2 = {
+    'type': 'object',
+    'properties': _service_properties_v2,
+    'required': ['type'],
+    'additionalProperties': True
+}
+
+# Schema for Service v3
+
 _service_properties = {
     'enabled': parameter_types.boolean,
     'name': parameter_types.name,
-    'type': {
-        'type': 'string',
-        'minLength': 1,
-        'maxLength': 255
-    }
+    'type': _service_properties_type
 }
 
 service_create = {
     'type': 'object',
     'properties': _service_properties,
     'required': ['type'],
-    'additionalProperties': True,
+    'additionalProperties': True
 }
 
 service_update = {
