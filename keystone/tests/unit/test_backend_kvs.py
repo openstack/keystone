@@ -115,3 +115,4 @@ class KvsTokenCacheInvalidation(unit.TestCase,
     def config_overrides(self):
         super(KvsTokenCacheInvalidation, self).config_overrides()
         self.config_fixture.config(group='token', driver='kvs')
+        self.config_fixture.config(group='token', provider='uuid')
