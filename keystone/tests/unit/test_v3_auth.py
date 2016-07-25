@@ -3730,13 +3730,39 @@ class TestAuthExternalDefaultDomain(test_v3.RestfulTestCase):
                          token['bind']['kerberos'])
 
 
-class TestAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
+class UUIDAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
 
     def config_overrides(self):
-        super(TestAuthKerberos, self).config_overrides()
+        super(UUIDAuthKerberos, self).config_overrides()
         self.kerberos = True
+        self.config_fixture.config(group='token', provider='uuid')
         self.auth_plugin_config_override(
             methods=['kerberos', 'password', 'token'])
+
+
+class PKIAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
+
+    def config_overrides(self):
+        super(PKIAuthKerberos, self).config_overrides()
+        self.kerberos = True
+        self.config_fixture.config(group='token', provider='pki')
+        self.auth_plugin_config_override(
+            methods=['kerberos', 'password', 'token'])
+
+
+class PKIZAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
+
+    def config_overrides(self):
+        super(PKIZAuthKerberos, self).config_overrides()
+        self.kerberos = True
+        self.config_fixture.config(group='token', provider='pkiz')
+        self.auth_plugin_config_override(
+            methods=['kerberos', 'password', 'token'])
+
+
+# NOTE(lbragstad): The Fernet token provider doesn't support bind
+# authentication so we don't inherit AuthExternalDomainBehavior here to test
+# it.
 
 
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
