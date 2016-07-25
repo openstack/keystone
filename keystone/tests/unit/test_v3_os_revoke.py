@@ -13,6 +13,7 @@
 import datetime
 import uuid
 
+import freezegun
 from oslo_utils import timeutils
 import six
 from six.moves import http_client
@@ -134,17 +135,21 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertEqual([], events)
 
     def test_revoked_at_in_list(self):
-        revoked_at = timeutils.utcnow()
-        # Given or not, `revoked_at` will always be set in the backend.
-        self.revoke_api.revoke(
-            revoke_model.RevokeEvent(revoked_at=revoked_at))
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            revoked_at = timeutils.utcnow()
+            # Given or not, `revoked_at` will always be set in the backend.
+            self.revoke_api.revoke(
+                revoke_model.RevokeEvent(revoked_at=revoked_at))
 
-        resp = self.get('/OS-REVOKE/events')
-        events = resp.json_body['events']
-        self.assertThat(events, matchers.HasLength(1))
-        # Strip off the microseconds from `revoked_at`.
-        self.assertTimestampEqual(utils.isotime(revoked_at),
-                                  events[0]['revoked_at'])
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            resp = self.get('/OS-REVOKE/events')
+            events = resp.json_body['events']
+            self.assertThat(events, matchers.HasLength(1))
+            # Strip off the microseconds from `revoked_at`.
+            self.assertTimestampEqual(utils.isotime(revoked_at),
+                                      events[0]['revoked_at'])
 
     def test_access_token_id_not_in_event(self):
         ref = {'description': uuid.uuid4().hex}
