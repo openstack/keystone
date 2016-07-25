@@ -12,6 +12,22 @@
 
 from keystone.common.validation import parameter_types
 
+# Schema for Identity v2 API
+
+_role_properties_v2 = {
+    'name': parameter_types.name,
+    'id': parameter_types.id_string,
+    'description': parameter_types.id_string
+}
+
+role_create_v2 = {
+    'type': 'object',
+    'properties': _role_properties_v2,
+    'required': ['name'],
+    'additionalProperties': True
+}
+
+# Schema for Identity v3 API
 
 _role_properties = {
     'name': parameter_types.name
