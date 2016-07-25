@@ -88,15 +88,7 @@ class Tenant(controller.V2Controller):
     def create_project(self, request, tenant):
         tenant_ref = self._normalize_dict(tenant)
 
-        if 'name' not in tenant_ref or not tenant_ref['name']:
-            msg = _('Name field is required and cannot be empty')
-            raise exception.ValidationError(message=msg)
-
-        if 'is_domain' in tenant_ref:
-            msg = _('The creation of projects acting as domains is not '
-                    'allowed in v2.')
-            raise exception.ValidationError(message=msg)
-
+        validation.lazy_validate(schema.tenant_create, tenant)
         self.assert_admin(request)
 
         self.resource_api.ensure_default_domain_exists()
