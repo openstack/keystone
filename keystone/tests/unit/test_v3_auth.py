@@ -5071,7 +5071,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.v3_create_token(auth_data, expected_status=http_client.CREATED)
 
 
-class TestFetchRevocationList(test_v3.RestfulTestCase):
+class TestFetchRevocationList(object):
     """Test fetch token revocation list on the v3 Identity API."""
 
     def config_overrides(self):
@@ -5150,3 +5150,15 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
         }
 
         self.assertEqual({'revoked': [exp_token_revoke_data]}, res.json)
+
+
+class UUIDFetchRevocationList(TestFetchRevocationList,
+                              test_v3.RestfulTestCase):
+
+    def config_overrides(self):
+        super(UUIDFetchRevocationList, self).config_overrides()
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+# NOTE(lbragstad): The Fernet token provider doesn't use Revocation lists so
+# don't inherit TestFetchRevocationList here to test it.
