@@ -24,7 +24,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - userId: userId
-   - enabled: enabled
+   - enabled: enabled_user
 
 Request Example
 ---------------

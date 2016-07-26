@@ -78,10 +78,10 @@ enabled:
   in: body
   required: true
   type: boolean
-enabled_1:
+enabled_user:
   description: |
-    Indicates whether the user is enabled (``true``)
-    or disabled(``false``). The default value is ``true``.
+    Indicates whether the user should be enabled (``true``)
+    or disabled(``false``).
   in: body
   required: true
   type: boolean
