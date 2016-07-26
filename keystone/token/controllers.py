@@ -85,7 +85,7 @@ class Auth(controller.V2Controller):
             raise exception.ValidationError(attribute='auth',
                                             target='request body')
 
-        if "token" in auth:
+        if 'token' in auth:
             # Try to authenticate using a token
             auth_info = self._authenticate_token(request, auth)
         else:
@@ -165,9 +165,9 @@ class Auth(controller.V2Controller):
             raise exception.ValidationError(
                 attribute='token', target='auth')
 
-        if "id" not in auth['token']:
+        if 'id' not in auth['token']:
             raise exception.ValidationError(
-                attribute="id", target="token")
+                attribute='id', target='token')
 
         old_token = auth['token']['id']
         if len(old_token) > CONF.max_token_size:
@@ -260,7 +260,7 @@ class Auth(controller.V2Controller):
             raise exception.ValidationError(
                 attribute='passwordCredentials', target='auth')
 
-        if "password" not in auth['passwordCredentials']:
+        if 'password' not in auth['passwordCredentials']:
             raise exception.ValidationError(
                 attribute='password', target='passwordCredentials')
 
@@ -269,8 +269,8 @@ class Auth(controller.V2Controller):
             raise exception.ValidationSizeError(
                 attribute='password', size=CONF.identity.max_password_length)
 
-        if (not auth['passwordCredentials'].get("userId") and
-                not auth['passwordCredentials'].get("username")):
+        if (not auth['passwordCredentials'].get('userId') and
+                not auth['passwordCredentials'].get('username')):
             raise exception.ValidationError(
                 attribute='username or userId',
                 target='passwordCredentials')
