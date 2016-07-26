@@ -14,13 +14,13 @@
             "domain": {
                 "id": "1789d1",
                 "links": {
-                    "self": "http://identity:35357/v3/domains/1789d1"
+                    "self": "http://example.com/identity/v3/domains/1789d1"
                 },
                 "name": "example.com"
             },
             "id": "263fd9",
             "links": {
-                "self": "http://identity:35357/v3/projects/263fd9"
+                "self": "http://example.com/identity/v3/projects/263fd9"
             },
             "name": "project-x"
         },
@@ -31,19 +31,19 @@
                         "id": "39dc322ce86c4111b4f06c2eeae0841b",
                         "interface": "public",
                         "region": "RegionOne",
-                        "url": "http://localhost:5000"
+                        "url": "http://example.com/identity"
                     },
                     {
                         "id": "ec642f27474842e78bf059f6c48f4e99",
                         "interface": "internal",
                         "region": "RegionOne",
-                        "url": "http://localhost:5000"
+                        "url": "http://example.com/identity"
                     },
                     {
                         "id": "c609fc430175452290b62a4242e8a7e8",
                         "interface": "admin",
                         "region": "RegionOne",
-                        "url": "http://localhost:35357"
+                        "url": "http://example.com/identity"
                     }
                 ],
                 "id": "266c2aa381ea46df81bb05ddb02bd14a",

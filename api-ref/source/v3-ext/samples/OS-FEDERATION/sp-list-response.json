@@ -2,30 +2,30 @@
     "links": {
         "next": null,
         "previous": null,
-        "self": "http://identity:35357/v3/OS-FEDERATION/service_providers"
+        "self": "http://example.com/identity/v3/OS-FEDERATION/service_providers"
     },
     "service_providers": [
         {
-            "auth_url": "https://example.com:5000/v3/OS-FEDERATION/identity_providers/acme/protocols/saml2/auth",
+            "auth_url": "https://example.com/identity/v3/OS-FEDERATION/identity_providers/acme/protocols/saml2/auth",
             "description": "Stores ACME identities",
             "enabled": true,
             "id": "ACME",
             "links": {
-                "self": "http://identity:35357/v3/OS-FEDERATION/service_providers/ACME"
+                "self": "http://example.com/identity/v3/OS-FEDERATION/service_providers/ACME"
             },
             "relay_state_prefix": "ss:mem:",
-            "sp_url": "https://example.com:5000/Shibboleth.sso/SAML2/ECP"
+            "sp_url": "https://example.com/identity/Shibboleth.sso/SAML2/ECP"
         },
         {
-            "auth_url": "https://other.example.com:5000/v3/OS-FEDERATION/identity_providers/acme/protocols/saml2/auth",
+            "auth_url": "https://other.example.com/identity/v3/OS-FEDERATION/identity_providers/acme/protocols/saml2/auth",
             "description": "Stores contractor identities",
             "enabled": false,
             "id": "ACME-contractors",
             "links": {
-                "self": "http://identity:35357/v3/OS-FEDERATION/service_providers/ACME-contractors"
+                "self": "http://example.com/identity/v3/OS-FEDERATION/service_providers/ACME-contractors"
             },
             "relay_state_prefix": "ss:mem:",
-            "sp_url": "https://other.example.com:5000/Shibboleth.sso/SAML2/ECP"
+            "sp_url": "https://other.example.com/identity/Shibboleth.sso/SAML2/ECP"
         }
     ]
 }

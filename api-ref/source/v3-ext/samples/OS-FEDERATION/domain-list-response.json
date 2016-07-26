@@ -5,13 +5,13 @@
             "enabled": true,
             "id": "37ef61",
             "links": {
-                "self": "http://identity:35357/v3/domains/37ef61"
+                "self": "http://example.com/identity/v3/domains/37ef61"
             },
             "name": "my domain"
         }
     ],
     "links": {
-        "self": "http://identity:35357/v3/OS-FEDERATION/domains",
+        "self": "http://example.com/identity/v3/OS-FEDERATION/domains",
         "previous": null,
         "next": null
     }

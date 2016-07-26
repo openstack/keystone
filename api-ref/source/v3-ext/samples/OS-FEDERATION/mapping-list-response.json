@@ -2,13 +2,13 @@
     "links": {
         "next": null,
         "previous": null,
-        "self": "http://identity:35357/v3/OS-FEDERATION/mappings"
+        "self": "http://example.com/identity/v3/OS-FEDERATION/mappings"
     },
     "mappings": [
         {
             "id": "ACME",
             "links": {
-                "self": "http://identity:35357/v3/OS-FEDERATION/mappings/ACME"
+                "self": "http://example.com/identity/v3/OS-FEDERATION/mappings/ACME"
             },
             "rules": [
                 {
