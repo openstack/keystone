@@ -602,6 +602,43 @@ class SqlIdentity(SqlTests,
         _exercise_project_api(uuid.uuid4().hex)
         _exercise_project_api(resource.NULL_DOMAIN_ID)
 
+    def test_list_users_call_count(self):
+        """There should not be O(N) queries."""
+        # create 10 users. 10 is just a random number
+        for i in range(10):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            self.identity_api.create_user(user)
+
+        # sqlalchemy emits various events and allows to listen to them. Here
+        # bound method `query_counter` will be called each time when a query
+        # is compiled
+        class CallCounter(object):
+            def __init__(self):
+                self.calls = 0
+
+            def reset(self):
+                self.calls = 0
+
+            def query_counter(self, query):
+                self.calls += 1
+
+        counter = CallCounter()
+        sqlalchemy.event.listen(sqlalchemy.orm.query.Query, 'before_compile',
+                                counter.query_counter)
+
+        first_call_users = self.identity_api.list_users()
+        first_call_counter = counter.calls
+        # add 10 more users
+        for i in range(10):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            self.identity_api.create_user(user)
+        counter.reset()
+        second_call_users = self.identity_api.list_users()
+        # ensure that the number of calls does not depend on the number of
+        # users fetched.
+        self.assertNotEqual(len(first_call_users), len(second_call_users))
+        self.assertEqual(first_call_counter, counter.calls)
+
 
 class SqlTrust(SqlTests, trust_tests.TrustTests):
     pass
