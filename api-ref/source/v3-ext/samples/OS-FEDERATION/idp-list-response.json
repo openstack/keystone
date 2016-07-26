@@ -6,8 +6,8 @@
             "enabled": true,
             "id": "ACME",
             "links": {
-                "protocols": "http://identity:35357/v3/OS-FEDERATION/identity_providers/ACME/protocols",
-                "self": "http://identity:35357/v3/OS-FEDERATION/identity_providers/ACME"
+                "protocols": "http://example.com/identity/v3/OS-FEDERATION/identity_providers/ACME/protocols",
+                "self": "http://example.com/identity/v3/OS-FEDERATION/identity_providers/ACME"
             }
         },
         {
@@ -16,14 +16,14 @@
             "enabled": false,
             "id": "ACME-contractors",
             "links": {
-                "protocols": "http://identity:35357/v3/OS-FEDERATION/identity_providers/ACME-contractors/protocols",
-                "self": "http://identity:35357/v3/OS-FEDERATION/identity_providers/ACME-contractors"
+                "protocols": "http://example.com/identity/v3/OS-FEDERATION/identity_providers/ACME-contractors/protocols",
+                "self": "http://example.com/identity/v3/OS-FEDERATION/identity_providers/ACME-contractors"
             }
         }
     ],
     "links": {
         "next": null,
         "previous": null,
-        "self": "http://identity:35357/v3/OS-FEDERATION/identity_providers"
+        "self": "http://example.com/identity/v3/OS-FEDERATION/identity_providers"
     }
 }

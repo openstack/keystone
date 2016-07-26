@@ -1,7 +1,7 @@
 Headers:
     Content-Type: text/xml
     X-sp-url: http://beta.example.com/Shibboleth.sso/POST/ECP
-    X-auth-url: http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/auth
+    X-auth-url: http://beta.example.com/identity/v3/OS-FEDERATION/identity_providers/beta/protocols/auth
 
 <?xml version="1.0" encoding="UTF-8"?>
 <ns0:Response xmlns:ns0="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xmldsig="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Destination="http://beta.example.com/Shibboleth.sso/POST/ECP" ID="818dee98a5d44a238ae3038d26cbebb6" IssueInstant="2015-05-27T13:23:48Z" Version="2.0">

@@ -1,7 +1,7 @@
 Headers:
     Content-Type: text/xml
     X-sp-url: http://beta.example.com/Shibboleth.sso/POST/ECP
-    X-auth-url: http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/auth
+    X-auth-url: http://beta.example.com/identity/v3/OS-FEDERATION/identity_providers/beta/protocols/auth
 
 <?xml version='1.0' encoding='UTF-8'?>
 <ns0:Envelope
