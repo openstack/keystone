@@ -14,14 +14,18 @@
 
 import uuid
 
+import fixtures
 from oslo_config import fixture as config_fixture
+from oslo_log import log
 from oslo_serialization import jsonutils
 import six
 
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
+from keystone.i18n import _LE
 from keystone.tests import unit
+from keystone.tests.unit import utils
 
 
 CONF = keystone.conf.CONF
@@ -274,3 +278,58 @@ class SecurityErrorTestCase(ExceptionTestCase):
         e = exception.Forbidden(message=risky_info)
         self.assertValidJsonRendering(e)
         self.assertNotIn(risky_info, six.text_type(e))
+
+
+class TestSecurityErrorTranslation(unit.BaseTestCase):
+    """Test i18n for SecurityError exceptions.
+
+    Keystone ``Error`` accepts an optional message that will be used when
+    rendering the exception object as a string. If not provided the object's
+    message_format attribute is used instead. ``SecurityError``s are a little
+    different in that they only use the message provided to the initializer
+    when keystone is in insecure_debug mode. Instead they will use the message
+    format.  This is to ensure that sensitive details are not leaked back to
+    the caller in a production deployment.
+
+    This dual mode for string rendering causes some odd behaviour when
+    combined with oslo_i18n translation. Any object used as a value for
+    formatting a translated string is deep copied.
+
+    The copy causes an issue. The deep copy process actually creates a new
+    exception instance with the rendered string. Then when that new instance
+    is rendered as a string to use for substitution a warning is logged. This
+    is because the code tries to use the ``message_format`` in secure mode,
+    but the required kwargs are not in the deep copy.
+
+    The end result is not an error because when the KeyError is cause the
+    instance's ``message`` is used instead and this has the properly
+    translated message. The only indication that something is wonky is a
+    message in the warning log.
+    """
+
+    def setUp(self):
+        super(TestSecurityErrorTranslation, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture.config(insecure_debug=False)
+        self.warning_log = self.useFixture(fixtures.FakeLogger(level=log.WARN))
+
+        exception._FATAL_EXCEPTION_FORMAT_ERRORS = False
+        self.addCleanup(
+            setattr, exception, '_FATAL_EXCEPTION_FORMAT_ERRORS', True)
+
+    class CustomSecurityError(exception.SecurityError):
+        message_format = _LE('We had a failure in the %(place)r')
+
+    class CustomError(exception.Error):
+        message_format = _LE('We had a failure in the %(place)r')
+
+    @utils.wip('this will fail until we fix the deepcopy issue')
+    def test_nested_translation_of_SecurityErrors(self):
+        e = self.CustomSecurityError(place='code')
+        _LE('Admiral found this in the log: %s') % e
+        self.assertNotIn('programmer error', self.warning_log.output)
+
+    def test_that_regular_Errors_can_be_deep_copied(self):
+        e = self.CustomError(place='code')
+        _LE('Admiral found this in the log: %s') % e
+        self.assertNotIn('programmer error', self.warning_log.output)
