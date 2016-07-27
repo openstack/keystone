@@ -16,6 +16,7 @@ import copy
 import datetime
 import itertools
 import operator
+import re
 import uuid
 
 from keystoneclient.common import cms
@@ -5069,6 +5070,12 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
             user_domain_id=self.default_domain_user['domain_id'])
 
         self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_generated_passcode_is_correct_format(self):
+        secret = self._make_credentials('totp')[-1]['blob']
+        passcode = totp._generate_totp_passcode(secret)
+        reg = re.compile(r'^-?[0-9]+$')
+        self.assertTrue(reg.match(passcode))
 
 
 class TestFetchRevocationList(object):
