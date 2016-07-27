@@ -25,7 +25,6 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _LE
 from keystone.tests import unit
-from keystone.tests.unit import utils
 
 
 CONF = keystone.conf.CONF
@@ -281,31 +280,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
 
 
 class TestSecurityErrorTranslation(unit.BaseTestCase):
-    """Test i18n for SecurityError exceptions.
-
-    Keystone ``Error`` accepts an optional message that will be used when
-    rendering the exception object as a string. If not provided the object's
-    message_format attribute is used instead. ``SecurityError``s are a little
-    different in that they only use the message provided to the initializer
-    when keystone is in insecure_debug mode. Instead they will use the message
-    format.  This is to ensure that sensitive details are not leaked back to
-    the caller in a production deployment.
-
-    This dual mode for string rendering causes some odd behaviour when
-    combined with oslo_i18n translation. Any object used as a value for
-    formatting a translated string is deep copied.
-
-    The copy causes an issue. The deep copy process actually creates a new
-    exception instance with the rendered string. Then when that new instance
-    is rendered as a string to use for substitution a warning is logged. This
-    is because the code tries to use the ``message_format`` in secure mode,
-    but the required kwargs are not in the deep copy.
-
-    The end result is not an error because when the KeyError is cause the
-    instance's ``message`` is used instead and this has the properly
-    translated message. The only indication that something is wonky is a
-    message in the warning log.
-    """
+    """Test i18n for SecurityError exceptions."""
 
     def setUp(self):
         super(TestSecurityErrorTranslation, self).setUp()
@@ -323,7 +298,6 @@ class TestSecurityErrorTranslation(unit.BaseTestCase):
     class CustomError(exception.Error):
         message_format = _LE('We had a failure in the %(place)r')
 
-    @utils.wip('this will fail until we fix the deepcopy issue')
     def test_nested_translation_of_SecurityErrors(self):
         e = self.CustomSecurityError(place='code')
         _LE('Admiral found this in the log: %s') % e
