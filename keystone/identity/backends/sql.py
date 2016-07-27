@@ -118,8 +118,10 @@ class LocalUser(sql.ModelBase, sql.DictBase):
                          ondelete='CASCADE'), unique=True)
     domain_id = sql.Column(sql.String(64), nullable=False)
     name = sql.Column(sql.String(255), nullable=False)
-    passwords = orm.relationship('Password', single_parent=True,
+    passwords = orm.relationship('Password',
+                                 single_parent=True,
                                  cascade='all,delete-orphan',
+                                 lazy='subquery',
                                  backref='local_user')
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
