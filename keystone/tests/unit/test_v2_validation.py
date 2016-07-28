@@ -20,6 +20,13 @@ from keystone.resource import schema as resource_schema
 from keystone.tests import unit
 
 
+_INVALID_NAMES = [True, 24, ' ', '']
+
+_VALID_ENABLED_FORMATS = [True, False]
+
+_INVALID_ENABLED_FORMATS = ['some string', 1, 0, 'True', 'False']
+
+
 class RoleValidationTestCase(unit.BaseTestCase):
     """Test for V2 Roles API Validation."""
 
@@ -57,12 +64,12 @@ class RoleValidationTestCase(unit.BaseTestCase):
                           request)
 
     def test_validate_role_create_fails_with_invalid_name(self):
-        request = {
-            'name': 42
-        }
-        self.assertRaises(exception.SchemaValidationError,
-                          self.create_validator.validate,
-                          request)
+        """Exception when validating a create request with invalid `name`."""
+        for invalid_name in _INVALID_NAMES:
+            request_to_validate = {'name': invalid_name}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_validator.validate,
+                              request_to_validate)
 
 
 class TenantValidationTestCase(unit.BaseTestCase):
@@ -105,15 +112,13 @@ class TenantValidationTestCase(unit.BaseTestCase):
                           self.create_validator.validate,
                           request)
 
-    def test_validate_tenant_create_failure_with_empty_name(self):
-        request = {
-            'name': '',
-            'description': uuid.uuid4().hex,
-            'enabled': True
-        }
-        self.assertRaises(exception.SchemaValidationError,
-                          self.create_validator.validate,
-                          request)
+    def test_validate_tenant_create_fails_with_invalid_name(self):
+        """Exception when validating a create request with invalid `name`."""
+        for invalid_name in _INVALID_NAMES:
+            request = {'name': invalid_name}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_validator.validate,
+                              request)
 
     def test_validate_tenant_create_failure_with_empty_request(self):
         request = {}
@@ -131,3 +136,23 @@ class TenantValidationTestCase(unit.BaseTestCase):
         self.assertRaises(exception.SchemaValidationError,
                           self.create_validator.validate,
                           request)
+
+    def test_validate_tenant_create_with_enabled(self):
+        """Validate `enabled` as boolean-like values."""
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request = {
+                'name': uuid.uuid4().hex,
+                'enabled': valid_enabled
+            }
+            self.create_validator.validate(request)
+
+    def test_validate_tenant_create_with_invalid_enabled_fails(self):
+        """Exception is raised when `enabled` isn't a boolean-like value."""
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request = {
+                'name': uuid.uuid4().hex,
+                'enabled': invalid_enabled
+            }
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_validator.validate,
+                              request)
