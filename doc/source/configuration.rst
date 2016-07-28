@@ -136,10 +136,10 @@ Keystone also supports the ability to store the domain-specific configuration
 options in the keystone SQL database, managed via the Identity API, as opposed
 to using domain-specific configuration files.
 
-.. NOTE::
+.. NOTE:: Support status for configuring options via the Identity API
 
-    The ability to store and manage configuration options via the Identity API
-    is new and experimental in Kilo.
+   *Experimental* (Kilo, Liberty, Mitaka)
+   *Stable* (Newton)
 
 This capability (which is disabled by default) is enabled by specifying the
 following options in the main keystone configuration file:
