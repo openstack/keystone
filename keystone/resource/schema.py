@@ -13,6 +13,12 @@
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 
+_name_properties = {
+    'type': 'string',
+    'minLength': 1,
+    'maxLength': 64,
+    'pattern': '[\S]+'
+}
 
 _project_properties = {
     'description': validation.nullable(parameter_types.description),
@@ -21,12 +27,7 @@ _project_properties = {
     'enabled': parameter_types.boolean,
     'is_domain': parameter_types.boolean,
     'parent_id': validation.nullable(parameter_types.id_string),
-    'name': {
-        'type': 'string',
-        'minLength': 1,
-        'maxLength': 64,
-        'pattern': '[\S]+'
-    }
+    'name': _name_properties
 }
 
 project_create = {
@@ -50,12 +51,7 @@ project_update = {
 _domain_properties = {
     'description': validation.nullable(parameter_types.description),
     'enabled': parameter_types.boolean,
-    'name': {
-        'type': 'string',
-        'minLength': 1,
-        'maxLength': 64,
-        'pattern': '[\S]+'
-    }
+    'name': _name_properties
 }
 
 domain_create = {
@@ -72,5 +68,22 @@ domain_update = {
     'type': 'object',
     'properties': _domain_properties,
     'minProperties': 1,
+    'additionalProperties': True
+}
+
+_tenant_properties = {
+    'description': validation.nullable(parameter_types.description),
+    'enabled': parameter_types.boolean,
+    'name': _name_properties,
+    'id': validation.nullable(parameter_types.id_string)
+}
+
+tenant_create = {
+    'type': 'object',
+    'properties': _tenant_properties,
+    'required': ['name'],
+    'not': {
+        'required': ['is_domain']
+    },
     'additionalProperties': True
 }
