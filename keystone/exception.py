@@ -538,15 +538,5 @@ class TokenlessAuthConfigError(ValidationError):
                        'was not found in the request environment.')
 
 
-class MigrationMovedFailure(RuntimeError):
-    def __init__(self, extension):
-        self.extension = extension
-        msg = _("The %s extension has been moved into keystone core and as "
-                "such its migrations are maintained by the main keystone "
-                "database control. Use the command: keystone-manage "
-                "db_sync") % self.extension
-        super(MigrationMovedFailure, self).__init__(msg)
-
-
 class UnsupportedDriverVersion(UnexpectedError):
     debug_message_format = _('%(driver)s is not supported driver version')
