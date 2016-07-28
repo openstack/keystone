@@ -302,28 +302,6 @@ class ResourceTests(object):
                           project['id'],
                           project)
 
-    def test_create_project_blank_name_fails(self):
-        project = unit.new_project_ref(
-            name='', domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
-                          project['id'],
-                          project)
-
-    def test_create_project_invalid_name_fails(self):
-        project = unit.new_project_ref(
-            name=None, domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
-                          project['id'],
-                          project)
-        project = unit.new_project_ref(
-            name=123, domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
-                          project['id'],
-                          project)
-
     def test_update_project_blank_name_fails(self):
         project = unit.new_project_ref(
             name='fake1', domain_id=CONF.identity.default_domain_id)
@@ -371,16 +349,6 @@ class ResourceTests(object):
         project['enabled'] = "false"
         self.assertRaises(exception.ValidationError,
                           self.resource_api.update_project,
-                          project['id'],
-                          project)
-
-    def test_create_project_invalid_enabled_type_string(self):
-        project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id,
-            # invalid string value
-            enabled="true")
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
                           project['id'],
                           project)
 

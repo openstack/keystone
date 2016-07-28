@@ -300,21 +300,6 @@ class SqlIdentity(SqlTests,
         ref['name'] = ref['name'].upper()
         self.resource_api.create_project(ref['id'], ref)
 
-    def test_create_null_project_name(self):
-        project = unit.new_project_ref(
-            name=None, domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
-                          project['id'],
-                          project)
-        self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
-                          project['id'])
-        self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project_by_name,
-                          project['name'],
-                          CONF.identity.default_domain_id)
-
     def test_delete_project_with_user_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user)
