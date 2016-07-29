@@ -1,0 +1,11 @@
+{
+    "config": {
+        "identity": {
+            "driver": "ldap"
+        },
+        "ldap": {
+            "url": "ldap://myldap.com:389/",
+            "user_tree_dn": "ou=Users,dc=my_new_root,dc=org"
+        }
+    }
+}
