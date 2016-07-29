@@ -338,20 +338,6 @@ class ResourceTests(object):
                           project['id'],
                           project)
 
-    def test_update_project_invalid_enabled_type_string(self):
-        project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
-        self.assertTrue(project_ref['enabled'])
-
-        # Strings are not valid boolean values
-        project['enabled'] = "false"
-        self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
-                          project['id'],
-                          project)
-
     def test_create_project_invalid_domain_id(self):
         project = unit.new_project_ref(domain_id=uuid.uuid4().hex)
         self.assertRaises(exception.DomainNotFound,
