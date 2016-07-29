@@ -378,6 +378,15 @@ class Doctor(BaseApp):
         raise SystemExit(doctor.diagnose())
 
 
+def assert_not_extension(extension):
+    if extension:
+        print(_("All extensions have been moved into keystone core and as "
+                "such its migrations are maintained by the main keystone "
+                "database control. Use the command: keystone-manage "
+                "db_sync"))
+        raise RuntimeError
+
+
 class DbSync(BaseApp):
     """Sync the database."""
 
@@ -393,17 +402,19 @@ class DbSync(BaseApp):
                                   'version. Schema downgrades are not '
                                   'supported.'))
         parser.add_argument('--extension', default=None,
-                            help=('Migrate the database for the specified '
-                                  'extension. If not provided, db_sync will '
-                                  'migrate the common repository.'))
+                            help=('This is a deprecated option to migrate a '
+                                  'specified extension. Since extensions are '
+                                  'now part of the main repository, '
+                                  'specifying db_sync without this option '
+                                  'will cause all extensions to be migrated.'))
 
         return parser
 
     @staticmethod
     def main():
+        assert_not_extension(CONF.command.extension)
         version = CONF.command.version
-        extension = CONF.command.extension
-        migration_helpers.sync_database_to_version(extension, version)
+        migration_helpers.sync_database_to_version(version)
 
 
 class DbVersion(BaseApp):
@@ -415,15 +426,17 @@ class DbVersion(BaseApp):
     def add_argument_parser(cls, subparsers):
         parser = super(DbVersion, cls).add_argument_parser(subparsers)
         parser.add_argument('--extension', default=None,
-                            help=('Print the migration version of the '
-                                  'database for the specified extension. If '
-                                  'not provided, print it for the common '
+                            help=('This is a deprecated option to print the '
+                                  'version of a specified extension. Since '
+                                  'extensions are now part of the main '
+                                  'repository, the version of an extension is '
+                                  'implicit in the version of the main '
                                   'repository.'))
 
     @staticmethod
     def main():
-        extension = CONF.command.extension
-        migration_helpers.print_db_version(extension)
+        assert_not_extension(CONF.command.extension)
+        migration_helpers.print_db_version()
 
 
 class BasePermissionsSetup(BaseApp):

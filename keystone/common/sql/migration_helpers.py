@@ -15,31 +15,20 @@
 #    under the License.
 
 import os
-import sys
 
 import migrate
 from migrate import exceptions
 from oslo_db.sqlalchemy import migration
-from oslo_utils import importutils
 import six
 import sqlalchemy
 
 from keystone.common import sql
 import keystone.conf
-from keystone import contrib
 from keystone import exception
 from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
-DEFAULT_EXTENSIONS = []
-
-MIGRATED_EXTENSIONS = ['endpoint_policy',
-                       'federation',
-                       'oauth1',
-                       'revoke',
-                       'endpoint_filter'
-                       ]
 
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
@@ -158,10 +147,10 @@ def get_init_version(abs_path=None):
     return oldest - 1
 
 
-def _assert_not_schema_downgrade(extension=None, version=None):
+def _assert_not_schema_downgrade(version=None):
     if version is not None:
         try:
-            current_ver = int(six.text_type(get_db_version(extension)))
+            current_ver = int(six.text_type(get_db_version()))
             if int(version) < current_ver:
                 raise migration.exception.DbMigrationError(
                     _("Unable to downgrade schema"))
@@ -171,75 +160,16 @@ def _assert_not_schema_downgrade(extension=None, version=None):
             pass
 
 
-def _sync_extension_repo(extension, version):
-    if extension in MIGRATED_EXTENSIONS:
-        raise exception.MigrationMovedFailure(extension=extension)
+def sync_database_to_version(version=None):
+    _sync_common_repo(version)
 
+
+def get_db_version():
     with sql.session_for_write() as session:
-        engine = session.get_bind()
-
-        try:
-            package_name = '.'.join((contrib.__name__, extension))
-            package = importutils.import_module(package_name)
-        except ImportError:
-            raise ImportError(_("%s extension does not exist.")
-                              % package_name)
-        try:
-            abs_path = find_migrate_repo(package)
-            try:
-                migration.db_version_control(engine, abs_path)
-            # Register the repo with the version control API
-            # If it already knows about the repo, it will throw
-            # an exception that we can safely ignore
-            except exceptions.DatabaseAlreadyControlledError:  # nosec
-                pass
-        except exception.MigrationNotProvided as e:
-            print(e)
-            sys.exit(1)
-
-        _assert_not_schema_downgrade(extension=extension, version=version)
-
-        init_version = get_init_version(abs_path=abs_path)
-
-        migration.db_sync(engine, abs_path, version=version,
-                          init_version=init_version, sanity_check=False)
+        return migration.db_version(session.get_bind(),
+                                    find_migrate_repo(),
+                                    get_init_version())
 
 
-def sync_database_to_version(extension=None, version=None):
-    if not extension:
-        _sync_common_repo(version)
-        # If version is greater than 0, it is for the common
-        # repository only, and only that will be synchronized.
-        if version is None:
-            for default_extension in DEFAULT_EXTENSIONS:
-                _sync_extension_repo(default_extension, version)
-    else:
-        _sync_extension_repo(extension, version)
-
-
-def get_db_version(extension=None):
-    if not extension:
-        with sql.session_for_write() as session:
-            return migration.db_version(session.get_bind(),
-                                        find_migrate_repo(),
-                                        get_init_version())
-
-    try:
-        package_name = '.'.join((contrib.__name__, extension))
-        package = importutils.import_module(package_name)
-    except ImportError:
-        raise ImportError(_("%s extension does not exist.")
-                          % package_name)
-
-    with sql.session_for_write() as session:
-        return migration.db_version(
-            session.get_bind(), find_migrate_repo(package), 0)
-
-
-def print_db_version(extension=None):
-    try:
-        db_version = get_db_version(extension=extension)
-        print(db_version)
-    except exception.MigrationNotProvided as e:
-        print(e)
-        sys.exit(1)
+def print_db_version():
+    print(get_db_version())

@@ -48,7 +48,6 @@ from testtools import matchers
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
 import keystone.conf
-from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
@@ -1493,22 +1492,3 @@ class VersionTests(SqlMigrateBase):
             db_exception.DbMigrationError,
             migration_helpers._sync_common_repo,
             self.max_version - 1)
-
-    def test_extension_not_controlled(self):
-        """When get the version before controlling, raises DbMigrationError."""
-        self.assertRaises(db_exception.DbMigrationError,
-                          migration_helpers.get_db_version,
-                          extension='federation')
-
-    def test_unexpected_extension(self):
-        """The version for a non-existent extension raises ImportError."""
-        extension_name = uuid.uuid4().hex
-        self.assertRaises(ImportError,
-                          migration_helpers.get_db_version,
-                          extension=extension_name)
-
-    def test_unversioned_extension(self):
-        """The version for extensions without migrations raise an exception."""
-        self.assertRaises(exception.MigrationNotProvided,
-                          migration_helpers.get_db_version,
-                          extension='admin_crud')
