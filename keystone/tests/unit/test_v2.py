@@ -1423,14 +1423,15 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         resp = _admin_request(body, http_client.OK)
         self.assertFalse(resp.json['user']['enabled'])
 
-        # Attributes other than `enabled` are not allowed.
+        # Attributes other than `enabled` should still work due to bug 1607751
         body = {
             'user': {
                 'description': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex
+                'name': uuid.uuid4().hex,
+                'enabled': True
             }
         }
-        _admin_request(body, http_client.BAD_REQUEST)
+        _admin_request(body, http_client.OK)
 
         #  `enabled` is boolean, type other than boolean is not allowed.
         body = {'user': {'enabled': uuid.uuid4().hex}}

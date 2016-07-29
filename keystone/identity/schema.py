@@ -71,5 +71,5 @@ enable_user_v2 = {
     'type': 'object',
     'properties': {'enabled': parameter_types.boolean},
     'required': ['enabled'],
-    'additionalProperties': False
+    'additionalProperties': True
 }
