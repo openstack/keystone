@@ -990,7 +990,7 @@ class RestfulTestCase(rest.RestfulTestCase):
             self.role_admin['id'])
 
 
-class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
+class V2TestCase(object):
 
     def config_overrides(self):
         super(V2TestCase, self).config_overrides()
@@ -1438,7 +1438,31 @@ class V2TestCase(RestfulTestCase, CoreApiTests, LegacyV2UsernameTests):
         _admin_request(body, http_client.BAD_REQUEST)
 
 
-class RevokeApiTestCase(V2TestCase):
+class V2TestCaseUUID(V2TestCase, RestfulTestCase, CoreApiTests,
+                     LegacyV2UsernameTests):
+
+    def config_overrides(self):
+        super(V2TestCaseUUID, self).config_overrides()
+        self.config_fixture.config(group='token', provider='uuid')
+
+
+class V2TestCaseFernet(V2TestCase, RestfulTestCase, CoreApiTests,
+                       LegacyV2UsernameTests):
+
+    def config_overrides(self):
+        super(V2TestCaseFernet, self).config_overrides()
+        self.config_fixture.config(group='token', provider='fernet')
+        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+
+    def test_fetch_revocation_list_md5(self):
+        self.skipTest('Revocation lists do not support Fernet')
+
+    def test_fetch_revocation_list_sha256(self):
+        self.skipTest('Revocation lists do not support Fernet')
+
+
+class RevokeApiTestCase(V2TestCase, RestfulTestCase, CoreApiTests,
+                        LegacyV2UsernameTests):
     def config_overrides(self):
         super(RevokeApiTestCase, self).config_overrides()
         self.config_fixture.config(
