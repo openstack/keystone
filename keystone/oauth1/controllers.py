@@ -260,7 +260,7 @@ class OAuthControllerV3(controller.V3Controller):
             expiry_bit = '&oauth_expires_at=%s' % token_ref['expires_at']
             result += expiry_bit
 
-        headers = [('Content-Type', 'application/x-www-urlformencoded')]
+        headers = [('Content-Type', 'application/x-www-form-urlencoded')]
         response = wsgi.render_response(
             result,
             status=(http_client.CREATED,
@@ -341,7 +341,7 @@ class OAuthControllerV3(controller.V3Controller):
             expiry_bit = '&oauth_expires_at=%s' % (token_ref['expires_at'])
             result += expiry_bit
 
-        headers = [('Content-Type', 'application/x-www-urlformencoded')]
+        headers = [('Content-Type', 'application/x-www-form-urlencoded')]
         response = wsgi.render_response(
             result,
             status=(http_client.CREATED,

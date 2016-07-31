@@ -268,7 +268,7 @@ class OAuthFlowTests(OAuth1Tests):
                                                   self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
         request_secret = credentials['oauth_token_secret'][0]
@@ -287,7 +287,7 @@ class OAuthFlowTests(OAuth1Tests):
                                                  self.request_token)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         access_key = credentials['oauth_token'][0]
         access_secret = credentials['oauth_token_secret'][0]
@@ -544,7 +544,7 @@ class AuthTokenTests(object):
                                                   self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
         request_secret = credentials['oauth_token_secret'][0]
@@ -647,7 +647,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(consumer, self.project_id)
         self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         url = self._authorize_request_token(uuid.uuid4().hex)
         body = {'roles': [{'id': self.role_id}]}
         self.put(url, body=body, expected_status=http_client.NOT_FOUND)
@@ -678,7 +678,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
         request_secret = credentials['oauth_token_secret'][0]
@@ -704,7 +704,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(consumer, self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
 
@@ -728,7 +728,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                   self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
         request_secret = credentials['oauth_token_secret'][0]
@@ -751,7 +751,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                   self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
         request_secret = credentials['oauth_token_secret'][0]
@@ -768,7 +768,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                                                  self.request_token)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         access_key = credentials['oauth_token'][0]
         access_secret = credentials['oauth_token_secret'][0]
@@ -852,7 +852,7 @@ class OAuthNotificationTests(OAuth1Tests,
                                                   self.project_id)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
         request_secret = credentials['oauth_token_secret'][0]
@@ -881,7 +881,7 @@ class OAuthNotificationTests(OAuth1Tests,
                                                  self.request_token)
         content = self.post(
             url, headers=headers,
-            response_content_type='application/x-www-urlformencoded')
+            response_content_type='application/x-www-form-urlencoded')
         credentials = _urllib_parse_qs_text_keys(content.result)
         access_key = credentials['oauth_token'][0]
         access_secret = credentials['oauth_token_secret'][0]
