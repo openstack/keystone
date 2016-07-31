@@ -1,13 +1,5 @@
 .. -*- rst -*-
 
-=====================================
- OS-FEDERATION IDENTITY PROVIDER API
-=====================================
-
-Provide the ability for users to manage Identity Providers (IdPs). Requires
-v3.0+ of the Identity API.
-
-
 Register an Identity Provider
 =============================
 

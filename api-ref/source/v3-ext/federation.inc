@@ -294,6 +294,8 @@ If a value is not specified by the client, the service will default this value
 to ``ss:mem:``.
 
 
+.. include:: federation/identity-provider/idp.inc
+
 .. TODO(samueldmq): This is the Mapping API, move it to its own file.
 
 Create a mapping
