@@ -85,13 +85,13 @@ extension, PyPi) cannot satisfy. These dependencies should be installed
 prior to using `pip`, and the installation method may vary depending on
 your platform.
 
-Ubuntu 14.04, 15.10:
+Ubuntu 14.04, 15.10, 16.04:
 
 .. code-block:: bash
 
     $ sudo apt-get install python-dev python3-dev libxml2-dev libxslt1-dev \
-        libsasl2-dev libsqlite3-dev libssl-dev libldap2-dev libffi-dev
-
+        libsasl2-dev libsqlite3-dev libssl-dev libldap2-dev libffi-dev \
+        libpq-dev
 
 Fedora 19+:
 
@@ -99,7 +99,7 @@ Fedora 19+:
 
     $ sudo yum install python-lxml python-greenlet-devel python-ldap \
         sqlite-devel openldap-devel python-devel libxslt-devel \
-        openssl-devel libffi-devel
+        openssl-devel libffi-devel postgresql-libs
 
 openSUSE 13.2 (SLE 12):
 
@@ -107,7 +107,7 @@ openSUSE 13.2 (SLE 12):
 
     $ sudo zypper install libxslt-devel openldap2-devel libopenssl-devel \
         python-devel python-greenlet-devel python-ldap python-lxml \
-        python-pysqlite sqlite3-devel
+        python-pysqlite sqlite3-devel libpq-devel
 
 PyPi Packages and VirtualEnv
 ----------------------------
