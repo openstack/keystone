@@ -15,7 +15,6 @@
 
 """Main entry point into the Catalog service."""
 
-from oslo_cache import core as oslo_cache
 from oslo_log import versionutils
 
 from keystone.catalog.backends import base
@@ -39,7 +38,7 @@ MEMOIZE = cache.get_memoization_decorator(group='catalog')
 # computed for a given user + project pair. Any write operation to create,
 # modify or delete elements of the service catalog should invalidate this
 # entire cache region.
-COMPUTED_CATALOG_REGION = oslo_cache.create_region()
+COMPUTED_CATALOG_REGION = cache.create_region(name='computed catalog region')
 MEMOIZE_COMPUTED_CATALOG = cache.get_memoization_decorator(
     group='catalog',
     region=COMPUTED_CATALOG_REGION)

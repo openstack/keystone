@@ -20,7 +20,6 @@ import datetime
 import sys
 import uuid
 
-from oslo_cache import core as oslo_cache
 from oslo_log import log
 from oslo_utils import timeutils
 import six
@@ -41,7 +40,7 @@ from keystone.token import utils
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-TOKENS_REGION = oslo_cache.create_region()
+TOKENS_REGION = cache.create_region(name='tokens')
 MEMOIZE_TOKENS = cache.get_memoization_decorator(
     group='token',
     region=TOKENS_REGION)

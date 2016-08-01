@@ -529,6 +529,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             user1 = unit.new_user_ref(domain_id=self.domain['id'])
             user1 = self.identity_api.create_user(user1)
 
+            role = unit.new_role_ref()
+            self.role_api.create_role(role['id'], role)
+
             collection_url = '/role_assignments'
             r = self.get(collection_url)
             self.assertValidRoleAssignmentListResponse(
@@ -541,7 +544,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             gd_entity = self.build_role_assignment_entity(
                 domain_id=self.domain_id,
                 group_id=self.group_id,
-                role_id=self.role_id)
+                role_id=role['id'])
             self.put(gd_entity['links']['assignment'])
             r = self.get(collection_url)
             self.assertValidRoleAssignmentListResponse(
@@ -554,7 +557,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             ud_entity = self.build_role_assignment_entity(
                 domain_id=self.domain_id,
                 user_id=user1['id'],
-                role_id=self.role_id)
+                role_id=role['id'])
             self.put(ud_entity['links']['assignment'])
             r = self.get(collection_url)
             self.assertValidRoleAssignmentListResponse(
@@ -566,7 +569,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             gp_entity = self.build_role_assignment_entity(
                 project_id=self.project_id, group_id=self.group_id,
-                role_id=self.role_id)
+                role_id=role['id'])
             self.put(gp_entity['links']['assignment'])
             r = self.get(collection_url)
             self.assertValidRoleAssignmentListResponse(
@@ -578,7 +581,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             up_entity = self.build_role_assignment_entity(
                 project_id=self.project_id, user_id=user1['id'],
-                role_id=self.role_id)
+                role_id=role['id'])
             self.put(up_entity['links']['assignment'])
             r = self.get(collection_url)
             self.assertValidRoleAssignmentListResponse(
