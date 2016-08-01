@@ -18,7 +18,6 @@ import abc
 import copy
 import functools
 
-from oslo_cache import core as oslo_cache
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
@@ -44,7 +43,7 @@ MEMOIZE = cache.get_memoization_decorator(group='role')
 # This builds a discrete cache region dedicated to role assignments computed
 # for a given user + project/domain pair. Any write operation to add or remove
 # any role assignment should invalidate this entire cache region.
-COMPUTED_ASSIGNMENTS_REGION = oslo_cache.create_region()
+COMPUTED_ASSIGNMENTS_REGION = cache.create_region(name='computed assignments')
 MEMOIZE_COMPUTED_ASSIGNMENTS = cache.get_memoization_decorator(
     group='role',
     region=COMPUTED_ASSIGNMENTS_REGION)
