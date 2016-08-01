@@ -359,9 +359,6 @@ class Manager(manager.Manager):
                   'and will be removed in O.')
             )
 
-        if 'enabled' in project:
-            project['enabled'] = clean.project_enabled(project['enabled'])
-
         original_project_enabled = original_project.get('enabled', True)
         project_enabled = project.get('enabled', True)
         if not original_project_enabled and project_enabled:

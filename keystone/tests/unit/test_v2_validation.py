@@ -78,8 +78,11 @@ class TenantValidationTestCase(unit.BaseTestCase):
     def setUp(self):
         super(TenantValidationTestCase, self).setUp()
         schema_tenant_create = resource_schema.tenant_create
+        schema_tenant_update = resource_schema.tenant_update
         self.create_validator = validators.SchemaValidator(
             schema_tenant_create)
+        self.update_validator = validators.SchemaValidator(
+            schema_tenant_update)
 
     def test_validate_tenant_create_success(self):
         request = {
@@ -155,4 +158,74 @@ class TenantValidationTestCase(unit.BaseTestCase):
             }
             self.assertRaises(exception.SchemaValidationError,
                               self.create_validator.validate,
+                              request)
+
+    def test_validate_tenant_update_success(self):
+        request = {
+            'name': uuid.uuid4().hex,
+            'description': 'Test tenant',
+            'enabled': True
+        }
+        self.update_validator.validate(request)
+
+    def test_validate_tenant_update_success_with_optional_ids(self):
+        request = {
+            'name': uuid.uuid4().hex,
+            'description': 'Test tenant',
+            'enabled': True,
+            'tenantId': uuid.uuid4().hex,
+            'id': uuid.uuid4().hex
+        }
+        self.update_validator.validate(request)
+
+    def test_validate_tenant_update_with_domain_id(self):
+        request = {
+            'name': uuid.uuid4().hex,
+            'domain_id': uuid.uuid4().hex
+        }
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_validator.validate,
+                          request)
+
+    def test_validate_tenant_update_with_is_domain(self):
+        request = {
+            'name': uuid.uuid4().hex,
+            'is_domain': False
+        }
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_validator.validate,
+                          request)
+
+    def test_validate_tenant_update_with_empty_request(self):
+        request = {}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_validator.validate,
+                          request)
+
+    def test_validate_tenant_update_fails_with_invalid_name(self):
+        """Exception when validating an update request with invalid `name`."""
+        for invalid_name in _INVALID_NAMES:
+            request = {'name': invalid_name}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_validator.validate,
+                              request)
+
+    def test_validate_tenant_update_with_enabled(self):
+        """Validate `enabled` as boolean-like values."""
+        for valid_enabled in _VALID_ENABLED_FORMATS:
+            request = {
+                'name': uuid.uuid4().hex,
+                'enabled': valid_enabled
+            }
+            self.update_validator.validate(request)
+
+    def test_validate_tenant_update_with_invalid_enabled_fails(self):
+        """Exception is raised when `enabled` isn't a boolean-like value."""
+        for invalid_enabled in _INVALID_ENABLED_FORMATS:
+            request = {
+                'name': uuid.uuid4().hex,
+                'enabled': invalid_enabled
+            }
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_validator.validate,
                               request)
