@@ -56,6 +56,7 @@ class Service(controller.V2Controller):
 
     @controller.v2_deprecated
     def create_service(self, request, OS_KSADM_service):
+        validation.lazy_validate(schema.service_create_v2, OS_KSADM_service)
         self.assert_admin(request)
         service_id = uuid.uuid4().hex
         service_ref = OS_KSADM_service.copy()
