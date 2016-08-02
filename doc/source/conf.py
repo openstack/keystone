@@ -24,11 +24,20 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import os
 import subprocess
+import sys
 import warnings
 
 # NOTE(dstanek): adds _ to the builtins so keystone modules can be imported
 __builtins__['_'] = str
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('./'))
 
 # -- General configuration ----------------------------------------------------
 
@@ -44,6 +53,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'oslo_config.sphinxconfiggen',
               'oslosphinx',
+              'ext.support_matrix',
               ]
 
 config_generator_config_file = '../../config-generator/keystone.conf'

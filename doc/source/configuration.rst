@@ -472,6 +472,8 @@ using ``keystone-manage fernet_rotate``.
     must be protected from unnecessary disclosure to prevent unauthorized
     access.
 
+.. support_matrix:: token-support-matrix.ini
+
 Caching Layer
 -------------
 
