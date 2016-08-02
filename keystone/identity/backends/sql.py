@@ -135,7 +135,7 @@ class Identity(base.IdentityDriverV8):
                     detail = _('The new password cannot be identical to a '
                                'previous password. The number of previous '
                                'passwords that must be unique is: '
-                               '%(unique_cnt)s') % {'unique_cnt': unique_cnt}
+                               '%(unique_cnt)d') % {'unique_cnt': unique_cnt}
                     raise exception.PasswordValidationError(detail=detail)
 
     def add_user_to_group(self, user_id, group_id):
