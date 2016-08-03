@@ -300,54 +300,8 @@ to ``ss:mem:``.
 
 .. include:: federation/service-provider/sp.inc
 
+.. include:: federation/projects-domains/projects-domains.inc
 
-.. TODO(samueldmq): This is the Listing Projects and Domains API, move it to its
-   own file.
-.. **Deprecated in v1.1**. This section is deprecated as the functionality is
-   available in the core Identity API.
-
-List projects a federated user can access
-=========================================
-
-.. rest_method::  GET /v3/OS-FEDERATION/projects
-
-Normal response codes: 200
-
-**Deprecated in v1.1**. Use core ``GET /auth/projects``. This call has the same
-response format.
-
-Returns a collection of projects to which the federated user has authorization
-to access. To access this resource, an unscoped token is used, the user can
-then select a project and request a scoped token. Note that only enabled
-projects will be returned.
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-FEDERATION/project-list-response.json
-   :language: javascript
-
-
-List domains a federated user can access
-========================================
-
-.. rest_method::  GET /v3/OS-FEDERATION/domains
-
-Normal response codes: 200
-
-**Deprecated in v1.1**. Use core ``GET /auth/domains``. This call has the same
-response format.
-
-Returns a collection of domains to which the federated user has authorization
-to access. To access this resource, an unscoped token is used, the user can
-then select a domain and request a scoped token. Note that only enabled domains
-will be returned.
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-FEDERATION/domain-list-response.json
-   :language: javascript
 
 .. TODO(samueldmq): This is the Federation Authentication API, move it to its
    own file.
