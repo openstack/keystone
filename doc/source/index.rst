@@ -14,16 +14,18 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-====================================================
-Welcome to Keystone, the OpenStack Identity Service!
-====================================================
+========================================
+Keystone, the OpenStack Identity Service
+========================================
 
-Keystone is an OpenStack project that provides Identity, Token, Catalog and
-Policy services for use specifically by projects in the OpenStack family.
-It implements `OpenStack's Identity API`_.
+Keystone is an OpenStack service that provides API client authentication,
+service discovery, and distributed multi-tenant authorization by implementing
+`OpenStack's Identity API`_.
 
-This document describes Keystone for contributors of the project, and assumes
-that you are already familiar with Keystone from an `end-user perspective`_.
+This documentation is primarily targeted towards contributors of the project,
+and assumes that you are already familiar with Keystone from an `end-user
+perspective`_; however, end users, deployers, and operators will also find it
+useful.
 
 .. _`OpenStack's Identity API`: http://specs.openstack.org/openstack/keystone-specs/
 .. _`end-user perspective`: http://docs.openstack.org/
