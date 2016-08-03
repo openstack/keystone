@@ -150,3 +150,129 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
             user_ref = session.query(model.User).get(user_id)
             user_ref.last_active_at = last_active_at
             return user_ref
+
+
+class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
+    def setUp(self):
+        super(PasswordHistoryValidationTests, self).setUp()
+        self.passwords = [uuid.uuid4().hex,
+                          uuid.uuid4().hex,
+                          uuid.uuid4().hex,
+                          uuid.uuid4().hex]
+        self.max_cnt = 3
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=self.max_cnt)
+
+    def test_validate_password_history_with_invalid_password(self):
+        user = self._create_user(self.passwords[0])
+        self.assertValidPasswordUpdate(user, self.passwords[1])
+        # Attempt to update with the initial password
+        user['password'] = self.passwords[0]
+        self.assertRaises(exception.PasswordValidationError,
+                          self.identity_api.update_user,
+                          user['id'],
+                          user)
+
+    def test_validate_password_history_with_valid_password(self):
+        user = self._create_user(self.passwords[0])
+        self.assertValidPasswordUpdate(user, self.passwords[1])
+        self.assertValidPasswordUpdate(user, self.passwords[2])
+        self.assertValidPasswordUpdate(user, self.passwords[3])
+        # Now you should be able to change the password to match the initial
+        # password because the password history only contains password elements
+        # 1, 2, 3
+        self.assertValidPasswordUpdate(user, self.passwords[0])
+
+    def test_validate_password_history_but_start_with_password_none(self):
+        # Create user and confirm password is None
+        user = self._create_user(None)
+        user_ref = self._get_user_ref(user['id'])
+        self.assertIsNone(user_ref.password)
+        # Update the password
+        self.assertValidPasswordUpdate(user, self.passwords[0])
+        self.assertValidPasswordUpdate(user, self.passwords[1])
+        # Attempt to update with a previous password
+        user['password'] = self.passwords[0]
+        self.assertRaises(exception.PasswordValidationError,
+                          self.identity_api.update_user,
+                          user['id'],
+                          user)
+
+    def test_validate_password_history_disabled_and_repeat_same_password(self):
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=1)
+        user = self._create_user(self.passwords[0])
+        # Repeatedly update the password with the same password
+        self.assertValidPasswordUpdate(user, self.passwords[0])
+        self.assertValidPasswordUpdate(user, self.passwords[0])
+
+    def test_truncate_passwords(self):
+        user = self._create_user(self.passwords[0])
+        self._add_passwords_to_history(user, n=4)
+        user_ref = self._get_user_ref(user['id'])
+        self.assertEqual(
+            len(user_ref.local_user.passwords), (self.max_cnt + 1))
+
+    def test_truncate_passwords_when_max_is_default(self):
+        self.max_cnt = 1
+        expected_length = self.max_cnt + 1
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=self.max_cnt)
+        user = self._create_user(self.passwords[0])
+        self._add_passwords_to_history(user, n=4)
+        user_ref = self._get_user_ref(user['id'])
+        self.assertEqual(len(user_ref.local_user.passwords), expected_length)
+        # Start with multiple passwords and then change max_cnt to one
+        self.max_cnt = 4
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=self.max_cnt)
+        self._add_passwords_to_history(user, n=self.max_cnt)
+        user_ref = self._get_user_ref(user['id'])
+        self.assertEqual(
+            len(user_ref.local_user.passwords), (self.max_cnt + 1))
+        self.max_cnt = 1
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=self.max_cnt)
+        self._add_passwords_to_history(user, n=1)
+        user_ref = self._get_user_ref(user['id'])
+        self.assertEqual(len(user_ref.local_user.passwords), expected_length)
+
+    def test_truncate_passwords_when_max_is_default_and_no_password(self):
+        expected_length = 1
+        self.max_cnt = 1
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=self.max_cnt)
+        user = {
+            'name': uuid.uuid4().hex,
+            'domain_id': 'default',
+            'enabled': True,
+        }
+        user = self.identity_api.create_user(user)
+        self._add_passwords_to_history(user, n=1)
+        user_ref = self._get_user_ref(user['id'])
+        self.assertEqual(len(user_ref.local_user.passwords), expected_length)
+
+    def _create_user(self, password):
+        user = {
+            'name': uuid.uuid4().hex,
+            'domain_id': 'default',
+            'enabled': True,
+            'password': password
+        }
+        return self.identity_api.create_user(user)
+
+    def assertValidPasswordUpdate(self, user, new_password):
+        user['password'] = new_password
+        self.identity_api.update_user(user['id'], user)
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user['id'],
+                                       password=new_password)
+
+    def _add_passwords_to_history(self, user, n):
+        for _ in range(n):
+            user['password'] = uuid.uuid4().hex
+            self.identity_api.update_user(user['id'], user)
+
+    def _get_user_ref(self, user_id):
+        with sql.session_for_read() as session:
+            return self.identity_api._get_user(session, user_id)
