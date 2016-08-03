@@ -47,7 +47,7 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 the ``identity`` group, a valid value is ``driver``.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -89,7 +89,7 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 the ``identity`` group, a valid value is ``driver``.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -142,7 +142,8 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 ``ldap`` group, a valid value is ``url`` or ``user_tree_dn``. For
 the ``identity`` group, a valid value is ``driver``.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -164,7 +165,7 @@ Shows details for a domain group configuration.
 The API supports only the ``identity`` and ``ldap`` groups.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -205,7 +206,7 @@ try to set configuration options for other groups, this call fails
 with the ``Forbidden (403)`` response code.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -255,7 +256,8 @@ Deletes a domain group configuration.
 
 The API supports only the ``identity`` and ``ldap`` groups.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -266,6 +268,54 @@ Request
    - group: group
 
 
+Create domain configuration
+===========================
+
+.. rest_method::  PUT /v3/domains/{domain_id}/config
+
+Creates a domain configuration.
+
+Normal response codes: 200, 201
+Error response codes: 413, 405, 404, 403, 401, 400, 503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - url: url
+   - driver: driver
+   - ldap: ldap
+   - config: config
+   - user_tree_dn: user_tree_dn
+   - identity: identity
+   - domain_id: domain_id
+
+Request Example
+---------------
+
+.. literalinclude:: ./samples/admin/domain-config-create-request.json
+   :language: javascript
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - url: url
+   - driver: driver
+   - ldap: ldap
+   - config: config
+   - user_tree_dn: user_tree_dn
+   - identity: identity
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/domain-config-create-response.json
+   :language: javascript
+
+
 Show domain configuration
 =========================
 
@@ -274,7 +324,7 @@ Show domain configuration
 Shows details for a domain configuration.
 
 Normal response codes: 200
-Error response codes:413,405,404,403,401,400,503,
+Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
 -------
@@ -310,7 +360,7 @@ Update domain configuration
 Updates a domain configuration.
 
 Normal response codes: 200
-Error response codes:413,415,405,404,403,401,400,503,409,
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -357,7 +407,8 @@ Delete domain configuration
 
 Deletes a domain configuration.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
