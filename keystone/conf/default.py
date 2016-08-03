@@ -41,7 +41,7 @@ as it presents a security risk), remove `AdminTokenAuthMiddleware`
 example, in `keystone-paste.ini`).
 """))
 
-public_endpoint = cfg.StrOpt(
+public_endpoint = cfg.URIOpt(
     'public_endpoint',
     help=utils.fmt("""
 The base public endpoint URL for Keystone that is advertised to clients (NOTE:
@@ -53,7 +53,7 @@ the value of the base URL contains a path that keystone does not automatically
 infer (`/prefix/v3`), or if the endpoint should be found on a different host.
 """))
 
-admin_endpoint = cfg.StrOpt(
+admin_endpoint = cfg.URIOpt(
     'admin_endpoint',
     help=utils.fmt("""
 The base admin endpoint URL for Keystone that is advertised to clients (NOTE:
