@@ -240,15 +240,15 @@ def build_token_values_v2(access, default_domain_id):
     token_values['identity_domain_id'] = default_domain_id
     token_values['assignment_domain_id'] = default_domain_id
 
-    trust = token_data.get('trust')
+    trust = access.get('trust')
     if trust is None:
         token_values['trust_id'] = None
         token_values['trustor_id'] = None
         token_values['trustee_id'] = None
     else:
         token_values['trust_id'] = trust['id']
-        token_values['trustor_id'] = trust['trustor_id']
-        token_values['trustee_id'] = trust['trustee_id']
+        token_values['trustor_id'] = trust['trustor_user_id']
+        token_values['trustee_id'] = trust['trustee_user_id']
 
     token_values['consumer_id'] = None
     token_values['access_token_id'] = None

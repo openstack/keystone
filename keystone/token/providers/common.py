@@ -32,11 +32,12 @@ LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('catalog_api', 'resource_api', 'assignment_api')
+@dependency.requires('catalog_api', 'resource_api', 'assignment_api',
+                     'trust_api', 'identity_api')
 class V2TokenDataHelper(object):
     """Create V2 token data."""
 
-    def v3_to_v2_token(self, v3_token_data):
+    def v3_to_v2_token(self, v3_token_data, token_id=None):
         """Convert v3 token data into v2.0 token data.
 
         This method expects a dictionary generated from
@@ -65,6 +66,7 @@ class V2TokenDataHelper(object):
         token['expires'] = v3_token.get('expires_at')
         token['issued_at'] = v3_token.get('issued_at')
         token['audit_ids'] = v3_token.get('audit_ids')
+        token['id'] = token_id
 
         if 'project' in v3_token:
             # v3 token_data does not contain all tenant attributes
@@ -81,9 +83,38 @@ class V2TokenDataHelper(object):
         user = common_controller.V2Controller.v3_to_v2_user(v3_user)
 
         if 'OS-TRUST:trust' in v3_token:
-            msg = ('Unable to validate trust-scoped tokens using version v2.0 '
-                   'API.')
-            raise exception.Unauthorized(msg)
+            v3_trust = v3_token['OS-TRUST:trust']
+            # if token is scoped to trust, both trustor and trustee must
+            # be in the default domain. Furthermore, the delegated project
+            # must also be in the default domain
+            msg = _('Non-default domain is not supported')
+            if CONF.trust.enabled:
+                try:
+                    trust_ref = self.trust_api.get_trust(v3_trust['id'])
+                except exception.TrustNotFound:
+                    raise exception.TokenNotFound(token_id=token_id)
+                trustee_user_ref = self.identity_api.get_user(
+                    trust_ref['trustee_user_id'])
+                if (trustee_user_ref['domain_id'] !=
+                        CONF.identity.default_domain_id):
+                    raise exception.Unauthorized(msg)
+                trustor_user_ref = self.identity_api.get_user(
+                    trust_ref['trustor_user_id'])
+                if (trustor_user_ref['domain_id'] !=
+                        CONF.identity.default_domain_id):
+                    raise exception.Unauthorized(msg)
+                project_ref = self.resource_api.get_project(
+                    trust_ref['project_id'])
+                if (project_ref['domain_id'] !=
+                        CONF.identity.default_domain_id):
+                    raise exception.Unauthorized(msg)
+
+            token_data['trust'] = {
+                'impersonation': v3_trust['impersonation'],
+                'id': v3_trust['id'],
+                'trustee_user_id': v3_trust['trustee_user']['id'],
+                'trustor_user_id': v3_trust['trustor_user']['id']
+            }
 
         if 'OS-OAUTH1' in v3_token:
             msg = ('Unable to validate Oauth tokens using the version v2.0 '
@@ -750,12 +781,6 @@ class BaseProvider(provider.Provider):
                 # Validate the V3 token as V2
                 token_data = self.v2_token_data_helper.v3_to_v2_token(
                     token_data)
-
-            trust_id = token_data['access'].get('trust', {}).get('id')
-            if trust_id:
-                msg = ('Unable to validate trust-scoped tokens using version '
-                       'v2.0 API.')
-                raise exception.Unauthorized(msg)
 
             return token_data
         except exception.ValidationError:
