@@ -13,6 +13,7 @@
 # under the License.
 
 import copy
+import datetime
 import functools
 
 from oslo_log import log
@@ -45,6 +46,12 @@ class TokenModel(sql.ModelBase, sql.DictBase):
         sql.Index('ix_token_user_id', 'user_id'),
         sql.Index('ix_token_trust_id', 'trust_id')
     )
+
+
+def _expiry_upper_bound_func():
+    # don't flush anything within the grace window
+    sec = datetime.timedelta(seconds=CONF.token.allow_expired_window)
+    return timeutils.utcnow() - sec
 
 
 def _expiry_range_batched(session, upper_bound_func, batch_size):
@@ -274,7 +281,7 @@ class Token(token.persistence.TokenDriverBase):
             expiry_range_func = self._expiry_range_strategy(dialect)
             query = session.query(TokenModel.expires)
             total_removed = 0
-            upper_bound_func = timeutils.utcnow
+            upper_bound_func = _expiry_upper_bound_func
             for expiry_time in expiry_range_func(session, upper_bound_func):
                 delete_query = query.filter(TokenModel.expires <=
                                             expiry_time)

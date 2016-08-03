@@ -13,9 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import functools
 import uuid
 
+import freezegun
 import mock
 from oslo_db import exception as db_exception
 from oslo_db import options
@@ -734,6 +736,30 @@ class SqlToken(SqlTests, token_tests.TokenTests):
         self.assertIsInstance(mysql_strategy, functools.partial)
         self.assertEqual(token_sql._expiry_range_batched, mysql_strategy.func)
         self.assertEqual({'batch_size': 1000}, mysql_strategy.keywords)
+
+    def test_expiry_range_with_allow_expired(self):
+        window_secs = 200
+        self.config_fixture.config(group='token',
+                                   allow_expired_window=window_secs)
+
+        tok = token_sql.Token()
+        time = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(time):
+            # unknown strategy just ensures we are getting the dumbest strategy
+            # that will remove everything in one go
+            strategy = tok._expiry_range_strategy('unkown')
+            upper_bound_func = token_sql._expiry_upper_bound_func
+
+            # session is ignored for dumb strategy
+            expiry_times = list(strategy(session=None,
+                                         upper_bound_func=upper_bound_func))
+
+            # basically just ensure that we are removing things in the past
+            delta = datetime.timedelta(seconds=window_secs)
+            previous_time = datetime.datetime.utcnow() - delta
+
+        self.assertEqual([previous_time], expiry_times)
 
 
 class SqlCatalog(SqlTests, catalog_tests.CatalogTests):

@@ -691,7 +691,10 @@ still be used for validating tokens. Excess secondary keys (beyond
 deleted.
 
 Rotating keys too frequently, or with ``[fernet_tokens] max_active_keys`` set
-too low, will cause tokens to become invalid prior to their expiration.
+too low, will cause tokens to become invalid prior to their expiration. As
+tokens may be fetched beyond there initial expiration period keys should not be
+fully rotated within the period of ``[token] expiration`` + ``[token]
+allow_expired_window`` seconds to prevent the tokens becoming unavailable.
 
 Caching Layer
 =============

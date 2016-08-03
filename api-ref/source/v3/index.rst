@@ -23,6 +23,11 @@ For information about Identity API protection, see
 <http://docs.openstack.org/admin-guide/identity_service_api_protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
+What's New in Version 3.8
+=========================
+
+- Allow a service user to fetch a token that has expired.
+
 What's New in Version 3.7
 =========================
 

@@ -131,10 +131,12 @@ def protected(callback=None):
                 # TODO(henry-nash): Move this entire code to a member
                 # method inside v3 Auth
                 if request.context_dict.get('subject_token_id') is not None:
+                    window_seconds = self._token_validation_window(request)
                     token_ref = token_model.KeystoneToken(
                         token_id=request.context_dict['subject_token_id'],
                         token_data=self.token_provider_api.validate_token(
-                            request.context_dict['subject_token_id']))
+                            request.context_dict['subject_token_id'],
+                            window_seconds=window_seconds))
                     policy_dict.setdefault('target', {})
                     policy_dict['target'].setdefault(self.member_name, {})
                     policy_dict['target'][self.member_name]['user_id'] = (
@@ -812,3 +814,11 @@ class V3Controller(wsgi.Application):
         for blocked_param in blocked_keys:
             del ref[blocked_param]
         return ref
+
+    def _token_validation_window(self, request):
+        # NOTE(jamielennox): it's dumb that i have to put this here. We should
+        # only validate subject token in one place.
+        allow_expired = request.params.get('allow_expired')
+        allow_expired = strutils.bool_from_string(allow_expired, default=False)
+
+        return CONF.token.allow_expired_window if allow_expired else 0

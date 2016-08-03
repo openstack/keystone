@@ -140,6 +140,16 @@ Enable storing issued token data to token validation cache so that first token
 validation doesn't actually cause full validation cycle.
 """))
 
+allow_expired_window = cfg.IntOpt(
+    'allow_expired_window',
+    default=48 * 60 * 60,
+    help=utils.fmt("""
+This controls the number of seconds that a token can be retrieved for beyond
+the built-in expiry time. This allows long running operations to succeed.
+Defaults to two days.
+"""))
+
+
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     bind,
@@ -153,6 +163,7 @@ ALL_OPTS = [
     allow_rescope_scoped_token,
     infer_roles,
     cache_on_issue,
+    allow_expired_window,
 ]
 
 

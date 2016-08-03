@@ -540,8 +540,9 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def check_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
+        window_seconds = self._token_validation_window(request)
         token_data = self.token_provider_api.validate_token(
-            token_id)
+            token_id, window_seconds=window_seconds)
         # NOTE(morganfainberg): The code in
         # ``keystone.common.wsgi.render_response`` will remove the content
         # body.
@@ -555,9 +556,10 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def validate_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
+        window_seconds = self._token_validation_window(request)
         include_catalog = 'nocatalog' not in request.params
         token_data = self.token_provider_api.validate_token(
-            token_id)
+            token_id, window_seconds=window_seconds)
         if not include_catalog and 'catalog' in token_data['token']:
             del token_data['token']['catalog']
         return render_token_data_response(token_id, token_data)

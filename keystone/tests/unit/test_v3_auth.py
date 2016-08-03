@@ -202,9 +202,15 @@ class TokenAPITests(object):
         trust = self.assertValidTrustResponse(r)
         return (trustee_user, trust)
 
-    def _validate_token(self, token, expected_status=http_client.OK):
+    def _validate_token(self, token,
+                        expected_status=http_client.OK, allow_expired=False):
+        path = '/v3/auth/tokens'
+
+        if allow_expired:
+            path += '?allow_expired=1'
+
         return self.admin_request(
-            path='/v3/auth/tokens/',
+            path=path,
             headers={'X-Auth-Token': self.get_admin_token(),
                      'X-Subject-Token': token},
             method='GET',
@@ -2256,6 +2262,38 @@ class TokenAPITests(object):
 
         self.assertDictEqual(v2_token_data['access']['token']['bind'],
                              token_data['token']['bind'])
+
+    def test_fetch_expired_allow_expired(self):
+        self.config_fixture.config(group='token',
+                                   expiration=10,
+                                   allow_expired_window=20)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            token = self._get_project_scoped_token()
+
+            # initially it validates because it's within time
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=2))
+            self._validate_token(token)
+
+            # after passing expiry time validation fails
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=12))
+            self._validate_token(token, expected_status=http_client.NOT_FOUND)
+
+            # flush the tokens, this will only have an effect on sql
+            try:
+                self.token_provider_api._persistence.flush_expired_tokens()
+            except exception.NotImplemented:
+                pass
+
+            # but if we pass allow_expired it validates
+            self._validate_token(token, allow_expired=True)
+
+            # and then if we're passed the allow_expired_window it will fail
+            # anyway raises expired when now > expiration + window
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=22))
+            self._validate_token(token,
+                                 allow_expired=True,
+                                 expected_status=http_client.NOT_FOUND)
 
 
 class TokenDataTests(object):

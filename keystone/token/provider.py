@@ -14,6 +14,7 @@
 
 """Token provider interface."""
 
+import datetime
 import sys
 
 from oslo_log import log
@@ -155,7 +156,7 @@ class Manager(manager.Manager):
         else:
             return self.check_revocation_v3(token)
 
-    def validate_token(self, token_id):
+    def validate_token(self, token_id, window_seconds=0):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
 
@@ -170,7 +171,7 @@ class Manager(manager.Manager):
                 # instead.
                 token_id = token_ref
             token_ref = self._validate_token(token_id)
-            self._is_valid_token(token_ref)
+            self._is_valid_token(token_ref, window_seconds=window_seconds)
             return token_ref
         except exception.Unauthorized as e:
             LOG.debug('Unable to validate token: %s', e)
@@ -180,7 +181,7 @@ class Manager(manager.Manager):
     def _validate_token(self, token_id):
         return self.driver.validate_token(token_id)
 
-    def _is_valid_token(self, token):
+    def _is_valid_token(self, token, window_seconds=0):
         """Verify the token is valid format and has not expired."""
         current_time = timeutils.normalize_time(timeutils.utcnow())
 
@@ -192,8 +193,13 @@ class Manager(manager.Manager):
                                         token_data.get('expires'))
             if not expires_at:
                 expires_at = token_data['token']['expires']
-            expiry = timeutils.normalize_time(
-                timeutils.parse_isotime(expires_at))
+
+            expiry = timeutils.parse_isotime(expires_at)
+            expiry = timeutils.normalize_time(expiry)
+
+            # add a window in which you can fetch a token beyond expiry
+            expiry += datetime.timedelta(seconds=window_seconds)
+
         except Exception:
             LOG.exception(_LE('Unexpected error or malformed token '
                               'determining token expiry: %s'), token)

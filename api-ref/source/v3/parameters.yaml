@@ -130,6 +130,13 @@ user_id_path:
   type: string
 
 # variables in query
+allow_expired:
+  description: |
+    (Since v3.8) Allow fetching a token that has expired. By default expired
+    tokens return a 404 exception.
+  in: query
+  required: false
+  type: bool
 domain_enabled_query:
   description: |
     If set to true, then only domains that are enabled will be returned, if set

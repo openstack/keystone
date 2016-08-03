@@ -1,0 +1,18 @@
+---
+features:
+  - >
+    [`blueprint allow-expired <https://blueprints.launchpad.net/keystone/+spec/allow-expired>`_]
+    An `allow_expired` flag is added to the token validation call
+    (``GET/HEAD  /v3/auth/tokens``) that allows fetching a token that has
+    expired. This allows for validating tokens in long running operations.
+upgrade:
+  - >
+    [`blueprint allow-expired <https://blueprints.launchpad.net/keystone/+spec/allow-expired>`_]
+    To allow long running operations to complete services must be able to fetch
+    expired tokens via the ``allow_expired`` flag. The length of time a token is
+    retrievable for beyond its traditional expiry is managed by the
+    ``[token] allow_expired_window`` option and so the data must be retrievable
+    for this about of time. When using fernet tokens this means that the key
+    rotation period must exceed this time so that older tokens are still
+    decrytable. Ensure that you do not rotate fernet keys faster than
+    ``[token] expiration`` + ``[token] allow_expired_window`` seconds.

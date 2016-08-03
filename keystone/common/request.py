@@ -122,3 +122,4 @@ class Request(webob.Request):
     auth_type = environ_getter('AUTH_TYPE', None)
     remote_domain = environ_getter('REMOTE_DOMAIN', None)
     context = environ_getter(context.REQUEST_CONTEXT_ENV, None)
+    token_auth = environ_getter('keystone.token_auth', None)
