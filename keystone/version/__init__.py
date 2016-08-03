@@ -12,4 +12,4 @@
 
 
 def release_string():
-    return 'v3.6'
+    return 'v3.7'
