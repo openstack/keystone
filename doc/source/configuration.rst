@@ -403,15 +403,6 @@ The drivers Keystone provides are:
   :class:`keystone.token.persistence.backends.memcache.Token`
 
 
-.. WARNING::
-    It is recommended you use the ``memcache_pool`` backend instead of
-    ``memcache`` as the token persistence driver if you are deploying Keystone
-    under eventlet instead of Apache httpd with ``mod_wsgi``. This
-    recommendation is due to known issues with the use of ``thread.local``
-    under eventlet that can allow the leaking of memcache client objects and
-    consumption of extra sockets.
-
-
 Token Provider
 --------------
 
@@ -524,12 +515,6 @@ disabled.
             This means that caching and cache invalidation will not be
             consistent or reliable when using ``Keystone`` and the
             ``dogpile.cache.memory`` backend under any real workload.
-
-        .. WARNING::
-            Do not use ``dogpile.cache.memcached`` backend if you are deploying
-            Keystone under eventlet. There are known issues with the use of
-            ``thread.local`` under eventlet that can allow the leaking of
-            memcache client objects and consumption of extra sockets.
 
 * ``expiration_time`` - int, the default length of time to cache a specific
   value. A value of ``0`` indicates to not cache anything. It is recommended
