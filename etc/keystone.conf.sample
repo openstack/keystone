@@ -4,70 +4,95 @@
 # From keystone
 #
 
-# A "shared secret" that can be used to bootstrap Keystone. This "token" does
-# not represent a user, and carries no explicit authorization. If set to
-# `None`, the value is ignored and the `admin_token` log in mechanism is
-# effectively disabled. To completely disable `admin_token` in production
-# (highly recommended), remove AdminTokenAuthMiddleware from your paste
-# application pipelines (for example, in keystone-paste.ini). (string value)
+# Using this feature is *NOT* recommended. Instead, use the `keystone-manage
+# bootstrap` command. The value of this option is treated as a "shared secret"
+# that can be used to bootstrap Keystone through the API. This "token" does not
+# represent a user (it has no identity), and carries no explicit authorization
+# (it effectively bypasses most authorization checks). If set to `None`, the
+# value is ignored and the `admin_token` middleware is effectively disabled.
+# However, to completely disable `admin_token` in production (highly
+# recommended, as it presents a security risk), remove
+# `AdminTokenAuthMiddleware` (the `admin_token_auth` filter) from your paste
+# application pipelines (for example, in `keystone-paste.ini`). (string value)
 #admin_token = <None>
 
 # The base public endpoint URL for Keystone that is advertised to clients
 # (NOTE: this does NOT affect how Keystone listens for connections). Defaults
-# to the base host URL of the request. E.g. a request to
-# http://server:5000/v3/users will default to http://server:5000. You should
-# only need to set this value if the base URL contains a path (e.g. /prefix/v3)
-# or the endpoint should be found on a different server. (string value)
+# to the base host URL of the request. For example, if keystone receives a
+# request to `http://server:5000/v3/users`, then this will option will be
+# automatically treated as `http://server:5000`. You should only need to set
+# option if either the value of the base URL contains a path that keystone does
+# not automatically infer (`/prefix/v3`), or if the endpoint should be found on
+# a different host. (string value)
 #public_endpoint = <None>
 
 # The base admin endpoint URL for Keystone that is advertised to clients (NOTE:
 # this does NOT affect how Keystone listens for connections). Defaults to the
-# base host URL of the request. E.g. a request to http://server:35357/v3/users
-# will default to http://server:35357. You should only need to set this value
-# if the base URL contains a path (e.g. /prefix/v3) or the endpoint should be
-# found on a different server. (string value)
+# base host URL of the request. For example, if keystone receives a request to
+# `http://server:35357/v3/users`, then this will option will be automatically
+# treated as `http://server:35357`. You should only need to set option if
+# either the value of the base URL contains a path that keystone does not
+# automatically infer (`/prefix/v3`), or if the endpoint should be found on a
+# different host. (string value)
 #admin_endpoint = <None>
 
 # Maximum depth of the project hierarchy, excluding the project acting as a
-# domain at the top of the hierarchy. WARNING: setting it to a large value may
-# adversely impact  performance. (integer value)
+# domain at the top of the hierarchy. WARNING: Setting it to a large value may
+# adversely impact performance. (integer value)
 #max_project_tree_depth = 5
 
 # Limit the sizes of user & project ID/names. (integer value)
 #max_param_size = 64
 
-# Similar to max_param_size, but provides an exception for token values.
-# (integer value)
+# Similar to `[DEFAULT] max_param_size`, but provides an exception for token
+# values. With PKI / PKIZ tokens, this needs to be set close to 8192 (any
+# higher, and other HTTP implementations may break), depending on the size of
+# your service catalog and other factors. With Fernet tokens, this can be set
+# as low as 255. With UUID tokens, this should be set to 32). (integer value)
 #max_token_size = 8192
 
-# Similar to the member_role_name option, this represents the default role ID
-# used to associate users with their default projects in the v2 API. This will
-# be used as the explicit role where one is not specified by the v2 API.
-# (string value)
+# Similar to the `[DEFAULT] member_role_name` option, this represents the
+# default role ID used to associate users with their default projects in the v2
+# API. This will be used as the explicit role where one is not specified by the
+# v2 API. You do not need to set this value unless you want keystone to use an
+# existing role with a different ID, other than the arbitrarily defined
+# `_member_` role (in which case, you should set `[DEFAULT] member_role_name`
+# as well). (string value)
 #member_role_id = 9fe2ff9ee4384b1894a90878d3e92bab
 
-# This is the role name used in combination with the member_role_id option; see
-# that option for more detail. (string value)
+# This is the role name used in combination with the `[DEFAULT] member_role_id`
+# option; see that option for more detail. You do not need to set this option
+# unless you want keystone to use an existing role (in which case, you should
+# set `[DEFAULT] member_role_id` as well). (string value)
 #member_role_name = _member_
 
-# The value passed as the keyword "rounds" to passlib's encrypt method.
-# (integer value)
+# The value passed as the keyword "rounds" to passlib's encrypt method. This
+# option represents a trade off between security and performance. Higher values
+# lead to slower performance, but higher security. Changing this option will
+# only affect newly created passwords as existing password hashes already have
+# a fixed number of rounds applied, so it is safe to tune this option in a
+# running cluster. For more information, see
+# https://pythonhosted.org/passlib/password_hash_api.html#choosing-the-right-
+# rounds-value (integer value)
 # Minimum value: 1000
 # Maximum value: 100000
 #crypt_strength = 10000
 
-# The maximum number of entities that will be returned in a collection, with no
-# limit set by default. This global limit may be then overridden for a specific
-# driver, by specifying a list_limit in the appropriate section (e.g.
-# [assignment]). (integer value)
+# The maximum number of entities that will be returned in a collection. This
+# global limit may be then overridden for a specific driver, by specifying a
+# list_limit in the appropriate section (for example, `[assignment]`). No limit
+# is set by default. In larger deployments, it is recommended that you set this
+# to a reasonable number to prevent operations like listing all users and
+# projects from placing an unnecessary load on the system. (integer value)
 #list_limit = <None>
 
 # DEPRECATED: Set this to false if you want to enable the ability for user,
 # group and project entities to be moved between domains by updating their
-# domain_id. Allowing such movement is not recommended if the scope of a domain
-# admin is being restricted by use of an appropriate policy file (see
-# policy.v3cloudsample as an example). This ability is deprecated and will be
-# removed in a future release. (boolean value)
+# `domain_id` attribute. Allowing such movement is not recommended if the scope
+# of a domain admin is being restricted by use of an appropriate policy file
+# (see `etc/policy.v3cloudsample.json` as an example). This feature is
+# deprecated and will be removed in a future release, in favor of strictly
+# immutable domain IDs. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: The option to set domain_id_immutable to false has been deprecated in
@@ -84,30 +109,37 @@
 # request, even if it was removed by an SSL terminating proxy. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Use http_proxy_to_wsgi middleware configuration instead.
+# Reason: This option has been deprecated in the N release and will be removed
+# in the P release. Use oslo.middleware.http_proxy_to_wsgi configuration
+# instead.
 #secure_proxy_ssl_header = HTTP_X_FORWARDED_PROTO
 
-# If set to true the server will return information in the response that may
-# allow an unauthenticated or authenticated user to get more information than
-# normal, such as why authentication failed. This may be useful for debugging
-# but is insecure. (boolean value)
+# If set to true, then the server will return information in HTTP responses
+# that may allow an unauthenticated or authenticated user to get more
+# information than normal, such as additional details about why authentication
+# failed. This may be useful for debugging but is insecure. (boolean value)
 #insecure_debug = false
 
-# Default publisher_id for outgoing notifications (string value)
+# Default `publisher_id` for outgoing notifications. If left undefined,
+# Keystone will default to using the server's host name. (string value)
 #default_publisher_id = <None>
 
-# Define the notification format for Identity Service events. A "basic"
-# notification has information about the resource being operated on. A "cadf"
-# notification has the same information, as well as information about the
-# initiator of the event. (string value)
+# Define the notification format for identity service events. A `basic`
+# notification only has information about the resource being operated on. A
+# `cadf` notification has the same information, as well as information about
+# the initiator of the event. The `cadf` option is entirely backwards
+# compatible with the `basic` option, but is fully CADF-compliant, and is
+# recommended for auditing use cases. (string value)
 # Allowed values: basic, cadf
 #notification_format = basic
 
-# Define the notification options to opt-out from. The value expected is:
-# identity.<resource_type>.<operation>. This field can be set multiple times in
-# order to add more notifications to opt-out from. For example:
-#  notification_opt_out=identity.user.created
-#  notification_opt_out=identity.authenticate.success (multi valued)
+# If left undefined, keystone will emit notifications for all types of events.
+# You can reduce the number of notifications keystone emits by using this
+# option to enumerate notification topics that should be suppressed. Values are
+# expected to be in the form `identity.<resource_type>.<operation>`. This field
+# can be set multiple times in order to opt-out of multiple notification
+# topics. For example: notification_opt_out=identity.user.create
+# notification_opt_out=identity.authenticate.success (multi valued)
 #notification_opt_out =
 
 #
@@ -131,6 +163,7 @@
 # configuration files are used then all logging configuration is set in the
 # configuration file and other logging configuration options are ignored (for
 # example, logging_context_format_string). (string value)
+# Note: This option can be changed without restarting.
 # Deprecated group/name - [DEFAULT]/log_config
 #log_config_append = <None>
 
@@ -222,10 +255,6 @@
 # Allowed values: redis, dummy
 #rpc_zmq_matchmaker = redis
 
-# Type of concurrency used. Either "native" or "eventlet" (string value)
-# Allowed values: eventlet, native
-#rpc_zmq_concurrency = eventlet
-
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
 #rpc_zmq_contexts = 1
 
@@ -252,13 +281,17 @@
 
 # Expiration timeout in seconds of a name service record about existing target
 # ( < 0 means no timeout). (integer value)
-#zmq_target_expire = 120
+#zmq_target_expire = 300
+
+# Update period in seconds of a name service record about existing target.
+# (integer value)
+#zmq_target_update = 180
 
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
 #use_pub_sub = true
 
-# Use ROUTER remote proxy for direct methods. (boolean value)
+# Use ROUTER remote proxy. (boolean value)
 #use_router_proxy = true
 
 # Minimal port number for random ports range. (port value)
@@ -304,11 +337,13 @@
 # From keystone
 #
 
-# Entrypoint for the assignment backend driver in the keystone.assignment
-# namespace. Only an SQL driver is supplied. If an assignment driver is not
-# specified, the identity driver will choose the assignment driver (driver
-# selection based on `[identity]/driver` option is deprecated and will be
-# removed in the "O" release). (string value)
+# Entry point for the assignment backend driver (where role assignments are
+# stored) in the `keystone.assignment` namespace. Only a SQL driver is supplied
+# by keystone itself. If an assignment driver is not specified, the identity
+# driver will choose the assignment driver based on the deprecated
+# `[identity]/driver` option (the behavior will be removed in the "O" release).
+# Unless you are writing proprietary drivers for keystone, you do not need to
+# set this option. (string value)
 #driver = <None>
 
 # A list of role names which are prohibited from being an implied role. (list
@@ -325,21 +360,32 @@
 # Allowed authentication methods. (list value)
 #methods = external,password,token,oauth1
 
-# Entrypoint for the password auth plugin module in the keystone.auth.password
-# namespace. (string value)
+# Entry point for the password auth plugin module in the
+# `keystone.auth.password` namespace. You do not need to set this unless you
+# are overriding keystone's own password authentication plugin. (string value)
 #password = <None>
 
-# Entrypoint for the token auth plugin module in the keystone.auth.token
-# namespace. (string value)
+# Entry point for the token auth plugin module in the `keystone.auth.token`
+# namespace. You do not need to set this unless you are overriding keystone's
+# own token authentication plugin. (string value)
 #token = <None>
 
-# Entrypoint for the external (REMOTE_USER) auth plugin module in the
-# keystone.auth.external namespace. Supplied drivers are DefaultDomain and
-# Domain. The default driver is DefaultDomain. (string value)
+# Entry point for the external (`REMOTE_USER`) auth plugin module in the
+# `keystone.auth.external` namespace. Supplied drivers are `DefaultDomain` and
+# `Domain`. The default driver is `DefaultDomain`, which assumes that all users
+# identified by the username specified to keystone in the `REMOTE_USER`
+# variable exist within the context of the default domain. The `Domain` option
+# expects an additional environment variable be presented to keystone,
+# `REMOTE_DOMAIN`, containing the domain name of the `REMOTE_USER` (if
+# `REMOTE_DOMAIN` is not set, then the default domain will be used instead).
+# You do not need to set this unless you are taking advantage of "external
+# authentication", where the application server (such as Apache) is handling
+# authentication instead of keystone. (string value)
 #external = <None>
 
-# Entrypoint for the oAuth1.0 auth plugin module in the keystone.auth.oauth1
-# namespace. (string value)
+# Entry point for the OAuth 1.0a auth plugin module in the
+# `keystone.auth.oauth1` namespace. You do not need to set this unless you are
+# overriding keystone's own `oauth1` authentication plugin. (string value)
 #oauth1 = <None>
 
 
@@ -416,24 +462,31 @@
 # From keystone
 #
 
-# Catalog template file name for use with the template catalog backend. (string
-# value)
+# Absolute path to the file used for the templated catalog backend. This option
+# is only used if the `[catalog] driver` is set to `templated`. (string value)
 #template_file = default_catalog.templates
 
-# Entrypoint for the catalog backend driver in the keystone.catalog namespace.
-# Supplied drivers are kvs, sql, templated, and endpoint_filter.sql (string
-# value)
+# Entry point for the catalog driver in the `keystone.catalog` namespace.
+# Keystone provides a `sql` option (which supports basic CRUD operations
+# through SQL), a `templated` option (which loads the catalog from a templated
+# catalog file on disk), and a `endpoint_filter.sql` option (which supports
+# arbitrary service catalogs per project). (string value)
 #driver = sql
 
 # Toggle for catalog caching. This has no effect unless global caching is
-# enabled. (boolean value)
+# enabled. In a typical deployment, there is no reason to disable this.
+# (boolean value)
 #caching = true
 
 # Time to cache catalog data (in seconds). This has no effect unless global and
-# catalog caching are enabled. (integer value)
+# catalog caching are both enabled. Catalog data (services, endpoints, etc.)
+# typically does not change frequently, and so a longer duration than the
+# global default may be desirable. (integer value)
 #cache_time = <None>
 
 # Maximum number of entities that will be returned in a catalog collection.
+# There is typically no reason to set this, as it would be unusual for a
+# deployment to have enough services or endpoints to exceed a reasonable limit.
 # (integer value)
 #list_limit = <None>
 
@@ -502,8 +555,9 @@
 # From keystone
 #
 
-# Entrypoint for the credential backend driver in the keystone.credential
-# namespace. (string value)
+# Entry point for the credential backend driver in the `keystone.credential`
+# namespace. Keystone only provides a `sql` driver, so there's no reason to
+# change this unless you are providing a custom entry point. (string value)
 #driver = sql
 
 
@@ -513,8 +567,12 @@
 # From oslo.db
 #
 
-# The file name to use with SQLite. (string value)
+# DEPRECATED: The file name to use with SQLite. (string value)
 # Deprecated group/name - [DEFAULT]/sqlite_db
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Should use config option connection or slave_connection to connect
+# the database.
 #sqlite_db = oslo.sqlite
 
 # If True, SQLite uses synchronous mode. (boolean value)
@@ -613,16 +671,20 @@
 # From keystone
 #
 
-# Entrypoint for the domain config backend driver in the
-# keystone.resource.domain_config namespace. (string value)
+# Entry point for the domain-specific configuration driver in the
+# `keystone.resource.domain_config` namespace. Only a `sql` option is provided
+# by keystone, so there is no reason to set this unless you are providing a
+# custom entry point. (string value)
 #driver = sql
 
-# Toggle for domain config caching. This has no effect unless global caching is
-# enabled. (boolean value)
+# Toggle for caching of the domain-specific configuration backend. This has no
+# effect unless global caching is enabled. There is normally no reason to
+# disable this. (boolean value)
 #caching = true
 
-# TTL (in seconds) to cache domain config data. This has no effect unless
-# domain config caching is enabled. (integer value)
+# Time-to-live (TTL, in seconds) to cache domain-specific configuration data.
+# This has no effect unless `[domain_config] caching` is enabled. (integer
+# value)
 #cache_time = 300
 
 
@@ -632,11 +694,16 @@
 # From keystone
 #
 
-# Entrypoint for the endpoint filter backend driver in the
-# keystone.endpoint_filter namespace. (string value)
+# Entry point for the endpoint filter driver in the `keystone.endpoint_filter`
+# namespace. Only a `sql` option is provided by keystone, so there is no reason
+# to set this unless you are providing a custom entry point. (string value)
 #driver = sql
 
-# Toggle to return all active endpoints if no filter exists. (boolean value)
+# This controls keystone's behavior if the configured endpoint filters do not
+# result in any endpoints for a user + project pair (and therefore a
+# potentially empty service catalog). If set to true, keystone will return the
+# entire service catalog. If set to false, keystone will return an empty
+# service catalog. (boolean value)
 #return_all_endpoints_if_no_filter = true
 
 
@@ -646,16 +713,19 @@
 # From keystone
 #
 
-# DEPRECATED: Enable endpoint_policy functionality. (boolean value)
+# DEPRECATED: Enable endpoint-policy functionality, which allows policies to be
+# associated with either specific endpoints, or endpoints of a given service
+# type. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: The option to enable the OS-ENDPOINT-POLICY extension has been
+# Reason: The option to enable the OS-ENDPOINT-POLICY API extension has been
 # deprecated in the M release and will be removed in the O release. The OS-
-# ENDPOINT-POLICY extension will be enabled by default.
+# ENDPOINT-POLICY API extension will be enabled by default.
 #enabled = true
 
-# Entrypoint for the endpoint policy backend driver in the
-# keystone.endpoint_policy namespace. (string value)
+# Entry point for the endpoint policy driver in the `keystone.endpoint_policy`
+# namespace. Only a `sql` driver is provided by keystone, so there is no reason
+# to set this unless you are providing a custom entry point. (string value)
 #driver = sql
 
 
@@ -671,20 +741,20 @@
 # Deprecated group/name - [DEFAULT]/public_bind_host
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Support for running keystone under eventlet has been removed in the N
-# release. These options remain for backwards compatibility because they are
-# used for URL substitutions.
+# Reason: Support for running keystone under eventlet has been removed in the
+# Newton release. These options remain for backwards compatibility because they
+# are used for URL substitutions.
 #public_bind_host = 0.0.0.0
 
-# DEPRECATED: The port number which the public service listens on. (port value)
+# DEPRECATED: The port number for the public service to listen on. (port value)
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/public_port
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Support for running keystone under eventlet has been removed in the N
-# release. These options remain for backwards compatibility because they are
-# used for URL substitutions.
+# Reason: Support for running keystone under eventlet has been removed in the
+# Newton release. These options remain for backwards compatibility because they
+# are used for URL substitutions.
 #public_port = 5000
 
 # DEPRECATED: The IP address of the network interface for the admin service to
@@ -693,20 +763,20 @@
 # Deprecated group/name - [DEFAULT]/admin_bind_host
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Support for running keystone under eventlet has been removed in the N
-# release. These options remain for backwards compatibility because they are
-# used for URL substitutions.
+# Reason: Support for running keystone under eventlet has been removed in the
+# Newton release. These options remain for backwards compatibility because they
+# are used for URL substitutions.
 #admin_bind_host = 0.0.0.0
 
-# DEPRECATED: The port number which the admin service listens on. (port value)
+# DEPRECATED: The port number for the admin service to listen on. (port value)
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/admin_port
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Support for running keystone under eventlet has been removed in the N
-# release. These options remain for backwards compatibility because they are
-# used for URL substitutions.
+# Reason: Support for running keystone under eventlet has been removed in the
+# Newton release. These options remain for backwards compatibility because they
+# are used for URL substitutions.
 #admin_port = 35357
 
 
@@ -716,38 +786,44 @@
 # From keystone
 #
 
-# Entrypoint for the federation backend driver in the keystone.federation
-# namespace. (string value)
+# Entry point for the federation backend driver in the `keystone.federation`
+# namespace. Keystone only provides a `sql` driver, so there is no reason to
+# set this option unless you are providing a custom entry point. (string value)
 #driver = sql
 
-# Value to be used when filtering assertion parameters from the environment.
+# Prefix to use when filtering environment variable names for federated
+# assertions. Matched variables are passed into the federated mapping engine.
 # (string value)
 #assertion_prefix =
 
 # Value to be used to obtain the entity ID of the Identity Provider from the
-# environment (e.g. if using the mod_shib plugin this value is `Shib-Identity-
-# Provider`). (string value)
+# environment. For `mod_shib`, this would be `Shib-Identity-Provider`. For For
+# `mod_auth_openidc`, this could be `HTTP_OIDC_ISS`. For `mod_auth_mellon`,
+# this could be `MELLON_IDP`. (string value)
 #remote_id_attribute = <None>
 
-# A domain name that is reserved to allow federated ephemeral users to have a
-# domain concept. Note that an admin will not be able to create a domain with
-# this name or update an existing domain to this name. You are not advised to
-# change this value unless you really have to. (string value)
+# An arbitrary domain name that is reserved to allow federated ephemeral users
+# to have a domain concept. Note that an admin will not be able to create a
+# domain with this name or update an existing domain to this name. You are not
+# advised to change this value unless you really have to. (string value)
 #federated_domain_name = Federated
 
 # A list of trusted dashboard hosts. Before accepting a Single Sign-On request
-# to return a token, the origin host must be a member of the trusted_dashboard
-# list. This configuration option may be repeated for multiple values. For
-# example: trusted_dashboard=http://acme.com/auth/websso
-# trusted_dashboard=http://beta.com/auth/websso (multi valued)
+# to return a token, the origin host must be a member of this list. This
+# configuration option may be repeated for multiple values. You must set this
+# in order to use web-based SSO flows. For example:
+# trusted_dashboard=https://acme.example.com/auth/websso
+# trusted_dashboard=https://beta.example.com/auth/websso (multi valued)
 #trusted_dashboard =
 
-# Location of Single Sign-On callback handler, will return a token to a trusted
-# dashboard host. (string value)
+# Absolute path to an HTML file used as a Single Sign-On callback handler. This
+# page is expected to redirect the user from keystone back to a trusted
+# dashboard host, by form encoding a token in a POST request. Keystone's
+# default value should be sufficient for most deployments. (string value)
 #sso_callback_template = /etc/keystone/sso_callback_template.html
 
 # Toggle for federation caching. This has no effect unless global caching is
-# enabled. (boolean value)
+# enabled. There is typically no reason to disable this. (boolean value)
 #caching = true
 
 
@@ -757,14 +833,36 @@
 # From keystone
 #
 
-# Directory containing Fernet token keys. (string value)
+# Directory containing Fernet token keys. This directory must exist before
+# using `keystone-manage fernet_setup` for the first time, must be writable by
+# the user running `keystone-manage fernet_setup` or `keystone-manage
+# fernet_rotate`, and of course must be readable by keystone's server process.
+# The repository may contain keys in one of three states: a single staged key
+# (always index 0) used for token validation, a single primary key (always the
+# highest index) used for token creation and validation, and any number of
+# secondary keys (all other index values) used for token validation. With
+# multiple keystone nodes, each node must share the same key repository
+# contents, with the exception of the staged key (index 0). It is safe to run
+# `keystone-manage fernet_rotate` once on any one node to promote a staged key
+# (index 0) to be the new primary (incremented from the previous highest
+# index), and produce a new staged key (a new key with index 0); the resulting
+# repository can then be atomically replicated to other nodes without any risk
+# of race conditions (for example, it is safe to run `keystone-manage
+# fernet_rotate` on host A, wait any amount of time, create a tarball of the
+# directory on host A, unpack it on host B to a temporary location, and
+# atomically move (`mv`) the directory into place on host B). Running
+# `keystone-manage fernet_rotate` *twice* on a key repository without syncing
+# other nodes will result in tokens that can not be validated by all nodes.
+# (string value)
 #key_repository = /etc/keystone/fernet-keys/
 
-# This controls how many keys are held in rotation by keystone-manage
-# fernet_rotate before they are discarded. The default value of 3 means that
-# keystone will maintain one staged key, one primary key, and one secondary
-# key. Increasing this value means that additional secondary keys will be kept
-# in the rotation. (integer value)
+# This controls how many keys are held in rotation by `keystone-manage
+# fernet_rotate` before they are discarded. The default value of 3 means that
+# keystone will maintain one staged key (always index 0), one primary key (the
+# highest numerical index), and one secondary key (every other index).
+# Increasing this value means that additional secondary keys will be kept in
+# the rotation. (integer value)
+# Minimum value: 1
 #max_active_keys = 3
 
 
@@ -775,46 +873,58 @@
 #
 
 # This references the domain to use for all Identity API v2 requests (which are
-# not aware of domains). A domain with this ID will be created for you by
-# keystone-manage db_sync in migration 008. The domain referenced by this ID
-# cannot be deleted on the v3 API, to prevent accidentally breaking the v2 API.
-# There is nothing special about this domain, other than the fact that it must
-# exist to order to maintain support for your v2 clients. (string value)
+# not aware of domains). A domain with this ID can optionally be created for
+# you by `keystone-manage bootstrap`. The domain referenced by this ID cannot
+# be deleted on the v3 API, to prevent accidentally breaking the v2 API. There
+# is nothing special about this domain, other than the fact that it must exist
+# to order to maintain support for your v2 clients. There is typically no
+# reason to change this value. (string value)
 #default_domain_id = default
 
 # A subset (or all) of domains can have their own identity driver, each with
 # their own partial configuration options, stored in either the resource
 # backend or in a file in a domain configuration directory (depending on the
-# setting of domain_configurations_from_database). Only values specific to the
-# domain need to be specified in this manner. This feature is disabled by
-# default; set to true to enable. (boolean value)
+# setting of `[identity] domain_configurations_from_database`). Only values
+# specific to the domain need to be specified in this manner. This feature is
+# disabled by default, but may be enabled by default in a future release; set
+# to true to enable. (boolean value)
 #domain_specific_drivers_enabled = false
 
-# Extract the domain specific configuration options from the resource backend
-# where they have been stored with the domain data. This feature is disabled by
-# default (in which case the domain specific options will be loaded from files
-# in the domain configuration directory); set to true to enable. (boolean
-# value)
+# By default, domain-specific configuration data is read from files in the
+# directory identified by `[identity] domain_config_dir`. Enabling this
+# configuration option allows you to instead manage domain-specific
+# configurations through the API, which are then persisted in the backend
+# (typically, a SQL database), rather than using configuration files on disk.
+# (boolean value)
 #domain_configurations_from_database = false
 
-# Path for Keystone to locate the domain specific identity configuration files
-# if domain_specific_drivers_enabled is set to true. (string value)
+# Absolute path where keystone should locate domain-specific `[identity]`
+# configuration files. This option has no effect unless `[identity]
+# domain_specific_drivers_enabled` is set to true. There is typically no reason
+# to change this value. (string value)
 #domain_config_dir = /etc/keystone/domains
 
-# Entrypoint for the identity backend driver in the keystone.identity
-# namespace. Supplied drivers are ldap and sql. (string value)
+# Entry point for the identity backend driver in the `keystone.identity`
+# namespace. Keystone provides a `sql` and `ldap` driver. This option is also
+# used as the default driver selection (along with the other configuration
+# variables in this section) in the event that `[identity]
+# domain_specific_drivers_enabled` is enabled, but no applicable domain-
+# specific configuration is defined for the domain in question. Unless your
+# deployment primarily relies on `ldap` AND is not using domain-specific
+# configuration, you should typically leave this set to `sql`. (string value)
 #driver = sql
 
 # Toggle for identity caching. This has no effect unless global caching is
-# enabled. (boolean value)
+# enabled. There is typically no reason to disable this. (boolean value)
 #caching = true
 
 # Time to cache identity data (in seconds). This has no effect unless global
 # and identity caching are enabled. (integer value)
 #cache_time = 600
 
-# Maximum supported length for user passwords; decrease to improve performance.
-# (integer value)
+# Maximum allowed length for user passwords. Decrease this value to improve
+# performance. Changing this value does not effect existing passwords. (integer
+# value)
 # Maximum value: 4096
 #max_password_length = 4096
 
@@ -829,28 +939,35 @@
 # From keystone
 #
 
-# Entrypoint for the identity mapping backend driver in the
-# keystone.identity.id_mapping namespace. (string value)
+# Entry point for the identity mapping backend driver in the
+# `keystone.identity.id_mapping` namespace. Keystone only provides a `sql`
+# driver, so there is no reason to change this unless you are providing a
+# custom entry point. (string value)
 #driver = sql
 
-# Entrypoint for the public ID generator for user and group entities in the
-# keystone.identity.id_generator namespace. The Keystone identity mapper only
-# supports generators that produce no more than 64 characters. (string value)
+# Entry point for the public ID generator for user and group entities in the
+# `keystone.identity.id_generator` namespace. The Keystone identity mapper only
+# supports generators that produce 64 bytes or less. Keystone only provides a
+# `sha256` entry point, so there is no reason to change this value unless
+# you're providing a custom entry point. (string value)
 #generator = sha256
 
 # The format of user and group IDs changed in Juno for backends that do not
-# generate UUIDs (e.g. LDAP), with keystone providing a hash mapping to the
-# underlying attribute in LDAP. By default this mapping is disabled, which
+# generate UUIDs (for example, LDAP), with keystone providing a hash mapping to
+# the underlying attribute in LDAP. By default this mapping is disabled, which
 # ensures that existing IDs will not change. Even when the mapping is enabled
-# by using domain specific drivers, any users and groups from the default
+# by using domain-specific drivers (`[identity]
+# domain_specific_drivers_enabled`), any users and groups from the default
 # domain being handled by LDAP will still not be mapped to ensure their IDs
-# remain backward compatible. Setting this value to False will enable the
-# mapping for even the default LDAP driver. It is only safe to do this if you
-# do not already have assignments for users and groups from the default LDAP
-# domain, and it is acceptable for Keystone to provide the different IDs to
-# clients than it did previously. Typically this means that the only time you
-# can set this value to False is when configuring a fresh installation.
-# (boolean value)
+# remain backward compatible. Setting this value to false will enable the new
+# mapping for all backends, including the default LDAP driver. It is only
+# guaranteed to be safe to enable this option if you do not already have
+# assignments for users and groups from the default LDAP domain, and you
+# consider it to be acceptable for Keystone to provide the different IDs to
+# clients than it did previously (existing IDs in the API will suddenly
+# change). Typically this means that the only time you can set this value to
+# false is when configuring a fresh installation, although that is the
+# recommended value. (boolean value)
 #backward_compatible_ids = true
 
 
@@ -860,21 +977,31 @@
 # From keystone
 #
 
-# Extra dogpile.cache backend modules to register with the dogpile.cache
-# library. (list value)
+# Extra `dogpile.cache` backend modules to register with the `dogpile.cache`
+# library. It is not necessary to set this value unless you are providing a
+# custom KVS backend beyond what `dogpile.cache` already supports. (list value)
 #backends =
 
 # Prefix for building the configuration dictionary for the KVS region. This
-# should not need to be changed unless there is another dogpile.cache region
+# should not need to be changed unless there is another `dogpile.cache` region
 # with the same configuration name. (string value)
 #config_prefix = keystone.kvs
 
-# Toggle to disable using a key-mangling function to ensure fixed length keys.
-# This is toggle-able for debugging purposes, it is highly recommended to
-# always leave this set to true. (boolean value)
+# Set to false to disable using a key-mangling function, which ensures fixed-
+# length keys are used in the KVS store. This is configurable for debugging
+# purposes, and it is therefore highly recommended to always leave this set to
+# true. (boolean value)
 #enable_key_mangler = true
 
-# Default lock timeout (in seconds) for distributed locking. (integer value)
+# Number of seconds after acquiring a distributed lock that the backend should
+# consider the lock to be expired. This option should be tuned relative to the
+# longest amount of time that it takes to perform a successful operation. If
+# this value is set too low, then a cluster will end up performing work
+# redundantly. If this value is set too high, then a cluster will not be able
+# to efficiently recover and retry after a failed operation. A non-zero value
+# is recommended if the backend supports lock timeouts, as zero prevents locks
+# from expiring altogether. (integer value)
+# Minimum value: 0
 #default_lock_timeout = 5
 
 
@@ -889,245 +1016,345 @@
 # the connection. (string value)
 #url = ldap://localhost
 
-# User BindDN to query the LDAP server. (string value)
+# The user name of the administrator bind DN to use when querying the LDAP
+# server, if your LDAP server requires it. (string value)
 #user = <None>
 
-# Password for the BindDN to query the LDAP server. (string value)
+# The password of the administrator bind DN to use when querying the LDAP
+# server, if your LDAP server requires it. (string value)
 #password = <None>
 
-# LDAP server suffix (string value)
+# The default LDAP server suffix to use, if a DN is not defined via either
+# `[ldap] user_tree_dn` or `[ldap] group_tree_dn`. (string value)
 #suffix = cn=example,cn=com
 
-# If true, will add a dummy member to groups. This is required if the
-# objectclass for groups requires the "member" attribute. (boolean value)
+# DEPRECATED: If true, keystone will add a dummy member based on the `[ldap]
+# dumb_member` option when creating new groups. This is required if the object
+# class for groups requires the `member` attribute. This option is only used
+# for write operations. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #use_dumb_member = false
 
-# DN of the "dummy member" to use when "use_dumb_member" is enabled. (string
-# value)
+# DEPRECATED: DN of the "dummy member" to use when `[ldap] use_dumb_member` is
+# enabled. This option is only used for write operations. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #dumb_member = cn=dumb,dc=nonexistent
 
-# Delete subtrees using the subtree delete control. Only enable this option if
-# your LDAP server supports subtree deletion. (boolean value)
+# DEPRECATED: Delete subtrees using the subtree delete control. Only enable
+# this option if your LDAP server supports subtree deletion. This option is
+# only used for write operations. (boolean value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #allow_subtree_delete = false
 
-# The LDAP scope for queries, "one" represents oneLevel/singleLevel and "sub"
-# represents subtree/wholeSubtree options. (string value)
+# The search scope which defines how deep to search within the search base. A
+# value of `one` (representing `oneLevel` or `singleLevel`) indicates a search
+# of objects immediately below to the base object, but does not include the
+# base object itself. A value of `sub` (representing `subtree` or
+# `wholeSubtree`) indicates a search of both the base object itself and the
+# entire subtree below it. (string value)
 # Allowed values: one, sub
 #query_scope = one
 
-# Maximum results per page; a value of zero ("0") disables paging. (integer
-# value)
+# Defines the maximum number of results per page that keystone should request
+# from the LDAP server when listing objects. A value of zero (`0`) disables
+# paging. (integer value)
+# Minimum value: 0
 #page_size = 0
 
-# The LDAP dereferencing option for queries. The "default" option falls back to
-# using default dereferencing configured by your ldap.conf. (string value)
+# The LDAP dereferencing option to use for queries involving aliases. A value
+# of `default` falls back to using default dereferencing behavior configured by
+# your `ldap.conf`. A value of `never` prevents aliases from being dereferenced
+# at all. A value of `searching` dereferences aliases only after name
+# resolution. A value of `finding` dereferences aliases only during name
+# resolution. A value of `always` dereferences aliases in all cases. (string
+# value)
 # Allowed values: never, searching, always, finding, default
 #alias_dereferencing = default
 
 # Sets the LDAP debugging level for LDAP calls. A value of 0 means that
 # debugging is not enabled. This value is a bitmask, consult your LDAP
 # documentation for possible values. (integer value)
+# Minimum value: -1
 #debug_level = <None>
 
-# Override the system's default referral chasing behavior for queries. (boolean
-# value)
+# Sets keystone's referral chasing behavior across directory partitions. If
+# left unset, the system's default behavior will be used. (boolean value)
 #chase_referrals = <None>
 
-# Search base for users. Defaults to the suffix value. (string value)
+# The search base to use for users. Defaults to the `[ldap] suffix` value.
+# (string value)
 #user_tree_dn = <None>
 
-# LDAP search filter for users. (string value)
+# The LDAP search filter to use for users. (string value)
 #user_filter = <None>
 
-# LDAP objectclass for users. (string value)
+# The LDAP object class to use for users. (string value)
 #user_objectclass = inetOrgPerson
 
-# LDAP attribute mapped to user id. WARNING: must not be a multivalued
-# attribute. (string value)
+# The LDAP attribute mapped to user IDs in keystone. This must NOT be a
+# multivalued attribute. User IDs are expected to be globally unique across
+# keystone domains and URL-safe. (string value)
 #user_id_attribute = cn
 
-# LDAP attribute mapped to user name. (string value)
+# The LDAP attribute mapped to user names in keystone. User names are expected
+# to be unique only within a keystone domain and are not expected to be URL-
+# safe. (string value)
 #user_name_attribute = sn
 
-# LDAP attribute mapped to user description. (string value)
+# The LDAP attribute mapped to user descriptions in keystone. (string value)
 #user_description_attribute = description
 
-# LDAP attribute mapped to user email. (string value)
+# The LDAP attribute mapped to user emails in keystone. (string value)
 #user_mail_attribute = mail
 
-# LDAP attribute mapped to password. (string value)
+# The LDAP attribute mapped to user passwords in keystone. (string value)
 #user_pass_attribute = userPassword
 
-# LDAP attribute mapped to user enabled flag. (string value)
+# The LDAP attribute mapped to the user enabled attribute in keystone. If
+# setting this option to `userAccountControl`, then you may be interested in
+# setting `[ldap] user_enabled_mask` and `[ldap] user_enabled_default` as well.
+# (string value)
 #user_enabled_attribute = enabled
 
-# Invert the meaning of the boolean enabled values. Some LDAP servers use a
-# boolean lock attribute where "true" means an account is disabled. Setting
-# "user_enabled_invert = true" will allow these lock attributes to be used.
-# This setting will have no effect if "user_enabled_mask" or
-# "user_enabled_emulation" settings are in use. (boolean value)
+# Logically negate the boolean value of the enabled attribute obtained from the
+# LDAP server. Some LDAP servers use a boolean lock attribute where "true"
+# means an account is disabled. Setting `[ldap] user_enabled_invert = true`
+# will allow these lock attributes to be used. This option will have no effect
+# if either the `[ldap] user_enabled_mask` or `[ldap] user_enabled_emulation`
+# options are in use. (boolean value)
 #user_enabled_invert = false
 
-# Bitmask integer to indicate the bit that the enabled value is stored in if
-# the LDAP server represents "enabled" as a bit on an integer rather than a
-# boolean. A value of "0" indicates the mask is not used. If this is not set to
-# "0" the typical value is "2". This is typically used when
-# "user_enabled_attribute = userAccountControl". (integer value)
+# Bitmask integer to select which bit indicates the enabled value if the LDAP
+# server represents "enabled" as a bit on an integer rather than as a discrete
+# boolean. A value of `0` indicates that the mask is not used. If this is not
+# set to `0` the typical value is `2`. This is typically used when `[ldap]
+# user_enabled_attribute = userAccountControl`. Setting this option causes
+# keystone to ignore the value of `[ldap] user_enabled_invert`. (integer value)
+# Minimum value: 0
 #user_enabled_mask = 0
 
-# Default value to enable users. This should match an appropriate int value if
-# the LDAP server uses non-boolean (bitmask) values to indicate if a user is
-# enabled or disabled. If this is not set to "True" the typical value is "512".
-# This is typically used when "user_enabled_attribute = userAccountControl".
-# (string value)
+# The default value to enable users. This should match an appropriate integer
+# value if the LDAP server uses non-boolean (bitmask) values to indicate if a
+# user is enabled or disabled. If this is not set to `True`, then the typical
+# value is `512`. This is typically used when `[ldap] user_enabled_attribute =
+# userAccountControl`. (string value)
 #user_enabled_default = True
 
-# List of attributes stripped off the user on update. (list value)
+# DEPRECATED: List of user attributes to ignore on create and update. This is
+# only used for write operations. (list value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #user_attribute_ignore = default_project_id
 
-# LDAP attribute mapped to default_project_id for users. (string value)
+# The LDAP attribute mapped to a user's default_project_id in keystone. This is
+# most commonly used when keystone has write access to LDAP. (string value)
 #user_default_project_id_attribute = <None>
 
-# DEPRECATED: Allow user creation in LDAP backend. (boolean value)
+# DEPRECATED: If enabled, keystone is allowed to create users in the LDAP
+# server. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Write support for Identity LDAP backends has been deprecated in the M
-# release and will be removed in the O release.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #user_allow_create = true
 
-# DEPRECATED: Allow user updates in LDAP backend. (boolean value)
+# DEPRECATED: If enabled, keystone is allowed to update users in the LDAP
+# server. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Write support for Identity LDAP backends has been deprecated in the M
-# release and will be removed in the O release.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #user_allow_update = true
 
-# DEPRECATED: Allow user deletion in LDAP backend. (boolean value)
+# DEPRECATED: If enabled, keystone is allowed to delete users in the LDAP
+# server. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Write support for Identity LDAP backends has been deprecated in the M
-# release and will be removed in the O release.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #user_allow_delete = true
 
-# If true, Keystone uses an alternative method to determine if a user is
-# enabled or not by checking if they are a member of the
-# "user_enabled_emulation_dn" group. (boolean value)
+# If enabled, keystone uses an alternative method to determine if a user is
+# enabled or not by checking if they are a member of the group defined by the
+# `[ldap] user_enabled_emulation_dn` option. Enabling this option causes
+# keystone to ignore the value of `[ldap] user_enabled_invert`. (boolean value)
 #user_enabled_emulation = false
 
 # DN of the group entry to hold enabled users when using enabled emulation.
-# (string value)
+# Setting this option has no effect unless `[ldap] user_enabled_emulation` is
+# also enabled. (string value)
 #user_enabled_emulation_dn = <None>
 
-# Use the "group_member_attribute" and "group_objectclass" settings to
-# determine membership in the emulated enabled group. (boolean value)
+# Use the `[ldap] group_member_attribute` and `[ldap] group_objectclass`
+# settings to determine membership in the emulated enabled group. Enabling this
+# option has no effect unless `[ldap] user_enabled_emulation` is also enabled.
+# (boolean value)
 #user_enabled_emulation_use_group_config = false
 
-# List of additional LDAP attributes used for mapping additional attribute
-# mappings for users. Attribute mapping format is <ldap_attr>:<user_attr>,
-# where ldap_attr is the attribute in the LDAP entry and user_attr is the
-# Identity API attribute. (list value)
+# A list of LDAP attribute to keystone user attribute pairs used for mapping
+# additional attributes to users in keystone. The expected format is
+# `<ldap_attr>:<user_attr>`, where `ldap_attr` is the attribute in the LDAP
+# object and `user_attr` is the attribute which should appear in the identity
+# API. (list value)
 #user_additional_attribute_mapping =
 
-# Search base for groups. Defaults to the suffix value. (string value)
+# The search base to use for groups. Defaults to the `[ldap] suffix` value.
+# (string value)
 #group_tree_dn = <None>
 
-# LDAP search filter for groups. (string value)
+# The LDAP search filter to use for groups. (string value)
 #group_filter = <None>
 
-# LDAP objectclass for groups. (string value)
+# The LDAP object class to use for groups. If setting this option to
+# `posixGroup`, you may also be interested in enabling the `[ldap]
+# group_members_are_ids` option. (string value)
 #group_objectclass = groupOfNames
 
-# LDAP attribute mapped to group id. (string value)
+# The LDAP attribute mapped to group IDs in keystone. This must NOT be a
+# multivalued attribute. Group IDs are expected to be globally unique across
+# keystone domains and URL-safe. (string value)
 #group_id_attribute = cn
 
-# LDAP attribute mapped to group name. (string value)
+# The LDAP attribute mapped to group names in keystone. Group names are
+# expected to be unique only within a keystone domain and are not expected to
+# be URL-safe. (string value)
 #group_name_attribute = ou
 
-# LDAP attribute mapped to show group membership. (string value)
+# The LDAP attribute used to indicate that a user is a member of the group.
+# (string value)
 #group_member_attribute = member
 
-# LDAP attribute mapped to group description. (string value)
+# Enable this option if the members of the group object class are keystone user
+# IDs rather than LDAP DNs. This is the case when using `posixGroup` as the
+# group object class in Open Directory. (boolean value)
+#group_members_are_ids = false
+
+# The LDAP attribute mapped to group descriptions in keystone. (string value)
 #group_desc_attribute = description
 
-# List of attributes stripped off the group on update. (list value)
+# DEPRECATED: List of group attributes to ignore on create and update. This is
+# only used for write operations. (list value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #group_attribute_ignore =
 
-# DEPRECATED: Allow group creation in LDAP backend. (boolean value)
+# DEPRECATED: If enabled, keystone is allowed to create groups in the LDAP
+# server. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Write support for Identity LDAP backends has been deprecated in the M
-# release and will be removed in the O release.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #group_allow_create = true
 
-# DEPRECATED: Allow group update in LDAP backend. (boolean value)
+# DEPRECATED: If enabled, keystone is allowed to update groups in the LDAP
+# server. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Write support for Identity LDAP backends has been deprecated in the M
-# release and will be removed in the O release.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #group_allow_update = true
 
-# DEPRECATED: Allow group deletion in LDAP backend. (boolean value)
+# DEPRECATED: If enabled, keystone is allowed to delete groups in the LDAP
+# server. (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: Write support for Identity LDAP backends has been deprecated in the M
-# release and will be removed in the O release.
+# Reason: Write support for the LDAP identity backend has been deprecated in
+# the Mitaka release and will be removed in the Ocata release.
 #group_allow_delete = true
 
-# Additional attribute mappings for groups. Attribute mapping format is
-# <ldap_attr>:<user_attr>, where ldap_attr is the attribute in the LDAP entry
-# and user_attr is the Identity API attribute. (list value)
+# A list of LDAP attribute to keystone group attribute pairs used for mapping
+# additional attributes to groups in keystone. The expected format is
+# `<ldap_attr>:<group_attr>`, where `ldap_attr` is the attribute in the LDAP
+# object and `group_attr` is the attribute which should appear in the identity
+# API. (list value)
 #group_additional_attribute_mapping =
 
-# CA certificate file path for communicating with LDAP servers. (string value)
+# An absolute path to a CA certificate file to use when communicating with LDAP
+# servers. This option will take precedence over `[ldap] tls_cacertdir`, so
+# there is no reason to set both. (string value)
 #tls_cacertfile = <None>
 
-# CA certificate directory path for communicating with LDAP servers. (string
-# value)
+# An absolute path to a CA certificate directory to use when communicating with
+# LDAP servers. There is no reason to set this option if you've also set
+# `[ldap] tls_cacertfile`. (string value)
 #tls_cacertdir = <None>
 
-# Enable TLS for communicating with LDAP servers. (boolean value)
+# Enable TLS when communicating with LDAP servers. You should also set the
+# `[ldap] tls_cacertfile` and `[ldap] tls_cacertdir` options when using this
+# option. Do not set this option if you are using LDAP over SSL (LDAPS) instead
+# of TLS. (boolean value)
 #use_tls = false
 
-# Specifies what checks to perform on client certificates in an incoming TLS
-# session. (string value)
+# Specifies which checks to perform against client certificates on incoming TLS
+# sessions. If set to `demand`, then a certificate will always be requested and
+# required from the LDAP server. If set to `allow`, then a certificate will
+# always be requested but not required from the LDAP server. If set to `never`,
+# then a certificate will never be requested. (string value)
 # Allowed values: demand, never, allow
 #tls_req_cert = demand
 
-# Enable LDAP connection pooling. (boolean value)
+# Enable LDAP connection pooling for queries to the LDAP server. There is
+# typically no reason to disable this. (boolean value)
 #use_pool = true
 
-# Connection pool size. (integer value)
+# The size of the LDAP connection pool. This option has no effect unless
+# `[ldap] use_pool` is also enabled. (integer value)
+# Minimum value: 1
 #pool_size = 10
 
-# Maximum count of reconnect trials. (integer value)
+# The maximum number of times to attempt reconnecting to the LDAP server before
+# aborting. A value of zero prevents retries. This option has no effect unless
+# `[ldap] use_pool` is also enabled. (integer value)
+# Minimum value: 0
 #pool_retry_max = 3
 
-# Time span in seconds to wait between two reconnect trials. (floating point
-# value)
+# The number of seconds to wait before attempting to reconnect to the LDAP
+# server. This option has no effect unless `[ldap] use_pool` is also enabled.
+# (floating point value)
 #pool_retry_delay = 0.1
 
-# Connector timeout in seconds. Value -1 indicates indefinite wait for
-# response. (integer value)
+# The connection timeout to use with the LDAP server. A value of `-1` means
+# that connections will never timeout. This option has no effect unless `[ldap]
+# use_pool` is also enabled. (integer value)
+# Minimum value: -1
 #pool_connection_timeout = -1
 
-# Connection lifetime in seconds. (integer value)
+# The maximum connection lifetime to the LDAP server in seconds. When this
+# lifetime is exceeded, the connection will be unbound and removed from the
+# connection pool. This option has no effect unless `[ldap] use_pool` is also
+# enabled. (integer value)
+# Minimum value: 1
 #pool_connection_lifetime = 600
 
-# Enable LDAP connection pooling for end user authentication. If use_pool is
-# disabled, then this setting is meaningless and is not used at all. (boolean
-# value)
+# Enable LDAP connection pooling for end user authentication. There is
+# typically no reason to disable this. (boolean value)
 #use_auth_pool = true
 
-# End user auth connection pool size. (integer value)
+# The size of the connection pool to use for end user authentication. This
+# option has no effect unless `[ldap] use_auth_pool` is also enabled. (integer
+# value)
+# Minimum value: 1
 #auth_pool_size = 100
 
-# End user auth connection lifetime in seconds. (integer value)
+# The maximum end user authentication connection lifetime to the LDAP server in
+# seconds. When this lifetime is exceeded, the connection will be unbound and
+# removed from the connection pool. This option has no effect unless `[ldap]
+# use_auth_pool` is also enabled. (integer value)
+# Minimum value: 1
 #auth_pool_connection_lifetime = 60
-
-# If the members of the group objectclass are user IDs rather than DNs, set
-# this to true. This is the case when using posixGroup as the group objectclass
-# and OpenDirectory. (boolean value)
-#group_members_are_ids = false
 
 
 [matchmaker_redis]
@@ -1182,32 +1409,42 @@
 # From keystone
 #
 
-# Memcache servers in the format of "host:port". (list value)
+# Comma-separated list of memcached servers in the format of
+# `host:port,host:port` that keystone should use for the `memcache` token
+# persistence provider and other memcache-backed KVS drivers. This
+# configuration value is NOT used for intermediary caching between keystone and
+# other backends, such as SQL and LDAP (for that, see the `[cache]` section).
+# Multiple keystone servers in the same deployment should use the same set of
+# memcached servers to ensure that data (such as UUID tokens) created by one
+# node is available to the others. (list value)
 #servers = localhost:11211
 
 # Number of seconds memcached server is considered dead before it is tried
-# again. This is used by the key value store system (e.g. token pooled
-# memcached persistence backend). (integer value)
+# again. This is used by the key value store system (including, the `memcache`
+# and `memcache_pool` options for the `[token] driver` persistence backend).
+# (integer value)
 #dead_retry = 300
 
 # Timeout in seconds for every call to a server. This is used by the key value
-# store system (e.g. token pooled memcached persistence backend). (integer
-# value)
+# store system (including, the `memcache` and `memcache_pool` options for the
+# `[token] driver` persistence backend). (integer value)
 #socket_timeout = 3
 
 # Max total number of open connections to every memcached server. This is used
-# by the key value store system (e.g. token pooled memcached persistence
-# backend). (integer value)
+# by the key value store system (including, the `memcache` and `memcache_pool`
+# options for the `[token] driver` persistence backend). (integer value)
 #pool_maxsize = 10
 
 # Number of seconds a connection to memcached is held unused in the pool before
-# it is closed. This is used by the key value store system (e.g. token pooled
-# memcached persistence backend). (integer value)
+# it is closed. This is used by the key value store system (including, the
+# `memcache` and `memcache_pool` options for the `[token] driver` persistence
+# backend). (integer value)
 #pool_unused_timeout = 60
 
 # Number of seconds that an operation will wait to get a memcache client
-# connection. This is used by the key value store system (e.g. token pooled
-# memcached persistence backend). (integer value)
+# connection. This is used by the key value store system (including, the
+# `memcache` and `memcache_pool` options for the `[token] driver` persistence
+# backend). (integer value)
 #pool_connection_get_timeout = 10
 
 
@@ -1217,14 +1454,23 @@
 # From keystone
 #
 
-# Entrypoint for the OAuth backend driver in the keystone.oauth1 namespace.
-# (string value)
+# Entry point for the OAuth backend driver in the `keystone.oauth1` namespace.
+# Typically, there is no reason to set this option unless you are providing a
+# custom entry point. (string value)
 #driver = sql
 
-# Duration (in seconds) for the OAuth Request Token. (integer value)
+# Number of seconds for the OAuth Request Token to remain valid after being
+# created. This is the amount of time the user has to authorize the token.
+# Setting this option to zero means that request tokens will last forever.
+# (integer value)
+# Minimum value: 0
 #request_token_duration = 28800
 
-# Duration (in seconds) for the OAuth Access Token. (integer value)
+# Number of seconds for the OAuth Access Token to remain valid after being
+# created. This is the amount of time the consumer has to interact with the
+# service provider (which is typically keystone). Setting this option to zero
+# means that access tokens will last forever. (integer value)
+# Minimum value: 0
 #access_token_duration = 86400
 
 
@@ -1234,15 +1480,15 @@
 # From keystone
 #
 
-# DEPRECATED: role-assignment inheritance to projects from owning domain or
-# from projects higher in the hierarchy can be optionally disabled. In the
-# future, this option will be removed and the hierarchy will be always enabled.
+# DEPRECATED: This allows domain-based role assignments to be inherited to
+# projects owned by that domain, or from parent projects to child projects.
 # (boolean value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
-# Reason: The option to enable the OS-INHERIT extension has been deprecated in
-# the M release and will be removed in the O release. The OS-INHERIT extension
-# will be enabled by default.
+# Reason: The option to disable the OS-INHERIT functionality has been
+# deprecated in the Mitaka release and will be removed in the Ocata release.
+# Starting in the Ocata release, OS-INHERIT functionality will always be
+# enabled.
 #enabled = true
 
 
@@ -1383,7 +1629,7 @@
 
 # How long to wait a missing client beforce abandoning to send it its replies.
 # This value should not be longer than rpc_response_timeout. (integer value)
-# Deprecated group/name - [DEFAULT]/kombu_reconnect_timeout
+# Deprecated group/name - [oslo_messaging_rabbit]/kombu_reconnect_timeout
 #kombu_missing_consumer_retry_timeout = 60
 
 # Determines how the next RabbitMQ node is chosen in case the one we are
@@ -1548,7 +1794,7 @@
 # Persist notification messages. (boolean value)
 #notification_persistence = false
 
-# Exchange name for for sending notifications (string value)
+# Exchange name for sending notifications (string value)
 #default_notification_exchange = ${control_exchange}_notification
 
 # Max number of not acknowledged message which RabbitMQ can send to
@@ -1650,8 +1896,10 @@
 # From keystone
 #
 
-# Name of the paste configuration file that defines the available pipelines.
-# (string value)
+# Name of (or absolute path to) the Paste Deploy configuration file that
+# composes middleware and the keystone application itself into actual WSGI
+# entry points. See http://pythonpaste.org/deploy/ for additional documentation
+# on the file's format. (string value)
 #config_file = keystone-paste.ini
 
 
@@ -1661,8 +1909,10 @@
 # From keystone
 #
 
-# Entrypoint for the policy backend driver in the keystone.policy namespace.
-# Supplied drivers are rules and sql. (string value)
+# Entry point for the policy backend driver in the `keystone.policy` namespace.
+# Supplied drivers are `rules` (which does not support any CRUD operations for
+# the v3 policy API) and `sql`. Typically, there is no reason to set this
+# option unless you are providing a custom entry point. (string value)
 #driver = sql
 
 # Maximum number of entities that will be returned in a policy collection.
@@ -1689,7 +1939,7 @@
 # part
 # will be empty.
 #  (boolean value)
-# Deprecated group/name - [DEFAULT]/profiler_enabled
+# Deprecated group/name - [profiler]/profiler_enabled
 #enabled = false
 
 #
@@ -1729,10 +1979,10 @@
 # From keystone
 #
 
-# Entrypoint for the resource backend driver in the keystone.resource
-# namespace. Only an SQL driver is supplied. If a resource driver is not
-# specified, the assignment driver will choose the resource driver. (string
-# value)
+# Entry point for the resource driver in the `keystone.resource` namespace.
+# Only a `sql` driver is supplied by keystone. If a resource driver is not
+# specified, the assignment driver will choose the resource driver to maintain
+# backwards compatibility with older configuration files. (string value)
 #driver = <None>
 
 # Toggle for resource caching. This has no effect unless global caching is
@@ -1740,7 +1990,7 @@
 # Deprecated group/name - [assignment]/caching
 #caching = true
 
-# TTL (in seconds) to cache resource data. This has no effect unless global
+# Time to cache resource data in seconds. This has no effect unless global
 # caching is enabled. (integer value)
 # Deprecated group/name - [assignment]/cache_time
 #cache_time = <None>
@@ -1750,28 +2000,34 @@
 # Deprecated group/name - [assignment]/list_limit
 #list_limit = <None>
 
-# Name of the domain that owns the `admin_project_name`. Defaults to None.
-# (string value)
+# Name of the domain that owns the `admin_project_name`. If left unset, then
+# there is no admin project. `[resource] admin_project_name` must also be set
+# to use this option. (string value)
 #admin_project_domain_name = <None>
 
-# Special project for performing administrative operations on remote services.
-# Tokens scoped to this project will contain the key/value
-# `is_admin_project=true`. Defaults to None. (string value)
+# This is a special project which represents cloud-level administrator
+# privileges across services. Tokens scoped to this project will contain a true
+# `is_admin_project` attribute to indicate to policy systems that the role
+# assignments on that specific project should apply equally across every
+# project. If left unset, then there is no admin project, and thus no explicit
+# means of cross-project role assignments. `[resource]
+# admin_project_domain_name` must also be set to use this option. (string
+# value)
 #admin_project_name = <None>
 
-# Whether the names of projects are restricted from containing url reserved
-# characters. If set to new, attempts to create or update a project with a url
-# unsafe name will return an error. In addition, if set to strict, attempts to
-# scope a token using an unsafe project name will return an error. (string
-# value)
+# This controls whether the names of projects are restricted from containing
+# URL-reserved characters. If set to `new`, attempts to create or update a
+# project with a URL-unsafe name will fail. If set to `strict`, attempts to
+# scope a token with a URL-unsafe project name will fail, thereby forcing all
+# project names to be updated to be URL-safe. (string value)
 # Allowed values: off, new, strict
 #project_name_url_safe = off
 
-# Whether the names of domains are restricted from containing url reserved
-# characters. If set to new, attempts to create or update a domain with a url
-# unsafe name will return an error. In addition, if set to strict, attempts to
-# scope a token using a domain name which is unsafe will return an error.
-# (string value)
+# This controls whether the names of domains are restricted from containing
+# URL-reserved characters. If set to `new`, attempts to create or update a
+# domain with a URL-unsafe name will fail. If set to `strict`, attempts to
+# scope a token with a URL-unsafe domain name will fail, thereby forcing all
+# domain names to be updated to be URL-safe. (string value)
 # Allowed values: off, new, strict
 #domain_name_url_safe = off
 
@@ -1782,13 +2038,14 @@
 # From keystone
 #
 
-# Entrypoint for an implementation of the backend for persisting revocation
-# events in the keystone.revoke namespace. Supplied drivers are kvs and sql.
-# (string value)
+# Entry point for the token revocation backend driver in the `keystone.revoke`
+# namespace. Keystone only provides a `sql` driver, so there is no reason to
+# set this option unless you are providing a custom entry point. (string value)
 #driver = sql
 
-# This value (calculated in seconds) is added to token expiration before a
-# revocation event may be removed from the backend. (integer value)
+# The number of seconds after a token has expired before a corresponding
+# revocation event may be purged from the backend. (integer value)
+# Minimum value: 0
 #expiration_buffer = 1800
 
 # Toggle for revocation event caching. This has no effect unless global caching
@@ -1796,8 +2053,8 @@
 #caching = true
 
 # Time to cache the revocation list and the revocation events (in seconds).
-# This has no effect unless global and token caching are enabled. (integer
-# value)
+# This has no effect unless global and `[revoke] caching` are both enabled.
+# (integer value)
 # Deprecated group/name - [token]/revocation_cache_time
 #cache_time = 3600
 
@@ -1808,20 +2065,22 @@
 # From keystone
 #
 
-# Entrypoint for the role backend driver in the keystone.role namespace. Only
-# an SQL driver is supplied (string value)
+# Entry point for the role backend driver in the `keystone.role` namespace.
+# Keystone only provides a `sql` driver, so there's no reason to change this
+# unless you are providing a custom entry point. (string value)
 #driver = <None>
 
 # Toggle for role caching. This has no effect unless global caching is enabled.
-# (boolean value)
+# In a typical deployment, there is no reason to disable this. (boolean value)
 #caching = true
 
-# TTL (in seconds) to cache role data. This has no effect unless global caching
-# is enabled. (integer value)
+# Time to cache role data, in seconds. This has no effect unless both global
+# caching and `[role] caching` are enabled. (integer value)
 #cache_time = <None>
 
-# Maximum number of entities that will be returned in a role collection.
-# (integer value)
+# Maximum number of entities that will be returned in a role collection. This
+# may be useful to tune if you have a large number of discrete roles in your
+# deployment. (integer value)
 #list_limit = <None>
 
 
@@ -1831,73 +2090,86 @@
 # From keystone
 #
 
-# Default TTL, in seconds, for any generated SAML assertion created by
-# Keystone. (integer value)
+# Determines the lifetime for any SAML assertions generated by keystone, using
+# `NotOnOrAfter` attributes. (integer value)
 #assertion_expiration_time = 3600
 
-# Binary to be called for XML signing. Install the appropriate package, specify
-# absolute path or adjust your PATH environment variable if the binary cannot
-# be found. (string value)
+# Name of, or absolute path to, the binary to be used for XML signing. Although
+# only the XML Security Library (`xmlsec1`) is supported, it may have a non-
+# standard name or path on your system. If keystone cannot find the binary
+# itself, you may need to install the appropriate package, use this option to
+# specify an absolute path, or adjust keystone's PATH environment variable.
+# (string value)
 #xmlsec1_binary = xmlsec1
 
-# Path of the certfile for SAML signing. For non-production environments, you
-# may be interested in using `keystone-manage pki_setup` to generate self-
-# signed certificates. Note, the path cannot contain a comma. (string value)
+# Absolute path to the public certificate file to use for SAML signing. The
+# value cannot contain a comma (`,`). (string value)
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
-# Path of the keyfile for SAML signing. Note, the path cannot contain a comma.
-# (string value)
+# Absolute path to the private key file to use for SAML signing. The value
+# cannot contain a comma (`,`). (string value)
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 
-# Entity ID value for unique Identity Provider identification. Usually FQDN is
-# set with a suffix. A value is required to generate IDP Metadata. For example:
-# https://keystone.example.com/v3/OS-FEDERATION/saml2/idp (string value)
+# This is the unique entity identifier of the identity provider (keystone) to
+# use when generating SAML assertions. This value is required to generate
+# identity provider metadata and must be a URI (a URL is recommended). For
+# example: `https://keystone.example.com/v3/OS-FEDERATION/saml2/idp`. (string
+# value)
 #idp_entity_id = <None>
 
-# Identity Provider Single-Sign-On service value, required in the Identity
-# Provider's metadata. A value is required to generate IDP Metadata. For
-# example: https://keystone.example.com/v3/OS-FEDERATION/saml2/sso (string
-# value)
+# This is the single sign-on (SSO) service location of the identity provider
+# which accepts HTTP POST requests. A value is required to generate identity
+# provider metadata. For example: `https://keystone.example.com/v3/OS-
+# FEDERATION/saml2/sso`. (string value)
 #idp_sso_endpoint = <None>
 
-# Language used by the organization. (string value)
+# This is the language used by the identity provider's organization. (string
+# value)
 #idp_lang = en
 
-# Organization name the installation belongs to. (string value)
-#idp_organization_name = <None>
+# This is the name of the identity provider's organization. (string value)
+#idp_organization_name = SAML Identity Provider
 
-# Organization name to be displayed. (string value)
-#idp_organization_display_name = <None>
+# This is the name of the identity provider's organization to be displayed.
+# (string value)
+#idp_organization_display_name = OpenStack SAML Identity Provider
 
-# URL of the organization. (string value)
-#idp_organization_url = <None>
+# This is the URL of the identity provider's organization. The URL referenced
+# here should be useful to humans. (string value)
+#idp_organization_url = https://example.com/
 
-# Company of contact person. (string value)
-#idp_contact_company = <None>
+# This is the company name of the identity provider's contact person. (string
+# value)
+#idp_contact_company = Example, Inc.
 
-# Given name of contact person (string value)
-#idp_contact_name = <None>
+# This is the given name of the identity provider's contact person. (string
+# value)
+#idp_contact_name = SAML Identity Provider Support
 
-# Surname of contact person. (string value)
-#idp_contact_surname = <None>
+# This is the surname of the identity provider's contact person. (string value)
+#idp_contact_surname =
 
-# Email address of contact person. (string value)
-#idp_contact_email = <None>
+# This is the email address of the identity provider's contact person. (string
+# value)
+#idp_contact_email = support@example.com
 
-# Telephone number of contact person. (string value)
-#idp_contact_telephone = <None>
+# This is the telephone number of the identity provider's contact person.
+# (string value)
+#idp_contact_telephone = +1 800 555 0100
 
-# The contact type describing the main point of contact for the identity
-# provider. (string value)
+# This is the type of contact that best describes the identity provider's
+# contact person. (string value)
 # Allowed values: technical, support, administrative, billing, other
 #idp_contact_type = other
 
-# Path to the Identity Provider Metadata file. This file should be generated
-# with the keystone-manage saml_idp_metadata command. (string value)
+# Absolute path to the identity provider metadata file. This file should be
+# generated with the `keystone-manage saml_idp_metadata` command. There is
+# typically no reason to change this value. (string value)
 #idp_metadata_path = /etc/keystone/saml2_idp_metadata.xml
 
-# The prefix to use for the RelayState SAML attribute, used when generating ECP
-# wrapped assertions. (string value)
+# The prefix of the RelayState SAML attribute to use when generating enhanced
+# client and proxy (ECP) assertions. In a typical deployment, there is no
+# reason to change this value. (string value)
 #relay_state_prefix = ss:mem:
 
 
@@ -1907,37 +2179,66 @@
 # From keystone
 #
 
-# Number of days for which a user can be inactive before the account becomes
-# disabled. Setting the value to 0 disables this feature. (integer value)
-#disable_user_account_days_inactive = 0
+# The maximum number of days a user can go without authenticating before being
+# considered "inactive" and automatically disabled (locked). This feature is
+# disabled by default; set any value to enable it. This feature depends on the
+# `sql` backend for the `[identity] driver`. When a user exceeds this threshold
+# and is considered "inactive", the user's `enabled` attribute in the HTTP API
+# may not match the value of the user's `enabled` column in the user table.
+# (integer value)
+# Minimum value: 1
+#disable_user_account_days_inactive = <None>
 
-# Number of times a user can fail login attempts until the user account is
-# locked. Setting the value to 0  disables this feature. (integer value)
+# The maximum number of times that a user can fail to authenticate before the
+# user account is locked for the number of seconds specified by
+# `[security_compliance] lockout_duration`. Setting this value to zero (the
+# default) disables this feature. This feature depends on the `sql` backend for
+# the `[identity] driver`. (integer value)
+# Minimum value: 0
 #lockout_failure_attempts = 0
 
-# Number of seconds a user account will be locked. (integer value)
+# The number of seconds a user account will be locked when the maximum number
+# of failed authentication attempts (as specified by `[security_compliance]
+# lockout_failure_attempts`) is exceeded. Setting this option will have no
+# effect unless you also set `[security_compliance] lockout_failure_attempts`
+# to a non-zero value. This feature depends on the `sql` backend for the
+# `[identity] driver`. (integer value)
+# Minimum value: 1
 #lockout_duration = 1800
 
-# Number of days for which a password will be considered valid before requiring
-# the user to change it. Setting the value to 0 disables this feature. Note:
-# this feature is only supported via the SQL backend driver for identity.
-# (integer value)
+# The number of days which a password will be considered valid before requiring
+# the user to change it. Setting the value to zero (the default) disables this
+# feature. This feature depends on the `sql` backend for the `[identity]
+# driver`. (integer value)
+# Minimum value: 0
 #password_expires_days = 0
 
-# Number of latest password iterations for which the password must be unique.
-# Setting the value to 0 disables this feature. Note: this feature is only
-# supported via the SQL backend driver for identity. (integer value)
-#unique_last_password_count = 0
+# This controls the number of previous user password iterations to keep in
+# history, in order to enforce that newly created passwords are unique. Setting
+# the value to one (the default) disables this feature. Thus, to enable this
+# feature, values must be greater than 1. This feature depends on the `sql`
+# backend for the `[identity] driver`. (integer value)
+# Minimum value: 1
+#unique_last_password_count = 1
 
-# Maximum number of times a user can change their password in a day. Setting
-# the value to 0 disables this feature. (integer value)
+# The maximum number of times a user can change their password in a single day.
+# Setting the value to zero (the default) disables this feature. This feature
+# depends on the `sql` backend for the `[identity] driver`. (integer value)
+# Minimum value: 0
 #password_change_limit_per_day = 0
 
-# Regular expression used to validate password strength requirements. Setting
-# the value to None disables this feature. The following is an example of a
-# pattern which requires at least 1 letter, 1 digit, and have a minimum length
-# of 7 characters: ^(?=.*\d)(?=.*[a-zA-Z]).{7,}$ (string value)
+# The regular expression used to validate password strength requirements. By
+# default, the regular expression will match any password. The following is an
+# example of a pattern which requires at least 1 letter, 1 digit, and have a
+# minimum length of 7 characters: ^(?=.*\d)(?=.*[a-zA-Z]).{7,}$ This feature
+# depends on the `sql` backend for the `[identity] driver`. (string value)
 #password_regex = <None>
+
+# Describe your password regular expression here in language for humans. If a
+# password fails to match the regular expression, the contents of this
+# configuration variable will be returned to users to explain why their
+# requested password was insufficient. (string value)
+#password_regex_description = <None>
 
 
 [shadow_users]
@@ -1946,8 +2247,12 @@
 # From keystone
 #
 
-# Entrypoint for the shadow users backend driver in the
-# keystone.identity.shadow_users namespace. (string value)
+# Entry point for the shadow users backend driver in the
+# `keystone.identity.shadow_users` namespace. This driver is used for
+# persisting local user references to externally-managed identities (via
+# federation, LDAP, etc). Keystone only provides a `sql` driver, so there is no
+# reason to change this option unless you are providing a custom entry point.
+# (string value)
 #driver = sql
 
 
@@ -1957,38 +2262,57 @@
 # From keystone
 #
 
-# DEPRECATED: Path of the certfile for token signing. For non-production
-# environments, you may be interested in using `keystone-manage pki_setup` to
-# generate self-signed certificates. (string value)
+# DEPRECATED: Absolute path to the public certificate file to use for signing
+# PKI and PKIZ tokens. Set this together with `[signing] keyfile`. For non-
+# production environments, you may be interested in using `keystone-manage
+# pki_setup` to generate self-signed certificates. There is no reason to set
+# this option unless you are using either a `pki` or `pkiz` `[token] provider`.
+# (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
-# DEPRECATED: Path of the keyfile for token signing. (string value)
+# DEPRECATED: Absolute path to the private key file to use for signing PKI and
+# PKIZ tokens. Set this together with `[signing] certfile`. There is no reason
+# to set this option unless you are using either a `pki` or `pkiz` `[token]
+# provider`. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 
-# DEPRECATED: Path of the CA for token signing. (string value)
+# DEPRECATED: Absolute path to the public certificate authority (CA) file to
+# use when creating self-signed certificates with `keystone-manage pki_setup`.
+# Set this together with `[signing] ca_key`. There is no reason to set this
+# option unless you are using a `pki` or `pkiz` `[token] provider` value in a
+# non-production environment. Use a `[signing] certfile` issued from a trusted
+# certificate authority instead. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 
-# DEPRECATED: Path of the CA key for token signing. (string value)
+# DEPRECATED: Absolute path to the private certificate authority (CA) key file
+# to use when creating self-signed certificates with `keystone-manage
+# pki_setup`. Set this together with `[signing] ca_certs`. There is no reason
+# to set this option unless you are using a `pki` or `pkiz` `[token] provider`
+# value in a non-production environment. Use a `[signing] certfile` issued from
+# a trusted certificate authority instead. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #ca_key = /etc/keystone/ssl/private/cakey.pem
 
-# DEPRECATED: Key size (in bits) for token signing cert (auto generated
-# certificate). (integer value)
+# DEPRECATED: Key size (in bits) to use when generating a self-signed token
+# signing certificate. There is no reason to set this option unless you are
+# using a `pki` or `pkiz` `[token] provider` value in a non-production
+# environment. Use a `[signing] certfile` issued from a trusted certificate
+# authority instead. (integer value)
 # Minimum value: 1024
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1996,16 +2320,22 @@
 # removed in the O release. Fernet or UUID tokens are recommended.
 #key_size = 2048
 
-# DEPRECATED: Days the token signing cert is valid for (auto generated
-# certificate). (integer value)
+# DEPRECATED: The validity period (in days) to use when generating a self-
+# signed token signing certificate. There is no reason to set this option
+# unless you are using a `pki` or `pkiz` `[token] provider` value in a non-
+# production environment. Use a `[signing] certfile` issued from a trusted
+# certificate authority instead. (integer value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #valid_days = 3650
 
-# DEPRECATED: Certificate subject (auto generated certificate) for token
-# signing. (string value)
+# DEPRECATED: The certificate subject to use when generating a self-signed
+# token signing certificate. There is no reason to set this option unless you
+# are using a `pki` or `pkiz` `[token] provider` value in a non-production
+# environment. Use a `[signing] certfile` issued from a trusted certificate
+# authority instead. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
@@ -2019,61 +2349,97 @@
 # From keystone
 #
 
-# External auth mechanisms that should add bind information to token, e.g.,
-# kerberos,x509. (list value)
+# This is a list of external authentication mechanisms which should add token
+# binding metadata to tokens, such as `kerberos` or `x509`. Binding metadata is
+# enforced according to the `[token] enforce_token_bind` option. (list value)
 #bind =
 
-# Enforcement policy on tokens presented to Keystone with bind information. One
-# of disabled, permissive, strict, required or a specifically required bind
-# mode, e.g., kerberos or x509 to require binding to that authentication.
-# (string value)
+# This controls the token binding enforcement policy on tokens presented to
+# keystone with token binding metadata (as specified by the `[token] bind`
+# option). `disabled` completely bypasses token binding validation.
+# `permissive` and `strict` do not require tokens to have binding metadata (but
+# will validate it if present), whereas `required` will always demand tokens to
+# having binding metadata. `permissive` will allow unsupported binding metadata
+# to pass through without validation (usually to be validated at another time
+# by another component), whereas `strict` and `required` will demand that the
+# included binding metadata be supported by keystone. (string value)
+# Allowed values: disabled, permissive, strict, required
 #enforce_token_bind = permissive
 
-# Amount of time a token should remain valid (in seconds). (integer value)
+# The amount of time that a token should remain valid (in seconds). Drastically
+# reducing this value may break "long-running" operations that involve multiple
+# services to coordinate together, and will force users to authenticate with
+# keystone more frequently. Drastically increasing this value will increase
+# load on the `[token] driver`, as more tokens will be simultaneously valid.
+# Keystone tokens are also bearer tokens, so a shorter duration will also
+# reduce the potential security impact of a compromised token. (integer value)
 #expiration = 3600
 
-# Controls the token construction, validation, and revocation operations.
-# Entrypoint in the keystone.token.provider namespace. Core providers are
-# [fernet|pkiz|pki|uuid]. (string value)
+# Entry point for the token provider in the `keystone.token.provider`
+# namespace. The token provider controls the token construction, validation,
+# and revocation operations. Keystone includes `fernet`, `pkiz`, `pki`, and
+# `uuid` token providers. `uuid` tokens must be persisted (using the backend
+# specified in the `[token] driver` option), but do not require any extra
+# configuration or setup. `fernet` tokens do not need to be persisted at all,
+# but require that you run `keystone-manage fernet_setup` (also see the
+# `keystone-manage fernet_rotate` command). `pki` and `pkiz` tokens can be
+# validated offline, without making HTTP calls to keystone, but require that
+# certificates be installed and distributed to facilitate signing tokens and
+# later validating those signatures. (string value)
 #provider = uuid
 
-# Entrypoint for the token persistence backend driver in the
-# keystone.token.persistence namespace. Supplied drivers are kvs, memcache,
-# memcache_pool, and sql. (string value)
+# Entry point for the token persistence backend driver in the
+# `keystone.token.persistence` namespace. Keystone provides `kvs`, `memcache`,
+# `memcache_pool`, and `sql` drivers. The `kvs` backend depends on the
+# configuration in the `[kvs]` section. The `memcache` and `memcache_pool`
+# options depend on the configuration in the `[memcache]` section. The `sql`
+# option (default) depends on the options in your `[database]` section. If
+# you're using the `fernet` `[token] provider`, this backend will not be
+# utilized to persist tokens at all. (string value)
 #driver = sql
 
-# Toggle for token system caching. This has no effect unless global caching is
-# enabled. (boolean value)
+# Toggle for caching token creation and validation data. This has no effect
+# unless global caching is enabled. (boolean value)
 #caching = true
 
-# Time to cache tokens (in seconds). This has no effect unless global and token
-# caching are enabled. (integer value)
+# The number of seconds to cache token creation and validation data. This has
+# no effect unless both global and `[token] caching` are enabled. (integer
+# value)
 #cache_time = <None>
 
-# Revoke token by token identifier. Setting revoke_by_id to true enables
-# various forms of enumerating tokens, e.g. `list tokens for user`. These
-# enumerations are processed to determine the list of tokens to revoke. Only
-# disable if you are switching to using the Revoke extension with a backend
-# other than KVS, which stores events in memory. (boolean value)
+# This toggles support for revoking individual tokens by the token identifier
+# and thus various token enumeration operations (such as listing all tokens
+# issued to a specific user). These operations are used to determine the list
+# of tokens to consider revoked. Do not disable this option if you're using the
+# `kvs` `[revoke] driver`. (boolean value)
 #revoke_by_id = true
 
-# Allow rescoping of scoped token. Setting allow_rescoped_scoped_token to false
-# prevents a user from exchanging a scoped token for any other token. (boolean
+# This toggles whether scoped tokens may be be re-scoped to a new project or
+# domain, thereby preventing users from exchanging a scoped token (including
+# those with a default project scope) for any other token. This forces users to
+# either authenticate for unscoped tokens (and later exchange that unscoped
+# token for tokens with a more specific scope) or to provide their credentials
+# in every request for a scoped token to avoid re-scoping altogether. (boolean
 # value)
 #allow_rescope_scoped_token = true
 
-# DEPRECATED: The hash algorithm to use for PKI tokens. This can be set to any
-# algorithm that hashlib supports. WARNING: Before changing this value, the
-# auth_token middleware must be configured with the hash_algorithms, otherwise
+# DEPRECATED: This controls the hash algorithm to use to uniquely identify PKI
+# tokens without having to transmit the entire token to keystone (which may be
+# several kilobytes). This can be set to any algorithm that hashlib supports.
+# WARNING: Before changing this value, the `auth_token` middleware protecting
+# all other services must be configured with the set of hash algorithms to
+# expect from keystone (both your old and new value for this option), otherwise
 # token revocation will not be processed correctly. (string value)
+# Allowed values: md5, sha256, sha384, sha1, sha224, sha512
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
 #hash_algorithm = md5
 
-# Add roles to token that are not explicitly added, but that are linked
-# implicitly to other roles. (boolean value)
+# This controls whether roles should be included with tokens that are not
+# directly assigned to the token's scope, but are instead linked implicitly to
+# other role assignments. (boolean value)
 #infer_roles = true
 
 
@@ -2083,23 +2449,28 @@
 # From keystone
 #
 
-# The list of trusted issuers to further filter the certificates that are
-# allowed to participate in the X.509 tokenless authorization. If the option is
-# absent then no certificates will be allowed. The naming format for the
-# attributes of a Distinguished Name(DN) must be separated by a comma and
-# contain no spaces. This configuration option may be repeated for multiple
-# values. For example: trusted_issuer=CN=john,OU=keystone,O=openstack
-# trusted_issuer=CN=mary,OU=eng,O=abc (multi valued)
+# The list of distinguished names which identify trusted issuers of client
+# certificates allowed to use X.509 tokenless authorization. If the option is
+# absent then no certificates will be allowed. The format for the values of a
+# distinguished name (DN) must be separated by a comma and contain no spaces.
+# Furthermore, because an individual DN may contain commas, this configuration
+# option may be repeated multiple times to represent multiple values. For
+# example, keystone.conf would include two consecutive lines in order to trust
+# two different DNs, such as `trusted_issuer = CN=john,OU=keystone,O=openstack`
+# and `trusted_issuer = CN=mary,OU=eng,O=abc`. (multi valued)
 #trusted_issuer =
 
-# The protocol name for the X.509 tokenless authorization along with the option
-# issuer_attribute below can look up its corresponding mapping. (string value)
+# The federated protocol ID used to represent X.509 tokenless authorization.
+# This is used in combination with the value of `[tokenless_auth]
+# issuer_attribute` to find a corresponding federated mapping. In a typical
+# deployment, there is no reason to change this value. (string value)
 #protocol = x509
 
-# The issuer attribute that is served as an IdP ID for the X.509 tokenless
-# authorization along with the protocol to look up its corresponding mapping.
-# It is the environment variable in the WSGI environment that references to the
-# issuer of the client certificate. (string value)
+# The name of the WSGI environment variable used to pass the issuer of the
+# client certificate to keystone. This attribute is used as an identity
+# provider ID for the X.509 tokenless authorization along with the protocol to
+# look up its corresponding mapping. In a typical deployment, there is no
+# reason to change this value. (string value)
 #issuer_attribute = SSL_CLIENT_I_DN
 
 
@@ -2109,16 +2480,21 @@
 # From keystone
 #
 
-# Delegation and impersonation features can be optionally disabled. (boolean
-# value)
+# Delegation and impersonation features using trusts can be optionally
+# disabled. (boolean value)
 #enabled = true
 
-# Enable redelegation feature. (boolean value)
+# Allows authorization to be redelegated from one user to another, effectively
+# chaining trusts together. When disabled, the `remaining_uses` attribute of a
+# trust is constrained to be zero. (boolean value)
 #allow_redelegation = false
 
-# Maximum depth of trust redelegation. (integer value)
+# Maximum number of times that authorization can be redelegated from one user
+# to another in a chain of trusts. This number may be reduced further for a
+# specific trust. (integer value)
 #max_redelegation_count = 3
 
-# Entrypoint for the trust backend driver in the keystone.trust namespace.
-# (string value)
+# Entry point for the trust backend driver in the `keystone.trust` namespace.
+# Keystone only provides a `sql` driver, so there is no reason to change this
+# unless you are providing a custom entry point. (string value)
 #driver = sql
