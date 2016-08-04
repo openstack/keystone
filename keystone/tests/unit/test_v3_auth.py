@@ -1740,7 +1740,7 @@ class TokenAPITests(object):
         token_roles = self._get_scoped_token_roles()
         self.assertEqual(2, len(token_roles))
 
-    def test_domain_scpecific_roles_do_not_show_v3_token(self):
+    def test_domain_specific_roles_do_not_show_v3_token(self):
         self.config_fixture.config(group='token', infer_roles=True)
         initial_token_roles = self._get_scoped_token_roles()
 
