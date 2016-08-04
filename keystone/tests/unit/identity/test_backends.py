@@ -1311,7 +1311,7 @@ class LimitTests(filtering.FilterTests):
         # return at least the 20 entries we created (there may be other
         # entities lying around created by other tests/setup).
         entities = self._list_entities(entity)()
-        self.assertTrue(len(entities) >= 20)
+        self.assertGreaterEqual(len(entities), 20)
         self._match_with_list(self.entity_lists[entity], entities)
 
     def test_list_users_filtered_and_limited(self):

@@ -826,7 +826,7 @@ class TestCase(BaseTestCase):
 
         msg = '%s != %s within %s delta' % (a, b, delta)
 
-        self.assertTrue(abs(a - b).seconds <= delta, msg)
+        self.assertLessEqual(abs(a - b).seconds, delta, msg)
 
     def assertTimestampEqual(self, expected, value):
         # Compare two timestamps but ignore the microseconds part

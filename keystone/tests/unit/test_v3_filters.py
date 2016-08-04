@@ -324,7 +324,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         # Check group table is still there...
         url_by_name = "/groups"
         r = self.get(url_by_name, auth=self.auth)
-        self.assertTrue(len(r.result.get('groups')) > 0)
+        self.assertGreater(len(r.result.get('groups')), 0)
 
 
 class IdentityTestListLimitCase(IdentityTestFilteredCase):

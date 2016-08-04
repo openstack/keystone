@@ -676,7 +676,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(token.get('issued_at'))
         issued_at = self.assertValidISO8601ExtendedFormatDatetime(
             token['issued_at'])
-        self.assertTrue(issued_at < expires_at)
+        self.assertLess(issued_at, expires_at)
 
         self.assertIn('user', token)
         self.assertIn('id', token['user'])
@@ -831,13 +831,13 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def assertValidCatalog(self, entity):
         self.assertIsInstance(entity, list)
-        self.assertTrue(len(entity) > 0)
+        self.assertGreater(len(entity), 0)
         for service in entity:
             self.assertIsNotNone(service.get('id'))
             self.assertIsNotNone(service.get('name'))
             self.assertIsNotNone(service.get('type'))
             self.assertNotIn('enabled', service)
-            self.assertTrue(len(service['endpoints']) > 0)
+            self.assertGreater(len(service['endpoints']), 0)
             for endpoint in service['endpoints']:
                 self.assertIsNotNone(endpoint.get('id'))
                 self.assertIsNotNone(endpoint.get('interface'))

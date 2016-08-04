@@ -54,13 +54,13 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         after_time = timeutils.utcnow()
         event_issued_before = timeutils.normalize_time(
             timeutils.parse_isotime(event['issued_before']))
-        self.assertTrue(
-            before_time <= event_issued_before,
+        self.assertLessEqual(
+            before_time, event_issued_before,
             'invalid event issued_before time; %s is not later than %s.' % (
                 utils.isotime(event_issued_before, subsecond=True),
                 utils.isotime(before_time, subsecond=True)))
-        self.assertTrue(
-            event_issued_before <= after_time,
+        self.assertLessEqual(
+            event_issued_before, after_time,
             'invalid event issued_before time; %s is not earlier than %s.' % (
                 utils.isotime(event_issued_before, subsecond=True),
                 utils.isotime(after_time, subsecond=True)))

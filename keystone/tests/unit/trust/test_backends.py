@@ -85,8 +85,8 @@ class TrustTests(object):
         self.assertEqual(new_id, trust_data['id'])
         self.assertEqual(self.trustee['id'], trust_data['trustee_user_id'])
         self.assertEqual(self.trustor['id'], trust_data['trustor_user_id'])
-        self.assertTrue(timeutils.normalize_time(trust_data['expires_at']) >
-                        timeutils.utcnow())
+        self.assertGreater(timeutils.normalize_time(trust_data['expires_at']),
+                           timeutils.utcnow())
 
         self.assertEqual([{'id': 'member'},
                           {'id': 'other'},

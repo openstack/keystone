@@ -259,7 +259,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         # return since this assertion is not valid.
         if CONF.notification_format != 'basic':
             return
-        self.assertTrue(len(self._notifications) > 0)
+        self.assertGreater(len(self._notifications), 0)
         note = self._notifications[-1]
         self.assertEqual(operation, note['operation'])
         self.assertEqual(resource_id, note['resource_id'])
@@ -276,7 +276,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         # return since this assertion is not valid.
         if CONF.notification_format != 'cadf':
             return
-        self.assertTrue(len(self._audits) > 0)
+        self.assertGreater(len(self._audits), 0)
         audit = self._audits[-1]
         payload = audit['payload']
         self.assertEqual(resource_id, payload['resource_info'])
@@ -289,7 +289,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self.assertTrue(audit['send_notification_called'])
 
     def _assert_initiator_data_is_set(self, operation, resource_type, typeURI):
-        self.assertTrue(len(self._audits) > 0)
+        self.assertGreater(len(self._audits), 0)
         audit = self._audits[-1]
         payload = audit['payload']
         self.assertEqual(self.user_id, payload['initiator']['id'])

@@ -931,7 +931,7 @@ class SqlFilterTests(SqlTests, identity_tests.FilterTests):
         """
         # Check we have some users
         users = self.identity_api.list_users()
-        self.assertTrue(len(users) > 0)
+        self.assertGreater(len(users), 0)
 
         hints = driver_hints.Hints()
         hints.add_filter('name', "anything' or 'x'='x")
@@ -949,7 +949,7 @@ class SqlFilterTests(SqlTests, identity_tests.FilterTests):
         self.assertEqual(0, len(groups))
 
         groups = self.identity_api.list_groups()
-        self.assertTrue(len(groups) > 0)
+        self.assertGreater(len(groups), 0)
 
 
 class SqlLimitTests(SqlTests, identity_tests.LimitTests):
