@@ -51,7 +51,7 @@ Absolute path to the private key file to use for SAML signing. The value cannot
 contain a comma (`,`).
 """))
 
-idp_entity_id = cfg.StrOpt(
+idp_entity_id = cfg.URIOpt(
     'idp_entity_id',
     max_length=1024,
     help=utils.fmt("""
@@ -61,7 +61,7 @@ provider metadata and must be a URI (a URL is recommended). For example:
 `https://keystone.example.com/v3/OS-FEDERATION/saml2/idp`.
 """))
 
-idp_sso_endpoint = cfg.StrOpt(
+idp_sso_endpoint = cfg.URIOpt(
     'idp_sso_endpoint',
     help=utils.fmt("""
 This is the single sign-on (SSO) service location of the identity provider
@@ -91,7 +91,7 @@ idp_organization_display_name = cfg.StrOpt(
 This is the name of the identity provider's organization to be displayed.
 """))
 
-idp_organization_url = cfg.StrOpt(
+idp_organization_url = cfg.URIOpt(
     'idp_organization_url',
     default='https://example.com/',
     help=utils.fmt("""
