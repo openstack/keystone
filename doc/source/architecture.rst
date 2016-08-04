@@ -183,15 +183,6 @@ If you implement a backend driver for one of the Keystone services, you're
 expected to subclass from these classes.
 
 
-SQL Backend
------------
-
-A SQL based backend using SQLAlchemy to store data persistently. The
-``keystone-manage`` command introspects the backends to identify SQL based backends
-when running "db_sync" to establish or upgrade schema. If the backend driver
-has a method db_sync(), it will be invoked to sync and/or migrate schema.
-
-
 Templated Backend
 -----------------
 
