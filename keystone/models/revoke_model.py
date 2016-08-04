@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import log
 from oslo_serialization import msgpackutils
 from oslo_utils import timeutils
 from six.moves import map
@@ -17,6 +18,8 @@ from six.moves import map
 from keystone.common import cache
 from keystone.common import utils
 
+
+LOG = log.getLogger(__name__)
 
 # The set of attributes common between the RevokeEvent
 # and the dictionaries created from the token Data.
@@ -345,7 +348,12 @@ class _RevokeEventHandler(object):
 
     def deserialize(self, data):
         revoke_event_data = msgpackutils.loads(data, registry=self._registry)
-        revoke_event = RevokeEvent(**revoke_event_data)
+        try:
+            revoke_event = RevokeEvent(**revoke_event_data)
+        except Exception:
+            LOG.debug("Failed to deserialize RevokeEvent. Data is %s",
+                      revoke_event_data)
+            raise
         return revoke_event
 
 
