@@ -125,11 +125,12 @@ request for a scoped token to avoid re-scoping altogether.
 """))
 
 # This attribute only exists in Python 2.7.8+ or 3.2+
-hash_algorithm_choices = getattr(hashlib, 'algorithms_guaranteed', None)
+hash_choices = getattr(hashlib, 'algorithms_guaranteed', None)
+hash_choices = sorted(hash_choices) if hash_choices else None
 hash_algorithm = cfg.StrOpt(
     'hash_algorithm',
     default='md5',
-    choices=hash_algorithm_choices,
+    choices=hash_choices,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
     help=utils.fmt("""
