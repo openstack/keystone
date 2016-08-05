@@ -67,6 +67,15 @@ passwords would not be impacted. This feature depends on the `sql` backend for
 the `[identity] driver`.
 """))
 
+password_expires_ignore_user_ids = cfg.ListOpt(
+    'password_expires_ignore_user_ids',
+    default=[],
+    help=utils.fmt("""
+Comma separated list of user IDs to be ignored when checking if a password
+is expired. Passwords for users in this list will not expire. This feature
+will only be enabled if `[security_compliance] password_expires_days` is set.
+"""))
+
 unique_last_password_count = cfg.IntOpt(
     'unique_last_password_count',
     default=1,
@@ -117,6 +126,7 @@ ALL_OPTS = [
     lockout_failure_attempts,
     lockout_duration,
     password_expires_days,
+    password_expires_ignore_user_ids,
     unique_last_password_count,
     password_change_limit_per_day,
     password_regex,

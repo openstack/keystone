@@ -115,7 +115,8 @@ class User(sql.ModelBase, sql.DictBase):
 
     def _get_password_expires_at(self, created_at):
         expires_days = CONF.security_compliance.password_expires_days
-        if expires_days:
+        ignore_list = CONF.security_compliance.password_expires_ignore_user_ids
+        if expires_days and (self.id not in ignore_list):
             expired_date = (created_at + datetime.timedelta(days=expires_days))
             return expired_date.replace(microsecond=0)
         return None

@@ -446,6 +446,23 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
                                        user_id=user['id'],
                                        password=self.password)
 
+    def test_authenticate_with_expired_password_for_ignore_user(self):
+        # add the user id to the ignore list
+        self.config_fixture.config(
+            group='security_compliance',
+            password_expires_ignore_user_ids=[self.user_dict['id']])
+        # set password created_at so that the password will expire
+        password_created_at = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(
+                days=CONF.security_compliance.password_expires_days + 1)
+        )
+        user = self._create_user(self.user_dict, password_created_at)
+        # test password is not expired due to ignore list
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user['id'],
+                                       password=self.password)
+
     def _get_test_user_dict(self, password):
         test_user_dict = {
             'id': uuid.uuid4().hex,
