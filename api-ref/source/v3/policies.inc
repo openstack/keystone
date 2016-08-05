@@ -38,10 +38,10 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - policy: policy
-   - user_id: user_id
+   - user_id: policy_user_id
    - project_id: project_id
-   - type: type
-   - blob: blob
+   - type: policy_type
+   - blob: policy_blob_str
 
 Request Example
 ---------------
@@ -54,13 +54,13 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: policy_user_id
+   - links: policy_links
+   - blob: policy_blob_str
    - policy: policy
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: policy_type
+   - id: policy_id
 
 
 List policies
@@ -78,20 +78,20 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
+   - type: policy_type_query
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: policy_user_id
+   - links: policy_links
+   - blob: policy_blob_obj
    - policies: policies
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: policy_type
+   - id: policy_id
 
 Response Example
 ----------------
@@ -115,20 +115,20 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
+   - policy_id: policy_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: policy_user_id
+   - links: policy_links
+   - blob: policy_blob_obj
    - policy: policy
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: policy_type
+   - id: policy_id
 
 Response Example
 ----------------
@@ -152,12 +152,12 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - policy_id: policy_id_path
    - policy: policy
-   - user_id: user_id
+   - user_id: policy_user_id
    - project_id: project_id
-   - type: type
-   - blob: blob
-   - policy_id: policy_id
+   - type: policy_type
+   - blob: policy_blob_obj
 
 Request Example
 ---------------
@@ -170,13 +170,13 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: policy_user_id
+   - links: policy_links
+   - blob: policy_blob_obj
    - policy: policy
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: policy_type
+   - id: policy_id
 
 Response Example
 ----------------
@@ -200,4 +200,4 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
+   - policy_id: policy_id_path
