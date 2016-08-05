@@ -34,20 +34,20 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
+   - type: service_type_query
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
-   - links: links
-   - enabled: enabled
+   - name: service_name
+   - links: service_links
+   - enabled: service_enabled
    - services: services
-   - type: type
-   - id: id
-   - description: description
+   - type: service_type
+   - id: service_id
+   - description: service_description
 
 Response Example
 ----------------
@@ -71,12 +71,12 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - description: description
+   - description: service_description
    - service: service
-   - enabled: enabled
+   - enabled: service_enabled
    - service_id: service_id
-   - type: type
-   - name: name
+   - type: service_type
+   - name: service_name
 
 Request Example
 ---------------
@@ -89,12 +89,12 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - name: service_name
    - service: service
-   - links: links
-   - type: type
-   - id: id
-   - description: description
+   - links: service_links
+   - type: service_type
+   - id: service_id
+   - description: service_description
 
 
 Show endpoint details
@@ -298,19 +298,19 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - service_id: service_id
+   - service_id: service_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - name: service_name
    - service: service
-   - links: links
-   - type: type
-   - id: id
-   - description: description
+   - links: service_links
+   - type: service_type
+   - id: service_id
+   - description: service_description
 
 Response Example
 ----------------
@@ -338,12 +338,12 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
-   - enabled: enabled
-   - description: description
+   - type: service_type
+   - enabled: service_enabled
+   - description: service_description
    - service: service
-   - name: name
-   - service_id: service_id
+   - name: service_name
+   - service_id: service_id_path
 
 Request Example
 ---------------
@@ -356,12 +356,12 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - name: service_name
    - service: service
-   - links: links
-   - type: type
-   - id: id
-   - description: description
+   - links: service_links
+   - type: service_type
+   - id: service_id
+   - description: service_description
 
 Response Example
 ----------------
@@ -389,4 +389,4 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - service_id: service_id
+   - service_id: service_id_path

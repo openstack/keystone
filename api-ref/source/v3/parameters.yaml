@@ -116,7 +116,7 @@ role_id_path:
   in: path
   required: true
   type: string
-service_id_2:
+service_id_path:
   description: |
     The service ID.
   in: path
@@ -328,18 +328,18 @@ service_id_3:
   in: query
   required: false
   type: string
-type_4:
-  description: |
-    Filters the response by a MIME media type for the
-    serialized policy blob. For example, ``application/json``.
-  in: query
-  required: false
-  type: string
-type_5:
+service_type_query:
   description: |
     Filters the response by a service type. A valid
     value is ``compute``, ``ec2``, ``identity``, ``image``,
     ``network``, or ``volume``.
+  in: query
+  required: false
+  type: string
+type_4:
+  description: |
+    Filters the response by a MIME media type for the
+    serialized policy blob. For example, ``application/json``.
   in: query
   required: false
   type: string
@@ -456,12 +456,6 @@ description_1:
     The group description.
   in: body
   required: false
-  type: string
-description_10:
-  description: |
-    The service description.
-  in: body
-  required: true
   type: string
 description_11:
   description: |
@@ -718,16 +712,6 @@ enabled_2:
     project, these tokens are not re-enabled.  To enable the project,
     set to ``true``. To disable the project, set to ``false``. Default
     is ``true``.
-  in: body
-  required: false
-  type: boolean
-enabled_3:
-  description: |
-    Defines whether the service and its endpoints
-    appear in the service catalog:  - ``false``. The service and its
-    endpoints do not appear in the   service catalog.  - ``true``. The
-    service and its endpoints appear in the service   catalog.
-    Default is ``true``.
   in: body
   required: false
   type: boolean
@@ -1128,12 +1112,6 @@ links_7:
   in: body
   required: true
   type: object
-links_8:
-  description: |
-    The links for the ``service`` resource.
-  in: body
-  required: true
-  type: object
 links_region:
   description: |
     The links for the ``region`` resource.
@@ -1245,12 +1223,6 @@ name_6:
     The role name.
   in: body
   required: true
-  type: string
-name_7:
-  description: |
-    The service name.
-  in: body
-  required: false
   type: string
 original_password:
   description: |
@@ -1595,6 +1567,22 @@ service:
   in: body
   required: true
   type: object
+service_description:
+  description: |
+    The service description.
+  in: body
+  required: true
+  type: string
+service_enabled:
+  description: |
+    Defines whether the service and its endpoints
+    appear in the service catalog:  - ``false``. The service and its
+    endpoints do not appear in the   service catalog.  - ``true``. The
+    service and its endpoints appear in the service   catalog.
+    Default is ``true``.
+  in: body
+  required: false
+  type: boolean
 service_id:
   description: |
     The UUID of the service to which the endpoint
@@ -1602,15 +1590,29 @@ service_id:
   in: body
   required: true
   type: string
-service_id_1:
+service_links:
   description: |
-    The service ID.
+    The links for the ``service`` resource.
+  in: body
+  required: true
+  type: object
+service_name:
+  description: |
+    The service name.
   in: body
   required: false
   type: string
+service_type:
+  description: |
+    The service type, which describes the API
+    implemented by the service. Value is ``compute``, ``ec2``,
+    ``identity``, ``image``, ``network``, or ``volume``.
+  in: body
+  required: true
+  type: string
 services:
   description: |
-    A ``services`` object.
+    A list of ``service`` object.
   in: body
   required: true
   type: array
@@ -1653,14 +1655,6 @@ type_3:
     The service type, which describes the API
     implemented by the service.  A valid value is ``compute``,
     ``ec2``, ``identity``, ``image``, ``network``, or ``volume``.
-  in: body
-  required: true
-  type: string
-type_6:
-  description: |
-    The service type, which describes the API
-    implemented by the service. Value is ``compute``, ``ec2``,
-    ``identity``, ``image``, ``network``, or ``volume``.
   in: body
   required: true
   type: string
