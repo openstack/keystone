@@ -35,6 +35,24 @@ _user_properties_v2 = {
     }
 }
 
+user_create_v2 = {
+    'type': 'object',
+    'properties': _user_properties_v2,
+    'anyOf': [
+        {
+            'required': ['username']
+        },
+        {
+            'required': ['name']
+        }
+    ],
+    'additionalProperties': True
+}
+
+# NOTE(ghugo): minProperties value should really be 1, however it
+# is currently set to 0 to avoid breaking backwards compatability,
+# and tempest tests.
+
 user_update_v2 = {
     'type': 'object',
     'properties': _user_properties_v2,

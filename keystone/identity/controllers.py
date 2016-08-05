@@ -21,7 +21,7 @@ from keystone.common import dependency
 from keystone.common import validation
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _LW
 from keystone.identity import schema
 from keystone import notifications
 
@@ -61,17 +61,11 @@ class User(controller.V2Controller):
     # CRUD extension
     @controller.v2_deprecated
     def create_user(self, request, user):
+        validation.lazy_validate(schema.user_create_v2, user)
         user = self._normalize_OSKSADM_password_on_request(user)
         user = self.normalize_username_in_request(user)
         user = self._normalize_dict(user)
         self.assert_admin(request)
-
-        if 'name' not in user or not user['name']:
-            msg = _('Name field is required and cannot be empty')
-            raise exception.ValidationError(message=msg)
-        if 'enabled' in user and not isinstance(user['enabled'], bool):
-            msg = _('Enabled field must be a boolean')
-            raise exception.ValidationError(message=msg)
 
         default_project_id = user.pop('tenantId', None)
         if default_project_id is not None:
