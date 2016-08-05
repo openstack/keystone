@@ -112,7 +112,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
+   - endpoint_id: endpoint_id_path
 
 Response Parameters
 -------------------
@@ -120,11 +120,11 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - name: name
-   - links: links
-   - url: url
-   - region: region
-   - interface: interface
+   - name: endpoint_name
+   - links: endpoint_links
+   - url: endpoint_url
+   - region: endpoint_region
+   - interface: endpoint_interface
    - service_id: service_id
 
 Response Example
@@ -150,11 +150,11 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - url: url
-   - region: region
-   - interface: interface
+   - url: endpoint_url
+   - region: endpoint_region
+   - interface: endpoint_interface
    - service_id: service_id
-   - endpoint_id: endpoint_id
+   - endpoint_id: endpoint_id_path
 
 Request Example
 ---------------
@@ -168,10 +168,11 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - links: links
-   - url: url
-   - region: region
-   - interface: interface
+   - id: endpoint_id
+   - links: endpoint_links
+   - url: endpoint_url
+   - region: endpoint_region
+   - interface: endpoint_interface
    - service_id: service_id
 
 Response Example
@@ -196,7 +197,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
+   - endpoint_id: endpoint_id_path
 
 
 List endpoints
@@ -214,8 +215,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - interface: interface
-   - service_id: service_id
+   - interface: interface_query
+   - service_id: service_id_query
 
 Response Parameters
 -------------------
@@ -223,14 +224,14 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - region_id: region_id
-   - links: links
-   - url: url
-   - region: region
-   - enabled: enabled
-   - interface: interface
+   - links: endpoints_links
+   - url: endpoint_url
+   - region: endpoint_region
+   - enabled: endpoint_enabled
+   - interface: endpoint_region
    - service_id: service_id
    - endpoints: endpoints
-   - id: id
+   - id: endpoint_id
 
 Response Example
 ----------------
@@ -255,9 +256,9 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - url: url
-   - enabled: enabled
-   - interface: interface
+   - url: endpoint_url
+   - enabled: endpoint_enabled_notRequired
+   - interface: endpoint_interface
    - service_id: service_id
    - region_id: region_id
 
@@ -273,13 +274,13 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - endpoint: endpoint
-   - links: links
-   - url: url
-   - region: region
-   - enabled: enabled
-   - interface: interface
+   - links: endpoint_links
+   - url: endpoint_url
+   - region: endpoint_region
+   - enabled: endpoint_enabled
+   - interface: endpoint_interface
    - service_id: service_id
-   - id: id
+   - id: endpoint_id
    - region_id: region_id
 
 

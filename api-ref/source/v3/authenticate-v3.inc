@@ -183,8 +183,8 @@ Response Parameters
    - region_id: region_id
    - methods: methods
    - roles: roles
-   - url: url
-   - region: region
+   - url: endpoint_url
+   - region: endpoint_region
    - token: token
    - expires_at: expires_at
    - project: project
@@ -193,7 +193,7 @@ Response Parameters
    - extras: extras
    - user: user
    - audit_ids: audit_ids
-   - interface: interface
+   - interface: endpoint_interface
    - endpoints: endpoints
    - type: type
    - id: id
