@@ -1,7 +1,7 @@
 :tocdepth: 2
 
 =====================================
- Identity Admin API v2.0 (SUPPORTED)
+ Identity Admin API v2.0 (DEPRECATED)
 =====================================
 
 .. rest_expand_all::

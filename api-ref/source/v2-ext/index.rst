@@ -1,7 +1,7 @@
 :tocdepth: 2
 
 ==========================================
- Identity API v2.0 extensions (SUPPORTED)
+ Identity API v2.0 extensions (DEPRECATED)
 ==========================================
 
 .. rest_expand_all::
