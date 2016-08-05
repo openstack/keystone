@@ -141,7 +141,9 @@ class SqlModels(SqlTests):
         cols = (('id', sql.Integer, None),
                 ('user_id', sql.String, 64),
                 ('name', sql.String, 255),
-                ('domain_id', sql.String, 64))
+                ('domain_id', sql.String, 64),
+                ('failed_auth_count', sql.Integer, None),
+                ('failed_auth_at', sql.DateTime, None))
         self.assertExpectedSchema('local_user', cols)
 
     def test_password_model(self):

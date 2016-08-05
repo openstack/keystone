@@ -13,17 +13,18 @@
 import datetime
 import uuid
 
-from oslo_config import cfg
+import freezegun
 
 from keystone.common import sql
 from keystone.common import utils
+import keystone.conf
 from keystone import exception
 from keystone.identity.backends import base
 from keystone.identity.backends import sql_model as model
 from keystone.tests.unit import test_backend_sql
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class DisableInactiveUserTests(test_backend_sql.SqlTests):
@@ -276,3 +277,114 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
     def _get_user_ref(self, user_id):
         with sql.session_for_read() as session:
             return self.identity_api._get_user(session, user_id)
+
+
+class LockingOutUserTests(test_backend_sql.SqlTests):
+    def setUp(self):
+        super(LockingOutUserTests, self).setUp()
+        self.config_fixture.config(
+            group='security_compliance',
+            lockout_failure_attempts=6)
+        self.config_fixture.config(
+            group='security_compliance',
+            lockout_duration=5)
+        # create user
+        self.password = uuid.uuid4().hex
+        user_dict = {
+            'name': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'enabled': True,
+            'password': self.password
+        }
+        self.user = self.identity_api.create_user(user_dict)
+
+    def test_locking_out_user_after_max_failed_attempts(self):
+        # authenticate with wrong password
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=self.user['id'],
+                          password=uuid.uuid4().hex)
+        # authenticate with correct password
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=self.user['id'],
+                                       password=self.password)
+        # test locking out user after max failed attempts
+        self._fail_auth_repeatedly(self.user['id'])
+        self.assertRaises(exception.AccountLocked,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=self.user['id'],
+                          password=uuid.uuid4().hex)
+
+    def test_set_enabled_unlocks_user(self):
+        # lockout user
+        self._fail_auth_repeatedly(self.user['id'])
+        self.assertRaises(exception.AccountLocked,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=self.user['id'],
+                          password=uuid.uuid4().hex)
+        # set enabled, user should be unlocked
+        self.user['enabled'] = True
+        self.identity_api.update_user(self.user['id'], self.user)
+        user_ret = self.identity_api.authenticate(self.make_request(),
+                                                  user_id=self.user['id'],
+                                                  password=self.password)
+        self.assertTrue(user_ret['enabled'])
+
+    def test_lockout_duration(self):
+        # freeze time
+        with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            # lockout user
+            self._fail_auth_repeatedly(self.user['id'])
+            self.assertRaises(exception.AccountLocked,
+                              self.identity_api.authenticate,
+                              self.make_request(),
+                              user_id=self.user['id'],
+                              password=uuid.uuid4().hex)
+            # freeze time past the duration, user should be unlocked and failed
+            # auth count should get reset
+            frozen_time.tick(delta=datetime.timedelta(
+                seconds=CONF.security_compliance.lockout_duration + 1))
+            self.identity_api.authenticate(self.make_request(),
+                                           user_id=self.user['id'],
+                                           password=self.password)
+            # test failed auth count was reset by authenticating with the wrong
+            # password, should raise an assertion error and not account locked
+            self.assertRaises(AssertionError,
+                              self.identity_api.authenticate,
+                              self.make_request(),
+                              user_id=self.user['id'],
+                              password=uuid.uuid4().hex)
+
+    def test_lockout_duration_failed_auth_cnt_resets(self):
+        # freeze time
+        with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            # lockout user
+            self._fail_auth_repeatedly(self.user['id'])
+            self.assertRaises(exception.AccountLocked,
+                              self.identity_api.authenticate,
+                              self.make_request(),
+                              user_id=self.user['id'],
+                              password=uuid.uuid4().hex)
+            # freeze time past the duration, failed_auth_cnt should reset
+            frozen_time.tick(delta=datetime.timedelta(
+                seconds=CONF.security_compliance.lockout_duration + 1))
+            # repeat failed auth the max times
+            self._fail_auth_repeatedly(self.user['id'])
+            # test user account is locked
+            self.assertRaises(exception.AccountLocked,
+                              self.identity_api.authenticate,
+                              self.make_request(),
+                              user_id=self.user['id'],
+                              password=uuid.uuid4().hex)
+
+    def _fail_auth_repeatedly(self, user_id):
+        wrong_password = uuid.uuid4().hex
+        for _ in range(CONF.security_compliance.lockout_failure_attempts):
+            self.assertRaises(AssertionError,
+                              self.identity_api.authenticate,
+                              self.make_request(),
+                              user_id=user_id,
+                              password=wrong_password)

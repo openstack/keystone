@@ -150,6 +150,9 @@ class User(sql.ModelBase, sql.DictBase):
         if (value and
                 CONF.security_compliance.disable_user_account_days_inactive):
             self.last_active_at = datetime.datetime.utcnow().date()
+        if value and self.local_user:
+            self.local_user.failed_auth_count = 0
+            self.local_user.failed_auth_at = None
         self._enabled = value
 
     @enabled.expression
@@ -177,6 +180,8 @@ class LocalUser(sql.ModelBase, sql.DictBase):
                                  lazy='subquery',
                                  backref='local_user',
                                  order_by='Password.created_at')
+    failed_auth_count = sql.Column(sql.Integer, nullable=True)
+    failed_auth_at = sql.Column(sql.DateTime, nullable=True)
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
 
 
