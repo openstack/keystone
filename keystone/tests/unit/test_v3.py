@@ -258,36 +258,8 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
-    def get_extensions(self):
-        extensions = set(['revoke'])
-        if hasattr(self, 'EXTENSION_NAME'):
-            extensions.add(self.EXTENSION_NAME)
-        return extensions
-
-    def generate_paste_config(self):
-        new_paste_file = None
-        try:
-            new_paste_file = unit.generate_paste_config(self.EXTENSION_TO_ADD)
-        except AttributeError:
-            # no need to report this error here, as most tests will not have
-            # EXTENSION_TO_ADD defined.
-            pass
-        finally:
-            return new_paste_file
-
-    def remove_generated_paste_config(self):
-        try:
-            unit.remove_generated_paste_config(self.EXTENSION_TO_ADD)
-        except AttributeError:
-            pass
-
     def setUp(self, app_conf='keystone'):
         """Setup for v3 Restful Test Cases."""
-        new_paste_file = self.generate_paste_config()
-        self.addCleanup(self.remove_generated_paste_config)
-        if new_paste_file:
-            app_conf = 'config:%s' % (new_paste_file)
-
         super(RestfulTestCase, self).setUp(app_conf=app_conf)
 
         self.empty_context = {'environment': {}}
