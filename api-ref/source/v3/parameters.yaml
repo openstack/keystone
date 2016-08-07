@@ -229,6 +229,15 @@ interface_2:
   in: query
   required: false
   type: string
+is_domain_query:
+  description: |
+    If this is specified as true, then only projects acting as a domain are
+    included. Otherwise, only projects that are not acting as a domain are
+    included.
+  in: query
+  required: false
+  type: boolen
+  min_version: 3.6
 name_10:
   description: |
     Filters the response by a domain name.

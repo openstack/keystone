@@ -44,6 +44,7 @@ Request
 
    - domain_id: domain_id_query
    - enabled: project_enabled_query
+   - is_domain: is_domain_query
    - name: project_name_query
    - parent_id: parent_id_query
 
@@ -174,6 +175,7 @@ Request
 
    - project_id: project_id_path
    - project: project
+   - is_domain: is_domain_request_body
    - description: project_description_request_body
    - domain_id: project_domain_id_update_request_body
    - enabled: project_enabled_update_request_body
