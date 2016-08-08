@@ -15,7 +15,6 @@
 import datetime
 
 from oslo_utils import timeutils
-from six.moves import reload_module
 
 from keystone.common import dependency
 from keystone.common import utils
@@ -26,8 +25,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
 from keystone.token.providers import fernet
-from keystone.token.providers import pki
-from keystone.token.providers import pkiz
 from keystone.token.providers import uuid
 
 
@@ -760,14 +757,6 @@ class TestTokenProvider(unit.TestCase):
         self.assertIsInstance(token.provider.Manager().driver, uuid.Provider)
 
         dependency.reset()
-        self.config_fixture.config(group='token', provider='pki')
-        self.assertIsInstance(token.provider.Manager().driver, pki.Provider)
-
-        dependency.reset()
-        self.config_fixture.config(group='token', provider='pkiz')
-        self.assertIsInstance(token.provider.Manager().driver, pkiz.Provider)
-
-        dependency.reset()
         self.config_fixture.config(group='token', provider='fernet')
         self.assertIsInstance(token.provider.Manager().driver, fernet.Provider)
 
@@ -797,42 +786,3 @@ class TestTokenProvider(unit.TestCase):
             exception.TokenNotFound,
             self.token_provider_api.validate_token,
             None)
-
-
-# NOTE(ayoung): renamed to avoid automatic test detection
-class PKIProviderTests(object):
-
-    def setUp(self):
-        super(PKIProviderTests, self).setUp()
-
-        from keystoneclient.common import cms
-        self.cms = cms
-
-        old_cms_subprocess = cms.subprocess
-        self.addCleanup(setattr, cms, 'subprocess', old_cms_subprocess)
-
-        self.cms.subprocess = self.target_subprocess
-
-        # force module reload so the imports get re-evaluated
-        reload_module(pki)
-
-    def test_get_token_id_error_handling(self):
-        # cause command-line failure
-        self.config_fixture.config(group='signing',
-                                   keyfile='--please-break-me')
-
-        provider = pki.Provider()
-        token_data = {}
-        self.assertRaises(exception.UnexpectedError,
-                          provider._get_token_id,
-                          token_data)
-
-
-class TestPKIProviderWithStdlib(PKIProviderTests, unit.TestCase):
-
-    def setUp(self):
-        # force keystoneclient.common.cms to use the stdlib subprocess
-        import subprocess
-        self.target_subprocess = subprocess
-
-        super(TestPKIProviderWithStdlib, self).setUp()

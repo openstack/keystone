@@ -12,14 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import time
 import uuid
 
-from keystoneclient.common import cms
-from oslo_serialization import jsonutils
 import six
 from six.moves import http_client
-from testtools import matchers
 
 from keystone.common import extension as keystone_extension
 import keystone.conf
@@ -1226,68 +1222,6 @@ class V2TestCase(object):
     def assertValidRevocationListResponse(self, response):
         self.assertIsNotNone(response.result['signed'])
 
-    def _fetch_parse_revocation_list(self):
-
-        token1 = self.get_scoped_token()
-
-        # TODO(morganfainberg): Because this is making a restful call to the
-        # app a change to UTCNOW via mock.patch will not affect the returned
-        # token. The only surefire way to ensure there is not a transient bug
-        # based upon when the second token is issued is with a sleep. This
-        # issue all stems from the limited resolution (no microseconds) on the
-        # expiry time of tokens and the way revocation events utilizes token
-        # expiry to revoke individual tokens. This is a stop-gap until all
-        # associated issues with resolution on expiration and revocation events
-        # are resolved.
-        time.sleep(1)
-
-        token2 = self.get_scoped_token()
-
-        self.admin_request(method='DELETE',
-                           path='/v2.0/tokens/%s' % token2,
-                           token=token1)
-
-        r = self.admin_request(
-            method='GET',
-            path='/v2.0/tokens/revoked',
-            token=token1,
-            expected_status=http_client.OK)
-        signed_text = r.result['signed']
-
-        data_json = cms.cms_verify(signed_text, CONF.signing.certfile,
-                                   CONF.signing.ca_certs)
-
-        data = jsonutils.loads(data_json)
-
-        return (data, token2)
-
-    def test_fetch_revocation_list_md5(self):
-        """Hash for tokens in revocation list and server config should match.
-
-        If the server is configured for md5, then the revocation list has
-        tokens hashed with MD5.
-        """
-        # The default hash algorithm is md5.
-        hash_algorithm = 'md5'
-
-        (data, token) = self._fetch_parse_revocation_list()
-        token_hash = cms.cms_hash_token(token, mode=hash_algorithm)
-        self.assertThat(token_hash, matchers.Equals(data['revoked'][0]['id']))
-
-    def test_fetch_revocation_list_sha256(self):
-        """Hash for tokens in revocation list and server config should match.
-
-        If the server is configured for sha256, then the revocation list has
-        tokens hashed with SHA256.
-        """
-        hash_algorithm = 'sha256'
-        self.config_fixture.config(group='token',
-                                   hash_algorithm=hash_algorithm)
-
-        (data, token) = self._fetch_parse_revocation_list()
-        token_hash = cms.cms_hash_token(token, mode=hash_algorithm)
-        self.assertThat(token_hash, matchers.Equals(data['revoked'][0]['id']))
-
     def test_create_update_user_invalid_enabled_type(self):
         # Enforce usage of boolean for 'enabled' field
         token = self.get_scoped_token()
@@ -1465,25 +1399,6 @@ class V2TestCaseFernet(V2TestCase, RestfulTestCase, CoreApiTests,
 
     def test_fetch_revocation_list_sha256(self):
         self.skipTest('Revocation lists do not support Fernet')
-
-
-class RevokeApiTestCase(V2TestCase, RestfulTestCase, CoreApiTests,
-                        LegacyV2UsernameTests):
-    def config_overrides(self):
-        super(RevokeApiTestCase, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='pki',
-            revoke_by_id=False)
-
-    def test_fetch_revocation_list_admin_200(self):
-        self.skip_test_overrides('Revoke API disables revocation_list.')
-
-    def test_fetch_revocation_list_md5(self):
-        self.skip_test_overrides('Revoke API disables revocation_list.')
-
-    def test_fetch_revocation_list_sha256(self):
-        self.skip_test_overrides('Revoke API disables revocation_list.')
 
 
 class TestFernetTokenProviderV2(RestfulTestCase):

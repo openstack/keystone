@@ -176,12 +176,6 @@ class RegionDeletionError(ForbiddenNotSecurity):
                        "its child regions have associated endpoints.")
 
 
-class PKITokenExpected(ForbiddenNotSecurity):
-    message_format = _('The certificates you requested are not available. '
-                       'It is likely that this server does not use PKI tokens '
-                       'otherwise this is the result of misconfiguration.')
-
-
 class SecurityError(Error):
     """Security error exception.
 

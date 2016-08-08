@@ -29,7 +29,6 @@ from keystone.i18n import _, _LE
 from keystone.models import token_model
 from keystone import notifications
 from keystone.token import persistence
-from keystone.token import utils
 
 
 CONF = keystone.conf.CONF
@@ -166,10 +165,7 @@ class Manager(manager.Manager):
             # Otherwise the information about the token must be in the token
             # id.
             if self._needs_persistence:
-                unique_id = utils.generate_unique_id(token_id)
-                # NOTE(morganfainberg): Ensure we never use the long-form
-                # token_id (PKI) as part of the cache_key.
-                token_ref = self._persistence.get_token(unique_id)
+                token_ref = self._persistence.get_token(token_id)
                 # Overload the token_id variable to be a token reference
                 # instead.
                 token_id = token_ref

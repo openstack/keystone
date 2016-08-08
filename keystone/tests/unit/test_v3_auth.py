@@ -1409,8 +1409,6 @@ class TokenAPITests(object):
                                   v3_token_data['token']['expires_at'])
 
     def test_v3_v2_token_intermix(self):
-        # FIXME(gyee): PKI tokens are not interchangeable because token
-        # data is baked into the token itself.
         r = self.v3_create_token(self.build_authentication_request(
             user_id=self.default_domain_user['id'],
             password=self.default_domain_user['password'],
@@ -2426,74 +2424,6 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
             expected_status=http_client.FORBIDDEN)
 
 
-class TestPKITokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
-    def config_overrides(self):
-        super(TestPKITokenAPIs, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pki')
-
-    def setUp(self):
-        super(TestPKITokenAPIs, self).setUp()
-        self.doSetUp()
-
-    def verify_token(self, *args, **kwargs):
-        return cms.verify_token(*args, **kwargs)
-
-    def test_v3_token_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        resp = self.v3_create_token(auth_data)
-        token_data = resp.result
-        token_id = resp.headers.get('X-Subject-Token')
-        self.assertIn('expires_at', token_data['token'])
-
-        decoded_token = self.verify_token(token_id, CONF.signing.certfile,
-                                          CONF.signing.ca_certs)
-
-        decoded_token_dict = json.loads(decoded_token)
-        token_resp_dict = json.loads(resp.body)
-
-        self.assertEqual(decoded_token_dict, token_resp_dict)
-        # should be able to validate hash PKI token as well
-        hash_token_id = cms.cms_hash_token(token_id)
-        headers = {'X-Subject-Token': hash_token_id}
-        resp = self.get('/auth/tokens', headers=headers)
-        expected_token_data = resp.result
-        self.assertDictEqual(expected_token_data, token_data)
-
-    def test_v3_v2_hashed_pki_token_intermix(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.default_domain_user['id'],
-            password=self.default_domain_user['password'],
-            project_id=self.default_domain_project['id'])
-        resp = self.v3_create_token(auth_data)
-        token_data = resp.result
-        token = resp.headers.get('X-Subject-Token')
-
-        # should be able to validate a hash PKI token in v2 too
-        token = cms.cms_hash_token(token)
-        path = '/v2.0/tokens/%s' % (token)
-        resp = self.admin_request(path=path,
-                                  token=self.get_admin_token(),
-                                  method='GET')
-        v2_token = resp.result
-        self.assertEqual(v2_token['access']['user']['id'],
-                         token_data['token']['user']['id'])
-        self.assertTimestampEqual(v2_token['access']['token']['expires'],
-                                  token_data['token']['expires_at'])
-        self.assertEqual(v2_token['access']['user']['roles'][0]['name'],
-                         token_data['token']['roles'][0]['name'])
-
-
-class TestPKIZTokenAPIs(TestPKITokenAPIs):
-    def config_overrides(self):
-        super(TestPKIZTokenAPIs, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pkiz')
-
-    def verify_token(self, *args, **kwargs):
-        return cms.pkiz_verify(*args, **kwargs)
-
-
 class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
                         TokenDataTests):
     def config_overrides(self):
@@ -2510,9 +2440,7 @@ class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
             password=self.user['password'])
         resp = self.v3_create_token(auth_data)
         token_data = resp.result
-        token_id = resp.headers.get('X-Subject-Token')
         self.assertIn('expires_at', token_data['token'])
-        self.assertFalse(cms.is_asn1_token(token_id))
 
 
 class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
@@ -2761,8 +2689,15 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         super(TestTokenRevokeById, self).config_overrides()
         self.config_fixture.config(
             group='token',
-            provider='pki',
+            provider='fernet',
             revoke_by_id=False)
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def setUp(self):
         """Setup for Token Revoking Test Cases.
@@ -3507,8 +3442,15 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         super(TestTokenRevokeApi, self).config_overrides()
         self.config_fixture.config(
             group='token',
-            provider='pki',
+            provider='fernet',
             revoke_by_id=False)
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def assertValidDeletedProjectResponse(self, events_response, project_id):
         events = events_response['events']
@@ -3772,24 +3714,6 @@ class TestAuthExternalDomainBehaviorWithUUID(AuthExternalDomainBehavior,
         self.config_fixture.config(group='token', provider='uuid')
 
 
-class TestAuthExternalDomainBehaviorWithPKI(AuthExternalDomainBehavior,
-                                            test_v3.RestfulTestCase):
-    def config_overrides(self):
-        super(TestAuthExternalDomainBehaviorWithPKI, self).config_overrides()
-        self.kerberos = False
-        self.auth_plugin_config_override(external='Domain')
-        self.config_fixture.config(group='token', provider='pki')
-
-
-class TestAuthExternalDomainBehaviorWithPKIZ(AuthExternalDomainBehavior,
-                                             test_v3.RestfulTestCase):
-    def config_overrides(self):
-        super(TestAuthExternalDomainBehaviorWithPKIZ, self).config_overrides()
-        self.kerberos = False
-        self.auth_plugin_config_override(external='Domain')
-        self.config_fixture.config(group='token', provider='pkiz')
-
-
 # NOTE(lbragstad): The Fernet token provider doesn't support bind
 # authentication so we don't inhereit TestAuthExternalDomain here to test it.
 
@@ -3858,48 +3782,12 @@ class UUIDAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
         self.config_fixture.config(group='token', provider='uuid')
 
 
-class PKIAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
-                                   test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(PKIAuthExternalDefaultDomain, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pki')
-
-
-class PKIZAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
-                                    test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(PKIZAuthExternalDefaultDomain, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pkiz')
-
-
 class UUIDAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(UUIDAuthKerberos, self).config_overrides()
         self.kerberos = True
         self.config_fixture.config(group='token', provider='uuid')
-        self.auth_plugin_config_override(
-            methods=['kerberos', 'password', 'token'])
-
-
-class PKIAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(PKIAuthKerberos, self).config_overrides()
-        self.kerberos = True
-        self.config_fixture.config(group='token', provider='pki')
-        self.auth_plugin_config_override(
-            methods=['kerberos', 'password', 'token'])
-
-
-class PKIZAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(PKIZAuthKerberos, self).config_overrides()
-        self.kerberos = True
-        self.config_fixture.config(group='token', provider='pkiz')
         self.auth_plugin_config_override(
             methods=['kerberos', 'password', 'token'])
 
@@ -4989,26 +4877,6 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         r = self.get('/auth/domains')
         self.assertThat(r.json['domains'], matchers.HasLength(1))
         self.assertValidDomainListResponse(r)
-
-
-class TestTrustAuthPKITokenProvider(TrustAPIBehavior, TestTrustChain):
-    def config_overrides(self):
-        super(TestTrustAuthPKITokenProvider, self).config_overrides()
-        self.config_fixture.config(group='token',
-                                   provider='pki',
-                                   revoke_by_id=False)
-        self.config_fixture.config(group='trust',
-                                   enabled=True)
-
-
-class TestTrustAuthPKIZTokenProvider(TrustAPIBehavior, TestTrustChain):
-    def config_overrides(self):
-        super(TestTrustAuthPKIZTokenProvider, self).config_overrides()
-        self.config_fixture.config(group='token',
-                                   provider='pkiz',
-                                   revoke_by_id=False)
-        self.config_fixture.config(group='trust',
-                                   enabled=True)
 
 
 class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):

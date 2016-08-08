@@ -664,18 +664,6 @@ class FernetAuthWithToken(AuthWithToken, AuthTest):
         self.skip_test_overrides('Fernet with v2.0 and revocation is broken')
 
 
-class PKIAuthWithToken(AuthWithToken, AuthTest):
-    def config_overrides(self):
-        super(PKIAuthWithToken, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pki')
-
-
-class PKIZAuthWithToken(AuthWithToken, AuthTest):
-    def config_overrides(self):
-        super(PKIZAuthWithToken, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pkiz')
-
-
 class AuthWithPasswordCredentials(AuthTest):
     def test_auth_invalid_user(self):
         """Verify exception is raised if invalid user."""
@@ -878,20 +866,6 @@ class UUIDAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
     def config_overrides(self):
         super(UUIDAuthWithRemoteUser, self).config_overrides()
         self.config_fixture.config(group='token', provider='uuid')
-
-
-class PKIAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
-
-    def config_overrides(self):
-        super(PKIAuthWithRemoteUser, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pki')
-
-
-class PKIZAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
-
-    def config_overrides(self):
-        super(PKIZAuthWithRemoteUser, self).config_overrides()
-        self.config_fixture.config(group='token', provider='pkiz')
 
 
 class AuthWithTrust(object):

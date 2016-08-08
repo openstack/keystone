@@ -26,7 +26,6 @@ from keystone.common import manager
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _LW
-from keystone.token import utils
 
 
 CONF = keystone.conf.CONF
@@ -52,7 +51,7 @@ class PersistenceManager(manager.Manager):
         super(PersistenceManager, self).__init__(CONF.token.driver)
 
     def get_token(self, token_id):
-        return self._get_token(utils.generate_unique_id(token_id))
+        return self._get_token(token_id)
 
     @MEMOIZE
     def _get_token(self, token_id):
@@ -60,23 +59,21 @@ class PersistenceManager(manager.Manager):
         return self.driver.get_token(token_id)
 
     def create_token(self, token_id, data):
-        unique_id = utils.generate_unique_id(token_id)
         data_copy = copy.deepcopy(data)
-        data_copy['id'] = unique_id
-        ret = self.driver.create_token(unique_id, data_copy)
+        data_copy['id'] = token_id
+        ret = self.driver.create_token(token_id, data_copy)
         if MEMOIZE.should_cache(ret):
             # NOTE(morganfainberg): when doing a cache set, you must pass the
             # same arguments through, the same as invalidate (this includes
             # "self"). First argument is always the value to be cached
-            self._get_token.set(ret, self, unique_id)
+            self._get_token.set(ret, self, token_id)
         return ret
 
     def delete_token(self, token_id):
         if not CONF.token.revoke_by_id:
             return
-        unique_id = utils.generate_unique_id(token_id)
-        self.driver.delete_token(unique_id)
-        self._invalidate_individual_token_cache(unique_id)
+        self.driver.delete_token(token_id)
+        self._invalidate_individual_token_cache(token_id)
         self.invalidate_revocation_list()
 
     def delete_tokens(self, user_id, tenant_id=None, trust_id=None,
@@ -86,8 +83,7 @@ class PersistenceManager(manager.Manager):
         token_list = self.driver.delete_tokens(user_id, tenant_id, trust_id,
                                                consumer_id)
         for token_id in token_list:
-            unique_id = utils.generate_unique_id(token_id)
-            self._invalidate_individual_token_cache(unique_id)
+            self._invalidate_individual_token_cache(token_id)
         self.invalidate_revocation_list()
 
     @REVOCATION_MEMOIZE

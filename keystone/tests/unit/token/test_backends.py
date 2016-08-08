@@ -12,10 +12,8 @@
 
 import copy
 import datetime
-import hashlib
 import uuid
 
-from keystoneclient.common import cms
 from oslo_utils import timeutils
 import six
 from six.moves import range
@@ -32,13 +30,7 @@ NULL_OBJECT = object()
 
 class TokenTests(object):
     def _create_token_id(self):
-        # Use a token signed by the cms module
-        token_id = ""
-        for i in range(1, 20):
-            token_id += uuid.uuid4().hex
-        return cms.cms_sign_token(token_id,
-                                  CONF.signing.certfile,
-                                  CONF.signing.keyfile)
+        return uuid.uuid4().hex
 
     def _assert_revoked_token_list_matches_token_persistence(
             self, revoked_token_id_list):
@@ -366,30 +358,6 @@ class TokenTests(object):
         # Verify both tokens are in the revocation list.
         self.assertIn(token_id, revoked_ids)
         self.assertIn(token2_id, revoked_ids)
-
-    def _test_predictable_revoked_pki_token_id(self, hash_fn):
-        token_id = self._create_token_id()
-        token_id_hash = hash_fn(token_id.encode('utf-8')).hexdigest()
-        token = {'user': {'id': uuid.uuid4().hex},
-                 'token_data': {'token': {'audit_ids': [uuid.uuid4().hex]}}}
-
-        self.token_provider_api._persistence.create_token(token_id, token)
-        self.token_provider_api._persistence.delete_token(token_id)
-
-        revoked_ids = [x['id']
-                       for x in self.token_provider_api.list_revoked_tokens()]
-        self._assert_revoked_token_list_matches_token_persistence(revoked_ids)
-        self.assertIn(token_id_hash, revoked_ids)
-        self.assertNotIn(token_id, revoked_ids)
-        for t in self.token_provider_api._persistence.list_revoked_tokens():
-            self.assertIn('expires', t)
-
-    def test_predictable_revoked_pki_token_id_default(self):
-        self._test_predictable_revoked_pki_token_id(hashlib.md5)
-
-    def test_predictable_revoked_pki_token_id_sha256(self):
-        self.config_fixture.config(group='token', hash_algorithm='sha256')
-        self._test_predictable_revoked_pki_token_id(hashlib.sha256)
 
     def test_predictable_revoked_uuid_token_id(self):
         token_id = uuid.uuid4().hex

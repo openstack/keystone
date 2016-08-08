@@ -28,10 +28,6 @@ def symptom_unreasonable_max_token_size():
     - For UUID, set `keystone.conf [DEFAULT] max_token_size = 32`, because UUID
       tokens are always exactly 32 characters.
 
-    - For PKI and PKIZ, set `keystone.conf [DEFAULT] max_token_size = 8192`,
-      because PKI and PKIZ tokens can be quite large, but any larger than 8192
-      and they tend to break certain implementations of HTTP.
-
     - For Fernet, set `keystone.conf [DEFAULT] max_token_size = 255`, because
       Fernet tokens should never exceed this length in most deployments.
       However, if you are also using `keystone.conf [identity] driver = ldap`,
@@ -41,6 +37,4 @@ def symptom_unreasonable_max_token_size():
     """
     return (
         'uuid' in CONF.token.provider and CONF.max_token_size != 32
-        or 'pki' in CONF.token.provider and CONF.max_token_size < 8192
-        or 'pkiz' in CONF.token.provider and CONF.max_token_size < 8192
         or 'fernet' in CONF.token.provider and CONF.max_token_size > 255)
