@@ -52,9 +52,6 @@ class RestfulTestCase(unit.TestCase):
     # default content type to test
     content_type = 'json'
 
-    def get_extensions(self):
-        return None
-
     def setUp(self, app_conf='keystone'):
         super(RestfulTestCase, self).setUp()
 
