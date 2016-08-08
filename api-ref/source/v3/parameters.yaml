@@ -35,12 +35,6 @@ credential_id:
   in: path
   required: true
   type: string
-domain_id:
-  description: |
-    Filters the response by a domain ID.
-  in: path
-  required: true
-  type: string
 domain_id_path:
   description: |
     The domain ID.
@@ -438,12 +432,6 @@ catalog:
   in: body
   required: true
   type: array
-config:
-  description: |
-    A ``config`` object.
-  in: body
-  required: true
-  type: object
 credential:
   description: |
     A ``credential`` object.
@@ -562,6 +550,12 @@ domain_2:
   in: body
   required: false
   type: object
+domain_config:
+  description: |
+    A ``config`` object.
+  in: body
+  required: true
+  type: object
 domain_description_request_body:
   description: |
     The description of the domain.
@@ -577,6 +571,18 @@ domain_description_response_body:
 domain_description_update_request_body:
   description: |
     The new description of the domain.
+  in: body
+  required: false
+  type: string
+domain_driver:
+  description: |
+    The Identity backend driver.
+  in: body
+  required: true
+  type: string
+domain_driver_notRequired:
+  description: |
+    The Identity backend driver.
   in: body
   required: false
   type: string
@@ -612,6 +618,13 @@ domain_enabled_update_request_body:
   in: body
   required: false
   type: string
+domain_group_identity:
+  description: |
+    An ``identity`` object. Required to set the
+    identity group configuration options.
+  in: body
+  required: true
+  type: object
 domain_id_1:
   description: |
     The ID of the domain that owns the group.  If you
@@ -652,6 +665,13 @@ domain_id_response_body:
   in: body
   required: true
   type: string
+domain_ldap:
+  description: |
+    An ``ldap`` object. Required to set the LDAP
+    group configuration options.
+  in: body
+  required: true
+  type: object
 domain_link_response_body:
   description: |
     The links to the ``domain`` resource.
@@ -676,24 +696,40 @@ domain_name_update_request_body:
   in: body
   required: false
   type: string
+domain_url:
+  description: |
+    The LDAP URL.
+  in: body
+  required: true
+  type: string
+domain_url_notRequired:
+  description: |
+    The LDAP URL.
+  in: body
+  required: false
+  type: string
+domain_user_tree_dn:
+  description: |
+    The base distinguished name (DN) of LDAP, from
+    where all users can be reached. For example,
+    ``ou=Users,dc=root,dc=org``.
+  in: body
+  required: true
+  type: string
+domain_user_tree_dn_notRequired:
+  description: |
+    The base distinguished name (DN) of LDAP, from
+    where all users can be reached. For example,
+    ``ou=Users,dc=root,dc=org``.
+  in: body
+  required: false
+  type: string
 domains:
   description: |
     A list of ``domain`` objects, each containing:
   in: body
   required: true
   type: array
-driver:
-  description: |
-    The Identity back-end driver.
-  in: body
-  required: true
-  type: string
-driver_1:
-  description: |
-    The Identity back-end driver.
-  in: body
-  required: false
-  type: string
 email:
   description: |
     The email address for the user.
@@ -1054,13 +1090,6 @@ identity:
   in: body
   required: true
   type: object
-identity_1:
-  description: |
-    An ``identity`` object. Required to set the
-    identity group configuration options.
-  in: body
-  required: true
-  type: object
 is_domain_request_body:
   description: |
     Indicates whether the project also acts as a domain. If set to ``true``,
@@ -1079,7 +1108,7 @@ is_domain_response_body:
     this project acts as both a project and domain. As a domain, the project
     provides a name space in which you can create users, groups, and other
     projects. If set to ``false``, this project behaves as a regular project
-    that contains only resources. 
+    that contains only resources.
   in: body
   required: true
   type: boolean
@@ -1102,13 +1131,6 @@ issued_at:
   in: body
   required: true
   type: string
-ldap:
-  description: |
-    An ``ldap`` object. Required to set the LDAP
-    group configuration options.
-  in: body
-  required: true
-  type: object
 link_collection:
   description: |
     The link to the collection of resources.
@@ -1703,18 +1725,6 @@ type_7:
   in: body
   required: false
   type: string
-url_1:
-  description: |
-    The LDAP URL.
-  in: body
-  required: true
-  type: string
-url_2:
-  description: |
-    The LDAP URL.
-  in: body
-  required: false
-  type: string
 user:
   description: |
     A ``user`` object.
@@ -1788,22 +1798,6 @@ user_password_update_body:
     The new password for the user.
   in: body
   required: true
-  type: string
-user_tree_dn:
-  description: |
-    The base distinguished name (DN) of LDAP, from
-    where all users can be reached. For example,
-    ``ou=Users,dc=root,dc=org``.
-  in: body
-  required: true
-  type: string
-user_tree_dn_1:
-  description: |
-    The base distinguished name (DN) of LDAP, from
-    where all users can be reached. For example,
-    ``ou=Users,dc=root,dc=org``.
-  in: body
-  required: false
   type: string
 user_update_password_body:
   description: |

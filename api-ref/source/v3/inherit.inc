@@ -32,7 +32,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - role_id: role_id
    - user_id: user_id
 
@@ -55,7 +55,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - group_id: group_id
    - role_id: role_id
 
@@ -78,7 +78,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - user_id: user_id
 
 Response Example
@@ -106,7 +106,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - group_id: group_id
 
 Response Example
@@ -133,7 +133,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - role_id: role_id
    - user_id: user_id
 
@@ -155,7 +155,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - group_id: group_id
    - role_id: role_id
 
@@ -177,7 +177,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - role_id: role_id
    - user_id: user_id
 
@@ -199,7 +199,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id
+   - domain_id: domain_id_path
    - group_id: group_id
    - role_id: role_id
 
