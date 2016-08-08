@@ -104,15 +104,15 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - nocatalog: nocatalog
    - domain: domain
-   - name: name
+   - name: user_name
    - auth: auth
    - user: user
    - password: password
-   - id: id
+   - id: user_id
    - identity: identity
-   - methods: methods
-   - nocatalog: nocatalog
+   - methods: auth_methods_passwd
 
 Request Example
 ---------------
@@ -127,15 +127,15 @@ Response Parameters
 
    - X-Subject-Token: X-Subject-Token
    - domain: domain
-   - methods: methods
+   - methods: auth_methods_passwd
    - expires_at: expires_at
    - token: token
    - extras: extras
    - user: user
    - audit_ids: audit_ids
    - issued_at: issued_at
-   - id: id
-   - name: name
+   - id: user_id
+   - name: user_name
 
 
 Password authentication with scoped authorization
@@ -157,15 +157,15 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - nocatalog: nocatalog
+   - name: user_name
    - auth: auth
    - user: user
    - scope: scope
    - password: password
-   - id: id
+   - id: user_id
    - identity: identity
-   - methods: methods
-   - nocatalog: nocatalog
+   - methods: auth_methods_passwd
 
 Request Example
 ---------------
@@ -181,7 +181,7 @@ Response Parameters
    - X-Subject-Token: X-Subject-Token
    - domain: domain
    - region_id: region_id
-   - methods: methods
+   - methods: auth_methods_passwd
    - roles: roles
    - url: endpoint_url
    - region: endpoint_region
@@ -195,9 +195,9 @@ Response Parameters
    - audit_ids: audit_ids
    - interface: endpoint_interface
    - endpoints: endpoints
-   - type: type
-   - id: id
-   - name: name
+   - type: endpoint_type
+   - id: user_id
+   - name: user_name
 
 
 Password authentication with explicit unscoped authorization
@@ -219,15 +219,15 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - nocatalog: nocatalog
+   - name: user_name
    - auth: auth
    - user: user
    - scope: scope
    - password: password
-   - id: id
+   - id: user_id
    - identity: identity
-   - methods: methods
-   - nocatalog: nocatalog
+   - methods: auth_methods_passwd
 
 Request Example
 ---------------
@@ -242,7 +242,7 @@ Response Parameters
 
    - X-Subject-Token: X-Subject-Token
    - domain: domain
-   - methods: methods
+   - methods: auth_methods_passwd
    - roles: roles
    - expires_at: expires_at
    - token: token
@@ -250,8 +250,8 @@ Response Parameters
    - user: user
    - audit_ids: audit_ids
    - issued_at: issued_at
-   - id: id
-   - name: name
+   - id: user_id
+   - name: user_name
 
 
 Token authentication with unscoped authorization
@@ -271,12 +271,12 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - identity: identity
-   - token: token
-   - id: id
-   - auth: auth
-   - methods: methods
    - nocatalog: nocatalog
+   - identity: identity
+   - token: auth_token
+   - id: auth_token_id
+   - auth: auth
+   - methods: auth_methods_token
 
 Request Example
 ---------------
@@ -311,14 +311,14 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - methods: methods
+   - nocatalog: nocatalog
+   - methods: auth_methods_token
    - auth: auth
-   - token: token
+   - token: auth_token
    - audit_ids: audit_ids
    - scope: scope
-   - id: id
+   - id: auth_token_id
    - identity: identity
-   - nocatalog: nocatalog
 
 Request Example
 ---------------
@@ -367,8 +367,8 @@ Response Parameters
    - X-Subject-Token: X-Subject-Token
    - X-Auth-Token: X-Auth-Token
    - domain: domain
-   - methods: methods
-   - links: links
+   - methods: auth_methods
+   - links: domain_link_response_body
    - user: user
    - token: token
    - expires_at: expires_at
@@ -378,8 +378,8 @@ Response Parameters
    - roles: roles
    - audit_ids: audit_ids
    - issued_at: issued_at
-   - id: id
-   - name: name
+   - id: user_id
+   - name: user_name
 
 Response Example
 ----------------
