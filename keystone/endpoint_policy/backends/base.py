@@ -118,30 +118,6 @@ class EndpointPolicyDriverV8(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_endpoints_for_policy(self, policy_id):
-        """List all the endpoints using a given policy.
-
-        :param policy_id: identity of policy that is being associated
-        :type policy_id: string
-        :returns: list of endpoints that have an effective association with
-                  that policy
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def get_policy_for_endpoint(self, endpoint_id):
-        """Get the appropriate policy for a given endpoint.
-
-        :param endpoint_id: identity of endpoint
-        :type endpoint_id: string
-        :returns: Policy entity for the endpoint
-
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def delete_association_by_endpoint(self, endpoint_id):
         """Remove all the policy associations with the specific endpoint.
 
