@@ -1,0 +1,27 @@
+{
+    "domains": [
+        {
+            "description": "my domain description",
+            "enabled": true,
+            "id": "1789d1",
+            "links": {
+                "self": "https://example.com/identity/v3/domains/1789d1"
+            },
+            "name": "my domain"
+        },
+        {
+            "description": "description of my other domain",
+            "enabled": true,
+            "id": "43e8da",
+            "links": {
+                "self": "https://example.com/identity/v3/domains/43e8da"
+            },
+            "name": "another domain"
+        }
+    ],
+    "links": {
+        "self": "https://example.com/identity/v3/auth/domains",
+        "previous": null,
+        "next": null
+    }
+}

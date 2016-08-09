@@ -438,3 +438,127 @@ Request
 
    - X-Auth-Token: X-Auth-Token
    - X-Subject-Token: X-Subject-Token
+
+
+Get service catalog
+===================
+
+.. rest_method:: GET /v3/auth/catalog
+
+New in version 3.3
+
+This call returns a service catalog for the X-Auth-Token provided in the
+request, even if the token does not contain a catalog itself (for example,
+if it was generated using ?nocatalog).
+
+The structure of the catalog object is identical to that contained in a token.
+
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - X-Auth-Token: X-Auth-Token
+   - X-Subject-Token: X-Subject-Token
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - endpoints: endpoints
+   - id: service_id
+   - type: type
+   - name: name_15
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/get-service-catalog-response.json
+   :language: javascript
+
+
+Get available project scopes
+============================
+
+.. rest_method:: GET /v3/auth/projects
+
+New in version 3.3
+
+This call returns the list of projects that are available to be scoped
+to based on the X-Auth-Token provided in the request.
+
+The structure of the response is exactly the same as listing projects
+for a user.
+
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - X-Auth-Token: X-Auth-Token
+   - X-Subject-Token: X-Subject-Token
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id
+   - links: links_project
+   - name: project_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/get-available-project-scopes-response.json
+   :language: javascript
+
+
+Get available domain scopes
+===========================
+
+.. rest_method:: GET /v3/auth/domains
+
+New in version 3.3
+
+This call returns the list of domains that are available to be scoped
+to based on the X-Auth-Token provided in the request.
+
+The structure is the same as listing domains.
+
+Normal response codes: 204
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - X-Auth-Token: X-Auth-Token
+   - X-Subject-Token: X-Subject-Token
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - description: domain_description_response_body
+   - enabled: domain_enabled_response_body
+   - id: domain_id_response_body
+   - links: domain_link_response_body
+   - name: domain_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/get-available-domain-scopes-response.json
+   :language: javascript

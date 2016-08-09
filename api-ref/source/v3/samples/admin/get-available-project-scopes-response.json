@@ -1,0 +1,27 @@
+{
+    "projects": [
+        {
+            "domain_id": "1789d1",
+            "enabled": true,
+            "id": "263fd9",
+            "links": {
+                "self": "https://example.com/identity/v3/projects/263fd9"
+            },
+            "name": "Test Group"
+        },
+        {
+            "domain_id": "1789d1",
+            "enabled": true,
+            "id": "50ef01",
+            "links": {
+                "self": "https://example.com/identity/v3/projects/50ef01"
+            },
+            "name": "Build Group"
+        }
+    ],
+    "links": {
+        "self": "https://example.com/identity/v3/auth/projects",
+        "previous": null,
+        "next": null
+    }
+}
