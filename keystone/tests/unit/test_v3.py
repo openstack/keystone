@@ -982,6 +982,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(entity.get('email'))
         self.assertIsNone(entity.get('password'))
         self.assertNotIn('tenantId', entity)
+        self.assertIn('password_expires_at', entity)
         if ref:
             self.assertEqual(ref['domain_id'], entity['domain_id'])
             self.assertEqual(ref['email'], entity['email'])

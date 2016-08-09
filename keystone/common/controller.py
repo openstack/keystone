@@ -305,6 +305,7 @@ class V2Controller(wsgi.Application):
         * v2.0 users are not domain aware, and should have domain_id removed
         * v2.0 users expect the use of tenantId instead of default_project_id
         * v2.0 users have a username attribute
+        * v2.0 remove password_expires_at
 
         If ref is a list type, we will iterate through each element and do the
         conversion.
@@ -324,6 +325,7 @@ class V2Controller(wsgi.Application):
         def _normalize_and_filter_user_properties(ref):
             """Run through the various filter/normalization methods."""
             _format_default_project_id(ref)
+            ref.pop('password_expires_at', None)
             V2Controller.filter_domain(ref)
             V2Controller.filter_domain_id(ref)
             V2Controller.normalize_username_in_response(ref)

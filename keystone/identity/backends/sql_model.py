@@ -14,21 +14,22 @@
 
 import datetime
 
-from oslo_config import cfg
 import sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import orm
 
 from keystone.common import sql
+import keystone.conf
 
 
-CONF = cfg.CONF
+CONF = keystone.conf.CONF
 
 
 class User(sql.ModelBase, sql.DictBase):
     __tablename__ = 'user'
     attributes = ['id', 'name', 'domain_id', 'password', 'enabled',
-                  'default_project_id']
+                  'default_project_id', 'password_expires_at']
+    readonly_attributes = ['id', 'password_expires_at']
     id = sql.Column(sql.String(64), primary_key=True)
     _enabled = sql.Column('enabled', sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
@@ -91,6 +92,12 @@ class User(sql.ModelBase, sql.DictBase):
             return self.password_ref.expires_at
         return None
 
+    @hybrid_property
+    def password_is_expired(self):
+        if self.password_expires_at:
+            return datetime.datetime.utcnow() >= self.password_expires_at
+        return False
+
     @password.setter
     def password(self, value):
         now = datetime.datetime.utcnow()
@@ -103,7 +110,15 @@ class User(sql.ModelBase, sql.DictBase):
         new_password_ref = Password()
         new_password_ref.password = value
         new_password_ref.created_at = now
+        new_password_ref.expires_at = self._get_password_expires_at(now)
         self.local_user.passwords.append(new_password_ref)
+
+    def _get_password_expires_at(self, created_at):
+        expires_days = CONF.security_compliance.password_expires_days
+        if expires_days:
+            expired_date = (created_at + datetime.timedelta(days=expires_days))
+            return expired_date.replace(microsecond=0)
+        return None
 
     @password.expression
     def password(cls):
@@ -164,6 +179,24 @@ class User(sql.ModelBase, sql.DictBase):
         if 'default_project_id' in d and d['default_project_id'] is None:
             del d['default_project_id']
         return d
+
+    @classmethod
+    def from_dict(cls, user_dict):
+        """Override from_dict to remove password_expires_at attribute.
+
+        Overriding this method to remove password_expires_at attribute to
+        support update_user and unit tests where password_expires_at
+        inadvertently gets added by calling to_dict followed by from_dict.
+
+        :param user_dict: User entity dictionary
+        :returns User: User object
+
+        """
+        new_dict = user_dict.copy()
+        password_expires_at_key = 'password_expires_at'
+        if password_expires_at_key in user_dict:
+            del new_dict[password_expires_at_key]
+        return super(User, cls).from_dict(new_dict)
 
 
 class LocalUser(sql.ModelBase, sql.DictBase):

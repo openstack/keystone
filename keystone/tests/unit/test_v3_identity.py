@@ -316,6 +316,16 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         user = self.identity_api.create_user(user)
         self.assertNotIn('created_at', user)
         self.assertNotIn('last_active_at', user)
+
+    def test_get_user_includes_required_attributes(self):
+        """Call ``GET /users/{user_id}`` required attributes are included."""
+        user = unit.new_user_ref(domain_id=self.domain_id,
+                                 project_id=self.project_id)
+        user = self.identity_api.create_user(user)
+        self.assertIn('id', user)
+        self.assertIn('name', user)
+        self.assertIn('enabled', user)
+        self.assertIn('password_expires_at', user)
         r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
         self.assertValidUserResponse(r, user)
 
@@ -674,6 +684,13 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
             name=user_id,
             tenantId=project_id,
             domain_id=CONF.identity.default_domain_id)
+        # User with password_expires_at
+        self.user5 = self.new_user_ref(
+            id=user_id,
+            name=user_id,
+            project_id=project_id,
+            domain_id=CONF.identity.default_domain_id,
+            password_expires_at=None)
 
         # Expected result if the user is meant to have a tenantId element
         self.expected_user = {'id': user_id,
@@ -700,9 +717,16 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
         updated_user4 = controller.V2Controller.v3_to_v2_user(self.user4)
         self.assertIs(self.user4, updated_user4)
         self.assertDictEqual(self.expected_user_no_tenant_id, self.user4)
+        # password_expires_at filter test
+        password_expires_at_key = 'password_expires_at'
+        self.assertIn(password_expires_at_key, self.user5)
+        updated_user5 = controller.V2Controller.v3_to_v2_user(self.user5)
+        self.assertIs(self.user5, updated_user5)
+        self.assertNotIn(password_expires_at_key, updated_user5)
 
     def test_v3_to_v2_user_method_list(self):
-        user_list = [self.user1, self.user2, self.user3, self.user4]
+        user_list = [self.user1, self.user2, self.user3, self.user4,
+                     self.user5]
         updated_list = controller.V2Controller.v3_to_v2_user(user_list)
 
         self.assertEqual(len(user_list), len(updated_list))
@@ -710,6 +734,7 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
         for i, ref in enumerate(updated_list):
             # Order should not change.
             self.assertIs(ref, user_list[i])
+            self.assertNotIn('password_expires_at', user_list[i])
 
         self.assertDictEqual(self.expected_user, self.user1)
         self.assertDictEqual(self.expected_user_no_tenant_id, self.user2)
