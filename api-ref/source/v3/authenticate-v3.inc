@@ -489,8 +489,8 @@ Response Parameters
 
    - endpoints: endpoints
    - id: service_id
-   - type: type
-   - name: name_15
+   - type: service_type
+   - name: service_name
 
 Response Example
 ----------------
