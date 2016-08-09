@@ -29,7 +29,7 @@ access_token_id:
   in: path
   required: true
   type: string
-credential_id:
+credential_id_path:
   description: |
     The UUID for the credential.
   in: path
@@ -442,18 +442,6 @@ auth_token_id:
   in: body
   required: true
   type: string
-blob:
-  description: |
-    The credential itself, as a serialized blob.
-  in: body
-  required: true
-  type: string
-blob_3:
-  description: |
-    The credential itself, as a serialized blob.
-  in: body
-  required: false
-  type: string
 catalog:
   description: |
     A ``catalog`` object.
@@ -466,12 +454,68 @@ credential:
   in: body
   required: true
   type: object
+credential_blob:
+  description: |
+    The credential itself, as a serialized blob.
+  in: body
+  required: true
+  type: string
+credential_blob_notRequired:
+  description: |
+    The credential itself, as a serialized blob.
+  in: body
+  required: false
+  type: string
+credential_id:
+  description: |
+    The UUID for the credential.
+  in: body
+  required: true
+  type: string
+credential_links:
+  description: |
+    The links for the ``credential`` resource.
+  in: body
+  required: true
+  type: object
+credential_type:
+  description: |
+    The credential type, such as ``ec2`` or ``cert``.
+    The implementation determines the list of supported types.
+  in: body
+  required: true
+  type: string
+credential_type_notRequired:
+  description: |
+    The credential type, such as ``ec2`` or ``cert``.
+    The implementation determines the list of supported types.
+  in: body
+  required: false
+  type: string
+credential_user_id:
+  description: |
+    The ID of the user who owns the credential.
+  in: body
+  required: true
+  type: string
+credential_user_id_notRequired:
+  description: |
+    The ID of the user who owns the credential.
+  in: body
+  required: false
+  type: string
 credentials:
   description: |
-    A ``credentials`` object.
+    A list of ``credential`` objects.
   in: body
   required: true
   type: array
+credentials_links:
+  description: |
+    The links for the ``credentials`` resource.
+  in: body
+  required: true
+  type: object
 default_project_id_request_body:
   description: |
     The ID of the default project for the user.
@@ -1047,12 +1091,6 @@ id_2:
   in: body
   required: false
   type: string
-id_3:
-  description: |
-    The UUID for the credential.
-  in: body
-  required: true
-  type: string
 id_4:
   description: |
     The domain ID.
@@ -1169,18 +1207,6 @@ link_response_body:
   in: body
   required: true
   type: string
-links:
-  description: |
-    The links for the ``credential`` resource.
-  in: body
-  required: true
-  type: object
-links_10:
-  description: |
-    The links for the ``credentials`` resource.
-  in: body
-  required: true
-  type: object
 links_11:
   description: |
     The links for the ``domains`` resource.
@@ -1706,13 +1732,6 @@ type:
   in: body
   required: true
   type: string
-type_1:
-  description: |
-    The credential type, such as ``ec2`` or ``cert``.
-    The implementation determines the list of supported types.
-  in: body
-  required: true
-  type: string
 type_3:
   description: |
     The service type, which describes the API
@@ -1720,13 +1739,6 @@ type_3:
     ``ec2``, ``identity``, ``image``, ``network``, or ``volume``.
   in: body
   required: true
-  type: string
-type_7:
-  description: |
-    The credential type, such as ``ec2`` or ``cert``.
-    The implementation determines the list of supported types.
-  in: body
-  required: false
   type: string
 user:
   description: |
@@ -1755,21 +1767,9 @@ user_id:
   in: body
   required: false
   type: string
-user_id_1:
-  description: |
-    The ID of the user who owns the credential.
-  in: body
-  required: true
-  type: string
 user_id_2:
   description: |
     The ID of the user who owns the policy.
-  in: body
-  required: false
-  type: string
-user_id_5:
-  description: |
-    The ID of the user who owns the credential.
   in: body
   required: false
   type: string

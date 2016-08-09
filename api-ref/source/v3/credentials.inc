@@ -37,9 +37,9 @@ Request
 
    - credential: credential
    - project_id: project_id
-   - type: type
-   - blob: blob
-   - user_id: user_id
+   - type: credential_type
+   - blob: credential_blob
+   - user_id: credential_user_id
 
 Request Example
 ---------------
@@ -53,12 +53,12 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - credential: credential
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: credential_user_id
+   - links: credential_links
+   - blob: credential_blob
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: credential_type
+   - id: credential_id
 
 
 List credentials
@@ -79,20 +79,20 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
+   - user_id: user_id_query
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: credential_user_id
+   - links: credentials_links
+   - blob: credential_blob
    - credentials: credentials
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: credential_type
+   - id: credential_id
 
 Response Example
 ----------------
@@ -116,7 +116,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - credential_id: credential_id
+   - credential_id: credential_id_path
 
 Response Parameters
 -------------------
@@ -124,12 +124,12 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - credential: credential
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: credential_user_id
+   - links: credential_links
+   - blob: credential_blob
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: credential_type
+   - id: credential_id
 
 Response Example
 ----------------
@@ -153,12 +153,12 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - credential_id: credential_id_path
    - credential: credential
    - project_id: project_id
-   - type: type
-   - blob: blob
-   - user_id: user_id
-   - credential_id: credential_id
+   - type: credential_type_notRequired
+   - blob: credential_blob_notRequired
+   - user_id: credential_user_id_notRequired
 
 Request Example
 ---------------
@@ -172,12 +172,12 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - credential: credential
-   - user_id: user_id
-   - links: links
-   - blob: blob
+   - user_id: credential_user_id
+   - links: credential_links
+   - blob: credential_blob
    - project_id: project_id
-   - type: type
-   - id: id
+   - type: credential_type
+   - id: credential_id
 
 Response Example
 ----------------
@@ -201,4 +201,4 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - credential_id: credential_id
+   - credential_id: credential_id_path
