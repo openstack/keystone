@@ -1,0 +1,50 @@
+{
+    "project": {
+        "domain_id": "1789d1",
+        "enabled": true,
+        "id": "263fd9",
+        "links": {
+            "self": "http://example.com/identity/v3/projects/263fd9"
+        },
+        "name": "Dev Group A",
+        "parent_id": "183ab2",
+        "subtree": [
+            {
+                "project": {
+                    "domain_id": "1789d1",
+                    "enabled": true,
+                    "id": "9n1jhb",
+                    "links": {
+                        "self": "http://example.com/identity/v3/projects/9n1jhb"
+                    },
+                    "name": "Dev Group A Child 1",
+                    "parent_id": "263fd9"
+                }
+            },
+            {
+                "project": {
+                    "domain_id": "1789d1",
+                    "enabled": true,
+                    "id": "4b6aa1",
+                    "links": {
+                        "self": "http://example.com/identity/v3/projects/4b6aa1"
+                    },
+                    "name": "Dev Group A Child 2",
+                    "parent_id": "263fd9"
+                }
+            },
+            {
+                "project": {
+                    "domain_id": "1789d1",
+                    "enabled": true,
+                    "id": "b76eq8",
+                    "links": {
+                        "self": "http://example.com/identity/v3/projects/b76xq8"
+                    },
+                    "name": "Dev Group A Grandchild",
+                    "parent_id": "4b6aa1"
+                }
+            }
+        ]
+    }
+}

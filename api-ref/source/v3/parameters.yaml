@@ -277,6 +277,25 @@ parent_region_id_query:
   in: query
   required: false
   type: string
+parents_as_ids:
+  description: |
+    The entire parent hierarchy will be included as
+    nested dictionaries in the response. It will contain
+    all projects ids found by traversing up the hierarchy
+    to the top-level project.
+  in: query
+  required: false
+  type: key-only, no value expected
+  min_version: 3.4
+parents_as_list:
+  description: |
+    The parent hierarchy will be included as a list in the response.
+    This list will contain the projects found by traversing up the
+    hierarchy to the top-level project.
+  in: query
+  required: false
+  type: key-only, no value expected
+  min_version: 3.4
 project_enabled_query:
   description: |
     If set to true, then only enabled projects will be returned. Any value
@@ -336,6 +355,24 @@ service_type_query:
   in: query
   required: false
   type: string
+subtree_as_ids:
+  description: |
+    The entire child hierarchy will be included as nested dictionaries
+    in the response. It will contain all the projects ids found by
+    traversing down the hierarchy.
+  in: query
+  required: false
+  type: key-only, no value expected
+  min_version: 3.4
+subtree_as_list:
+  description: |
+    The child hierarchy will be included as a list in the response.
+    This list will contain the projects found by traversing down
+    the hierarchy.
+  in: query
+  required: false
+  type: key-only, no value expected
+  min_version: 3.4
 type_4:
   description: |
     Filters the response by a MIME media type for the

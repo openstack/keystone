@@ -135,6 +135,10 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id_path
+   - parents_as_list: parents_as_list
+   - subtree_as_list: subtree_as_list
+   - parents_as_ids: parents_as_ids
+   - subtree_as_ids: subtree_as_ids
 
 Response Parameters
 -------------------
@@ -155,6 +159,18 @@ Response Example
 ----------------
 
 .. literalinclude:: ./samples/admin/project-show-response.json
+   :language: javascript
+
+Response Example with ``parents_as_list``
+-----------------------------------------
+
+.. literalinclude:: ./samples/admin/project-show-parents-response.json
+   :language: javascript
+
+Response Example with ``subtree_as_list``
+-----------------------------------------
+
+.. literalinclude:: ./samples/admin/project-show-subtree-response.json
    :language: javascript
 
 

@@ -1,0 +1,26 @@
+{
+    "project": {
+        "domain_id": "1789d1",
+        "enabled": true,
+        "id": "263fd9",
+        "links": {
+            "self": "http://example.com/identity/v3/projects/263fd9"
+        },
+        "name": "Dev Group A",
+        "parent_id": "183ab2",
+        "parents": [
+            {
+                "project": {
+                    "domain_id": "1789d1",
+                    "enabled": true,
+                    "id": "183ab2",
+                    "links": {
+                        "self": "http://example.com/identity/v3/projects/183ab2"
+                    },
+                    "name": "Dev Group A Parent",
+                    "parent_id": null
+                }
+            }
+        ]
+    }
+}
