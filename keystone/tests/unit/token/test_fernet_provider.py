@@ -507,8 +507,11 @@ class TestFernetKeyRotation(unit.TestCase):
 
         """
         # Load the keys into a list, keys is list of six.text_type.
-        utils = fernet_utils.FernetUtils()
-        keys = utils.load_keys()
+        key_utils = fernet_utils.FernetUtils(
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys
+        )
+        keys = key_utils.load_keys()
 
         # Sort the list of keys by the keys themselves (they were previously
         # sorted by filename).
@@ -544,7 +547,6 @@ class TestFernetKeyRotation(unit.TestCase):
         # support max_active_keys being set any lower.
         min_active_keys = 2
 
-        utils = fernet_utils.FernetUtils()
         # Simulate every rotation strategy up to "rotating once a week while
         # maintaining a year's worth of keys."
         for max_active_keys in range(min_active_keys, 52 + 1):
@@ -566,8 +568,12 @@ class TestFernetKeyRotation(unit.TestCase):
 
             # Rotate the keys just enough times to fully populate the key
             # repository.
+            key_utils = fernet_utils.FernetUtils(
+                CONF.fernet_tokens.key_repository,
+                CONF.fernet_tokens.max_active_keys
+            )
             for rotation in range(max_active_keys - min_active_keys):
-                utils.rotate_keys()
+                key_utils.rotate_keys()
                 self.assertRepositoryState(expected_size=rotation + 3)
 
                 exp_keys.append(next_key_number)
@@ -579,8 +585,12 @@ class TestFernetKeyRotation(unit.TestCase):
 
             # Rotate an additional number of times to ensure that we maintain
             # the desired number of active keys.
+            key_utils = fernet_utils.FernetUtils(
+                CONF.fernet_tokens.key_repository,
+                CONF.fernet_tokens.max_active_keys
+            )
             for rotation in range(10):
-                utils.rotate_keys()
+                key_utils.rotate_keys()
                 self.assertRepositoryState(expected_size=max_active_keys)
 
                 exp_keys.pop(1)
@@ -593,8 +603,11 @@ class TestFernetKeyRotation(unit.TestCase):
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '99.bak')
         with open(evil_file, 'w'):
             pass
-        utils = fernet_utils.FernetUtils()
-        utils.rotate_keys()
+        key_utils = fernet_utils.FernetUtils(
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys
+        )
+        key_utils.rotate_keys()
         self.assertTrue(os.path.isfile(evil_file))
         keys = 0
         for x in os.listdir(CONF.fernet_tokens.key_repository):
@@ -610,7 +623,10 @@ class TestLoadKeys(unit.TestCase):
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '~1')
         with open(evil_file, 'w'):
             pass
-        utils = fernet_utils.FernetUtils()
-        keys = utils.load_keys()
+        key_utils = fernet_utils.FernetUtils(
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys
+        )
+        keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))
         self.assertTrue(len(keys[0]))
