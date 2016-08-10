@@ -159,12 +159,11 @@ def is_revoked(events, token_data):
 def matches(event, token_values):
     """See if the token matches the revocation event.
 
-    A brute force approach to checking.
-    Compare each attribute from the event with the corresponding
-    value from the token.  If the event does not have a value for
-    the attribute, a match is still possible.  If the event has a
-    value for the attribute, and it does not match the token, no match
-    is possible, so skip the remaining checks.
+    A brute force approach to checking. Compare each attribute from the event
+    with the corresponding value from the token. If the event does not have a
+    value for the attribute, a match is still possible. If the event has a
+    value for the attribute, and it does not match the token, no match is
+    possible, so skip the remaining checks.
 
     :param event: a RevokeEvent instance
     :param token_values: dictionary with set of values taken from the
@@ -172,64 +171,142 @@ def matches(event, token_values):
     :returns: True if the token matches the revocation event, indicating the
               token has been revoked
     """
-    # If any one check does not match, the whole token does
-    # not match the event. The numerous return False indicate
-    # that the token is still valid and short-circuits the
-    # rest of the logic.
+    # If any one check does not match, the whole token does not match the
+    # event. The numerous return False indicate that the token is still valid
+    # and short-circuits the rest of the logic.
 
     # The token has three attributes that can match the user_id.
     if event.user_id is not None and event.user_id not in (
             token_values['user_id'],
             token_values['trustor_id'],
             token_values['trustee_id'],):
+        LOG.debug(
+            'The user (id=%s) in the revocation event does not match any user '
+            '(user_id=%s, trustor_id=%s, trustee_id=%s) in the token.',
+            event.user_id,
+            token_values['user_id'],
+            token_values['trustor_id'],
+            token_values['trustee_id'])
         return False
 
     # The token has two attributes that can match the domain_id.
     if event.domain_id is not None and event.domain_id not in(
             token_values['identity_domain_id'],
             token_values['assignment_domain_id'],):
+        LOG.debug(
+            'The domain (id=%s) in the revocation event does not match any '
+            'domain (identity_domain_id=%s, assignment_domain_id=%s) in the '
+            'token.',
+            event.domain_id,
+            token_values['identity_domain_id'],
+            token_values['assignment_domain_id'])
         return False
 
     if event.domain_scope_id is not None and event.domain_scope_id not in (
             token_values['assignment_domain_id'],):
+        LOG.debug(
+            'The domain scope (id=%s) in the revocation event does not match '
+            'the domain scope (id=%s) in the token.',
+            event.domain_scope_id,
+            token_values['assignment_domain_id'])
         return False
 
     # If an event specifies an attribute name, but it does not match, the token
     # is not revoked.
     if event.project_id is not None and event.project_id not in (
             token_values['project_id'],):
+        LOG.debug(
+            'The project ID (%s) in the revocation event does not match the '
+            'project ID (%s) in the token.',
+            event.project_id,
+            token_values['project_id'])
         return False
 
     if event.expires_at is not None and event.expires_at not in (
             token_values['expires_at'],):
+        LOG.debug(
+            'The expiration (id=%s) in the revocation event does not match '
+            'the expiration (at=%s) of the token.',
+            event.expires_at,
+            token_values['expires_at'])
         return False
 
     if event.trust_id is not None and event.trust_id not in (
             token_values['trust_id'],):
+        LOG.debug(
+            'The trust (id=%s) in the revocation event does not match the '
+            'trust (id=%s) in the token.',
+            event.trust_id,
+            token_values['trust_id'])
         return False
 
     if event.consumer_id is not None and event.consumer_id not in (
             token_values['consumer_id'],):
+        LOG.debug(
+            'The OAuth consumer (id=%s) in the revocation event does not '
+            'match the OAuth consumer ID (id=%s) in the token.',
+            event.consumer_id,
+            token_values['consumer_id'])
         return False
 
     if event.access_token_id is not None and event.access_token_id not in (
             token_values['access_token_id'],):
+        LOG.debug(
+            'The OAuth access token (id=%s) in the revocation event does not '
+            'match the OAuth access token (id=%s) in the token.',
+            event.access_token_id,
+            token_values['access_token_id'])
         return False
 
     if event.audit_id is not None and event.audit_id not in (
             token_values['audit_id'],):
+        LOG.debug(
+            'The audit (id=%s) in the revocation event does not match the '
+            'audit (id=%s) in the token.',
+            event.audit_id,
+            token_values['audit_id'])
         return False
 
     if event.audit_chain_id is not None and event.audit_chain_id not in (
             token_values['audit_chain_id'],):
+        LOG.debug(
+            'The audit chain (id=%s) in the revocation event does not match '
+            'the audit chain (id=%s) in the token.',
+            event.audit_chain_id,
+            token_values['audit_chain_id'])
         return False
 
     if event.role_id is not None and event.role_id not in (
             token_values['roles']):
+        if LOG.logger.getEffectiveLevel() <= log.DEBUG:
+            # The string formatting here needs to be conditional, so that the
+            # extra work can be skipped if DEBUG logs are not actually being
+            # written anywhere.
+            role_ids = ', '.join('id=%s' % x for x in token_values['roles'])
+            LOG.debug(
+                'The role (id=%s) in the revocation event does not match any '
+                'of the roles (%s) in the token.',
+                event.role_id,
+                role_ids)
         return False
 
     if token_values['issued_at'] > event.issued_before:
+        LOG.debug(
+            'The token was created (%s) after the revocation event was issued '
+            '(%s).',
+            token_values['issued_at'],
+            event.issued_before)
         return False
+
+    if LOG.logger.getEffectiveLevel() <= log.DEBUG:
+        # The string formatting here needs to be conditional, so that the
+        # extra work can be skipped if DEBUG logs are not actually being
+        # written anywhere.
+        event_dict = event.to_dict()
+        attrs = ', '.join('='.join(item) for item in event_dict.items())
+        LOG.debug(
+            'All attributes (%s) in the revocation event are in the token.',
+            attrs, )
 
     return True
 
