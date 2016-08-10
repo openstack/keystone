@@ -1,0 +1,7 @@
+---
+features:
+  - >
+    [`blueprint manage-migration <https://blueprints.launchpad.net/keystone/+spec/manage-migration>`_]
+    Upgrading keystone to a new version can now be undertaken as a rolling
+    upgrade using the `--expand`, `--migrate` and `--contract` options of the
+    `keystone-manage db_sync` command.

@@ -22,6 +22,7 @@ from oslo_db.sqlalchemy import test_migrations
 import sqlalchemy
 import testtools
 
+from keystone.common.sql import expand_repo
 from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
 
@@ -173,3 +174,51 @@ class TestKeystoneMigrationsPostgreSQL(
 class TestKeystoneMigrationsSQLite(
         KeystoneMigrationsCheckers, test_base.DbTestCase):
     pass
+
+
+class TestKeystoneExpandSchemaMigrationsMySQL(
+        KeystoneMigrationsCheckers, test_base.MySQLOpportunisticTestCase):
+
+    @property
+    def INIT_VERSION(self):
+        return migration_helpers.get_init_version(
+            abs_path=os.path.abspath(os.path.dirname(expand_repo.__file__)))
+
+    @property
+    def REPOSITORY(self):
+        migrate_file = expand_repo.__file__
+        return repository.Repository(
+            os.path.abspath(os.path.dirname(migrate_file))
+        )
+
+
+class TestKeystoneExpandSchemaMigrationsPostgreSQL(
+        KeystoneMigrationsCheckers, test_base.PostgreSQLOpportunisticTestCase):
+
+    @property
+    def INIT_VERSION(self):
+        return migration_helpers.get_init_version(
+            abs_path=os.path.abspath(os.path.dirname(expand_repo.__file__)))
+
+    @property
+    def REPOSITORY(self):
+        migrate_file = expand_repo.__file__
+        return repository.Repository(
+            os.path.abspath(os.path.dirname(migrate_file))
+        )
+
+
+class TestKeystoneExpandSchemaMigrationsSQLite(
+        KeystoneMigrationsCheckers, test_base.DbTestCase):
+
+    @property
+    def INIT_VERSION(self):
+        return migration_helpers.get_init_version(
+            abs_path=os.path.abspath(os.path.dirname(expand_repo.__file__)))
+
+    @property
+    def REPOSITORY(self):
+        migrate_file = expand_repo.__file__
+        return repository.Repository(
+            os.path.abspath(os.path.dirname(migrate_file))
+        )
