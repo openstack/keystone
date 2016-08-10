@@ -17,6 +17,7 @@ import sqlalchemy as sql
 
 from keystone.assignment.backends import sql as assignment_sql
 from keystone.common import sql as ks_sql
+from keystone.i18n import _LE
 from keystone.identity.mapping_backends import mapping as mapping_backend
 
 
@@ -244,7 +245,7 @@ def upgrade(migrate_engine):
         try:
             table.create()
         except Exception:
-            LOG.exception('Exception while creating table: %r', table)
+            LOG.exception(_LE('Exception while creating table: %r'), table)
             raise
 
     # Unique Constraints
