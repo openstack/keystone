@@ -57,7 +57,8 @@ class TokenFormatter(object):
         ``encrypt(plaintext)`` and ``decrypt(ciphertext)``.
 
         """
-        keys = utils.load_keys()
+        fernet_utils = utils.FernetUtils()
+        keys = fernet_utils.load_keys()
 
         if not keys:
             raise exception.KeysNotFound()

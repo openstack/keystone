@@ -26,5 +26,6 @@ class KeyRepository(fixtures.Fixture):
         self.config_fixture.config(group='fernet_tokens',
                                    key_repository=directory)
 
-        utils.create_key_directory()
-        utils.initialize_key_repository()
+        fernet_utils = utils.FernetUtils()
+        fernet_utils.create_key_directory()
+        fernet_utils.initialize_key_repository()

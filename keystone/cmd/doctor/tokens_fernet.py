@@ -12,7 +12,7 @@
 
 import keystone.conf
 
-from keystone.common import fernet_utils
+from keystone.common import fernet_utils as utils
 
 
 CONF = keystone.conf.CONF
@@ -25,6 +25,7 @@ def symptom_usability_of_Fernet_key_repository():
     keystone, but not world-readable, because it contains security-sensitive
     secrets.
     """
+    fernet_utils = utils.FernetUtils()
     return (
         'fernet' in CONF.token.provider
         and not fernet_utils.validate_key_repository())
@@ -38,6 +39,7 @@ def symptom_keys_in_Fernet_key_repository():
     with keys, and periodically rotate your keys with `keystone-manage
     fernet_rotate`.
     """
+    fernet_utils = utils.FernetUtils()
     return (
         'fernet' in CONF.token.provider
         and not fernet_utils.load_keys())
