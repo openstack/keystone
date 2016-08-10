@@ -24,12 +24,12 @@ from six.moves import map
 from six.moves import urllib
 
 from keystone.auth import plugins as auth_plugins
+from keystone.common import fernet_utils as utils
 from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LI
 from keystone.token import provider
-from keystone.token.providers.fernet import utils
 
 
 CONF = keystone.conf.CONF

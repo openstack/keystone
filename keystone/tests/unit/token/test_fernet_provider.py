@@ -20,6 +20,7 @@ import msgpack
 from oslo_utils import timeutils
 from six.moves import urllib
 
+from keystone.common import fernet_utils
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -30,7 +31,6 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.token import provider
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
-from keystone.token.providers.fernet import utils as fernet_utils
 
 
 CONF = keystone.conf.CONF

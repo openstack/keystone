@@ -12,7 +12,7 @@
 
 import keystone.conf
 
-from keystone.token.providers.fernet import utils as fernet_utils
+from keystone.common import fernet_utils
 
 
 CONF = keystone.conf.CONF

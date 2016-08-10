@@ -12,7 +12,7 @@
 
 import fixtures
 
-from keystone.token.providers.fernet import utils
+from keystone.common import fernet_utils as utils
 
 
 class KeyRepository(fixtures.Fixture):
