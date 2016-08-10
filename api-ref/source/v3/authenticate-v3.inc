@@ -357,6 +357,7 @@ Request
 
    - X-Auth-Token: X-Auth-Token
    - X-Subject-Token: X-Subject-Token
+   - nocatalog: nocatalog
 
 Response Parameters
 -------------------
