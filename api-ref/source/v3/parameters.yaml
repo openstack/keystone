@@ -47,7 +47,7 @@ domain_id_path:
   in: path
   required: true
   type: string
-endpoint_id:
+endpoint_id_path:
   description: |
     The endpoint ID.
   in: path
@@ -223,7 +223,7 @@ include_subtree_query:
   required: false
   type: boolean
   min_version: 3.6
-interface_2:
+interface_query:
   description: |
     Filters the response by an interface.
   in: query
@@ -341,7 +341,7 @@ scope_project_id_query:
   in: query
   required: false
   type: string
-service_id_3:
+service_id_query:
   description: |
     Filters the response by a service ID.
   in: query
@@ -722,15 +722,6 @@ enabled:
   in: body
   required: false
   type: boolean
-enabled_1:
-  description: |
-    Defines whether the endpoint appears in the
-    service catalog:  - ``false``. The endpoint does not appear in the
-    service catalog.  - ``true``. The endpoint appears in the service
-    catalog.  Default is ``true``.
-  in: body
-  required: false
-  type: boolean
 enabled_10:
   description: |
     Defines whether the service and its endpoints
@@ -751,15 +742,6 @@ enabled_2:
     is ``true``.
   in: body
   required: false
-  type: boolean
-enabled_7:
-  description: |
-    Indicates whether the endpoint appears in the
-    service catalog:  - ``false``. The endpoint does not appear in the
-    service catalog.  - ``true``. The endpoint appears in the service
-    catalog.
-  in: body
-  required: true
   type: boolean
 enabled_user_request_body:
   description: |
@@ -793,12 +775,78 @@ endpoint:
   in: body
   required: true
   type: object
+endpoint_enabled:
+  description: |
+    Indicates whether the endpoint appears in the
+    service catalog:  - ``false``. The endpoint does not appear in the
+    service catalog.  - ``true``. The endpoint appears in the service
+    catalog.
+  in: body
+  required: true
+  type: boolean
+endpoint_enabled_notRequired:
+  description: |
+    Defines whether the endpoint appears in the
+    service catalog:  - ``false``. The endpoint does not appear in the
+    service catalog.  - ``true``. The endpoint appears in the service
+    catalog.  Default is ``true``.
+  in: body
+  required: false
+  type: boolean
+endpoint_id:
+  description: |
+    The endpoint ID.
+  in: body
+  required: true
+  type: string
+endpoint_interface:
+  description: |
+    The interface type, which describes the
+    visibility of the endpoint.  Value is:  - ``public``. Visible by
+    end users on a publicly available network   interface.  -
+    ``internal``. Visible by end users on an unmetered internal
+    network interface.  - ``admin``. Visible by administrative users
+    on a secure network   interface.
+  in: body
+  required: true
+  type: string
+endpoint_links:
+  description: |
+    The links for the ``endpoint`` resource.
+  in: body
+  required: true
+  type: object
+endpoint_name:
+  description: |
+    The endpoint name.
+  in: body
+  required: true
+  type: string
+endpoint_region:
+  description: |
+    (Deprecated in v3.2) The geographic location of
+    the service endpoint.
+  in: body
+  required: true
+  type: string
+endpoint_url:
+  description: |
+    The endpoint URL.
+  in: body
+  required: true
+  type: string
 endpoints:
   description: |
-    An ``endpoints`` object.
+    A list of ``endpoint`` objects.
   in: body
   required: true
   type: array
+endpoints_links:
+  description: |
+    The links for the ``endpoints`` resource.
+  in: body
+  required: true
+  type: object
 expires_at:
   description: |
     The date and time when the token expires.
@@ -1013,28 +1061,6 @@ identity_1:
   in: body
   required: true
   type: object
-interface:
-  description: |
-    The interface type, which describes the
-    visibility of the endpoint.  Value is:  - ``public``. Visible by
-    end users on a publicly available network   interface.  -
-    ``internal``. Visible by end users on an unmetered internal
-    network interface.  - ``admin``. Visible by administrative users
-    on a secure network   interface.
-  in: body
-  required: true
-  type: string
-interface_1:
-  description: |
-    The interface type, which describes the
-    visibility of the endpoint.  A valid value is:  - ``public``.
-    Visible by end users on a publicly available network   interface.
-    - ``internal``. Visible by end users on an unmetered internal
-    network interface.  - ``admin``. Visible by administrative users
-    on a secure network   interface.
-  in: body
-  required: true
-  type: string
 is_domain_request_body:
   description: |
     Indicates whether the project also acts as a domain. If set to ``true``,
@@ -1116,18 +1142,6 @@ links_11:
 links_12:
   description: |
     The links for the ``roles`` resource.
-  in: body
-  required: true
-  type: object
-links_13:
-  description: |
-    The links for the ``endpoints`` resource.
-  in: body
-  required: true
-  type: object
-links_2:
-  description: |
-    The links for the ``endpoint`` resource.
   in: body
   required: true
   type: object
@@ -1240,12 +1254,6 @@ name_19:
 name_2:
   description: |
     The domain name.
-  in: body
-  required: true
-  type: string
-name_3:
-  description: |
-    The endpoint name.
   in: body
   required: true
   type: string
@@ -1476,13 +1484,6 @@ projects:
   in: body
   required: true
   type: array
-region:
-  description: |
-    (Deprecated in v3.2) The geographic location of
-    the service endpoint.
-  in: body
-  required: true
-  type: string
 region_2:
   description: |
     (Deprecated in v3.2) The geographic location of
@@ -1701,12 +1702,6 @@ type_7:
     The implementation determines the list of supported types.
   in: body
   required: false
-  type: string
-url:
-  description: |
-    The endpoint URL.
-  in: body
-  required: true
   type: string
 url_1:
   description: |

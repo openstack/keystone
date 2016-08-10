@@ -63,7 +63,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -96,7 +96,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -117,7 +117,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -180,7 +180,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -213,7 +213,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -233,7 +233,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -283,7 +283,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -302,7 +302,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -338,7 +338,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -367,7 +367,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
@@ -386,7 +386,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - url: url
+   - url: endpoint_url
    - driver: driver
    - ldap: ldap
    - config: config
