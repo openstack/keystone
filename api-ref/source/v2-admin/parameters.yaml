@@ -206,12 +206,24 @@ tenant:
   in: body
   required: true
   type: string
+tenant_links:
+  description: |
+    The link to the represented tenant collection.
+  in: body
+  required: true
+  type: array
 tenantId:
   description: |
     The tenant ID.
   in: body
   required: false
   type: string
+tenants:
+  description: |
+    The collection of tenants.
+  in: body
+  required: true
+  type: array
 token:
   description: |
     A ``token`` object.
@@ -267,4 +279,9 @@ users:
   in: body
   required: true
   type: array
-
+users_link:
+  description: |
+    The link to the reporesented user collection.
+  in: body
+  required: true
+  type: array

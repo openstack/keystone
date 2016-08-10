@@ -22,6 +22,17 @@ Request
 
    - tenantId: tenantId
 
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - tenant: tenant
+   - enabled: enabled
+   - description: description
+   - name: name
+   - id: id
+
 Response Example
 ----------------
 
@@ -45,6 +56,18 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - tenantId: tenantId
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - users_link: users_link
+   - users: users
+   - enabled: enabled
+   - username: username
+   - email: email
+   - id: id
 
 Response Example
 ----------------
@@ -99,6 +122,18 @@ Lists all tenants.
 Normal response codes: 200,203
 Error response codes: 413,405,404,403,401,400,503
 
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - tenant_links: tenant_links
+   - tenants: tenants
+   - enabled: enabled
+   - description: description
+   - name: name
+   - id: id
+
 Response Example
 ----------------
 
@@ -122,6 +157,17 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - name: name
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - tenant: tenant
+   - enabled: enabled
+   - description: description
+   - name: name
+   - id: id
 
 Response Example
 ----------------
