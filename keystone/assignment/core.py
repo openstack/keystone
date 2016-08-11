@@ -692,7 +692,7 @@ class Manager(manager.Manager):
                         ref_results.append(implied_ref)
                         role_refs_to_check.append(implied_ref)
         except exception.NotImplemented:
-            LOG.error('Role driver does not support implied roles.')
+            LOG.error(_LE('Role driver does not support implied roles.'))
 
         return ref_results
 
