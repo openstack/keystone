@@ -7,6 +7,8 @@ Generate a SAML assertion
 
 .. rest_method::  POST /v3/auth/OS-FEDERATION/saml2
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/saml2``
+
 A user may generate a SAML assertion document based on the scoped token that is
 used in the request.
 
@@ -56,6 +58,8 @@ Generate an ECP wrapped SAML assertion
 
 .. rest_method::  POST /v3/auth/OS-FEDERATION/saml2/ecp
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/saml2/ecp``
+
 A user may generate a SAML assertion document to work with the
 *Enhanced Client or Proxy* (ECP) profile based on the scoped token that is
 used in the request.
@@ -103,6 +107,8 @@ Retrieve Metadata properties
 ============================
 
 .. rest_method::  GET /v3/OS-FEDERATION/saml2/metadata
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/metadata``
 
 A user may retrieve Metadata about an Identity Service acting as an Identity
 Provider.

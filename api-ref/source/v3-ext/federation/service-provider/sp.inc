@@ -5,6 +5,8 @@ Register a Service Provider
 
 .. rest_method::  PUT /v3/OS-FEDERATION/service_providers/{id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
+
 Normal response codes: 201
 Error response codes: 400 Bad Request when registering a service provider with
 invalid URLs for either `auth_url` or `sp_url`.
@@ -51,6 +53,8 @@ Listing Service Providers
 
 .. rest_method::  GET /v3/OS-FEDERATION/service_providers
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_providers``
+
 Normal response codes: 200
 
 Response
@@ -72,6 +76,8 @@ Get Service Provider
 ====================
 
 .. rest_method::  GET /v3/OS-FEDERATION/service_providers/{id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Normal response codes: 200
 
@@ -107,6 +113,8 @@ Delete Service Provider
 
 .. rest_method::  DELETE /v3/OS-FEDERATION/service_providers/{id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
+
 Normal response codes: 204
 
 Request
@@ -121,6 +129,8 @@ Update Service Provider
 =======================
 
 .. rest_method::  PATCH /v3/OS-FEDERATION/service_providers/{id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Normal response codes: 200
 Error response codes: 400 Bad Request when updating a service provider with

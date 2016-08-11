@@ -95,6 +95,8 @@ Create trust
 
 .. rest_method::  POST /v3/OS-TRUST/trusts
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts``
+
 Creates a trust.
 
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts
@@ -160,9 +162,9 @@ List trusts
 
 .. rest_method:: GET /v3/OS-TRUST/trusts
 
-Lists all trusts.
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts``
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts
+Lists all trusts.
 
 Normal response codes: 200
 Error response codes: 400, 401, 403, 404, 405, 413, 503
@@ -222,9 +224,9 @@ Get trust
 
 .. rest_method:: GET /v3/OS-TRUST/trusts/{trust_id}
 
-Gets the trust information for ``{trust_id}``.
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust``
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust
+Gets the trust information for ``{trust_id}``.
 
 Normal response codes: 200
 Error response codes: 400, 401, 403, 404, 405, 413, 503
@@ -270,9 +272,9 @@ Delete trust
 
 .. rest_method:: DELETE /v3/OS-TRUST/trusts/{trust_id}
 
-Deletes a trust with ``{trust_id}``.
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust``
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust
+Deletes a trust with ``{trust_id}``.
 
 Normal response codes: 204
 Error response codes: 400, 401, 403, 404, 405, 409, 413, 415, 503
@@ -295,9 +297,9 @@ List roles delegated by a trust
 
 .. rest_method:: GET /v3/OS-TRUST/trusts/{trust_id}/roles
 
-Lists roles delegated by a trust with ``{trust_id}``.
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_roles``
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_roles
+Lists roles delegated by a trust with ``{trust_id}``.
 
 Normal response codes: 200
 Error response codes: 400, 401, 403, 404, 405, 413, 503
@@ -323,9 +325,9 @@ Check if a role is delegated by a trust
 
 .. rest_method:: HEAD /v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}
 
-Checks if a role is delegated by a trust.
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role``
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role
+Checks if a role is delegated by a trust.
 
 Normal response codes: 200
 Error response codes: 400, 401, 403, 404, 405, 413, 503
@@ -349,9 +351,9 @@ Get role delegated by a trust
 
 .. rest_method:: GET /v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}
 
-Gets a role with delegated by a trust.
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role``
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role
+Gets a role with delegated by a trust.
 
 Normal response codes: 200
 Error response codes: 400, 401, 403, 404, 405, 413, 503
