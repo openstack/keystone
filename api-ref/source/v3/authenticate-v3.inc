@@ -90,6 +90,8 @@ Password authentication with unscoped authorization
 
 .. rest_method::  POST /v3/auth/tokens
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
+
 Authenticates an identity and generates a token. Uses the password authentication method. Authorization is unscoped.
 
 The request body must include a payload that specifies the
@@ -142,6 +144,8 @@ Password authentication with scoped authorization
 =================================================
 
 .. rest_method::  POST /v3/auth/tokens
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
 
 Authenticates an identity and generates a token. Uses the password authentication method and scopes authorization to a project or domain.
 
@@ -205,6 +209,8 @@ Password authentication with explicit unscoped authorization
 
 .. rest_method::  POST /v3/auth/tokens
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
+
 Authenticates an identity and generates a token. Uses the password authentication method with explicit unscoped authorization.
 
 The request body must include a payload that specifies the
@@ -259,6 +265,8 @@ Token authentication with unscoped authorization
 
 .. rest_method::  POST /v3/auth/tokens
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
+
 Authenticates an identity and generates a token. Uses the token authentication method. Authorization is unscoped.
 
 In the request body, provide the token ID.
@@ -297,6 +305,8 @@ Token authentication with scoped authorization
 ==============================================
 
 .. rest_method::  POST /v3/auth/tokens
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
 
 Authenticates an identity and generates a token. Uses the token authentication method and scopes authorization to a project or domain.
 
@@ -339,6 +349,8 @@ Validate and show information for token
 =======================================
 
 .. rest_method::  GET /v3/auth/tokens
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
 
 Validates and shows information for a token, including its expiration date and authorization scope.
 
@@ -393,6 +405,8 @@ Check token
 
 .. rest_method::  HEAD /v3/auth/tokens
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
+
 Validates a token.
 
 This call is similar to ``GET /auth/tokens`` but no response body
@@ -421,6 +435,8 @@ Revoke token
 
 .. rest_method::  DELETE /v3/auth/tokens
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
+
 Revokes a token.
 
 This call is similar to the HEAD ``/auth/tokens`` call except that
@@ -444,6 +460,8 @@ Get service catalog
 ===================
 
 .. rest_method:: GET /v3/auth/catalog
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_catalog``
 
 New in version 3.3
 
@@ -486,6 +504,8 @@ Get available project scopes
 
 .. rest_method:: GET /v3/auth/projects
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_projects``
+
 New in version 3.3
 
 This call returns the list of projects that are available to be scoped
@@ -527,6 +547,8 @@ Get available domain scopes
 ===========================
 
 .. rest_method:: GET /v3/auth/domains
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_domains``
 
 New in version 3.3
 

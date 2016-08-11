@@ -20,6 +20,8 @@ Show region details
 
 .. rest_method::  GET /v3/regions/{region_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/regions``
+
 Shows details for a region, by ID.
 
 Normal response codes: 200
@@ -54,6 +56,8 @@ Update region
 =============
 
 .. rest_method::  PATCH /v3/regions/{region_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/region``
 
 Updates a region.
 
@@ -106,6 +110,8 @@ Delete region
 
 .. rest_method::  DELETE /v3/regions/{region_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/region``
+
 Deletes a region.
 
 The following error might occur:
@@ -128,6 +134,8 @@ List regions
 ============
 
 .. rest_method::  GET /v3/regions
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/regions``
 
 Lists regions.
 
@@ -163,6 +171,8 @@ Create region
 =============
 
 .. rest_method::  POST /v3/regions
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/regions``
 
 Creates a region.
 

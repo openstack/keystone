@@ -32,6 +32,8 @@ List projects
 
 .. rest_method::  GET /v3/projects
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects``
+
 Lists projects.
 
 Normal response codes: 200
@@ -75,6 +77,8 @@ Create project
 ==============
 
 .. rest_method::  POST /v3/projects
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
 Creates a project, including a project acting as a domain.
 
@@ -123,6 +127,8 @@ Show project details
 ====================
 
 .. rest_method::  GET /v3/projects/{project_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Shows details for a project.
 
@@ -179,6 +185,8 @@ Update project
 
 .. rest_method::  PATCH /v3/projects/{project_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
+
 Updates a project.
 
 Normal response codes: 200
@@ -230,6 +238,8 @@ Delete project
 
 .. rest_method::  DELETE /v3/projects/{project_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
+
 Deletes a project.
 
 Normal response codes: 204
@@ -247,6 +257,8 @@ Enable or disable project and its subtree
 =========================================
 
 .. rest_method::  PATCH /v3/projects/{project_id}/cascade
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 (Since Identity API v3.7) Enables or disables a project and its entire subtree.
 
@@ -305,6 +317,8 @@ Delete project subtree
 ======================
 
 .. rest_method::  DELETE /v3/projects/{project_id}/cascade
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 (Since Identity API v3.7) Deletes a project and its entire subtree.
 
