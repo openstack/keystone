@@ -133,7 +133,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - trust: trust
-   - id: id
+   - id: trust_id
    - impersonation: impersonation
    - trustee_user_id: trustee_user_id
    - trustor_user_id: trustor_user_id
@@ -194,7 +194,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - trust: trust
-   - id: id
+   - id: trust_id
    - impersonation: impersonation
    - trustee_user_id: trustee_user_id
    - trustor_user_id: trustor_user_id
@@ -234,7 +234,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - trust_id: trust_id
+   - trust_id: trust_id_path
 
 Response Parameters
 -------------------
@@ -242,7 +242,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - trust: trust
-   - id: id
+   - id: trust_id
    - impersonation: impersonation
    - trustee_user_id: trustee_user_id
    - trustor_user_id: trustor_user_id
@@ -282,7 +282,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - trust_id: trust_id
+   - trust_id: trust_id_path
 
 Response Example
 ----------------
@@ -307,7 +307,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - trust_id: trust_id
+   - trust_id: trust_id_path
 
 Response Example
 ----------------
@@ -335,8 +335,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - trust_id: trust_id
-   - role_id: role_id
+   - trust_id: trust_id_path
+   - role_id: role_id_path
 
 Response Example
 ----------------
@@ -361,8 +361,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - trust_id: trust_id
-   - role_id: role_id
+   - trust_id: trust_id_path
+   - role_id: role_id_path
 
 Response Example
 ----------------
