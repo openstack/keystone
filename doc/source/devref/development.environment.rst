@@ -15,13 +15,13 @@
       under the License.
 
 =============================================
-Setting up a Keystone development environment
+Setting up a keystone development environment
 =============================================
 
-This document describes getting the source from keystone's `Git repository`_
-for development purposes.
+This document describes getting the source from keystone's `Git Repository`_
+and setting the environment up for development purposes.
 
-To install Keystone from packaging, refer instead to Keystone's `User
+To install keystone from packaging, refer instead to OpenStack's `User
 Documentation`_.
 
 .. _`Git Repository`: http://git.openstack.org/cgit/openstack/keystone
@@ -30,146 +30,50 @@ Documentation`_.
 Prerequisites
 =============
 
-This document assumes you are using Ubuntu, Fedora or openSUSE (SLE)
+This document assumes you are using an Ubuntu, Fedora, or openSUSE platform and
+that you have the following tools pre-installed on your system:
 
-And that you have the following tools available on your system:
+- Python_ 2.7 and 3.4, as the programming language;
+- git_, as the version control tool;
 
-- Python_ 2.7 and 3.4
-- git_
-- setuptools_
-- pip_
-- msgfmt (part of the gettext package)
-- virtualenv_
-- tox_
-
-**Reminder**: If you're successfully using a different platform, or a
+**Reminder**: If you are successfully using a different platform, or a
 different version of the above, please document your configuration here!
 
-.. _Python: http://www.python.org/
 .. _git: http://git-scm.com/
-.. _setuptools: http://pypi.python.org/pypi/setuptools
-.. _tox: https://pypi.python.org/pypi/tox
+.. _Python: http://www.python.org/
 
 Getting the latest code
 =======================
 
-Make a clone of the code from our `Git repository`:
+Make a clone of the code from our git repository and enter the directory:
 
 .. code-block:: bash
 
     $ git clone https://git.openstack.org/openstack/keystone.git
-
-When that is complete, you can:
-
-.. code-block:: bash
-
     $ cd keystone
 
-Installing dependencies
+Development environment
 =======================
 
-Keystone maintains two lists of dependencies::
+For setting up the Python development environment and running `tox` testing
+environments, please refer to the `Project Team Guide: Python Project Guide`_,
+the OpenStack guide on wide standard practices around the use of Python.
 
-    requirements.txt
-    test-requirements.txt
+That documentation will guide you to configure your development environment
+and run keystone tests using `tox`, which uses virtualenv_ to isolate the Python
+environment. After running it, notice the existence of a `.tox` directory.
 
-The first is the list of dependencies needed for running keystone, the second list includes dependencies used for active development and testing of Keystone itself.
-
-These dependencies can be installed from PyPi_ using the Python tool pip_.
-
-.. _PyPi: http://pypi.python.org/
-.. _pip: http://pypi.python.org/pypi/pip
-
-However, your system *may* need additional dependencies that `pip` (and by
-extension, PyPi) cannot satisfy. These dependencies should be installed
-prior to using `pip`, and the installation method may vary depending on
-your platform.
-
-Ubuntu 14.04, 15.10, 16.04:
-
-.. code-block:: bash
-
-    $ sudo apt-get install python-dev python3-dev libxml2-dev libxslt1-dev \
-        libsasl2-dev libsqlite3-dev libssl-dev libldap2-dev libffi-dev \
-        libpq-dev
-
-Fedora 19+:
-
-.. code-block:: bash
-
-    $ sudo yum install python-lxml python-greenlet-devel python-ldap \
-        sqlite-devel openldap-devel python-devel libxslt-devel \
-        openssl-devel libffi-devel postgresql-libs
-
-openSUSE 13.2 (SLE 12):
-
-.. code-block:: bash
-
-    $ sudo zypper install libxslt-devel openldap2-devel libopenssl-devel \
-        python-devel python-greenlet-devel python-ldap python-lxml \
-        python-pysqlite sqlite3-devel libpq-devel
-
-PyPi Packages and VirtualEnv
-----------------------------
-
-We recommend establishing a virtualenv to run Keystone within. virtualenv
-limits the Python environment to just what you're installing as dependencies,
-useful to keep a clean environment for working on Keystone.
-
-.. code-block:: bash
-
-    $ tox -e venv --notest
-
-This will create a local virtual environment in the directory ``.tox``.
-Once created, you can activate this virtualenv for your current shell using:
-
-.. code-block:: bash
-
-    $ source .tox/venv/bin/activate
-
-The virtual environment can be disabled using the command:
-
-.. code-block:: bash
-
-    $ deactivate
-
-You can also use ``tox -e venv`` to prefix commands so that they run
-within the virtual environment. For more information on virtual environments,
-see virtualenv_.
-
+.. _`Project Team Guide: Python Project Guide`: http://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _virtualenv: http://www.virtualenv.org/
 
-If you want to run Keystone outside of a virtualenv, you can install the
-dependencies directly into your system from the requirements files:
-
-.. code-block:: bash
-
-    # Install the dependencies for running keystone
-    $ pip install -r requirements.txt
-
-    # Install the dependencies for developing, testing, and running keystone
-    $ pip install -r test-requirements.txt
-
-    # Use 'python setup.py' to link Keystone into Python's site-packages
-    $ python setup.py develop
-
-
-Verifying Keystone is set up
+Verifying keystone is set up
 ============================
 
-Once set up, either directly or within a virtualenv, you should be able to
-invoke Python and import the libraries. If you're using a virtualenv, don't
-forget to activate it:
+Once set up, you should be able to invoke Python and import the libraries:
 
 .. code-block:: bash
 
-    $ source .tox/venv/bin/activate
+    $ .tox/py27/bin/python -c "import keystone"
 
-You should then be able to `import keystone` using Python without issue:
-
-.. code-block:: bash
-
-    $ python -c "import keystone"
-
-If you can import Keystone without a traceback, you should be ready to move on
+If you can import keystone without a traceback, you should be ready to move on
 to :doc:`../developing`.
