@@ -116,12 +116,6 @@ service_id_path:
   in: path
   required: false
   type: string
-user_id:
-  description: |
-    The user ID.
-  in: path
-  required: true
-  type: string
 user_id_path:
   description: |
     The user ID.
@@ -402,6 +396,58 @@ auth:
   in: body
   required: true
   type: object
+auth_domain_id:
+  description: |
+    The ID of the domain.  If you specify a user
+    name, you must specify either a domain ID or domain name.
+  in: body
+  required: false
+  type: string
+auth_methods:
+  description: |
+    The authentication method, which is ``password``,
+    ``token``, or both methods.  Indicates the accumulated set of
+    authentication methods that were used to obtain the token. For
+    example, if the token was obtained by password authentication, it
+    contains ``password``. Later, if the token is exchanged by using
+    the token authentication method one or more times, the
+    subsequently created tokens contain both ``password`` and
+    ``token`` in their ``methods`` attribute.  Unlike multi-factor
+    authentication, the ``methods`` attribute merely indicates the
+    methods that were used to authenticate the user in exchange for a
+    token. The client is responsible for determining the total number
+    of authentication factors.
+  in: body
+  required: true
+  type: array
+auth_methods_passwd:
+  description: |
+    The authentication method. For password
+    authentication, specify ``password``.
+  in: body
+  required: true
+  type: array
+auth_methods_token:
+  description: |
+    The authentication method. For token
+    authentication, specify ``token``.
+  in: body
+  required: true
+  type: array
+auth_token:
+  description: |
+    A ``token`` object. The token authentication
+    method is used. This method is typically used in combination with
+    a request to change authorization scope.
+  in: body
+  required: true
+  type: object
+auth_token_id:
+  description: |
+    A token ID.
+  in: body
+  required: true
+  type: string
 blob:
   description: |
     The credential itself, as a serialized blob.
@@ -865,6 +911,12 @@ endpoint_region:
   in: body
   required: true
   type: string
+endpoint_type:
+  description: |
+    The endpoint type.
+  in: body
+  required: true
+  type: string
 endpoint_url:
   description: |
     The endpoint URL.
@@ -985,15 +1037,7 @@ groups:
   type: array
 id:
   description: |
-    The ID of the user.  Required if you do not
-    specify the user name.
-  in: body
-  required: false
-  type: string
-id_1:
-  description: |
-    The ID of the domain.  If you specify a user
-    name, you must specify either a domain ID or domain name.
+    [WIP]
   in: body
   required: false
   type: string
@@ -1197,45 +1241,6 @@ links_user:
   in: body
   required: true
   type: object
-methods:
-  description: |
-    The authentication method. For password
-    authentication, specify ``password``.
-  in: body
-  required: true
-  type: array
-methods_1:
-  description: |
-    The authentication method. For token
-    authentication, specify ``token``.
-  in: body
-  required: true
-  type: array
-methods_2:
-  description: |
-    The authentication method, which is ``password``,
-    ``token``, or both methods.  Indicates the accumulated set of
-    authentication methods that were used to obtain the token. For
-    example, if the token was obtained by password authentication, it
-    contains ``password``. Later, if the token is exchanged by using
-    the token authentication method one or more times, the
-    subsequently created tokens contain both ``password`` and
-    ``token`` in their ``methods`` attribute.  Unlike multi-factor
-    authentication, the ``methods`` attribute merely indicates the
-    methods that were used to authenticate the user in exchange for a
-    token. The client is responsible for determining the total number
-    of authentication factors.
-  in: body
-  required: true
-  type: array
-name:
-  description: |
-    The user name.  Required if you do not specify
-    the ID of the user.  If you specify the user name, you must also
-    specify the domain, by ID or name.
-  in: body
-  required: false
-  type: string
 name_1:
   description: |
     The name of the domain.  If you specify a user
@@ -1335,10 +1340,10 @@ parent_region_id_response_body:
   type: string
 password:
   description: |
-    The user password.
+    The ``password`` object, contains the authentication information.
   in: body
   required: true
-  type: string
+  type: object
 password_expires_at:
   description: |
     The date and time when the password expires. The time zone
@@ -1682,17 +1687,9 @@ token:
   in: body
   required: true
   type: object
-token_1:
-  description: |
-    A ``token`` object. The token authentication
-    method is used. This method is typically used in combination with
-    a request to change authorization scope.
-  in: body
-  required: true
-  type: object
 type:
   description: |
-    The endpoint type.
+    [WIP]
   in: body
   required: true
   type: string
@@ -1745,6 +1742,13 @@ user_domain_id_update_body:
   in: body
   required: false
   type: string
+user_id:
+  description: |
+    The ID of the user.  Required if you do not
+    specify the user name.
+  in: body
+  required: false
+  type: string
 user_id_1:
   description: |
     The ID of the user who owns the credential.
@@ -1766,6 +1770,14 @@ user_id_4:
 user_id_5:
   description: |
     The ID of the user who owns the credential.
+  in: body
+  required: false
+  type: string
+user_name:
+  description: |
+    The user name.  Required if you do not specify
+    the ID of the user.  If you specify the user name, you must also
+    specify the domain, by ID or name.
   in: body
   required: false
   type: string
