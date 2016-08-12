@@ -1,0 +1,13 @@
+{
+    "config": {
+        "identity": {
+            "driver": "ldap"
+        },
+        "ldap": {
+            "url": "ldap://localhost",
+            "user": "",
+            "suffix": "cn=example,cn=com",
+            ....
+        }
+    }
+}
