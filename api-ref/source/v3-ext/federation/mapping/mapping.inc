@@ -3,15 +3,32 @@
 Create a mapping
 ================
 
-.. rest_method::  PUT /v3/OS-FEDERATION/mappings/{mapping_id}
+.. rest_method::  PUT /v3/OS-FEDERATION/mappings/{id}
 
 Normal response codes: 201
+
+Request
+-------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_path
+   - rules: rules
 
 Request Example
 ---------------
 
 .. literalinclude:: federation/mapping/samples/create-request.json
    :language: javascript
+
+Response
+--------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_body
+   - links: links
+   - rules: rules
 
 Response Example
 ----------------
@@ -23,9 +40,25 @@ Response Example
 Get a mapping
 =============
 
-.. rest_method::  GET /v3/OS-FEDERATION/mappings/{mapping_id}
+.. rest_method::  GET /v3/OS-FEDERATION/mappings/{id}
 
 Normal response codes: 200
+
+Request
+-------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_path
+
+Response
+--------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_body
+   - links: links
+   - rules: rules
 
 Response Example
 ----------------
@@ -37,15 +70,32 @@ Response Example
 Update a mapping
 ================
 
-.. rest_method::  PATCH /v3/OS-FEDERATION/mappings/{mapping_id}
+.. rest_method::  PATCH /v3/OS-FEDERATION/mappings/{id}
 
 Normal response codes: 200
+
+Request
+-------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_path
+   - rules: rules
 
 Request Example
 ---------------
 
 .. literalinclude:: federation/mapping/samples/update-request.json
    :language: javascript
+
+Response
+--------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_body
+   - links: links
+   - rules: rules
 
 Response Example
 ----------------
@@ -61,6 +111,14 @@ List all mappings
 
 Normal response codes: 200
 
+Response
+--------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - links: links_collection
+   - mappings: mappings
+
 Response Example
 ----------------
 
@@ -71,6 +129,13 @@ Response Example
 Delete a mapping
 ================
 
-.. rest_method::  DELETE /v3/OS-FEDERATION/mappings/{mapping_id}
+.. rest_method::  DELETE /v3/OS-FEDERATION/mappings/{id}
 
 Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: federation/mapping/parameters.yaml
+
+   - id: id_path
