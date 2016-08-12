@@ -5,3 +5,31 @@
 # variables in query
 
 # variables in body
+
+auth:
+  description: |
+    Auth data with user's identity and Service Provider scope information
+  in: body
+  required: true
+  type: object
+
+headers:
+  description: |
+    XML headers
+  in: body
+  required: true
+  type: object
+
+metadata_xml:
+  description: |
+    Identity Provider metadata information in XML format
+  in: body
+  required: true
+  type: object
+
+saml_xml:
+  description: |
+    SAML assertion in XML format
+  in: body
+  required: true
+  type: object
