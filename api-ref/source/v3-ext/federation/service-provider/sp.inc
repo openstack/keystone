@@ -3,17 +3,41 @@
 Register a Service Provider
 ===========================
 
-.. rest_method::  PUT /v3/OS-FEDERATION/service_providers/{sp_id}
+.. rest_method::  PUT /v3/OS-FEDERATION/service_providers/{id}
 
 Normal response codes: 201
 Error response codes: 400 Bad Request when registering a service provider with
 invalid URLs for either `auth_url` or `sp_url`.
+
+Request
+-------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - auth_url: auth_url
+   - description: description
+   - enabled: enabled
+   - id: id_path
+   - sp_url: sp_url
 
 Request Example
 ---------------
 
 .. literalinclude:: federation/service-provider/samples/register-request.json
    :language: javascript
+
+Response
+--------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - auth_url: auth_url
+   - description: description
+   - enabled: enabled
+   - id: id_body
+   - links: links
+   - relay_state_prefix: relay_state_prefix
+   - sp_url: sp_url
 
 Response Example
 ----------------
@@ -29,6 +53,14 @@ Listing Service Providers
 
 Normal response codes: 200
 
+Response
+--------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - links: links_collection
+   - service_providers: service_providers
+
 Response Example
 ----------------
 
@@ -39,9 +71,29 @@ Response Example
 Get Service Provider
 ====================
 
-.. rest_method::  GET /v3/OS-FEDERATION/service_providers/{sp_id}
+.. rest_method::  GET /v3/OS-FEDERATION/service_providers/{id}
 
 Normal response codes: 200
+
+Request
+-------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - id: id_path
+
+Response
+--------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - auth_url: auth_url
+   - description: description
+   - enabled: enabled
+   - id: id_body
+   - links: links
+   - relay_state_prefix: relay_state_prefix
+   - sp_url: sp_url
 
 Response Example
 ----------------
@@ -53,25 +105,56 @@ Response Example
 Delete Service Provider
 =======================
 
-.. rest_method::  DELETE /v3/OS-FEDERATION/service_providers/{sp_id}
+.. rest_method::  DELETE /v3/OS-FEDERATION/service_providers/{id}
 
 Normal response codes: 204
+
+Request
+-------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - id: id_path
 
 
 Update Service Provider
 =======================
 
-.. rest_method::  PATCH /v3/OS-FEDERATION/service_providers/{sp_id}
+.. rest_method::  PATCH /v3/OS-FEDERATION/service_providers/{id}
 
 Normal response codes: 200
 Error response codes: 400 Bad Request when updating a service provider with
 invalid URLs for either `auth_url` or `sp_url`.
+
+Request
+-------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - id: id_path
+   - auth_url: auth_url
+   - description: description
+   - enabled: enabled
+   - sp_url: sp_url
 
 Request Example
 ---------------
 
 .. literalinclude:: federation/service-provider/samples/update-request.json
    :language: javascript
+
+Response
+--------
+
+.. rest_parameters:: federation/service-provider/parameters.yaml
+
+   - auth_url: auth_url
+   - description: description
+   - enabled: enabled
+   - id: id_body
+   - links: links
+   - relay_state_prefix: relay_state_prefix
+   - sp_url: sp_url
 
 Response Example
 ----------------

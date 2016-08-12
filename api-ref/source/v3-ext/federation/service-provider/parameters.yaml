@@ -2,6 +2,76 @@
 
 # variables in path
 
+id_path:
+  description: |
+    The Service Provider unique ID
+  in: path
+  required: true
+  type: string
+
 # variables in query
 
 # variables in body
+
+auth_url:
+  description: |
+    The URL to authenticate against
+  in: body
+  required: true
+  type: string
+
+description:
+  description: |
+    The description of the Service Provider
+  in: body
+  required: false
+  type: string
+
+enabled:
+  description: |
+    Whether the Service Provider is enabled or not
+  in: body
+  required: true
+  type: bool
+
+id_body:
+  description: |
+    The Service Provider unique ID
+  in: body
+  required: true
+  type: string
+
+links:
+  description: |
+    Link to the URI where the Service Provider is located
+  in: body
+  required: true
+  type: string
+
+links_collection:
+  description: |
+    Link to the URI where the Service Provider collection is located
+  in: body
+  required: true
+  type: string
+
+relay_state_prefix:
+  description: |
+    The prefix of the RelayState SAML attribute
+  in: body
+  required: true
+  type: string
+
+service_providers:
+  description: |
+    The list of Service Providers
+  in: body
+  required: true
+  type: list of objects
+
+sp_url:
+  description: |
+    The Service Provider's URL
+  in: body
+  required: true
+  type: string
