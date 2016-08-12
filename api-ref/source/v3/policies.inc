@@ -27,6 +27,8 @@ Create policy
 
 .. rest_method::  POST /v3/policies
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policies``
+
 Creates a policy.
 
 Normal response codes: 201
@@ -68,6 +70,8 @@ List policies
 
 .. rest_method::  GET /v3/policies
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policies``
+
 Lists policies.
 
 Normal response codes: 200
@@ -105,6 +109,8 @@ Show policy details
 
 .. rest_method::  GET /v3/policies/{policy_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
+
 Shows details for a policy.
 
 Normal response codes: 200
@@ -141,6 +147,8 @@ Update policy
 =============
 
 .. rest_method::  PATCH /v3/policies/{policy_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
 
 Updates a policy.
 
@@ -189,6 +197,8 @@ Delete policy
 =============
 
 .. rest_method::  DELETE /v3/policies/{policy_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
 
 Deletes a policy.
 

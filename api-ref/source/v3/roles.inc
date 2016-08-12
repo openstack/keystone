@@ -83,6 +83,8 @@ Assign role to group on project
 
 .. rest_method::  PUT /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+
 Assigns a role to a group on a project.
 
 Normal response codes: 204
@@ -102,6 +104,8 @@ Check whether group has role assignment on project
 ==================================================
 
 .. rest_method::  HEAD /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
 
 Validates that a group has a role assignment on a project.
 
@@ -123,6 +127,8 @@ Unassign role from group on project
 
 .. rest_method::  DELETE /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+
 Unassigns a role from a group on a project.
 
 Normal response codes: 204
@@ -142,6 +148,8 @@ Assign role to user on project
 ==============================
 
 .. rest_method::  PUT /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Assigns a role to a user on a project.
 
@@ -163,6 +171,8 @@ Check whether user has role assignment on project
 
 .. rest_method::  HEAD /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
 Validates that a user has a role on a project.
 
 Normal response codes: 204
@@ -183,6 +193,8 @@ Unassign role from user on project
 
 .. rest_method::  DELETE /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
 Unassigns a role from a user on a project.
 
 Normal response codes: 204
@@ -202,6 +214,8 @@ List role assignments for user on project
 =========================================
 
 .. rest_method::  GET /v3/projects/{project_id}/users/{user_id}/roles
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Lists role assignments for a user on a project.
 
@@ -227,6 +241,8 @@ List role assignments for group on project
 ==========================================
 
 .. rest_method::  GET /v3/projects/{project_id}/groups/{group_id}/roles
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Lists role assignments for a group on a project.
 
@@ -258,6 +274,8 @@ Assign role to group on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+
 Assigns a role to a group on a domain.
 
 Normal response codes: 204
@@ -276,6 +294,8 @@ Check whether group has role assignment on domain
 =================================================
 
 .. rest_method::  HEAD /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
 
 Validates that a group has a role assignment on a domain.
 
@@ -297,6 +317,8 @@ Unassign role from group on domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+
 Unassigns a role from a group on a domain.
 
 Normal response codes: 204
@@ -316,6 +338,8 @@ List role assignments for user on domain
 ========================================
 
 .. rest_method::  GET /v3/domains/{domain_id}/users/{user_id}/roles
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_user_roles``
 
 Lists role assignments for a user on a domain.
 
@@ -357,6 +381,8 @@ List roles
 
 .. rest_method::  GET /v3/roles
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
+
 Lists roles.
 
 Normal response codes: 200
@@ -391,6 +417,8 @@ Create role
 ===========
 
 .. rest_method::  POST /v3/roles
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
 
 Creates a role.
 
@@ -427,6 +455,8 @@ Assign role to user on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
+Relationship: ``http://developer.openstack.org/api-ref-identity-v3.html#assignRoleToUser-domain``
+
 Assigns a role to a user on a domain.
 
 Normal response codes: 204
@@ -446,6 +476,8 @@ Check whether user has role assignment on domain
 ================================================
 
 .. rest_method::  HEAD /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
 
 Validates that a user has a role assignment on a domain.
 
@@ -467,6 +499,8 @@ Unassigns role from user on domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
+
 Unassigns a role from a user on a domain.
 
 Normal response codes: 204
@@ -486,6 +520,8 @@ List role assignments
 =====================
 
 .. rest_method::  GET /v3/role_assignments
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role_assignments``
 
 Lists role assignments.
 
@@ -525,6 +561,8 @@ Show role details
 
 .. rest_method::  GET /v3/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
+
 Shows details for a role.
 
 Normal response codes: 200
@@ -558,6 +596,8 @@ Update role
 ===========
 
 .. rest_method::  PATCH /v3/roles/{role_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Updates a role.
 
@@ -601,6 +641,8 @@ Delete role
 
 .. rest_method::  DELETE /v3/roles/{role_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
+
 Deletes a role.
 
 Normal response codes: 204
@@ -618,6 +660,8 @@ List role assignments for group on domain
 =========================================
 
 .. rest_method::  GET /v3/domains/{domain_id}/groups/{group_id}/roles
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
 
 Lists role assignments for a group on a domain.
 

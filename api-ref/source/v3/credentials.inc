@@ -18,6 +18,8 @@ Create credential
 
 .. rest_method::  POST /v3/credentials
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentials``
+
 Creates a credential.
 
 The following example shows how to create an EC2-style credential.
@@ -66,6 +68,8 @@ List credentials
 
 .. rest_method::  GET /v3/credentials
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentials``
+
 Lists all credentials.
 
 Optionally, you can include the ``user_id`` query parameter in the
@@ -106,6 +110,8 @@ Show credential details
 
 .. rest_method::  GET /v3/credentials/{credential_id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credential``
+
 Shows details for a credential.
 
 Normal response codes: 200
@@ -142,6 +148,8 @@ Update credential
 =================
 
 .. rest_method::  PATCH /v3/credentials/{credential_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Updates a credential.
 
@@ -190,6 +198,8 @@ Delete credential
 =================
 
 .. rest_method::  DELETE /v3/credentials/{credential_id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Deletes a credential.
 

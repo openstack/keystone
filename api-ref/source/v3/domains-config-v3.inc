@@ -40,6 +40,8 @@ Show domain group option configuration
 
 .. rest_method::  GET /v3/domains/{domain_id}/config/{group}/{option}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
+
 Shows details for a domain group option configuration.
 
 The API supports only the ``identity`` and ``ldap`` groups. For the
@@ -81,6 +83,8 @@ Update domain group option configuration
 ========================================
 
 .. rest_method::  PATCH /v3/domains/{domain_id}/config/{group}/{option}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
 
 Updates a domain group option configuration.
 
@@ -136,6 +140,8 @@ Delete domain group option configuration
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/config/{group}/{option}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
+
 Deletes a domain group option configuration.
 
 The API supports only the ``identity`` and ``ldap`` groups. For the
@@ -159,6 +165,8 @@ Show domain group configuration
 ===============================
 
 .. rest_method::  GET /v3/domains/{domain_id}/config/{group}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
 
 Shows details for a domain group configuration.
 
@@ -198,6 +206,8 @@ Update domain group configuration
 =================================
 
 .. rest_method::  PATCH /v3/domains/{domain_id}/config/{group}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
 
 Updates a domain group configuration.
 
@@ -252,6 +262,8 @@ Delete domain group configuration
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/config/{group}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
+
 Deletes a domain group configuration.
 
 The API supports only the ``identity`` and ``ldap`` groups.
@@ -272,6 +284,8 @@ Create domain configuration
 ===========================
 
 .. rest_method::  PUT /v3/domains/{domain_id}/config
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config``
 
 Creates a domain configuration.
 
@@ -321,6 +335,8 @@ Show domain configuration
 
 .. rest_method::  GET /v3/domains/{domain_id}/config
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config``
+
 Shows details for a domain configuration.
 
 Normal response codes: 200
@@ -356,6 +372,8 @@ Update domain configuration
 ===========================
 
 .. rest_method::  PATCH /v3/domains/{domain_id}/config
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config``
 
 Updates a domain configuration.
 
@@ -404,6 +422,8 @@ Delete domain configuration
 ===========================
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/config
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config``
 
 Deletes a domain configuration.
 
