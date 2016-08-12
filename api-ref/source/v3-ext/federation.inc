@@ -293,6 +293,8 @@ Service Provider.
 If a value is not specified by the client, the service will default this value
 to ``ss:mem:``.
 
+APIs
+====
 
 .. include:: federation/identity-provider/idp.inc
 
