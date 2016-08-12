@@ -1,5 +1,3 @@
-# Copyright 2013 OpenStack Foundation
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,6 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.credential import controllers  # noqa
-from keystone.credential.core import *  # noqa
-from keystone.credential import provider  # noqa
+from keystone.common import dependency
+from keystone.common import manager
+import keystone.conf
+
+
+CONF = keystone.conf.CONF
+
+
+@dependency.provider('credential_provider_api')
+class Manager(manager.Manager):
+
+    driver_namespace = 'keystone.credential.provider'
+
+    def __init__(self):
+        super(Manager, self).__init__(CONF.credential.provider)

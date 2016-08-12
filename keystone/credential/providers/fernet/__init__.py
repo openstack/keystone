@@ -1,5 +1,3 @@
-# Copyright 2013 OpenStack Foundation
-#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -12,6 +10,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.credential import controllers  # noqa
-from keystone.credential.core import *  # noqa
-from keystone.credential import provider  # noqa
+from keystone.credential.providers.fernet.core import *  # noqa
