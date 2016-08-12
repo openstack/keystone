@@ -1,0 +1,35 @@
+# variables in header
+
+# variables in path
+
+# variables in query
+
+# variables in body
+
+domains:
+  description: |
+    The list of domains the authenticated user may scope to
+  in: body
+  required: true
+  type: object
+
+links_domains:
+  description: |
+    Link to the URI where the domain collection is located
+  in: body
+  required: true
+  type: object
+
+links_projects:
+  description: |
+    Link to the URI where the project collection is located
+  in: body
+  required: true
+  type: object
+
+projects:
+  description: |
+    The list of projects the authenticated user may scope to
+  in: body
+  required: true
+  type: object
