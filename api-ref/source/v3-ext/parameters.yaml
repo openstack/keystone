@@ -1,13 +1,13 @@
 # variables in header
 
 # variables in path
-access_token_id:
+access_token_id_path:
   description: |
     The UUID of the access token.
   in: path
   required: true
   type: string
-consumer_id:
+consumer_id_path:
   description: |
     The UUID of the consumer.
   in: path
@@ -19,13 +19,13 @@ domain_id:
   in: path
   required: true
   type: string
-endpoint_group_id:
+endpoint_group_id_path:
   description: |
     The UUID of the endpoint group.
   in: path
   required: false
   type: string
-endpoint_id:
+endpoint_id_path:
   description: |
     The endpoint ID.
   in: path
@@ -43,43 +43,43 @@ name:
   in: path
   required: true
   type: string
-policy_id:
+policy_id_path:
   description: |
     The policy ID.
   in: path
   required: true
   type: string
-project_id:
+project_id_path:
   description: |
     The UUID of the project.
   in: path
   required: true
   type: string
-region_id:
+region_id_path:
   description: |
     The region ID.
   in: path
   required: true
   type: string
-role_id:
+role_id_path:
   description: |
     The UUID of the role.
   in: path
   required: true
   type: string
-service_id:
+service_id_path:
   description: |
     The service ID.
   in: path
   required: true
   type: string
-trust_id:
+trust_id_path:
   description: |
     The trust ID.
   in: path
   required: true
   type: string
-user_id:
+user_id_path:
   description: |
     The UUID of the user.
   in: path
@@ -88,7 +88,7 @@ user_id:
 
 # variables in query
 
-since:
+since_query:
   description: |
     A timestamp used to limit the list of results to events
     that occurred on or after the specified time.
@@ -106,23 +106,17 @@ allow_redelegation:
   in: body
   required: false
   type: boolean
-blob:
-  description: |
-    The policy rule itself, as a serialized blob.
-  in: body
-  required: true
-  type: object
-consumer_id:
-  description: |
-    The ID of the consumer.
-  in: path
-  required: false
-  type: string
-description:
+consumer_description:
   description: |
     The consumer description.
   in: body
   required: false
+  type: string
+consumer_id:
+  description: |
+    The ID of the consumer.
+  in: body
+  required: true
   type: string
 eg_description:
   description: |
@@ -145,27 +139,27 @@ eg_name:
   in: body
   required: true
   type: string
+endpoint_id:
+  description: |
+    The endpoint UUID.
+  in: body
+  required: true
+  type: string
 endpoints:
   description: |
     An ``endpoints`` object.
   in: body
   required: true
   type: array
+endpoints_links:
+  description: |
+    The links for the ``endpoints`` resource.
+  in: body
+  required: true
+  type: object
 id:
   description: |
-    The ID of the trust.
-  in: body
-  required: true
-  type: string
-id_1:
-  description: |
-    The endpoint UUID.
-  in: body
-  required: true
-  type: string
-id_2:
-  description: |
-    The ID of the policy.
+    [WIP]
   in: body
   required: true
   type: string
@@ -193,18 +187,6 @@ interface:
 links:
   description: |
     A links object.
-  in: body
-  required: true
-  type: object
-links_1:
-  description: |
-    The links for the ``endpoints`` resource.
-  in: body
-  required: true
-  type: object
-links_2:
-  description: |
-    The links for the ``policy`` resource.
   in: body
   required: true
   type: object
@@ -266,6 +248,36 @@ policy:
   in: body
   required: true
   type: object
+policy_blob:
+  description: |
+    The policy rule itself, as a serialized blob.
+  in: body
+  required: true
+  type: object
+policy_id:
+  description: |
+    The ID of the policy.
+  in: body
+  required: true
+  type: string
+policy_links:
+  description: |
+    The links for the ``policy`` resource.
+  in: body
+  required: true
+  type: object
+policy_type:
+  description: |
+    The MIME media type of the serialized policy
+    blob. From the perspective of the Identity API, a policy blob can
+    be based on any technology. In OpenStack, the ``policy.json`` blob
+    (``type="application/json"``) is the conventional solution.
+    However, you might want to use an alternative policy engine that
+    uses a different policy language type. For example,
+    ``type="application/xacml+xml"``.
+  in: body
+  required: true
+  type: string
 previous:
   description: |
     The ``previous`` relative link for the
@@ -273,7 +285,7 @@ previous:
   in: body
   required: true
   type: string
-project_id_1:
+project_id:
   description: |
     The ID of the project.
   in: body
@@ -455,7 +467,7 @@ self:
   in: body
   required: true
   type: string
-service_id_1:
+service_id:
   description: |
     The UUID of the service to which the endpoint
     belongs.
@@ -477,6 +489,12 @@ trust_expires_at:
     ``expires_at`` value is copied from the redelegated trust.
   in: body
   required: false
+  type: string
+trust_id:
+  description: |
+    The ID of the trust.
+  in: body
+  required: true
   type: string
 trust_links:
   description: |
@@ -523,18 +541,6 @@ trusts:
   in: body
   required: true
   type: array
-type:
-  description: |
-    The MIME media type of the serialized policy
-    blob. From the perspective of the Identity API, a policy blob can
-    be based on any technology. In OpenStack, the ``policy.json`` blob
-    (``type="application/json"``) is the conventional solution.
-    However, you might want to use an alternative policy engine that
-    uses a different policy language type. For example,
-    ``type="application/xacml+xml"``.
-  in: body
-  required: true
-  type: string
 url:
   description: |
     The endpoint URL.

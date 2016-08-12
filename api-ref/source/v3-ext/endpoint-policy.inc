@@ -49,8 +49,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - endpoint_id: endpoint_id
+   - policy_id: policy_id_path
+   - endpoint_id: endpoint_id_path
 
 
 Verify a policy and endpoint association
@@ -69,8 +69,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - endpoint_id: endpoint_id
+   - policy_id: policy_id_path
+   - endpoint_id: endpoint_id_path
 
 
 Delete a policy and endpoint association
@@ -87,8 +87,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - endpoint_id: endpoint_id
+   - policy_id: policy_id_path
+   - endpoint_id: endpoint_id_path
 
 
 Associate policy and service-type endpoint
@@ -108,8 +108,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - service_id: service_id
+   - policy_id: policy_id_path
+   - service_id: service_id_path
 
 
 Verify a policy and service-type endpoint association
@@ -128,8 +128,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - service_id: service_id
+   - policy_id: policy_id_path
+   - service_id: service_id_path
 
 
 Delete a policy and service-type endpoint association
@@ -146,8 +146,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - service_id: service_id
+   - policy_id: policy_id_path
+   - service_id: service_id_path
 
 
 Show policy for endpoint
@@ -170,7 +170,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
+   - policy_id: policy_id_path
 
 Response Parameters
 -------------------
@@ -178,10 +178,10 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - policy: policy
-   - type: type
-   - blob: blob
-   - links: links
-   - id: id
+   - type: policy_type
+   - blob: policy_blob
+   - links: policy_links
+   - id: policy_id
 
 Response Example
 ----------------
@@ -204,7 +204,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
+   - policy_id: policy_id_path
 
 
 Associate policy and service-type endpoint in a region
@@ -224,9 +224,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - service_id: service_id
-   - region_id: region_id
+   - policy_id: policy_id_path
+   - service_id: service_id_path
+   - region_id: region_id_path
 
 
 Verify a policy and service-type endpoint in a region association
@@ -245,9 +245,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - service_id: service_id
-   - region_id: region_id
+   - policy_id: policy_id_path
+   - service_id: service_id_path
+   - region_id: region_id_path
 
 
 Delete a policy and service-type endpoint in a region association
@@ -264,9 +264,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
-   - service_id: service_id
-   - region_id: region_id
+   - policy_id: policy_id_path
+   - service_id: service_id_path
+   - region_id: region_id_path
 
 
 List policy and service endpoint associations
@@ -283,14 +283,14 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - policy_id: policy_id
+   - policy_id: policy_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - links: links
+   - links: policy_links
    - url: url
    - region: region
    - next: next
@@ -298,7 +298,7 @@ Response Parameters
    - interface: interface
    - service_id: service_id
    - endpoints: endpoints
-   - id: id
+   - id: endpoint_id
    - previous: previous
 
 Response Example
@@ -328,7 +328,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
+   - endpoint_id: endpoint_id_path
 
 Response Parameters
 -------------------
@@ -336,10 +336,10 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - policy: policy
-   - type: type
-   - blob: blob
-   - links: links
-   - id: id
+   - type: policy_type
+   - blob: policy_blob
+   - links: policy_links
+   - id: policy_id
 
 Response Example
 ----------------

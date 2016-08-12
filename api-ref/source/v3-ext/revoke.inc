@@ -47,7 +47,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - since: since
+   - since: since_query
 
 Request Example
 ---------------

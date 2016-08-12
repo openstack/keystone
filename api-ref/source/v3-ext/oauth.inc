@@ -73,7 +73,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-    - description: description
+    - description: consumer_description
 
 Request Example
 ---------------
@@ -115,7 +115,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - consumer_id: consumer_id
+   - consumer_id: consumer_id_path
 
 
 List consumers
@@ -154,7 +154,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - consumer_id: consumer_id
+   - consumer_id: consumer_id_path
 
 Response Example
 ----------------
@@ -183,7 +183,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - consumer_id: consumer_id
+   - consumer_id: consumer_id_path
 
 Request Example
 ---------------
@@ -318,8 +318,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - access_token_id: access_token_id
+   - user_id: user_id_path
+   - access_token_id: access_token_id_path
 
 Response Example
 ----------------
@@ -347,8 +347,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - access_token_id: access_token_id
+   - user_id: user_id_path
+   - access_token_id: access_token_id_path
 
 
 List authorized access tokens
@@ -368,7 +368,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
+   - user_id: user_id_path
 
 Response Example
 ----------------
@@ -394,8 +394,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - access_token_id: access_token_id
+   - user_id: user_id_path
+   - access_token_id: access_token_id_path
 
 
 Show role details for an access token
@@ -415,9 +415,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id
-   - role_id: role_id
-   - access_token_id: access_token_id
+   - user_id: user_id_path
+   - role_id: role_id_path
+   - access_token_id: access_token_id_path
 
 
 Authenticate with Identity API

@@ -47,8 +47,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - endpoint_id: endpoint_id
+   - project_id: project_id_path
+   - endpoint_id: endpoint_id_path
 
 Response
 --------
@@ -72,8 +72,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - endpoint_id: endpoint_id
+   - project_id: project_id_path
+   - endpoint_id: endpoint_id_path
 
 Response
 --------
@@ -97,8 +97,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - endpoint_id: endpoint_id
+   - project_id: project_id_path
+   - endpoint_id: endpoint_id_path
 
 Response
 --------
@@ -122,8 +122,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - endpoint_id: endpoint_id
+   - project_id: project_id_path
+   - endpoint_id: endpoint_id_path
 
 Response
 --------
@@ -150,7 +150,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_id: endpoint_id
+   - endpoint_id: endpoint_id_path
 
 Response
 --------
@@ -210,7 +210,7 @@ Request
 
 .. rest_parameters: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
+   - endpoint_group_id: endpoint_group_id_path
 
 Response
 --------
@@ -237,7 +237,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
+   - endpoint_group_id: endpoint_group_id_path
 
 Response
 --------
@@ -261,7 +261,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
+   - endpoint_group_id: endpoint_group_id_path
    - name: eg_name
    - filters: eg_filters
    - description: eg_description
@@ -294,7 +294,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
+   - endpoint_group_id: endpoint_group_id_path
 
 Response
 --------
@@ -338,8 +338,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
-   - project_id: project_id
+   - endpoint_group_id: endpoint_group_id_path
+   - project_id: project_id_path
 
 Response
 --------
@@ -363,8 +363,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
-   - project_id: project_id
+   - endpoint_group_id: endpoint_group_id_path
+   - project_id: project_id_path
 
 Response
 --------
@@ -391,8 +391,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
-   - project_id: project_id
+   - endpoint_group_id: endpoint_group_id_path
+   - project_id: project_id_path
 
 Response
 --------
@@ -416,8 +416,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
-   - project_id: project_id
+   - endpoint_group_id: endpoint_group_id_path
+   - project_id: project_id_path
 
 Response
 --------
@@ -441,7 +441,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
+   - endpoint_group_id: endpoint_group_id_path
 
 Response
 --------
@@ -468,7 +468,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - endpoint_group_id: endpoint_group_id
+   - endpoint_group_id: endpoint_group_id_path
 
 Response
 --------
@@ -495,7 +495,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
 
 Response
 --------
