@@ -2,6 +2,48 @@
 
 # variables in path
 
+id_path:
+  description: |
+    The Federation Mapping unique ID
+  in: path
+  required: true
+  type: string
+
 # variables in query
 
 # variables in body
+
+id_body:
+  description: |
+    The Federation Mapping unique ID
+  in: body
+  required: true
+  type: string
+
+links:
+  description: |
+    Link to the URI where the mapping is located
+  in: body
+  required: true
+  type: object
+
+links_collection:
+  description: |
+    Link to the URI where the mapping collection is located
+  in: body
+  required: true
+  type: object
+
+mappings:
+  description: |
+    The collection of Federation Mappings
+  in: body
+  required: true
+  type: list of objects
+
+rules:
+  description: |
+    The list of rules used to map remote users into local users
+  in: body
+  required: true
+  type: object
