@@ -18,6 +18,14 @@ to access. To access this resource, an unscoped token is used, the user can
 then select a project and request a scoped token. Note that only enabled
 projects will be returned.
 
+Response
+--------
+
+.. rest_parameters:: federation/projects-domains/parameters.yaml
+
+   - links: links_projects
+   - projects: projects
+
 Response Example
 ----------------
 
@@ -39,6 +47,14 @@ Returns a collection of domains to which the federated user has authorization
 to access. To access this resource, an unscoped token is used, the user can
 then select a domain and request a scoped token. Note that only enabled domains
 will be returned.
+
+Response
+--------
+
+.. rest_parameters:: federation/projects-domains/parameters.yaml
+
+   - domains: domains
+   - links: links_domains
 
 Response Example
 ----------------
