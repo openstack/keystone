@@ -34,6 +34,115 @@ For information about how to integrate the Identity service with
 LDAP, see `Integrate Identity with LDAP <http://docs.openstack.org
 /admin-guide/keystone_integrate_with_ldap.html>`_.
 
+Show default configuration settings
+===================================
+
+.. rest_method:: GET /v3/domains/config/default
+
+The default configuration settings for the options that can be overridden
+can be retrieved.
+
+Relationship:: 
+``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - config: domain_config
+   - ldap: domain_ldap
+   - url: domain_url
+   - user_tree_dn: domain_user_tree_dn
+   - identity: identity
+   - driver: domain_driver
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/domain-config-default-response.json
+   :language: javascript
+
+Show default configuration for a group
+======================================
+
+.. rest_method:: GET /v3/domains/config/{group}/default
+
+Reads the default configuration settings for a specific group.
+
+Relationship:
+``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
+
+The API supports only the ``identity`` and ``ldap`` groups.
+
+Normal response codes: 200
+Error response codes: 413, 405, 404, 403, 401, 400, 503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group_id_path
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - ldap: domain_ldap
+   - url: domain_url
+   - user_tree_dn: domain_user_tree_dn
+   - identity: identity
+   - driver: domain_driver
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/domain-config-group-default-response.json
+   :language: javascript
+
+Show default option for a group
+===============================
+
+.. rest_method:: GET /v3/domains/config/{group}/{option}/default
+
+Reads the default configuration setting for an option within a group.
+
+Relationship:
+``http://docs.openstack.org/api/openstack-identity/3/rel/domain_config_default``
+
+
+The API supports only the ``identity`` and ``ldap`` groups. For the
+``ldap`` group, a valid value is ``url`` or ``user_tree_dn``. For
+the ``identity`` group, a valid value is ``driver``.
+
+Normal response codes: 200
+Error response codes: 413, 405, 404, 403, 401, 400, 503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group_id_path
+   - option: option
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - url: domain_url
+   - driver: domain_driver
+   - user_tree_dn: domain_user_tree_dn
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/domain-config-group-option-default-response.json
+   :language: javascript
+
 
 Show domain group option configuration
 ======================================
