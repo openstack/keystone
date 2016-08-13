@@ -2,6 +2,42 @@
 
 # variables in path
 
+idp_id:
+  description: |
+    Identity Provider's unique ID
+  in: path
+  required: true
+  type: object
+
+protocol_id:
+  description: |
+    Federation Protocol's unique ID
+  in: path
+  required: true
+  type: object
+
 # variables in query
 
 # variables in body
+
+auth:
+  description: |
+    Auth data containing user's identity and scope information
+  in: body
+  required: true
+  type: object
+
+scoped_token:
+  description: |
+    Federation scoped token containing methods, roles, user, scope, catalog,
+    issuance and expiry information
+  in: body
+  required: true
+  type: object
+
+unscoped_token:
+  description: |
+    Federation unscoped token containing methods and user information
+  in: body
+  required: true
+  type: object
