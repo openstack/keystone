@@ -1004,7 +1004,7 @@ class ResourceTests(object):
         """Test the resource backend call delete_projects_from_ids.
 
         Tests the normal flow of the delete_projects_from_ids backend call,
-        that ensures no project on the list exists after it is succesfully
+        that ensures no project on the list exists after it is successfully
         called.
         """
         project1_ref = unit.new_project_ref(
