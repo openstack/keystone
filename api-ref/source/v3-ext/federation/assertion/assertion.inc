@@ -15,6 +15,13 @@ Request Parameters:
 To generate a SAML assertion, a user must provides a scoped token ID and
 Service Provider ID in the request body.
 
+Request
+-------
+
+.. rest_parameters:: federation/assertion/parameters.yaml
+
+   - auth: auth
+
 Request Example
 ---------------
 
@@ -26,6 +33,14 @@ certificate has been truncated. Server will also set two HTTP headers:
 ``X-sp-url`` and ``X-auth-url``. The former is the URL where assertion should
 be sent, whereas the latter remote URL where token will be issued once the
 client is finally authenticated.
+
+Response
+--------
+
+.. rest_parameters:: federation/assertion/parameters.yaml
+
+   - Headers: headers
+   - xml: saml_xml
 
 Response Example
 ----------------
@@ -50,6 +65,13 @@ Request Parameters:
 To generate an ECP wrapped SAML assertion, a user must provides a scoped token
 ID and Service Provider ID in the request body.
 
+Request
+-------
+
+.. rest_parameters:: federation/assertion/parameters.yaml
+
+   - auth: auth
+
 Request Example
 ---------------
 
@@ -61,6 +83,14 @@ the certificate has been truncated. Server will also set two HTTP headers:
 ``X-sp-url`` and ``X-auth-url``. The former is the URL where assertion should
 be sent, whereas the latter remote URL where token will be issued once the
 client is finally authenticated.
+
+Response
+--------
+
+.. rest_parameters:: federation/assertion/parameters.yaml
+
+   - Headers: headers
+   - xml: saml_xml
 
 Response Example
 ----------------
@@ -79,6 +109,14 @@ Provider.
 
 The response will be a full document with Metadata properties. Note that for
 readability, this example certificate has been truncated.
+
+Response
+--------
+
+.. rest_parameters:: federation/assertion/parameters.yaml
+
+   - Headers: headers
+   - xml: metadata_xml
 
 Response Example
 ----------------
