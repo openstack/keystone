@@ -2,6 +2,96 @@
 
 # variables in path
 
+id_path:
+  description: |
+    The Identity Provider ID
+  in: path
+  required: true
+  type: string
+
+protocol_id:
+  description: |
+    The federation protocol ID
+  in: path
+  required: true
+  type: string
+
 # variables in query
 
+enabled_query:
+  description: |
+    Filter for Identity Providers' enabled attribute
+  in: query
+  required: false
+  type: bool
+
+id_query:
+  description: |
+    Filter for Identity Providers' ID attribute
+  in: query
+  type: string
+
 # variables in body
+
+description:
+  description: |
+    The Identity Provider description
+  in: body
+  required: false
+  type: string
+
+enabled:
+  description: |
+    Whether the Identity Provider is enabled or not
+  in: body
+  required: true
+  type: bool
+
+id_body:
+  description: |
+    The Identity Provider unique ID
+  in: body
+  required: true
+  type: string
+
+identity_providers:
+  description: |
+    List of Identity Providers
+  in: body
+  required: true
+  type: array of objects
+
+links:
+  description: |
+    Links containing URI to the Identity Provider resource and its Protocols
+  in: body
+  required: true
+  type: object
+
+protocol:
+  description: |
+    The Federation Protocol object
+  in: body
+  required: true
+  type: object
+
+protocols:
+  description: |
+    List of Federation Protocols
+  in: body
+  required: true
+  type: list of objects
+
+protocols_links:
+  description: |
+    Link containing the URI to the collection of Federation Protocols
+  in: body
+  required: true
+  type: object
+
+remote_ids:
+  description: |
+    List of the unique Identity Provider's remote IDs
+  in: body
+  required: true
+  type: array of strings
