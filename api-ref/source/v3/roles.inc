@@ -515,6 +515,36 @@ Request
    - user_id: user_id_path
    - role_id: role_id_path
 
+List role assignments for group on domain
+=========================================
+
+.. rest_method::  GET /v3/domains/{domain_id}/groups/{group_id}/roles
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
+
+Lists role assignments for a group on a domain.
+
+Normal response codes: 200
+Error response codes: 413,405,404,403,401,400,503
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - group_id: group_id_path
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/domain-group-roles-list-response.json
+   :language: javascript
+
+The functionality of this request can also be achieved using the generalized
+list assignments API::
+
+  GET /role_assignments?group.id={group_id}&scope.domain.id={domain_id}
 
 List role assignments
 =====================
@@ -655,34 +685,198 @@ Request
 
    - role_id: role_id_path
 
+List implied roles for role
+===========================
 
-List role assignments for group on domain
-=========================================
+.. rest_method:: GET /v3/roles/{prior_role_id}/implies
 
-.. rest_method::  GET /v3/domains/{domain_id}/groups/{group_id}/roles
+Lists implied roles for a role.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
-
-Lists role assignments for a group on a domain.
+Relationship:
+``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
 
 Normal response codes: 200
-Error response codes: 413,405,404,403,401,400,503
+Error response codes: 401, 404
 
 Request
 -------
 
 .. rest_parameters:: parameters.yaml
 
-   - domain_id: domain_id_path
-   - group_id: group_id_path
+   - prior_role_id: prior_role_id
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - role_inference: role_inference_body
+   - prior_role: prior_role_body
+   - implies: implies_role_array_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
 
 Response Example
 ----------------
 
-.. literalinclude:: ./samples/admin/domain-group-roles-list-response.json
+.. literalinclude:: ./samples/admin/list-implied-roles-for-role-response.json
    :language: javascript
 
-The functionality of this request can also be achieved using the generalized
-list assignments API::
+Create role inference rule
+==========================
 
-  GET /role_assignments?group.id={group_id}&scope.domain.id={domain_id}
+.. rest_method:: PUT /v3/roles/{prior_role_id}/implies/{implies_role_id}
+
+Creates a role inference rule.
+
+Relationship:
+``http://developer.openstack.org/api-ref-identity-v3.html#createRoleInference``
+
+Normal response codes: 201
+Error response codes: 401, 404
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - prior_role_id: prior_role_id
+   - implies_role_id: implies_role_id
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - role_inference: role_inference_body
+   - prior_role: prior_role_body
+   - implies: implies_role_object_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/create-role-inferences-response.json
+   :language: javascript
+
+Get role inference rule
+=======================
+
+.. rest_method:: GET /v3/roles/{prior_role_id}/implies/{implies_role_id}
+
+Gets a role inference rule.
+
+Relationship:
+``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+
+Normal response codes: 200
+Error response codes: 401, 404
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - prior_role_id: prior_role_id
+   - implies_role_id: implies_role_id
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - role_inference: role_inference_body
+   - prior_role: prior_role_body
+   - implies: implies_role_object_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/get-role-inferences-response.json
+   :language: javascript
+
+Confirm role inference rule
+===========================
+
+.. rest_method:: HEAD /v3/roles/{prior_role_id}/implies/{implies_role_id}
+
+Checks a role role inference rule.
+
+Relationship:
+``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+
+Normal response codes: 204
+Error response codes: 401, 404
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - prior_role_id: prior_role_id
+   - implies_role_id: implies_role_id
+
+Response Example
+----------------
+
+Status: 204 No Content
+
+Delete role inference rule
+==========================
+
+.. rest_method:: DELETE /v3/roles/{prior_role_id}/implies/{implies_role_id}
+
+Deletes a role inference rule.
+
+Relationship:
+``http://developer.openstack.org/api-ref-identity-v3.html#deleteRoleInference``
+
+Normal response codes: 204
+Error response codes: 401, 404
+
+.. rest_parameters:: parameters.yaml
+
+   - prior_role_id: prior_role_id
+   - implies_role_id: implies_role_id
+
+Response Example
+----------------
+
+Status: 204 No Content
+
+List all role inference rules
+=============================
+
+.. rest_method:: GET /v3/role_inferences
+
+Lists all role inference rules.
+
+Normal response codes: 200
+Error response codes: 401, 404
+
+Relationship:
+``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - role_inferences: role_inference_array_body
+   - prior_role: prior_role_body
+   - implies: implies_role_object_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/role-inferences-response.json
+   :language: javascript

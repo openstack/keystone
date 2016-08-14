@@ -1,0 +1,30 @@
+{
+    "role_inference": {
+        "prior_role": {
+            "id": "42c764f0c19146728dbfe73a49cc35c3",
+            "links": {
+                "self": "http://example.com/identity/v3/roles/42c764f0c19146728dbfe73a49cc35c3"
+            },
+            "name": "prior role name"
+        },
+        "implies": [
+            {
+                "id": "066fbfc8b3e54fb68784c9e7e92ab8d7",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/066fbfc8b3e54fb68784c9e7e92ab8d7"
+                },
+                "name": "implied role1 name"
+            },
+            {
+                "id": "32a0df1cc22848aca3986adae9e0b9a0",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/32a0df1cc22848aca3986adae9e0b9a0"
+                },
+                "name": "implied role2 name"
+            }
+        ]
+    },
+    "links" : {
+        "self": "http://example.com/identity/v3/roles/42c764f0c19146728dbfe73a49cc35c3/implies"
+    }
+}
