@@ -35,6 +35,13 @@ credential_id_path:
   in: path
   required: true
   type: string
+domain_group_template:
+  description: |
+    The group name, which is ``ldap`` or
+    ``identity``.
+  in: path
+  required: false
+  type: string
 domain_id_path:
   description: |
     The domain ID.
@@ -46,13 +53,6 @@ endpoint_id_path:
     The endpoint ID.
   in: path
   required: true
-  type: string
-group_1:
-  description: |
-    The group name, which is ``ldap`` or
-    ``identity``.
-  in: path
-  required: false
   type: string
 group_id:
   description: |
@@ -220,18 +220,6 @@ is_domain_query:
   required: false
   type: boolen
   min_version: 3.6
-name_10:
-  description: |
-    Filters the response by a domain name.
-  in: query
-  required: false
-  type: string
-name_13:
-  description: |
-    Filters the response by a project name.
-  in: query
-  required: false
-  type: string
 name_user_query:
   description: |
     Filters the response by a user name.
@@ -390,6 +378,13 @@ auth:
   in: body
   required: true
   type: object
+auth_domain:
+  description: |
+    Specify either ``id`` or ``name`` to uniquely
+    identify the domain.
+  in: body
+  required: false
+  type: object
 auth_domain_id:
   description: |
     The ID of the domain.  If you specify a user
@@ -542,54 +537,6 @@ default_project_id_update_body:
   in: body
   required: false
   type: string
-description:
-  description: |
-    The domain description.
-  in: body
-  required: false
-  type: string
-description_1:
-  description: |
-    The group description.
-  in: body
-  required: false
-  type: string
-description_11:
-  description: |
-    The user description.
-  in: body
-  required: true
-  type: string
-description_2:
-  description: |
-    The project description.
-  in: body
-  required: false
-  type: string
-description_4:
-  description: |
-    The service description.
-  in: body
-  required: false
-  type: string
-description_7:
-  description: |
-    The domain description.
-  in: body
-  required: true
-  type: string
-description_8:
-  description: |
-    The group description.
-  in: body
-  required: true
-  type: string
-description_9:
-  description: |
-    The region description.
-  in: body
-  required: true
-  type: string
 description_region_request_body:
   description: |
     The region description.
@@ -607,20 +554,6 @@ domain:
     A ``domain`` object, containing:
   in: body
   required: true
-  type: object
-domain_1:
-  description: |
-    A ``domain`` object. Required if you specify a
-    user name.
-  in: body
-  required: false
-  type: object
-domain_2:
-  description: |
-    Specify either ``id`` or ``name`` to uniquely
-    identify the domain.
-  in: body
-  required: false
   type: object
 domain_config:
   description: |
@@ -697,34 +630,6 @@ domain_group_identity:
   in: body
   required: true
   type: object
-domain_id_1:
-  description: |
-    The ID of the domain that owns the group.  If you
-    omit the domain ID, defaults to the domain to which the client
-    token is scoped.
-  in: body
-  required: false
-  type: string
-domain_id_2:
-  description: |
-    The ID of the domain for the project.  If you
-    omit the domain ID, default is the domain to which your token is
-    scoped.
-  in: body
-  required: false
-  type: string
-domain_id_3:
-  description: |
-    The ID of the domain for the user.
-  in: body
-  required: false
-  type: string
-domain_id_5:
-  description: |
-    The ID of the domain for the group.
-  in: body
-  required: true
-  type: string
 domain_id_response_body:
   description: |
     The ID of the domain for the user.
@@ -802,17 +707,23 @@ domains:
   in: body
   required: true
   type: array
+domains_links:
+  description: |
+    The links for the ``domains`` resource.
+  in: body
+  required: true
+  type: object
 email:
   description: |
     The email address for the user.
   in: body
-  required: false
+  required: true
   type: string
-email_1:
+email_notRequired:
   description: |
     The email address for the user.
   in: body
-  required: true
+  required: false
   type: string
 enabled:
   description: |
@@ -829,15 +740,6 @@ enabled:
     is ``true``.
   in: body
   required: false
-  type: boolean
-enabled_10:
-  description: |
-    Defines whether the service and its endpoints
-    appear in the service catalog:  - ``false``. The service and its
-    endpoints do not appear in the   service catalog.  - ``true``. The
-    service and its endpoints appear in the service   catalog.
-  in: body
-  required: true
   type: boolean
 enabled_2:
   description: |
@@ -937,6 +839,13 @@ endpoint_region:
   in: body
   required: true
   type: string
+endpoint_region_notRequired:
+  description: |
+    (Deprecated in v3.2) The geographic location of
+    the service endpoint.  Use the ``region_id`` parameter instead.
+  in: body
+  required: false
+  type: string
 endpoint_type:
   description: |
     The endpoint type.
@@ -1011,6 +920,14 @@ group_description_update_request_body:
   in: body
   required: false
   type: string
+group_domain_id:
+  description: |
+    The ID of the domain that owns the group.  If you
+    omit the domain ID, defaults to the domain to which the client
+    token is scoped.
+  in: body
+  required: false
+  type: string
 group_domain_id_request_body:
   description: |
     The ID of the domain of the group.
@@ -1037,6 +954,12 @@ group_id_response_body:
   in: body
   required: true
   type: string
+group_links:
+  description: |
+    The links for the ``group`` resource.
+  in: body
+  required: true
+  type: object
 group_name_request_body:
   description: |
     The name of the group.
@@ -1061,75 +984,6 @@ groups:
   in: body
   required: true
   type: array
-id:
-  description: |
-    [WIP]
-  in: body
-  required: false
-  type: string
-id_10:
-  description: |
-    The role ID.
-  in: body
-  required: true
-  type: string
-id_11:
-  description: |
-    The ID of the service.
-  in: body
-  required: true
-  type: string
-id_12:
-  description: |
-    The ID for the user.
-  in: body
-  required: true
-  type: string
-id_2:
-  description: |
-    A token ID.
-  in: body
-  required: false
-  type: string
-id_4:
-  description: |
-    The domain ID.
-  in: body
-  required: true
-  type: string
-id_5:
-  description: |
-    The endpoint UUID.
-  in: body
-  required: true
-  type: string
-id_6:
-  description: |
-    The ID for the group.
-  in: body
-  required: true
-  type: string
-id_7:
-  description: |
-    The ID of the policy.
-  in: body
-  required: true
-  type: string
-id_8:
-  description: |
-    The ID for the project.
-  in: body
-  required: true
-  type: string
-id_9:
-  description: |
-    A user-defined region ID.  If you include
-    characters in the region ID that are not allowed in a URI, you
-    must URL-encode the ID. If you omit an ID, the API assigns an ID
-    to the region.
-  in: body
-  required: false
-  type: string
 id_region_response_body:
   description: |
     The ID for the region.
@@ -1207,30 +1061,6 @@ link_response_body:
   in: body
   required: true
   type: string
-links_11:
-  description: |
-    The links for the ``domains`` resource.
-  in: body
-  required: true
-  type: object
-links_12:
-  description: |
-    The links for the ``roles`` resource.
-  in: body
-  required: true
-  type: object
-links_3:
-  description: |
-    The links for the ``group`` resource.
-  in: body
-  required: true
-  type: object
-links_7:
-  description: |
-    The links for the ``role`` resource.
-  in: body
-  required: true
-  type: object
 links_project:
   description: |
     The links for the ``project`` resource.
@@ -1249,61 +1079,6 @@ links_user:
   in: body
   required: true
   type: object
-name_1:
-  description: |
-    The name of the domain.  If you specify a user
-    name, you must specify either a domain ID or domain name.
-  in: body
-  required: false
-  type: string
-name_11:
-  description: |
-    The name of the group.
-  in: body
-  required: true
-  type: string
-name_15:
-  description: |
-    The service name.
-  in: body
-  required: true
-  type: string
-name_17:
-  description: |
-    The domain name.
-  in: body
-  required: false
-  type: string
-name_18:
-  description: |
-    The group name.
-  in: body
-  required: false
-  type: string
-name_19:
-  description: |
-    The user name.
-  in: body
-  required: true
-  type: string
-name_2:
-  description: |
-    The domain name.
-  in: body
-  required: true
-  type: string
-name_4:
-  description: |
-    The group name.
-  in: body
-  required: true
-  type: string
-name_6:
-  description: |
-    The role name.
-  in: body
-  required: true
-  type: string
 original_password:
   description: |
     The original password for the user.
@@ -1352,6 +1127,20 @@ password:
   in: body
   required: true
   type: object
+password_auth_domain:
+  description: |
+    A ``domain`` object. Required if you specify a
+    user name.
+  in: body
+  required: false
+  type: object
+password_auth_domain_name:
+  description: |
+    The name of the domain.  If you specify a user
+    name, you must specify either a domain ID or domain name.
+  in: body
+  required: false
+  type: string
 password_expires_at:
   description: |
     The date and time when the password expires. The time zone
@@ -1418,6 +1207,12 @@ policy_user_id:
   in: body
   required: true
   type: string
+policy_user_id_notRequired:
+  description: |
+    The ID of the user who owns the policy.
+  in: body
+  required: false
+  type: string
 project:
   description: |
     A ``project`` object, containing:
@@ -1435,6 +1230,14 @@ project_description_response_body:
     The description of the project.
   in: body
   required: true
+  type: string
+project_domain_id:
+  description: |
+    The ID of the domain for the project.  If you
+    omit the domain ID, default is the domain to which your token is
+    scoped.
+  in: body
+  required: false
   type: string
 project_domain_id_request_body:
   description: |
@@ -1556,13 +1359,6 @@ projects:
   in: body
   required: true
   type: array
-region_2:
-  description: |
-    (Deprecated in v3.2) The geographic location of
-    the service endpoint.  Use the ``region_id`` parameter instead.
-  in: body
-  required: false
-  type: string
 region_id:
   description: |
     (Since v3.2) The ID of the region that contains
@@ -1574,6 +1370,15 @@ region_id_1:
   description: |
     (Since v3.2) The ID of the region that contains
     the service endpoint.
+  in: body
+  required: false
+  type: string
+region_id_notRequired:
+  description: |
+    A user-defined region ID.  If you include
+    characters in the region ID that are not allowed in a URI, you
+    must URL-encode the ID. If you omit an ID, the API assigns an ID
+    to the region.
   in: body
   required: false
   type: string
@@ -1607,6 +1412,12 @@ role_id_response_body:
   in: body
   required: true
   type: string
+role_links:
+  description: |
+    The links for the ``role`` resource.
+  in: body
+  required: true
+  type: object
 role_name_create_body:
   description: |
     The role name.
@@ -1631,6 +1442,12 @@ roles:
   in: body
   required: true
   type: array
+roles_links:
+  description: |
+    The links for the ``roles`` resource.
+  in: body
+  required: true
+  type: object
 scope:
   description: |
     The authorization scope.  (Since v3.4) Specify
@@ -1689,6 +1506,15 @@ service_enabled:
     appear in the service catalog:  - ``false``. The service and its
     endpoints do not appear in the   service catalog.  - ``true``. The
     service and its endpoints appear in the service   catalog.
+  in: body
+  required: true
+  type: boolean
+service_enabled_notRequired:
+  description: |
+    Defines whether the service and its endpoints
+    appear in the service catalog:  - ``false``. The service and its
+    endpoints do not appear in the   service catalog.  - ``true``. The
+    service and its endpoints appear in the service   catalog.
     Default is ``true``.
   in: body
   required: false
@@ -1732,26 +1558,24 @@ token:
   in: body
   required: true
   type: object
-type:
-  description: |
-    [WIP]
-  in: body
-  required: true
-  type: string
-type_3:
-  description: |
-    The service type, which describes the API
-    implemented by the service.  A valid value is ``compute``,
-    ``ec2``, ``identity``, ``image``, ``network``, or ``volume``.
-  in: body
-  required: true
-  type: string
 user:
   description: |
     A ``user`` object.
   in: body
   required: true
   type: object
+user_description:
+  description: |
+    The user description.
+  in: body
+  required: true
+  type: string
+user_domain_id:
+  description: |
+    The ID of the domain for the user.
+  in: body
+  required: false
+  type: string
 user_domain_id_request_body:
   description: |
     The ID of the domain for the user.
@@ -1770,12 +1594,6 @@ user_id:
   description: |
     The ID of the user.  Required if you do not
     specify the user name.
-  in: body
-  required: false
-  type: string
-user_id_2:
-  description: |
-    The ID of the user who owns the policy.
   in: body
   required: false
   type: string

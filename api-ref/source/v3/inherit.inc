@@ -33,8 +33,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - role_id: role_id
-   - user_id: user_id
+   - role_id: role_id_path
+   - user_id: user_id_path
 
 
 Assign role to group on projects owned by a domain
@@ -56,8 +56,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - group_id: group_id
-   - role_id: role_id
+   - group_id: role_id_path
+   - role_id: user_id_path
 
 
 List user's inherited project roles on a domain
@@ -79,7 +79,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - user_id: user_id
+   - user_id: user_id_path
 
 Response Example
 ----------------
@@ -107,7 +107,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - group_id: group_id
+   - group_id: group_id_path
 
 Response Example
 ----------------
@@ -134,8 +134,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - role_id: role_id
-   - user_id: user_id
+   - role_id: role_id_path
+   - user_id: user_id_path
 
 
 Check if group has an inherited project role on domain
@@ -156,8 +156,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - group_id: group_id
-   - role_id: role_id
+   - group_id: group_id_path
+   - role_id: role_id_path
 
 
 Revoke an inherited project role from user on domain
@@ -178,8 +178,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - role_id: role_id
-   - user_id: user_id
+   - role_id: role_id_path
+   - user_id: user_id_path
 
 
 Revoke an inherited project role from group on domain
@@ -200,8 +200,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
-   - group_id: group_id
-   - role_id: role_id
+   - group_id: group_id_path
+   - role_id: role_id_path
 
 
 Assign role to user on projects in a subtree
@@ -227,8 +227,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
-   - role_id: role_id
-   - user_id: user_id
+   - role_id: role_id_path
+   - user_id: user_id_path
 
 
 Assign role to group on projects in a subtree
@@ -253,9 +253,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
-   - project_id: project_id
-   - role_id: role_id
+   - group_id: group_id_path
+   - project_id: project_id_path
+   - role_id: role_id_path
 
 
 List user's inherited project roles on project
@@ -276,8 +276,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - user_id: user_id
+   - project_id: project_id_path
+   - user_id: user_id_path
 
 Response Example
 ----------------
@@ -304,8 +304,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
-   - project_id: project_id
+   - group_id: group_id_path
+   - project_id: project_id_path
 
 Response Example
 ----------------
@@ -331,9 +331,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - role_id: role_id
-   - user_id: user_id
+   - project_id: project_id_path
+   - role_id: role_id_path
+   - user_id: user_id_path
 
 
 Check if group has an inherited project role on project
@@ -353,9 +353,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
-   - project_id: project_id
-   - role_id: role_id
+   - group_id: group_id_path
+   - project_id: project_id_path
+   - role_id: role_id_path
 
 
 Revoke an inherited project role from user on project
@@ -373,9 +373,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
-   - role_id: role_id
-   - user_id: user_id
+   - project_id: project_id_path
+   - role_id: role_id_path
+   - user_id: user_id_path
 
 
 Revoke an inherited project role from group on project
@@ -393,9 +393,9 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - group_id: group_id
-   - project_id: project_id
-   - role_id: role_id
+   - group_id: group_id_path
+   - project_id: project_id_path
+   - role_id: role_id_path
 
 
 List effective role assignments
