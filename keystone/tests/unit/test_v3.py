@@ -1042,6 +1042,8 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(entity.get('user_id'))
         self.assertIsNotNone(entity.get('blob'))
         self.assertIsNotNone(entity.get('type'))
+        self.assertNotIn('key_hash', entity)
+        self.assertNotIn('encrypted_blob', entity)
         if ref:
             self.assertEqual(ref['user_id'], entity['user_id'])
             self.assertEqual(ref['blob'], entity['blob'])

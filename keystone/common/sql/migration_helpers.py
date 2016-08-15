@@ -30,6 +30,8 @@ from keystone.i18n import _
 
 CONF = keystone.conf.CONF
 
+USE_TRIGGERS = True
+
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
 #  Constraints.  SQLAlchemy does not yet attempt to determine the name
@@ -190,6 +192,15 @@ def offline_sync_database_to_version(version=None):
     contract phases will NOT be run.
 
     """
+    global USE_TRIGGERS
+
+    # This flags let's us bypass trigger setup & teardown for non-rolling
+    # upgrades. We set this as a global variable immediately before handing off
+    # to sqlalchemy-migrate, because we can't pass arguments directly to
+    # migrations that depend on it. We could also register this as a CONF
+    # option, but the idea here is that we aren't exposing a new API.
+    USE_TRIGGERS = False
+
     if version:
         _sync_common_repo(version)
     else:

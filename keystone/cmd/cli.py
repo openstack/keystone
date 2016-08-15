@@ -626,6 +626,133 @@ class CredentialSetup(BasePermissionsSetup):
             )
 
 
+class CredentialRotate(BasePermissionsSetup):
+    """Rotate Fernet encryption keys for credential encryption.
+
+    This assumes you have already run `keystone-manage credential_setup`.
+
+    A new primary key is placed into rotation only if all credentials are
+    encrypted with the current primary key. If any credentials are encrypted
+    with a secondary key the rotation will abort. This protects against
+    removing a key that is still required to decrypt credentials. Once a key is
+    removed from the repository, it is impossible to recover the original data
+    without restoring from a backup external to keystone (more on backups
+    below). To make sure all credentials are encrypted with the latest primary
+    key, please see the `keystone-manage credential_migrate` command. Since the
+    maximum number of keys in the credential repository is 3, once all
+    credentials are encrypted with the latest primary key we can safely
+    introduce a new primary key. All credentials will still be decryptable
+    since they are all encrypted with the only secondary key in the repository.
+
+    It is imperitive to understand the importance of backing up keys used to
+    encrypt credentials. In the event keys are overrotated, applying a key
+    repository from backup can help recover otherwise useless credentials.
+    Persisting snapshots of the key repository in secure and encrypted source
+    control, or a dedicated key management system are good examples of
+    encryption key backups.
+
+    The `keystone-manage credential_rotate` and `keystone-manage
+    credential_migrate` commands are intended to be done in sequence. After
+    performing a rotation, a migration must be done before performing another
+    rotation. This ensures we don't over-rotate encryption keys.
+
+    """
+
+    name = 'credential_rotate'
+
+    def __init__(self):
+        drivers = backends.load_backends()
+        self.credential_provider_api = drivers['credential_provider_api']
+        self.credential_api = drivers['credential_api']
+
+    def validate_primary_key(self):
+        crypto, keys = credential_fernet.get_multi_fernet_keys()
+        primary_key_hash = credential_fernet.primary_key_hash(keys)
+
+        credentials = self.credential_api.driver.list_credentials(
+            driver_hints.Hints()
+        )
+        for credential in credentials:
+            if credential['key_hash'] != primary_key_hash:
+                msg = _('Unable to rotate credential keys because not all '
+                        'credentials are encrypted with the primary key. '
+                        'Please make sure all credentials have been encrypted '
+                        'with the primary key using `keystone-manage '
+                        'credential_migrate`.')
+                raise SystemExit(msg)
+
+    @classmethod
+    def main(cls):
+        from keystone.common import fernet_utils as utils
+        fernet_utils = utils.FernetUtils(
+            CONF.credential.key_repository,
+            credential_fernet.MAX_ACTIVE_KEYS
+        )
+
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        if fernet_utils.validate_key_repository(requires_write=True):
+            klass = cls()
+            klass.validate_primary_key()
+            fernet_utils.rotate_keys(keystone_user_id, keystone_group_id)
+
+
+class CredentialMigrate(BasePermissionsSetup):
+    """Provides the ability to encrypt credentials using a new primary key.
+
+    This assumes that there is already a credential key repository in place and
+    that the database backend has been upgraded to at least the Newton schema.
+    If the credential repository doesn't exist yet, you can use
+    ``keystone-manage credential_setup`` to create one.
+
+    """
+
+    name = 'credential_migrate'
+
+    def __init__(self):
+        drivers = backends.load_backends()
+        self.credential_provider_api = drivers['credential_provider_api']
+        self.credential_api = drivers['credential_api']
+
+    def migrate_credentials(self):
+        crypto, keys = credential_fernet.get_multi_fernet_keys()
+        primary_key_hash = credential_fernet.primary_key_hash(keys)
+
+        # FIXME(lbragstad): We *should* be able to use Hints() to ask only for
+        # credentials that have a key_hash equal to a secondary key hash or
+        # None, but Hints() doesn't seem to honor None values. See
+        # https://bugs.launchpad.net/keystone/+bug/1614154.  As a workaround -
+        # we have to ask for *all* credentials and filter them ourselves.
+        credentials = self.credential_api.driver.list_credentials(
+            driver_hints.Hints()
+        )
+        for credential in credentials:
+            if credential['key_hash'] != primary_key_hash:
+                # If the key_hash isn't None but doesn't match the
+                # primary_key_hash, then we know the credential was encrypted
+                # with a secondary key. Let's decrypt it, and send it through
+                # the update path to re-encrypt it with the new primary key.
+                decrypted_blob = self.credential_provider_api.decrypt(
+                    credential['encrypted_blob']
+                )
+                cred = {'blob': decrypted_blob}
+                self.credential_api.update_credential(
+                    credential['id'],
+                    cred
+                )
+
+    @classmethod
+    def main(cls):
+        # Check to make sure we have a repository that works...
+        from keystone.common import fernet_utils as utils
+        fernet_utils = utils.FernetUtils(
+            CONF.credential.key_repository,
+            credential_fernet.MAX_ACTIVE_KEYS
+        )
+        fernet_utils.validate_key_repository(requires_write=True)
+        klass = cls()
+        klass.migrate_credentials()
+
+
 class TokenFlush(BaseApp):
     """Flush expired tokens from the backend."""
 
@@ -1080,6 +1207,8 @@ class MappingPopulate(BaseApp):
 
 CMDS = [
     BootStrap,
+    CredentialMigrate,
+    CredentialRotate,
     CredentialSetup,
     DbSync,
     DbVersion,

@@ -10,8 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
+
 from cryptography import fernet
 from oslo_log import log
+import six
 
 from keystone.common import fernet_utils
 import keystone.conf
@@ -38,30 +41,38 @@ LOG = log.getLogger(__name__)
 MAX_ACTIVE_KEYS = 3
 
 
+def get_multi_fernet_keys():
+    key_utils = fernet_utils.FernetUtils(
+        CONF.credential.key_repository, MAX_ACTIVE_KEYS)
+    keys = key_utils.load_keys()
+    fernet_keys = [fernet.Fernet(key) for key in keys]
+    crypto = fernet.MultiFernet(fernet_keys)
+
+    return crypto, keys
+
+
+def primary_key_hash(keys):
+    """Calculate a hash of the primary key used for encryption."""
+    if isinstance(keys[0], six.text_type):
+        keys[0] = keys[0].encode('utf-8')
+    return hashlib.sha1(keys[0]).hexdigest()
+
+
 class Provider(core.Provider):
-
-    @property
-    def crypto(self):
-        keys = [fernet.Fernet(key) for key in self._get_encryption_keys()]
-        return fernet.MultiFernet(keys)
-
-    def _get_encryption_keys(self):
-        self.key_utils = fernet_utils.FernetUtils(
-            CONF.credential.key_repository, MAX_ACTIVE_KEYS
-        )
-        return self.key_utils.load_keys()
-
     def encrypt(self, credential):
         """Attempt to encrypt a plaintext credential.
 
         :param credential: a plaintext representation of a credential
         :returns: an encrypted credential
         """
+        crypto, keys = get_multi_fernet_keys()
+
         try:
-            return self.crypto.encrypt(credential.encode('utf-8'))
-        except (TypeError, ValueError):
-            msg = _('Credential could not be encrypted. Please contact the'
-                    ' administrator')
+            return (
+                crypto.encrypt(credential.encode('utf-8')),
+                primary_key_hash(keys))
+        except (TypeError, ValueError) as e:
+            msg = 'Credential could not be encrypted: %s' % str(e)
             LOG.error(msg)
             raise exception.CredentialEncryptionError(msg)
 
@@ -71,8 +82,16 @@ class Provider(core.Provider):
         :param credential: an encrypted credential string
         :returns: a decrypted credential
         """
+        key_utils = fernet_utils.FernetUtils(
+            CONF.credential.key_repository, MAX_ACTIVE_KEYS)
+        keys = key_utils.load_keys()
+        fernet_keys = [fernet.Fernet(key) for key in keys]
+        crypto = fernet.MultiFernet(fernet_keys)
+
         try:
-            return self.crypto.decrypt(bytes(credential)).decode('utf-8')
+            if isinstance(credential, six.text_type):
+                credential = credential.encode('utf-8')
+            return crypto.decrypt(credential).decode('utf-8')
         except (fernet.InvalidToken, TypeError, ValueError):
             msg = _('Credential could not be decrypted. Please contact the'
                     ' administrator')

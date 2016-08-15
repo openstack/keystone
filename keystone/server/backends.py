@@ -51,6 +51,7 @@ def load_backends():
         assignment_api=_ASSIGNMENT_API,
         catalog_api=catalog.Manager(),
         credential_api=credential.Manager(),
+        credential_provider_api=credential.provider.Manager(),
         domain_config_api=resource.DomainConfigManager(),
         endpoint_policy_api=endpoint_policy.Manager(),
         federation_api=federation.Manager(),

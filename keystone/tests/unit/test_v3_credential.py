@@ -23,8 +23,10 @@ from testtools import matchers
 from keystone.common import utils
 import keystone.conf
 from keystone.contrib.ec2 import controllers
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
 
@@ -33,6 +35,17 @@ CRED_TYPE_EC2 = controllers.CRED_TYPE_EC2
 
 
 class CredentialBaseTestCase(test_v3.RestfulTestCase):
+
+    def setUp(self):
+        super(CredentialBaseTestCase, self).setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
+
     def _create_dict_blob_credential(self):
         blob, credential = unit.new_ec2_credential(user_id=self.user['id'],
                                                    project_id=self.project_id)
@@ -341,6 +354,13 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
         self.trustee_user = self.identity_api.create_user(self.trustee_user)
         self.trustee_user['password'] = password
         self.trustee_user_id = self.trustee_user['id']
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
     def config_overrides(self):
         super(TestCredentialTrustScoped, self).config_overrides()

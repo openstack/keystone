@@ -36,6 +36,7 @@ from keystone.auth.plugins import totp
 from keystone.common import utils
 import keystone.conf
 from keystone.contrib.revoke import routers
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests.common import auth as common_auth
@@ -4926,6 +4927,13 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(TestAuthTOTP, self).setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
         ref = unit.new_totp_credential(
             user_id=self.default_domain_user['id'],

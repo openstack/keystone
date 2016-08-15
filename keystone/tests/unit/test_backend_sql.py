@@ -27,6 +27,7 @@ from testtools import matchers
 from keystone.common import driver_hints
 from keystone.common import sql
 import keystone.conf
+from keystone.credential.providers import fernet as credential_provider
 from keystone import exception
 from keystone.identity.backends import sql_model as identity_sql
 from keystone.resource.backends import base as resource
@@ -35,6 +36,7 @@ from keystone.tests.unit.assignment import test_backends as assignment_tests
 from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.identity import test_backends as identity_tests
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.policy import test_backends as policy_tests
 from keystone.tests.unit.resource import test_backends as resource_tests
@@ -1024,7 +1026,16 @@ class SqlCredential(SqlTests):
             self.assertIn(cred['id'], retrived_ids)
 
     def setUp(self):
+        self.useFixture(database.Database())
         super(SqlCredential, self).setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_provider.MAX_ACTIVE_KEYS
+            )
+        )
+
         self.credentials = []
         for _ in range(3):
             self.credentials.append(
@@ -1054,3 +1065,49 @@ class SqlCredential(SqlTests):
         credentials = self.credential_api.list_credentials_for_user(
             self.user_foo['id'], type=cred['type'])
         self._validateCredentialList(credentials, [cred])
+
+    def test_create_credential_is_encrypted_when_stored(self):
+        credential = unit.new_credential_ref(user_id=uuid.uuid4().hex)
+        credential_id = credential['id']
+        returned_credential = self.credential_api.create_credential(
+            credential_id,
+            credential
+        )
+
+        # Make sure the `blob` is *not* encrypted when returned from the
+        # credential API.
+        self.assertEqual(returned_credential['blob'], credential['blob'])
+
+        credential_from_backend = self.credential_api.driver.get_credential(
+            credential_id
+        )
+
+        # Pull the credential directly from the backend, the `blob` should be
+        # encrypted.
+        self.assertNotEqual(
+            credential_from_backend['encrypted_blob'],
+            credential['blob']
+        )
+
+    def test_list_credentials_is_decrypted(self):
+        credential = unit.new_credential_ref(user_id=uuid.uuid4().hex)
+        credential_id = credential['id']
+
+        created_credential = self.credential_api.create_credential(
+            credential_id,
+            credential
+        )
+
+        # Pull the credential directly from the backend, the `blob` should be
+        # encrypted.
+        credential_from_backend = self.credential_api.driver.get_credential(
+            credential_id
+        )
+        self.assertNotEqual(
+            credential_from_backend['encrypted_blob'],
+            credential['blob']
+        )
+
+        # Make sure the `blob` values listed from the API are not encrypted.
+        listed_credentials = self.credential_api.list_credentials()
+        self.assertIn(created_credential, listed_credentials)

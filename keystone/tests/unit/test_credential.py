@@ -21,9 +21,11 @@ from keystone.common import context
 from keystone.common import request
 from keystone.common import utils
 from keystone.contrib.ec2 import controllers
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import rest
 
@@ -35,6 +37,13 @@ class V2CredentialEc2TestCase(rest.RestfulTestCase):
         super(V2CredentialEc2TestCase, self).setUp()
         self.user_id = self.user_foo['id']
         self.project_id = self.tenant_bar['id']
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
     def _get_token_id(self, r):
         return r.result['access']['token']['id']
@@ -104,6 +113,13 @@ class V2CredentialEc2Controller(unit.TestCase):
     def setUp(self):
         super(V2CredentialEc2Controller, self).setUp()
         self.useFixture(database.Database())
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
         self.load_backends()
         self.load_fixtures(default_fixtures)
         self.user_id = self.user_foo['id']

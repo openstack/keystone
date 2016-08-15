@@ -19,6 +19,7 @@ from oslo_serialization import jsonutils
 from six.moves import http_client
 
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
@@ -594,6 +595,13 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.config_fixture.config(
             group='resource',
             admin_project_domain_name=self.admin_domain['name'])
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
     def load_sample_data(self):
         # Start by creating a couple of domains

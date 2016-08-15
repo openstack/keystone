@@ -10,12 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import shutil
 import uuid
 
 import keystone.conf
 from keystone.credential.providers import fernet
-from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
@@ -41,27 +39,9 @@ class TestFernetCredentialProvider(unit.TestCase):
 
     def test_valid_data_encryption(self):
         blob = uuid.uuid4().hex
-        encrypted_blob = self.provider.encrypt(blob)
+        encrypted_blob, primary_key_hash = self.provider.encrypt(blob)
         decrypted_blob = self.provider.decrypt(encrypted_blob)
 
         self.assertNotEqual(blob, encrypted_blob)
         self.assertEqual(blob, decrypted_blob)
-
-    def test_encrypt_with_invalid_key_raises_exception(self):
-        shutil.rmtree(CONF.credential.key_repository)
-        blob = uuid.uuid4().hex
-        self.assertRaises(
-            exception.CredentialEncryptionError,
-            self.provider.encrypt,
-            blob
-        )
-
-    def test_decrypt_with_invalid_key_raises_exception(self):
-        blob = uuid.uuid4().hex
-        encrypted_blob = self.provider.encrypt(blob)
-        shutil.rmtree(CONF.credential.key_repository)
-        self.assertRaises(
-            exception.CredentialEncryptionError,
-            self.provider.decrypt,
-            encrypted_blob
-        )
+        self.assertIsNotNone(primary_key_hash)

@@ -22,8 +22,10 @@ from testtools import matchers
 
 from keystone.common import controller
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
 
@@ -70,6 +72,13 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(IdentityTestCase, self).setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
         self.group = unit.new_group_ref(domain_id=self.domain_id)
         self.group = self.identity_api.create_group(self.group)

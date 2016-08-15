@@ -18,8 +18,10 @@ from testtools import matchers
 
 from keystone.common import controller
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils as test_utils
 
@@ -30,6 +32,16 @@ CONF = keystone.conf.CONF
 class ResourceTestCase(test_v3.RestfulTestCase,
                        test_v3.AssignmentTestMixin):
     """Test domains and projects."""
+
+    def setUp(self):
+        super(ResourceTestCase, self).setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
     # Domain CRUD tests
 

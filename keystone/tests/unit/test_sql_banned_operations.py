@@ -231,7 +231,12 @@ class TestKeystoneExpandSchemaMigrations(
         # Migration 002 changes the column type, from datetime to timestamp in
         # the contract phase. Adding exception here to pass expand banned
         # tests, otherwise fails.
-        2
+        2,
+        # NOTE(lbragstad): The expand 003 migration alters the credential table
+        # to make `blob` nullable. This allows the triggers added in 003 to
+        # catch writes when the `blob` attribute isn't populated. We do this so
+        # that the triggers aren't aware of the encryption implementation.
+        3
     ]
 
     def setUp(self):

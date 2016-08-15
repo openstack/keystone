@@ -20,13 +20,16 @@ from keystone import exception
 
 class CredentialModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'credential'
-    attributes = ['id', 'user_id', 'project_id', 'blob', 'type']
+    attributes = [
+        'id', 'user_id', 'project_id', 'encrypted_blob', 'type', 'key_hash'
+    ]
     id = sql.Column(sql.String(64), primary_key=True)
     user_id = sql.Column(sql.String(64),
                          nullable=False)
     project_id = sql.Column(sql.String(64))
-    blob = sql.Column(sql.JsonBlob(), nullable=False)
+    encrypted_blob = sql.Column(sql.Text(), nullable=True)
     type = sql.Column(sql.String(255), nullable=False)
+    key_hash = sql.Column(sql.String(64), nullable=True)
     extra = sql.Column(sql.JsonBlob())
 
 
