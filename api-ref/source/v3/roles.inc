@@ -394,6 +394,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - name: role_name_query
+   - domain_id: domain_id_query
 
 Response Parameters
 -------------------
@@ -402,6 +403,7 @@ Response Parameters
 
    - links: link_collection
    - roles: roles
+   - domain_id: domain_id_response_body
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
@@ -432,11 +434,18 @@ Request
 
    - role: role
    - name: role_name_create_body
+   - domain_id: domain_id_response_body
 
 Request Example
 ---------------
 
 .. literalinclude:: ./samples/admin/role-create-request.json
+   :language: javascript
+
+Request Example for Domain Specific Role
+----------------------------------------
+
+.. literalinclude:: ./samples/admin/domain-specific-role-create-request.json
    :language: javascript
 
 Response Parameters
@@ -445,6 +454,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - role: role
+   - domain_id: domain_id_response_body
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
@@ -581,6 +591,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - role: role
+   - domain_id: domain_id_response_body
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
@@ -625,6 +636,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - role: role
+   - domain_id: domain_id_response_body
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body

@@ -632,12 +632,6 @@ domain_group_identity:
   type: object
 domain_id_response_body:
   description: |
-    The ID of the domain for the user.
-  in: body
-  required: true
-  type: string
-domain_id_response_body:
-  description: |
     The ID of the domain.
   in: body
   required: true
