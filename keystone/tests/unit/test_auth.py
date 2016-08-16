@@ -625,7 +625,13 @@ class FernetAuthWithToken(AuthWithToken, AuthTest):
     def config_overrides(self):
         super(FernetAuthWithToken, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def test_token_auth_with_binding(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -829,7 +835,13 @@ class FernetAuthWithRemoteUser(AuthWithRemoteUser, AuthTest):
     def config_overrides(self):
         super(FernetAuthWithRemoteUser, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def test_bind_with_kerberos(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -1301,7 +1313,13 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
     def config_overrides(self):
         super(FernetAuthWithTrust, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def setUp(self):
         super(FernetAuthWithTrust, self).setUp()

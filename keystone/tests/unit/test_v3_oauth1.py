@@ -22,6 +22,7 @@ from pycadf import cadftaxonomy
 from six.moves import http_client
 from six.moves import urllib
 
+import keystone.conf
 from keystone.contrib.oauth1 import routers
 from keystone import exception
 from keystone import oauth1
@@ -32,6 +33,9 @@ from keystone.tests.unit.common import test_notifications
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
+
+
+CONF = keystone.conf.CONF
 
 
 def _urllib_parse_qs_text_keys(content):
@@ -616,7 +620,13 @@ class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
     def config_overrides(self):
         super(FernetAuthTokenTests, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def test_delete_keystone_tokens_by_consumer_id(self):
         self.skipTest('Fernet tokens are never persisted in the backend.')

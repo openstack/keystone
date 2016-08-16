@@ -719,7 +719,13 @@ class TestTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestTokenProvider, self).setUp()
         self.useFixture(database.Database())
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
         self.load_backends()
 
     def test_get_token_version(self):
