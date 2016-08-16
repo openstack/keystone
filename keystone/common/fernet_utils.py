@@ -27,31 +27,35 @@ CONF = keystone.conf.CONF
 
 class FernetUtils(object):
 
+    def __init__(self, key_repository=None, max_active_keys=None):
+        self.key_repository = key_repository
+        self.max_active_keys = max_active_keys
+
     def validate_key_repository(self, requires_write=False):
         """Validate permissions on the key repository directory."""
         # NOTE(lbragstad): We shouldn't need to check if the directory was
         # passed in as None because we don't set allow_no_values to True.
 
         # ensure current user has sufficient access to the key repository
-        is_valid = (os.access(CONF.fernet_tokens.key_repository, os.R_OK) and
-                    os.access(CONF.fernet_tokens.key_repository, os.X_OK))
+        is_valid = (os.access(self.key_repository, os.R_OK) and
+                    os.access(self.key_repository, os.X_OK))
         if requires_write:
             is_valid = (is_valid and
-                        os.access(CONF.fernet_tokens.key_repository, os.W_OK))
+                        os.access(self.key_repository, os.W_OK))
 
         if not is_valid:
             LOG.error(
                 _LE('Either [fernet_tokens] key_repository does not exist or '
                     'Keystone does not have sufficient permission to access '
-                    'it: %s'), CONF.fernet_tokens.key_repository)
+                    'it: %s'), self.key_repository)
         else:
             # ensure the key repository isn't world-readable
-            stat_info = os.stat(CONF.fernet_tokens.key_repository)
+            stat_info = os.stat(self.key_repository)
             if(stat_info.st_mode & stat.S_IROTH or
                stat_info.st_mode & stat.S_IXOTH):
                 LOG.warning(_LW(
-                    '[fernet_tokens] key_repository is world readable: %s'),
-                    CONF.fernet_tokens.key_repository)
+                    'key_repository is world readable: %s'),
+                    self.key_repository)
 
         return is_valid
 
@@ -73,30 +77,29 @@ class FernetUtils(object):
     def create_key_directory(self, keystone_user_id=None,
                              keystone_group_id=None):
         """Attempt to create the key directory if it doesn't exist."""
-        if not os.access(CONF.fernet_tokens.key_repository, os.F_OK):
+        if not os.access(self.key_repository, os.F_OK):
             LOG.info(_LI(
-                '[fernet_tokens] key_repository does not appear to exist; '
-                'attempting to create it'))
+                'key_repository does not appear to exist; attempting to '
+                'create it'))
 
             try:
-                os.makedirs(CONF.fernet_tokens.key_repository, 0o700)
+                os.makedirs(self.key_repository, 0o700)
             except OSError:
                 LOG.error(_LE(
-                    'Failed to create [fernet_tokens] key_repository: either'
-                    'it already exists or you don\'t have sufficient '
-                    'permissions to create it'))
+                    'Failed to create key_repository: either it already '
+                    'exists or you don\'t have sufficient permissions to '
+                    'create it'))
 
             if keystone_user_id and keystone_group_id:
                 os.chown(
-                    CONF.fernet_tokens.key_repository,
+                    self.key_repository,
                     keystone_user_id,
                     keystone_group_id)
             elif keystone_user_id or keystone_group_id:
                 LOG.warning(_LW(
-                    'Unable to change the ownership of [fernet_tokens] '
-                    'key_repository without a keystone user ID and keystone '
-                    'group ID both being provided: %s') %
-                    CONF.fernet_tokens.key_repository)
+                    'Unable to change the ownership of key_repository without '
+                    'a keystone user ID and keystone group ID both being '
+                    'provided: %s') % self.key_repository)
 
     def _create_new_key(self, keystone_user_id, keystone_group_id):
         """Securely create a new encryption key.
@@ -118,9 +121,9 @@ class FernetUtils(object):
                 'Unable to change the ownership of the new key without a '
                 'keystone user ID and keystone group ID both being provided: '
                 '%s') %
-                CONF.fernet_tokens.key_repository)
+                self.key_repository)
         # Determine the file name of the new key
-        key_file = os.path.join(CONF.fernet_tokens.key_repository, '0')
+        key_file = os.path.join(self.key_repository, '0')
         try:
             with open(key_file, 'w') as f:
                 # convert key to str for the file.
@@ -145,7 +148,7 @@ class FernetUtils(object):
 
         """
         # make sure we have work to do before proceeding
-        if os.access(os.path.join(CONF.fernet_tokens.key_repository, '0'),
+        if os.access(os.path.join(self.key_repository, '0'),
                      os.F_OK):
             LOG.info(_LI('Key repository is already initialized; aborting.'))
             return
@@ -178,9 +181,8 @@ class FernetUtils(object):
         """
         # read the list of key files
         key_files = dict()
-        for filename in os.listdir(CONF.fernet_tokens.key_repository):
-            path = os.path.join(CONF.fernet_tokens.key_repository,
-                                str(filename))
+        for filename in os.listdir(self.key_repository):
+            path = os.path.join(self.key_repository, str(filename))
             if os.path.isfile(path):
                 try:
                     key_id = int(filename)
@@ -202,19 +204,19 @@ class FernetUtils(object):
 
         # promote the next primary key to be the primary
         os.rename(
-            os.path.join(CONF.fernet_tokens.key_repository, '0'),
-            os.path.join(CONF.fernet_tokens.key_repository,
-                         str(new_primary_key)))
+            os.path.join(self.key_repository, '0'),
+            os.path.join(self.key_repository, str(new_primary_key))
+        )
         key_files.pop(0)
         key_files[new_primary_key] = os.path.join(
-            CONF.fernet_tokens.key_repository,
+            self.key_repository,
             str(new_primary_key))
         LOG.info(_LI('Promoted key 0 to be the primary: %s'), new_primary_key)
 
         # add a new key to the rotation, which will be the *next* primary
         self._create_new_key(keystone_user_id, keystone_group_id)
 
-        max_active_keys = CONF.fernet_tokens.max_active_keys
+        max_active_keys = self.max_active_keys
 
         # purge excess keys
 
@@ -240,9 +242,8 @@ class FernetUtils(object):
 
         # build a dictionary of key_number:encryption_key pairs
         keys = dict()
-        for filename in os.listdir(CONF.fernet_tokens.key_repository):
-            path = os.path.join(CONF.fernet_tokens.key_repository,
-                                str(filename))
+        for filename in os.listdir(self.key_repository):
+            path = os.path.join(self.key_repository, str(filename))
             if os.path.isfile(path):
                 with open(path, 'r') as key_file:
                     try:
@@ -253,7 +254,7 @@ class FernetUtils(object):
                     else:
                         keys[key_id] = key_file.read()
 
-        if len(keys) != CONF.fernet_tokens.max_active_keys:
+        if len(keys) != self.max_active_keys:
             # If there haven't been enough key rotations to reach
             # max_active_keys, or if the configured value of max_active_keys
             # has changed since the last rotation, then reporting the
@@ -263,8 +264,8 @@ class FernetUtils(object):
                 'Loaded %(count)d encryption keys (max_active_keys=%(max)d) '
                 'from: %(dir)s'), {
                     'count': len(keys),
-                    'max': CONF.fernet_tokens.max_active_keys,
-                    'dir': CONF.fernet_tokens.key_repository})
+                    'max': self.max_active_keys,
+                    'dir': self.key_repository})
 
         # return the encryption_keys, sorted by key number, descending
         return [keys[x] for x in sorted(keys.keys(), reverse=True)]

@@ -57,7 +57,10 @@ class TokenFormatter(object):
         ``encrypt(plaintext)`` and ``decrypt(ciphertext)``.
 
         """
-        fernet_utils = utils.FernetUtils()
+        fernet_utils = utils.FernetUtils(
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys
+        )
         keys = fernet_utils.load_keys()
 
         if not keys:
