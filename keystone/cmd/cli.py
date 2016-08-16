@@ -407,14 +407,42 @@ class DbSync(BaseApp):
                                   'now part of the main repository, '
                                   'specifying db_sync without this option '
                                   'will cause all extensions to be migrated.'))
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument('--expand', default=False, action='store_true',
+                           help=('Expand the database schema in preparation '
+                                 'for data migration and starting the first '
+                                 'keystone node upgraded to the new release.'))
+        group.add_argument('--migrate', default=False,
+                           action='store_true',
+                           help=('Copy all data that needs to be migrated '
+                                 'within the database ahead of starting the '
+                                 'first keystone node upgraded to the new '
+                                 'release. This command should be run '
+                                 'after the --expand command. Once the '
+                                 '--migrate command has completed, you can '
+                                 'upgrade all your keystone nodes to the new '
+                                 'release and restart them.'))
 
+        group.add_argument('--contract', default=False, action='store_true',
+                           help=('Remove any database tables and columns '
+                                 'that are no longer required. This command '
+                                 'should be run after all keystone nodes are '
+                                 'running the new release.'))
         return parser
 
     @staticmethod
     def main():
         assert_not_extension(CONF.command.extension)
-        version = CONF.command.version
-        migration_helpers.sync_database_to_version(version)
+
+        if CONF.command.expand:
+            migration_helpers.expand_schema()
+        elif CONF.command.migrate:
+            migration_helpers.migrate_data()
+        elif CONF.command.contract:
+            migration_helpers.contract_schema()
+        else:
+            migration_helpers.offline_sync_database_to_version(
+                CONF.command.version)
 
 
 class DbVersion(BaseApp):

@@ -160,8 +160,24 @@ def _assert_not_schema_downgrade(version=None):
             pass
 
 
-def sync_database_to_version(version=None):
+def offline_sync_database_to_version(version=None):
+    """Perform and off-line sync of the database.
+
+    Migrate the database up to the latest version, doing the equivalent of
+    the cycle of --expand, --migrate and --contract, for when an offline
+    upgrade is being performed.
+
+    If a version is specified then only migrate the database up to that
+    version. Downgrading is not supported. If version is specified, then only
+    the main database migration is carried out - and the data migration and
+    contract phases will NOT be run.
+
+    """
     _sync_common_repo(version)
+
+    if not version:
+        migrate_data()
+        contract_schema()
 
 
 def get_db_version():
@@ -173,3 +189,39 @@ def get_db_version():
 
 def print_db_version():
     print(get_db_version())
+
+
+def expand_schema():
+    """Expand the database schema ahead of data migration.
+
+    This is run manually by the keystone-manage command before the first
+    keystone node is migrated to the latest release.
+
+    """
+    # TODO(henry-nash): Add implementation here.
+    pass
+
+
+def migrate_data():
+    """Migrate data to match the new schema.
+
+    This is run manually by the keystone-manage command once the keystone
+    schema has been expanded for the new release.
+
+    """
+    # TODO(henry-nash): Add implementation here.
+    pass
+
+
+def contract_schema():
+    """Contract the database.
+
+    This is run manually by the keystone-manage command once the keystone
+    nodes have been upgraded to the latest release and will remove any old
+    tables/columns that are no longer required. In addition, if any data
+    could have been left inconsistent while running with a mix of releases,
+    then this should be fixed up here.
+
+    """
+    # TODO(henry-nash): Add implementation here.
+    pass
