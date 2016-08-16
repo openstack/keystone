@@ -66,6 +66,12 @@ group_id_path:
   in: path
   required: true
   type: string
+implies_role_id:
+  description: |
+    Role ID for an implied role.
+  in: path
+  required: true
+  type: string
 option:
   description: |
     The option name. For the ``ldap`` group, a valid
@@ -77,6 +83,12 @@ option:
 policy_id_path:
   description: |
     The policy ID.
+  in: path
+  required: true
+  type: string
+prior_role_id:
+  description: |
+    Role ID for a prior role.
   in: path
   required: true
   type: string
@@ -1008,6 +1020,18 @@ identity:
   in: body
   required: true
   type: object
+implies_role_array_body:
+  description: |
+    An array of implied role objects.
+  in: body
+  required: true
+  type: array
+implies_role_object_body:
+  description: |
+    An implied role object.
+  in: body
+  required: true
+  type: object
 is_domain_request_body:
   description: |
     Indicates whether the project also acts as a domain. If set to ``true``,
@@ -1213,6 +1237,12 @@ policy_user_id_notRequired:
   in: body
   required: false
   type: string
+prior_role_body:
+  description: |
+    A prior role object.
+  in: body
+  required: true
+  type: object
 project:
   description: |
     A ``project`` object, containing:
@@ -1412,6 +1442,19 @@ role_id_response_body:
   in: body
   required: true
   type: string
+role_inference_array_body:
+  description: |
+    An array of ``role_inference`` object.
+  in: body
+  required: true
+  type: array
+role_inference_body:
+  description: |
+    Role inference object that contains ``prior_role`` object
+    and ``implies`` object.
+  in: body
+  required: true
+  type: object
 role_links:
   description: |
     The links for the ``role`` resource.

@@ -1,0 +1,57 @@
+{
+    "role_inferences": [
+        {
+            "prior_role": {
+                "id": "1acd3c5aa0e246b9a7427d252160dcd1",
+                "links": {
+                    "self": "http://example.com/identity/v3/roles/1acd3c5aa0e246b9a7427d252160dcd1"
+                },
+                "name": "prior role name"
+            },
+            "implies": [
+                {
+                    "id": "3602510e2e1f499589f78a0724dcf614",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/3602510e2e1f499589f78a0724dcf614"
+                    },
+                    "name": "implied role1 name"
+                },
+                {
+                    "id": "738289aeef684e73a987f7cf2ec6d925",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/738289aeef684e73a987f7cf2ec6d925"
+                    },
+                    "name": "implied role2 name"
+                }
+            ]
+        },
+        {
+            "prior_role": {
+                "id": "bbf7a5098bb34407b7164eb6ff9f144e",
+                "links": {
+                    "self" : "http://example.com/identity/v3/roles/bbf7a5098bb34407b7164eb6ff9f144e"
+                },
+                "name": "prior role name"
+            },
+            "implies": [
+                {
+                    "id": "872b20ad124c4c1bafaef2b1aae316ab",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/872b20ad124c4c1bafaef2b1aae316ab"
+                    },
+                    "name": "implied role1 name"
+                },
+                {
+                    "id": "1d865b1b2da14cb7b05254677e5f36a2",
+                    "links": {
+                        "self": "http://example.com/identity/v3/roles/1d865b1b2da14cb7b05254677e5f36a2"
+                    },
+                    "name": "implied role2 name"
+                }
+            ]
+        }
+    ],
+    "links": {
+        "self": "http://example.com/identity/v3/role_inferences"
+    }
+}
