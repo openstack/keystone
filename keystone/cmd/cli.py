@@ -524,7 +524,7 @@ class FernetSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        from keystone.token.providers.fernet import utils as fernet
+        from keystone.common import fernet_utils as fernet
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
         fernet.create_key_directory(keystone_user_id, keystone_group_id)
@@ -555,7 +555,7 @@ class FernetRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        from keystone.token.providers.fernet import utils as fernet
+        from keystone.common import fernet_utils as fernet
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
         if fernet.validate_key_repository(requires_write=True):
