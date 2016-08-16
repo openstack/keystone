@@ -410,8 +410,7 @@ class DbSync(BaseApp):
         group = parser.add_mutually_exclusive_group()
         group.add_argument('--expand', default=False, action='store_true',
                            help=('Expand the database schema in preparation '
-                                 'for data migration and starting the first '
-                                 'keystone node upgraded to the new release.'))
+                                 'for data migration.'))
         group.add_argument('--migrate', default=False,
                            action='store_true',
                            help=('Copy all data that needs to be migrated '
