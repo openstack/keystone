@@ -18,7 +18,6 @@ import random
 import string
 import uuid
 
-import freezegun
 import mock
 import oslo_utils.fixture
 from oslo_utils import timeutils
@@ -1187,40 +1186,25 @@ class AuthWithTrust(object):
             self.controller.authenticate, self.make_request(), request_body)
 
     def test_delete_trust_revokes_token(self):
-        time = datetime.datetime.utcnow()
-        with freezegun.freeze_time(time) as frozen_time:
-            # NOTE(lbragstad): The freezegun package will attempt to patch all
-            # things in Python that issue a time. In some cases, by the time a
-            # test gets into the context manager of freezegun, the
-            # oslo_utils.timeutils package could have an unpatched version of
-            # whatever it gets it's time from. Here we are going to pull out
-            # our big hammer and use both freezegun and oslo_utils
-            # set_time_override function to make sure that any datetimes
-            # keystone asks for are under control of the context manager. If we
-            # don't do this, we could end up with situations where timeutils
-            # can give unpatched datetimes outside of the context we are
-            # expecting, which leads to debugging frustrating race conditions.
-            timeutils.set_time_override(frozen_time.time_to_freeze)
-            unscoped_token = self.get_unscoped_token(self.trustor['name'])
-            new_trust = self.create_trust(self.sample_data,
-                                          self.trustor['name'])
-            request = self._create_auth_request(
-                unscoped_token['access']['token']['id'])
-            trust_token_resp = self.fetch_v2_token_from_trust(new_trust)
-            trust_scoped_token_id = trust_token_resp['access']['token']['id']
-            self.controller.validate_token(
-                self.make_request(is_admin=True),
-                token_id=trust_scoped_token_id
-            )
-            trust_id = new_trust['id']
-            frozen_time.tick(delta=datetime.timedelta(seconds=1))
-            self.trust_controller.delete_trust(request, trust_id=trust_id)
-            self.assertRaises(
-                exception.TokenNotFound,
-                self.controller.validate_token,
-                self.make_request(is_admin=True),
-                token_id=trust_scoped_token_id
-            )
+        unscoped_token = self.get_unscoped_token(self.trustor['name'])
+        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
+        request = self._create_auth_request(
+            unscoped_token['access']['token']['id'])
+        trust_token_resp = self.fetch_v2_token_from_trust(new_trust)
+        trust_scoped_token_id = trust_token_resp['access']['token']['id']
+        self.controller.validate_token(
+            self.make_request(is_admin=True),
+            token_id=trust_scoped_token_id)
+        trust_id = new_trust['id']
+
+        self.time_fixture.advance_time_seconds(1)
+
+        self.trust_controller.delete_trust(request, trust_id=trust_id)
+        self.assertRaises(
+            exception.TokenNotFound,
+            self.controller.validate_token,
+            self.make_request(is_admin=True),
+            token_id=trust_scoped_token_id)
 
     def test_token_from_trust_with_no_role_fails(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
