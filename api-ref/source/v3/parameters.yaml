@@ -40,7 +40,7 @@ domain_group_template:
     The group name, which is ``ldap`` or
     ``identity``.
   in: path
-  required: false
+  required: true
   type: string
 domain_id_path:
   description: |
@@ -120,7 +120,7 @@ service_id_path:
   description: |
     The service ID.
   in: path
-  required: false
+  required: true
   type: string
 user_id_path:
   description: |
