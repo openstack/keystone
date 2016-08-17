@@ -1304,6 +1304,7 @@ class AuthWithTrust(object):
         request_body = self.build_v2_token_request(self.trustee['name'],
                                                    self.trustee['password'],
                                                    new_trust)
+        self.time_fixture.advance_time_seconds(1)
         self.disable_user(self.trustee)
         self.assertRaises(
             exception.Unauthorized,
@@ -1342,34 +1343,6 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
         # backend. This same test can be exercised through the API.
         msg = 'The Fernet token provider does not support token persistence'
         self.skipTest(msg)
-
-    def test_trust_get_token_fails_if_trustee_disabled(self):
-        # NOTE(lbragtad) But why does the Fernet token provider behave
-        # differently than the UUID provider?!
-        # I'm so happy you asked! It turns out that the v2.0 token controllers
-        # actually assert that the actors of a trust are enabled. If they
-        # aren't enabled, the controller will raise a Forbidden exception. This
-        # is exactly what happens in the Fernet case. The UUID token provider
-        # will fail to find a token after a user has been disabled because the
-        # token provider registers a callback to prune all tokens for a user
-        # when a user is disabled. The inconsistency is that the v2.0 token
-        # controller will except a TokenNotFound exception and raise an
-        # Unauthorized in it's place. This explains why this is inconsistent
-        # API behavior for the same test depending on which token provider is
-        # configured.
-        time = datetime.datetime.utcnow()
-        with freezegun.freeze_time(time) as frozen_time:
-            new_trust = self.create_trust(self.sample_data,
-                                          self.trustor['name'])
-            request_body = self.build_v2_token_request(
-                self.trustee['name'], self.trustee['password'], new_trust)
-            self.disable_user(self.trustee)
-            frozen_time.tick(delta=datetime.timedelta(seconds=1))
-            self.assertRaises(
-                exception.Forbidden,
-                self.controller.authenticate,
-                self.make_request(),
-                request_body)
 
 
 class TokenExpirationTest(AuthTest):
