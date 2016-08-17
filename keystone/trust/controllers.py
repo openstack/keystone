@@ -15,11 +15,11 @@
 import uuid
 
 from oslo_utils import timeutils
-import six
 
 from keystone import assignment
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import driver_hints
 from keystone.common import utils
 from keystone.common import validation
 from keystone import exception
@@ -51,61 +51,50 @@ class TrustV3(controller.V3Controller):
     def get_trust(self, request, trust_id):
         trust = self.trust_api.get_trust(trust_id)
         _trustor_trustee_only(trust, request.context.user_id)
-        self._fill_in_roles(request.context_dict, trust,
-                            self.role_api.list_roles())
+        self._fill_in_roles(request.context_dict, trust)
         return TrustV3.wrap_member(request.context_dict, trust)
 
-    def _fill_in_roles(self, context, trust, all_roles):
+    def _fill_in_roles(self, context, trust):
         if trust.get('expires_at') is not None:
             trust['expires_at'] = (utils.isotime
                                    (trust['expires_at'],
                                     subsecond=True))
 
-        if 'roles' not in trust:
-            trust['roles'] = []
         trust_full_roles = []
-        for trust_role in trust['roles']:
-            if isinstance(trust_role, six.string_types):
-                trust_role = {'id': trust_role}
-            matching_roles = [x for x in all_roles
-                              if x['id'] == trust_role['id']]
-            if matching_roles:
+        for trust_role in trust.get('roles', []):
+            if isinstance(trust_role, dict):
+                trust_role = trust_role['id']
+            try:
+                matching_role = self.role_api.get_role(trust_role)
                 full_role = assignment.controllers.RoleV3.wrap_member(
-                    context, matching_roles[0])['role']
+                    context, matching_role)['role']
                 trust_full_roles.append(full_role)
+            except exception.RoleNotFound:
+                pass
+
         trust['roles'] = trust_full_roles
         trust['roles_links'] = {
             'self': (self.base_url(context) + "/%s/roles" % trust['id']),
             'next': None,
             'previous': None}
 
-    def _normalize_role_list(self, trust, all_roles):
-        trust_roles = []
-        all_role_names = {r['name']: r for r in all_roles}
-        for role in trust.get('roles', []):
-            if 'id' in role:
-                trust_roles.append({'id': role['id']})
-            elif 'name' in role:
-                rolename = role['name']
-                if rolename in all_role_names:
-                    trust_roles.append({'id':
-                                        all_role_names[rolename]['id']})
+    def _normalize_role_list(self, trust_roles):
+        roles = [{'id': role['id']} for role in trust_roles if 'id' in role]
+        names = [role['name'] for role in trust_roles if 'id' not in role]
+        if len(names):
+            # Long way
+            for name in names:
+                hints = driver_hints.Hints()
+                hints.add_filter("name", name, case_sensitive=True)
+                found_roles = self.role_api.list_roles(hints)
+                if len(found_roles) == 1:
+                    roles.append({'id': found_roles[0]['id']})
                 else:
                     raise exception.RoleNotFound(_("role %s is not defined") %
-                                                 rolename)
-            else:
-                raise exception.ValidationError(attribute='id or name',
-                                                target='roles')
-        return trust_roles
+                                                 name)
+        return roles
 
-    @controller.protected()
-    def create_trust(self, request, trust):
-        """Create a new trust.
-
-        The user creating the trust must be the trustor.
-
-        """
-        validation.lazy_validate(schema.trust_create, trust)
+    def _find_redelegated_trust(self, request):
         # Check if delegated via trust
         if request.context.is_delegated_auth:
             # Redelegation case
@@ -117,6 +106,17 @@ class TrustV3(controller.V3Controller):
             redelegated_trust = self.trust_api.get_trust(src_trust_id)
         else:
             redelegated_trust = None
+        return redelegated_trust
+
+    @controller.protected()
+    def create_trust(self, request, trust):
+        """Create a new trust.
+
+        The user creating the trust must be the trustor.
+
+        """
+        validation.lazy_validate(schema.trust_create, trust)
+        redelegated_trust = self._find_redelegated_trust(request)
 
         if trust.get('project_id') and not trust.get('roles'):
             msg = _('At least one role should be specified.')
@@ -130,9 +130,8 @@ class TrustV3(controller.V3Controller):
         # ensure trustee exists
         self.identity_api.get_user(trust['trustee_user_id'])
 
-        all_roles = self.role_api.list_roles()
         # Normalize roles
-        normalized_roles = self._normalize_role_list(trust, all_roles)
+        normalized_roles = self._normalize_role_list(trust.get('roles', []))
         trust['roles'] = normalized_roles
         self._require_trustor_has_role_in_project(trust)
         trust['expires_at'] = self._parse_expiration_date(
@@ -143,7 +142,8 @@ class TrustV3(controller.V3Controller):
                                                 normalized_roles,
                                                 redelegated_trust,
                                                 initiator)
-        self._fill_in_roles(request.context_dict, new_trust, all_roles)
+
+        self._fill_in_roles(request.context_dict, new_trust)
         return TrustV3.wrap_member(request.context_dict, new_trust)
 
     def _get_trustor_roles(self, trust):
