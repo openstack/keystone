@@ -628,10 +628,14 @@ class BaseProvider(provider.Provider):
         group_ids = auth_context['group_ids']
         idp = auth_context[federation_constants.IDENTITY_PROVIDER]
         protocol = auth_context[federation_constants.PROTOCOL]
+
+        user_dict = self.identity_api.get_user(user_id)
+        user_name = user_dict['name']
+
         token_data = {
             'user': {
                 'id': user_id,
-                'name': parse.unquote(user_id),
+                'name': parse.unquote(user_name),
                 federation_constants.FEDERATION: {
                     'groups': [{'id': x} for x in group_ids],
                     'identity_provider': {'id': idp},
