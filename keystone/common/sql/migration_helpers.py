@@ -218,9 +218,7 @@ def contract_schema():
 
     This is run manually by the keystone-manage command once the keystone
     nodes have been upgraded to the latest release and will remove any old
-    tables/columns that are no longer required. In addition, if any data
-    could have been left inconsistent while running with a mix of releases,
-    then this should be fixed up here.
+    tables/columns that are no longer required.
 
     """
     # TODO(henry-nash): Add implementation here.
