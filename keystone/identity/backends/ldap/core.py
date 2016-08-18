@@ -116,6 +116,11 @@ class Identity(base.IdentityDriverV8):
         self.user.update(user_id, user, old_obj)
         return self.user.get_filtered(user_id)
 
+    def change_password(self, user_id, new_password):
+        raise exception.NotImplemented(
+            _('Self-service user password changes are not implemented for '
+              'LDAP.'))
+
     def delete_user(self, user_id):
         msg = _DEPRECATION_MSG % "delete_user"
         versionutils.report_deprecated_feature(LOG, msg)

@@ -1237,8 +1237,11 @@ class Manager(manager.Manager):
 
         validators.validate_password(new_password)
 
-        update_dict = {'password': new_password}
-        self.update_user(user_id, update_dict)
+        domain_id, driver, entity_id = (
+            self._get_domain_driver_and_entity_id(user_id))
+        driver.change_password(entity_id, new_password)
+        notifications.Audit.updated(self._USER, user_id)
+        self.emit_invalidate_user_token_persistence(user_id)
 
     @MEMOIZE
     def _shadow_nonlocal_user(self, user):
