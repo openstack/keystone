@@ -246,10 +246,10 @@ class Manager(manager.Manager):
             # that makes sense for the request.
             v3_token_ref = self.validate_non_persistent_token(token_id)
             v2_token_data_helper = providers.common.V2TokenDataHelper()
-            token = v2_token_data_helper.v3_to_v2_token(v3_token_ref)
+            token = v2_token_data_helper.v3_to_v2_token(v3_token_ref,
+                                                        token_id=token_id)
 
         # these are common things that happen regardless of token provider
-        token['access']['token']['id'] = token_id
         self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token

@@ -1187,9 +1187,9 @@ class TokenAPITests(object):
                           self.token_provider_api.validate_token,
                           trust_scoped_token)
 
-    def test_v2_validate_trust_scoped_token(self):
-        # Test that validating an trust scoped token in v2.0 returns
-        # unauthorized.
+    def test_validate_trust_token_on_v2_fails_outside_default_domain(self):
+        # NOTE(lbragstad): This fails validation against the v2.0 API because
+        # the actors of the trust are not within the default domain.
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
         self.assertRaises(exception.Unauthorized,
