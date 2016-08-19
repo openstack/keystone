@@ -91,104 +91,61 @@ following from the Keystone root project directory:
 Database Schema Migrations
 --------------------------
 
-Keystone uses SQLAlchemy-migrate_ to migrate the SQL database between
-revisions. For core components, the migrations are kept in a central
-repository under ``keystone/common/sql/migrate_repo/versions``. Each
-SQL migration has a version which can be identified by the name of
-the script, the version is the number before the underline.
-For example, if the script is named ``001_add_X_table.py`` then the
-version of the SQL migration is ``1``.
+Starting with Newton, keystone supports upgrading both with and without
+requiring downtime. In order to support this, there are three separate
+migration repositories (all under ``keystone/common/sql/``) that match the
+three phases of an upgrade (schema expansion, data migration and schema
+contraction):
+
+``expand_repo`` - For additive schema modifications and triggers to ensure
+                  data is kept in sync between the old and new schema until
+                  the point when there are no keystone instances running old
+                  code.
+``data_migration_repo`` - To ensure new tables/columns are fully populated with
+                          data from the old schema.
+``contract_repo`` - Run after all old code versions have been upgraded to
+                    running the new code, so remove any old schema
+                    columns/tables that are not used by the new version of the
+                    code. Drop any triggers added in the expand phase.
+
+Any migration is required to have a migration script in each of these repos,
+each with the same version number (which is indicated by the first three
+digits of the name of the script, e.g. ``003_add_X_table.py``). If there is no
+work to do in a specific phase, then include a null migration (in fact the
+first migration in each of these repositories is a null migration, so that
+can be used as a template).
+
+.. NOTE::
+
+    Since rolling upgrade support was added part way through the Newton cycle,
+    some migrations had already been added to the legacy repository
+    (``keystone/common/sql/migrate_repo``). This repository is now closed and
+    no new migrations should be added (except for backporting of previous
+    placeholders).
+    
+Since migrations must now support upgrades without downtime, it is a
+requirement that keystone supports running a mixed-mode of the release
+versions (i.e. the current and new versions) during the expand and data
+migration phases. To achieve this mixed-mode support, the expansion phase
+should install database triggers to keep the old and new scheme in sync. These
+triggers should be removed in the contract phase. There are further
+restrictions as to what can and cannot be included in migration scripts in
+each phase:
+
+Expand phase - Only additive database changes (i.e. column, table, indices and
+               trigger adds). No insertion of data.
+Data Migration phase - No database changes - only insertion/copying of data
+Contract phase - Only dropping or updating of schema (e.g. constraint changes).
+                 No insertion/removal of data (other than that implicit in the
+                 dropping of tables/columns).
+
+For examples of use of the 3 different migration phase scripts to allow upgrading
+without downtime, look at the existing migrations in each of the 3 repositories.
+
+For more information on writing individual migration scripts refer to
+`SQLAlchemy-migrate`_.
 
 .. _SQLAlchemy-migrate: https://git.openstack.org/cgit/openstack/sqlalchemy-migrate
-
-For the migration to work, both the ``migrate_repo`` and ``versions``
-subdirectories must have ``__init__.py`` files. SQLAlchemy-migrate will look
-for a configuration file in the ``migrate_repo`` named ``migrate.cfg``. This
-conforms to a key/value `ini` file format. A sample configuration file with
-the minimal set of values is::
-
-    [db_settings]
-    repository_id=my_extension
-    version_table=migrate_version
-    required_dbs=[]
-
-To run a migration for upgrade, simply run:
-
-.. code-block:: bash
-
-    $ keystone-manage db_sync <version>
-
-.. NOTE::
-
-   If no version is specified, then the most recent migration will be used.
-
-.. NOTE::
-
-   Schema downgrades are not supported.
-
-.. _online-migration:
-
-From Mitaka release, we are starting to write the migration scripts in a
-backward compatible way to support `online schema migration`_. The following
-guidelines for schema and data migrations should be followed:
-
-* Additive schema migrations - In general, almost all schema migrations should
-  be additive. Put simply, they should only create elements like columns,
-  indices, and tables.
-
-* Subtractive schema migrations - To remove an element like a column or table:
-
-  #. Expand phase: The element must be deprecated and retained for backward
-     compatibility. This allows for graceful upgrade from X release to X+1.
-
-  #. Migrate phase: Data migration must completely migrate data from the old
-     version of the schema to the new version. Data migrations should have the
-     ability to run online, while the service is operating normally, so the
-     keystone service implementation (typically the SQLAlchemy model) has to
-     be aware that data should be retrieved and/or written from/to more than
-     one place and format, to maintain consistency (see examples below).
-
-  #. Contract phase: The column can then be removed with a schema migration at
-     the start of X+2. Contract phase can't happen if the data migration isn't
-     finished (see last point in this section).
-
-* Release notes - There should be a release note in case an operation is
-  "blocking", "expensive", or both. You can find information on which DDL
-  operations are expensive in `MySQL docs`_. Other supported SQL DBs support
-  `transactional DDL`_, and experienced DBA's know to take advantage of this
-  feature.
-
-* Constraints - When adding a foreign or unique key constraint, the schema
-  migration code needs to handle possible problems with data before applying
-  the constraint. For example, a unique constraint must clean up duplicate
-  records before applying said constraint.
-
-* Data migrations - should be done in an online fashion by custom code in the
-  SQLAlchemy layer that handles moving data between the old and new portions
-  of the schema. In addition, for each type of data migration performed,
-  a keystone-manage command can be added for the operator to manually request
-  that rows be migrated (see examples below, like the nova flavor migration).
-
-* All schema migrations should be idempotent. For example, a migration
-  should check if an element exists in the schema before attempting to add
-  it. This logic comes for free in the autogenerated workflow of
-  the online migrations.
-
-* Before running `contract` in the expand/migrate/contract schema migration
-  workflow, the remaining data migrations should be performed by the contract
-  script. Alternatively, running a relevant keystone-manage migration should
-  be enforced, to ensure that all remaining data migrations are completed.
-  It is a good practice to move data out of the old columns, and ensure they
-  are filled with null values before removing them.
-
-A good example of an online schema migration is documented in a `cinder spec`_.
-See more examples in :doc:`online_schema_migration_examples`.
-
-.. _`online schema migration`: https://specs.openstack.org/openstack/keystone-specs/specs/mitaka/online-schema-migration.html
-.. _`MySQL docs`: https://dev.mysql.com/doc/refman/5.7/en/innodb-create-index-overview.html
-.. _`transactional DDL`: https://wiki.postgresql.org/wiki/Transactional_DDL_in_PostgreSQL:_A_Competitive_Analysis
-.. _`cinder spec`: https://specs.openstack.org/openstack/cinder-specs/specs/mitaka/online-schema-upgrades.html
-
 
 Initial Sample Data
 -------------------
