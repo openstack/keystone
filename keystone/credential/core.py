@@ -21,6 +21,7 @@ from keystone.common import driver_hints
 from keystone.common import manager
 import keystone.conf
 from keystone.credential.backends import base
+from keystone import exception
 
 
 CONF = keystone.conf.CONF
@@ -52,8 +53,21 @@ class Manager(manager.Manager):
         """Create a credential."""
         return self.driver.create_credential(credential_id, credential)
 
+    def _validate_credential_update(self, credential_id, credential):
+        # ec2 credentials require a "project_id" to be functional. Before we
+        # update, check the case where a non-ec2 credential changes its type
+        # to be "ec2", but has no associated "project_id", either in the
+        # request or already set in the database
+        if (credential.get('type', '').lower() == 'ec2' and
+                not credential.get('project_id')):
+            existing_cred = self.get_credential(credential_id)
+            if not existing_cred['project_id']:
+                raise exception.ValidationError(attribute='project_id',
+                                                target='credential')
+
     def update_credential(self, credential_id, credential):
         """Update an existing credential."""
+        self._validate_credential_update(credential_id, credential)
         return self.driver.update_credential(credential_id, credential)
 
 
