@@ -90,6 +90,12 @@ class ShadowUsers(base.ShadowUsersDriverV10):
     @sql.handle_conflicts(conflict_type='nonlocal_user')
     def create_nonlocal_user(self, user_dict):
         new_user_dict = copy.deepcopy(user_dict)
+        # remove local_user attributes from new_user_dict
+        keys_to_delete = ['domain_id', 'name', 'password']
+        for key in keys_to_delete:
+            if key in new_user_dict:
+                del new_user_dict[key]
+        # create nonlocal_user dict
         new_nonlocal_user_dict = {
             'domain_id': user_dict['domain_id'],
             'name': user_dict['name']
