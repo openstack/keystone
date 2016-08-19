@@ -13,6 +13,7 @@
 from oslo_log import log
 
 from keystone.cmd.doctor import caching
+from keystone.cmd.doctor import credential
 from keystone.cmd.doctor import database
 from keystone.cmd.doctor import federation
 from keystone.cmd.doctor import ldap
@@ -28,6 +29,7 @@ LOG = log.getLogger(__name__)
 SYMPTOM_PREFIX = 'symptom_'
 SYMPTOM_MODULES = [
     caching,
+    credential,
     database,
     federation,
     ldap,
