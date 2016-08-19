@@ -247,19 +247,6 @@ def validate_expiration(token_ref):
         raise exception.Unauthorized(_('Federation token is expired'))
 
 
-def validate_groups_cardinality(group_ids, mapping_id):
-    """Check if groups list is non-empty.
-
-    :param group_ids: list of group ids
-    :type group_ids: list of str
-
-    :raises keystone.exception.MissingGroups: if ``group_ids`` cardinality is 0
-
-    """
-    if not group_ids:
-        raise exception.MissingGroups(mapping_id=mapping_id)
-
-
 def get_remote_id_parameter(protocol):
     # NOTE(marco-fargetta): Since we support any protocol ID, we attempt to
     # retrieve the remote_id_attribute of the protocol ID. If it's not
@@ -306,7 +293,7 @@ def validate_idp(idp, protocol, assertion):
         raise exception.Forbidden(msg)
 
 
-def validate_groups_in_backend(group_ids, mapping_id, identity_api):
+def validate_mapped_group_ids(group_ids, mapping_id, identity_api):
     """Iterate over group ids and make sure they are present in the backend.
 
     This call is not transactional.
@@ -330,32 +317,6 @@ def validate_groups_in_backend(group_ids, mapping_id, identity_api):
         except exception.GroupNotFound:
             raise exception.MappedGroupNotFound(
                 group_id=group_id, mapping_id=mapping_id)
-
-
-def validate_groups(group_ids, mapping_id, identity_api):
-    """Check group ids cardinality and check their existence in the backend.
-
-    This call is not transactional.
-    :param group_ids: IDs of the groups to be checked
-    :type group_ids: list of str
-
-    :param mapping_id: id of the mapping used for this operation
-    :type mapping_id: str
-
-    :param identity_api: Identity Manager object used for communication with
-                         backend
-    :type identity_api: identity.Manager
-
-    :raises keystone.exception.MappedGroupNotFound: If the group returned by
-        mapping was not found in the backend.
-    :raises keystone.exception.MissingGroups: If ``group_ids`` cardinality
-        is 0.
-
-    """
-    # TODO(rderose): remove cardinality check, as federated users can now
-    #                receive direct role assignments
-    validate_groups_cardinality(group_ids, mapping_id)
-    validate_groups_in_backend(group_ids, mapping_id, identity_api)
 
 
 # TODO(marek-denis): Optimize this function, so the number of calls to the
@@ -422,8 +383,8 @@ def transform_to_group_ids(group_names, mapping_id,
                 group['name'], resolve_domain(group['domain']))
             yield group_dict['id']
         except exception.GroupNotFound:
-            LOG.debug('Skip mapping group %s; has no entry in the backend',
-                      group['name'])
+            raise exception.MappedGroupNotFound(group_id=group['name'],
+                                                mapping_id=mapping_id)
 
 
 def get_assertion_params_from_env(request):
