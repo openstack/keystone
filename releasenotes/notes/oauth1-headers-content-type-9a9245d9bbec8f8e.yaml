@@ -1,0 +1,6 @@
+---
+other:
+  - >
+    The response's content type for creating request token or access token
+    is changed to `application/x-www-form-urlencoded`, the old value
+    `application/x-www-urlformencoded` is invalid and will no longer be used.
