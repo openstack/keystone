@@ -16,12 +16,15 @@
 import os
 
 import fixtures
+from migrate.versioning import api as versioning_api
 from migrate.versioning import repository
 from oslo_db.sqlalchemy import test_base
 from oslo_db.sqlalchemy import test_migrations
 import sqlalchemy
 import testtools
 
+from keystone.common.sql import contract_repo
+from keystone.common.sql import data_migration_repo
 from keystone.common.sql import expand_repo
 from keystone.common.sql import migrate_repo
 from keystone.common.sql import migration_helpers
@@ -34,57 +37,114 @@ class DBOperationNotAllowed(Exception):
 class BannedDBSchemaOperations(fixtures.Fixture):
     """Ban some operations for migrations."""
 
-    def __init__(self, banned_resources=None):
+    def __init__(self, banned_ops=None,
+                 migration_repo=migrate_repo.__file__):
         super(BannedDBSchemaOperations, self).__init__()
-        self._banned_resources = banned_resources or []
+        self._banned_ops = banned_ops or {}
+        self._migration_repo = migration_repo
 
     @staticmethod
-    def _explode(resource, op):
+    def _explode(resource_op, repo):
+        # Extract the repo name prior to the trailing '/__init__.py'
+        repo_name = repo.split('/')[-2]
         raise DBOperationNotAllowed(
-            'Operation %s.%s() is not allowed in a database migration' % (
-                resource, op))
+            'Operation %s() is not allowed in %s database migrations' % (
+                resource_op, repo_name))
 
     def setUp(self):
         super(BannedDBSchemaOperations, self).setUp()
-        for resource in self._banned_resources:
-            self.useFixture(fixtures.MonkeyPatch(
-                'sqlalchemy.%s.drop' % resource,
-                lambda *a, **k: self._explode(resource, 'drop')))
-            self.useFixture(fixtures.MonkeyPatch(
-                'sqlalchemy.%s.alter' % resource,
-                lambda *a, **k: self._explode(resource, 'alter')))
+        explode_lambda = {
+            'Table.create': lambda *a, **k: self._explode(
+                'Table.create', self._migration_repo),
+            'Table.alter': lambda *a, **k: self._explode(
+                'Table.alter', self._migration_repo),
+            'Table.drop': lambda *a, **k: self._explode(
+                'Table.drop', self._migration_repo),
+            'Table.insert': lambda *a, **k: self._explode(
+                'Table.insert', self._migration_repo),
+            'Table.update': lambda *a, **k: self._explode(
+                'Table.update', self._migration_repo),
+            'Table.delete': lambda *a, **k: self._explode(
+                'Table.delete', self._migration_repo),
+            'Column.create': lambda *a, **k: self._explode(
+                'Column.create', self._migration_repo),
+            'Column.alter': lambda *a, **k: self._explode(
+                'Column.alter', self._migration_repo),
+            'Column.drop': lambda *a, **k: self._explode(
+                'Column.drop', self._migration_repo)
+        }
+        for resource in self._banned_ops:
+            for op in self._banned_ops[resource]:
+                resource_op = '%(resource)s.%(op)s' % {
+                    'resource': resource, 'op': op}
+                self.useFixture(fixtures.MonkeyPatch(
+                    'sqlalchemy.%s' % resource_op,
+                    explode_lambda[resource_op]))
 
 
 class TestBannedDBSchemaOperations(testtools.TestCase):
     """Test the BannedDBSchemaOperations fixture."""
 
     def test_column(self):
-        """Test column drops and alters raise DBOperationNotAllowed."""
+        """Test column operations raise DBOperationNotAllowed."""
         column = sqlalchemy.Column()
-        with BannedDBSchemaOperations(banned_resources=['Column']):
+        with BannedDBSchemaOperations(
+                banned_ops={'Column': ['create', 'alter', 'drop']}):
             self.assertRaises(DBOperationNotAllowed, column.drop)
             self.assertRaises(DBOperationNotAllowed, column.alter)
+            self.assertRaises(DBOperationNotAllowed, column.create)
 
     def test_table(self):
-        """Test table drops and alters raise DBOperationNotAllowed."""
+        """Test table operations raise DBOperationNotAllowed."""
         table = sqlalchemy.Table()
-        with BannedDBSchemaOperations(banned_resources=['Table']):
+        with BannedDBSchemaOperations(
+                banned_ops={'Table': ['create', 'alter', 'drop',
+                                      'insert', 'update', 'delete']}):
             self.assertRaises(DBOperationNotAllowed, table.drop)
             self.assertRaises(DBOperationNotAllowed, table.alter)
+            self.assertRaises(DBOperationNotAllowed, table.create)
+            self.assertRaises(DBOperationNotAllowed, table.insert)
+            self.assertRaises(DBOperationNotAllowed, table.update)
+            self.assertRaises(DBOperationNotAllowed, table.delete)
 
 
 class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
     """Walk over and test all sqlalchemy-migrate migrations."""
 
+    # NOTE(xek): We start requiring things be additive in Newton, so
+    # ignore all migrations before the first version in Newton.
+    migrate_file = migrate_repo.__file__
+    first_version = 101
+    # NOTE(henry-nash): We don't ban data modification in the legacy repo,
+    # since there are already migrations that do this for Newton (and these
+    # do not cause us issues, or are already worked around).
+    banned_ops = {'Table': ['alter', 'drop'],
+                  'Column': ['alter', 'drop']}
+    exceptions = [
+        # NOTE(xek): Reviewers: DO NOT ALLOW THINGS TO BE ADDED HERE UNLESS
+        # JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT CAUSE
+        # PROBLEMS FOR ROLLING UPGRADES.
+
+        # Migration 102 drops the domain table in the Newton release. All
+        # code that referenced the domain table was removed in the Mitaka
+        # release, hence this migration will not cause problems when
+        # running a mixture of Mitaka and Newton versions of keystone.
+        102,
+
+        # Migration 106 simply allows the password column to be nullable.
+        # This change would not impact a rolling upgrade.
+        106
+    ]
+
     @property
     def INIT_VERSION(self):
-        return migration_helpers.get_init_version()
+        return migration_helpers.get_init_version(
+            abs_path=os.path.abspath(os.path.dirname(self.migrate_file)))
 
     @property
     def REPOSITORY(self):
-        migrate_file = migrate_repo.__file__
         return repository.Repository(
-            os.path.abspath(os.path.dirname(migrate_file))
+            os.path.abspath(os.path.dirname(self.migrate_file))
         )
 
     @property
@@ -97,60 +157,37 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
     def migrate_engine(self):
         return self.engine
 
+    def migrate_fully(self, repo_name):
+        abs_path = os.path.abspath(os.path.dirname(repo_name))
+        init_version = migration_helpers.get_init_version(abs_path=abs_path)
+        schema = versioning_api.ControlledSchema.create(
+            self.migrate_engine, abs_path, init_version)
+        max_version = schema.repository.version().version
+        upgrade = True
+        err = ''
+        version = versioning_api._migrate_version(
+            schema, max_version, upgrade, err)
+        schema.upgrade(version)
+
     def migrate_up(self, version, with_data=False):
         """Check that migrations don't cause downtime.
 
         Schema migrations can be done online, allowing for rolling upgrades.
         """
         # NOTE(xek):
-        # This is a list of migrations where we allow dropping and altering
-        # things. The rules for adding exceptions are very specific:
-        #
-        # 1) Migrations which don't cause incompatibilities are allowed,
-        #    for example dropping an index or constraint.
-        #
-        # 2) Migrations removing structures not used in the previous version
-        #    are allowed (we keep compatibility between releases), ex.:
-        #
-        #    a) feature is deprecated according to the deprecation policies
-        #       (release 1),
-        #
-        #    b) code supporting the feature is removed the following release
-        #       (release 2),
-        #
-        #    c) table can be dropped a release after the code has been removed
-        #       (i.e. in release 3).
-        #
-        # 3) Any other changes which don't pass this test are disallowed.
+        # self.exceptions contains a list of migrations where we allow the
+        # banned operations. Only Migrations which don't cause
+        # incompatibilities are allowed, for example dropping an index or
+        # constraint.
         #
         # Please follow the guidelines outlined at:
         # http://docs.openstack.org/developer/keystone/developing.html#online-migration
 
-        exceptions = [
-            # NOTE(xek): Reviewers: DO NOT ALLOW THINGS TO BE ADDED HERE UNLESS
-            # JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT CAUSE
-            # PROBLEMS FOR ROLLING UPGRADES.
-
-            # Migration 102 drops the domain table in the Newton release. All
-            # code that referenced the domain table was removed in the Mitaka
-            # release, hence this migration will not cause problems when
-            # running a mixture of Mitaka and Newton versions of keystone.
-            102,
-
-            # Migration 106 simply allows the password column to be nullable.
-            # This change would not impact a rolling upgrade.
-            106
-        ]
-
-        # NOTE(xek): We start requiring things be additive in Newton, so
-        # ignore all migrations before that point.
-        NEWTON_START = 101
-
-        if version >= NEWTON_START and version not in exceptions:
-            banned = ['Table', 'Column']
+        if version >= self.first_version and version not in self.exceptions:
+            banned_ops = self.banned_ops
         else:
-            banned = None
-        with BannedDBSchemaOperations(banned):
+            banned_ops = None
+        with BannedDBSchemaOperations(banned_ops, self.migrate_file):
             super(KeystoneMigrationsCheckers,
                   self).migrate_up(version, with_data)
 
@@ -176,49 +213,114 @@ class TestKeystoneMigrationsSQLite(
     pass
 
 
+class TestKeystoneExpandSchemaMigrations(
+        KeystoneMigrationsCheckers):
+
+    migrate_file = expand_repo.__file__
+    first_version = 1
+    # TODO(henry-nash): we should include Table update here as well, but this
+    # causes the update of the migration version to appear as a banned
+    # operation!
+    banned_ops = {'Table': ['alter', 'drop', 'insert', 'delete'],
+                  'Column': ['alter', 'drop']}
+    exceptions = [
+        # NOTE(xek, henry-nash): Reviewers: DO NOT ALLOW THINGS TO BE ADDED
+        # HERE UNLESS JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT
+        # CAUSE PROBLEMS FOR ROLLING UPGRADES.
+    ]
+
+    def setUp(self):
+        super(TestKeystoneExpandSchemaMigrations, self).setUp()
+        self.migrate_fully(migrate_repo.__file__)
+
+
 class TestKeystoneExpandSchemaMigrationsMySQL(
-        KeystoneMigrationsCheckers, test_base.MySQLOpportunisticTestCase):
-
-    @property
-    def INIT_VERSION(self):
-        return migration_helpers.get_init_version(
-            abs_path=os.path.abspath(os.path.dirname(expand_repo.__file__)))
-
-    @property
-    def REPOSITORY(self):
-        migrate_file = expand_repo.__file__
-        return repository.Repository(
-            os.path.abspath(os.path.dirname(migrate_file))
-        )
+        TestKeystoneExpandSchemaMigrations,
+        test_base.MySQLOpportunisticTestCase):
+    pass
 
 
 class TestKeystoneExpandSchemaMigrationsPostgreSQL(
-        KeystoneMigrationsCheckers, test_base.PostgreSQLOpportunisticTestCase):
-
-    @property
-    def INIT_VERSION(self):
-        return migration_helpers.get_init_version(
-            abs_path=os.path.abspath(os.path.dirname(expand_repo.__file__)))
-
-    @property
-    def REPOSITORY(self):
-        migrate_file = expand_repo.__file__
-        return repository.Repository(
-            os.path.abspath(os.path.dirname(migrate_file))
-        )
+        TestKeystoneExpandSchemaMigrations,
+        test_base.PostgreSQLOpportunisticTestCase):
+    pass
 
 
-class TestKeystoneExpandSchemaMigrationsSQLite(
-        KeystoneMigrationsCheckers, test_base.DbTestCase):
+class TestKeystoneDataMigrations(
+        KeystoneMigrationsCheckers):
 
-    @property
-    def INIT_VERSION(self):
-        return migration_helpers.get_init_version(
-            abs_path=os.path.abspath(os.path.dirname(expand_repo.__file__)))
+    migrate_file = data_migration_repo.__file__
+    first_version = 1
+    banned_ops = {'Table': ['create', 'alter', 'drop'],
+                  'Column': ['create', 'alter', 'drop']}
+    exceptions = [
+        # NOTE(xek, henry-nash): Reviewers: DO NOT ALLOW THINGS TO BE ADDED
+        # HERE UNLESS JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT
+        # CAUSE PROBLEMS FOR ROLLING UPGRADES.
+    ]
 
-    @property
-    def REPOSITORY(self):
-        migrate_file = expand_repo.__file__
-        return repository.Repository(
-            os.path.abspath(os.path.dirname(migrate_file))
-        )
+    def setUp(self):
+        super(TestKeystoneDataMigrations, self).setUp()
+        self.migrate_fully(migrate_repo.__file__)
+        self.migrate_fully(expand_repo.__file__)
+
+
+class TestKeystoneDataMigrationsMySQL(
+        TestKeystoneDataMigrations,
+        test_base.MySQLOpportunisticTestCase):
+    pass
+
+
+class TestKeystoneDataMigrationsPostgreSQL(
+        TestKeystoneDataMigrations,
+        test_base.PostgreSQLOpportunisticTestCase):
+    pass
+
+
+class TestKeystoneDataMigrationsSQLite(
+        TestKeystoneDataMigrations, test_base.DbTestCase):
+    pass
+
+
+class TestKeystoneContractSchemaMigrations(
+        KeystoneMigrationsCheckers):
+
+    migrate_file = contract_repo.__file__
+    first_version = 1
+    # TODO(henry-nash): we should include Table update here as well, but this
+    # causes the update of the migration version to appear as a banned
+    # operation!
+    banned_ops = {'Table': ['create', 'insert', 'delete'],
+                  'Column': ['create']}
+    exceptions = [
+        # NOTE(xek, henry-nash): Reviewers: DO NOT ALLOW THINGS TO BE ADDED
+        # HERE UNLESS JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT
+        # CAUSE PROBLEMS FOR ROLLING UPGRADES.
+    ]
+
+    def setUp(self):
+        super(TestKeystoneContractSchemaMigrations, self).setUp()
+        self.migrate_fully(migrate_repo.__file__)
+        self.migrate_fully(expand_repo.__file__)
+        self.migrate_fully(data_migration_repo.__file__)
+
+
+class TestKeystoneContractSchemaMigrationsMySQL(
+        TestKeystoneContractSchemaMigrations,
+        test_base.MySQLOpportunisticTestCase):
+    pass
+
+
+class TestKeystoneContractSchemaMigrationsPostgreSQL(
+        TestKeystoneContractSchemaMigrations,
+        test_base.PostgreSQLOpportunisticTestCase):
+    pass
+
+
+class TestKeystoneContractSchemaMigrationsSQLite(
+        TestKeystoneContractSchemaMigrations, test_base.DbTestCase):
+    # In Sqlite an alter will appear as a create, so if we check for creates
+    # we will get false positives.
+    def setUp(self):
+        super(TestKeystoneContractSchemaMigrationsSQLite, self).setUp()
+        self.banned_ops['Table'].remove('create')
