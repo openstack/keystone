@@ -301,12 +301,12 @@ Response
     - oauth_expires_at: oauth_expires_at
 
 
-Get authorized access token
-===========================
+Get access token
+================
 
-.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}
+.. rest_method::  GET /v3/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}
 
-Gets an authorized access token.
+Gets an access token.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
@@ -331,7 +331,7 @@ Response Example
 Revoke access token
 ===================
 
-.. rest_method::  DELETE /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}
+.. rest_method::  DELETE /v3/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}
 
 Enables a user to revoke an access token, which prevents the consumer from
 requesting new Identity Service API tokens. Also, revokes any Identity Service
@@ -351,10 +351,10 @@ Request
    - access_token_id: access_token_id_path
 
 
-List authorized access tokens
-=============================
+List access tokens
+==================
 
-.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens
+.. rest_method::  GET /v3/users/{user_id}/OS-OAUTH1/access_tokens
 
 Lists authorized access tokens.
 
@@ -380,7 +380,7 @@ Response Example
 List roles for an access token
 ==============================
 
-.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}/roles
+.. rest_method::  GET /v3/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/roles
 
 Lists associated roles for an access token.
 
@@ -401,7 +401,7 @@ Request
 Show role details for an access token
 =====================================
 
-.. rest_method::  GET /v3/OS-OAUTH1/users/{user_id}/access_tokens/{access_token_id}/roles/{role_id}
+.. rest_method::  GET /v3/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/roles/{role_id}
 
 Shows details for a role for an access token.
 
