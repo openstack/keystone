@@ -2427,7 +2427,13 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
     def config_overrides(self):
         super(TestFernetTokenAPIs, self).config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
     def setUp(self):
         super(TestFernetTokenAPIs, self).setUp()
@@ -4899,7 +4905,13 @@ class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
                                    revoke_by_id=False)
         self.config_fixture.config(group='trust',
                                    enabled=True)
-        self.useFixture(ksfixtures.KeyRepository(self.config_fixture))
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
 
 class TestAuthTOTP(test_v3.RestfulTestCase):
