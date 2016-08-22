@@ -44,6 +44,18 @@ class Manager(manager.Manager):
     def list_credentials(self, hints=None):
         return self.driver.list_credentials(hints or driver_hints.Hints())
 
+    def get_credential(self, credential_id):
+        """Return a credential reference."""
+        return self.driver.get_credential(credential_id)
+
+    def create_credential(self, credential_id, credential):
+        """Create a credential."""
+        return self.driver.create_credential(credential_id, credential)
+
+    def update_credential(self, credential_id, credential):
+        """Update an existing credential."""
+        return self.driver.update_credential(credential_id, credential)
+
 
 @versionutils.deprecated(
     versionutils.deprecated.NEWTON,
