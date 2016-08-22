@@ -180,7 +180,7 @@ class TestMapped(unit.TestCase):
             self.assertEqual(method_name, auth_payload['protocol'])
 
     def test_supporting_multiple_methods(self):
-        method_names = ('saml2', 'openid', 'x509')
+        method_names = ('saml2', 'openid', 'x509', 'mapped')
         self.useFixture(auth_plugins.LoadAuthPlugins(*method_names))
         for method_name in method_names:
             self._test_mapped_invocation_with_method_name(method_name)
