@@ -82,11 +82,12 @@ Upgrading without downtime
 --------------------------
 
 This is a high-level description of our upgrade strategy built around
-``keystone-manage upgrade``. Although it is much more complex than the upgrade
-process described above, it assumes that you are not willing to have downtime
-of your control plane during the upgrade process. With this upgrade process,
-end users will still be able to authenticate to receive tokens normally, and
-other OpenStack services will still be able to authenticate requests normally.
+additional options in ``keystone-manage db_sync``. Although it is much more
+complex than the upgrade process described above, it assumes that you are not
+willing to have downtime of your control plane during the upgrade process. With
+this upgrade process, end users will still be able to authenticate to receive
+tokens normally, and other OpenStack services will still be able to
+authenticate requests normally.
 
 #. Make a backup of your database. Keystone does not support downgrading the
    database, so restoring from a full backup is your only option for recovery
@@ -105,7 +106,7 @@ other OpenStack services will still be able to authenticate requests normally.
    diagnose symptoms of common deployment issues and receive instructions for
    resolving them.
 
-#. Run ``keystone-manage upgrade --expand`` on the first node to expand the
+#. Run ``keystone-manage db_sync --expand`` on the first node to expand the
    database schema to a superset of what both the previous and next release can
    utilize, and create triggers to facilitate the live migration process.
 
@@ -117,7 +118,7 @@ other OpenStack services will still be able to authenticate requests normally.
    triggers will live migrate the data to the new schema so it can be read by
    the next release.
 
-#. Run ``keystone-manage upgrade --migrate`` on the first node to forcefully
+#. Run ``keystone-manage db_sync --migrate`` on the first node to forcefully
    perform data migrations. This process will migrate all data from the old
    schema to the new schema while the previous release continues to operate
    normally.
@@ -137,7 +138,7 @@ other OpenStack services will still be able to authenticate requests normally.
    As the next release begins writing to the new schema, database triggers will
    also migrate the data to the old schema, keeping both data schemas in sync.
 
-#. Run ``keystone-manage upgrade --contract`` to remove the old schema and all
+#. Run ``keystone-manage db_sync --contract`` to remove the old schema and all
    data migration triggers.
 
    When this process completes, the database will no longer be able to support
