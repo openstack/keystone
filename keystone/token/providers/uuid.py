@@ -22,8 +22,6 @@ from keystone.token.providers import common
 
 
 class Provider(common.BaseProvider):
-    def __init__(self, *args, **kwargs):
-        super(Provider, self).__init__(*args, **kwargs)
 
     def _get_token_id(self, token_data):
         return uuid.uuid4().hex

@@ -360,9 +360,6 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
     collection_name = 'credentials'
     member_name = 'credential'
 
-    def __init__(self):
-        super(Ec2ControllerV3, self).__init__()
-
     def _check_credential_owner_and_user_id_match(self, request, prep_info,
                                                   user_id, credential_id):
         # NOTE(morganfainberg): this method needs to capture the arguments of
