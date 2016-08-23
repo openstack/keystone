@@ -1345,6 +1345,12 @@ class ShadowUsersTests(object):
                           self.shadow_users_api.create_nonlocal_user,
                           new_user)
 
+    def test_create_nonlocal_user_does_not_create_local_user(self):
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        new_nonlocal_user = self.shadow_users_api.create_nonlocal_user(user)
+        user_ref = self._get_user_ref(new_nonlocal_user['id'])
+        self.assertIsNone(user_ref.local_user)
+
     def test_get_user(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user.pop('email')
