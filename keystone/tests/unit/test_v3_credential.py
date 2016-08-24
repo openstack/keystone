@@ -172,6 +172,61 @@ class CredentialTestCase(CredentialBaseTestCase):
             body={'credential': ref})
         self.assertValidCredentialResponse(r, ref)
 
+    def test_update_credential_to_ec2_type(self):
+        """Call ``PATCH /credentials/{credential_id}``."""
+        # Create a credential without providing a project_id
+        ref = unit.new_credential_ref(user_id=self.user['id'])
+        r = self.post(
+            '/credentials',
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+        credential_id = r.result.get('credential')['id']
+
+        # Updating the credential to ec2 requires a project_id
+        update_ref = {'type': 'ec2', 'project_id': self.project_id}
+        self.patch(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': credential_id},
+            body={'credential': update_ref})
+
+    def test_update_credential_to_ec2_missing_project_id(self):
+        """Call ``PATCH /credentials/{credential_id}``."""
+        # Create a credential without providing a project_id
+        ref = unit.new_credential_ref(user_id=self.user['id'])
+        r = self.post(
+            '/credentials',
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+        credential_id = r.result.get('credential')['id']
+
+        # Updating such credential to ec2 type without providing a project_id
+        # will fail
+        update_ref = {'type': 'ec2'}
+        self.patch(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': credential_id},
+            body={'credential': update_ref},
+            expected_status=http_client.BAD_REQUEST)
+
+    def test_update_credential_to_ec2_with_previously_set_project_id(self):
+        """Call ``PATCH /credentials/{credential_id}``."""
+        # Create a credential providing a project_id
+        ref = unit.new_credential_ref(user_id=self.user['id'],
+                                      project_id=self.project_id)
+        r = self.post(
+            '/credentials',
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+        credential_id = r.result.get('credential')['id']
+
+        # Since the created credential above already has a project_id, the
+        # update request will not fail
+        update_ref = {'type': 'ec2'}
+        self.patch(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': credential_id},
+            body={'credential': update_ref})
+
     def test_delete_credential(self):
         """Call ``DELETE /credentials/{credential_id}``."""
         self.delete(
