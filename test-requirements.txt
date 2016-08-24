@@ -27,10 +27,6 @@ os-api-ref>=0.4.0 # Apache-2.0
 # test wsgi apps without starting an http server
 WebTest>=2.0 # MIT
 
-# mox was removed in favor of mock. We should not re-enable this module. See
-# discussion: http://lists.openstack.org/pipermail/openstack-dev/2013-July/012484.html
-#mox>=0.5.3
-
 python-subunit>=0.0.18 # Apache-2.0/BSD
 testrepository>=0.0.18 # Apache-2.0/BSD
 testtools>=1.4.0 # MIT
