@@ -41,8 +41,8 @@ EXTENSION_DATA = {
         {
             'rel': 'describedby',
             'type': 'text/html',
-            'href': 'http://specs.openstack.org/openstack/keystone-specs/api/'
-                    'v3/identity-api-v3-os-revoke-ext.html',
+            'href': 'http://developer.openstack.org/'
+                    'api-ref-identity-v3-ext.html',
         }
     ]}
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
