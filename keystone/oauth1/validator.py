@@ -101,7 +101,11 @@ class OAuthValidator(oauth1.RequestValidator):
 
     def validate_request_token(self, client_key, token, request):
         try:
-            return self.oauth_api.get_request_token(token) is not None
+            req_token = self.oauth_api.get_request_token(token)
+            if req_token:
+                return req_token['consumer_id'] == client_key
+            else:
+                return False
         except exception.NotFound:
             return False
 

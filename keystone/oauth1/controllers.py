@@ -14,6 +14,7 @@
 
 """Extensions supporting OAuth1."""
 
+from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 from six.moves import http_client
@@ -33,6 +34,7 @@ from keystone.oauth1 import validator
 
 
 CONF = keystone.conf.CONF
+LOG = log.getLogger(__name__)
 
 
 def _emit_user_oauth_consumer_token_invalidate(payload):
@@ -228,15 +230,13 @@ class OAuthControllerV3(controller.V3Controller):
         self.resource_api.get_project(requested_project_id)
         self.oauth_api.get_consumer(consumer_id)
 
-        url = self.base_url(request.context_dict, request.context_dict['path'])
-
         req_headers = {'Requested-Project-Id': requested_project_id}
         req_headers.update(request.headers)
         request_verifier = oauth1.RequestTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
         h, b, s = request_verifier.create_request_token_response(
-            url,
+            request.url,
             http_method='POST',
             body=request.params,
             headers=req_headers)
@@ -296,35 +296,57 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
-        url = self.base_url(request.context_dict, request.context_dict['path'])
-
         access_verifier = oauth1.AccessTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
-        h, b, s = access_verifier.create_access_token_response(
-            url,
-            http_method='POST',
-            body=request.params,
-            headers=request.headers)
+        try:
+            h, b, s = access_verifier.create_access_token_response(
+                request.url,
+                http_method='POST',
+                body=request.params,
+                headers=request.headers)
+        except NotImplementedError:
+            # Client key or request token validation failed, since keystone
+            # does not yet support dummy client or dummy request token,
+            # so we will raise Unauthorized exception instead.
+            try:
+                self.oauth_api.get_consumer(consumer_id)
+            except exception.NotFound:
+                msg = _('Provided consumer does not exist.')
+                LOG.warning(msg)
+                raise exception.Unauthorized(message=msg)
+            if req_token['consumer_id'] != consumer_id:
+                msg = _('Provided consumer key does not match stored '
+                        'consumer key.')
+                LOG.warning(msg)
+                raise exception.Unauthorized(message=msg)
+        # The response body is empty since either one of the following reasons
+        if not b:
+            if req_token['verifier'] != oauth_verifier:
+                msg = _('Provided verifier does not match stored verifier')
+            else:
+                msg = _('Invalid signature.')
+            LOG.warning(msg)
+            raise exception.Unauthorized(message=msg)
         params = oauth1.extract_non_oauth_params(b)
+        # Invalid request would end up with the body like below:
+        # 'error=invalid_request&description=missing+resource+owner+key'
+        # Log this detail message so that we will know where is the
+        # validation failed.
         if params:
-            msg = _('There should not be any non-oauth parameters')
+            if 'error' in params:
+                msg = _(
+                    'Validation failed with errors: %(error)s, detail '
+                    'message is: %(desc)s.') % {
+                        'error': params['error'],
+                        'desc': params['error_description']}
+            else:
+                msg = _('There should not be any non-oauth parameters.')
+            LOG.warning(msg)
             raise exception.Unauthorized(message=msg)
-
-        if req_token['consumer_id'] != consumer_id:
-            msg = _('provided consumer key does not match stored consumer key')
-            raise exception.Unauthorized(message=msg)
-
-        if req_token['verifier'] != oauth_verifier:
-            msg = _('provided verifier does not match stored verifier')
-            raise exception.Unauthorized(message=msg)
-
-        if req_token['id'] != request_token_id:
-            msg = _('provided request key does not match stored request key')
-            raise exception.Unauthorized(message=msg)
-
         if not req_token.get('authorizing_user_id'):
-            msg = _('Request Token does not have an authorizing user id')
+            msg = _('Request Token does not have an authorizing user id.')
+            LOG.warning(msg)
             raise exception.Unauthorized(message=msg)
 
         access_token_duration = CONF.oauth1.access_token_duration

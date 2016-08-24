@@ -1,0 +1,8 @@
+---
+fixes:
+  - >
+    [`bug 1616424 <https://bugs.launchpad.net/keystone/+bug/1616424>`_]
+    Python build-in exception was raised if create request token or access token
+    request from client with invalid request parameters, invalid signature for example.
+    The implementation is hardened by showing proper exception and displaying the
+    failure reasons if existent.
