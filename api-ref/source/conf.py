@@ -27,6 +27,36 @@
 import subprocess
 import warnings
 
+# TODO(Graham Hayes): Remove the following block of code when os-api-ref is
+# using openstackdocstheme
+
+import os_api_ref
+
+if getattr(os_api_ref, 'THEME', 'olsosphinx') == 'openstackdocstheme':
+    # We are on the new version with openstackdocstheme support
+
+    extensions = [
+        'os_api_ref',
+    ]
+
+    import openstackdocstheme  # noqa
+
+    html_theme = 'openstackdocs'
+    html_theme_path = [openstackdocstheme.get_html_theme_path()]
+    html_theme_options = {
+        "sidebar_mode": "toc",
+    }
+
+else:
+    # We are on the old version without openstackdocstheme support
+
+    extensions = [
+        'os_api_ref',
+        'oslosphinx',
+    ]
+
+# End temporary block
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -40,10 +70,6 @@ import warnings
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.[]
-extensions = [
-    'os_api_ref',
-    'oslosphinx',
-]
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']
