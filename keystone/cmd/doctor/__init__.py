@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import log
-
 from keystone.cmd.doctor import caching
 from keystone.cmd.doctor import credential
 from keystone.cmd.doctor import database
@@ -24,7 +22,6 @@ from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
-LOG = log.getLogger(__name__)
 
 SYMPTOM_PREFIX = 'symptom_'
 SYMPTOM_MODULES = [
