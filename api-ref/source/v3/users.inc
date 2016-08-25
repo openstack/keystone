@@ -13,8 +13,8 @@ the password for users.
 
 You can also list groups, projects, and role assignments for a specified
 user.
-To list user roles, see `Roles <http://developer.openstack.org/api-
-ref-identity-v3.html#roles-v3>`_.
+To list user roles, see `Roles <http://developer.openstack.org/api-ref/
+identity/v3/index.html#roles>`_.
 
 
 Show user details

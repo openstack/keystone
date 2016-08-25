@@ -465,7 +465,7 @@ Assign role to user on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://developer.openstack.org/api-ref-identity-v3.html#assignRoleToUser-domain``
+Relationship: ``http://developer.openstack.org/api-ref/identity/v3/index.html#assign-role-to-user-on-domain``
 
 Assigns a role to a user on a domain.
 
@@ -705,7 +705,7 @@ List implied roles for role
 Lists implied roles for a role.
 
 Relationship:
-``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+``http://developer.openstack.org/api-ref/identity/v3/#list-implied-roles-for-role``
 
 Normal response codes: 200
 Error response codes: 401, 404
@@ -743,7 +743,7 @@ Create role inference rule
 Creates a role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref-identity-v3.html#createRoleInference``
+``http://developer.openstack.org/api-ref/identity/v3/#create-role-inference-rule``
 
 Normal response codes: 201
 Error response codes: 401, 404
@@ -782,7 +782,7 @@ Get role inference rule
 Gets a role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+``http://developer.openstack.org/api-ref/identity/v3/#get-role-inference-rule``
 
 Normal response codes: 200
 Error response codes: 401, 404
@@ -821,7 +821,7 @@ Confirm role inference rule
 Checks a role role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+``http://developer.openstack.org/api-ref/identity/v3/#confirm-role-inference-rule``
 
 Normal response codes: 204
 Error response codes: 401, 404
@@ -847,7 +847,7 @@ Delete role inference rule
 Deletes a role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref-identity-v3.html#deleteRoleInference``
+``http://developer.openstack.org/api-ref/identity/v3/#delete-role-inference-rule``
 
 Normal response codes: 204
 Error response codes: 401, 404
@@ -873,7 +873,7 @@ Normal response codes: 200
 Error response codes: 401, 404
 
 Relationship:
-``http://developer.openstack.org/api-ref-identity-v3.html#getRoleInference``
+``http://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules``
 
 Response Parameters
 -------------------
