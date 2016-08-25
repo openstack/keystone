@@ -1003,6 +1003,52 @@ class MappingEngineTester(BaseApp):
                                   "engine."))
 
 
+class MappingPopulate(BaseApp):
+    """Pre-populate entries from domain-specific backends.
+
+    Running this command is not required. It should only be run right after
+    the LDAP was configured, when many new users were added, or when
+    "mapping_purge" is run.
+
+    This command will take a while to run. It is perfectly fine for it to run
+    more than several minutes.
+    """
+
+    name = "mapping_populate"
+
+    @classmethod
+    def load_backends(cls):
+        drivers = backends.load_backends()
+        cls.identity_api = drivers['identity_api']
+        cls.resource_api = drivers['resource_api']
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(MappingPopulate, cls).add_argument_parser(
+            subparsers)
+
+        parser.add_argument('--domain-name', default=None, required=True,
+                            help=("Name of the domain configured to use"
+                                  "domain-specific backend"))
+        return parser
+
+    @classmethod
+    def main(cls):
+        """Process entries for id_mapping_api."""
+        cls.load_backends()
+        domain_name = CONF.command.domain_name
+        try:
+            domain_id = cls.resource_api.get_domain_by_name(domain_name)['id']
+        except exception.DomainNotFound:
+            print(_('Invalid domain name or ID: %(domain)s') % {
+                'domain': domain_id})
+            return False
+        # We don't actually need to tackle id_mapping_api in order to get
+        # entries there, because list_users does this anyway. That's why it
+        # will be enough to just make the call below.
+        cls.identity_api.list_users(domain_scope=domain_id)
+
+
 CMDS = [
     BootStrap,
     DbSync,
@@ -1011,6 +1057,7 @@ CMDS = [
     DomainConfigUpload,
     FernetRotate,
     FernetSetup,
+    MappingPopulate,
     MappingPurge,
     MappingEngineTester,
     PKISetup,
