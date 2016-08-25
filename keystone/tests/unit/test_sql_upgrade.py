@@ -184,30 +184,44 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
             self.assertEqual(initial_version, version)
 
 
-class SqlMigrateBase(test_base.DbTestCase):
-    # override this in subclasses. The default of zero covers tests such
-    # as extensions upgrades.
-    _initial_db_version = 0
+class MigrationRepository(object):
+    def __init__(self, engine, repo_name):
+        self.repo_name = repo_name
 
-    def initialize_sql(self):
-        self.metadata = sqlalchemy.MetaData()
-        self.metadata.bind = self.engine
-
-    def repo_package(self):
-        return sql
-
-    def initialize_repo(self, repo_name=LEGACY_REPO):
         self.repo_path = migration_helpers.find_migrate_repo(
-            package=self.repo_package(),
-            repo_name=repo_name)
-        self._initial_db_version = (
+            package=sql, repo_name=self.repo_name)
+        self.min_version = (
             migration_helpers.get_init_version(abs_path=self.repo_path))
         self.schema_ = versioning_api.ControlledSchema.create(
-            self.engine,
-            self.repo_path,
-            self._initial_db_version)
+            engine, self.repo_path, self.min_version)
         self.max_version = self.schema_.repository.version().version
 
+    def upgrade(self, version=None, current_schema=None):
+        version = version or self.max_version
+        err = ''
+        upgrade = True
+        version = versioning_api._migrate_version(
+            self.schema_, version, upgrade, err)
+        if not current_schema:
+            current_schema = self.schema_
+        changeset = current_schema.changeset(version)
+        for ver, change in changeset:
+            self.schema_.runchange(ver, change, changeset.step)
+
+        if self.schema_.version != version:
+            raise Exception(
+                'Actual version (%s) of %s does not equal expected '
+                'version (%s)' % (
+                    self.schema_.version, self.repo_name, version))
+
+    @property
+    def version(self):
+        with sql.session_for_read() as session:
+            return migration.db_version(
+                session.get_bind(), self.repo_path, self.min_version)
+
+
+class SqlMigrateBase(test_base.DbTestCase):
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
 
@@ -221,8 +235,33 @@ class SqlMigrateBase(test_base.DbTestCase):
                         sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
         self.addCleanup(sql.cleanup)
 
-        self.initialize_sql()
-        self.initialize_repo()
+        self.repos = {
+            LEGACY_REPO: MigrationRepository(self.engine, LEGACY_REPO),
+            EXPAND_REPO: MigrationRepository(self.engine, EXPAND_REPO),
+            DATA_MIGRATION_REPO: MigrationRepository(
+                self.engine, DATA_MIGRATION_REPO),
+            CONTRACT_REPO: MigrationRepository(self.engine, CONTRACT_REPO)}
+
+    def upgrade(self, *args, **kwargs):
+        """Upgrade the legacy migration repository."""
+        self.repos[LEGACY_REPO].upgrade(*args, **kwargs)
+
+    def expand(self, *args, **kwargs):
+        """Expand database schema."""
+        self.repos[EXPAND_REPO].upgrade(*args, **kwargs)
+
+    def migrate(self, *args, **kwargs):
+        """Migrate data."""
+        self.repos[DATA_MIGRATION_REPO].upgrade(*args, **kwargs)
+
+    def contract(self, *args, **kwargs):
+        """Contract database schema."""
+        self.repos[CONTRACT_REPO].upgrade(*args, **kwargs)
+
+    @property
+    def metadata(self):
+        """A collection of tables and their associated schemas."""
+        return sqlalchemy.MetaData(self.engine)
 
     def select_table(self, name):
         table = sqlalchemy.Table(name,
@@ -242,9 +281,7 @@ class SqlMigrateBase(test_base.DbTestCase):
         # Switch to a different metadata otherwise you might still
         # detect renamed or dropped tables
         try:
-            temp_metadata = sqlalchemy.MetaData()
-            temp_metadata.bind = self.engine
-            sqlalchemy.Table(table_name, temp_metadata, autoload=True)
+            sqlalchemy.Table(table_name, self.metadata, autoload=True)
         except sqlalchemy.exc.NoSuchTableError:
             pass
         else:
@@ -266,27 +303,8 @@ class SqlMigrateBase(test_base.DbTestCase):
                                  '({3})'.format(table1_name, table1_count,
                                                 table2_name, table2_count))
 
-    def upgrade(self, *args, **kwargs):
-        self._migrate(*args, **kwargs)
-
-    def _migrate(self, version, repository=None, downgrade=False,
-                 current_schema=None):
-        repository = repository or self.repo_path
-        err = ''
-        version = versioning_api._migrate_version(self.schema_,
-                                                  version,
-                                                  not downgrade,
-                                                  err)
-        if not current_schema:
-            current_schema = self.schema_
-        changeset = current_schema.changeset(version)
-        for ver, change in changeset:
-            self.schema_.runchange(ver, change, changeset.step)
-        self.assertEqual(self.schema_.version, version)
-
     def assertTableColumns(self, table_name, expected_cols):
         """Assert that the table contains the expected set of columns."""
-        self.initialize_sql()
         table = self.select_table(table_name)
         actual_cols = [col.name for col in table.columns]
         # Check if the columns are equal, but allow for a different order,
@@ -306,22 +324,19 @@ class SqlMigrateBase(test_base.DbTestCase):
 
 
 class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
-    _initial_db_version = migration_helpers.get_init_version()
-
     def test_blank_db_to_start(self):
         self.assertTableDoesNotExist('user')
 
     def test_start_version_db_init_version(self):
-        with sql.session_for_write() as session:
-            version = migration.db_version(session.get_bind(), self.repo_path,
-                                           self._initial_db_version)
         self.assertEqual(
-            self._initial_db_version,
-            version,
-            'DB is not at version %s' % self._initial_db_version)
+            self.repos[LEGACY_REPO].min_version,
+            self.repos[LEGACY_REPO].version,
+            'DB is not at version %s' % (
+                self.repos[LEGACY_REPO].min_version)
+        )
 
     def test_upgrade_add_initial_tables(self):
-        self.upgrade(self._initial_db_version + 1)
+        self.upgrade(self.repos[LEGACY_REPO].min_version + 1)
         self.check_initial_table_structure()
 
     def check_initial_table_structure(self):
@@ -412,7 +427,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         self.upgrade(73)
 
         session = self.sessionmaker()
-        self.metadata.clear()
 
         # Check that the 'inherited' column is now part of the PK
         self.assertTrue(self.does_pk_exist(ASSIGNMENT_TABLE_NAME,
@@ -447,13 +461,11 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         return False
 
     def does_index_exist(self, table_name, index_name):
-        meta = sqlalchemy.MetaData(bind=self.engine)
-        table = sqlalchemy.Table(table_name, meta, autoload=True)
+        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         return index_name in [idx.name for idx in table.indexes]
 
     def does_constraint_exist(self, table_name, constraint_name):
-        meta = sqlalchemy.MetaData(bind=self.engine)
-        table = sqlalchemy.Table(table_name, meta, autoload=True)
+        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         return constraint_name in [con.name for con in table.constraints]
 
     def test_endpoint_policy_upgrade(self):
@@ -688,7 +700,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         self.upgrade(88)
 
         session = self.sessionmaker()
-        self.metadata.clear()
         self.assertTableColumns('role', ['id', 'name', 'domain_id', 'extra'])
         # Check the domain_id has been added to the uniqueness constraint
         inspector = reflection.Inspector.from_engine(self.engine)
@@ -798,16 +809,14 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                      'default_project_id': row['default_project_id']})
             return users
 
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-
         user_table_name = 'user'
         local_user_table_name = 'local_user'
         password_table_name = 'password'
 
         # populate current user table
         self.upgrade(90)
-        user_table = sqlalchemy.Table(user_table_name, meta, autoload=True)
+        user_table = sqlalchemy.Table(
+            user_table_name, self.metadata, autoload=True)
         expected_users = get_expected_users()
         add_users_to_db(expected_users, user_table)
 
@@ -815,12 +824,12 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         self.upgrade(91)
         self.assertTableCountsMatch(user_table_name, local_user_table_name)
         self.assertTableCountsMatch(local_user_table_name, password_table_name)
-        meta.clear()
-        user_table = sqlalchemy.Table(user_table_name, meta, autoload=True)
-        local_user_table = sqlalchemy.Table(local_user_table_name, meta,
-                                            autoload=True)
-        password_table = sqlalchemy.Table(password_table_name, meta,
-                                          autoload=True)
+        user_table = sqlalchemy.Table(
+            user_table_name, self.metadata, autoload=True)
+        local_user_table = sqlalchemy.Table(
+            local_user_table_name, self.metadata, autoload=True)
+        password_table = sqlalchemy.Table(
+            password_table_name, self.metadata, autoload=True)
         actual_users = get_users_from_db(user_table, local_user_table,
                                          password_table)
         self.assertItemsEqual(expected_users, actual_users)
@@ -837,7 +846,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         user_ref.pop('email')
         session = self.sessionmaker()
         self.insert_dict(session, USER_TABLE_NAME, user_ref)
-        self.metadata.clear()
         self.upgrade(91)
         # migration should be successful.
         self.assertTableCountsMatch(USER_TABLE_NAME, LOCAL_USER_TABLE_NAME)
@@ -865,7 +873,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         local_user_ref = {'user_id': user_id, 'name': user_name,
                           'domain_id': domain_id}
         self.insert_dict(session, LOCAL_USER_TABLE_NAME, local_user_ref)
-        self.metadata.clear()
         self.upgrade(91)
         # migration should be successful and user2_ref has been migrated to
         # `local_user` table.
@@ -1032,26 +1039,21 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                                  'display_name'])
 
     def test_add_int_pkey_to_revocation_event_table(self):
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
         REVOCATION_EVENT_TABLE_NAME = 'revocation_event'
         self.upgrade(94)
         revocation_event_table = sqlalchemy.Table(REVOCATION_EVENT_TABLE_NAME,
-                                                  meta, autoload=True)
+                                                  self.metadata, autoload=True)
         # assert id column is a string (before)
         self.assertEqual('VARCHAR(64)', str(revocation_event_table.c.id.type))
         self.upgrade(95)
-        meta.clear()
         revocation_event_table = sqlalchemy.Table(REVOCATION_EVENT_TABLE_NAME,
-                                                  meta, autoload=True)
+                                                  self.metadata, autoload=True)
         # assert id column is an integer (after)
         self.assertIsInstance(revocation_event_table.c.id.type, sql.Integer)
 
     def _add_unique_constraint_to_role_name(self,
                                             constraint_name='ixu_role_name'):
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-        role_table = sqlalchemy.Table('role', meta, autoload=True)
+        role_table = sqlalchemy.Table('role', self.metadata, autoload=True)
         migrate.UniqueConstraint(role_table.c.name,
                                  name=constraint_name).create()
 
@@ -1064,16 +1066,12 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
     def _add_unique_constraint_to_user_name_domainid(
             self,
             constraint_name='ixu_role_name'):
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-        user_table = sqlalchemy.Table('user', meta, autoload=True)
+        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
         migrate.UniqueConstraint(user_table.c.name, user_table.c.domain_id,
                                  name=constraint_name).create()
 
     def _add_name_domain_id_columns_to_user(self):
-        meta = sqlalchemy.MetaData()
-        meta.bind = self.engine
-        user_table = sqlalchemy.Table('user', meta, autoload=True)
+        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
         column_name = sqlalchemy.Column('name', sql.String(255))
         column_domain_id = sqlalchemy.Column('domain_id', sql.String(64))
         user_table.create_column(column_name)
@@ -1422,7 +1420,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                                           autoload=True)
         cnt = session.query(password_table).count()
         self.assertGreater(cnt, 0)
-        self.metadata.clear()
         self.upgrade(105)
         # columns after
         self.assertTableColumns(password_name,
@@ -1448,7 +1445,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         password_table = sqlalchemy.Table(password_table_name, self.metadata,
                                           autoload=True)
         self.assertFalse(password_table.c.password.nullable)
-        self.metadata.clear()
         self.upgrade(106)
         password_table = sqlalchemy.Table(password_table_name, self.metadata,
                                           autoload=True)
@@ -1521,18 +1517,12 @@ class SqlExpandSchemaUpgradeTests(SqlMigrateBase):
         # Make sure the main repo is fully upgraded for this release since the
         # expand phase is only run after such an upgrade
         super(SqlExpandSchemaUpgradeTests, self).setUp()
-        self.upgrade(self.max_version)
-
-        self.initialize_repo(repo_name=EXPAND_REPO)
+        self.upgrade()
 
     def test_start_version_db_init_version(self):
-        with sql.session_for_write() as session:
-            version = migration.db_version(session.get_bind(), self.repo_path,
-                                           self._initial_db_version)
         self.assertEqual(
-            self._initial_db_version,
-            version,
-            'DB is not at version %s' % self._initial_db_version)
+            self.repos[EXPAND_REPO].min_version,
+            self.repos[EXPAND_REPO].version)
 
 
 class MySQLOpportunisticExpandSchemaUpgradeTestCase(
@@ -1551,21 +1541,13 @@ class SqlDataMigrationUpgradeTests(SqlMigrateBase):
         # Make sure the legacy and expand repos are fully upgraded, since the
         # data migration phase is only run after these are upgraded
         super(SqlDataMigrationUpgradeTests, self).setUp()
-        self.upgrade(self.max_version)
-        # Make sure the expand repo is also upgraded
-        self.initialize_repo(repo_name=EXPAND_REPO)
-        self.upgrade(self.max_version)
-
-        self.initialize_repo(repo_name=DATA_MIGRATION_REPO)
+        self.upgrade()
+        self.expand()
 
     def test_start_version_db_init_version(self):
-        with sql.session_for_write() as session:
-            version = migration.db_version(session.get_bind(), self.repo_path,
-                                           self._initial_db_version)
         self.assertEqual(
-            self._initial_db_version,
-            version,
-            'DB is not at version %s' % self._initial_db_version)
+            self.repos[DATA_MIGRATION_REPO].min_version,
+            self.repos[DATA_MIGRATION_REPO].version)
 
 
 class MySQLOpportunisticDataMigrationUpgradeTestCase(
@@ -1585,23 +1567,14 @@ class SqlContractSchemaUpgradeTests(SqlMigrateBase):
         # upgraded, since the contract phase is only run after these are
         # upgraded.
         super(SqlContractSchemaUpgradeTests, self).setUp()
-        self.upgrade(self.max_version)
-
-        self.initialize_repo(repo_name=EXPAND_REPO)
-        self.upgrade(self.max_version)
-        self.initialize_repo(repo_name=DATA_MIGRATION_REPO)
-        self.upgrade(self.max_version)
-
-        self.initialize_repo(repo_name=CONTRACT_REPO)
+        self.upgrade()
+        self.expand()
+        self.migrate()
 
     def test_start_version_db_init_version(self):
-        with sql.session_for_write() as session:
-            version = migration.db_version(session.get_bind(), self.repo_path,
-                                           self._initial_db_version)
         self.assertEqual(
-            self._initial_db_version,
-            version,
-            'DB is not at version %s' % self._initial_db_version)
+            self.repos[CONTRACT_REPO].min_version,
+            self.repos[CONTRACT_REPO].version)
 
 
 class MySQLOpportunisticContractSchemaUpgradeTestCase(
@@ -1615,23 +1588,22 @@ class PostgreSQLOpportunisticContractSchemaUpgradeTestCase(
 
 
 class VersionTests(SqlMigrateBase):
-
-    _initial_db_version = migration_helpers.get_init_version()
-
     def test_core_initial(self):
         """Get the version before migrated, it's the initial DB version."""
-        version = migration_helpers.get_db_version()
-        self.assertEqual(self._initial_db_version, version)
+        self.assertEqual(
+            self.repos[LEGACY_REPO].min_version,
+            self.repos[LEGACY_REPO].version)
 
     def test_core_max(self):
         """When get the version after upgrading, it's the new version."""
-        self.upgrade(self.max_version)
-        version = migration_helpers.get_db_version()
-        self.assertEqual(self.max_version, version)
+        self.upgrade()
+        self.assertEqual(
+            self.repos[LEGACY_REPO].max_version,
+            self.repos[LEGACY_REPO].version)
 
     def test_assert_not_schema_downgrade(self):
-        self.upgrade(self.max_version)
+        self.upgrade()
         self.assertRaises(
             db_exception.DbMigrationError,
             migration_helpers._sync_common_repo,
-            self.max_version - 1)
+            self.repos[LEGACY_REPO].max_version - 1)
