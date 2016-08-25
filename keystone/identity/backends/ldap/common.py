@@ -422,7 +422,6 @@ class LDAPHandler(object):
 
     """
 
-    @abc.abstractmethod
     def __init__(self, conn=None):
         self.conn = conn
 
@@ -494,9 +493,6 @@ class PythonLDAPHandler(LDAPHandler):
     class.
 
     """
-
-    def __init__(self, conn=None):
-        super(PythonLDAPHandler, self).__init__(conn=conn)
 
     def connect(self, url, page_size=0, alias_dereferencing=None,
                 use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
