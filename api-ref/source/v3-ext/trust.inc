@@ -100,6 +100,7 @@ Creates a trust.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts
 
 Normal response codes: 201
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -165,6 +166,7 @@ Lists all trusts.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts
 
 Normal response codes: 200
+
 Error response codes: 400, 401, 403, 404, 405, 413, 503
 
 The following optional query strings are supported:
@@ -227,6 +229,7 @@ Gets the trust information for ``{trust_id}``.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust
 
 Normal response codes: 200
+
 Error response codes: 400, 401, 403, 404, 405, 413, 503
 
 Request
@@ -275,6 +278,7 @@ Deletes a trust with ``{trust_id}``.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust
 
 Normal response codes: 204
+
 Error response codes: 400, 401, 403, 404, 405, 409, 413, 415, 503
 
 Request
@@ -300,6 +304,7 @@ Lists roles delegated by a trust with ``{trust_id}``.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_roles
 
 Normal response codes: 200
+
 Error response codes: 400, 401, 403, 404, 405, 413, 503
 
 Request
@@ -328,6 +333,7 @@ Checks if a role is delegated by a trust.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role
 
 Normal response codes: 200
+
 Error response codes: 400, 401, 403, 404, 405, 413, 503
 
 Request
@@ -354,6 +360,7 @@ Gets a role with delegated by a trust.
 Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role
 
 Normal response codes: 200
+
 Error response codes: 400, 401, 403, 404, 405, 413, 503
 
 Request
