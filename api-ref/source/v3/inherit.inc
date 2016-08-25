@@ -504,4 +504,5 @@ would return:
    :language: javascript
 
 Normal response codes: 200
+
 Error response codes:  400, 401, 403, 404, 405, 413, 503

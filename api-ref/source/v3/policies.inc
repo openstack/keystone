@@ -32,6 +32,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policies`
 Creates a policy.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -75,6 +76,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policies`
 Lists policies.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -114,6 +116,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
 Shows details for a policy.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -153,6 +156,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
 Updates a policy.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -203,6 +207,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
 Deletes a policy.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request

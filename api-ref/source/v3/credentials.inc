@@ -30,6 +30,7 @@ credentials, such as ``access_key``, change the type and contents
 of the data blob.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -76,6 +77,7 @@ Optionally, you can include the ``user_id`` query parameter in the
 URI to filter the response by a user.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -115,6 +117,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentia
 Shows details for a credential.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -154,6 +157,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentia
 Updates a credential.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -204,6 +208,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentia
 Deletes a credential.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request

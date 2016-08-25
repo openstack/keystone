@@ -33,6 +33,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domains``
 Lists all domains.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -72,6 +73,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domains``
 Creates a domain.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -113,6 +115,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domains``
 Shows details for a domain.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -151,6 +154,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain``
 Updates a domain.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -209,6 +213,7 @@ If you try to delete an enabled domain, this call returns the
 ``Forbidden (403)`` response code.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request

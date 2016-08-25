@@ -29,6 +29,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/services`
 Lists all services.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -68,6 +69,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/services`
 Creates a service.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -111,6 +113,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/endpoints
 Shows details for an endpoint.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -150,6 +153,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/endpoint`
 Updates an endpoint.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -200,6 +204,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/endpoint`
 Deletes an endpoint.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -220,6 +225,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/endpoints
 Lists all available endpoints.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -262,6 +268,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/endpoints
 Creates an endpoint.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -308,6 +315,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/service``
 Shows details for a service.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -350,6 +358,7 @@ except that you include only those attributes that you want to
 update.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -403,6 +412,7 @@ this call either deletes all associated endpoints or fails until
 all endpoints are deleted.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
