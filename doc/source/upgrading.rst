@@ -34,7 +34,7 @@ Before you begin
 Plan your upgrade:
 
 * Read and ensure you understand the `release notes
-  http://docs.openstack.org/releasenotes/keystone/`_ for the next release.
+  <http://docs.openstack.org/releasenotes/keystone/>`_ for the next release.
 
 * Resolve any outstanding deprecation warnings in your logs. Some deprecation
   cycles are as short as a single release, so it's possible to break a
@@ -77,6 +77,81 @@ from functioning normally.
 
 #. Start all keystone processes.
 
+Upgrading with minimal downtime
+-------------------------------
+
+If you run a multi-node keystone cluster that uses a replicated database, like
+a Galera cluster, it is possible to upgrade with minimal downtime. This method
+also optimizes recovery time from a failed upgrade. This section assumes
+familiarity with the base case (`Upgrading with downtime`_) outlined above.
+In these steps the nodes will be divided into ``first`` and ``other`` nodes.
+
+#. Backup your database. There is no way to rollback the upgrade of keystone
+   and this is your worst-case fallback option.
+
+#. Disable keystone on all nodes but the ``first`` node. This can be done via a
+   variety of mechanisms that will depend on the deployment. If you are unable
+   to disable a service or place a service into maintenance mode in your load
+   balancer, you can stop the keystone processes.
+
+#. Stop the database service on one of the ``other`` nodes in the cluster. This
+   will isolate the old dataset on a single node in the cluster. In the event
+   of a failed update this data can be used to rebuild the cluster without
+   having to restore from backup.
+
+#. Update the configuration files on the ``first`` node.
+
+#. Upgrade keystone on the ``first`` node. keystone is now down for your cloud.
+
+#. Run ``keystone-manage db_sync`` on the ``first`` node. As soon as this
+   finishes, keystone is now working again on a single node in the cluster.
+
+#. keystone is now upgraded on a single node. Your load balancers will be
+   sending all traffic to this single node. This is your chance to run
+   ensure keystone up and running, and not broken. If keystone is broken, see
+   the `Rollback after a failed upgrade`_ section below.
+
+#. Once you have verified that keystone is up and running, begin the upgrade on
+  the ``other`` nodes. This entails updating configuration files and upgrading
+  the code. The ``db_sync`` does not need to be run again.
+
+#. On the node where you stopped the database service, be sure to restart
+   it and ensure that it properly rejoins the cluster.
+
+Using this model, the outage window is minimized because the only time
+when your cluster is totally offline is between loading the newer version
+of keystone and running the ``db_sync`` command. Typically the outage with
+this method can be measured in tens of seconds especially if automation is
+used.
+
+Rollback after a failed upgrade
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the upgrade fails, only a single node has been affected. This makes the
+recovery simpler and quicker. If issues are not discovered until the entire
+cluster is upgraded, a full shutdown and restore from backup will be required.
+That will take much longer than just fixing a single node with an old copy of
+the database still available. This process will be dependent on your
+architecture and it is highly recommended that you've practiced this in a
+development environment before trying to use it for the first time.
+
+#. Isolate the bad node. Shutdown keystone and the database services
+   on the upgraded "bad" node.
+
+#. Bootstrap the database cluster from the node holding the old data.
+   This may require wiping the data first on any nodes who are not
+   holding old data.
+
+#. Enable keystone on the old nodes in your load balancer or if
+   the processes were stopped, restart them.
+
+#. Validate that keystone is working.
+
+#. Downgrade the code and config files on the bad node.
+
+This process should be doable in a matter of minutes and will minimize cloud
+downtime if it is required.
+
 Upgrading without downtime
 --------------------------
 
@@ -88,7 +163,7 @@ this upgrade process, end users will still be able to authenticate to receive
 tokens normally, and other OpenStack services will still be able to
 authenticate requests normally.
 
-#. Make a backup of your database. Keystone does not support downgrading the
+#. Make a backup of your database. keystone does not support downgrading the
    database, so restoring from a full backup is your only option for recovery
    in the event of an upgrade failure.
 
