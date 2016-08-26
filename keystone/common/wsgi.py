@@ -41,9 +41,7 @@ from keystone.common import request as request_mod
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _
-from keystone.i18n import _LI
-from keystone.i18n import _LW
+from keystone.i18n import _, _LI, _LW
 from keystone.models import token_model
 
 
