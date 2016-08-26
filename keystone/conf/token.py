@@ -11,6 +11,7 @@
 # under the License.
 
 import hashlib
+import sys
 
 from oslo_config import cfg
 
@@ -46,6 +47,8 @@ binding metadata be supported by keystone.
 expiration = cfg.IntOpt(
     'expiration',
     default=3600,
+    min=0,
+    max=sys.maxsize,
     help=utils.fmt("""
 The amount of time that a token should remain valid (in seconds). Drastically
 reducing this value may break "long-running" operations that involve multiple
@@ -96,6 +99,8 @@ unless global caching is enabled.
 
 cache_time = cfg.IntOpt(
     'cache_time',
+    min=0,
+    max=sys.maxsize,
     help=utils.fmt("""
 The number of seconds to cache token creation and validation data. This has no
 effect unless both global and `[token] caching` are enabled.
