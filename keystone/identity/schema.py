@@ -50,7 +50,7 @@ user_create_v2 = {
 }
 
 # NOTE(ghugo): minProperties value should really be 1, however it
-# is currently set to 0 to avoid breaking backwards compatability,
+# is currently set to 0 to avoid breaking backwards compatibility,
 # and tempest tests.
 
 user_update_v2 = {

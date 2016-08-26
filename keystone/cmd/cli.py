@@ -705,7 +705,7 @@ def _domain_config_finder(conf_dir):
     Domain configs match the filename pattern of
     'keystone.<domain_name>.conf'.
 
-    :returns: generator yeilding (filename, domain_name) tuples
+    :returns: generator yielding (filename, domain_name) tuples
     """
     LOG.info(_LI('Scanning %r for domain config files'), conf_dir)
     for r, d, f in os.walk(conf_dir):
