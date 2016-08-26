@@ -14,7 +14,6 @@
 
 import datetime
 
-from oslo_log import log
 import sqlalchemy
 
 from keystone.common import driver_hints
@@ -28,7 +27,6 @@ from keystone.identity.backends import sql_model as model
 
 
 CONF = keystone.conf.CONF
-LOG = log.getLogger(__name__)
 
 
 class Identity(base.IdentityDriverV8):
