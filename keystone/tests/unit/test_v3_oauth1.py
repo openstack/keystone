@@ -830,6 +830,26 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             self.post(url, headers=headers,
                       expected_status=http_client.UNAUTHORIZED)
 
+    def test_validate_requet_token_request_failed(self):
+        self.config_fixture.config(debug=True, insecure_debug=True)
+        consumer = self._create_single_consumer()
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+
+        url = '/OS-OAUTH1/request_token'
+        auth_header = ('OAuth oauth_version="1.0", oauth_consumer_key=' +
+                       consumer_id)
+        faked_header = {'Authorization': auth_header,
+                        'requested_project_id': self.project_id}
+
+        resp = self.post(
+            url, headers=faked_header,
+            expected_status=http_client.BAD_REQUEST)
+        resp_data = jsonutils.loads(resp.body)
+        self.assertIn('Validation failed with errors',
+                      resp_data['error']['message'])
+
     def test_expired_authorizing_request_token(self):
         self.config_fixture.config(group='oauth1', request_token_duration=-1)
 
