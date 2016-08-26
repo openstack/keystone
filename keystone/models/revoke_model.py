@@ -13,7 +13,6 @@
 from oslo_log import log
 from oslo_serialization import msgpackutils
 from oslo_utils import timeutils
-from six.moves import map
 
 from keystone.common import cache
 from keystone.common import utils
@@ -125,13 +124,6 @@ class RevokeEvent(object):
             event['revoked_at'] = utils.isotime(self.revoked_at,
                                                 subsecond=True)
         return event
-
-    def key_for_name(self, name):
-        return "%s=%s" % (name, getattr(self, name) or '*')
-
-
-def attr_keys(event):
-    return list(map(event.key_for_name, _EVENT_NAMES))
 
 
 def is_revoked(events, token_data):
