@@ -255,14 +255,13 @@ class FernetUtils(object):
                         keys[key_id] = key_file.read()
 
         if len(keys) != self.max_active_keys:
-            # If there haven't been enough key rotations to reach
-            # max_active_keys, or if the configured value of max_active_keys
-            # has changed since the last rotation, then reporting the
-            # discrepancy might be useful. Once the number of keys matches
-            # max_active_keys, this log entry is too repetitive to be useful.
-            LOG.info(_LI(
-                'Loaded %(count)d encryption keys (max_active_keys=%(max)d) '
-                'from: %(dir)s'), {
+            # Once the number of keys matches max_active_keys, this log entry
+            # is too repetitive to be useful.
+            LOG.debug(
+                'Loaded %(count)d Fernet keys from %(dir)s, but '
+                '`[fernet_tokens] max_active_keys = %(max)d`; perhaps there '
+                'have not been enough key rotations to reach '
+                '`max_active_keys` yet?', {
                     'count': len(keys),
                     'max': self.max_active_keys,
                     'dir': self.key_repository})
