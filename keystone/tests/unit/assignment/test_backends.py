@@ -3730,7 +3730,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
             'entities': {'domains': {'users': 1, 'projects': 1, 'roles': 2},
                          'roles': 2},
             # Two level tree of implied roles, with the top and 1st level being
-            # domain specific roles, and the bottom level being infered global
+            # domain specific roles, and the bottom level being inferred global
             # roles.
             'implied_roles': [{'role': 0, 'implied_roles': [1]},
                               {'role': 1, 'implied_roles': [2, 3]}],

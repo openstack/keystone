@@ -213,7 +213,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         """
         # NOTE(lbragstad): Since Fernet tokens do not support sub-second
         # precision we must freeze the clock and ensure we increment the time
-        # by a full second after a recovation event has occured. Otherwise the
+        # by a full second after a recovation event has occurred. Otherwise the
         # token will be considered revoked even though it is actually a valid
         # token.
         time = datetime.datetime.utcnow()
