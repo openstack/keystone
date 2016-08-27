@@ -111,10 +111,6 @@ class dirs(object):
         return os.path.join(TESTCONF, *p)
 
 
-# keystone.common.sql.initialize() for testing.
-DEFAULT_TEST_DB_FILE = dirs.tmp('test.db')
-
-
 class EggLoader(loadwsgi.EggLoader):
     _basket = {}
 
