@@ -66,6 +66,7 @@ Enables a user to create a consumer.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
 
 Normal response codes: 201
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -108,6 +109,7 @@ tokens, and Identity API tokens are also revoked.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
 Normal response codes: 204
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -128,6 +130,7 @@ Lists consumers.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Response Example
@@ -147,6 +150,7 @@ Shows details for a consumer.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -176,6 +180,7 @@ If you try to update any attribute other than ``description``, an HTTP
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -213,6 +218,7 @@ request. See `Consumer Obtains a Request Token
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/request_tokens``
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -250,6 +256,7 @@ returned. The Consumer receives the OAuth Verifier from the User out-of-band.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/authorize_request_token``
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -283,6 +290,7 @@ request. See `Consumer Requests an Access Token
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/access_tokens``
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Response Example
@@ -311,6 +319,7 @@ Gets an access token.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -340,6 +349,7 @@ API tokens that were issued to the consumer through that access token.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
 Normal response codes: 204
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -361,6 +371,7 @@ Lists authorized access tokens.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_tokens``
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -387,6 +398,7 @@ Lists associated roles for an access token.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_roles``
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503
 
 Request
@@ -408,6 +420,7 @@ Shows details for a role for an access token.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_role``
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503
 
 Request
@@ -451,4 +464,5 @@ Example OAuth-specific object in a token:
 Relationship: ``http://docs.openstack.org/identity/rel/v3/auth_tokens``
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503

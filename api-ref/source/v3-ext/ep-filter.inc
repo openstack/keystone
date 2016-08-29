@@ -40,6 +40,7 @@ Creates an association between ``project_id`` and ``endpoint_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
 Normal response codes: 204
+
 Error response codes: 401
 
 Request
@@ -65,6 +66,7 @@ Verifies the existence of an association between ``project_id`` and ``endpoint_i
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
 Normal response codes: 204
+
 Error response codes: 401
 
 Request
@@ -90,6 +92,7 @@ Removes the association between ``project_id`` and ``endpoint_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
 Normal response codes: 204
+
 Error response codes: 401
 
 Request
@@ -115,6 +118,7 @@ Returns all the endpoints that are currently associated with ``project_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoints``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -143,6 +147,7 @@ Returns all projects that are currently associated with ``endpoint_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_projects``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -171,6 +176,7 @@ service endpoints having the same characteristics
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_groups``
 
 Normal response codes: 201
+
 Error response codes: 401
 
 Request
@@ -203,6 +209,7 @@ Show details of an endpoint group.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -230,6 +237,7 @@ Determine if an endpoint group exists.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -254,6 +262,7 @@ Modify attributes of an endpoint group.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -287,6 +296,7 @@ Delete an endpoint group.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 204
+
 Error response codes: 401
 
 Request
@@ -311,6 +321,7 @@ List all available endpoint groups.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_groups``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Response
@@ -331,6 +342,7 @@ Creates an associate between ``endpoint_group_id`` and ``project_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 204
+
 Error response codes: 401
 
 Request
@@ -356,6 +368,7 @@ Verifies the existence of an association between ``project_id`` and ``endpoint_g
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -384,6 +397,7 @@ Verifies the existence of an association between ``project_id`` and ``endpoint_g
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -409,6 +423,7 @@ Removes the association between ``project_id`` and ``endpoint_group_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 204
+
 Error response codes: 401
 
 Request
@@ -434,6 +449,7 @@ Returns all projects that are currently associated with ``endpoint_group_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_projects``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -461,6 +477,7 @@ Returns all the endpoints that are currently associated with ``endpoint_group_id
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_endpoints``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
@@ -488,6 +505,7 @@ Returns all the endpoints that are currently associated with ``project_id``.
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint_groups``
 
 Normal response codes: 200
+
 Error response codes: 401
 
 Request
