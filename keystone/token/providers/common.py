@@ -37,7 +37,7 @@ CONF = keystone.conf.CONF
 class V2TokenDataHelper(object):
     """Create V2 token data."""
 
-    def v3_to_v2_token(self, v3_token_data, token_id=None):
+    def v3_to_v2_token(self, v3_token_data, token_id):
         """Convert v3 token data into v2.0 token data.
 
         This method expects a dictionary generated from
@@ -45,6 +45,7 @@ class V2TokenDataHelper(object):
         token dictionary.
 
         :param v3_token_data: dictionary formatted for v3 tokens
+        :param token_id: ID of the token being converted
         :returns: dictionary formatted for v2 tokens
         :raises keystone.exception.Unauthorized: If a specific token type is
             not supported in v2.
@@ -777,15 +778,15 @@ class BaseProvider(provider.Provider):
             # management layer is now pluggable, one can always provide
             # their own implementation to suit their needs.
             token_data = token_ref.get('token_data')
+            token_id = token_ref['id']
             if (self.get_token_version(token_data) != token.provider.V2):
                 # Validate the V3 token as V2
                 token_data = self.v2_token_data_helper.v3_to_v2_token(
-                    token_data)
+                    token_data, token_id)
 
             return token_data
         except exception.ValidationError:
             LOG.exception(_LE('Failed to validate token'))
-            token_id = token_ref['token_data']['access']['token']['id']
             raise exception.TokenNotFound(token_id=token_id)
 
     def validate_non_persistent_token(self, token_id):
