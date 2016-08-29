@@ -14,6 +14,7 @@
 
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
+from tempest.lib import exceptions as lib_exc
 
 from keystone_tempest_plugin.tests.api.identity import base
 from keystone_tempest_plugin.tests.api.identity.v3 import fixtures
@@ -217,9 +218,12 @@ class IndentityProvidersTest(base.BaseIdentityTest):
         # a non existent mapping ID
         mapping_id = data_utils.rand_uuid_hex()
         protocol_id = data_utils.rand_uuid_hex()
-        protocol = self._create_protocol(idp_id, protocol_id, mapping_id)
-
-        self._assert_protocol_attributes(protocol, protocol_id, mapping_id)
+        self.assertRaises(
+            lib_exc.BadRequest,
+            self._create_protocol,
+            idp_id,
+            protocol_id,
+            mapping_id)
 
     @decorators.idempotent_id('c73311e7-c207-4c11-998f-532a91f1b0d1')
     def test_update_protocol_from_identity_provider_unknown_mapping(self):
@@ -232,7 +236,9 @@ class IndentityProvidersTest(base.BaseIdentityTest):
         # Update the identity provider protocol using a non existent
         # mapping_id
         new_mapping_id = data_utils.rand_uuid_hex()
-        protocol = self.idps_client.update_protocol_mapping(
-            idp_id, protocol_id, new_mapping_id)['protocol']
-
-        self._assert_protocol_attributes(protocol, protocol_id, new_mapping_id)
+        self.assertRaises(
+            lib_exc.BadRequest,
+            self.idps_client.update_protocol_mapping,
+            idp_id,
+            protocol_id,
+            new_mapping_id)

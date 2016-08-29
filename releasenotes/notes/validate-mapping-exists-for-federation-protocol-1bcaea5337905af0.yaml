@@ -1,0 +1,7 @@
+---
+fixes:
+  - >
+    [`bug 1571878 <https://bugs.launchpad.net/keystone/+bug/1571878>`_]
+    A valid ``mapping_id`` is now required when creating or updating a
+    federation protocol. If the ``mapping_id`` does not exist, a
+    ``400 - Bad Request`` will be returned.
