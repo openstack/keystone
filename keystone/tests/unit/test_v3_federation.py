@@ -863,6 +863,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             proto = uuid.uuid4().hex
         if mapping_id is None:
             mapping_id = uuid.uuid4().hex
+        self._create_mapping(mapping_id)
         body = {'mapping_id': mapping_id}
         url = url % {'idp_id': idp_id, 'protocol_id': proto}
         resp = self.put(url, body={'protocol': body}, **kwargs)
@@ -874,10 +875,18 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         return (resp, idp_id, proto)
 
     def _get_protocol(self, idp_id, protocol_id):
-        url = "%s/protocols/%s" % (idp_id, protocol_id)
+        url = '%s/protocols/%s' % (idp_id, protocol_id)
         url = self.base_url(suffix=url)
         r = self.get(url)
         return r
+
+    def _create_mapping(self, mapping_id):
+        mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        mapping['id'] = mapping_id
+        url = '/OS-FEDERATION/mappings/%s' % mapping_id
+        self.put(url,
+                 body={'mapping': mapping},
+                 expected_status=http_client.CREATED)
 
     def test_create_idp(self):
         """Create the IdentityProvider entity associated to remote_ids."""
@@ -1397,6 +1406,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         resp, idp_id, proto = self._assign_protocol_to_idp(
             expected_status=http_client.CREATED)
         new_mapping_id = uuid.uuid4().hex
+        self._create_mapping(mapping_id=new_mapping_id)
 
         url = "%s/protocols/%s" % (idp_id, proto)
         url = self.base_url(suffix=url)

@@ -1,0 +1,92 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+import uuid
+
+from keystone import exception
+from keystone.tests import unit
+from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit import mapping_fixtures
+
+
+class TestFederationProtocol(unit.TestCase):
+
+    def setUp(self):
+        super(TestFederationProtocol, self).setUp()
+        self.useFixture(database.Database())
+        self.load_backends()
+        self.idp = {
+            'id': uuid.uuid4().hex,
+            'enabled': True,
+            'description': uuid.uuid4().hex
+        }
+        self.federation_api.create_idp(self.idp['id'], self.idp)
+        self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        self.mapping['id'] = uuid.uuid4().hex
+        self.federation_api.create_mapping(self.mapping['id'],
+                                           self.mapping)
+
+    def test_create_protocol(self):
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': self.mapping['id']
+        }
+        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
+                                                           protocol['id'],
+                                                           protocol)
+        self.assertEqual(protocol['id'], protocol_ret['id'])
+
+    def test_create_protocol_with_invalid_mapping_id(self):
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': uuid.uuid4().hex
+        }
+        self.assertRaises(exception.ValidationError,
+                          self.federation_api.create_protocol,
+                          self.idp['id'],
+                          protocol['id'],
+                          protocol)
+
+    def test_update_protocol(self):
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': self.mapping['id']
+        }
+        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
+                                                           protocol['id'],
+                                                           protocol)
+        self.assertEqual(protocol['id'], protocol_ret['id'])
+        new_mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        new_mapping['id'] = uuid.uuid4().hex
+        self.federation_api.create_mapping(new_mapping['id'], new_mapping)
+        protocol['mapping_id'] = new_mapping['id']
+        protocol_ret = self.federation_api.update_protocol(self.idp['id'],
+                                                           protocol['id'],
+                                                           protocol)
+        self.assertEqual(protocol['id'], protocol_ret['id'])
+        self.assertEqual(new_mapping['id'], protocol_ret['mapping_id'])
+
+    def test_update_protocol_with_invalid_mapping_id(self):
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': self.mapping['id']
+        }
+        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
+                                                           protocol['id'],
+                                                           protocol)
+        self.assertEqual(protocol['id'], protocol_ret['id'])
+        protocol['mapping_id'] = uuid.uuid4().hex
+        self.assertRaises(exception.ValidationError,
+                          self.federation_api.update_protocol,
+                          self.idp['id'],
+                          protocol['id'],
+                          protocol)
