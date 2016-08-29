@@ -5,6 +5,8 @@ Create a mapping
 
 .. rest_method::  PUT /v3/OS-FEDERATION/mappings/{id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/mapping``
+
 Normal response codes: 201
 
 Request
@@ -42,6 +44,8 @@ Get a mapping
 
 .. rest_method::  GET /v3/OS-FEDERATION/mappings/{id}
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/mapping``
+
 Normal response codes: 200
 
 Request
@@ -71,6 +75,8 @@ Update a mapping
 ================
 
 .. rest_method::  PATCH /v3/OS-FEDERATION/mappings/{id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/mapping``
 
 Normal response codes: 200
 
@@ -109,6 +115,8 @@ List all mappings
 
 .. rest_method::  GET /v3/OS-FEDERATION/mappings
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/mappings``
+
 Normal response codes: 200
 
 Response
@@ -130,6 +138,8 @@ Delete a mapping
 ================
 
 .. rest_method::  DELETE /v3/OS-FEDERATION/mappings/{id}
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/mapping``
 
 Normal response codes: 204
 

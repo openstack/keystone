@@ -8,6 +8,8 @@ List projects a federated user can access
 
 .. rest_method::  GET /v3/OS-FEDERATION/projects
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/projects``
+
 Normal response codes: 200
 
 **Deprecated in v1.1**. Use core ``GET /auth/projects``. This call has the same
@@ -37,6 +39,8 @@ List domains a federated user can access
 ========================================
 
 .. rest_method::  GET /v3/OS-FEDERATION/domains
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/domains``
 
 Normal response codes: 200
 

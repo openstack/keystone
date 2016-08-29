@@ -5,6 +5,8 @@ Request an unscoped OS-FEDERATION token
 
 .. rest_method::  GET /v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
 
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/identity_provider_protocol_auth``
+
 A federated ephemeral user may request an unscoped token, which can be used to
 get a scoped token.
 
@@ -51,6 +53,8 @@ Request a scoped OS-FEDERATION token
 ====================================
 
 .. rest_method::  POST /v3/auth/tokens
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
 
 A federated user may request a scoped token, by using the unscoped token. A
 project or domain may be specified by either id or name. An id is sufficient to
