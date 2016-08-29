@@ -139,6 +139,12 @@ Response Parameters
    - id: user_id
    - name: user_name
 
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/auth-password-unscoped-response.json
+   :language: javascript
+
 
 Password authentication with scoped authorization
 =================================================
