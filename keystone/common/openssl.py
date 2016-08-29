@@ -87,8 +87,9 @@ class BaseCertificateConfigure(object):
                 to_exec,
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            LOG.error(_LE('Command %(to_exec)s exited with %(retcode)s '
-                          '- %(output)s'),
+            msg = _LE("Command %(to_exec)s exited with %(retcode)s - "
+                      "%(output)s)")
+            LOG.error(msg,
                       {'to_exec': to_exec,
                        'retcode': e.returncode,
                        'output': e.output})
@@ -111,8 +112,9 @@ class BaseCertificateConfigure(object):
                     try:
                         os.remove(file_path)
                     except OSError as exc:
-                        LOG.error(_LE('Failed to remove file %(file_path)r: '
-                                      '%(error)s'),
+                        msg = _LE("Failed to remove file %(file_path)r: "
+                                  "%(error)s")
+                        LOG.error(msg,
                                   {'file_path': file_path,
                                    'error': exc.strerror})
                         raise
