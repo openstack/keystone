@@ -120,7 +120,9 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group``
 
 Deletes a group.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 204
+
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
 -------
@@ -139,7 +141,9 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_use
 
 Adds a user to a group.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Normal response codes: 200
+
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
 -------
