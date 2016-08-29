@@ -32,6 +32,7 @@ from keystone.common import sql
 from keystone.common.sql import migration_helpers
 from keystone.common import utils
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.federation import idp
 from keystone.federation import utils as mapping_engine
@@ -597,6 +598,34 @@ class FernetRotate(BasePermissionsSetup):
             fernet_utils.rotate_keys(keystone_user_id, keystone_group_id)
 
 
+class CredentialSetup(BasePermissionsSetup):
+    """Setup a Fernet key repository for credential encryption.
+
+    The purpose of this command is very similar to `keystone-manage
+    fernet_setup` only the keys included in this repository are for encrypting
+    and decrypting credential secrets instead of token payloads. Key can be
+    rotated using `keystone-manage credential_rotate`.
+    """
+
+    name = 'credential_setup'
+
+    @classmethod
+    def main(cls):
+        from keystone.common import fernet_utils as utils
+        fernet_utils = utils.FernetUtils(
+            CONF.credential.key_repository,
+            credential_fernet.MAX_ACTIVE_KEYS
+        )
+
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        fernet_utils.create_key_directory(keystone_user_id, keystone_group_id)
+        if fernet_utils.validate_key_repository(requires_write=True):
+            fernet_utils.initialize_key_repository(
+                keystone_user_id,
+                keystone_group_id
+            )
+
+
 class TokenFlush(BaseApp):
     """Flush expired tokens from the backend."""
 
@@ -1051,6 +1080,7 @@ class MappingPopulate(BaseApp):
 
 CMDS = [
     BootStrap,
+    CredentialSetup,
     DbSync,
     DbVersion,
     Doctor,
