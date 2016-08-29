@@ -62,6 +62,12 @@ Response Parameters
    - type: credential_type
    - id: credential_id
 
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/credential-create-response.json
+   :language: javascript
+
 
 List credentials
 ================
