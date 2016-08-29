@@ -97,8 +97,7 @@ the argument(s) passed as input and is/are also present in the whitelist.
     ``empty``, ``blacklist`` and ``whitelist`` are the only conditions that can
     be used in direct mapping ({0}, {1}, etc.)
 
-You can combine multiple conditions in a single rule. The schema that needs to be
-followed for the mapping rules can be seen in the :doc:`mapping_schema` page.
+Multiple conditions can be combined to create a single rule.
 
 Mappings Examples
 -----------------
