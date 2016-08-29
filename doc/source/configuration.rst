@@ -107,6 +107,23 @@ is not an absolute path, then Keystone looks for it in the same directories as
 above. If not specified, WSGI pipeline definitions are loaded from the primary
 configuration file.
 
+Identity sources
+----------------
+
+One of the most impactful decisions you'll have to make when configuring
+keystone is deciding how you want keystone to source your identity data.
+Keystone supports several different choices that will substantially impact how
+you'll configure, deploy, and interact with keystone.
+
+You can also mix-and-match various sources of identity (see `Domain-specific
+Drivers`_ below for an example). For example, you can store OpenStack service
+users and their passwords in SQL, manage customers in LDAP, and authenticate
+employees via SAML federation.
+
+.. support_matrix:: identity-support-matrix.ini
+
+.. Domain-specific Drivers:
+
 Domain-specific Drivers
 -----------------------
 
