@@ -19,7 +19,6 @@ import os
 import threading
 import uuid
 
-from oslo_cache import core as oslo_cache
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
@@ -47,7 +46,7 @@ LOG = log.getLogger(__name__)
 
 MEMOIZE = cache.get_memoization_decorator(group='identity')
 
-ID_MAPPING_REGION = oslo_cache.create_region()
+ID_MAPPING_REGION = cache.create_region(name='id mapping')
 MEMOIZE_ID_MAPPING = cache.get_memoization_decorator(group='identity',
                                                      region=ID_MAPPING_REGION)
 

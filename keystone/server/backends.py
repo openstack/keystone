@@ -31,20 +31,11 @@ def load_backends():
     # Configure and build the cache
     cache.configure_cache()
     cache.configure_cache(region=catalog.COMPUTED_CATALOG_REGION)
-    cache.apply_invalidation_patch(
-        region=catalog.COMPUTED_CATALOG_REGION,
-        region_name=catalog.COMPUTED_CATALOG_REGION.name)
     cache.configure_cache(region=assignment.COMPUTED_ASSIGNMENTS_REGION)
-    cache.apply_invalidation_patch(
-        region=assignment.COMPUTED_ASSIGNMENTS_REGION,
-        region_name=assignment.COMPUTED_ASSIGNMENTS_REGION.name)
     cache.configure_cache(region=revoke.REVOKE_REGION)
-    cache.apply_invalidation_patch(region=revoke.REVOKE_REGION,
-                                   region_name=revoke.REVOKE_REGION.name)
     cache.configure_cache(region=token.provider.TOKENS_REGION)
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
-    cache.apply_invalidation_patch(region=identity.ID_MAPPING_REGION,
-                                   region_name=identity.ID_MAPPING_REGION.name)
+    cache.configure_invalidation_region()
 
     # Ensure that the identity driver is created before the assignment manager
     # and that the assignment driver is created before the resource manager.
