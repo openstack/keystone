@@ -23,7 +23,7 @@ from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
-from keystone.i18n import _, _LE
+from keystone.i18n import _
 from keystone import token
 from keystone.token import provider
 
@@ -766,28 +766,23 @@ class BaseProvider(provider.Provider):
                     raise exception.Unauthorized(msg)
 
     def validate_v2_token(self, token_ref):
-        try:
-            self._assert_is_not_federation_token(token_ref)
-            self._assert_default_domain(token_ref)
-            # FIXME(gyee): performance or correctness? Should we return the
-            # cached token or reconstruct it? Obviously if we are going with
-            # the cached token, any role, project, or domain name changes
-            # will not be reflected. One may argue that with PKI tokens,
-            # we are essentially doing cached token validation anyway.
-            # Lets go with the cached token strategy. Since token
-            # management layer is now pluggable, one can always provide
-            # their own implementation to suit their needs.
-            token_data = token_ref.get('token_data')
-            token_id = token_ref['id']
-            if (self.get_token_version(token_data) != token.provider.V2):
-                # Validate the V3 token as V2
-                token_data = self.v2_token_data_helper.v3_to_v2_token(
-                    token_data, token_id)
-
-            return token_data
-        except exception.ValidationError:
-            LOG.exception(_LE('Failed to validate token'))
-            raise exception.TokenNotFound(token_id=token_id)
+        self._assert_is_not_federation_token(token_ref)
+        self._assert_default_domain(token_ref)
+        # FIXME(gyee): performance or correctness? Should we return the
+        # cached token or reconstruct it? Obviously if we are going with
+        # the cached token, any role, project, or domain name changes
+        # will not be reflected. One may argue that with PKI tokens,
+        # we are essentially doing cached token validation anyway.
+        # Lets go with the cached token strategy. Since token
+        # management layer is now pluggable, one can always provide
+        # their own implementation to suit their needs.
+        token_data = token_ref.get('token_data')
+        token_id = token_ref['id']
+        if (self.get_token_version(token_data) != token.provider.V2):
+            # Validate the V3 token as V2
+            token_data = self.v2_token_data_helper.v3_to_v2_token(
+                token_data, token_id)
+        return token_data
 
     def validate_non_persistent_token(self, token_id):
         try:
