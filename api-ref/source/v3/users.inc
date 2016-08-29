@@ -27,6 +27,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
 Shows details for a user.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request
@@ -71,6 +72,7 @@ If the back-end driver does not support this functionality, this
 call might return the HTTP ``Not Implemented (501)`` response code.
 
 Normal response codes: 200
+
 Error response codes:413,415,405,404,403,401,400,503,409,
 
 Request
@@ -142,6 +144,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_grou
 Lists groups to which a user belongs.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request
@@ -240,6 +243,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
 Lists users.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request
@@ -283,6 +287,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_proj
 List projects for a user.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request

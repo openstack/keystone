@@ -76,6 +76,7 @@ Relationship:
 The API supports only the ``identity`` and ``ldap`` groups.
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -118,6 +119,7 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 the ``identity`` group, a valid value is ``driver``.
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -158,6 +160,7 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 the ``identity`` group, a valid value is ``driver``.
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -202,6 +205,7 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 the ``identity`` group, a valid value is ``driver``.
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -258,6 +262,7 @@ The API supports only the ``identity`` and ``ldap`` groups. For the
 the ``identity`` group, a valid value is ``driver``.
 
 Normal response codes: 204
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -282,6 +287,7 @@ Shows details for a domain group configuration.
 The API supports only the ``identity`` and ``ldap`` groups.
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -325,6 +331,7 @@ try to set configuration options for other groups, this call fails
 with the ``Forbidden (403)`` response code.
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -378,6 +385,7 @@ Deletes a domain group configuration.
 The API supports only the ``identity`` and ``ldap`` groups.
 
 Normal response codes: 204
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -399,6 +407,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_co
 Creates a domain configuration.
 
 Normal response codes: 200, 201
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -449,6 +458,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_co
 Shows details for a domain configuration.
 
 Normal response codes: 200
+
 Error response codes: 413, 405, 404, 403, 401, 400, 503
 
 Request
@@ -487,6 +497,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_co
 Updates a domain configuration.
 
 Normal response codes: 200
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request
@@ -537,6 +548,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_co
 Deletes a domain configuration.
 
 Normal response codes: 204
+
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
 Request

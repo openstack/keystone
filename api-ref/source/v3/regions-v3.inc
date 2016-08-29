@@ -25,6 +25,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/regions``
 Shows details for a region, by ID.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -69,6 +70,7 @@ The following error might occur:
 - ``Not Found (404)``. The parent region ID does not exist.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -120,6 +122,7 @@ The following error might occur:
   child regions.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -140,6 +143,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/regions``
 Lists regions.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -192,6 +196,7 @@ The following errors might occur:
   the OpenStack deployment.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request

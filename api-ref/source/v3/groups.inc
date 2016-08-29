@@ -30,6 +30,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group``
 Shows details for a group.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request
@@ -71,6 +72,7 @@ If the back-end driver does not support this functionality, the
 call returns the ``Not Implemented (501)`` response code.
 
 Normal response codes: 200
+
 Error response codes:413,415,405,404,403,401,400,503,409,
 
 Request
@@ -158,6 +160,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_use
 Removes a user from a group.
 
 Normal response codes: 204
+
 Error response codes:413,415,405,404,403,401,400,503,409,
 
 Request
@@ -179,6 +182,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_use
 Validates that a user belongs to a group.
 
 Normal response codes: 204
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request
@@ -200,6 +204,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_use
 Lists the users that belong to a group.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request
@@ -226,6 +231,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
 Creates a group.
 
 Normal response codes: 201
+
 Error response codes:413,415,405,404,403,401,400,503,409,
 
 Request
@@ -272,6 +278,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
 Lists groups.
 
 Normal response codes: 200
+
 Error response codes:413,405,404,403,401,400,503,
 
 Request

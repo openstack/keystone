@@ -99,6 +99,7 @@ authentication method, which is ``password``, and the user, by ID
 or name, and password credentials.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -160,6 +161,7 @@ The request body must include a payload that specifies the
 ``project`` or ``domain`` authorization scope.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -224,6 +226,7 @@ The request body must include a payload that specifies the
 ``unscoped`` authorization scope.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -278,6 +281,7 @@ Authenticates an identity and generates a token. Uses the token authentication m
 In the request body, provide the token ID.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -320,6 +324,7 @@ In the request body, provide the token ID and the ``project`` or
 ``domain`` authorization scope.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -366,6 +371,7 @@ Pass the token that you want to validate in the ``X-Subject-Token``
 request header.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -425,6 +431,7 @@ indicates that the ``X-Subject-Token`` is valid.
 
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -451,6 +458,7 @@ of the ``expires_at`` attribute value. An additional
 ``X-Auth-Token`` is not required.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -478,6 +486,7 @@ if it was generated using ?nocatalog).
 The structure of the catalog object is identical to that contained in a token.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -521,6 +530,7 @@ The structure of the response is exactly the same as listing projects
 for a user.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -564,6 +574,7 @@ to based on the X-Auth-Token provided in the request.
 The structure is the same as listing domains.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request

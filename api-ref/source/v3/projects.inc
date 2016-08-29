@@ -37,6 +37,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects`
 Lists projects.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -83,6 +84,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects`
 Creates a project, including a project acting as a domain.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -133,6 +135,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 Shows details for a project.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -190,6 +193,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 Updates a project.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -243,6 +247,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 Deletes a project.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -274,6 +279,7 @@ If you perform this action against a project that acts as a domain
 ``Forbidden (403)`` response code.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -327,6 +333,7 @@ in the hierarchy. You must disable all the projects in the subtree
 before you perform this operation.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request

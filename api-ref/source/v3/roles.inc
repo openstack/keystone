@@ -88,6 +88,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_g
 Assigns a role to a group on a project.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -110,6 +111,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_g
 Validates that a group has a role assignment on a project.
 
 Normal response codes: 204
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -132,6 +134,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_g
 Unassigns a role from a group on a project.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -154,6 +157,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 Assigns a role to a user on a project.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -176,6 +180,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 Validates that a user has a role on a project.
 
 Normal response codes: 204
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -198,6 +203,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 Unassigns a role from a user on a project.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -220,6 +226,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 Lists role assignments for a user on a project.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -247,6 +254,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 Lists role assignments for a group on a project.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -279,6 +287,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 Assigns a role to a group on a domain.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -300,6 +309,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 Validates that a group has a role assignment on a domain.
 
 Normal response codes: 204
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -322,6 +332,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 Unassigns a role from a group on a domain.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -344,6 +355,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_us
 Lists role assignments for a user on a domain.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -386,6 +398,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
 Lists roles.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -425,6 +438,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
 Creates a role.
 
 Normal response codes: 201
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -470,6 +484,7 @@ Relationship: ``http://developer.openstack.org/api-ref/identity/v3/index.html#as
 Assigns a role to a user on a domain.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -492,6 +507,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_us
 Validates that a user has a role assignment on a domain.
 
 Normal response codes: 204
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -514,6 +530,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_us
 Unassigns a role from a user on a domain.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -535,6 +552,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 Lists role assignments for a group on a domain.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -566,6 +584,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role_assi
 Lists role assignments.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -606,6 +625,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 Shows details for a role.
 
 Normal response codes: 200
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -643,6 +663,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 Updates a role.
 
 Normal response codes: 200
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -688,6 +709,7 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 Deletes a role.
 
 Normal response codes: 204
+
 Error response codes: 413,415,405,404,403,401,400,503,409
 
 Request
@@ -708,6 +730,7 @@ Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#list-implied-roles-for-role``
 
 Normal response codes: 200
+
 Error response codes: 401, 404
 
 Request
@@ -746,6 +769,7 @@ Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#create-role-inference-rule``
 
 Normal response codes: 201
+
 Error response codes: 401, 404
 
 Request
@@ -785,6 +809,7 @@ Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#get-role-inference-rule``
 
 Normal response codes: 200
+
 Error response codes: 401, 404
 
 Request
@@ -824,6 +849,7 @@ Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#confirm-role-inference-rule``
 
 Normal response codes: 204
+
 Error response codes: 401, 404
 
 Request
@@ -850,6 +876,7 @@ Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#delete-role-inference-rule``
 
 Normal response codes: 204
+
 Error response codes: 401, 404
 
 .. rest_parameters:: parameters.yaml
@@ -870,6 +897,7 @@ List all role inference rules
 Lists all role inference rules.
 
 Normal response codes: 200
+
 Error response codes: 401, 404
 
 Relationship:
