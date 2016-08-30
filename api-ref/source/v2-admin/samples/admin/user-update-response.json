@@ -4,6 +4,7 @@
         "name": "demo",
         "email": "updated_email@example.org",
         "username": "demo",
-        "enabled": true
+        "enabled": true,
+        "tenantId": "1ca8e0"
     }
 }

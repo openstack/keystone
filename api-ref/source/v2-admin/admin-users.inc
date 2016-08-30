@@ -132,6 +132,7 @@ Request
    - enabled: enabled
    - email: email
    - name: name
+   - tenantId: tenantId
 
 Request Example
 ---------------
@@ -149,6 +150,7 @@ Response Parameters
    - email: email
    - name: name
    - id: id
+   - tenantId: tenantId
 
 Response Example
 ----------------
