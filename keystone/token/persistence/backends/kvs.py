@@ -180,18 +180,18 @@ class Token(token.persistence.TokenDriverV8):
                     continue
 
                 if expires < current_time:
-                    LOG.debug(('Token `%(token_id)s` is expired, removing '
-                               'from `%(user_key)s`.'),
-                              {'token_id': item_id, 'user_key': user_key})
+                    msg = ('Token `%(token_id)s` is expired, '
+                           'removing from `%(user_key)s`.')
+                    LOG.debug(msg, {'token_id': item_id, 'user_key': user_key})
                     continue
 
                 if item_id in revoked_token_list:
                     # NOTE(morganfainberg): If the token has been revoked, it
                     # can safely be removed from this list.  This helps to keep
                     # the user_token_list as reasonably small as possible.
-                    LOG.debug(('Token `%(token_id)s` is revoked, removing '
-                               'from `%(user_key)s`.'),
-                              {'token_id': item_id, 'user_key': user_key})
+                    msg = ('Token `%(token_id)s` is revoked, removing '
+                           'from `%(user_key)s`.')
+                    LOG.debug(msg, {'token_id': item_id, 'user_key': user_key})
                     continue
                 filtered_list.append(item)
             filtered_list.append((token_id, expires_isotime_str))

@@ -74,10 +74,8 @@ def v2_auth_deprecated(f):
 def _build_policy_check_credentials(self, action, context, kwargs):
     kwargs_str = ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])
     kwargs_str = strutils.mask_password(kwargs_str)
-
-    LOG.debug('RBAC: Authorizing %(action)s(%(kwargs)s)', {
-        'action': action,
-        'kwargs': kwargs_str})
+    msg = 'RBAC: Authorizing %(action)s(%(kwargs)s)'
+    LOG.debug(msg, {'action': action, 'kwargs': kwargs_str})
 
     return context['environment'].get(authorization.AUTH_CONTEXT_ENV, {})
 
