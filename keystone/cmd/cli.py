@@ -603,7 +603,7 @@ class CredentialSetup(BasePermissionsSetup):
 
     The purpose of this command is very similar to `keystone-manage
     fernet_setup` only the keys included in this repository are for encrypting
-    and decrypting credential secrets instead of token payloads. Key can be
+    and decrypting credential secrets instead of token payloads. Keys can be
     rotated using `keystone-manage credential_rotate`.
     """
 
