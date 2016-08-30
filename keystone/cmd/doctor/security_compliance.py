@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import re
+
 import keystone.conf
 
 
@@ -29,3 +31,34 @@ def symptom_minimum_password_age_should_be_less_than_password_expires_days():
     min_age = CONF.security_compliance.minimum_password_age
     expires = CONF.security_compliance.password_expires_days
     return (min_age >= expires) if (min_age > 0 and expires > 0) else False
+
+
+def symptom_invalid_password_regular_expression():
+    """Invalid password regular expression.
+
+    The password regular expression is invalid and users will not be able to
+    make password changes until this has been corrected.
+
+    Ensure `[security_compliance] password_regex` is a valid regular
+    expression.
+    """
+    try:
+        if CONF.security_compliance.password_regex:
+            re.match(CONF.security_compliance.password_regex, 'password')
+        return False
+    except re.error:
+        return True
+
+
+def symptom_password_regular_expression_description_not_set():
+    """Password regular expression description is not set.
+
+    The password regular expression is set, but the description is not. Thus,
+    if a user fails the password regular expression, they will not receive a
+    message to explain why their requested password was insufficient.
+
+    Ensure `[security_compliance] password_regex_description` is set with a
+    description of your password regular expression in a language for humans.
+    """
+    return (CONF.security_compliance.password_regex and not
+            CONF.security_compliance.password_regex_description)
