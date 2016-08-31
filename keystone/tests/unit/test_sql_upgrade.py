@@ -1607,3 +1607,21 @@ class VersionTests(SqlMigrateBase):
             db_exception.DbMigrationError,
             migration_helpers._sync_common_repo,
             self.repos[LEGACY_REPO].max_version - 1)
+
+    def test_these_are_not_the_migrations_you_are_looking_for(self):
+        """Keystone has shifted to rolling upgrades.
+
+        New database migrations should no longer land in the legacy migration
+        repository. Instead, new database migrations should be divided into
+        three discrete steps: schema expansion, data migration, and schema
+        contraction. These migrations live in a new set of database migration
+        repositories, called ``expand_repo``, ``data_migration_repo``, and
+        ``contract_repo``.
+
+        For more information, see "Database Schema Migrations" here:
+
+            http://docs.openstack.org/developer/keystone/developing.html
+
+        """
+        # Note to reviewers: this version number should never change.
+        self.assertEqual(109, self.repos[LEGACY_REPO].max_version)
