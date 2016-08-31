@@ -88,32 +88,34 @@ following from the Keystone root project directory:
 
     $ find . -name "*.pyc" -delete
 
-Database Schema Migrations
---------------------------
+Database Migrations
+-------------------
 
 Starting with Newton, keystone supports upgrading both with and without
-requiring downtime. In order to support this, there are three separate
-migration repositories (all under ``keystone/common/sql/``) that match the
-three phases of an upgrade (schema expansion, data migration and schema
-contraction):
+downtime. In order to support this, there are three separate migration
+repositories (all under ``keystone/common/sql/``) that match the three phases
+of an upgrade (schema expansion, data migration, and schema contraction):
 
-``expand_repo`` - For additive schema modifications and triggers to ensure
-                  data is kept in sync between the old and new schema until
-                  the point when there are no keystone instances running old
-                  code.
-``data_migration_repo`` - To ensure new tables/columns are fully populated with
-                          data from the old schema.
-``contract_repo`` - Run after all old code versions have been upgraded to
-                    running the new code, so remove any old schema
-                    columns/tables that are not used by the new version of the
-                    code. Drop any triggers added in the expand phase.
+``expand_repo``
+    For additive schema modifications and triggers to ensure data is kept in
+    sync between the old and new schema until the point when there are no
+    keystone instances running old code.
 
-Any migration is required to have a migration script in each of these repos,
-each with the same version number (which is indicated by the first three
-digits of the name of the script, e.g. ``003_add_X_table.py``). If there is no
-work to do in a specific phase, then include a null migration (in fact the
-first migration in each of these repositories is a null migration, so that
-can be used as a template).
+``data_migration_repo``
+    To ensure new tables/columns are fully populated with data from the old
+    schema.
+
+``contract_repo``
+    Run after all old code versions have been upgraded to running the new code,
+    so remove any old schema columns/tables that are not used by the new
+    version of the code. Drop any triggers added in the expand phase.
+
+All migrations are required to have a migration script in each of these repos,
+each with the same version number (which is indicated by the first three digits
+of the name of the script, e.g. ``003_add_X_table.py``). If there is no work to
+do in a specific phase, then include a no-op migration to simply ``pass`` (in
+fact the ``001`` migration in each of these repositories is a no-op migration,
+so that can be used as a template).
 
 .. NOTE::
 
@@ -122,25 +124,41 @@ can be used as a template).
     (``keystone/common/sql/migrate_repo``). This repository is now closed and
     no new migrations should be added (except for backporting of previous
     placeholders).
-    
-Since migrations must now support upgrades without downtime, it is a
-requirement that keystone supports running a mixed-mode of the release
-versions (i.e. the current and new versions) during the expand and data
-migration phases. To achieve this mixed-mode support, the expansion phase
-should install database triggers to keep the old and new scheme in sync. These
-triggers should be removed in the contract phase. There are further
-restrictions as to what can and cannot be included in migration scripts in
-each phase:
 
-Expand phase - Only additive database changes (i.e. column, table, indices and
-               trigger adds). No insertion of data.
-Data Migration phase - No database changes - only insertion/copying of data
-Contract phase - Only dropping or updating of schema (e.g. constraint changes).
-                 No insertion/removal of data (other than that implicit in the
-                 dropping of tables/columns).
+In order to support rolling upgrades, where two releases of keystone briefly
+operate side-by-side using the same database without downtime, each phase of
+the migration must adhere to following constraints:
 
-For examples of use of the 3 different migration phase scripts to allow upgrading
-without downtime, look at the existing migrations in each of the 3 repositories.
+These triggers should be removed in the contract phase. There are further
+restrictions as to what can and cannot be included in migration scripts in each
+phase:
+
+Expand phase:
+    Only additive schema changes are allowed, such as new columns, tables,
+    indices, and triggers.
+
+    Data insertion, alteration, and removal is not allowed.
+
+    Triggers must be created to keep data in sync between the previous release
+    and the next release. Data written by the previous release must be readable
+    by both the previous release and the next release. Data written by the next
+    release must be readable by both the next release and the previous release.
+
+    In cases it is not possible for triggers to maintain data integrity across
+    multiple schemas, writing data should be forbidden using triggers.
+
+Data Migration phase:
+    Data is allowed to be inserted, updated, and deleted.
+
+    No schema changes are allowed.
+
+Contract phase:
+    Only contractive schema changes are allowed, such as dropping or altering
+    columns, tables, indices, and triggers.
+
+    Data insertion, alteration, and removal is not allowed.
+
+    Triggers created during the expand phase must be dropped.
 
 For more information on writing individual migration scripts refer to
 `SQLAlchemy-migrate`_.
@@ -427,7 +445,7 @@ modify the file ``keystone/tests/unit/config_files/backend_liveldap.conf`` and
 password.
 
 .. NOTE::
-    To run the live tests you need to set the environment variable 
+    To run the live tests you need to set the environment variable
     ``ENABLE_LDAP_LIVE_TEST`` to a non-negative value.
 
 

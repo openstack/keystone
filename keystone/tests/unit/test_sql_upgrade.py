@@ -1618,7 +1618,7 @@ class VersionTests(SqlMigrateBase):
         repositories, called ``expand_repo``, ``data_migration_repo``, and
         ``contract_repo``.
 
-        For more information, see "Database Schema Migrations" here:
+        For more information, see "Database Migrations" here:
 
             http://docs.openstack.org/developer/keystone/developing.html
 
