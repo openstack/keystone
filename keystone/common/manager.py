@@ -185,7 +185,10 @@ class Manager(object):
     def __getattr__(self, name):
         """Forward calls to the underlying driver."""
         f = getattr(self.driver, name)
-        setattr(self, name, f)
+        if callable(f):
+            # NOTE(dstanek): only if this is callable (class or function)
+            # cache this
+            setattr(self, name, f)
         return f
 
 
