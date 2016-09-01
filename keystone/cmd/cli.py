@@ -1057,7 +1057,7 @@ class MappingPopulate(BaseApp):
             subparsers)
 
         parser.add_argument('--domain-name', default=None, required=True,
-                            help=("Name of the domain configured to use"
+                            help=("Name of the domain configured to use "
                                   "domain-specific backend"))
         return parser
 
