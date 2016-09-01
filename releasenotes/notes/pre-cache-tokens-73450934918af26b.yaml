@@ -1,0 +1,7 @@
+---
+prelude: >
+    Tokens can now be cached when issued.
+features:
+  - Add ``cache_on_issue`` flag to ``[token]`` section that enables
+    placing issued tokens to validation cache thus reducing the first
+    validation time as if token is already validated and token data cached.

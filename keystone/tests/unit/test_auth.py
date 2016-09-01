@@ -1328,7 +1328,8 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
 
     def config_overrides(self):
         super(FernetAuthWithTrust, self).config_overrides()
-        self.config_fixture.config(group='token', provider='fernet')
+        self.config_fixture.config(group='token', provider='fernet',
+                                   cache_on_issue=True)
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -1345,6 +1346,14 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
         # backend. This same test can be exercised through the API.
         msg = 'The Fernet token provider does not support token persistence'
         self.skipTest(msg)
+
+    def test_delete_trust_revokes_token(self):
+        # NOTE(amakarov): have to override this for Fernet as TokenNotFound
+        # can't be raised for non-persistent token, but deleted trust will
+        # cause TrustNotFound exception.
+        self.assertRaises(
+            exception.TrustNotFound,
+            super(FernetAuthWithTrust, self).test_delete_trust_revokes_token)
 
 
 class TokenExpirationTest(AuthTest):

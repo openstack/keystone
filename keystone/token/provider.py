@@ -16,6 +16,7 @@
 
 import abc
 import base64
+import copy
 import datetime
 import sys
 import uuid
@@ -379,6 +380,16 @@ class Manager(manager.Manager):
                         token_version=self.V2)
             self._create_token(token_id, data)
 
+        # NOTE(amakarov): TOKENS_REGION is to be passed to serve as
+        # required positional "self" argument. It's ignored, so I've put
+        # it here for convenience - any placeholder is fine.
+        # NOTE(amakarov): v3 token data can be converted to v2.0 version,
+        # so v2.0 token validation cache can also be populated. However it
+        # isn't reflexive: there is no way to populate v3 validation cache
+        # on issuing a token using v2.0 API.
+        if CONF.token.cache_on_issue:
+            self._validate_v2_token.set(token_data, TOKENS_REGION, token_id)
+
         return token_id, token_data
 
     def issue_v3_token(self, user_id, method_names, expires_at=None,
@@ -419,6 +430,27 @@ class Manager(manager.Manager):
                     token_version=self.V3)
         if self._needs_persistence:
             self._create_token(token_id, data)
+
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): here and above TOKENS_REGION is to be passed
+            # to serve as required positional "self" argument. It's ignored,
+            # so I've put it here for convenience - any placeholder is fine.
+            self._validate_v3_token.set(token_data, TOKENS_REGION, token_id)
+            self._validate_token.set(token_data, TOKENS_REGION, token_id)
+            self.validate_non_persistent_token.set(
+                token_data, TOKENS_REGION, token_id)
+
+            try:
+                v2_helper = providers.common.V2TokenDataHelper()
+                v2_token_data = v2_helper.v3_to_v2_token(
+                    copy.deepcopy(token_data), token_id)
+            except exception.Unauthorized:
+                # Ignore trust and oauth tokens
+                pass
+            else:
+                self._validate_v2_token.set(
+                    v2_token_data, TOKENS_REGION, token_id)
+
         return token_id, token_data
 
     def invalidate_individual_token_cache(self, token_id):
@@ -467,18 +499,27 @@ class Manager(manager.Manager):
             trust = self.trust_api.get_trust(trust_id, deleted=True)
             self._persistence.delete_tokens(user_id=trust['trustor_user_id'],
                                             trust_id=trust_id)
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): preserving behavior
+            TOKENS_REGION.invalidate()
 
     def _delete_user_tokens_callback(self, service, resource_type, operation,
                                      payload):
         if CONF.token.revoke_by_id:
             user_id = payload['resource_info']
             self._persistence.delete_tokens_for_user(user_id)
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): preserving behavior
+            TOKENS_REGION.invalidate()
 
     def _delete_domain_tokens_callback(self, service, resource_type,
                                        operation, payload):
         if CONF.token.revoke_by_id:
             domain_id = payload['resource_info']
             self._persistence.delete_tokens_for_domain(domain_id=domain_id)
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): preserving behavior
+            TOKENS_REGION.invalidate()
 
     def _delete_user_project_tokens_callback(self, service, resource_type,
                                              operation, payload):
@@ -487,6 +528,9 @@ class Manager(manager.Manager):
             project_id = payload['resource_info']['project_id']
             self._persistence.delete_tokens_for_user(user_id=user_id,
                                                      project_id=project_id)
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): preserving behavior
+            TOKENS_REGION.invalidate()
 
     def _delete_project_tokens_callback(self, service, resource_type,
                                         operation, payload):
@@ -495,6 +539,9 @@ class Manager(manager.Manager):
             self._persistence.delete_tokens_for_users(
                 self.assignment_api.list_user_ids_for_project(project_id),
                 project_id=project_id)
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): preserving behavior
+            TOKENS_REGION.invalidate()
 
     def _delete_user_oauth_consumer_tokens_callback(self, service,
                                                     resource_type, operation,
@@ -504,6 +551,9 @@ class Manager(manager.Manager):
             consumer_id = payload['resource_info']['consumer_id']
             self._persistence.delete_tokens(user_id=user_id,
                                             consumer_id=consumer_id)
+        if CONF.token.cache_on_issue:
+            # NOTE(amakarov): preserving behavior
+            TOKENS_REGION.invalidate()
 
 
 @six.add_metaclass(abc.ABCMeta)
