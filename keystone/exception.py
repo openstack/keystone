@@ -254,11 +254,6 @@ class AuthPluginException(Unauthorized):
         self.authentication = {}
 
 
-class MissingGroups(Unauthorized):
-    message_format = _("Unable to find valid groups while using "
-                       "mapping %(mapping_id)s")
-
-
 class UserDisabled(Unauthorized):
     message_format = _("The account is disabled for user: %(user_id)s")
 

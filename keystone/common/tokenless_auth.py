@@ -131,9 +131,9 @@ class TokenlessAuthHelper(object):
         if user_type == utils.UserType.EPHEMERAL:
             user_ref = {'type': utils.UserType.EPHEMERAL}
             group_ids = mapped_properties['group_ids']
-            utils.validate_groups_in_backend(group_ids,
-                                             mapping_id,
-                                             self.identity_api)
+            utils.validate_mapped_group_ids(group_ids,
+                                            mapping_id,
+                                            self.identity_api)
             group_ids.extend(
                 utils.transform_to_group_ids(
                     mapped_properties['group_names'], mapping_id,

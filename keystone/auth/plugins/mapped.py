@@ -89,7 +89,7 @@ def handle_scoped_token(request, auth_payload, auth_context, token_ref,
     try:
         mapping = federation_api.get_mapping_from_idp_and_protocol(
             identity_provider, protocol)
-        utils.validate_groups(group_ids, mapping['id'], identity_api)
+        utils.validate_mapped_group_ids(group_ids, mapping['id'], identity_api)
 
     except Exception:
         # NOTE(topol): Diaper defense to catch any exception, so we can
@@ -159,7 +159,6 @@ def handle_unscoped_token(request, auth_payload, auth_context,
                                                       display_name)
             user_id = user['id']
             group_ids = mapped_properties['group_ids']
-            utils.validate_groups_cardinality(group_ids, mapping_id)
             build_ephemeral_user_context(auth_context, user,
                                          mapped_properties,
                                          identity_provider, protocol)
@@ -208,9 +207,7 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
     # ``mapping_id`` was used as well as idenity_api and resource_api
     # objects.
     group_ids = mapped_properties['group_ids']
-    utils.validate_groups_in_backend(group_ids,
-                                     mapping_id,
-                                     identity_api)
+    utils.validate_mapped_group_ids(group_ids, mapping_id, identity_api)
     group_ids.extend(
         utils.transform_to_group_ids(
             mapped_properties['group_names'], mapping_id,

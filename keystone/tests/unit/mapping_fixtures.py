@@ -1522,6 +1522,12 @@ ANOTHER_LOCAL_USER_ASSERTION = {
     'Position': 'DirectorGeneral'
 }
 
+USER_NO_GROUPS_ASSERTION = {
+    'Email': 'nogroupsuser1@example.org',
+    'UserName': 'nogroupsuser1',
+    'orgPersonType': 'NoGroupsOrg'
+}
+
 UNMATCHED_GROUP_ASSERTION = {
     'REMOTE_USER': 'Any Momoose',
     'REMOTE_USER_GROUPS': 'EXISTS;NO_EXISTS'
