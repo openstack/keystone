@@ -92,6 +92,50 @@ Response Example
    :language: javascript
 
 
+Update user tenant
+==================
+
+.. rest_method:: PUT /v2.0/users/{userId}/OS-KSADM/tenant
+
+Sets a user's tenant
+
+Normal response codes: 200
+
+Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: userId
+   - tenantId: tenantId
+
+Request Example
+---------------
+
+.. literalinclude:: samples/OS-KSADM/user-update-tenant-request.json
+   :language: javascript
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - email: email
+   - enabled: enabled
+   - tenantId: tenantId
+   - id: id
+   - name: name
+   - username: username
+
+Response Example
+----------------
+
+.. literalinclude:: samples/OS-KSADM/user-show-response.json
+   :language: javascript
+
+
 Create service (admin extension)
 ================================
 

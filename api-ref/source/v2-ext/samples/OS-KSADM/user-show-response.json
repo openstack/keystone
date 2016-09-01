@@ -4,6 +4,7 @@
         "name": "admin",
         "email": "admin@example.org",
         "username": "admin",
-        "enabled": true
+        "enabled": true,
+        "tenantId": "1ca8e0"
     }
 }
