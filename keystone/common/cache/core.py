@@ -77,7 +77,7 @@ class DistributedInvalidationStrategy(region.RegionInvalidationStrategy):
         return False
 
 
-def key_manger_factory(invalidation_manager, orig_key_mangler):
+def key_mangler_factory(invalidation_manager, orig_key_mangler):
     def key_mangler(key):
         # NOTE(dstanek): Since *all* keys go through the key mangler we
         # need to make sure the region keys don't get the region_id added.
@@ -129,7 +129,7 @@ def configure_cache(region=None):
 
         region_manager = RegionInvalidationManager(
             CACHE_INVALIDATION_REGION, region.name)
-        region.key_mangler = key_manger_factory(
+        region.key_mangler = key_mangler_factory(
             region_manager, region.key_mangler)
         region.region_invalidator = DistributedInvalidationStrategy(
             region_manager)
