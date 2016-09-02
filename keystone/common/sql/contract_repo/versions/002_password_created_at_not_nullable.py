@@ -20,11 +20,11 @@ def upgrade(migrate_engine):
     meta.bind = migrate_engine
 
     password = sql.Table('password', meta, autoload=True)
-    # Because it's difficult to get a timestamp server default working amoung
-    # all of the supported datbases and versions, I'm choosing to drop and then
-    # recreate the column as I think this is a more cleaner option. This will
-    # only impact operators that have already deployed the 105 migration;
-    # resetting the password created_at for security compliannce features, if
+    # Because it's difficult to get a timestamp server default working among
+    # all of the supported databases and versions, I'm choosing to drop and
+    # then recreate the column as I think this is a more cleaner option. This
+    # will only impact operators that have already deployed the 105 migration;
+    # resetting the password created_at for security compliance features, if
     # enabled.
     password.c.created_at.drop()
     # sqlite doesn't support server_default=sql.func.now(), so skipping.
