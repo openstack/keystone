@@ -41,6 +41,8 @@ Invoking ``keystone-manage`` by itself will give you some usage information.
 Available commands:
 
 * ``bootstrap``: Perform the basic bootstrap process.
+* ``credential_migrate``: Encrypt credentials using a new primary key.
+* ``credential_rotate``: Rotate Fernet keys for credential encryption.
 * ``credential_setup``: Setup a Fernet key repository for credential encryption.
 * ``db_sync``: Sync the database.
 * ``db_version``: Print the current migration version of the database.
