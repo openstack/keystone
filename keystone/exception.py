@@ -350,6 +350,11 @@ class InvalidImpliedRole(Forbidden):
     message_format = _("%(role_id)s cannot be an implied roles")
 
 
+class DomainSpecificRoleMismatch(Forbidden):
+    message_format = _("project: %(project_id)s must be in the same domain "
+                       " as the role: %(role_id)s being assigned.")
+
+
 class RoleAssignmentNotFound(NotFound):
     message_format = _("Could not find role assignment with role: "
                        "%(role_id)s, user or group: %(actor_id)s, "

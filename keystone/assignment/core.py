@@ -339,11 +339,19 @@ class Manager(manager.Manager):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
-        self.role_api.get_role(role_id)
+        role = self.role_api.get_role(role_id)
         if domain_id:
             self.resource_api.get_domain(domain_id)
         if project_id:
-            self.resource_api.get_project(project_id)
+            project = self.resource_api.get_project(project_id)
+
+            # For domain specific roles, the domain of the project must match
+            # the roles's
+            if role['domain_id'] and project['domain_id'] != role['domain_id']:
+                raise exception.DomainSpecificRoleMismatch(
+                    role_id=role_id,
+                    project_id=project_id)
+
         self.driver.create_grant(role_id, user_id, group_id, domain_id,
                                  project_id, inherited_to_projects)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
