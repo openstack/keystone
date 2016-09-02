@@ -256,15 +256,18 @@ class FernetUtils(object):
 
         if len(keys) != self.max_active_keys:
             # Once the number of keys matches max_active_keys, this log entry
-            # is too repetitive to be useful.
-            LOG.debug(
-                'Loaded %(count)d Fernet keys from %(dir)s, but '
-                '`[fernet_tokens] max_active_keys = %(max)d`; perhaps there '
-                'have not been enough key rotations to reach '
-                '`max_active_keys` yet?', {
-                    'count': len(keys),
-                    'max': self.max_active_keys,
-                    'dir': self.key_repository})
+            # is too repetitive to be useful. Also note that it only makes
+            # sense to log this message for tokens since credentials doesn't
+            # have a `max_active_key` configuration option.
+            if self.key_repository == CONF.fernet_tokens.key_repository:
+                LOG.debug(
+                    'Loaded %(count)d Fernet keys from %(dir)s, but '
+                    '`[fernet_tokens] max_active_keys = %(max)d`; perhaps '
+                    'there have not been enough key rotations to reach '
+                    '`max_active_keys` yet?', {
+                        'count': len(keys),
+                        'max': self.max_active_keys,
+                        'dir': self.key_repository})
 
         # return the encryption_keys, sorted by key number, descending
         return [keys[x] for x in sorted(keys.keys(), reverse=True)]
