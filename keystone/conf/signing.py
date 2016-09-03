@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import constants
 from keystone.conf import utils
@@ -21,6 +22,7 @@ certfile = cfg.StrOpt(
     default=constants._CERTFILE,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Absolute path to the public certificate file to use for signing PKI and PKIZ
 tokens. Set this together with `[signing] keyfile`. For non-production
@@ -34,6 +36,7 @@ keyfile = cfg.StrOpt(
     default=constants._KEYFILE,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Absolute path to the private key file to use for signing PKI and PKIZ tokens.
 Set this together with `[signing] certfile`. There is no reason to set this
@@ -44,6 +47,7 @@ ca_certs = cfg.StrOpt(
     'ca_certs',
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     default='/etc/keystone/ssl/certs/ca.pem',
     help=utils.fmt("""
 Absolute path to the public certificate authority (CA) file to use when
@@ -59,6 +63,7 @@ ca_key = cfg.StrOpt(
     default='/etc/keystone/ssl/private/cakey.pem',
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Absolute path to the private certificate authority (CA) key file to use when
 creating self-signed certificates with `keystone-manage pki_setup`. Set this
@@ -74,6 +79,7 @@ key_size = cfg.IntOpt(
     min=1024,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Key size (in bits) to use when generating a self-signed token signing
 certificate. There is no reason to set this option unless you are using a `pki`
@@ -86,6 +92,7 @@ valid_days = cfg.IntOpt(
     default=3650,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 The validity period (in days) to use when generating a self-signed token
 signing certificate. There is no reason to set this option unless you are using
@@ -97,6 +104,7 @@ cert_subject = cfg.StrOpt(
     'cert_subject',
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     default=('/C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com'),
     help=utils.fmt("""
 The certificate subject to use when generating a self-signed token signing

@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -32,6 +33,7 @@ public_bind_host = cfg.StrOpt(
     ],
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_EVENTLET_MSG,
+    deprecated_since=versionutils.deprecated.KILO,
     help=utils.fmt("""
 The IP address of the network interface for the public service to listen on.
 """))
@@ -43,6 +45,7 @@ public_port = cfg.PortOpt(
     deprecated_group='DEFAULT',
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_EVENTLET_MSG,
+    deprecated_since=versionutils.deprecated.KILO,
     help=utils.fmt("""
 The port number for the public service to listen on.
 """))
@@ -57,6 +60,7 @@ admin_bind_host = cfg.StrOpt(
     ],
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_EVENTLET_MSG,
+    deprecated_since=versionutils.deprecated.KILO,
     help=utils.fmt("""
 The IP address of the network interface for the admin service to listen on.
 """))
@@ -68,6 +72,7 @@ admin_port = cfg.PortOpt(
     deprecated_group='DEFAULT',
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_EVENTLET_MSG,
+    deprecated_since=versionutils.deprecated.KILO,
     help=utils.fmt("""
 The port number for the admin service to listen on.
 """))

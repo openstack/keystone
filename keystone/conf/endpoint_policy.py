@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -24,6 +25,7 @@ The option to enable the OS-ENDPOINT-POLICY API extension has been deprecated
 in the M release and will be removed in the O release. The OS-ENDPOINT-POLICY
 API extension will be enabled by default.
 """),
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Enable endpoint-policy functionality, which allows policies to be associated
 with either specific endpoints, or endpoints of a given service type.

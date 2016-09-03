@@ -14,6 +14,7 @@ import hashlib
 import sys
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import constants
 from keystone.conf import utils
@@ -138,6 +139,7 @@ hash_algorithm = cfg.StrOpt(
     choices=hash_choices,
     deprecated_for_removal=True,
     deprecated_reason=constants._DEPRECATE_PKI_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 This controls the hash algorithm to use to uniquely identify PKI tokens without
 having to transmit the entire token to keystone (which may be several

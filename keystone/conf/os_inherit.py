@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -27,6 +28,7 @@ enabled = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_INHERIT_MSG,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 This allows domain-based role assignments to be inherited to projects owned by
 that domain, or from parent projects to child projects.

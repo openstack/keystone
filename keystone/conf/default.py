@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -151,6 +152,7 @@ domain_id_immutable = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_MUTABLE_DOMAIN_IDS,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Set this to false if you want to enable the ability for user, group and project
 entities to be moved between domains by updating their `domain_id` attribute.
@@ -175,6 +177,7 @@ secure_proxy_ssl_header = cfg.StrOpt(
     default='HTTP_X_FORWARDED_PROTO',
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATE_PROXY_SSL,
+    deprecated_since=versionutils.deprecated.NEWTON,
     help=utils.fmt("""
 The HTTP header used to determine the scheme for the original request, even if
 it was removed by an SSL terminating proxy.
