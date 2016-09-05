@@ -1537,6 +1537,12 @@ service_description:
   in: body
   required: true
   type: string
+service_description_notRequired:
+  description: |
+    The service description.
+  in: body
+  required: false
+  type: string
 service_enabled:
   description: |
     Defines whether the service and its endpoints
@@ -1573,7 +1579,7 @@ service_name:
   description: |
     The service name.
   in: body
-  required: false
+  required: true
   type: string
 service_type:
   description: |
