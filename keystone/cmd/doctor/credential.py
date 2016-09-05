@@ -12,6 +12,9 @@
 
 import keystone.conf
 
+from keystone.common import fernet_utils as utils
+from keystone.credential.providers import fernet as credential_fernet
+
 
 CONF = keystone.conf.CONF
 
@@ -35,3 +38,36 @@ def symptom_unique_key_repositories():
     return (
         CONF.credential.key_repository == CONF.fernet_tokens.key_repository
     )
+
+
+def symptom_usability_of_credential_fernet_key_repository():
+    """Credential key repository is not setup correctly.
+
+    The credential Fernet key repository is expected to be readable by the user
+    running keystone, but not world-readable, because it contains
+    security sensitive secrets.
+    """
+    fernet_utils = utils.FernetUtils(
+        CONF.credential.key_repository,
+        credential_fernet.MAX_ACTIVE_KEYS
+    )
+    return (
+        'fernet' in CONF.credential.provider
+        and not fernet_utils.validate_key_repository())
+
+
+def symptom_keys_in_credential_fernet_key_repository():
+    """Credential key repository is empty.
+
+    After configuring keystone to use the Fernet credential provider, you
+    should use `keystone-manage credential_setup` to initially populate your
+    key repository with keys, and periodically rotate your keys with
+    `keystone-manage credential_rotate`.
+    """
+    fernet_utils = utils.FernetUtils(
+        CONF.credential.key_repository,
+        credential_fernet.MAX_ACTIVE_KEYS
+    )
+    return (
+        'fernet' in CONF.credential.provider
+        and not fernet_utils.load_keys())
