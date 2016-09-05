@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -58,6 +59,7 @@ use_dumb_member = cfg.BoolOpt(
     default=False,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If true, keystone will add a dummy member based on the `[ldap] dumb_member`
 option when creating new groups. This is required if the object class for
@@ -70,6 +72,7 @@ dumb_member = cfg.StrOpt(
     default='cn=dumb,dc=nonexistent',
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 DN of the "dummy member" to use when `[ldap] use_dumb_member` is enabled. This
 option is only used for write operations.
@@ -80,6 +83,7 @@ allow_subtree_delete = cfg.BoolOpt(
     default=False,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Delete subtrees using the subtree delete control. Only enable this option if
 your LDAP server supports subtree deletion. This option is only used for write
@@ -245,6 +249,7 @@ user_attribute_ignore = cfg.ListOpt(
     default=['default_project_id'],
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 List of user attributes to ignore on create and update. This is only used for
 write operations.
@@ -262,6 +267,7 @@ user_allow_create = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If enabled, keystone is allowed to create users in the LDAP server.
 """))
@@ -271,6 +277,7 @@ user_allow_update = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If enabled, keystone is allowed to update users in the LDAP server.
 """))
@@ -280,6 +287,7 @@ user_allow_delete = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If enabled, keystone is allowed to delete users in the LDAP server.
 """))
@@ -388,6 +396,7 @@ group_attribute_ignore = cfg.ListOpt(
     default=[],
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 List of group attributes to ignore on create and update. This is only used for
 write operations.
@@ -398,6 +407,7 @@ group_allow_create = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If enabled, keystone is allowed to create groups in the LDAP server.
 """))
@@ -407,6 +417,7 @@ group_allow_update = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If enabled, keystone is allowed to update groups in the LDAP server.
 """))
@@ -416,6 +427,7 @@ group_allow_delete = cfg.BoolOpt(
     default=True,
     deprecated_for_removal=True,
     deprecated_reason=_DEPRECATED_LDAP_WRITE,
+    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 If enabled, keystone is allowed to delete groups in the LDAP server.
 """))
