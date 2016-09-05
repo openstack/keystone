@@ -67,7 +67,7 @@ service_providers:
     The list of Service Providers
   in: body
   required: true
-  type: list of objects
+  type: array
 
 sp_url:
   description: |

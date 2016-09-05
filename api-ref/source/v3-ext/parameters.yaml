@@ -522,7 +522,7 @@ trust_roles:
     ``name``.
   in: body
   required: false
-  type: list
+  type: array
 trustee_user_id:
   description: |
     Represents the user who is capable of consuming the trust.

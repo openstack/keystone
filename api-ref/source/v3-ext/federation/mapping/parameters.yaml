@@ -39,7 +39,7 @@ mappings:
     The collection of Federation Mappings
   in: body
   required: true
-  type: list of objects
+  type: array
 
 rules:
   description: |
