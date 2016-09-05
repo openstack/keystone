@@ -80,7 +80,6 @@ Request
    - description: service_description
    - service: service
    - enabled: service_enabled
-   - service_id: service_id
    - type: service_type
    - name: service_name
 
@@ -367,8 +366,8 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - type: service_type
-   - enabled: service_enabled
-   - description: service_description
+   - enabled: service_enabled_notRequired
+   - description: service_description_notRequired
    - service: service
    - name: service_name
    - service_id: service_id_path
