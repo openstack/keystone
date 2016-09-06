@@ -12,20 +12,21 @@ List tenants
 
 Lists tenants to which the token has access.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,
+
+Error response codes: 413,405,404,403,401,400,503,
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - description: description
+   - description: tenant_description
    - tenants_links: tenants_links
    - enabled: enabled
    - tenants: tenants
-   - id: id
-   - name: name
+   - id: tenantId_response
+   - name: tenantName_response
 
 Response Example
 ----------------
@@ -66,8 +67,9 @@ The deployment determines how long expired tokens are stored.
 To view the ``trust`` object, you need to set ``trust`` enable on
 the keystone configuration.
 
-Normal response codes: 200
-Error response codes:203,413,405,404,403,401,400,503,
+Normal response codes: 200,
+
+Error response codes:413,405,404,403,401,400,503,
 
 Request
 -------
@@ -96,11 +98,11 @@ Response Parameters
    - impersonation: impersonation
    - endpoints_links: endpoints_links
    - serviceCatalog: serviceCatalog
-   - description: description
+   - description: tenant_description
    - type: type
    - expires: expires
    - enabled: enabled
-   - name: name
+   - name: tenantName_response
    - access: access
    - trustee_user_id: trustee_user_id
    - token: token
@@ -109,7 +111,7 @@ Response Parameters
    - trustor_user_id: trustor_user_id
    - endpoints: endpoints
    - trust: trust
-   - id: id
+   - id: tenantId_response
    - tenant: tenant
    - metadata: metadata
 
