@@ -38,3 +38,41 @@ class TestCreateLegacyDriver(unit.BaseTestCase):
         self.assertEqual('N', mock_reporter.call_args[0][2]['remove_in'][0])
 
         self.assertIsInstance(impl, catalog.CatalogDriverV8)
+
+    class Manager(manager.Manager):
+
+        def __init__(self, driver):
+            # NOTE(dstanek): I am not calling the parent's __init__ on
+            # purpose. I don't want to trigger the dynamic loading of a
+            # driver, I want to provide my own.
+            self.driver = driver
+
+    def test_property_passthru(self):
+        """Manager delegating property call to a driver through __getattr__."""
+        class Driver(object):
+
+            def __init__(self):
+                self.counter = 0
+
+            @property
+            def p(self):
+                self.counter += 1
+                return self.counter
+
+        mgr = self.Manager(Driver())
+        # each property call should return a new value
+        self.assertNotEqual(mgr.p, mgr.p)
+
+    def test_callable_passthru(self):
+        class Driver(object):
+
+            class Inner(object):
+                pass
+
+            def method(self):
+                pass
+
+        drv = Driver()
+        mgr = self.Manager(drv)
+        self.assertEqual(drv.Inner, mgr.Inner)
+        self.assertEqual(drv.method, mgr.method)
