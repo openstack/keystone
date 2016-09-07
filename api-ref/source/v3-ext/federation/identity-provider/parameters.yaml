@@ -59,7 +59,7 @@ identity_providers:
     List of Identity Providers
   in: body
   required: true
-  type: array of objects
+  type: array
 
 links:
   description: |
@@ -80,7 +80,7 @@ protocols:
     List of Federation Protocols
   in: body
   required: true
-  type: list of objects
+  type: array
 
 protocols_links:
   description: |
@@ -94,4 +94,4 @@ remote_ids:
     List of the unique Identity Provider's remote IDs
   in: body
   required: true
-  type: array of strings
+  type: array

@@ -38,7 +38,7 @@ endpoints_list:
     ``publicURL`` for the endpoint.
   in: body
   required: true
-  type: list
+  type: array
 id:
   description: |
     Endpoint ID
