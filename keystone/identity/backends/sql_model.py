@@ -234,7 +234,7 @@ class Password(sql.ModelBase, sql.DictBase):
                                ondelete='CASCADE'))
     password = sql.Column(sql.String(128), nullable=True)
     # created_at default set here to safe guard in case it gets missed
-    created_at = sql.Column(sql.TIMESTAMP, nullable=False,
+    created_at = sql.Column(sql.DateTime, nullable=False,
                             default=datetime.datetime.utcnow)
     expires_at = sql.Column(sql.DateTime, nullable=True)
     self_service = sql.Column(sql.Boolean, default=False, nullable=False,
