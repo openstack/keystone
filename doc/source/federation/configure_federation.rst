@@ -77,7 +77,7 @@ Configure keystone and Horizon for Single Sign-On
 .. _`Keystone Federation and Horizon`: websso.html
 
 Configuring Federation in Keystone
------------------------------------
+----------------------------------
 
 Now that the Identity Provider and keystone are communicating we can start to
 configure ``federation``.
@@ -379,4 +379,3 @@ At this point the ECP wrapped SAML Assertion can be sent to the Service
 Provider keystone using the provided ``auth_url`` in the ``X-Auth-Url`` header
 present in the response containing the Assertion, and a valid OpenStack
 token, issued by a Service Provider keystone, will be returned.
-
