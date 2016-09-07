@@ -560,7 +560,17 @@ class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
         return self.identity_api.create_user(user)
 
     def _update_password_created_at(self, user_id, password_create_at):
+        # User instance has an attribute password_ref. This attribute is used
+        # in authentication. It always points to the last created password. The
+        # order of passwords is determined by `created_at` field.
+        # By changing `created_at`, this method interferes with password_ref
+        # behaviour, making it return not last value. That's why all passwords
+        # except the latest, need to have `created_at` slightly less than
+        # the latest password.
         with sql.session_for_write() as session:
             user_ref = session.query(model.User).get(user_id)
+            latest_password = user_ref.password_ref
+            slightly_less = datetime.timedelta(minutes=1)
             for password_ref in user_ref.local_user.passwords:
-                password_ref.created_at = password_create_at
+                password_ref.created_at = password_create_at - slightly_less
+            latest_password.created_at = password_create_at
