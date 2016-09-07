@@ -109,8 +109,8 @@ mechanism to formulate an identity. The identity provider must correspond
 to the issuer of the X.509 SSL client certificate. The protocol for the
 given identity is ``x509`` by default, but can be configurable.
 
-Create an Identity Provider(IdP)
---------------------------------
+Create an Identity Provider (IdP)
+---------------------------------
 
 In order to create an IdP, the issuer DN in the client certificate needs
 to be provided. The following sample is what a generic issuer DN looks
@@ -325,4 +325,3 @@ Details of the Options
 * ``X-Project-Name`` - The project scope needs to be passed in the header.
 * ``X-Project-Domain-Id`` - Its the domain of project scope.
 * ``X-Subject-Token`` - The token to be validated.
-
