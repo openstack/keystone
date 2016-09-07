@@ -1767,6 +1767,28 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
                       'type': 'cert'}
         self.insert_dict(session, credential_table_name, credential)
 
+    def test_migration_004_reset_password_created_at(self):
+        # upgrade each repository to 003 and test
+        self.expand(3)
+        self.migrate(3)
+        self.contract(3)
+        password = sqlalchemy.Table('password', self.metadata, autoload=True)
+        # postgresql returns 'TIMESTAMP WITHOUT TIME ZONE'
+        self.assertTrue(
+            str(password.c.created_at.type).startswith('TIMESTAMP'))
+        # upgrade each repository to 004 and test
+        self.expand(4)
+        self.migrate(4)
+        self.contract(4)
+        password = sqlalchemy.Table('password', self.metadata, autoload=True)
+        # type would still be TIMESTAMP with postgresql
+        if self.engine.name == 'postgresql':
+            self.assertTrue(
+                str(password.c.created_at.type).startswith('TIMESTAMP'))
+        else:
+            self.assertEqual('DATETIME', str(password.c.created_at.type))
+        self.assertFalse(password.c.created_at.nullable)
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
