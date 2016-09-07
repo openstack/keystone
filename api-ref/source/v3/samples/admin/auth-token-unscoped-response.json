@@ -11,7 +11,8 @@
                 "name": "Default"
             },
             "id": "10a2e6e717a245d9acad3e5f97aeca3d",
-            "name": "admin"
+            "name": "admin",
+            "password_expires_at": null
         },
         "audit_ids": [
             "mAjXQhiYRyKwkB4qygdLVg"
