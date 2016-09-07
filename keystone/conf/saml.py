@@ -115,7 +115,7 @@ This is the given name of the identity provider's contact person.
 
 idp_contact_surname = cfg.StrOpt(
     'idp_contact_surname',
-    default='',
+    default='Support',
     help=utils.fmt("""
 This is the surname of the identity provider's contact person.
 """))
