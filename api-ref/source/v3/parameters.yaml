@@ -1072,13 +1072,13 @@ link_collection:
     The link to the collection of resources.
   in: body
   required: true
-  type: string
+  type: object
 link_response_body:
   description: |
     The link to the resources in question.
   in: body
   required: true
-  type: string
+  type: object
 links_project:
   description: |
     The links for the ``project`` resource.
