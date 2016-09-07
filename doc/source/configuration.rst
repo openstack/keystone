@@ -1907,7 +1907,15 @@ will become read-only until the database is contracted. After the contract
 phase is complete, credentials will be writeable to the backend. A
 ``[credential] key_repository`` location must be specified through
 configuration and bootstrapped with keys using ``keystone-manage
-credential_setup`` prior to migrating any existing credentials.
+credential_setup`` prior to migrating any existing credentials. If a new key
+repository isn't setup using ``keystone-manage credential_setup`` keystone will
+assume a null key to encrypt and decrypt credentials until a proper key
+repository is present. The null key is a key consisting of all null bytes and
+its only purpose is to ease the upgrade process from Mitaka to Newton. It is
+highly recommended that the null key isn't used. It is no more secure than
+storing credentials in plain text. If the null key is used, you should migrate
+to a proper key repository using ``keystone-manage credential_setup`` and
+``keystone-manage credential_migrate``.
 
 Encryption key management
 -------------------------
@@ -1921,7 +1929,8 @@ Key management of ``[credential] key_repository`` is handled with three
 
 ``keystone-manage credential_setup`` will populate ``[credential]
 key_repository`` with new encryption keys. This must be done in order for
-credential encryption to work. This step should only be done once.
+proper credential encryption to work, with the exception of the null key. This
+step should only be done once.
 
 ``keystone-manage credential_rotate`` will create and rotate a new encryption
 key in the ``[credential] key_repository``. This will only be done if all
