@@ -93,7 +93,7 @@
 # (see `etc/policy.v3cloudsample.json` as an example). This feature is
 # deprecated and will be removed in a future release, in favor of strictly
 # immutable domain IDs. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: The option to set domain_id_immutable to false has been deprecated in
 # the M release and will be removed in the O release.
@@ -107,7 +107,7 @@
 
 # DEPRECATED: The HTTP header used to determine the scheme for the original
 # request, even if it was removed by an SSL terminating proxy. (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since N.
 # Its value may be silently ignored in the future.
 # Reason: This option has been deprecated in the N release and will be removed
 # in the P release. Use oslo.middleware.http_proxy_to_wsgi configuration
@@ -247,66 +247,99 @@
 # Deprecated group/name - [DEFAULT]/rpc_conn_pool_size
 #rpc_conn_pool_size = 30
 
+# The pool size limit for connections expiration policy (integer value)
+#conn_pool_min_size = 2
+
+# The time-to-live in sec of idle connections in the pool (integer value)
+#conn_pool_ttl = 1200
+
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
 # The "host" option should point or resolve to this address. (string value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_address
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
 # Allowed values: redis, dummy
+# Deprecated group/name - [DEFAULT]/rpc_zmq_matchmaker
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_contexts
 #rpc_zmq_contexts = 1
 
 # Maximum number of ingress messages to locally buffer per topic. Default is
 # unlimited. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_topic_backlog
 #rpc_zmq_topic_backlog = <None>
 
 # Directory for holding IPC sockets. (string value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_ipc_dir
 #rpc_zmq_ipc_dir = /var/run/openstack
 
 # Name of this node. Must be a valid hostname, FQDN, or IP address. Must match
 # "host" option, if running Nova. (string value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_host
 #rpc_zmq_host = localhost
 
 # Seconds to wait before a cast expires (TTL). The default value of -1
 # specifies an infinite linger period. The value of 0 specifies no linger
 # period. Pending messages shall be discarded immediately when the socket is
 # closed. Only supported by impl_zmq. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_cast_timeout
 #rpc_cast_timeout = -1
 
 # The default number of seconds that poll should wait. Poll raises timeout
 # exception when timeout expired. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_poll_timeout
 #rpc_poll_timeout = 1
 
 # Expiration timeout in seconds of a name service record about existing target
 # ( < 0 means no timeout). (integer value)
+# Deprecated group/name - [DEFAULT]/zmq_target_expire
 #zmq_target_expire = 300
 
 # Update period in seconds of a name service record about existing target.
 # (integer value)
+# Deprecated group/name - [DEFAULT]/zmq_target_update
 #zmq_target_update = 180
 
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
+# Deprecated group/name - [DEFAULT]/use_pub_sub
 #use_pub_sub = true
 
 # Use ROUTER remote proxy. (boolean value)
+# Deprecated group/name - [DEFAULT]/use_router_proxy
 #use_router_proxy = true
 
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
 # Maximum value: 65535
+# Deprecated group/name - [DEFAULT]/rpc_zmq_min_port
 #rpc_zmq_min_port = 49153
 
 # Maximal port number for random ports range. (integer value)
 # Minimum value: 1
 # Maximum value: 65536
+# Deprecated group/name - [DEFAULT]/rpc_zmq_max_port
 #rpc_zmq_max_port = 65536
 
 # Number of retries to find free port number before fail with ZMQBindError.
 # (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_port_retries
 #rpc_zmq_bind_port_retries = 100
+
+# Default serialization mechanism for serializing/deserializing
+# outgoing/incoming messages (string value)
+# Allowed values: json, msgpack
+# Deprecated group/name - [DEFAULT]/rpc_zmq_serialization
+#rpc_zmq_serialization = json
+
+# This option configures round-robin mode in zmq socket. True means not keeping
+# a queue when server side disconnects. False means to keep queue and messages
+# even if server is disconnected, when the server appears we send all
+# accumulated messages to it. (boolean value)
+#zmq_immediate = false
 
 # Size of executor thread pool. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
@@ -405,10 +438,12 @@
 # expiration time defined for it. (integer value)
 #expiration_time = 600
 
-# Dogpile.cache backend module. It is recommended that Memcache with pooling
-# (oslo_cache.memcache_pool) or Redis (dogpile.cache.redis) be used in
-# production deployments.  Small workloads (single process) like devstack can
-# use the dogpile.cache.memory backend. (string value)
+# Dogpile.cache backend module. It is recommended that Memcache or Redis
+# (dogpile.cache.redis) be used in production deployments. For eventlet-based
+# or highly threaded servers, Memcache with pooling (oslo_cache.memcache_pool)
+# is recommended. For low thread servers, dogpile.cache.memcached is
+# recommended. Test environments with a single instance of the server can use
+# the dogpile.cache.memory backend. (string value)
 #backend = dogpile.cache.null
 
 # Arguments supplied to the backend module. Specify this option once per
@@ -560,6 +595,20 @@
 # change this unless you are providing a custom entry point. (string value)
 #driver = sql
 
+# Entry point for credential encryption and decryption operations in the
+# `keystone.credential.provider` namespace. Keystone only provides a `fernet`
+# driver, so there's no reason to change this unless you are providing a custom
+# entry point to encrypt and decrypt credentials. (string value)
+#provider = fernet
+
+# Directory containing Fernet keys used to encrypt and decrypt credentials
+# stored in the credential backend. Fernet keys used to encrypt credentials
+# have no relationship to Fernet keys used to encrypt Fernet tokens. Both sets
+# of keys should be managed separately and require different rotation policies.
+# Do not share this repository with the repository used to manage keys for
+# Fernet tokens. (string value)
+#key_repository = /etc/keystone/credential-keys/
+
 
 [database]
 
@@ -611,10 +660,11 @@
 # Deprecated group/name - [DATABASE]/sql_min_pool_size
 #min_pool_size = 1
 
-# Maximum number of SQL connections to keep open in a pool. (integer value)
+# Maximum number of SQL connections to keep open in a pool. Setting a value of
+# 0 indicates no limit. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_max_pool_size
 # Deprecated group/name - [DATABASE]/sql_max_pool_size
-#max_pool_size = <None>
+#max_pool_size = 5
 
 # Maximum number of database connection retries during startup. Set to -1 to
 # specify an infinite retry count. (integer value)
@@ -634,6 +684,8 @@
 
 # Verbosity of SQL debugging information: 0=None, 100=Everything. (integer
 # value)
+# Minimum value: 0
+# Maximum value: 100
 # Deprecated group/name - [DEFAULT]/sql_connection_debug
 #connection_debug = 0
 
@@ -716,7 +768,7 @@
 # DEPRECATED: Enable endpoint-policy functionality, which allows policies to be
 # associated with either specific endpoints, or endpoints of a given service
 # type. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: The option to enable the OS-ENDPOINT-POLICY API extension has been
 # deprecated in the M release and will be removed in the O release. The OS-
@@ -739,7 +791,7 @@
 # listen on. (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/public_bind_host
-# This option is deprecated for removal.
+# This option is deprecated for removal since K.
 # Its value may be silently ignored in the future.
 # Reason: Support for running keystone under eventlet has been removed in the
 # Newton release. These options remain for backwards compatibility because they
@@ -750,7 +802,7 @@
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/public_port
-# This option is deprecated for removal.
+# This option is deprecated for removal since K.
 # Its value may be silently ignored in the future.
 # Reason: Support for running keystone under eventlet has been removed in the
 # Newton release. These options remain for backwards compatibility because they
@@ -761,7 +813,7 @@
 # listen on. (string value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/admin_bind_host
-# This option is deprecated for removal.
+# This option is deprecated for removal since K.
 # Its value may be silently ignored in the future.
 # Reason: Support for running keystone under eventlet has been removed in the
 # Newton release. These options remain for backwards compatibility because they
@@ -772,7 +824,7 @@
 # Minimum value: 0
 # Maximum value: 65535
 # Deprecated group/name - [DEFAULT]/admin_port
-# This option is deprecated for removal.
+# This option is deprecated for removal since K.
 # Its value may be silently ignored in the future.
 # Reason: Support for running keystone under eventlet has been removed in the
 # Newton release. These options remain for backwards compatibility because they
@@ -1032,7 +1084,7 @@
 # dumb_member` option when creating new groups. This is required if the object
 # class for groups requires the `member` attribute. This option is only used
 # for write operations. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1040,7 +1092,7 @@
 
 # DEPRECATED: DN of the "dummy member" to use when `[ldap] use_dumb_member` is
 # enabled. This option is only used for write operations. (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1049,7 +1101,7 @@
 # DEPRECATED: Delete subtrees using the subtree delete control. Only enable
 # this option if your LDAP server supports subtree deletion. This option is
 # only used for write operations. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1151,7 +1203,7 @@
 
 # DEPRECATED: List of user attributes to ignore on create and update. This is
 # only used for write operations. (list value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1163,7 +1215,7 @@
 
 # DEPRECATED: If enabled, keystone is allowed to create users in the LDAP
 # server. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1171,7 +1223,7 @@
 
 # DEPRECATED: If enabled, keystone is allowed to update users in the LDAP
 # server. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1179,7 +1231,7 @@
 
 # DEPRECATED: If enabled, keystone is allowed to delete users in the LDAP
 # server. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1245,7 +1297,7 @@
 
 # DEPRECATED: List of group attributes to ignore on create and update. This is
 # only used for write operations. (list value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1253,7 +1305,7 @@
 
 # DEPRECATED: If enabled, keystone is allowed to create groups in the LDAP
 # server. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1261,7 +1313,7 @@
 
 # DEPRECATED: If enabled, keystone is allowed to update groups in the LDAP
 # server. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1269,7 +1321,7 @@
 
 # DEPRECATED: If enabled, keystone is allowed to delete groups in the LDAP
 # server. (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: Write support for the LDAP identity backend has been deprecated in
 # the Mitaka release and will be removed in the Ocata release.
@@ -1394,10 +1446,10 @@
 #sentinel_group_name = oslo-messaging-zeromq
 
 # Time in ms to wait between connection attempts. (integer value)
-#wait_timeout = 5000
+#wait_timeout = 2000
 
 # Time in ms to wait before the transaction is killed. (integer value)
-#check_timeout = 60000
+#check_timeout = 20000
 
 # Timeout in ms on blocking socket operations (integer value)
 #socket_timeout = 10000
@@ -1483,7 +1535,7 @@
 # DEPRECATED: This allows domain-based role assignments to be inherited to
 # projects owned by that domain, or from parent projects to child projects.
 # (boolean value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: The option to disable the OS-INHERIT functionality has been
 # deprecated in the Mitaka release and will be removed in the Ocata release.
@@ -1498,19 +1550,8 @@
 # From oslo.messaging
 #
 
-# address prefix used when sending to a specific server (string value)
-# Deprecated group/name - [amqp1]/server_request_prefix
-#server_request_prefix = exclusive
-
-# address prefix used when broadcasting to all servers (string value)
-# Deprecated group/name - [amqp1]/broadcast_prefix
-#broadcast_prefix = broadcast
-
-# address prefix when sending to any server in group (string value)
-# Deprecated group/name - [amqp1]/group_request_prefix
-#group_request_prefix = unicast
-
-# Name for the AMQP container (string value)
+# Name for the AMQP container. must be globally unique. Defaults to a generated
+# UUID (string value)
 # Deprecated group/name - [amqp1]/container_name
 #container_name = <None>
 
@@ -1561,6 +1602,108 @@
 # Password for message broker authentication (string value)
 # Deprecated group/name - [amqp1]/password
 #password =
+
+# Seconds to pause before attempting to re-connect. (integer value)
+# Minimum value: 1
+#connection_retry_interval = 1
+
+# Increase the connection_retry_interval by this many seconds after each
+# unsuccessful failover attempt. (integer value)
+# Minimum value: 0
+#connection_retry_backoff = 2
+
+# Maximum limit for connection_retry_interval + connection_retry_backoff
+# (integer value)
+# Minimum value: 1
+#connection_retry_interval_max = 30
+
+# Time to pause between re-connecting an AMQP 1.0 link that failed due to a
+# recoverable error. (integer value)
+# Minimum value: 1
+#link_retry_delay = 10
+
+# The deadline for an rpc reply message delivery. Only used when caller does
+# not provide a timeout expiry. (integer value)
+# Minimum value: 5
+#default_reply_timeout = 30
+
+# The deadline for an rpc cast or call message delivery. Only used when caller
+# does not provide a timeout expiry. (integer value)
+# Minimum value: 5
+#default_send_timeout = 30
+
+# The deadline for a sent notification message delivery. Only used when caller
+# does not provide a timeout expiry. (integer value)
+# Minimum value: 5
+#default_notify_timeout = 30
+
+# Indicates the addressing mode used by the driver.
+# Permitted values:
+# 'legacy'   - use legacy non-routable addressing
+# 'routable' - use routable addresses
+# 'dynamic'  - use legacy addresses if the message bus does not support routing
+# otherwise use routable addressing (string value)
+#addressing_mode = dynamic
+
+# address prefix used when sending to a specific server (string value)
+# Deprecated group/name - [amqp1]/server_request_prefix
+#server_request_prefix = exclusive
+
+# address prefix used when broadcasting to all servers (string value)
+# Deprecated group/name - [amqp1]/broadcast_prefix
+#broadcast_prefix = broadcast
+
+# address prefix when sending to any server in group (string value)
+# Deprecated group/name - [amqp1]/group_request_prefix
+#group_request_prefix = unicast
+
+# Address prefix for all generated RPC addresses (string value)
+#rpc_address_prefix = openstack.org/om/rpc
+
+# Address prefix for all generated Notification addresses (string value)
+#notify_address_prefix = openstack.org/om/notify
+
+# Appended to the address prefix when sending a fanout message. Used by the
+# message bus to identify fanout messages. (string value)
+#multicast_address = multicast
+
+# Appended to the address prefix when sending to a particular RPC/Notification
+# server. Used by the message bus to identify messages sent to a single
+# destination. (string value)
+#unicast_address = unicast
+
+# Appended to the address prefix when sending to a group of consumers. Used by
+# the message bus to identify messages that should be delivered in a round-
+# robin fashion across consumers. (string value)
+#anycast_address = anycast
+
+# Exchange name used in notification addresses.
+# Exchange name resolution precedence:
+# Target.exchange if set
+# else default_notification_exchange if set
+# else control_exchange if set
+# else 'notify' (string value)
+#default_notification_exchange = <None>
+
+# Exchange name used in RPC addresses.
+# Exchange name resolution precedence:
+# Target.exchange if set
+# else default_rpc_exchange if set
+# else control_exchange if set
+# else 'rpc' (string value)
+#default_rpc_exchange = <None>
+
+# Window size for incoming RPC Reply messages. (integer value)
+# Minimum value: 1
+#reply_link_credit = 200
+
+# Window size for incoming RPC Request messages (integer value)
+# Minimum value: 1
+#rpc_server_credit = 100
+
+# Window size for incoming Notification messages (integer value)
+# Minimum value: 1
+#notify_server_credit = 100
 
 
 [oslo_messaging_notifications]
@@ -1624,10 +1767,10 @@
 #kombu_reconnect_delay = 1.0
 
 # EXPERIMENTAL: Possible values are: gzip, bz2. If not set compression will not
-# be used. This option may notbe available in future versions. (string value)
+# be used. This option may not be available in future versions. (string value)
 #kombu_compression = <None>
 
-# How long to wait a missing client beforce abandoning to send it its replies.
+# How long to wait a missing client before abandoning to send it its replies.
 # This value should not be longer than rpc_response_timeout. (integer value)
 # Deprecated group/name - [oslo_messaging_rabbit]/kombu_reconnect_timeout
 #kombu_missing_consumer_retry_timeout = 60
@@ -1704,9 +1847,11 @@
 # (integer value)
 #rabbit_interval_max = 30
 
-# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
-# count). (integer value)
+# DEPRECATED: Maximum number of RabbitMQ connection retries. Default is 0
+# (infinite retry count). (integer value)
 # Deprecated group/name - [DEFAULT]/rabbit_max_retries
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
 #rabbit_max_retries = 0
 
 # Try to use HA queues in RabbitMQ (x-ha-policy: all). If you change this
@@ -1844,6 +1989,101 @@
 #rpc_retry_delay = 0.25
 
 
+[oslo_messaging_zmq]
+
+#
+# From oslo.messaging
+#
+
+# ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
+# The "host" option should point or resolve to this address. (string value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_address
+#rpc_zmq_bind_address = *
+
+# MatchMaker driver. (string value)
+# Allowed values: redis, dummy
+# Deprecated group/name - [DEFAULT]/rpc_zmq_matchmaker
+#rpc_zmq_matchmaker = redis
+
+# Number of ZeroMQ contexts, defaults to 1. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_contexts
+#rpc_zmq_contexts = 1
+
+# Maximum number of ingress messages to locally buffer per topic. Default is
+# unlimited. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_topic_backlog
+#rpc_zmq_topic_backlog = <None>
+
+# Directory for holding IPC sockets. (string value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_ipc_dir
+#rpc_zmq_ipc_dir = /var/run/openstack
+
+# Name of this node. Must be a valid hostname, FQDN, or IP address. Must match
+# "host" option, if running Nova. (string value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_host
+#rpc_zmq_host = localhost
+
+# Seconds to wait before a cast expires (TTL). The default value of -1
+# specifies an infinite linger period. The value of 0 specifies no linger
+# period. Pending messages shall be discarded immediately when the socket is
+# closed. Only supported by impl_zmq. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_cast_timeout
+#rpc_cast_timeout = -1
+
+# The default number of seconds that poll should wait. Poll raises timeout
+# exception when timeout expired. (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_poll_timeout
+#rpc_poll_timeout = 1
+
+# Expiration timeout in seconds of a name service record about existing target
+# ( < 0 means no timeout). (integer value)
+# Deprecated group/name - [DEFAULT]/zmq_target_expire
+#zmq_target_expire = 300
+
+# Update period in seconds of a name service record about existing target.
+# (integer value)
+# Deprecated group/name - [DEFAULT]/zmq_target_update
+#zmq_target_update = 180
+
+# Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
+# value)
+# Deprecated group/name - [DEFAULT]/use_pub_sub
+#use_pub_sub = true
+
+# Use ROUTER remote proxy. (boolean value)
+# Deprecated group/name - [DEFAULT]/use_router_proxy
+#use_router_proxy = true
+
+# Minimal port number for random ports range. (port value)
+# Minimum value: 0
+# Maximum value: 65535
+# Deprecated group/name - [DEFAULT]/rpc_zmq_min_port
+#rpc_zmq_min_port = 49153
+
+# Maximal port number for random ports range. (integer value)
+# Minimum value: 1
+# Maximum value: 65536
+# Deprecated group/name - [DEFAULT]/rpc_zmq_max_port
+#rpc_zmq_max_port = 65536
+
+# Number of retries to find free port number before fail with ZMQBindError.
+# (integer value)
+# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_port_retries
+#rpc_zmq_bind_port_retries = 100
+
+# Default serialization mechanism for serializing/deserializing
+# outgoing/incoming messages (string value)
+# Allowed values: json, msgpack
+# Deprecated group/name - [DEFAULT]/rpc_zmq_serialization
+#rpc_zmq_serialization = json
+
+# This option configures round-robin mode in zmq socket. True means not keeping
+# a queue when server side disconnects. False means to keep queue and messages
+# even if server is disconnected, when the server appears we send all
+# accumulated messages to it. (boolean value)
+#zmq_immediate = false
+
+
 [oslo_middleware]
 
 #
@@ -1856,7 +2096,7 @@
 #max_request_body_size = 114688
 
 # DEPRECATED: The HTTP Header that will be used to determine what the original
-# request protocol scheme was, even if it was hidden by an SSL termination
+# request protocol scheme was, even if it was hidden by a SSL termination
 # proxy. (string value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1971,6 +2211,16 @@
 # ensures it can be used from client side to generate the trace, containing
 # information from all possible resources. (string value)
 #hmac_keys = SECRET_KEY
+
+#
+# Connection string for a notifier backend. Default value is messaging:// which
+# sets the notifier to oslo_messaging.
+#
+# Examples of possible values:
+#
+# * messaging://: use oslo_messaging driver for sending notifications.
+#  (string value)
+#connection_string = messaging://
 
 
 [resource]
@@ -2113,14 +2363,14 @@
 # This is the unique entity identifier of the identity provider (keystone) to
 # use when generating SAML assertions. This value is required to generate
 # identity provider metadata and must be a URI (a URL is recommended). For
-# example: `https://keystone.example.com/v3/OS-FEDERATION/saml2/idp`. (string
+# example: `https://keystone.example.com/v3/OS-FEDERATION/saml2/idp`. (uri
 # value)
 #idp_entity_id = <None>
 
 # This is the single sign-on (SSO) service location of the identity provider
 # which accepts HTTP POST requests. A value is required to generate identity
 # provider metadata. For example: `https://keystone.example.com/v3/OS-
-# FEDERATION/saml2/sso`. (string value)
+# FEDERATION/saml2/sso`. (uri value)
 #idp_sso_endpoint = <None>
 
 # This is the language used by the identity provider's organization. (string
@@ -2135,7 +2385,7 @@
 #idp_organization_display_name = OpenStack SAML Identity Provider
 
 # This is the URL of the identity provider's organization. The URL referenced
-# here should be useful to humans. (string value)
+# here should be useful to humans. (uri value)
 #idp_organization_url = https://example.com/
 
 # This is the company name of the identity provider's contact person. (string
@@ -2147,7 +2397,7 @@
 #idp_contact_name = SAML Identity Provider Support
 
 # This is the surname of the identity provider's contact person. (string value)
-#idp_contact_surname =
+#idp_contact_surname = Support
 
 # This is the email address of the identity provider's contact person. (string
 # value)
@@ -2191,11 +2441,13 @@
 
 # The maximum number of times that a user can fail to authenticate before the
 # user account is locked for the number of seconds specified by
-# `[security_compliance] lockout_duration`. Setting this value to zero (the
-# default) disables this feature. This feature depends on the `sql` backend for
-# the `[identity] driver`. (integer value)
-# Minimum value: 0
-#lockout_failure_attempts = 0
+# `[security_compliance] lockout_duration`. This feature is disabled by
+# default. If this feature is enabled and `[security_compliance]
+# lockout_duration` is not set, then users may be locked out indefinitely until
+# the user is explicitly enabled via the API. This feature depends on the `sql`
+# backend for the `[identity] driver`. (integer value)
+# Minimum value: 1
+#lockout_failure_attempts = <None>
 
 # The number of seconds a user account will be locked when the maximum number
 # of failed authentication attempts (as specified by `[security_compliance]
@@ -2206,12 +2458,19 @@
 # Minimum value: 1
 #lockout_duration = 1800
 
-# The number of days which a password will be considered valid before requiring
-# the user to change it. Setting the value to zero (the default) disables this
-# feature. This feature depends on the `sql` backend for the `[identity]
-# driver`. (integer value)
-# Minimum value: 0
-#password_expires_days = 0
+# The number of days for which a password will be considered valid before
+# requiring it to be changed. This feature is disabled by default. If enabled,
+# new password changes will have an expiration date, however existing passwords
+# would not be impacted. This feature depends on the `sql` backend for the
+# `[identity] driver`. (integer value)
+# Minimum value: 1
+#password_expires_days = <None>
+
+# Comma separated list of user IDs to be ignored when checking if a password is
+# expired. Passwords for users in this list will not expire. This feature will
+# only be enabled if `[security_compliance] password_expires_days` is set.
+# (list value)
+#password_expires_ignore_user_ids =
 
 # This controls the number of previous user password iterations to keep in
 # history, in order to enforce that newly created passwords are unique. Setting
@@ -2221,11 +2480,16 @@
 # Minimum value: 1
 #unique_last_password_count = 1
 
-# The maximum number of times a user can change their password in a single day.
-# Setting the value to zero (the default) disables this feature. This feature
-# depends on the `sql` backend for the `[identity] driver`. (integer value)
+# The number of days that a password must be used before the user can change
+# it. This prevents users from changing their passwords immediately in order to
+# wipe out their password history and reuse an old password. This feature does
+# not prevent administrators from manually resetting passwords. It is disabled
+# by default and allows for immediate password changes. This feature depends on
+# the `sql` backend for the `[identity] driver`. Note: If
+# `[security_compliance] password_expires_days` is set, then the value for this
+# option should be less than the `password_expires_days`. (integer value)
 # Minimum value: 0
-#password_change_limit_per_day = 0
+#minimum_password_age = 0
 
 # The regular expression used to validate password strength requirements. By
 # default, the regular expression will match any password. The following is an
@@ -2268,7 +2532,7 @@
 # pki_setup` to generate self-signed certificates. There is no reason to set
 # this option unless you are using either a `pki` or `pkiz` `[token] provider`.
 # (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2278,7 +2542,7 @@
 # PKIZ tokens. Set this together with `[signing] certfile`. There is no reason
 # to set this option unless you are using either a `pki` or `pkiz` `[token]
 # provider`. (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2290,7 +2554,7 @@
 # option unless you are using a `pki` or `pkiz` `[token] provider` value in a
 # non-production environment. Use a `[signing] certfile` issued from a trusted
 # certificate authority instead. (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2302,7 +2566,7 @@
 # to set this option unless you are using a `pki` or `pkiz` `[token] provider`
 # value in a non-production environment. Use a `[signing] certfile` issued from
 # a trusted certificate authority instead. (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2314,7 +2578,7 @@
 # environment. Use a `[signing] certfile` issued from a trusted certificate
 # authority instead. (integer value)
 # Minimum value: 1024
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2325,7 +2589,7 @@
 # unless you are using a `pki` or `pkiz` `[token] provider` value in a non-
 # production environment. Use a `[signing] certfile` issued from a trusted
 # certificate authority instead. (integer value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2336,7 +2600,7 @@
 # are using a `pki` or `pkiz` `[token] provider` value in a non-production
 # environment. Use a `[signing] certfile` issued from a trusted certificate
 # authority instead. (string value)
-# This option is deprecated for removal.
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2373,6 +2637,8 @@
 # load on the `[token] driver`, as more tokens will be simultaneously valid.
 # Keystone tokens are also bearer tokens, so a shorter duration will also
 # reduce the potential security impact of a compromised token. (integer value)
+# Minimum value: 0
+# Maximum value: 9223372036854775807
 #expiration = 3600
 
 # Entry point for the token provider in the `keystone.token.provider`
@@ -2405,6 +2671,8 @@
 # The number of seconds to cache token creation and validation data. This has
 # no effect unless both global and `[token] caching` are enabled. (integer
 # value)
+# Minimum value: 0
+# Maximum value: 9223372036854775807
 #cache_time = <None>
 
 # This toggles support for revoking individual tokens by the token identifier
@@ -2430,8 +2698,8 @@
 # all other services must be configured with the set of hash algorithms to
 # expect from keystone (both your old and new value for this option), otherwise
 # token revocation will not be processed correctly. (string value)
-# Allowed values: md5, sha256, sha384, sha1, sha224, sha512
-# This option is deprecated for removal.
+# Allowed values: md5, sha1, sha224, sha256, sha384, sha512
+# This option is deprecated for removal since M.
 # Its value may be silently ignored in the future.
 # Reason: PKI token support has been deprecated in the M release and will be
 # removed in the O release. Fernet or UUID tokens are recommended.
@@ -2441,6 +2709,11 @@
 # directly assigned to the token's scope, but are instead linked implicitly to
 # other role assignments. (boolean value)
 #infer_roles = true
+
+# Enable storing issued token data to token validation cache so that first
+# token validation doesn't actually cause full validation cycle. (boolean
+# value)
+#cache_on_issue = false
 
 
 [tokenless_auth]
