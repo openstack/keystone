@@ -1024,7 +1024,7 @@ class V2TestCase(object):
 
     def assertValidExtension(self, extension, expected):
         super(V2TestCase, self).assertValidExtension(extension)
-        descriptions = [ext['description'] for ext in six.itervalues(expected)]
+        descriptions = [ext['description'] for ext in expected.values()]
         description = extension.get('description')
         self.assertIsNotNone(description)
         self.assertIn(description, descriptions)
