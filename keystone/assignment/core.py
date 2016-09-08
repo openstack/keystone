@@ -345,8 +345,8 @@ class Manager(manager.Manager):
         if project_id:
             project = self.resource_api.get_project(project_id)
 
-            # For domain specific roles, the domain of the project must match
-            # the roles's
+            # For domain specific roles, the domain of the project
+            # and role must match
             if role['domain_id'] and project['domain_id'] != role['domain_id']:
                 raise exception.DomainSpecificRoleMismatch(
                     role_id=role_id,
