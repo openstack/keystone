@@ -10,8 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import fixtures
 import hashlib
 import uuid
+
+from oslo_log import log
 
 from keystone.common import fernet_utils
 import keystone.conf
@@ -66,3 +69,15 @@ class TestFernetCredentialProviderWithNullKey(unit.TestCase):
 
         decrypted_blob = self.provider.decrypt(encrypted_blob)
         self.assertEqual(blob, decrypted_blob)
+
+    def test_warning_is_logged_when_encrypting_with_null_key(self):
+        blob = uuid.uuid4().hex
+        logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
+        expected_output = (
+            'Encrypting credentials with the null key. Please properly '
+            'encrypt credentials using `keystone-manage credential_setup`, '
+            '`keystone-manage credential_migrate`, and `keystone-manage '
+            'credential_rotate`'
+        )
+        encrypted_blob, primary_key_hash = self.provider.encrypt(blob)
+        self.assertIn(expected_output, logging_fixture.output)
