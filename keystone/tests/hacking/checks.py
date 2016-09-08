@@ -433,9 +433,9 @@ def dict_constructor_with_sequence_copy(logical_line):
     PEP-0274 introduced dict comprehension with performance enhancement
     and it also makes code more readable.
 
-    Okay: lower_res = {k.lower(): v for k, v in six.iteritems(res[1])}
+    Okay: lower_res = {k.lower(): v for k, v in res[1].items()}
     Okay: fool = dict(a='a', b='b')
-    K008: lower_res = dict((k.lower(), v) for k, v in six.iteritems(res[1]))
+    K008: lower_res = dict((k.lower(), v) for k, v in res[1].items())
     K008:     attrs = dict([(k, _from_json(v))
     K008: dict([[i,i] for i in range(3)])
 

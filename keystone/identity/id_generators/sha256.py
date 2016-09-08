@@ -14,8 +14,6 @@
 
 import hashlib
 
-import six
-
 from keystone.identity import generator
 
 
@@ -23,6 +21,6 @@ class Generator(generator.IDGenerator):
 
     def generate_public_ID(self, mapping):
         m = hashlib.sha256()
-        for key in sorted(six.iterkeys(mapping)):
+        for key in sorted(mapping.keys()):
             m.update(mapping[key].encode('utf-8'))
         return m.hexdigest()

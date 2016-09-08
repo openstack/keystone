@@ -15,7 +15,6 @@
 
 import uuid
 
-import six
 from six.moves import http_client
 
 from keystone.catalog import schema
@@ -445,7 +444,7 @@ class EndpointFilterV3Controller(controller.V3Controller):
 
         return EndpointV3.wrap_collection(
             request.context_dict,
-            [v for v in six.itervalues(filtered_endpoints)])
+            [v for v in filtered_endpoints.values()])
 
     @controller.protected()
     def remove_endpoint_from_project(self, request, project_id, endpoint_id):
@@ -494,7 +493,7 @@ class EndpointGroupV3Controller(controller.V3Controller):
 
     def _require_valid_filter(self, endpoint_group):
         filters = endpoint_group.get('filters')
-        for key in six.iterkeys(filters):
+        for key in filters.keys():
             if key not in self.VALID_FILTER_KEYS:
                 raise exception.ValidationError(
                     attribute=self._valid_filter_keys(),
