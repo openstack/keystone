@@ -70,9 +70,11 @@ The primary configuration file is organized into the following sections:
 * ``[cache]`` - Caching layer configuration
 * ``[catalog]`` - Service catalog driver configuration
 * ``[credential]`` - Credential system driver configuration
+* ``[domain_config]`` - Domain configuration
 * ``[endpoint_filter]`` - Endpoint filtering configuration
 * ``[endpoint_policy]`` - Endpoint policy configuration
 * ``[federation]`` - Federation driver configuration
+* ``[fernet_tokens]`` - Fernet token configuration
 * ``[identity]`` - Identity system driver configuration
 * ``[identity_mapping]`` - Identity mapping system driver configuration
 * ``[kvs]`` - KVS storage backend configuration
@@ -86,8 +88,11 @@ The primary configuration file is organized into the following sections:
 * ``[revoke]`` - Revocation system driver configuration
 * ``[role]`` - Role system driver configuration
 * ``[saml]`` - SAML configuration options
+* ``[security_compliance]`` - Security compliance configuration
+* ``[shadow_users]`` - Shadow user configuration
 * ``[signing]`` - Cryptographic signatures for PKI based tokens
 * ``[token]`` - Token driver & token provider configuration
+* ``[tokenless_auth]`` - Tokenless authentication configuration
 * ``[trust]`` - Trust configuration
 
 The Keystone primary configuration file is expected to be named
@@ -1226,6 +1231,7 @@ List of object attributes:
     * target.user.enabled
     * target.user.id
     * target.user.name
+    * target.user.password_expires_at
 
 * group:
     * target.group.description
@@ -1234,6 +1240,7 @@ List of object attributes:
     * target.group.name
 
 * domain:
+    * target.domain.description
     * target.domain.enabled
     * target.domain.id
     * target.domain.name
@@ -1243,7 +1250,9 @@ List of object attributes:
     * target.project.domain_id
     * target.project.enabled
     * target.project.id
+    * target.project.is_domain
     * target.project.name
+    * target.project.parent_id
 
 * token
     * target.token.user_id
