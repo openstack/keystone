@@ -1,0 +1,7 @@
+---
+fixes:
+  - >
+    [`bug 1590587 <https://bugs.launchpad.net/keystone/+bug/1590587>`_]
+    When assigning Domain Specific Roles, the domain of the role and the
+    domain of the project must match. This is now validated and the REST
+    call will return a 403 Forbidden.
