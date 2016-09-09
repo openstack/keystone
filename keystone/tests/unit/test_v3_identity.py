@@ -12,9 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import uuid
 
 import fixtures
+import freezegun
 import mock
 from oslo_log import log
 from six.moves import http_client
@@ -821,25 +823,32 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
                                expected_status=http_client.CREATED)
 
     def test_changing_password_with_min_password_age(self):
-        # enable minimum_password_age and attempt to change password
-        new_password = uuid.uuid4().hex
-        self.config_fixture.config(group='security_compliance',
-                                   minimum_password_age=1)
-        # able to change password after create user
-        self.change_password(password=new_password,
-                             original_password=self.user_ref['password'],
-                             expected_status=http_client.NO_CONTENT)
-        # 2nd change password should fail due to minimum password age
-        self.token = self.get_request_token(new_password, http_client.CREATED)
-        self.change_password(password=uuid.uuid4().hex,
-                             original_password=new_password,
-                             expected_status=http_client.BAD_REQUEST)
-        # disable minimum_password_age and attempt to change password
-        self.config_fixture.config(group='security_compliance',
-                                   minimum_password_age=0)
-        self.change_password(password=uuid.uuid4().hex,
-                             original_password=new_password,
-                             expected_status=http_client.NO_CONTENT)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            # enable minimum_password_age and attempt to change password
+            new_password = uuid.uuid4().hex
+            self.config_fixture.config(group='security_compliance',
+                                       minimum_password_age=1)
+            # able to change password after create user
+            self.change_password(password=new_password,
+                                 original_password=self.user_ref['password'],
+                                 expected_status=http_client.NO_CONTENT)
+            # 2nd change password should fail due to minimum password age and
+            # make sure we wait one second to avoid race conditions with Fernet
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+            self.token = self.get_request_token(
+                new_password,
+                http_client.CREATED
+            )
+            self.change_password(password=uuid.uuid4().hex,
+                                 original_password=new_password,
+                                 expected_status=http_client.BAD_REQUEST)
+            # disable minimum_password_age and attempt to change password
+            self.config_fixture.config(group='security_compliance',
+                                       minimum_password_age=0)
+            self.change_password(password=uuid.uuid4().hex,
+                                 original_password=new_password,
+                                 expected_status=http_client.NO_CONTENT)
 
     def test_changing_password_with_missing_original_password_fails(self):
         r = self.change_password(password=uuid.uuid4().hex,
