@@ -17,6 +17,7 @@ import datetime
 import itertools
 import json
 import operator
+import time
 import uuid
 
 from keystoneclient.common import cms
@@ -2041,6 +2042,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
             {'project_id': self.projectA['id'],
              'group_id': self.group1['id'],
              'role_id': self.role1['id']})
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
 
         user1_token = self.get_requested_token(
             self.build_authentication_request(
