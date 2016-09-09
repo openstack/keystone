@@ -527,7 +527,7 @@ class IdentityTests(object):
         # NOTE(breton): below, attribute `enabled` is explicitly tested to be
         # equal True. assertTrue should not be used, because it converts
         # the passed value to bool().
-        self.assertIs(user_ref['enabled'], True)
+        self.assertIs(True, user_ref['enabled'])
 
     def test_update_user_name(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)

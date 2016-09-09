@@ -1034,7 +1034,7 @@ class AuthWithTrust(object):
             request, trust=self.sample_data)['trust']
         self.assertEqual(self.trustor['id'], new_trust['trustor_user_id'])
         self.assertEqual(self.trustee['id'], new_trust['trustee_user_id'])
-        self.assertIs(new_trust['impersonation'], True)
+        self.assertIs(True, new_trust['impersonation'])
         auth_response = self.fetch_v2_token_from_trust(new_trust)
         token_user = auth_response['access']['user']
         self.assertEqual(token_user['id'], new_trust['trustor_user_id'])
@@ -1058,7 +1058,7 @@ class AuthWithTrust(object):
                                       expires_at=None, impersonation=False)
         self.assertEqual(self.trustor['id'], new_trust['trustor_user_id'])
         self.assertEqual(self.trustee['id'], new_trust['trustee_user_id'])
-        self.assertIs(new_trust['impersonation'], False)
+        self.assertIs(False, new_trust['impersonation'])
         auth_response = self.fetch_v2_token_from_trust(new_trust)
         token_user = auth_response['access']['user']
         self.assertEqual(token_user['id'], new_trust['trustee_user_id'])
@@ -1067,7 +1067,7 @@ class AuthWithTrust(object):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
         self.assertEqual(self.trustor['id'], new_trust['trustor_user_id'])
         self.assertEqual(self.trustee['id'], new_trust['trustee_user_id'])
-        self.assertIs(new_trust['impersonation'], True)
+        self.assertIs(True, new_trust['impersonation'])
         auth_response = self.fetch_v2_token_from_trust(new_trust)
         token_user = auth_response['access']['user']
         self.assertEqual(token_user['id'], new_trust['trustor_user_id'])

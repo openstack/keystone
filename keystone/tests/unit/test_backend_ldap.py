@@ -1237,38 +1237,38 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
         # Use assertIs rather than assertTrue because assertIs will assert the
         # value is a Boolean as expected.
-        self.assertIs(user_ref['enabled'], True)
+        self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([512], enabled_vals)
 
         user_ref = self.identity_api.get_user(user_ref['id'])
-        self.assertIs(user_ref['enabled'], True)
+        self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         user['enabled'] = False
         user_ref = self.identity_api.update_user(user_ref['id'], user)
-        self.assertIs(user_ref['enabled'], False)
+        self.assertIs(False, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([514], enabled_vals)
 
         user_ref = self.identity_api.get_user(user_ref['id'])
-        self.assertIs(user_ref['enabled'], False)
+        self.assertIs(False, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         user['enabled'] = True
         user_ref = self.identity_api.update_user(user_ref['id'], user)
-        self.assertIs(user_ref['enabled'], True)
+        self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([512], enabled_vals)
 
         user_ref = self.identity_api.get_user(user_ref['id'])
-        self.assertIs(user_ref['enabled'], True)
+        self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
     def test_user_enabled_invert(self):
