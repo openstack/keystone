@@ -78,7 +78,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         audit_id = uuid.uuid4().hex
         sample = self._blank_event()
         sample['audit_id'] = six.text_type(audit_id)
-        before_time = timeutils.utcnow()
+        before_time = timeutils.utcnow().replace(microsecond=0)
         self.revoke_api.revoke_by_audit_id(audit_id)
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
@@ -89,7 +89,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         project_id = uuid.uuid4().hex
         sample = dict()
         sample['project_id'] = six.text_type(project_id)
-        before_time = timeutils.utcnow()
+        before_time = timeutils.utcnow().replace(microsecond=0)
         self.revoke_api.revoke(
             revoke_model.RevokeEvent(project_id=project_id))
 
@@ -102,7 +102,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         domain_id = uuid.uuid4().hex
         sample = dict()
         sample['domain_id'] = six.text_type(domain_id)
-        before_time = timeutils.utcnow()
+        before_time = timeutils.utcnow().replace(microsecond=0)
         self.revoke_api.revoke(
             revoke_model.RevokeEvent(domain_id=domain_id))
 

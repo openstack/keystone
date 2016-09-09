@@ -19,6 +19,7 @@ import operator
 import re
 import uuid
 
+import freezegun
 from keystoneclient.common import cms
 import mock
 from oslo_log import versionutils
@@ -3161,51 +3162,62 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def test_removing_role_assignment_does_not_affect_other_users(self):
         """Revoking a role from one user should not affect other users."""
-        # This group grant is not needed for the test
-        self.delete(
-            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s' %
-            {'project_id': self.projectA['id'],
-             'group_id': self.group1['id'],
-             'role_id': self.role1['id']})
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            # This group grant is not needed for the test
+            self.delete(
+                '/projects/%(p_id)s/groups/%(g_id)s/roles/%(r_id)s' %
+                {'p_id': self.projectA['id'],
+                 'g_id': self.group1['id'],
+                 'r_id': self.role1['id']})
 
-        user1_token = self.get_requested_token(
-            self.build_authentication_request(
-                user_id=self.user1['id'],
-                password=self.user1['password'],
-                project_id=self.projectA['id']))
+            # NOTE(lbragstad): Here we advance the clock one second to pass
+            # into the threshold of a new second because we just presisted a
+            # revocation event for removing a role from a group on a project.
+            # One thing to note about that revocation event is that it has no
+            # context about the group, so even though user3 might not be in
+            # group1, they could have their token revoked because the
+            # revocation event is very general.
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
 
-        user3_token = self.get_requested_token(
-            self.build_authentication_request(
-                user_id=self.user3['id'],
-                password=self.user3['password'],
-                project_id=self.projectA['id']))
+            user1_token = self.get_requested_token(
+                self.build_authentication_request(
+                    user_id=self.user1['id'],
+                    password=self.user1['password'],
+                    project_id=self.projectA['id']))
 
-        # delete relationships between user1 and projectA from setUp
-        self.delete(
-            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s' % {
-                'project_id': self.projectA['id'],
-                'user_id': self.user1['id'],
-                'role_id': self.role1['id']})
-        # authorization for the first user should now fail
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': user1_token},
-                  expected_status=http_client.NOT_FOUND)
-        self.v3_create_token(
-            self.build_authentication_request(
-                user_id=self.user1['id'],
-                password=self.user1['password'],
-                project_id=self.projectA['id']),
-            expected_status=http_client.UNAUTHORIZED)
+            user3_token = self.get_requested_token(
+                self.build_authentication_request(
+                    user_id=self.user3['id'],
+                    password=self.user3['password'],
+                    project_id=self.projectA['id']))
 
-        # authorization for the second user should still succeed
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': user3_token},
-                  expected_status=http_client.OK)
-        self.v3_create_token(
-            self.build_authentication_request(
-                user_id=self.user3['id'],
-                password=self.user3['password'],
-                project_id=self.projectA['id']))
+            # delete relationships between user1 and projectA from setUp
+            self.delete(
+                '/projects/%(p_id)s/users/%(u_id)s/roles/%(r_id)s' % {
+                    'p_id': self.projectA['id'],
+                    'u_id': self.user1['id'],
+                    'r_id': self.role1['id']})
+            # authorization for the first user should now fail
+            self.head('/auth/tokens',
+                      headers={'X-Subject-Token': user1_token},
+                      expected_status=http_client.NOT_FOUND)
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user1['id'],
+                    password=self.user1['password'],
+                    project_id=self.projectA['id']),
+                expected_status=http_client.UNAUTHORIZED)
+
+            # authorization for the second user should still succeed
+            self.head('/auth/tokens',
+                      headers={'X-Subject-Token': user3_token},
+                      expected_status=http_client.OK)
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user3['id'],
+                    password=self.user3['password'],
+                    project_id=self.projectA['id']))
 
     def test_deleting_project_deletes_grants(self):
         # This is to make it a little bit more pretty with PEP8
