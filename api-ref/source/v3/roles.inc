@@ -87,12 +87,23 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_g
 
 Assigns a role to a group on a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -110,12 +121,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_g
 
 Validates that a group has a role assignment on a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -133,12 +154,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_g
 
 Unassigns a role from a group on a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -156,12 +187,23 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 
 Assigns a role to a user on a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -179,12 +221,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 
 Validates that a user has a role on a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -202,12 +254,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 
 Unassigns a role from a user on a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -225,12 +287,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 
 Lists role assignments for a user on a project.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -253,12 +324,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_u
 
 Lists role assignments for a group on a project.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -286,18 +366,30 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 
 Assigns a role to a group on a domain.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
    - group_id: group_id_path
    - role_id: role_id_path
+
 
 Check whether group has role assignment on domain
 =================================================
@@ -308,12 +400,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 
 Validates that a group has a role assignment on a domain.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -331,18 +433,29 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 
 Unassigns a role from a group on a domain.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
    - group_id: group_id_path
    - role_id: role_id_path
+
 
 
 List role assignments for user on domain
@@ -354,12 +467,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_us
 
 Lists role assignments for a user on a domain.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -397,12 +519,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
 
 Lists roles.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -437,12 +568,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
 
 Creates a role.
 
-Normal response codes: 201
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -483,12 +624,23 @@ Relationship: ``http://developer.openstack.org/api-ref/identity/v3/index.html#as
 
 Assigns a role to a user on a domain.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -506,12 +658,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_us
 
 Validates that a user has a role assignment on a domain.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -529,18 +691,30 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_us
 
 Unassigns a role from a user on a domain.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
    - user_id: user_id_path
    - role_id: role_id_path
+
 
 List role assignments for group on domain
 =========================================
@@ -551,12 +725,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_gr
 
 Lists role assignments for a group on a domain.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -574,6 +757,7 @@ list assignments API::
 
   GET /role_assignments?group.id={group_id}&scope.domain.id={domain_id}
 
+
 List role assignments
 =====================
 
@@ -583,12 +767,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role_assi
 
 Lists role assignments.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -624,12 +817,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Shows details for a role.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -662,12 +865,23 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Updates a role.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -708,33 +922,53 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Deletes a role.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
    - role_id: role_id_path
 
-List implied roles for role
-===========================
+
+List implied (inference) roles for role
+=======================================
 
 .. rest_method:: GET /v3/roles/{prior_role_id}/implies
 
-Lists implied roles for a role.
+Lists implied (inference) roles for a role.
 
 Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#list-implied-roles-for-role``
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 401, 404
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -758,6 +992,7 @@ Response Example
 .. literalinclude:: ./samples/admin/list-implied-roles-for-role-response.json
    :language: javascript
 
+
 Create role inference rule
 ==========================
 
@@ -768,12 +1003,20 @@ Creates a role inference rule.
 Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#create-role-inference-rule``
 
-Normal response codes: 201
+Response Codes
+--------------
 
-Error response codes: 401, 404
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -798,6 +1041,7 @@ Response Example
 .. literalinclude:: ./samples/admin/create-role-inferences-response.json
    :language: javascript
 
+
 Get role inference rule
 =======================
 
@@ -808,12 +1052,20 @@ Gets a role inference rule.
 Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#get-role-inference-rule``
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 401, 404
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -838,6 +1090,7 @@ Response Example
 .. literalinclude:: ./samples/admin/get-role-inferences-response.json
    :language: javascript
 
+
 Confirm role inference rule
 ===========================
 
@@ -848,12 +1101,20 @@ Checks a role role inference rule.
 Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#confirm-role-inference-rule``
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 401, 404
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -864,6 +1125,7 @@ Response Example
 ----------------
 
 Status: 204 No Content
+
 
 Delete role inference rule
 ==========================
@@ -875,9 +1137,20 @@ Deletes a role inference rule.
 Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#delete-role-inference-rule``
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 401, 404
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -889,6 +1162,7 @@ Response Example
 
 Status: 204 No Content
 
+
 List all role inference rules
 =============================
 
@@ -896,12 +1170,20 @@ List all role inference rules
 
 Lists all role inference rules.
 
-Normal response codes: 200
-
-Error response codes: 401, 404
-
 Relationship:
 ``http://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules``
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
 
 Response Parameters
 -------------------
