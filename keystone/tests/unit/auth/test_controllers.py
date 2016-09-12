@@ -53,7 +53,7 @@ class TestLoadAuthMethod(unit.BaseTestCase):
         self.assertEqual(auth_plugin_namespace, fake_driver_manager.namespace)
         driver_manager_mock.assert_called_once_with(
             auth_plugin_namespace, plugin_name, invoke_on_load=True)
-        self.assertIs(driver, mock.sentinel.driver)
+        self.assertIs(mock.sentinel.driver, driver)
 
     def test_entrypoint_fails_import_works(self):
         method = uuid.uuid4().hex
@@ -73,7 +73,7 @@ class TestLoadAuthMethod(unit.BaseTestCase):
             importutils, 'import_object', return_value=mock.sentinel.driver))
 
         driver = controllers.load_auth_method(method)
-        self.assertIs(driver, mock.sentinel.driver)
+        self.assertIs(mock.sentinel.driver, driver)
 
     def test_entrypoint_fails_import_fails(self):
         method = uuid.uuid4().hex

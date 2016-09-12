@@ -452,7 +452,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be True
-        self.assertIs(py_result[0][1]['enabled'][0], True)
+        self.assertIs(True, py_result[0][1]['enabled'][0])
         self.assertEqual(user_id, py_result[0][1]['user_id'][0])
 
     def test_user_id_begins_with_0_and_enabled_bit_mask(self):
