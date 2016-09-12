@@ -36,12 +36,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects`
 
 Lists projects.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -81,14 +90,24 @@ Create project
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Creates a project, including a project acting as a domain.
+Creates a project, where the project may act as a domain.
 
-Normal response codes: 201
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -103,8 +122,12 @@ Request
 Request Examples
 ----------------
 
+Sample for creating a regular project:
+
 .. literalinclude:: ./samples/admin/project-create-request.json
    :language: javascript
+
+Sample for creating a project that also acts as a domain:
 
 .. literalinclude:: ./samples/admin/project-create-domain-request.json
    :language: javascript
@@ -124,7 +147,6 @@ Response Parameters
    - name: project_name_response_body
    - parent_id: project_parent_id_response_body
 
-
 Show project details
 ====================
 
@@ -134,12 +156,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Shows details for a project.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,405,404,403,401,400,503
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -192,12 +224,23 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Updates a project.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -246,12 +289,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Deletes a project.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -278,12 +331,23 @@ If you perform this action against a project that acts as a domain
 (``is_domain`` is set to ``true``), this call fails and returns the
 ``Forbidden (403)`` response code.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -332,12 +396,22 @@ A project subtree includes all projects beneath the parent project
 in the hierarchy. You must disable all the projects in the subtree
 before you perform this operation.
 
-Normal response codes: 204
+Response Codes
+--------------
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 

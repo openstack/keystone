@@ -1,0 +1,60 @@
+# Success Codes
+
+200:
+  default: |
+    Request was successful.
+201:
+  default: |
+    Resource was created and is ready to use.
+202:
+  default: |
+    Request was accepted for processing, but the processing has not been
+    completed. A 'location' header is included in the response which contains
+    a link to check the progress of the request.
+204:
+  default: |
+    The server has fulfilled the request by deleting the resource.
+300:
+  default: |
+    There are multiple choices for resources. The request has to be more
+    specific to successfully retrieve one of these resources.
+
+# Error Codes
+
+400:
+  default: |
+    Some content in the request was invalid.
+401:
+  default: |
+    User must authenticate before making a request.
+403:
+  default: |
+    Policy does not allow current user to do this operation.
+404:
+  default: |
+    The requested resource could not be found.
+405:
+  default: |
+    Method is not valid for this endpoint.
+406:
+  default: |
+    The requested API version is not supported by the API.
+409:
+  default: |
+    This operation conflicted with another operation on this resource.
+413:
+  default: |
+    The request is larger than the server is willing or able to process.
+415:
+  default: |
+    The request entity has a media type which the server or resource does
+    not support.
+500:
+  default: |
+    Something went wrong inside the service. This should not happen usually.
+    If it does happen, it means the server has experienced some serious
+    problems.
+503:
+  default: |
+    Service is not available. This is mostly caused by service configuration
+    errors which prevents the service from successful start up.
