@@ -28,8 +28,7 @@ from keystone.common import driver_hints
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _
-from keystone.i18n import _LI, _LE
+from keystone.i18n import _, _LI, _LE
 from keystone import notifications
 
 

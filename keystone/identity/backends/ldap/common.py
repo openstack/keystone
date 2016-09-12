@@ -30,8 +30,7 @@ from six.moves import map, zip
 
 from keystone.common import driver_hints
 from keystone import exception
-from keystone.i18n import _
-from keystone.i18n import _LW
+from keystone.i18n import _, _LW
 
 
 LOG = log.getLogger(__name__)

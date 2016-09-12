@@ -21,8 +21,7 @@ import six
 
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _
-from keystone.i18n import _LE
+from keystone.i18n import _, _LE
 
 
 CONF = keystone.conf.CONF
