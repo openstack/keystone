@@ -50,7 +50,7 @@ correct certificates.
 Enable mod_proxy_uwsgi.
 
 * On Ubuntu the required package is libapache2-mod-proxy-uwsgi; enable using
-  ``sudo a2enmod proxy``
+  ``sudo a2enmod proxy``, ``sudo a2enmod proxy_uwsgi``.
 * On Fedora the required package is mod_proxy_uwsgi; enable by creating a file
   ``/etc/httpd/conf.modules.d/11-proxy_uwsgi.conf`` containing
   ``LoadModule proxy_uwsgi_module modules/mod_proxy_uwsgi.so``
