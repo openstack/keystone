@@ -4,40 +4,33 @@ Location:
   in: header
   required: false
   type: string
-Location_1:
-  description: |
-    The location.
-  format: uri
-  in: header
-  required: false
-  type: string
 
 # variables in path
-roleId:
+credential_type:
+  description: |
+    The credential type.
+  in: path
+  required: true
+  type: string
+role_id_path:
   description: |
     The role ID.
   in: path
   required: true
   type: string
-serviceId:
+service_id_path:
   description: |
     The service ID.
   in: path
   required: true
   type: string
-tenantId:
+tenant_id_path:
   description: |
     The tenant ID.
   in: path
   required: true
   type: string
-type_1:
-  description: |
-    The credential type.
-  in: path
-  required: false
-  type: string
-userId:
+user_id_path:
   description: |
     The user ID.
   in: path
@@ -47,101 +40,27 @@ userId:
 # variables in query
 
 # variables in body
-description:
-  description: |
-    Description about the service.
-  in: body
-  required: true
-  type: string
-description_1:
-  description: |
-    Description about the tenant.
-  in: body
-  required: true
-  type: string
-description_2:
+role_description:
   description: |
     The role description.
   in: body
   required: true
   type: string
-email:
-  description: |
-    The user email.
-  in: body
-  required: true
-  type: string
-enabled:
-  description: |
-    Indicates whether the tenant is enabled or
-    disabled. Default is ``true``.
-  in: body
-  required: true
-  type: boolean
-enabled_user:
-  description: |
-    Indicates whether the user should be enabled (``true``)
-    or disabled(``false``).
-  in: body
-  required: true
-  type: boolean
-id:
-  description: |
-    The UUID of the service.
-  in: body
-  required: true
-  type: string
-id_1:
-  description: |
-    The tenant ID.
-  in: body
-  required: true
-  type: string
-id_2:
-  description: |
-    The user ID.
-  in: body
-  required: true
-  type: string
-id_3:
+role_id:
   description: |
     The role ID.
   in: body
   required: true
   type: integer
-name:
+role_links:
   description: |
-    The service name.
+    Role links.
   in: body
   required: true
-  type: string
-name_1:
-  description: |
-    The tenant name.
-  in: body
-  required: true
-  type: string
-name_2:
-  description: |
-    The user name.
-  in: body
-  required: true
-  type: string
-name_3:
+  type: object
+role_name:
   description: |
     The role name.
-  in: body
-  required: true
-  type: string
-new_password:
-  description: |
-    User's new password
-  in: body
-  required: true
-  type: string
-original_password:
-  description: |
-    User's old password
   in: body
   required: true
   type: string
@@ -151,21 +70,64 @@ roles:
   in: body
   required: true
   type: string
-roles_links:
+service_description:
   description: |
-    Role links.
+    Description about the service.
   in: body
   required: true
-  type: object
+  type: string
+service_id:
+  description: |
+    The ID of the service.
+  in: body
+  required: true
+  type: string
+service_name:
+  description: |
+    The service name.
+  in: body
+  required: true
+  type: string
+service_type:
+  description: |
+    The type of the service.
+  in: body
+  required: true
+  type: string
 tenant:
   description: |
     The tenant object.
   in: body
   required: true
-  type: string
-type:
+  type: object
+tenant_description:
   description: |
-    The type of the service.
+    Description about the tenant.
+  in: body
+  required: true
+  type: string
+tenant_enabled:
+  description: |
+    Indicates whether the tenant is enabled or
+    disabled. Default is ``true``.
+  in: body
+  required: true
+  type: boolean
+tenant_id_request:
+  description: |
+    The tenant ID.
+  in: body
+  required: true
+  type: string
+tenant_id_response:
+  description: |
+    The tenant ID.
+  in: body
+  required: true
+  type: string
+tenant_name:
+  description: |
+    The tenant name.
   in: body
   required: true
   type: string
@@ -175,11 +137,48 @@ user:
   in: body
   required: true
   type: string
-username:
+user_email:
   description: |
-    The user name.
+    The user email.
   in: body
-  required: false
+  required: true
+  type: string
+user_enabled:
+  description: |
+    Indicates whether the user should be enabled (``true``)
+    or disabled(``false``).
+  in: body
+  required: true
+  type: boolean
+user_id_response:
+  description: |
+    The user ID.
+  in: body
+  required: true
+  type: string
+user_links:
+  description: |
+    The links of ``users`` object.
+  in: body
+  required: true
+  type: array
+user_name:
+  description: |
+    The user in-real-life name.
+  in: body
+  required: true
+  type: string
+user_new_password:
+  description: |
+    User's new password
+  in: body
+  required: true
+  type: string
+user_original_password:
+  description: |
+    User's old password
+  in: body
+  required: true
   type: string
 users:
   description: |
@@ -187,9 +186,4 @@ users:
   in: body
   required: true
   type: array
-users_links:
-  description: |
-    The links of ``users`` object.
-  in: body
-  required: true
-  type: array
+
