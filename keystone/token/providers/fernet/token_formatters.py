@@ -144,9 +144,9 @@ class TokenFormatter(object):
         timestamp_int = struct.unpack(">Q", timestamp_bytes)[0]
 
         # and with an integer, it's trivial to produce a datetime object
-        created_at = datetime.datetime.utcfromtimestamp(timestamp_int)
+        issued_at = datetime.datetime.utcfromtimestamp(timestamp_int)
 
-        return created_at
+        return issued_at
 
     def create_token(self, user_id, expires_at, audit_ids, methods=None,
                      domain_id=None, project_id=None, trust_id=None,
@@ -206,13 +206,13 @@ class TokenFormatter(object):
 
         # rather than appearing in the payload, the creation time is encoded
         # into the token format itself
-        created_at = TokenFormatter.creation_time(token)
-        created_at = ks_utils.isotime(at=created_at, subsecond=True)
+        issued_at = TokenFormatter.creation_time(token)
+        issued_at = ks_utils.isotime(at=issued_at, subsecond=True)
         expires_at = timeutils.parse_isotime(expires_at)
         expires_at = ks_utils.isotime(at=expires_at, subsecond=True)
 
         return (user_id, methods, audit_ids, domain_id, project_id, trust_id,
-                federated_info, access_token_id, created_at, expires_at)
+                federated_info, access_token_id, issued_at, expires_at)
 
 
 class BasePayload(object):
