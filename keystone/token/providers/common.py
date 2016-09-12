@@ -787,7 +787,7 @@ class BaseProvider(provider.Provider):
     def validate_non_persistent_token(self, token_id):
         try:
             (user_id, methods, audit_ids, domain_id, project_id, trust_id,
-                federated_info, access_token_id, created_at, expires_at) = (
+                federated_info, access_token_id, issued_at, expires_at) = (
                     self.token_formatter.validate_token(token_id))
         except exception.ValidationError as e:
             raise exception.TokenNotFound(e)
@@ -819,7 +819,7 @@ class BaseProvider(provider.Provider):
             method_names=methods,
             domain_id=domain_id,
             project_id=project_id,
-            issued_at=created_at,
+            issued_at=issued_at,
             expires=expires_at,
             trust=trust_ref,
             token=token_dict,
