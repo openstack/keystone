@@ -116,9 +116,9 @@ correspond to the Identity Provider's groups; additionally, these groups should
 be assigned roles on one or more projects or domains.
 
 You may be interested in more information on `group management
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3.html#create-group>`_
+<http://developer.openstack.org/api-ref/identity/v3/#create-group>`_
 and `role assignments
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3.html#grant-role-to-group-on-project>`_,
+<http://developer.openstack.org/api-ref/identity/v3/#assign-role-to-group-on-project>`_,
 both of which are exposed to the CLI via `python-openstackclient
 <https://pypi.python.org/pypi/python-openstackclient/>`_.
 
@@ -131,8 +131,8 @@ To utilize federation the following must be created in the Identity Service:
 * Mapping
 * Protocol
 
-More information on ``federation in keystone`` can be found `here
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html>`__.
+Read more about `federation in keystone
+<http://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api>`__.
 
 ~~~~~~~~~~~~~~~~~
 Identity Provider
@@ -141,8 +141,8 @@ Identity Provider
 Create an Identity Provider object in keystone, which represents the Identity
 Provider we will use to authenticate end users.
 
-More information on identity providers can be found `here
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#register-an-identity-provider>`__.
+Read more about `identity providers
+<http://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers>`__.
 
 ~~~~~~~
 Mapping
@@ -157,8 +157,8 @@ rules can be found on the :doc:`mapping_combinations` page.
 An Identity Provider has exactly one mapping specified per protocol.
 Mapping objects can be used multiple times by different combinations of Identity Provider and Protocol.
 
-More information on mapping can be found `here
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#create-a-mapping>`__.
+Read more about `mapping
+<http://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
 
 ~~~~~~~~
 Protocol
@@ -168,7 +168,7 @@ A protocol contains information that dictates which Mapping rules to use for an 
 request made by an IdP. An IdP may have multiple supported protocols.
 
 Add `Protocol object
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#add-a-protocol-and-attribute-mapping-to-an-identity-provider>`__ and specify the mapping id
+<http://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__ and specify the mapping id
 you want to use with the combination of the IdP and Protocol.
 
 Performing federated authentication
@@ -197,8 +197,8 @@ a token will be returned in XML format.
 In the returned unscoped token, a list of Identity Service groups the user
 belongs to will be included.
 
-More information on getting an unscoped token can be found `here
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#authenticating>`__.
+Read more about `getting an unscoped token
+<http://developer.openstack.org/api-ref/identity/v3-ext/#request-an-unscoped-os-federation-token>`__.
 
 ~~~~~~~~~~~~
 Example cURL
@@ -222,8 +222,8 @@ projects and domains that are accessible.
 * List projects a federated user can access: ``GET /OS-FEDERATION/projects``
 * List domains a federated user can access: ``GET /OS-FEDERATION/domains``
 
-More information on listing resources can be found `here
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#listing-projects-and-domains>`__.
+Read more about `listing resources
+<http://developer.openstack.org/api-ref/identity/v3-ext/#list-projects-a-federated-user-can-access>`__.
 
 ~~~~~~~~~~~~
 Example cURL
@@ -246,8 +246,8 @@ A federated user may request a scoped token, by using the unscoped token. A
 project or domain may be specified by either ``id`` or ``name``. An ``id`` is
 sufficient to uniquely identify a project or domain.
 
-More information on getting a scoped token can be found `here
-<http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#request-a-scoped-os-federation-token>`__.
+Read more about `getting a scoped token
+<http://developer.openstack.org/api-ref/identity/v3-ext/#request-a-scoped-os-federation-token>`__.
 
 ~~~~~~~~~~~~
 Example cURL
