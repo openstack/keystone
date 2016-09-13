@@ -16,6 +16,7 @@ import uuid
 from six.moves import http_client
 
 import keystone.conf
+from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
@@ -460,3 +461,50 @@ class TestTrustOperations(test_v3.RestfulTestCase):
                            token=resp.headers.get('X-Subject-Token'),
                            method='POST',
                            expected_status=http_client.FORBIDDEN)
+
+    def test_trust_deleted_when_user_deleted(self):
+        # create trust
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            role_ids=[self.role_id],
+            allow_redelegation=True)
+        resp = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        trust = self.assertValidTrustResponse(resp)
+
+        # list all trusts
+        r = self.get('/OS-TRUST/trusts')
+        self.assertEqual(1, len(r.result['trusts']))
+
+        # delete the trustee will delete the trust
+        self.delete(
+            '/users/%(user_id)s' % {'user_id': trust['trustee_user_id']})
+
+        self.get(
+            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            expected_status=http_client.NOT_FOUND)
+
+        # create another user as the new trustee
+        trustee_user = unit.create_user(self.identity_api,
+                                        domain_id=self.domain_id)
+        trustee_user_id = trustee_user['id']
+        # create the trust again
+        ref['trustee_user_id'] = trustee_user_id
+        resp = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        trust = self.assertValidTrustResponse(resp)
+        r = self.get('/OS-TRUST/trusts')
+        self.assertEqual(1, len(r.result['trusts']))
+
+        # delete the trustor will delete the trust
+        self.delete(
+            '/users/%(user_id)s' % {'user_id': trust['trustor_user_id']})
+
+        # call the backend method directly to bypass authentication since the
+        # user has been deleted.
+        self.assertRaises(exception.TrustNotFound,
+                          self.trust_api.get_trust,
+                          trust['id'])
