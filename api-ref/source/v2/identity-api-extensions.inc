@@ -13,6 +13,7 @@ Show extension details
 Shows details for an extension, by alias.
 
 Normal response codes: 200,203
+
 Error response codes: 413,405,404,403,401,400,503
 
 Request
@@ -30,8 +31,8 @@ Response Parameters
    - x-openstack-request-id: x-openstack-request-id
    - alias: alias
    - updated: updated
-   - description: description
-   - name: name
+   - description: api_ext_description
+   - name: api_ext_name
 
 Response Example
 ----------------
@@ -48,6 +49,7 @@ List extensions
 Lists available extensions.
 
 Normal response codes: 200,203
+
 Error response codes: 413,405,404,403,401,400,503
 
 Response Parameters
@@ -58,8 +60,8 @@ Response Parameters
    - x-openstack-request-id: x-openstack-request-id
    - alias: alias
    - updated: updated
-   - description: description
-   - name: name
+   - description: api_ext_description
+   - name: api_ext_name
 
 Response Example
 ----------------
