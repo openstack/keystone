@@ -536,11 +536,6 @@ def isotime(at=None, subsecond=False):
     return st
 
 
-def strtime():
-    at = timeutils.utcnow()
-    return at.strftime(timeutils.PERFECT_TIME_FORMAT)
-
-
 def get_token_ref(context):
     """Retrieve KeystoneToken object from the auth context and returns it.
 
