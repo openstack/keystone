@@ -20,18 +20,18 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
+   - userId: user_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - roles_links: roles_links
    - roles: roles
-   - description: description
-   - name: name
-   - id: id
+   - roles_links: roles_links
+   - description: role_description
+   - name: role_name
+   - id: role_id
 
 Response Example
 ----------------
@@ -55,12 +55,13 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenantId: tenantId
-   - password: password
-   - enabled: enabled
-   - email: email
-   - name: name
-   - X-Auth-Token: X-Auth-Token
+   - user: user
+   - tenantId: tenant_id_path
+   - password: user_password
+   - enabled: user_enabled
+   - email: user_email
+   - name: user_name
+   - username: username_request
 
 Request Example
 ---------------
@@ -73,11 +74,12 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
+   - user: user
+   - enabled: user_enabled
+   - email: user_email
+   - name: user_name
    - username: username
-   - enabled: enabled
-   - email: email
-   - name: name
-   - id: id
+   - id: user_id
 
 
 List users (admin endpoint)
@@ -98,12 +100,12 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - username: username
    - users: users
-   - enabled: enabled
-   - id: id
-   - email: email
-   - name: name
+   - enabled: user_enabled
+   - id: user_id
+   - email: user_email
+   - name: user_name
+   - username: username
 
 Response Example
 ----------------
@@ -127,12 +129,11 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - username: username
-   - enabled: enabled
-   - email: email
-   - name: name
-   - tenantId: tenantId
+   - userId: user_id_path
+   - user: user
+   - enabled: user_enabled
+   - email: user_email
+   - name: user_name
 
 Request Example
 ---------------
@@ -145,12 +146,12 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - users: users
-   - enabled: enabled
-   - email: email
-   - name: name
-   - id: id
-   - tenantId: tenantId
+   - user: user
+   - enabled: user_enabled
+   - email: user_email
+   - name: user_name
+   - username: username
+   - id: user_id
 
 Response Example
 ----------------
@@ -174,7 +175,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
+   - userId: user_id_path
 
 
 Show user details (admin endpoint)
@@ -209,18 +210,19 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
+   - userId: user_id
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
+   - user: user
+   - enabled: user_enabled
+   - email: user_email
+   - name: user_name
    - username: username
-   - enabled: enabled
-   - email: email
-   - name: name
-   - id: id
+   - id: user_id
 
 Response Example
 ----------------
