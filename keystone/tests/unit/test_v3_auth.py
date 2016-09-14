@@ -3172,7 +3172,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                  'r_id': self.role1['id']})
 
             # NOTE(lbragstad): Here we advance the clock one second to pass
-            # into the threshold of a new second because we just presisted a
+            # into the threshold of a new second because we just persisted a
             # revocation event for removing a role from a group on a project.
             # One thing to note about that revocation event is that it has no
             # context about the group, so even though user3 might not be in
