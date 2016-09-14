@@ -16,6 +16,7 @@ import copy
 import datetime
 import random
 import string
+import time
 import uuid
 
 import mock
@@ -1313,6 +1314,42 @@ class AuthWithTrust(object):
         self.controller.validate_token(self.make_request(is_admin=True),
                                        token_id=trust_scoped_token_id)
 
+    def test_trust_get_token_fails_with_future_token_if_trustee_disabled(self):
+        """Test disabling trustee and using an unrevoked token.
+
+        This test simulates what happens when a token is generated *after* the
+        disable event. Technically this should not happen, but it's possible in
+        a multinode deployment with only a slight clock skew.
+        """
+        # We need to turn off caching here since we are bypassing the
+        # identity_api to disable a user. The identity_api would typically
+        # invalidate the cache when a user is disabled but it will also emit a
+        # notification/callback to prune all user tokens from the backend,
+        # which defeats the purpose of this test.
+        self.config_fixture.config(group='identity', caching=False)
+
+        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
+
+        # NOTE(lbragstad): We want to make sure we control the issued_at time
+        # of the token.
+        future_time = timeutils.utcnow() + datetime.timedelta(seconds=5)
+
+        # get a token from the future
+        with mock.patch.object(timeutils, 'utcnow', lambda: future_time):
+            request_body = self.build_v2_token_request(
+                self.trustee['name'], self.trustee['password'], new_trust)
+
+        # We need to disable the user using the driver directly for the same
+        # reason stated above. This test really just ensures that if a trustee
+        # is disabled the logic in
+        # keystone.token.controller:Auth._authenticate_token will throw a
+        # Forbidden.
+        user = {'enabled': False}
+        self.identity_api.driver.update_user(self.trustee['id'], user)
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, self.make_request(), request_body)
+
 
 class UUIDAuthWithTrust(AuthWithTrust, AuthTest):
 
@@ -1354,6 +1391,30 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
         self.assertRaises(
             exception.TrustNotFound,
             super(FernetAuthWithTrust, self).test_delete_trust_revokes_token)
+
+    def test_trust_get_token_fails_with_future_token_if_trustee_disabled(self):
+        """Test disabling trustee and using an unrevoked token.
+
+        This test simulates what happens when a Fernet token is generated
+        *after* the disable event. Technically this should not happen, but
+        it's possible in a multinode deployment with only a slight clock skew.
+        """
+        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
+
+        # NOTE(dstanek): cryptography.fernet gets it's timestamps from
+        # time.time(). We need to control what it gets.
+        epoch = datetime.datetime.utcfromtimestamp(0)
+        future_time = (timeutils.utcnow() - epoch).total_seconds() + 5
+
+        # get a token from the future
+        with mock.patch.object(time, 'time', lambda: future_time):
+            request_body = self.build_v2_token_request(
+                self.trustee['name'], self.trustee['password'], new_trust)
+
+        self.disable_user(self.trustee)
+        self.assertRaises(
+            exception.Forbidden,
+            self.controller.authenticate, self.make_request(), request_body)
 
 
 class TokenExpirationTest(AuthTest):
