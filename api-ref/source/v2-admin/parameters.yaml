@@ -14,7 +14,13 @@ endpoint_id_path:
   in: path
   required: true
   type: string
-tenantId_1:
+tenant_id_path:
+  description: |
+    The tenant ID.
+  in: path
+  required: true
+  type: string
+tenantId:
   description: |
     The tenant ID.
   in: path
@@ -27,6 +33,12 @@ tokenId:
   in: path
   required: true
   type: string
+user_id_path:
+  description: |
+    The user ID.
+  in: path
+  required: true
+  type: string
 userId:
   description: |
     The user ID.
@@ -35,11 +47,11 @@ userId:
   type: string
 
 # variables in query
-name_2:
+tenant_name_query:
   description: |
     Filters the response by a tenant name.
   in: query
-  required: true
+  required: false
   type: string
 
 # variables in body
@@ -62,30 +74,10 @@ email:
   in: body
   required: false
   type: string
-email_1:
-  description: |
-    The user email.
-  in: body
-  required: true
-  type: string
 enabled:
   description: |
     Indicates whether the tenant is enabled or
     disabled.
-  in: body
-  required: true
-  type: boolean
-enabled_1:
-  description: |
-    Indicates whether the user is enabled (``true``)
-    or disabled (``false``). Default is ``true``.
-  in: body
-  required: false
-  type: boolean
-enabled_2:
-  description: |
-    Indicates whether the user is enabled (``true``)
-    or disabled(``false``). The default value is ``true``.
   in: body
   required: true
   type: boolean
@@ -190,12 +182,6 @@ id:
   in: body
   required: false
   type: string
-id_1:
-  description: |
-    The user ID.
-  in: body
-  required: true
-  type: string
 impersonation:
   description: |
     The impersonation flag.
@@ -249,6 +235,24 @@ password:
   in: body
   required: false
   type: string
+role_description:
+  description: |
+    The role description.
+  in: body
+  required: true
+  type: string
+role_id:
+  description: |
+    The role ID.
+  in: body
+  required: true
+  type: string
+role_name:
+  description: |
+    The role name.
+  in: body
+  required: true
+  type: string
 roles:
   description: |
     The collection of roles.
@@ -279,17 +283,37 @@ tenant:
   in: body
   required: true
   type: string
+tenant_description:
+  description: |
+    The description of the tenant. If not set, this
+    value is ``null``.
+  in: body
+  required: true
+  type: string
+tenant_enabled:
+  description: |
+    Indicates whether the tenant is enabled or
+    disabled.
+  in: body
+  required: true
+  type: boolean
+tenant_id:
+  description: |
+    The tenant ID.
+  in: body
+  required: true
+  type: string
 tenant_links:
   description: |
     The link to the represented tenant collection.
   in: body
   required: true
   type: array
-tenantId:
+tenant_name:
   description: |
-    The tenant ID.
+    Tenant name.
   in: body
-  required: false
+  required: true
   type: string
 tenants:
   description: |
@@ -334,13 +358,32 @@ user:
   in: body
   required: true
   type: string
-username:
+user_email:
   description: |
-    The user name of the user.
+    The user email.
   in: body
   required: true
   type: string
-username_1:
+user_enabled:
+  description: |
+    Indicates whether the user is enabled (``true``)
+    or disabled(``false``). The default value is ``true``.
+  in: body
+  required: true
+  type: boolean
+user_id:
+  description: |
+    The user ID.
+  in: body
+  required: true
+  type: string
+user_name:
+  description: |
+    The user name.
+  in: body
+  required: true
+  type: string
+username:
   description: |
     The username of user.
   in: body

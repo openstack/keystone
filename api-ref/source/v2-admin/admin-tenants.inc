@@ -20,7 +20,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenantId: tenantId
+   - tenantId: tenant_id_path
 
 Response Parameters
 -------------------
@@ -28,10 +28,10 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
+   - enabled: tenant_enabled
+   - description: tenant_description
+   - name: tenant_name
+   - id: tenant_id
 
 Response Example
 ----------------
@@ -55,19 +55,19 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenantId: tenantId
+   - tenantId: tenant_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - users_link: users_link
    - users: users
-   - enabled: enabled
-   - username: username
-   - email: email
-   - id: id
+   - users_link: users_link
+   - enabled: user_enabled
+   - username: user_name
+   - email: user_email
+   - id: user_id
 
 Response Example
 ----------------
@@ -91,19 +91,19 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - tenantId: tenantId
+   - userId: user_id_path
+   - tenantId: tenant_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - roles_links: roles_links
    - roles: roles
-   - description: description
-   - name: name
-   - id: id
+   - roles_links: roles_links
+   - description: role_description
+   - name: role_name
+   - id: role_id
 
 Response Example
 ----------------
@@ -127,12 +127,12 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - tenant_links: tenant_links
    - tenants: tenants
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
+   - tenant_links: tenant_links
+   - enabled: tenant_enabled
+   - description: tenant_description
+   - name: tenant_name
+   - id: tenant_id
 
 Response Example
 ----------------
@@ -156,7 +156,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - name: name
+   - name: tenant_name_query
 
 Response Parameters
 -------------------
@@ -164,10 +164,10 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
+   - enabled: tenant_enabled
+   - description: tenant_description
+   - name: tenant_name
+   - id: tenant_id
 
 Response Example
 ----------------
@@ -191,7 +191,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - tenantId: tenantId
+   - tenantId: tenant_id_path
 
 
 Update tenant
@@ -209,12 +209,11 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - tenantId: tenant_id_path
    - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
-   - tenantId: tenantId
+   - enabled: tenant_enabled
+   - description: tenant_description
+   - name: tenant_name
 
 Request Example
 ---------------
@@ -228,10 +227,10 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
+   - enabled: tenant_enabled
+   - description: tenant_description
+   - name: tenant_name
+   - id: tenant_id
 
 Response Example
 ----------------
@@ -262,7 +261,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - tenant: tenant
-   - enabled: enabled
-   - description: description
-   - name: name
-   - id: id
+   - enabled: tenant_enabled
+   - description: tenant_description
+   - name: tenant_name
+   - id: tenant_id
