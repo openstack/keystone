@@ -68,21 +68,6 @@ class FernetUtils(object):
 
         return is_valid
 
-    def _convert_to_integers(self, id_value):
-        """Cast user and group system identifiers to integers."""
-        # NOTE(lbragstad) os.chown() will raise a TypeError here if
-        # keystone_user_id and keystone_group_id are not integers. Let's cast
-        # them to integers if we can because it's possible to pass non-integer
-        # values into the fernet_setup utility.
-        try:
-            id_int = int(id_value)
-        except ValueError as e:
-            msg = _LE('Unable to convert Keystone user or group ID. Error: %s')
-            LOG.error(msg, e)
-            raise
-
-        return id_int
-
     def create_key_directory(self, keystone_user_id=None,
                              keystone_group_id=None):
         """Attempt to create the key directory if it doesn't exist."""
