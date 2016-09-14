@@ -1635,6 +1635,34 @@ class VersionTests(SqlMigrateBase):
         # Note to reviewers: this version number should never change.
         self.assertEqual(109, self.repos[LEGACY_REPO].max_version)
 
+    def test_migrate_repos_stay_in_lockstep(self):
+        """Rolling upgrade repositories should always stay in lockstep.
+
+        By maintaining a single "latest" version number in each of the three
+        migration repositories (expand, data migrate, and contract), we can
+        trivially prevent operators from "doing the wrong thing", such as
+        running upgrades operations out of order (for example, you should not
+        be able to run data migration 5 until schema expansion 5 has been run).
+
+        For example, even if your rolling upgrade task *only* involves adding a
+        new column with a reasonable default, and doesn't require any triggers,
+        data migration, etc, you still need to create "empty" upgrade steps in
+        the data migration and contract repositories with the same version
+        number as the expansion.
+
+        For more information, see "Database Migrations" here:
+
+            http://docs.openstack.org/developer/keystone/developing.html
+
+        """
+        # Transitive comparison: expand == data migration == contract
+        self.assertEqual(
+            self.repos[EXPAND_REPO].max_version,
+            self.repos[DATA_MIGRATION_REPO].max_version)
+        self.assertEqual(
+            self.repos[DATA_MIGRATION_REPO].max_version,
+            self.repos[CONTRACT_REPO].max_version)
+
 
 class FullMigration(SqlMigrateBase, unit.TestCase):
     """Test complete orchestration between all database phases."""
