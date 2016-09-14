@@ -112,6 +112,19 @@ class UtilsTestCase(unit.BaseTestCase):
                           common_utils.verify_length_and_trunc_password,
                           invalid_password)
 
+    def test_verify_length_and_trunc_password_throws_validation_error(self):
+        class SpecialObject(object):
+            pass
+
+        special_object = SpecialObject()
+        invalid_passwords = [True, special_object, 4.3, 5]
+        for invalid_password in invalid_passwords:
+            self.assertRaises(
+                exception.ValidationError,
+                common_utils.verify_length_and_trunc_password,
+                invalid_password
+            )
+
     def test_hash_long_password_truncation(self):
         self.config_fixture.config(strict_password_check=False)
         invalid_length_password = '0' * 9999999
