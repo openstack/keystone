@@ -8,6 +8,12 @@ X-Auth-Token:
   type: string
 
 # variables in path
+endpoint_id_path:
+  description: |
+    Endpoint ID
+  in: path
+  required: true
+  type: string
 tenantId_1:
   description: |
     The tenant ID.
@@ -83,14 +89,75 @@ enabled_2:
   in: body
   required: true
   type: boolean
+endpoint:
+  description: |
+    Endpoint object. Contains ``publicURL``, ``adminURL``,
+    ``internalURL``, ``id`` and ``region`` for the endpoint.
+  in: body
+  required: true
+  type: object
+endpoint_adminurl_request:
+  description: |
+    Admin URL
+  in: body
+  required: false
+  type: string
+endpoint_adminurl_response:
+  description: |
+    Admin URL
+  in: body
+  required: true
+  type: string
+endpoint_id:
+  description: |
+    Endpoint ID
+  in: body
+  required: true
+  type: string
+endpoint_internalurl_request:
+  description: |
+    Internal URL
+  in: body
+  required: false
+  type: string
+endpoint_internalurl_response:
+  description: |
+    Internal URL
+  in: body
+  required: true
+  type: string
+endpoint_publicurl_request:
+  description: |
+    Public URL
+  in: body
+  required: true
+  type: string
+endpoint_publicurl_response:
+  description: |
+    Public URL
+  in: body
+  required: true
+  type: string
+endpoint_region_request:
+  description: |
+    Region of the endpoint
+  in: body
+  required: false
+  type: string
+endpoint_region_response:
+  description: |
+    Region of the endpoint
+  in: body
+  required: true
+  type: string
 endpoints:
   description: |
-    One or more ``endpoints`` objects. Each object
+    One or more ``endpoint`` objects. Each object
     shows the ``adminURL``, ``region``, ``internalURL``, ``id``, and
     ``publicURL`` for the endpoint.
   in: body
   required: true
-  type: string
+  type: array
 endpoints_links:
   description: |
     Links for the endpoint.
@@ -194,6 +261,12 @@ roles_links:
   in: body
   required: true
   type: array
+service_id_request:
+  description: |
+    Service ID
+  in: body
+  required: true
+  type: string
 serviceCatalog:
   description: |
     A ``serviceCatalog`` object.

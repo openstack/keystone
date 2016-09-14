@@ -15,9 +15,9 @@ Normal response codes: 200
 Response Parameters
 -------------------
 
-.. rest_parameters:: admin-endpoints_parameters.yaml
+.. rest_parameters:: parameters.yaml
 
-   - endpoints: endpoints_list
+   - endpoints: endpoints
 
 Response Example
 ----------------
@@ -36,14 +36,14 @@ Normal response codes: 201
 Request
 -------
 
-.. rest_parameters:: admin-endpoints_parameters.yaml
+.. rest_parameters:: parameters.yaml
 
-   - endpoint: endpoint_create
-   - region: region
-   - service_id: service_id
-   - publicurl: publicurl
-   - adminurl: adminurl
-   - internalurl: internalurl
+   - endpoint: endpoint
+   - region: endpoint_region_request
+   - service_id: service_id_request
+   - publicurl: endpoint_publicurl_request
+   - adminurl: endpoint_adminurl_request
+   - internalurl: endpoint_internalurl_request
 
 Request Example
 ---------------
@@ -54,13 +54,13 @@ Request Example
 Response Parameters
 -------------------
 
-.. rest_parameters:: admin-endpoints_parameters.yaml
+.. rest_parameters:: parameters.yaml
 
-   - adminurl: adminurl
-   - id: id
-   - internalurl: internalurl
-   - publicurl: publicurl
-   - region: region
+   - endpoint: endpoint
+   - id: endpoint_id
+   - internalurl: endpoint_internalurl_response
+   - publicurl: endpoint_publicurl_response
+   - region: endpoint_region_response
 
 
 Delete endpoint template
@@ -73,6 +73,6 @@ Normal response codes: 204
 Request
 -------
 
-.. rest_parameters:: admin-endpoints_parameters.yaml
+.. rest_parameters:: parameters.yaml
 
-   - endpointId: id_path
+   - endpointId: endpoint_id_path
