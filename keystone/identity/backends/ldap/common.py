@@ -571,7 +571,7 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
                                 tls_cacertdir=None, tls_req_cert=None,
                                 debug_level=None):
     """LDAP initialization for PythonLDAPHandler and PooledLDAPHandler."""
-    LOG.debug("LDAP init: url=%s", url)
+    LOG.debug('LDAP init: url=%s', url)
     LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
               'tls_req_cert=%s tls_avail=%s',
               use_tls, tls_cacertfile, tls_cacertdir,
@@ -617,7 +617,7 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
         if tls_req_cert in list(LDAP_TLS_CERTS.values()):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
         else:
-            LOG.debug("LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s",
+            LOG.debug('LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s',
                       tls_req_cert)
 
 
@@ -896,7 +896,7 @@ class KeystoneLDAPHandler(LDAPHandler):
 
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
-        LOG.debug("LDAP bind: who=%s", who)
+        LOG.debug('LDAP bind: who=%s', who)
         who_utf8 = utf8_encode(who)
         cred_utf8 = utf8_encode(cred)
         return self.conn.simple_bind_s(who_utf8, cred_utf8,
@@ -904,7 +904,7 @@ class KeystoneLDAPHandler(LDAPHandler):
                                        clientctrls=clientctrls)
 
     def unbind_s(self):
-        LOG.debug("LDAP unbind")
+        LOG.debug('LDAP unbind')
         return self.conn.unbind_s()
 
     def add_s(self, dn, modlist):
@@ -1219,12 +1219,13 @@ class BaseLdap(object):
         else:
             return self.NotFound(**{self.notfound_arg: object_id})
 
-    def _parse_extra_attrs(self, option_list):
+    @staticmethod
+    def _parse_extra_attrs(option_list):
         mapping = {}
         for item in option_list:
             try:
                 ldap_attr, attr_map = item.split(':')
-            except Exception:
+            except ValueError:
                 LOG.warning(_LW(
                     'Invalid additional attribute mapping: "%s". '
                     'Format must be <ldap_attribute>:<keystone_attribute>'),
@@ -1272,8 +1273,7 @@ class BaseLdap(object):
                      pool_retry_max=self.pool_retry_max,
                      pool_retry_delay=self.pool_retry_delay,
                      pool_conn_timeout=self.pool_conn_timeout,
-                     pool_conn_lifetime=pool_conn_lifetime
-                     )
+                     pool_conn_lifetime=pool_conn_lifetime)
 
         if user is None:
             user = self.LDAP_USER
@@ -1651,8 +1651,8 @@ class BaseLdap(object):
                 raise exception.Conflict(_('Member %(member)s '
                                            'is already a member'
                                            ' of group %(group)s') % {
-                                         'member': member_dn,
-                                         'group': member_list_dn})
+                                               'member': member_dn,
+                                               'group': member_list_dn})
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(member_list_dn)
 
@@ -1697,9 +1697,9 @@ class BaseLdap(object):
                         not_deleted_nodes.append(node_dn)
 
         if not_deleted_nodes:
-            LOG.warning(_LW("When deleting entries for %(search_base)s, "
-                            "could not delete nonexistent entries "
-                            "%(entries)s%(dots)s"),
+            LOG.warning(_LW('When deleting entries for %(search_base)s, '
+                            'could not delete nonexistent entries '
+                            '%(entries)s%(dots)s'),
                         {'search_base': search_base,
                          'entries': not_deleted_nodes[:3],
                          'dots': '...' if len(not_deleted_nodes) > 3 else ''})
@@ -1717,11 +1717,10 @@ class BaseLdap(object):
         :returns query: LDAP query, updated with any filters satisfied
 
         """
-        def build_filter(filter_, hints):
+        def build_filter(filter_):
             """Build a filter for the query.
 
             :param filter_: the dict that describes this filter
-            :param hints: contains the list of filters yet to be satisfied.
 
             :returns query: LDAP query term to be added
 
@@ -1785,7 +1784,7 @@ class BaseLdap(object):
         for filter_ in hints.filters:
             if filter_['name'] not in self.attribute_mapping:
                 continue
-            new_filter = build_filter(filter_, hints)
+            new_filter = build_filter(filter_)
             if new_filter is not None:
                 filter_list.append(new_filter)
                 satisfied_filters.append(filter_)
