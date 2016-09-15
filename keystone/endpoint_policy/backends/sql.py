@@ -17,6 +17,7 @@ import uuid
 import sqlalchemy
 
 from keystone.common import sql
+from keystone.endpoint_policy.backends import base
 from keystone import exception
 
 
@@ -47,7 +48,7 @@ class PolicyAssociation(sql.ModelBase, sql.ModelDictMixin):
         return d
 
 
-class EndpointPolicy(object):
+class EndpointPolicy(base.EndpointPolicyDriverV8):
 
     def create_policy_association(self, policy_id, endpoint_id=None,
                                   service_id=None, region_id=None):

@@ -1,0 +1,5 @@
+---
+upgrade:
+  - The  methods ``list_endpoints_for_policy()`` and 
+    ``get_policy_for_endpoint()`` have been removed from the EndpointPolicy
+    driver interface.
