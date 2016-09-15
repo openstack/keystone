@@ -215,7 +215,7 @@ def offline_sync_database_to_version(version=None):
 
 
 def get_db_version():
-    with sql.session_for_write() as session:
+    with sql.session_for_read() as session:
         return migration.db_version(session.get_bind(),
                                     find_migrate_repo(),
                                     get_init_version())
