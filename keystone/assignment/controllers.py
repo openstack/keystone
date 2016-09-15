@@ -443,6 +443,15 @@ class RoleV3(controller.V3Controller):
 class ImpliedRolesV3(controller.V3Controller):
     """The V3 ImpliedRoles CRD APIs.  There is no Update."""
 
+    def _check_implies_role(self, request, prep_info,
+                            prior_role_id, implied_role_id=None):
+        ref = {}
+        ref['prior_role'] = self.role_api.get_role(prior_role_id)
+        if implied_role_id:
+            ref['implied_role'] = self.role_api.get_role(implied_role_id)
+
+        self.check_protection(request, prep_info, ref)
+
     def _prior_role_stanza(self, endpoint, prior_role_id, prior_role_name):
         return {
             "id": prior_role_id,
@@ -494,7 +503,7 @@ class ImpliedRolesV3(controller.V3Controller):
         response["role_inference"]['implies'] = stanza
         return response
 
-    @controller.protected()
+    @controller.protected(callback=_check_implies_role)
     def get_implied_role(self, request, prior_role_id, implied_role_id):
         ref = self.role_api.get_implied_role(prior_role_id, implied_role_id)
 
@@ -506,11 +515,11 @@ class ImpliedRolesV3(controller.V3Controller):
             endpoint, prior_id, implied_id)
         return response
 
-    @controller.protected()
+    @controller.protected(callback=_check_implies_role)
     def check_implied_role(self, request, prior_role_id, implied_role_id):
         self.role_api.get_implied_role(prior_role_id, implied_role_id)
 
-    @controller.protected()
+    @controller.protected(callback=_check_implies_role)
     def create_implied_role(self, request, prior_role_id, implied_role_id):
         self.role_api.create_implied_role(prior_role_id, implied_role_id)
         return wsgi.render_response(
@@ -519,11 +528,11 @@ class ImpliedRolesV3(controller.V3Controller):
                                   implied_role_id),
             status=(201, 'Created'))
 
-    @controller.protected()
+    @controller.protected(callback=_check_implies_role)
     def delete_implied_role(self, request, prior_role_id, implied_role_id):
         self.role_api.delete_implied_role(prior_role_id, implied_role_id)
 
-    @controller.protected()
+    @controller.protected(callback=_check_implies_role)
     def list_implied_roles(self, request, prior_role_id):
         ref = self.role_api.list_implied_roles(prior_role_id)
         implied_ids = [r['implied_role_id'] for r in ref]
