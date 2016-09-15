@@ -37,6 +37,7 @@ import uuid
 import migrate
 from migrate.versioning import api as versioning_api
 from migrate.versioning import repository
+from migrate.versioning import script
 import mock
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import migration
@@ -226,6 +227,11 @@ class MigrationRepository(object):
 class SqlMigrateBase(test_base.DbTestCase):
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
+
+        # NOTE(dstanek): Clear out sqlalchemy-migrate's script cache to allow
+        # us to have multiple repos (expand, migrate, contrate) where the
+        # modules have the same name (001_awesome.py).
+        self.addCleanup(script.PythonScript.clear)
 
         # Set keystone's connection URL to be the test engine's url.
         database.initialize_sql_session(self.engine.url)
