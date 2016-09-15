@@ -13,7 +13,7 @@
 import sqlalchemy as sql
 
 from keystone.common import sql as ks_sql
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 
 
 # NOTE(lbragstad): MySQL error state of 45000 is a generic unhandled exception.
@@ -105,7 +105,7 @@ def upgrade(migrate_engine):
     credential_table.create_column(encrypted_blob)
     credential_table.c.blob.alter(nullable=True)
 
-    if not migration_helpers.USE_TRIGGERS:
+    if not upgrades.USE_TRIGGERS:
         # Skip managing triggers if we're doing an offline upgrade.
         return
 

@@ -46,7 +46,7 @@ import sqlalchemy.exc
 from testtools import matchers
 
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone.tests import unit
@@ -127,9 +127,9 @@ DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
 
 
-# Test migration_helpers.get_init_version separately to ensure it works before
+# Test upgrades.get_init_version separately to ensure it works before
 # using in the SqlUpgrade tests.
-class MigrationHelpersGetInitVersionTests(unit.TestCase):
+class SqlUpgradeGetInitVersionTests(unit.TestCase):
     @mock.patch.object(repository, 'Repository')
     def test_get_init_version_no_path(self, repo):
         migrate_versions = mock.MagicMock()
@@ -142,7 +142,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
         # an exception.
         with mock.patch('os.path.isdir', return_value=True):
             # since 0 is the smallest version expect None
-            version = migration_helpers.get_init_version()
+            version = upgrades.get_init_version()
             self.assertIsNone(version)
 
         # check that the default path was used as the first argument to the
@@ -165,7 +165,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
             path = '/keystone/' + LEGACY_REPO + '/'
 
             # since 0 is the smallest version expect None
-            version = migration_helpers.get_init_version(abs_path=path)
+            version = upgrades.get_init_version(abs_path=path)
             self.assertIsNone(version)
 
     @mock.patch.object(repository, 'Repository')
@@ -182,7 +182,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
         with mock.patch('os.path.isdir', return_value=True):
             path = '/keystone/' + LEGACY_REPO + '/'
 
-            version = migration_helpers.get_init_version(abs_path=path)
+            version = upgrades.get_init_version(abs_path=path)
             self.assertEqual(initial_version, version)
 
 
@@ -190,9 +190,9 @@ class MigrationRepository(object):
     def __init__(self, engine, repo_name):
         self.repo_name = repo_name
 
-        self.repo_path = migration_helpers.find_repo(self.repo_name)
+        self.repo_path = upgrades.find_repo(self.repo_name)
         self.min_version = (
-            migration_helpers.get_init_version(abs_path=self.repo_path))
+            upgrades.get_init_version(abs_path=self.repo_path))
         self.schema_ = versioning_api.ControlledSchema.create(
             engine, self.repo_path, self.min_version)
         self.max_version = self.schema_.repository.version().version
@@ -476,7 +476,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                                 ['id', 'policy_id', 'endpoint_id',
                                  'service_id', 'region_id'])
 
-    @mock.patch.object(migration_helpers, 'get_db_version', return_value=1)
+    @mock.patch.object(upgrades, 'get_db_version', return_value=1)
     def test_endpoint_policy_already_migrated(self, mock_ep):
 
         # By setting the return value to 1, the migration has already been
@@ -531,7 +531,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         self.assertFalse(sp_table.c.auth_url.nullable)
         self.assertFalse(sp_table.c.sp_url.nullable)
 
-    @mock.patch.object(migration_helpers, 'get_db_version', return_value=8)
+    @mock.patch.object(upgrades, 'get_db_version', return_value=8)
     def test_federation_already_migrated(self, mock_federation):
 
         # By setting the return value to 8, the migration has already been
@@ -580,7 +580,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                                  'consumer_id',
                                  'expires_at'])
 
-    @mock.patch.object(migration_helpers, 'get_db_version', return_value=5)
+    @mock.patch.object(upgrades, 'get_db_version', return_value=5)
     def test_oauth1_already_migrated(self, mock_oauth1):
 
         # By setting the return value to 5, the migration has already been
@@ -605,7 +605,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                                  'expires_at', 'revoked_at',
                                  'audit_chain_id', 'audit_id'])
 
-    @mock.patch.object(migration_helpers, 'get_db_version', return_value=2)
+    @mock.patch.object(upgrades, 'get_db_version', return_value=2)
     def test_revoke_already_migrated(self, mock_revoke):
 
         # By setting the return value to 2, the migration has already been
@@ -652,7 +652,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         self.upgrade(85)
         assert_tables_columns_exist()
 
-    @mock.patch.object(migration_helpers, 'get_db_version', return_value=2)
+    @mock.patch.object(upgrades, 'get_db_version', return_value=2)
     def test_endpoint_filter_already_migrated(self, mock_endpoint_filter):
 
         # By setting the return value to 2, the migration has already been
@@ -1613,7 +1613,7 @@ class VersionTests(SqlMigrateBase):
         self.upgrade()
         self.assertRaises(
             db_exception.DbMigrationError,
-            migration_helpers._sync_common_repo,
+            upgrades._sync_common_repo,
             self.repos[LEGACY_REPO].max_version - 1)
 
     def test_these_are_not_the_migrations_you_are_looking_for(self):
