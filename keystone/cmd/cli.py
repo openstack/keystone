@@ -27,6 +27,7 @@ import pbr.version
 
 from keystone.cmd import doctor
 from keystone.common import driver_hints
+from keystone.common import fernet_utils
 from keystone.common import openssl
 from keystone.common import sql
 from keystone.common.sql import migration_helpers
@@ -552,16 +553,15 @@ class FernetSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        from keystone.common import fernet_utils as utils
-        fernet_utils = utils.FernetUtils(
+        futils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        fernet_utils.create_key_directory(keystone_user_id, keystone_group_id)
-        if fernet_utils.validate_key_repository(requires_write=True):
-            fernet_utils.initialize_key_repository(
+        futils.create_key_directory(keystone_user_id, keystone_group_id)
+        if futils.validate_key_repository(requires_write=True):
+            futils.initialize_key_repository(
                 keystone_user_id, keystone_group_id)
 
 
@@ -587,15 +587,14 @@ class FernetRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        from keystone.common import fernet_utils as utils
-        fernet_utils = utils.FernetUtils(
+        futils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        if fernet_utils.validate_key_repository(requires_write=True):
-            fernet_utils.rotate_keys(keystone_user_id, keystone_group_id)
+        if futils.validate_key_repository(requires_write=True):
+            futils.rotate_keys(keystone_user_id, keystone_group_id)
 
 
 class CredentialSetup(BasePermissionsSetup):
@@ -611,16 +610,15 @@ class CredentialSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        from keystone.common import fernet_utils as utils
-        fernet_utils = utils.FernetUtils(
+        futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        fernet_utils.create_key_directory(keystone_user_id, keystone_group_id)
-        if fernet_utils.validate_key_repository(requires_write=True):
-            fernet_utils.initialize_key_repository(
+        futils.create_key_directory(keystone_user_id, keystone_group_id)
+        if futils.validate_key_repository(requires_write=True):
+            futils.initialize_key_repository(
                 keystone_user_id,
                 keystone_group_id
             )
@@ -683,17 +681,16 @@ class CredentialRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        from keystone.common import fernet_utils as utils
-        fernet_utils = utils.FernetUtils(
+        futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        if fernet_utils.validate_key_repository(requires_write=True):
+        if futils.validate_key_repository(requires_write=True):
             klass = cls()
             klass.validate_primary_key()
-            fernet_utils.rotate_keys(keystone_user_id, keystone_group_id)
+            futils.rotate_keys(keystone_user_id, keystone_group_id)
 
 
 class CredentialMigrate(BasePermissionsSetup):
@@ -743,12 +740,11 @@ class CredentialMigrate(BasePermissionsSetup):
     @classmethod
     def main(cls):
         # Check to make sure we have a repository that works...
-        from keystone.common import fernet_utils as utils
-        fernet_utils = utils.FernetUtils(
+        futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS
         )
-        fernet_utils.validate_key_repository(requires_write=True)
+        futils.validate_key_repository(requires_write=True)
         klass = cls()
         klass.migrate_credentials()
 
