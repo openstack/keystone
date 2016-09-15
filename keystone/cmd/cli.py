@@ -464,7 +464,7 @@ class DbVersion(BaseApp):
     @staticmethod
     def main():
         assert_not_extension(CONF.command.extension)
-        migration_helpers.print_db_version()
+        print(migration_helpers.get_db_version())
 
 
 class BasePermissionsSetup(BaseApp):

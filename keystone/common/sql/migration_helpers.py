@@ -221,10 +221,6 @@ def get_db_version():
                                     get_init_version())
 
 
-def print_db_version():
-    print(get_db_version())
-
-
 def expand_schema():
     """Expand the database schema ahead of data migration.
 
