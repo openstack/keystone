@@ -32,6 +32,11 @@ CONF = keystone.conf.CONF
 
 USE_TRIGGERS = True
 
+LEGACY_REPO = 'migrate_repo'
+EXPAND_REPO = 'expand_repo'
+DATA_MIGRATION_REPO = 'data_migration_repo'
+CONTRACT_REPO = 'contract_repo'
+
 
 #  Different RDBMSs use different schemes for naming the Foreign Key
 #  Constraints.  SQLAlchemy does not yet attempt to determine the name
@@ -108,7 +113,7 @@ def rename_tables_with_constraints(renames, constraints, engine):
         add_constraints(constraints)
 
 
-def find_migrate_repo(package=None, repo_name='migrate_repo'):
+def find_migrate_repo(package=None, repo_name=LEGACY_REPO):
     package = package or sql
     path = os.path.abspath(os.path.join(
         os.path.dirname(package.__file__), repo_name))
@@ -230,7 +235,7 @@ def expand_schema():
     # Make sure all the legacy migrations are run before we run any new
     # expand migrations.
     _sync_common_repo(version=None)
-    _sync_repo(repo_name='expand_repo')
+    _sync_repo(repo_name=EXPAND_REPO)
 
 
 def migrate_data():
@@ -240,7 +245,7 @@ def migrate_data():
     schema has been expanded for the new release.
 
     """
-    _sync_repo(repo_name='data_migration_repo')
+    _sync_repo(repo_name=DATA_MIGRATION_REPO)
 
 
 def contract_schema():
@@ -251,4 +256,4 @@ def contract_schema():
     tables/columns that are no longer required.
 
     """
-    _sync_repo(repo_name='contract_repo')
+    _sync_repo(repo_name=CONTRACT_REPO)
