@@ -138,7 +138,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
         migrate_versions.versions.versions = list(range(0, 5))
         repo.return_value = migrate_versions
 
-        # os.path.isdir() is called by `find_migrate_repo()`. Mock it to avoid
+        # os.path.isdir() is called by `find_repo()`. Mock it to avoid
         # an exception.
         with mock.patch('os.path.isdir', return_value=True):
             # since 0 is the smallest version expect None
@@ -159,7 +159,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
         migrate_versions.versions.versions = list(range(0, 5))
         repo.return_value = migrate_versions
 
-        # os.path.isdir() is called by `find_migrate_repo()`. Mock it to avoid
+        # os.path.isdir() is called by `find_repo()`. Mock it to avoid
         # an exception.
         with mock.patch('os.path.isdir', return_value=True):
             path = '/keystone/' + LEGACY_REPO + '/'
@@ -177,7 +177,7 @@ class MigrationHelpersGetInitVersionTests(unit.TestCase):
                                                         initial_version + 5))
         repo.return_value = migrate_versions
 
-        # os.path.isdir() is called by `find_migrate_repo()`. Mock it to avoid
+        # os.path.isdir() is called by `find_repo()`. Mock it to avoid
         # an exception.
         with mock.patch('os.path.isdir', return_value=True):
             path = '/keystone/' + LEGACY_REPO + '/'
@@ -190,8 +190,7 @@ class MigrationRepository(object):
     def __init__(self, engine, repo_name):
         self.repo_name = repo_name
 
-        self.repo_path = migration_helpers.find_migrate_repo(
-            package=sql, repo_name=self.repo_name)
+        self.repo_path = migration_helpers.find_repo(self.repo_name)
         self.min_version = (
             migration_helpers.get_init_version(abs_path=self.repo_path))
         self.schema_ = versioning_api.ControlledSchema.create(
