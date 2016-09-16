@@ -27,7 +27,7 @@ from keystone.common.sql import contract_repo
 from keystone.common.sql import data_migration_repo
 from keystone.common.sql import expand_repo
 from keystone.common.sql import migrate_repo
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 
 
 class DBOperationNotAllowed(Exception):
@@ -138,7 +138,7 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
 
     @property
     def INIT_VERSION(self):
-        return migration_helpers.get_init_version(
+        return upgrades.get_init_version(
             abs_path=os.path.abspath(os.path.dirname(self.migrate_file)))
 
     @property
@@ -159,7 +159,7 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
 
     def migrate_fully(self, repo_name):
         abs_path = os.path.abspath(os.path.dirname(repo_name))
-        init_version = migration_helpers.get_init_version(abs_path=abs_path)
+        init_version = upgrades.get_init_version(abs_path=abs_path)
         schema = versioning_api.ControlledSchema.create(
             self.migrate_engine, abs_path, init_version)
         max_version = schema.repository.version().version

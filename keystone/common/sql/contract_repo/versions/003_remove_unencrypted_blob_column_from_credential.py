@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 
 import sqlalchemy as sql
 
@@ -22,7 +22,7 @@ def upgrade(migrate_engine):
     credential_table = sql.Table('credential', meta, autoload=True)
     credential_table.c.blob.drop()
 
-    if migration_helpers.USE_TRIGGERS:
+    if upgrades.USE_TRIGGERS:
         if migrate_engine.name == 'postgresql':
             drop_credential_update_trigger = (
                 'DROP TRIGGER credential_update_read_only on credential;'

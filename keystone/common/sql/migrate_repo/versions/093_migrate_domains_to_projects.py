@@ -14,7 +14,7 @@ import json
 
 import sqlalchemy as sql
 
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 
 
 _PROJECT_TABLE_NAME = 'project'
@@ -90,7 +90,7 @@ def upgrade(migrate_engine):
     # the project domain_id to be its parent_id. We re-enable the constraint
     # in the end of this method. We also remove the domain_id constraint,
     # while be recreated a FK to the project_id at the end.
-    migration_helpers.remove_constraints(
+    upgrades.remove_constraints(
         list_existing_project_constraints(project_table, domain_table))
 
     # For each domain, create a project acting as a domain. We ignore the
@@ -119,7 +119,7 @@ def upgrade(migrate_engine):
         session.execute(update)
         session.commit()
 
-    migration_helpers.add_constraints(
+    upgrades.add_constraints(
         list_new_project_constraints(project_table))
 
     session.close()

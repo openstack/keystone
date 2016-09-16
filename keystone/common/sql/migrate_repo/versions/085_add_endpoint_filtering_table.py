@@ -12,12 +12,12 @@
 
 import sqlalchemy as sql
 
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 
 
 def upgrade(migrate_engine):
     try:
-        extension_version = migration_helpers.get_db_version(
+        extension_version = upgrades.get_db_version(
             extension='endpoint_filter',
             engine=migrate_engine)
     except Exception:

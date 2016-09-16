@@ -30,7 +30,7 @@ from keystone.common import driver_hints
 from keystone.common import fernet_utils
 from keystone.common import openssl
 from keystone.common import sql
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
@@ -436,13 +436,13 @@ class DbSync(BaseApp):
         assert_not_extension(CONF.command.extension)
 
         if CONF.command.expand:
-            migration_helpers.expand_schema()
+            upgrades.expand_schema()
         elif CONF.command.migrate:
-            migration_helpers.migrate_data()
+            upgrades.migrate_data()
         elif CONF.command.contract:
-            migration_helpers.contract_schema()
+            upgrades.contract_schema()
         else:
-            migration_helpers.offline_sync_database_to_version(
+            upgrades.offline_sync_database_to_version(
                 CONF.command.version)
 
 
@@ -465,7 +465,7 @@ class DbVersion(BaseApp):
     @staticmethod
     def main():
         assert_not_extension(CONF.command.extension)
-        print(migration_helpers.get_db_version())
+        print(upgrades.get_db_version())
 
 
 class BasePermissionsSetup(BaseApp):

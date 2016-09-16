@@ -25,7 +25,7 @@ from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.common import dependency
-from keystone.common.sql import migration_helpers
+from keystone.common.sql import upgrades
 import keystone.conf
 from keystone.i18n import _
 from keystone.identity.mapping_backends import mapping as identity_mapping
@@ -554,19 +554,19 @@ class CliDBSyncTestCase(unit.BaseTestCase):
         super(CliDBSyncTestCase, self).setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
-        migration_helpers.offline_sync_database_to_version = mock.Mock()
-        migration_helpers.expand_schema = mock.Mock()
-        migration_helpers.migrate_data = mock.Mock()
-        migration_helpers.contract_schema = mock.Mock()
+        upgrades.offline_sync_database_to_version = mock.Mock()
+        upgrades.expand_schema = mock.Mock()
+        upgrades.migrate_data = mock.Mock()
+        upgrades.contract_schema = mock.Mock()
         self.command_expand = False
         self.command_migrate = False
         self.command_contract = False
 
     def _assert_correct_call(self, mocked_function):
-        for func in [migration_helpers.offline_sync_database_to_version,
-                     migration_helpers.expand_schema,
-                     migration_helpers.migrate_data,
-                     migration_helpers.contract_schema]:
+        for func in [upgrades.offline_sync_database_to_version,
+                     upgrades.expand_schema,
+                     upgrades.migrate_data,
+                     upgrades.contract_schema]:
             if func == mocked_function:
                 self.assertTrue(func.called)
             else:
@@ -577,28 +577,28 @@ class CliDBSyncTestCase(unit.BaseTestCase):
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(
-            migration_helpers.offline_sync_database_to_version)
+            upgrades.offline_sync_database_to_version)
 
     def test_db_sync_expand(self):
         self.command_expand = True
         self.useFixture(mockpatch.PatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
-        self._assert_correct_call(migration_helpers.expand_schema)
+        self._assert_correct_call(upgrades.expand_schema)
 
     def test_db_sync_migrate(self):
         self.command_migrate = True
         self.useFixture(mockpatch.PatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
-        self._assert_correct_call(migration_helpers.migrate_data)
+        self._assert_correct_call(upgrades.migrate_data)
 
     def test_db_sync_contract(self):
         self.command_contract = True
         self.useFixture(mockpatch.PatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
-        self._assert_correct_call(migration_helpers.contract_schema)
+        self._assert_correct_call(upgrades.contract_schema)
 
 
 class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
