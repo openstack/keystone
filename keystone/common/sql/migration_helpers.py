@@ -113,17 +113,19 @@ def rename_tables_with_constraints(renames, constraints, engine):
         add_constraints(constraints)
 
 
-def find_migrate_repo(package=None, repo_name=LEGACY_REPO):
-    package = package or sql
+def find_repo(repo_name):
+    """Return the absolute path to the named repository."""
     path = os.path.abspath(os.path.join(
-        os.path.dirname(package.__file__), repo_name))
-    if os.path.isdir(path):
-        return path
-    raise exception.MigrationNotProvided(package.__name__, path)
+        os.path.dirname(sql.__file__), repo_name))
+
+    if not os.path.isdir(path):
+        raise exception.MigrationNotProvided(sql.__name__, path)
+
+    return path
 
 
 def _sync_common_repo(version):
-    abs_path = find_migrate_repo()
+    abs_path = find_repo(LEGACY_REPO)
     init_version = get_init_version()
     with sql.session_for_write() as session:
         engine = session.get_bind()
@@ -133,7 +135,7 @@ def _sync_common_repo(version):
 
 
 def _sync_repo(repo_name):
-    abs_path = find_migrate_repo(repo_name=repo_name)
+    abs_path = find_repo(repo_name)
     with sql.session_for_write() as session:
         engine = session.get_bind()
         # Register the repo with the version control API
@@ -156,7 +158,7 @@ def get_init_version(abs_path=None):
     :return:         initial version number or None, if DB is empty.
     """
     if abs_path is None:
-        abs_path = find_migrate_repo()
+        abs_path = find_repo(LEGACY_REPO)
 
     repo = migrate.versioning.repository.Repository(abs_path)
 
@@ -216,9 +218,8 @@ def offline_sync_database_to_version(version=None):
 
 def get_db_version():
     with sql.session_for_read() as session:
-        return migration.db_version(session.get_bind(),
-                                    find_migrate_repo(),
-                                    get_init_version())
+        return migration.db_version(
+            session.get_bind(), find_repo(LEGACY_REPO), get_init_version())
 
 
 def expand_schema():
