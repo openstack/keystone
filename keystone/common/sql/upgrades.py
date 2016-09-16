@@ -18,6 +18,7 @@ import os
 
 import migrate
 from migrate import exceptions
+from migrate.versioning import api as versioning_api
 from oslo_db.sqlalchemy import migration
 import six
 import sqlalchemy
@@ -36,6 +37,42 @@ LEGACY_REPO = 'migrate_repo'
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
+
+
+class Repository(object):
+    def __init__(self, engine, repo_name):
+        self.repo_name = repo_name
+
+        self.repo_path = find_repo(self.repo_name)
+        self.min_version = (
+            get_init_version(abs_path=self.repo_path))
+        self.schema_ = versioning_api.ControlledSchema.create(
+            engine, self.repo_path, self.min_version)
+        self.max_version = self.schema_.repository.version().version
+
+    def upgrade(self, version=None, current_schema=None):
+        version = version or self.max_version
+        err = ''
+        upgrade = True
+        version = versioning_api._migrate_version(
+            self.schema_, version, upgrade, err)
+        if not current_schema:
+            current_schema = self.schema_
+        changeset = current_schema.changeset(version)
+        for ver, change in changeset:
+            self.schema_.runchange(ver, change, changeset.step)
+
+        if self.schema_.version != version:
+            raise Exception(
+                'Actual version (%s) of %s does not equal expected '
+                'version (%s)' % (
+                    self.schema_.version, self.repo_name, version))
+
+    @property
+    def version(self):
+        with sql.session_for_read() as session:
+            return migration.db_version(
+                session.get_bind(), self.repo_path, self.min_version)
 
 
 #  Different RDBMSs use different schemes for naming the Foreign Key

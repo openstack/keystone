@@ -35,11 +35,9 @@ import json
 import uuid
 
 import migrate
-from migrate.versioning import api as versioning_api
 from migrate.versioning import repository
 import mock
 from oslo_db import exception as db_exception
-from oslo_db.sqlalchemy import migration
 from oslo_db.sqlalchemy import test_base
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
@@ -186,42 +184,6 @@ class SqlUpgradeGetInitVersionTests(unit.TestCase):
             self.assertEqual(initial_version, version)
 
 
-class MigrationRepository(object):
-    def __init__(self, engine, repo_name):
-        self.repo_name = repo_name
-
-        self.repo_path = upgrades.find_repo(self.repo_name)
-        self.min_version = (
-            upgrades.get_init_version(abs_path=self.repo_path))
-        self.schema_ = versioning_api.ControlledSchema.create(
-            engine, self.repo_path, self.min_version)
-        self.max_version = self.schema_.repository.version().version
-
-    def upgrade(self, version=None, current_schema=None):
-        version = version or self.max_version
-        err = ''
-        upgrade = True
-        version = versioning_api._migrate_version(
-            self.schema_, version, upgrade, err)
-        if not current_schema:
-            current_schema = self.schema_
-        changeset = current_schema.changeset(version)
-        for ver, change in changeset:
-            self.schema_.runchange(ver, change, changeset.step)
-
-        if self.schema_.version != version:
-            raise Exception(
-                'Actual version (%s) of %s does not equal expected '
-                'version (%s)' % (
-                    self.schema_.version, self.repo_name, version))
-
-    @property
-    def version(self):
-        with sql.session_for_read() as session:
-            return migration.db_version(
-                session.get_bind(), self.repo_path, self.min_version)
-
-
 class SqlMigrateBase(test_base.DbTestCase):
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
@@ -237,11 +199,11 @@ class SqlMigrateBase(test_base.DbTestCase):
         self.addCleanup(sql.cleanup)
 
         self.repos = {
-            LEGACY_REPO: MigrationRepository(self.engine, LEGACY_REPO),
-            EXPAND_REPO: MigrationRepository(self.engine, EXPAND_REPO),
-            DATA_MIGRATION_REPO: MigrationRepository(
+            LEGACY_REPO: upgrades.Repository(self.engine, LEGACY_REPO),
+            EXPAND_REPO: upgrades.Repository(self.engine, EXPAND_REPO),
+            DATA_MIGRATION_REPO: upgrades.Repository(
                 self.engine, DATA_MIGRATION_REPO),
-            CONTRACT_REPO: MigrationRepository(self.engine, CONTRACT_REPO)}
+            CONTRACT_REPO: upgrades.Repository(self.engine, CONTRACT_REPO)}
 
     def upgrade(self, *args, **kwargs):
         """Upgrade the legacy migration repository."""
