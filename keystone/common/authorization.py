@@ -109,4 +109,5 @@ def token_to_auth_context(token):
     if token.is_federated_user:
         auth_context['group_ids'] = token.federation_group_ids
 
+    auth_context['is_admin_project'] = token.is_admin_project
     return auth_context
