@@ -105,7 +105,6 @@ than the `password_expires_days`.
 
 password_regex = cfg.StrOpt(
     'password_regex',
-    default=None,
     help=utils.fmt("""
 The regular expression used to validate password strength requirements. By
 default, the regular expression will match any password. The following is an
@@ -116,7 +115,6 @@ depends on the `sql` backend for the `[identity] driver`.
 
 password_regex_description = cfg.StrOpt(
     'password_regex_description',
-    default=None,
     help=utils.fmt("""
 Describe your password regular expression here in language for humans. If a
 password fails to match the regular expression, the contents of this
