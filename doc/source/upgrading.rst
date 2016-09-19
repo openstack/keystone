@@ -112,8 +112,8 @@ In these steps the nodes will be divided into ``first`` and ``other`` nodes.
    the `Rollback after a failed upgrade`_ section below.
 
 #. Once you have verified that keystone is up and running, begin the upgrade on
-  the ``other`` nodes. This entails updating configuration files and upgrading
-  the code. The ``db_sync`` does not need to be run again.
+   the ``other`` nodes. This entails updating configuration files and upgrading
+   the code. The ``db_sync`` does not need to be run again.
 
 #. On the node where you stopped the database service, be sure to restart
    it and ensure that it properly rejoins the cluster.
