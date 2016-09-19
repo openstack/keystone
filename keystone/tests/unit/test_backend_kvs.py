@@ -20,6 +20,7 @@ import six
 from keystone.common import utils
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.token import test_backends as token_tests
 
@@ -110,6 +111,11 @@ class KvsTokenCacheInvalidation(unit.TestCase,
         super(KvsTokenCacheInvalidation, self).setUp()
         self.useFixture(database.Database(self.sql_driver_version_overrides))
         self.load_backends()
+
+        # populate the engine with tables & fixtures
+        self.load_fixtures(default_fixtures)
+        # defaulted by the data load
+        self.user_foo['enabled'] = True
         self._create_test_data()
 
     def config_overrides(self):
