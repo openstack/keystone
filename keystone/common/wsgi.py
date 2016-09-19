@@ -78,15 +78,18 @@ def validate_token_bind(context, token_ref):
             # no bind provided and none required
             return
         else:
-            LOG.info(_LI("No bind information present in token"))
-            raise exception.Unauthorized()
+            msg = _('No bind information present in token.')
+            LOG.info(msg)
+            raise exception.Unauthorized(msg)
 
     # get the named mode if bind_mode is not one of the known
     name = None if permissive or bind_mode == 'required' else bind_mode
 
     if name and name not in bind:
-        LOG.info(_LI("Named bind mode %s not in bind information"), name)
-        raise exception.Unauthorized()
+        msg = (_('Named bind mode %(name)s not in bind information') %
+               {'name': name})
+        LOG.info(msg)
+        raise exception.Unauthorized(msg)
 
     for bind_type, identifier in bind.items():
         if bind_type == 'kerberos':
@@ -299,13 +302,13 @@ class Application(BaseApplication):
                 creds['user_id'] = user_token_ref.user_id
             except exception.UnexpectedError:
                 LOG.debug('Invalid user')
-                raise exception.Unauthorized()
+                raise exception.Unauthorized(_('Invalid user'))
 
             if user_token_ref.project_scoped:
                 creds['tenant_id'] = user_token_ref.project_id
             else:
                 LOG.debug('Invalid tenant')
-                raise exception.Unauthorized()
+                raise exception.Unauthorized(_('Invalid tenant'))
 
             creds['roles'] = user_token_ref.role_names
             # Accept either is_admin or the admin role

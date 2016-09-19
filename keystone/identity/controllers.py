@@ -21,7 +21,7 @@ from keystone.common import dependency
 from keystone.common import validation
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LW
+from keystone.i18n import _, _LW
 from keystone.identity import schema
 
 
@@ -290,8 +290,9 @@ class UserV3(controller.V3Controller):
         try:
             self.identity_api.change_password(
                 request, user_id, original_password, password)
-        except AssertionError:
-            raise exception.Unauthorized()
+        except AssertionError as e:
+            raise exception.Unauthorized(_(
+                'Error when changing user password: %s') % e)
 
 
 @dependency.requires('identity_api')
