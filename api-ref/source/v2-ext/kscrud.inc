@@ -20,7 +20,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
+   - userId: user_id_path
    - user: user
-   - original_password: original_password
-   - password: new_password
+   - original_password: user_original_password
+   - password: user_new_password

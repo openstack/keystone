@@ -11,7 +11,7 @@ roles, and services. Requires administrator privileges.
 Enable (Disable) user
 =====================
 
-.. rest_method::  PUT /v2.0/users/{userId}/OS-KSADM/enabled
+.. rest_method::  PUT /v2.0/users/{user_id}/OS-KSADM/enabled
 
 Enables or disables a user.
 
@@ -23,8 +23,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - enabled: enabled_user
+   - user_id: user_id_path
+   - enabled: user_enabled
 
 Request Example
 ---------------
@@ -37,11 +37,13 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - email: email
-   - enabled: enabled
-   - id: id
-   - name: name
-   - username: username
+   - user: user
+   - email: user_email
+   - enabled: user_enabled
+   - id: user_id_response
+   - name: user_name
+   - username: user_name
+   - tenantId: tenant_id_response
 
 Response Example
 ----------------
@@ -53,7 +55,7 @@ Response Example
 Set user password
 =================
 
-.. rest_method::  PUT /v2.0/users/{userId}/OS-KSADM/password
+.. rest_method::  PUT /v2.0/users/{user_id}/OS-KSADM/password
 
 Sets a user's password
 
@@ -65,8 +67,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - password: new_password
+   - user_id: user_id_path
+   - password: user_new_password
 
 Request Example
 ---------------
@@ -79,11 +81,13 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - enabled: enabled
-   - email: email
-   - name: name
-   - id: id
-   - username: username
+   - user: user
+   - enabled: user_enabled
+   - email: user_email
+   - name: user_name
+   - username: user_name
+   - id: user_id_response
+   - tenantId: tenant_id_response
 
 Response Example
 ----------------
@@ -95,7 +99,7 @@ Response Example
 Update user tenant
 ==================
 
-.. rest_method:: PUT /v2.0/users/{userId}/OS-KSADM/tenant
+.. rest_method:: PUT /v2.0/users/{user_id}/OS-KSADM/tenant
 
 Sets a user's tenant
 
@@ -108,8 +112,8 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - tenantId: tenantId
+   - user_id: user_id_path
+   - tenantId: tenant_id_request
 
 Request Example
 ---------------
@@ -122,12 +126,14 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - email: email
-   - enabled: enabled
-   - tenantId: tenantId
-   - id: id
-   - name: name
-   - username: username
+   - user: user
+   - email: user_email
+   - enabled: user_enabled
+   - tenant: tenant_id_response
+   - id: user_id_response
+   - name: user_name
+   - username: user_name
+   - tenantId: tenant_id_response
 
 Response Example
 ----------------
@@ -158,10 +164,10 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - Location: Location
-   - type: type
-   - description: description
-   - name: name
-   - id: id
+   - type: service_type
+   - description: service_description
+   - name: service_name
+   - id: service_id
 
 
 List services (admin extension)
@@ -179,10 +185,10 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
-   - description: description
-   - name: name
-   - id: id
+   - type: service_type
+   - description: service_description
+   - name: service_name
+   - id: service_id
 
 Response Example
 ----------------
@@ -194,7 +200,7 @@ Response Example
 Shows service information by ID
 ===============================
 
-.. rest_method::  GET /v2.0/OS-KSADM/services/{serviceId}
+.. rest_method::  GET /v2.0/OS-KSADM/services/{service_id}
 
 Shows information for a service, by ID.
 
@@ -206,17 +212,17 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - serviceId: serviceId
+   - service_id: service_id_path
 
 Response Parameters
 -------------------
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
-   - description: description
-   - name: name
-   - id: id
+   - type: service_type
+   - description: service_description
+   - name: service_name
+   - id: service_id
 
 Response Example
 ----------------
@@ -240,10 +246,10 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
-   - description: description
-   - name: name
-   - id: id
+   - type: service_type
+   - description: service_description
+   - name: service_name
+   - id: service_id
 
 Response Example
 ----------------
@@ -255,7 +261,7 @@ Response Example
 Delete service (admin extension)
 ================================
 
-.. rest_method::  DELETE /v2.0/OS-KSADM/services/{serviceId}
+.. rest_method::  DELETE /v2.0/OS-KSADM/services/{service_id}
 
 Deletes a service.
 
@@ -267,7 +273,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - serviceId: serviceId
+   - service_id: service_id_path
 
 
 Create a role
@@ -309,11 +315,11 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - roles_links: roles_links
+   - role_links: role_links
    - roles: roles
-   - description: description
-   - name: name
-   - id: id
+   - description: role_description
+   - name: role_name
+   - id: role_id
 
 Response Example
 ----------------
@@ -325,7 +331,7 @@ Response Example
 Show a role
 ===========
 
-.. rest_method::  GET /v2.0/OS-KSADM/roles/{roleId}
+.. rest_method::  GET /v2.0/OS-KSADM/roles/{role_id}
 
 Shows details for a role.
 
@@ -337,7 +343,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - roleId: roleId
+   - role_id: role_id_path
 
 Response Parameters
 -------------------
@@ -345,9 +351,9 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - Location: Location
-   - description: description
-   - name: name
-   - id: id
+   - description: role_description
+   - name: role_name
+   - id: role_id
 
 Response Example
 ----------------
@@ -372,9 +378,9 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - Location: Location
-   - description: description
-   - name: name
-   - id: id
+   - description: role_description
+   - name: role_name
+   - id: role_id
 
 Response Example
 ----------------
@@ -386,7 +392,7 @@ Response Example
 Delete a role
 =============
 
-.. rest_method::  DELETE /v2.0/OS-KSADM/roles/{roleId}
+.. rest_method::  DELETE /v2.0/OS-KSADM/roles/{role_id}
 
 Deletes a role.
 
@@ -398,13 +404,13 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - roleId: roleId
+   - role_id: role_id_path
 
 
 Grant roles to user on tenant
 =============================
 
-.. rest_method::  PUT /v2.0/tenants/{tenantId}/users/{userId}/roles/OS-KSADM/{roleId}
+.. rest_method::  PUT /v2.0/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}
 
 Grants a role to a user for a tenant.
 
@@ -416,15 +422,15 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - roleId: roleId
-   - tenantId: tenantId
+   - user_id: user_id_path
+   - role_id: role_id_path
+   - tenant_id: tenant_id_path
 
 
 Revoke role from user on tenant
 ===============================
 
-.. rest_method::  DELETE /v2.0/tenants/{tenantId}/users/{userId}/roles/OS-KSADM/{roleId}
+.. rest_method::  DELETE /v2.0/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}
 
 Revokes a role from a user for a tenant.
 
@@ -436,6 +442,6 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - userId: userId
-   - roleId: roleId
-   - tenantId: tenantId
+   - user_id: user_id_path
+   - role_id: role_id_path
+   - tenant_id: tenant_id_path

@@ -113,7 +113,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - type: type
+   - type: credential_type
 
 Response Example
 ----------------
