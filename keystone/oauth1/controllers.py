@@ -242,11 +242,24 @@ class OAuthControllerV3(controller.V3Controller):
             http_method='POST',
             body=request.params,
             headers=req_headers)
-
-        if (not b) or int(s) > 399:
+        if not b:
             msg = _('Invalid signature')
             raise exception.Unauthorized(message=msg)
-
+        # show the details of the failure.
+        params = oauth1.extract_non_oauth_params(b)
+        if params:
+            if 'error' in params:
+                msg = _(
+                    'Validation failed with errors: %(error)s, detail '
+                    'message is: %(desc)s.') % {
+                        'error': params['error'],
+                        'desc': params['error_description']}
+            else:
+                msg = _(
+                    'Unknown parameters found, '
+                    'please provide only oauth parameters.')
+            LOG.warning(msg)
+            raise exception.ValidationError(message=msg)
         request_token_duration = CONF.oauth1.request_token_duration
         initiator = notifications._get_request_audit_info(request.context_dict)
         token_ref = self.oauth_api.create_request_token(consumer_id,
