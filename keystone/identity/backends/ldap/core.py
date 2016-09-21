@@ -205,10 +205,10 @@ class Identity(base.IdentityDriverV8):
             try:
                 users.append(self.user.get_filtered(user_id))
             except exception.UserNotFound:
-                LOG.debug(("Group member '%(user_key)s' not found in"
-                           " '%(group_id)s'. The user should be removed"
-                           " from the group. The user will be ignored."),
-                          dict(user_key=user_key, group_id=group_id))
+                msg = ('Group member `%(user_key)s` not found in'
+                       ' `%(group_id)s`. The user should be removed'
+                       ' from the group. The user will be ignored.')
+                LOG.debug(msg, dict(user_key=user_key, group_id=group_id))
         return users
 
     def check_user_in_group(self, user_id, group_id):
