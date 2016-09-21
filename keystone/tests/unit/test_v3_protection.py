@@ -1871,3 +1871,69 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self._domain_role_management_cases(
             self.domainA['id'], read_status_OK=True,
             expected=exception.ForbiddenAction.code)
+
+
+class IdentityTestImpliedDomainSpecificRoles(IdentityTestv3CloudPolicySample):
+    """Test Domain specific Implied Roles via the REST API."""
+
+    def setUp(self):
+        super(IdentityTestImpliedDomainSpecificRoles, self).setUp()
+
+        domain_admin_auth = self.build_authentication_request(
+            user_id=self.domain_admin_user['id'],
+            password=self.domain_admin_user['password'],
+            domain_id=self.domainA['id'])
+        self.admin_token = self.get_requested_token(domain_admin_auth)
+
+        self.appdev_role = unit.new_role_ref(domain_id=self.domainA['id'])
+        self.role_api.create_role(self.appdev_role['id'], self.appdev_role)
+
+        self.appadmin_role = unit.new_role_ref(domain_id=self.domainA['id'])
+        self.role_api.create_role(self.appadmin_role['id'], self.appadmin_role)
+
+    def _create_implied_role(self):
+        self.role_api.create_implied_role(self.appadmin_role['id'],
+                                          self.appdev_role['id'])
+
+    def test_get(self):
+        # A domain admin should be able to get an existing implied role
+        # on the domain for which they are the admin.
+        self._create_implied_role()
+
+        self.get('/roles/%s/implies/%s'
+                 % (self.appadmin_role['id'], self.appdev_role['id']),
+                 token=self.admin_token)
+
+    def test_list(self):
+        # A domain admin should be able to list the implications of an
+        # existing implied role on the domain for which they are the admin.
+        self._create_implied_role()
+
+        self.get('/roles/%s/implies' % (self.appadmin_role['id'], ),
+                 token=self.admin_token)
+
+    def test_check(self):
+        # A domain admin should be able to check an existing implied role
+        # on the domain for which they are the admin.
+        self._create_implied_role()
+
+        self.head('/roles/%s/implies/%s'
+                  % (self.appadmin_role['id'], self.appdev_role['id']),
+                  token=self.admin_token)
+
+    def test_put(self):
+        # A domain admin should be able to create an implied role on the
+        # domain for which they are the admin.
+        self.put('/roles/%s/implies/%s'
+                 % (self.appadmin_role['id'], self.appdev_role['id']),
+                 token=self.admin_token,
+                 expected_status=http_client.CREATED)
+
+    def test_delete(self):
+        # A domain admin should be able to check an existing implied role
+        # on the domain for which they are the admin.
+        self._create_implied_role()
+
+        self.delete('/roles/%s/implies/%s'
+                    % (self.appadmin_role['id'], self.appdev_role['id']),
+                    token=self.admin_token)
