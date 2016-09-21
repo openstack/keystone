@@ -705,7 +705,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         request_token.set_verifier(uuid.uuid4().hex)
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http_client.BAD_REQUEST)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Validation failed with errors',
                       resp_data.get('error', {}).get('message'))
