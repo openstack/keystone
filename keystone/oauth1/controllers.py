@@ -246,20 +246,7 @@ class OAuthControllerV3(controller.V3Controller):
             msg = _('Invalid signature')
             raise exception.Unauthorized(message=msg)
         # show the details of the failure.
-        params = oauth1.extract_non_oauth_params(b)
-        if params:
-            if 'error' in params:
-                msg = _(
-                    'Validation failed with errors: %(error)s, detail '
-                    'message is: %(desc)s.') % {
-                        'error': params['error'],
-                        'desc': params['error_description']}
-            else:
-                msg = _(
-                    'Unknown parameters found, '
-                    'please provide only oauth parameters.')
-            LOG.warning(msg)
-            raise exception.ValidationError(message=msg)
+        oauth1.validate_oauth_params(b)
         request_token_duration = CONF.oauth1.request_token_duration
         initiator = notifications._get_request_audit_info(request.context_dict)
         token_ref = self.oauth_api.create_request_token(consumer_id,
@@ -345,22 +332,8 @@ class OAuthControllerV3(controller.V3Controller):
                 msg = _('Invalid signature.')
             LOG.warning(msg)
             raise exception.Unauthorized(message=msg)
-        params = oauth1.extract_non_oauth_params(b)
-        # Invalid request would end up with the body like below:
-        # 'error=invalid_request&description=missing+resource+owner+key'
-        # Log this detail message so that we will know where is the
-        # validation failed.
-        if params:
-            if 'error' in params:
-                msg = _(
-                    'Validation failed with errors: %(error)s, detail '
-                    'message is: %(desc)s.') % {
-                        'error': params['error'],
-                        'desc': params['error_description']}
-            else:
-                msg = _('There should not be any non-oauth parameters.')
-            LOG.warning(msg)
-            raise exception.Unauthorized(message=msg)
+        # show the details of the failure.
+        oauth1.validate_oauth_params(b)
         if not req_token.get('authorizing_user_id'):
             msg = _('Request Token does not have an authorizing user id.')
             LOG.warning(msg)

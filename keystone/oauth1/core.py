@@ -28,7 +28,7 @@ from keystone.common import extension
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LE
+from keystone.i18n import _, _LE
 from keystone import notifications
 from keystone.oauth1.backends import base
 
@@ -103,9 +103,26 @@ def get_oauth_headers(headers):
         raise exception.OAuthHeadersMissingError()
 
 
-def extract_non_oauth_params(query_string):
+def validate_oauth_params(query_string):
+    # Invalid request would end up with the body like below:
+    # 'error=invalid_request&description=missing+resource+owner+key'
+    # Log this detail message so that we will know where is the
+    # validation failed.
     params = oauthlib.common.extract_params(query_string)
-    return {k: v for k, v in params if not k.startswith('oauth_')}
+    params_fitered = {k: v for k, v in params if not k.startswith('oauth_')}
+    if params_fitered:
+        if 'error' in params_fitered:
+            msg = _(
+                'Validation failed with errors: %(error)s, detail '
+                'message is: %(desc)s.') % {
+                    'error': params_fitered['error'],
+                    'desc': params_fitered['error_description']}
+        else:
+            msg = _(
+                'Unknown parameters found, '
+                'please provide only oauth parameters.')
+        LOG.warning(msg)
+        raise exception.ValidationError(message=msg)
 
 
 @dependency.provider('oauth_api')
