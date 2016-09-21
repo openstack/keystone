@@ -75,6 +75,7 @@ Advanced Topics
    auth-totp
    event_notifications
    external-auth
+   security_compliance
 
 Man Pages
 =========
