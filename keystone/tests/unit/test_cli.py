@@ -56,7 +56,7 @@ class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
     def test_token_flush_excepts_not_implemented_and_logs_warning(self):
         self.useFixture(database.Database())
         self.load_backends()
-        self.config_fixture.config(group='token', driver='memcache')
+        self.config_fixture.config(group='token', driver='kvs')
         log_info = self.useFixture(fixtures.FakeLogger(level=log.WARN))
         cli.TokenFlush.main()
         self.assertIn("token_flush command had no effect", log_info.output)
