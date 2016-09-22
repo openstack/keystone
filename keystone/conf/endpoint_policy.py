@@ -11,25 +11,9 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import versionutils
 
 from keystone.conf import utils
 
-
-enabled = cfg.BoolOpt(
-    'enabled',
-    default=True,
-    deprecated_for_removal=True,
-    deprecated_reason=utils.fmt("""
-The option to enable the OS-ENDPOINT-POLICY API extension has been deprecated
-in the M release and will be removed in the O release. The OS-ENDPOINT-POLICY
-API extension will be enabled by default.
-"""),
-    deprecated_since=versionutils.deprecated.MITAKA,
-    help=utils.fmt("""
-Enable endpoint-policy functionality, which allows policies to be associated
-with either specific endpoints, or endpoints of a given service type.
-"""))
 
 driver = cfg.StrOpt(
     'driver',
@@ -43,7 +27,6 @@ to set this unless you are providing a custom entry point.
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
-    enabled,
     driver,
 ]
 
