@@ -54,6 +54,10 @@
     Something went wrong inside the service. This should not happen usually.
     If it does happen, it means the server has experienced some serious
     problems.
+501:
+  default: |
+    The server either does not recognize the request method, or it lacks the
+    ability to fulfill the request.
 503:
   default: |
     Service is not available. This is mostly caused by service configuration

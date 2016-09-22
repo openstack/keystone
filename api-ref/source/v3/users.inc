@@ -26,12 +26,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
 
 Shows details for a user.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes:413,405,404,403,401,400,503,
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -65,18 +75,29 @@ Update user
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
 
-Updates a user's password, or whether they are enabled or
-disabled.
+Updates a user's password, or whether they are enabled or disabled.
 
 If the back-end driver does not support this functionality, this
 call might return the HTTP ``Not Implemented (501)`` response code.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes:413,415,405,404,403,401,400,503,409,
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+   - 501
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -124,10 +145,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
 
 Deletes a user.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Response Codes
+--------------
 
-Request
--------
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -143,12 +176,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_grou
 
 Lists groups to which a user belongs.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes:413,405,404,403,401,400,503,
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -170,10 +213,23 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_chan
 
 Changes the password for a user.
 
-Error response codes:204,413,415,405,404,403,401,400,503,409,
+Response Codes
+--------------
 
-Request
--------
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -198,10 +254,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
 
 Creates a user.
 
-Error response codes:201,413,415,405,404,403,401,400,503,409,
+Response Codes
+--------------
 
-Request
--------
+.. rest_status_code:: success status.yaml
+
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 409
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -242,12 +310,21 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
 
 Lists users.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes:413,405,404,403,401,400,503,
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
@@ -286,12 +363,22 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_proj
 
 List projects for a user.
 
-Normal response codes: 200
+Response Codes
+--------------
 
-Error response codes:413,405,404,403,401,400,503,
+.. rest_status_code:: success status.yaml
 
-Request
--------
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
 
 .. rest_parameters:: parameters.yaml
 
