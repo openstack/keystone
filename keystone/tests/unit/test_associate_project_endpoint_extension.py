@@ -15,12 +15,9 @@
 import copy
 import uuid
 
-import mock
-from oslo_log import versionutils
 from six.moves import http_client
 from testtools import matchers
 
-from keystone.contrib.endpoint_filter import routers
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
@@ -39,16 +36,6 @@ class EndpointFilterTestCase(test_v3.RestfulTestCase):
             '/endpoints/%(endpoint_id)s' % {
                 'project_id': self.default_domain_project_id,
                 'endpoint_id': self.endpoint_id})
-
-
-class EndpointFilterDeprecateTestCase(test_v3.RestfulTestCase):
-
-    @mock.patch.object(versionutils, 'report_deprecated_feature')
-    def test_exception_happens(self, mock_deprecator):
-        routers.EndpointFilterExtension(mock.ANY)
-        mock_deprecator.assert_called_once_with(mock.ANY, mock.ANY)
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("Remove endpoint_filter_extension from", args[1])
 
 
 class EndpointFilterCRUDTestCase(EndpointFilterTestCase):

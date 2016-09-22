@@ -20,7 +20,6 @@ import uuid
 import fixtures
 from lxml import etree
 import mock
-from oslo_log import versionutils
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
 import saml2
@@ -34,7 +33,6 @@ if not xmldsig:
 
 from keystone.auth import controllers as auth_controllers
 import keystone.conf
-from keystone.contrib.federation import routers
 from keystone import exception
 from keystone.federation import controllers as federation_controllers
 from keystone.federation import idp as keystone_idp
@@ -56,16 +54,6 @@ XMLDIR = os.path.join(ROOTDIR, 'saml2/')
 
 def dummy_validator(*args, **kwargs):
     pass
-
-
-class FederationTests(test_v3.RestfulTestCase):
-
-    @mock.patch.object(versionutils, 'report_deprecated_feature')
-    def test_exception_happens(self, mock_deprecator):
-        routers.FederationExtension(mock.ANY)
-        mock_deprecator.assert_called_once_with(mock.ANY, mock.ANY)
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("Remove federation_extension from", args[1])
 
 
 class FederatedSetupMixin(object):
