@@ -207,12 +207,11 @@ class Manager(manager.Manager):
             except exception.TokenNotFound:
                 six.reraise(*exc_info)
 
-    def validate_token(self, token_id, belongs_to=None):
+    def validate_token(self, token_id):
         unique_id = utils.generate_unique_id(token_id)
         # NOTE(morganfainberg): Ensure we never use the long-form token_id
         # (PKI) as part of the cache_key.
         token = self._validate_token(unique_id)
-        self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token
 
@@ -226,7 +225,7 @@ class Manager(manager.Manager):
             token_data, CONF.identity.default_domain_id)
         self.revoke_api.check_token(token_values)
 
-    def validate_v2_token(self, token_id, belongs_to=None):
+    def validate_v2_token(self, token_id):
         # NOTE(lbragstad): Only go to the persistence backend if the token
         # provider requires it.
         if self._needs_persistence:
@@ -249,8 +248,6 @@ class Manager(manager.Manager):
             v2_token_data_helper = providers.common.V2TokenDataHelper()
             token = v2_token_data_helper.v3_to_v2_token(v3_token_ref, token_id)
 
-        # these are common things that happen regardless of token provider
-        self._token_belongs_to(token, belongs_to)
         self._is_valid_token(token)
         return token
 
@@ -350,19 +347,6 @@ class Manager(manager.Manager):
             return None
         else:
             raise exception.TokenNotFound(_('Failed to validate token'))
-
-    def _token_belongs_to(self, token, belongs_to):
-        """Check if the token belongs to the right tenant.
-
-        This is only used on v2 tokens.  The structural validity of the token
-        will have already been checked before this method is called.
-
-        """
-        if belongs_to:
-            token_data = token['access']['token']
-            if ('tenant' not in token_data or
-                    token_data['tenant']['id'] != belongs_to):
-                raise exception.Unauthorized()
 
     def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
         token_id, token_data = self.driver.issue_v2_token(
