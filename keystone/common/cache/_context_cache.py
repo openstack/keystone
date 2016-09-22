@@ -39,14 +39,12 @@ class _ResponseCacheProxy(proxy.ProxyBackend):
     def _get_request_key(self, key):
         return self.__key_pfx % key
 
-    def _set_local_cache(self, key, value, ctx=None):
+    def _set_local_cache(self, key, value):
         # Set a serialized version of the returned value in local cache for
         # subsequent calls to the memoized method.
-        if not ctx:
-            ctx = self._get_request_context()
+        ctx = self._get_request_context()
         serialize = {'payload': value.payload, 'metadata': value.metadata}
         setattr(ctx, self._get_request_key(key), msgpackutils.dumps(serialize))
-        ctx.update_store()
 
     def _get_local_cache(self, key):
         # Return the version from our local request cache if it exists.
@@ -65,7 +63,6 @@ class _ResponseCacheProxy(proxy.ProxyBackend):
         ctx = self._get_request_context()
         try:
             delattr(ctx, self._get_request_key(key))
-            ctx.update_store()
         except AttributeError:  # nosec
             # NOTE(morganfainberg): We will simply pass here, this value has
             # not been cached locally in the request.
@@ -99,9 +96,8 @@ class _ResponseCacheProxy(proxy.ProxyBackend):
         return [values[k] for k in keys]
 
     def set_multi(self, mapping):
-        ctx = self._get_request_context()
         for k, v in mapping.items():
-            self._set_local_cache(k, v, ctx)
+            self._set_local_cache(k, v)
         self.proxied.set_multi(mapping)
 
     def delete_multi(self, keys):
