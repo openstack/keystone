@@ -398,24 +398,6 @@ class Auth(controller.V2Controller):
 
         return (tenant_ref, role_list)
 
-    def _get_token_ref(self, token_id, belongs_to=None):
-        """Return a token if a valid one exists.
-
-        Optionally, limited to a token owned by a specific tenant.
-
-        """
-        token_ref = token_model.KeystoneToken(
-            token_id=token_id,
-            token_data=self.token_provider_api.validate_token(token_id))
-        if belongs_to:
-            if not token_ref.project_scoped:
-                raise exception.Unauthorized(
-                    _('Token does not belong to specified tenant.'))
-            if token_ref.project_id != belongs_to:
-                raise exception.Unauthorized(
-                    _('Token does not belong to specified tenant.'))
-        return token_ref
-
     def _token_belongs_to(self, token, belongs_to):
         """Check if the token belongs to the right project.
 
@@ -495,7 +477,8 @@ class Auth(controller.V2Controller):
         """Return a list of endpoints available to the token."""
         self.assert_admin(request)
 
-        token_ref = self._get_token_ref(token_id)
+        token_data = self.token_provider_api.validate_token(token_id)
+        token_ref = token_model.KeystoneToken(token_id, token_data)
 
         catalog_ref = None
         if token_ref.project_id:
