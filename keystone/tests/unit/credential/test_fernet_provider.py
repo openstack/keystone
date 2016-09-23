@@ -57,6 +57,16 @@ class TestFernetCredentialProviderWithNullKey(unit.TestCase):
         super(TestFernetCredentialProviderWithNullKey, self).setUp()
         self.provider = credential_fernet.Provider()
         self.useFixture(database.Database())
+        # Only do this to set the key_repository location in configuration. To
+        # test the null key path, we need to make it so that the key repository
+        # doesn't actually exist. If you're running the tests locally and have
+        # bootstrapped a credential key repository in
+        # `/etc/keystone/credential-keys` this will fail unless we override the
+        # default.
+        self.config_fixture.config(
+            group='credential',
+            key_repository=self.useFixture(fixtures.TempDir()).path
+        )
 
     def test_encryption_with_null_key(self):
         null_key = fernet_utils.NULL_KEY
