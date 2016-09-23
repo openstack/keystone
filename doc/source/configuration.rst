@@ -895,9 +895,8 @@ For example:
     [endpoint_filter]
     return_all_endpoints_if_no_filter = False
 
-See `API Specification for Endpoint Filtering <http://specs.openstack.org/
-openstack/keystone-specs/api/v3/identity-api-v3-os-ep-filter-ext.html>`_ for
-the details of API definition.
+See `API Specification for Endpoint Filtering <http://developer.openstack.org/
+api-ref/identity/v3-ext/#os-ep-filter-api>`_ for the details of API definition.
 
 .. NOTE:: Support status for Endpoint Filtering
 
