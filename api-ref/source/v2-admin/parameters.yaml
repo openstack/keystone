@@ -47,6 +47,12 @@ userId:
   type: string
 
 # variables in query
+belongsTo:
+  description: |
+    Project ID to check against token scope.
+  in: query
+  required: false
+  type: string
 tenant_name_query:
   description: |
     Filters the response by a tenant name.

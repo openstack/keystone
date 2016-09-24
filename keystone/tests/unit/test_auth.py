@@ -410,33 +410,52 @@ class AuthWithToken(object):
                 }
             })
         unscoped_token_id = r['access']['token']['id']
+        query_string = 'belongsTo=%s' % self.tenant_bar['id']
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            self.make_request(is_admin=True, query_string='belongsTo=BAR'),
+            self.make_request(is_admin=True, query_string=query_string),
+            token_id=unscoped_token_id)
+
+        self.assertRaises(
+            exception.Unauthorized,
+            self.controller.validate_token_head,
+            self.make_request(is_admin=True, query_string=query_string),
             token_id=unscoped_token_id)
 
     def test_belongs_to(self):
         body_dict = _build_user_auth(
             username='FOO',
             password='foo2',
-            tenant_name="BAR")
+            tenant_name=self.tenant_bar['name'])
 
         scoped_token = self.controller.authenticate(self.make_request(),
                                                     body_dict)
         scoped_token_id = scoped_token['access']['token']['id']
 
+        query_string = 'belongsTo=%s' % uuid.uuid4().hex
         self.assertRaises(
             exception.Unauthorized,
             self.controller.validate_token,
-            self.make_request(is_admin=True, query_string='belongsTo=me'),
+            self.make_request(is_admin=True, query_string=query_string),
             token_id=scoped_token_id)
 
         self.assertRaises(
             exception.Unauthorized,
-            self.controller.validate_token,
-            self.make_request(is_admin=True, query_string='belongsTo=BAR'),
+            self.controller.validate_token_head,
+            self.make_request(is_admin=True, query_string=query_string),
             token_id=scoped_token_id)
+
+        query_string = 'belongsTo=%s' % self.tenant_bar['id']
+        self.controller.validate_token(
+            self.make_request(is_admin=True, query_string=query_string),
+            token_id=scoped_token_id
+        )
+
+        self.controller.validate_token_head(
+            self.make_request(is_admin=True, query_string=query_string),
+            token_id=scoped_token_id
+        )
 
     def test_token_auth_with_binding(self):
         self.config_fixture.config(group='token', bind=['kerberos'])

@@ -113,6 +113,10 @@ Validates a token and confirms that it belongs to a tenant.
 Returns the permissions relevant to a particular client. Valid
 tokens are in the ``/tokens/{tokenId}`` path. If the token is not
 valid, this call returns the ``itemNotFound (404)`` response code.
+This method supports an optional parameter ``belongsTo`` to check
+the token scope against the ID of a project. If the token does
+not belong to the project specified in the parameter a
+``unauthorized (401)`` response code will be returned.
 
 Normal response codes: 200,203
 Error response codes: 413,405,404,403,401,400,503
@@ -123,6 +127,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - tokenId: tokenId
+   - belongsTo: belongsTo
 
 Response Example
 ----------------
@@ -137,6 +142,10 @@ Validate token (admin)
 .. rest_method::  HEAD /v2.0/tokens/{tokenId}
 
 Validates a token and confirms that it belongs to a tenant, for performance.
+This method supports an optional parameter ``belongsTo`` to check
+the token scope against the ID of a project. If the token does
+not belong to the project specified in the parameter a
+``unauthorized (401)`` response code will be returned.
 
 Normal response codes: 200,203,204
 Error response codes: 413,405,404,403,401,400,503
@@ -147,6 +156,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - tokenId: tokenId
+   - belongsTo: belongsTo
 
 
 Delete token
