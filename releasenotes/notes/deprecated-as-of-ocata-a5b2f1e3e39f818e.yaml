@@ -1,0 +1,9 @@
+---
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-ocata <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-ocata>`_]
+    The catalog backend ``endpoint_filter.sql``has been deprecated in the
+    `Ocata` release, it has been consolidated with the ``sql`` backend.
+    It's recommended to replace the ``endpoint_filter.sql`` catalog backend
+    with the ``sql`` backend. The ``endpoint_filter.sql`` backend will be
+    removed in the `Pike` release.
