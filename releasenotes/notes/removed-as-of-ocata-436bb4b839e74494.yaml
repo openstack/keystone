@@ -1,0 +1,76 @@
+---
+prelude: >
+  - The PKI and PKIz token format has been removed. See ``Other Notes`` for
+    more details.
+
+  - Support for writing to LDAP has been removed. See ``Other Notes`` for more
+    details.
+other:
+  - >
+    PKI and PKIz token formats have been removed in favor of Fernet tokens.
+  - >
+    Write support for the LDAP has been removed in favor of read-only support.
+    The following operations are no longer supported for LDAP:
+
+      * ``create user``
+      * ``create group``
+      * ``delete user``
+      * ``delete group``
+      * ``update user``
+      * ``update group``
+      * ``add user to group``
+      * ``remove user from group``
+  - >
+    Routes and SQL backends for the contrib extensions have been removed, they
+    have been incorporated into keystone and are no longer optional. This
+    affects:
+
+      * ``keystone/contrib/admin_crud``
+      * ``keystone/contrib/endpoint_filter``
+      * ``keystone/contrib/federation``
+      * ``keystone/contrib/oauth1``
+      * ``keystone/contrib/revoke``
+      * ``keystone/contrib/simple_cert``
+      * ``keystone/contrib/user_crud``
+  - >
+    Keystone cache backends have been removed in favor of their `oslo.cache`
+    counter-part. This affects:
+
+      * ``keystone/common/cache/backends/mongo``
+      * ``keystone/common/cache/backends/memcache_pool``
+      * ``keystone/common/cache/backends/noop``
+  - >
+    The ``[DEFAULT] domain_id_immutable`` configuration option has been removed
+    in favor of strictly immutable domain IDs.
+  - >
+    The ``[endpoint_policy] enabled`` configuration option has been removed in
+    favor of always enabling the endpoint policy extension.
+  - >
+    The auth plugin ``keystone.auth.plugins.saml2.Saml2`` has been removed in
+    favor of the auth plugin ``keystone.auth.plugins.mapped.Mapped``.
+  - >
+    The ``memcache`` and ``memcache_pool`` token persistence backends have been
+    removed in favor of using Fernet tokens (which require no persistence).
+  - >
+    The ``httpd/keystone.py`` file has been removed in favor of the
+    ``keystone-wsgi-admin`` and ``keystone-wsgi-public`` scripts.
+  - >
+    The ``keystone/service.py`` file has been removed, the logic has been
+    moved to the ``keystone/version/service.py``.
+  - >
+    The ``build_auth_context`` middleware has been removed. If your deployment
+    requires use of the `admin token`, update ``keystone-paste.ini`` so that
+    ``admin_token_auth`` is before ``build_auth_context`` in the paste
+    pipelines, otherwise remove the ``admin_token_auth`` middleware entirely.
+  - >
+    The ``CONF [assignment] driver`` now defaults to ``sql``. Logic to
+    determine the default assignment driver if one wasn't supplied through
+    configuration has been removed. Keystone only supports one assignment
+    driver and it shouldn't be changed unless you're deploying a custom
+    assignment driver.
+  - >
+    The ``CONF [resource] driver`` now defaults to ``sql``. Logic to
+    determine the default resource driver if one wasn't supplied through
+    configuration has been removed. Keystone only supports one resource
+    driver and it shouldn't be changed unless you're deploying a custom
+    resource driver.
