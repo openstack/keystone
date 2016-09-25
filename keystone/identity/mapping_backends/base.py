@@ -20,7 +20,7 @@ from keystone import exception
 
 
 @six.add_metaclass(abc.ABCMeta)
-class MappingDriverV8(object):
+class MappingDriverBase(object):
     """Interface description for an ID Mapping driver."""
 
     @abc.abstractmethod

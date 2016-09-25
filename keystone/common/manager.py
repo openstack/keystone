@@ -20,7 +20,6 @@ import types
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import importutils
-from oslo_utils import reflection
 import six
 import stevedore
 
@@ -190,34 +189,3 @@ class Manager(object):
             # cache this
             setattr(self, name, f)
         return f
-
-
-def create_legacy_driver(driver_class):
-    """Helper function to deprecate the original driver classes.
-
-    The keystone.{subsystem}.Driver classes are deprecated in favor of the
-    new versioned classes. This function creates a new class based on a
-    versioned class and adds a deprecation message when it is used.
-
-    This will allow existing custom drivers to work when the Driver class is
-    renamed to include a version.
-
-    Example usage:
-
-        Driver = create_legacy_driver(CatalogDriverV8)
-
-    """
-    module_name = driver_class.__module__
-    class_name = reflection.get_class_name(driver_class)
-
-    class Driver(driver_class):
-
-        @versionutils.deprecated(
-            as_of=versionutils.deprecated.LIBERTY,
-            what='%s.Driver' % module_name,
-            in_favor_of=class_name,
-            remove_in=+2)
-        def __init__(self, *args, **kwargs):
-            super(Driver, self).__init__(*args, **kwargs)
-
-    return Driver

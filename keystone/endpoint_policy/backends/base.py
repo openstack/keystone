@@ -17,7 +17,7 @@ from keystone import exception
 
 
 @six.add_metaclass(abc.ABCMeta)
-class EndpointPolicyDriverV8(object):
+class EndpointPolicyDriverBase(object):
     """Interface description for an Endpoint Policy driver."""
 
     @abc.abstractmethod

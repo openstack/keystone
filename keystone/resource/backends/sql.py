@@ -22,7 +22,7 @@ from keystone.resource.backends import base
 LOG = log.getLogger(__name__)
 
 
-class Resource(base.ResourceDriverV9):
+class Resource(base.ResourceDriverBase):
 
     def default_assignment_driver(self):
         return 'sql'

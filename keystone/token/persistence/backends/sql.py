@@ -81,7 +81,7 @@ def _expiry_range_all(session, upper_bound_func):
     yield upper_bound_func()
 
 
-class Token(token.persistence.TokenDriverV8):
+class Token(token.persistence.TokenDriverBase):
     # Public interface
     def get_token(self, token_id):
         if token_id is None:

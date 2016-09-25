@@ -56,7 +56,7 @@ def parse_templates(template_lines):
     return o
 
 
-class Catalog(base.CatalogDriverV8):
+class Catalog(base.CatalogDriverBase):
     """A backend that generates endpoints for the Catalog based on templates.
 
     It is usually configured via config entries that look like:

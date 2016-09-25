@@ -36,7 +36,7 @@ LOG = log.getLogger(__name__)
 STORE_CONF_LOCK = threading.Lock()
 
 
-class Token(token.persistence.TokenDriverV8):
+class Token(token.persistence.TokenDriverBase):
     """KeyValueStore backend for tokens.
 
     This is the base implementation for any/all key-value-stores (e.g.

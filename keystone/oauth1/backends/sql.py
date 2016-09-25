@@ -84,7 +84,7 @@ class AccessToken(sql.ModelBase, sql.DictBase):
         return dict(self.items())
 
 
-class OAuth1(base.Oauth1DriverV8):
+class OAuth1(base.Oauth1DriverBase):
     def _get_consumer(self, session, consumer_id):
         consumer_ref = session.query(Consumer).get(consumer_id)
         if consumer_ref is None:

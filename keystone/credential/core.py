@@ -16,13 +16,10 @@
 
 import json
 
-from oslo_log import versionutils
-
 from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
 import keystone.conf
-from keystone.credential.backends import base
 from keystone import exception
 
 
@@ -142,15 +139,3 @@ class Manager(manager.Manager):
         else:
             ref['blob'] = existing_blob
         return ref
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.credential.CredentialDriverV8',
-    in_favor_of='keystone.credential.backends.base.CredentialDriverV8',
-    remove_in=+1)
-class AuthMethodHandler(base.CredentialDriverV8):
-    pass
-
-
-Driver = manager.create_legacy_driver(base.CredentialDriverV8)

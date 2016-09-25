@@ -21,7 +21,7 @@ CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)
-class PolicyDriverV8(object):
+class PolicyDriverBase(object):
 
     def _get_list_limit(self):
         return CONF.policy.list_limit or CONF.list_limit

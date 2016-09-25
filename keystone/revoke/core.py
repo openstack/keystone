@@ -12,8 +12,6 @@
 
 """Main entry point into the Revoke service."""
 
-from oslo_log import versionutils
-
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import extension
@@ -23,7 +21,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.models import revoke_model
 from keystone import notifications
-from keystone.revoke.backends import base
 
 
 CONF = keystone.conf.CONF
@@ -209,15 +206,3 @@ class Manager(manager.Manager):
     def revoke(self, event):
         self.driver.revoke(event)
         REVOKE_REGION.invalidate()
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.revoke.RevokeDriverV8',
-    in_favor_of='keystone.revoke.backends.base.RevokeDriverV8',
-    remove_in=+1)
-class RevokeDriverV8(base.RevokeDriverV8):
-    pass
-
-
-Driver = manager.create_legacy_driver(base.RevokeDriverV8)

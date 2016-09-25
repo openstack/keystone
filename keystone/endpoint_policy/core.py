@@ -13,12 +13,10 @@
 # under the License.
 
 from oslo_log import log
-from oslo_log import versionutils
 
 from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
-from keystone.endpoint_policy.backends import base
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 
@@ -263,16 +261,3 @@ class Manager(manager.Manager):
         msg = _('No policy is associated with endpoint '
                 '%(endpoint_id)s.') % {'endpoint_id': endpoint_id}
         raise exception.NotFound(msg)
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.endpoint_policy.EndpointPolicyDriverV8',
-    in_favor_of=(
-        'keystone.endpoint_policy.backends.base.EndpointPolicyDriverV8'),
-    remove_in=+1)
-class EndpointPolicyDriverV8(base.EndpointPolicyDriverV8):
-    pass
-
-
-Driver = manager.create_legacy_driver(base.EndpointPolicyDriverV8)

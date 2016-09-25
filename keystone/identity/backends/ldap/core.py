@@ -36,7 +36,7 @@ _DEPRECATION_MSG = _('%s for the LDAP identity backend has been deprecated in '
                      'access. It will be removed in the "O" release.')
 
 
-class Identity(base.IdentityDriverV8):
+class Identity(base.IdentityDriverBase):
     def __init__(self, conf=None):
         super(Identity, self).__init__()
         if conf is None:

@@ -28,7 +28,6 @@ from keystone import exception
 from keystone.i18n import _, _LE, _LW
 from keystone import notifications
 from keystone.resource.backends import base
-from keystone.resource.config_backends import base as config_base
 from keystone.token import provider as token_provider
 
 CONF = keystone.conf.CONF
@@ -62,13 +61,6 @@ class Manager(manager.Manager):
             resource_driver = assignment_manager.default_resource_driver()
 
         super(Manager, self).__init__(resource_driver)
-
-        # Make sure it is a driver version we support, and if it is a legacy
-        # driver, then wrap it.
-        if isinstance(self.driver, base.ResourceDriverV8):
-            self.driver = base.V9ResourceWrapperForV8Driver(self.driver)
-        elif not isinstance(self.driver, base.ResourceDriverV9):
-            raise exception.UnsupportedDriverVersion(driver=resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):
         return len(parents_list) + 1
@@ -903,45 +895,6 @@ class Manager(manager.Manager):
             raise
 
 
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.resource.ResourceDriverBase',
-    in_favor_of='keystone.resource.backends.base.ResourceDriverBase',
-    remove_in=+1)
-class ResourceDriverBase(base.ResourceDriverBase):
-    pass
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.resource.ResourceDriverV8',
-    in_favor_of='keystone.resource.backends.base.ResourceDriverV8',
-    remove_in=+1)
-class ResourceDriverV8(base.ResourceDriverV8):
-    pass
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.resource.ResourceDriverV9',
-    in_favor_of='keystone.resource.backends.base.ResourceDriverV9',
-    remove_in=+1)
-class ResourceDriverV9(base.ResourceDriverV9):
-    pass
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.resource.V9ResourceWrapperForV8Driver',
-    in_favor_of='keystone.resource.backends.base.V9ResourceWrapperForV8Driver',
-    remove_in=+1)
-class V9ResourceWrapperForV8Driver(base.V9ResourceWrapperForV8Driver):
-    pass
-
-
-Driver = manager.create_legacy_driver(base.ResourceDriverV8)
-
-
 MEMOIZE_CONFIG = cache.get_memoization_decorator(group='domain_config')
 
 
@@ -1439,16 +1392,3 @@ class DomainConfigManager(manager.Manager):
                     config_list.append(_option_dict(each_group, each_option))
 
         return self._list_to_config(config_list, req_option=option)
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.resource.DomainConfigDriverV8',
-    in_favor_of='keystone.resource.config_backends.base.DomainConfigDriverV8',
-    remove_in=+1)
-class DomainConfigDriverV8(config_base.DomainConfigDriverV8):
-    pass
-
-
-DomainConfigDriver = manager.create_legacy_driver(
-    config_base.DomainConfigDriverV8)

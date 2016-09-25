@@ -25,7 +25,7 @@ from keystone import exception
 NULL_DOMAIN_ID = '<<null>>'
 
 
-class Role(base.RoleDriverV9):
+class Role(base.RoleDriverBase):
 
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):

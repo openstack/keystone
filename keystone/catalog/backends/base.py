@@ -24,7 +24,7 @@ CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)
-class CatalogDriverV8(object):
+class CatalogDriverBase(object):
     """Interface description for the Catalog driver."""
 
     def _get_list_limit(self):
