@@ -17,7 +17,6 @@ from keystone.conf import utils
 
 disable_user_account_days_inactive = cfg.IntOpt(
     'disable_user_account_days_inactive',
-    default=None,
     min=1,
     help=utils.fmt("""
 The maximum number of days a user can go without authenticating before being
@@ -30,7 +29,6 @@ may not match the value of the user's `enabled` column in the user table.
 
 lockout_failure_attempts = cfg.IntOpt(
     'lockout_failure_attempts',
-    default=None,
     min=1,
     help=utils.fmt("""
 The maximum number of times that a user can fail to authenticate before the
@@ -57,7 +55,6 @@ driver`.
 
 password_expires_days = cfg.IntOpt(
     'password_expires_days',
-    default=None,
     min=1,
     help=utils.fmt("""
 The number of days for which a password will be considered valid
