@@ -45,8 +45,8 @@ class ConfigTestCase(unit.TestCase):
                          wsgi.find_paste_config())
 
     def test_config_default(self):
-        self.assertIs(None, CONF.auth.password)
-        self.assertIs(None, CONF.auth.token)
+        self.assertIsNone(CONF.auth.password)
+        self.assertIsNone(CONF.auth.token)
 
     def test_profiler_config_default(self):
         """Check config.set_config_defaults() has set [profiler]enabled."""
