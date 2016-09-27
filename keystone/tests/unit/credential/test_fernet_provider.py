@@ -39,9 +39,6 @@ class TestFernetCredentialProvider(unit.TestCase):
             )
         )
 
-    def config_overrides(self):
-        super(TestFernetCredentialProvider, self).config_overrides()
-
     def test_valid_data_encryption(self):
         blob = uuid.uuid4().hex
         encrypted_blob, primary_key_hash = self.provider.encrypt(blob)
