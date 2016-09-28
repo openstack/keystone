@@ -17,6 +17,115 @@ To list user roles, see `Roles <http://developer.openstack.org/api-ref/
 identity/v3/index.html#roles>`_.
 
 
+List users
+==========
+
+.. rest_method::  GET /v3/users
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
+
+Lists users.
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_query
+   - enabled: enabled_user_query
+   - name: name_user_query
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - links: link_collection
+   - users: users_object
+   - default_project_id: default_project_id_response_body
+   - domain_id: domain_id_response_body
+   - enabled: enabled_user_response_body
+   - id: id_user_body
+   - links: links_user
+   - name: user_name_response_body
+   - password_expires_at: password_expires_at
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/users-list-response.json
+   :language: javascript
+
+
+Create user
+===========
+
+.. rest_method::  POST /v3/users
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
+
+Creates a user.
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 409
+
+Request Parameters
+------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - user: user_object
+   - default_project_id: default_project_id_request_body
+   - domain_id: user_domain_id_request_body
+   - enabled: enabled_user_request_body
+   - name: user_name_create_request_body
+   - password: password_request_body
+
+Request Example
+---------------
+
+.. literalinclude:: ./samples/admin/user-create-request.json
+   :language: javascript
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - user: user_object
+   - default_project_id: default_project_id_response_body
+   - domain_id: domain_id_response_body
+   - enabled: enabled_user_response_body
+   - id: id_user_body
+   - links: links_user
+   - name: user_name_response_body
+   - password_expires_at: password_expires_at
+
+
 Show user details
 =================
 
@@ -204,6 +313,43 @@ Response Example
    :language: javascript
 
 
+List projects for user
+======================
+
+.. rest_method::  GET /v3/users/{user_id}/projects
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_projects``
+
+List projects for a user.
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+Request Parameters
+------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/user-projects-list-response.json
+   :language: javascript
+
+
 Change password for user
 ========================
 
@@ -242,150 +388,4 @@ Request Example
 ---------------
 
 .. literalinclude:: ./samples/admin/user-password-update-request.json
-   :language: javascript
-
-
-Create user
-===========
-
-.. rest_method::  POST /v3/users
-
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
-
-Creates a user.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 201
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-   - 409
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user: user_object
-   - default_project_id: default_project_id_request_body
-   - domain_id: user_domain_id_request_body
-   - enabled: enabled_user_request_body
-   - name: user_name_create_request_body
-   - password: password_request_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/user-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user: user_object
-   - default_project_id: default_project_id_response_body
-   - domain_id: domain_id_response_body
-   - enabled: enabled_user_response_body
-   - id: id_user_body
-   - links: links_user
-   - name: user_name_response_body
-   - password_expires_at: password_expires_at
-
-
-List users
-==========
-
-.. rest_method::  GET /v3/users
-
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
-
-Lists users.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_query
-   - enabled: enabled_user_query
-   - name: name_user_query
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - links: link_collection
-   - users: users_object
-   - default_project_id: default_project_id_response_body
-   - domain_id: domain_id_response_body
-   - enabled: enabled_user_response_body
-   - id: id_user_body
-   - links: links_user
-   - name: user_name_response_body
-   - password_expires_at: password_expires_at
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/admin/users-list-response.json
-   :language: javascript
-
-
-List projects for user
-======================
-
-.. rest_method::  GET /v3/users/{user_id}/projects
-
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_projects``
-
-List projects for a user.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-   - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/admin/user-projects-list-response.json
    :language: javascript
