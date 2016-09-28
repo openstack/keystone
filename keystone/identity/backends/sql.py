@@ -191,6 +191,7 @@ class Identity(base.IdentityDriverV8):
             user_ref = session.query(model.User).get(user_id)
             if user_ref.password_ref and user_ref.password_ref.self_service:
                 self._validate_minimum_password_age(user_ref)
+            self._validate_password_history(new_password, user_ref)
             user_ref.password = utils.hash_password(new_password)
             user_ref.password_ref.self_service = True
 
