@@ -157,8 +157,6 @@ class Identity(base.IdentityDriverV8):
     def update_user(self, user_id, user):
         with sql.session_for_write() as session:
             user_ref = self._get_user(session, user_id)
-            if 'password' in user:
-                self._validate_password_history(user['password'], user_ref)
             old_user_dict = user_ref.to_dict()
             user = utils.hash_user_password(user)
             for k in user:
