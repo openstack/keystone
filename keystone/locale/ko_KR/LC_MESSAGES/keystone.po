@@ -8,9 +8,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev3\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-09-19 19:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -80,10 +80,6 @@ msgstr "%(role_id)s은(는) 내포된 역할일 수 없음"
 #, python-format
 msgid "%s cannot be empty."
 msgstr "%s은(는) 공백일 수 없습니다. "
-
-#, python-format
-msgid "%s extension does not exist."
-msgstr "%s 확장자가 존재하지 않습니다."
 
 #, python-format
 msgid "%s field is required and cannot be empty"
@@ -538,12 +534,6 @@ msgid ""
 "Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
 msgstr "--bootstrap-password 인수나 OS_BOOTSTRAP_PASSWORD를 설정해야 합니다."
 
-msgid "Enabled field must be a boolean"
-msgstr "사용으로 설정된 필드는 부울이어야 함"
-
-msgid "Enabled field should be a boolean"
-msgstr "사용으로 설정된 필드는 부울이어야 함"
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr "%(endpoint_id)s 엔드포인트가 %(project_id)s 프로젝트에 없음 "
@@ -824,9 +814,6 @@ msgstr "활성 잠금 컨텍스트 내에서 호출되어야 합니다."
 msgid "Must specify either domain or project"
 msgstr "도메인 프로젝트 중 하나를 지정해야 함"
 
-msgid "Name field is required and cannot be empty"
-msgstr "이름 필드가 필요하며 비어 있을 수 없음"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "프로젝트 도메인 ID와 프로젝트 도메인 이름이 제공되지 않았습니다. "
 
@@ -1055,15 +1042,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "테넌트 이름에 예약된 문자가 포함될 수 없습니다."
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"%s 확장이 keystone 코어에 이동되었으므로 기본 keystone 데이터베이스 제어에서 "
-"마이그레이션을 유지 관리합니다. keystone-manage db_sync 명령을 사용하십시오."
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1104,9 +1082,6 @@ msgstr ""
 
 msgid "The configured token provider does not support bind authentication."
 msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
-
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "도메인 역할을 수행하는 프로젝트 생성은 v2에서 허용되지 않습니다. "
 
 #, python-format
 msgid ""
@@ -1221,10 +1196,6 @@ msgstr ""
 
 msgid "Unable to downgrade schema"
 msgstr "스키마를 다운그레이드할 수 없음"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr "%(mapping_id)s 맵핑을 사용하는 중에 올바른 그룹을 찾을 수 없음 "
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1348,9 +1319,6 @@ msgstr ""
 #, python-format
 msgid "User is disabled: %s"
 msgstr "사용자를 사용 안함: %s"
-
-msgid "User is not a member of the requested project"
-msgstr "사용자가 요청한 프로젝트의 구성원이 아님"
 
 msgid "User is not a trustee."
 msgstr "사용자는 trustee가 아닙니다."
@@ -1488,11 +1456,3 @@ msgid ""
 "update of domain_id is deprecated as of Mitaka and will be removed in O."
 msgstr ""
 "Mitaka에서 domain_id 업데이트는 더 이상 사용되지 않으므로, O에서 제거됩니다."
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr ""
-"%(func_name)r에 대한 함수 서명에서 %(param_name)r을(를) 찾기 위해 유효성 검증"
-"하고 예상했습니다. "

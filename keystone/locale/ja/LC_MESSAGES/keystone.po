@@ -7,9 +7,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev3\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-09-19 19:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -81,10 +81,6 @@ msgstr "%(role_id)s は暗黙的ロールにできません"
 #, python-format
 msgid "%s cannot be empty."
 msgstr "%s は空にはできません。"
-
-#, python-format
-msgid "%s extension does not exist."
-msgstr "%s 拡張が存在しません。"
 
 #, python-format
 msgid "%s field is required and cannot be empty"
@@ -568,12 +564,6 @@ msgstr ""
 "--bootstrap-password 引数または OS_BOOTSTRAP_PASSWORD いずれかを設定する必要"
 "があります。"
 
-msgid "Enabled field must be a boolean"
-msgstr "「有効」フィールドはブール値でなければなりません"
-
-msgid "Enabled field should be a boolean"
-msgstr "「有効」フィールドはブール値でなければなりません"
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr ""
@@ -865,9 +855,6 @@ msgstr "アクティブなロックコンテキスト内で呼び出されなけ
 msgid "Must specify either domain or project"
 msgstr "ドメインまたはプロジェクトのいずれかを指定する必要があります"
 
-msgid "Name field is required and cannot be empty"
-msgstr "「名前」フィールドは必須フィールドであり、空にできません"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr ""
 "プロジェクトドメイン ID および プロジェクトドメイン名のいずれも指定されません"
@@ -1112,16 +1099,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "テナント名に予約済み文字が含まれていてはなりません。"
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"%s 拡張が keystone コアに移動されているため、そのマイグレーションはメインの "
-"keystone データベース制御によって維持されます。次のコマンドを使用します: "
-"keystone-manage db_sync"
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1163,9 +1140,6 @@ msgstr ""
 
 msgid "The configured token provider does not support bind authentication."
 msgstr "設定済みトークンプロバイダーはバインド認証をサポートしません。"
-
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "v2 では、ドメインとして動作するプロジェクトの作成は許可されません。"
 
 #, python-format
 msgid ""
@@ -1288,12 +1262,6 @@ msgstr ""
 
 msgid "Unable to downgrade schema"
 msgstr "スキーマをダウングレードすることができません"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr ""
-"マッピング %(mapping_id)s を使用する際に、有効なグループが見つかりませんでし"
-"た"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1421,9 +1389,6 @@ msgstr ""
 #, python-format
 msgid "User is disabled: %s"
 msgstr "ユーザーが無効になっています: %s"
-
-msgid "User is not a member of the requested project"
-msgstr "ユーザーは、要求されたプロジェクトのメンバーではありません"
 
 #, fuzzy
 msgid "User is not a trustee."
@@ -1569,11 +1534,3 @@ msgid ""
 "update of domain_id is deprecated as of Mitaka and will be removed in O."
 msgstr ""
 "domain_id の更新は Mitaka の時点で提供を終了し、O で削除される予定です。"
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr ""
-"検証され、%(func_name)r の関数のシグニチャーで %(param_name)r が見つかること"
-"が予期されます"

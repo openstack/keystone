@@ -8,9 +8,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev3\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-09-19 19:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -63,11 +63,6 @@ msgstr "对断言进行签名时出错，原因：%(reason)s%(output)s"
 msgid "Failed to construct notifier"
 msgstr "构造通知器失败"
 
-msgid ""
-"Failed to create [fernet_tokens] key_repository: either it already exists or "
-"you don't have sufficient permissions to create it"
-msgstr "创建[Fernet_tokens] 键仓库失败：它已存在或你没有足够的权限去创建它。"
-
 msgid "Failed to create the default domain."
 msgstr "无法创建默认域。"
 
@@ -82,9 +77,6 @@ msgstr "发送 %(action)s %(event_type)s 通知失败"
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr "发送%(res_id)s %(event_type)s 通知失败"
-
-msgid "Failed to validate token"
-msgstr "token验证失败"
 
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"

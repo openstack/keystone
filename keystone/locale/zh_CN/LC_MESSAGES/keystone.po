@@ -10,16 +10,17 @@
 # Zhong Chaoliang <charliezon@gmail.com>, 2013
 # 颜海峰 <yanheven@gmail.com>, 2014
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
+# Eric Lei <1165970798@qq.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev3\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-09-19 19:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-22 10:25+0000\n"
-"Last-Translator: Linda <duleish@cn.ibm.com>\n"
+"PO-Revision-Date: 2016-09-28 03:24+0000\n"
+"Last-Translator: Eric Lei <1165970798@qq.com>\n"
 "Language: zh-CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -85,10 +86,6 @@ msgid "%s cannot be empty."
 msgstr "%s 不能为空。"
 
 #, python-format
-msgid "%s extension does not exist."
-msgstr "%s 扩展不存在。"
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "%s 字段是必填字段，不能为空"
 
@@ -129,6 +126,11 @@ msgstr "检索域配置时发生意外错误"
 #, python-format
 msgid "An unexpected error occurred when trying to store %s"
 msgstr "尝试存储 %s 时发生意外错误"
+
+msgid ""
+"An unexpected error prevented the server from accessing encrypted "
+"credentials."
+msgstr "一个意外错误阻止服务器获得加密证书"
 
 msgid "An unexpected error prevented the server from fulfilling your request."
 msgstr "意外错误阻止了服务器完成您的请求。"
@@ -517,12 +519,6 @@ msgid ""
 "Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
 msgstr "必须设置 --bootstrap-password 自变量或 OS_BOOTSTRAP_PASSWORD。"
 
-msgid "Enabled field must be a boolean"
-msgstr "已启用的字段必须为布尔值"
-
-msgid "Enabled field should be a boolean"
-msgstr "已启用的字段应该为布尔值"
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr "在项目 %(project_id)s 中找不到端点 %(endpoint_id)s"
@@ -599,6 +595,9 @@ msgstr ""
 msgid "Found invalid token: scoped to both project and domain."
 msgstr "发现无效令牌：范围同时为项目和域。"
 
+msgid "Global role cannot imply a domain-specific role"
+msgstr "全局角色不能隐含一个具体域角色。"
+
 #, python-format
 msgid "Group  %s not found in config"
 msgstr "在配置中找不到组 %s。"
@@ -662,6 +661,10 @@ msgstr "无效审计信息数据类型：%(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "凭证中的 BLOB 无效"
+
+#, python-format
+msgid "Invalid domain name or ID: %(domain)s"
+msgstr "无效域名或ID：%(domain)s"
 
 #, python-format
 msgid ""
@@ -783,9 +786,6 @@ msgstr "必须在处于活动状态的锁定上下文内调用。"
 msgid "Must specify either domain or project"
 msgstr "必须指定 domain 或 project"
 
-msgid "Name field is required and cannot be empty"
-msgstr "名称字段是必填字段，不能为空"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "既未提供项目域标识，也未提供项目域名。"
 
@@ -835,6 +835,10 @@ msgid ""
 "Option %(option)s in group %(group)s is not supported for domain specific "
 "configurations"
 msgstr "特定于域的配置不支持组 %(group)s 中的选项 %(option)s"
+
+#, python-format
+msgid "Password validation error: %(detail)s"
+msgstr "密码验证错误:%(detail)s"
 
 #, python-format
 msgid "Project (%s)"
@@ -1003,15 +1007,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "租户名称不能包含保留字符。"
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"%s 扩展已移至 keystone 核心，因此，其迁移由主 keystone 数据库控件维护。使用以"
-"下命令：keystone-manage db_sync"
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1035,6 +1030,14 @@ msgstr ""
 "特定于 Keystone 域的配置已指定多个 SQL 驱动程序（仅允许指定一个）："
 "%(source)s。"
 
+#, python-format
+msgid "The account is disabled for user: %(user_id)s"
+msgstr "用户：%(user_id)s的账户无效"
+
+#, python-format
+msgid "The account is locked for user: %(user_id)s"
+msgstr "用户：%(user_id)s的账户已锁定。"
+
 msgid "The action you have requested has not been implemented."
 msgstr "您请求的操作暂未被执行"
 
@@ -1051,8 +1054,11 @@ msgstr ""
 msgid "The configured token provider does not support bind authentication."
 msgstr "所配置的令牌提供者不支持绑定认证。"
 
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "不允许在 v2 中创建充当域的项目。"
+#, python-format
+msgid ""
+"The password is expired and needs to be reset by an administrator for user: "
+"%(user_id)s"
+msgstr "密码 失效，需要管理员为用户：%(user_id)s重置密码。"
 
 #, python-format
 msgid ""
@@ -1161,10 +1167,6 @@ msgstr "无法删除区域 %(region_id)s，因为它或它的子区域具有关�
 
 msgid "Unable to downgrade schema"
 msgstr "无法对模式进行降级"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr "使用映射 %(mapping_id)s 时，找不到有效组"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1284,9 +1286,6 @@ msgstr ""
 msgid "User is disabled: %s"
 msgstr "用户已禁用：%s"
 
-msgid "User is not a member of the requested project"
-msgstr "用户不是所请求项目的成员"
-
 msgid "User is not a trustee."
 msgstr "用户不是受托人。"
 
@@ -1309,6 +1308,17 @@ msgstr "您没有授权完成所请求的操作。"
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s"
 msgstr "您无权执行请求的操作：%(action)s"
+
+#, python-format
+msgid ""
+"You cannot change your password at this time due to the minimum password "
+"age. Once you change your password, it must be used for %(min_age_days)d "
+"day(s) before it can be changed. Please try again in %(days_left)d day(s) or "
+"contact your administrator to reset your password."
+msgstr ""
+"没有达到密码最小使用时长，目前您不能更改密码。一旦您修改了密码，在下次可被修"
+"改前该密码必须使用%(min_age_days)d天.请在%(days_left)d天后重试，或者联系管理"
+"员重置您的密码。"
 
 msgid ""
 "You have tried to create a resource using the admin token. As this token is "
@@ -1371,6 +1381,12 @@ msgstr "只允许根项目充当域。"
 msgid "option %(option)s in group %(group)s"
 msgstr "组 %(group)s 中的选项 %(option)s"
 
+#, fuzzy, python-format
+msgid ""
+"project: %(project_id)s must be in the same domain  as the role: %(role_id)s "
+"being assigned."
+msgstr "保护:%(project_id)s必须在所分配角色%(role_id)s 的同一个域下。"
+
 msgid "provided consumer key does not match stored consumer key"
 msgstr "提供的用户密钥与存储的用户密钥不符"
 
@@ -1417,9 +1433,3 @@ msgstr "令牌引用必须为 KeystoneToken 类型，但收到：%s"
 msgid ""
 "update of domain_id is deprecated as of Mitaka and will be removed in O."
 msgstr "从 Mitaka 开始，已不推荐更新 domain_id，将在 O 发行版中移除。"
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr "已验证期望在 %(func_name)r 的函数特征符中查找 %(param_name)r。"

@@ -11,9 +11,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev3\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-09-19 19:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -85,10 +85,6 @@ msgstr "%(role_id)s não pode ser uma função implícita"
 #, python-format
 msgid "%s cannot be empty."
 msgstr "%s não pode estar vazio."
-
-#, python-format
-msgid "%s extension does not exist."
-msgstr "Extensão %s não existe."
 
 #, python-format
 msgid "%s field is required and cannot be empty"
@@ -573,12 +569,6 @@ msgstr ""
 "O argumento de senha de inicialização ou OS_BOOTSTRAP_PASSWORD deve ser "
 "configurado."
 
-msgid "Enabled field must be a boolean"
-msgstr "Campo habilitado precisa ser um booleano"
-
-msgid "Enabled field should be a boolean"
-msgstr "Campo habilitado deve ser um booleano"
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr "Endpoint %(endpoint_id)s não encontrado no projeto %(project_id)s"
@@ -865,9 +855,6 @@ msgstr "Deve ser chamado dentro de um contexto de bloqueio ativo."
 msgid "Must specify either domain or project"
 msgstr "Deve especificar o domínio ou projeto"
 
-msgid "Name field is required and cannot be empty"
-msgstr "Campo nome é requerido e não pode ser vazio"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr ""
 "Nem o ID do Domínio do Projeto nem o Nome do Domíno do Projeto foram "
@@ -1107,16 +1094,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "O nome do locatário não pode conter caracteres reservados."
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"A extensão %s foi movida para o núcleo do keystone e, com isso, suas "
-"migrações são mantidas pelo controle de banco de dados keystone principal. "
-"Use o comando: keystone-manage db_sync"
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1160,9 +1137,6 @@ msgstr ""
 
 msgid "The configured token provider does not support bind authentication."
 msgstr "O provedor de token configurado não suporta autenticação de ligação."
-
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "A criação de projetos agindo como domínios não é permitida na v2."
 
 #, python-format
 msgid ""
@@ -1286,12 +1260,6 @@ msgstr ""
 
 msgid "Unable to downgrade schema"
 msgstr "Não é possível fazer downgrade do esquema"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr ""
-"Não é possível localizar os grupos válidos ao utilizar o mapeamento "
-"%(mapping_id)s"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1418,9 +1386,6 @@ msgstr ""
 #, python-format
 msgid "User is disabled: %s"
 msgstr "O usuário está desativado: %s"
-
-msgid "User is not a member of the requested project"
-msgstr "Usuário não é um membro do projeto requisitado"
 
 msgid "User is not a trustee."
 msgstr "Usuário não é confiável."
@@ -1569,11 +1534,3 @@ msgid ""
 msgstr ""
 "A atualização de domain_id foi descontinuada a partir do Mitaka e será "
 "removida na liberação O."
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr ""
-"validado esperava localizar %(param_name)r na assinatura da função para "
-"%(func_name)r."

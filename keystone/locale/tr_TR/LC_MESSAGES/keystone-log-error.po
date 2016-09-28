@@ -6,9 +6,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev3\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-09-19 19:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,13 +66,6 @@ msgstr ""
 msgid "Failed to construct notifier"
 msgstr "Bildirici inşa etme başarısız"
 
-msgid ""
-"Failed to create [fernet_tokens] key_repository: either it already exists or "
-"you don't have sufficient permissions to create it"
-msgstr ""
-"[fernet_tokens] key_repository oluşturulamıyor: ya zaten mevcut ya da "
-"oluşturmak için yeterli izniniz yok"
-
 #, python-format
 msgid "Failed to remove file %(file_path)r: %(error)s"
 msgstr "%(file_path)r dosyası silinemedi: %(error)s"
@@ -84,9 +77,6 @@ msgstr "%(action)s %(event_type)s bildirimi gönderilemedi"
 #, python-format
 msgid "Failed to send %(res_id)s %(event_type)s notification"
 msgstr "%(res_id)s %(event_type)s bildirimi gönderilemedi"
-
-msgid "Failed to validate token"
-msgstr "Jeton doğrulama başarısız"
 
 #, python-format
 msgid "Malformed endpoint %(url)s - unknown key %(keyerror)s"
@@ -120,10 +110,6 @@ msgstr ""
 "Arka uçtan feshetme listesi yüklemedeki hata sebebiyle fesih listesi yeniden "
 "ilklendiriliyor.  `list` beklendi `%(type)s` alındı. Eski fesih listesi "
 "verisi: %(list)r"
-
-#, python-format
-msgid "Unable to convert Keystone user or group ID. Error: %s"
-msgstr "Keystone kullanıcı veya grup kimliği dönüştürülemiyor. Hata: %s"
 
 msgid "Unable to sign token"
 msgstr "Jeton imzalanamıyor"
