@@ -37,13 +37,15 @@ __all__ = ('AuthContextMiddleware',)
 class AuthContextMiddleware(auth_token.BaseAuthProtocol):
     """Build the authentication context from the request auth token."""
 
+    kwargs_to_fetch_token = True
+
     def __init__(self, app):
         bind = CONF.token.enforce_token_bind
         super(AuthContextMiddleware, self).__init__(app,
                                                     log=LOG,
                                                     enforce_token_bind=bind)
 
-    def fetch_token(self, token):
+    def fetch_token(self, token, **kwargs):
         try:
             return self.token_provider_api.validate_token(token)
         except exception.TokenNotFound:
