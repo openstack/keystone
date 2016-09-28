@@ -14,7 +14,6 @@
 
 import uuid
 
-import mock
 import oslo_context.context
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
@@ -29,7 +28,6 @@ from keystone.common.validation import validators
 import keystone.conf
 from keystone import exception
 from keystone import middleware
-from keystone.middleware import auth as middleware_auth
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import rest
@@ -1338,17 +1336,6 @@ class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
         req = self._middleware_request(token_id, extra_environ)
         auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertDictEqual({}, auth_context)
-
-    @mock.patch.object(middleware_auth.versionutils,
-                       'report_deprecated_feature')
-    def test_admin_token_auth_context_deprecated(self, mock_report_deprecated):
-        # For backwards compatibility AuthContextMiddleware will check that the
-        # admin token (as configured in the CONF file) is present and not
-        # attempt to build the auth context. This is deprecated.
-        req = self._middleware_request('ADMIN')
-        auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
-        self.assertDictEqual({}, auth_context)
-        self.assertEqual(1, mock_report_deprecated.call_count)
 
 
 # NOTE(gyee): test AuthContextMiddleware here instead of test_middleware.py

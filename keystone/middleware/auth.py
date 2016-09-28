@@ -12,7 +12,6 @@
 
 from keystonemiddleware import auth_token
 from oslo_log import log
-from oslo_log import versionutils
 
 from keystone.common import authorization
 from keystone.common import context
@@ -171,20 +170,6 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         # provided.
 
         if request.environ.get(core.CONTEXT_ENV, {}).get('is_admin', False):
-            request_context.is_admin = True
-            auth_context = {}
-
-        elif CONF.admin_token and request.user_token == CONF.admin_token:
-            versionutils.report_deprecated_feature(
-                LOG,
-                _LW('build_auth_context middleware checking for the admin '
-                    'token is deprecated as of the Mitaka release and will be '
-                    'removed in the O release. If your deployment requires '
-                    'use of the admin token, update keystone-paste.ini so '
-                    'that admin_token_auth is before build_auth_context in '
-                    'the paste pipelines, otherwise remove the '
-                    'admin_token_auth middleware from the paste pipelines.'))
-
             request_context.is_admin = True
             auth_context = {}
 
