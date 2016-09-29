@@ -48,13 +48,13 @@ class ExternalAuthNotApplicable(Exception):
 class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
-    def ca_cert(self, request, auth=None):
+    def ca_cert(self, request):
         with open(CONF.signing.ca_certs, 'r') as ca_file:
             data = ca_file.read()
         return data
 
     @controller.v2_deprecated
-    def signing_cert(self, request, auth=None):
+    def signing_cert(self, request):
         with open(CONF.signing.certfile, 'r') as cert_file:
             data = cert_file.read()
         return data
@@ -455,7 +455,7 @@ class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
     @controller.protected()
-    def revocation_list(self, request, auth=None):
+    def revocation_list(self, request):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
         tokens = self.token_provider_api.list_revoked_tokens()
