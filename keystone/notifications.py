@@ -481,7 +481,7 @@ class CadfNotificationWrapper(object):
     def __call__(self, f):
         @functools.wraps(f)
         def wrapper(wrapped_self, request, user_id, *args, **kwargs):
-            """Alway send a notification."""
+            # Always send a notification.
             initiator = _get_request_audit_info(request.context_dict, user_id)
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             try:
@@ -719,7 +719,7 @@ def _check_notification_opt_out(event_type, outcome):
     """
     # NOTE(stevemar): Special handling for authenticate, we look at the outcome
     # as well when evaluating. For authN events, event_type is just
-    # idenitity.authenticate, which isn't fine enough to provide any opt-out
+    # identity.authenticate, which isn't fine enough to provide any opt-out
     # value, so we attach the outcome to re-create the meter name used in
     # ceilometer.
     if 'authenticate' in event_type:
