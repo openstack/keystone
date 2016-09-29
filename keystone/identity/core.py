@@ -805,7 +805,7 @@ class Manager(manager.Manager):
 
         This method, specific to identity manager, is used instead of more
         general response_truncated, because the limit for identity entities
-        can be overriden in domain-specific config files. The driver to use
+        can be overridden in domain-specific config files. The driver to use
         is determined during processing of the passed parameters and
         response_truncated is designed to set the limit before any processing.
         """
