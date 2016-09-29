@@ -1691,6 +1691,13 @@ tls_cacertdir is ignored. Furthermore, valid options for tls_req_cert are
 demand, never, and allow. These correspond to the standard options permitted by
 the TLS_REQCERT TLS option.
 
+.. NOTE::
+
+If unable to connect to LDAP via keystone (more specifically, if a
+*SERVER DOWN* error is seen), set the ``TLS_CACERT`` in ``/etc/ldap/ldap.conf``
+to the same value specified in the ``[ldap] tls_certificate`` section of
+``keystone.conf``.
+
 Read Only LDAP
 --------------
 
