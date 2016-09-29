@@ -205,10 +205,21 @@ class TokenAPITests(object):
         return (trustee_user, trust)
 
     def _validate_token(self, token, expected_status=http_client.OK):
-        return self.get(
-            '/auth/tokens',
-            headers={'X-Subject-Token': token},
-            expected_status=expected_status)
+        return self.admin_request(
+            path='/v3/auth/tokens/',
+            headers={'X-Auth-Token': self.get_admin_token(),
+                     'X-Subject-Token': token},
+            method='GET',
+            expected_status=expected_status
+        )
+
+    def _validate_token_v2(self, token, expected_status=http_client.OK):
+        return self.admin_request(
+            path='/v2.0/tokens/%s' % token,
+            headers={'X-Auth-Token': self.get_scoped_token()},
+            method='GET',
+            expected_status=expected_status
+        )
 
     def _revoke_token(self, token, expected_status=http_client.NO_CONTENT):
         return self.delete(
@@ -377,9 +388,10 @@ class TokenAPITests(object):
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
+        self._validate_token(
+            unscoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
         unscoped_token = self._get_unscoped_token()
@@ -389,15 +401,17 @@ class TokenAPITests(object):
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
+        self._validate_token(
+            unscoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
         # Enable the user
         self._set_user_enabled(self.user)
         # Ensure validating a token for a re-enabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
+        self._validate_token(
+            unscoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
         unscoped_token = self._get_unscoped_token()
@@ -408,9 +422,10 @@ class TokenAPITests(object):
         self.domain['enabled'] = False
         self.resource_api.update_domain(self.domain['id'], self.domain)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
+        self._validate_token(
+            unscoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_unscoped_token_is_invalid_after_changing_user_password(self):
         unscoped_token = self._get_unscoped_token()
@@ -421,9 +436,10 @@ class TokenAPITests(object):
         self.user['password'] = 'Password1'
         self.identity_api.update_user(self.user['id'], self.user)
         # Ensure updating user's password revokes existing user's tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          unscoped_token)
+        self._validate_token(
+            unscoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_create_domain_token_scoped_with_domain_id_and_user_id(self):
         # grant the user a role on the domain
@@ -598,9 +614,10 @@ class TokenAPITests(object):
         # Disable user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          domain_scoped_token)
+        self._validate_token(
+            domain_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_domain_scoped_token_is_invalid_after_deleting_grant(self):
         # Grant user access to domain
@@ -616,9 +633,10 @@ class TokenAPITests(object):
                                          user_id=self.user['id'],
                                          domain_id=self.domain['id'])
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          domain_scoped_token)
+        self._validate_token(
+            domain_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_domain_scoped_token_invalid_after_disabling_domain(self):
         # Grant user access to domain
@@ -633,9 +651,10 @@ class TokenAPITests(object):
         self.domain['enabled'] = False
         self.resource_api.update_domain(self.domain['id'], self.domain)
         # Ensure validating a token for a disabled domain fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          domain_scoped_token)
+        self._validate_token(
+            domain_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_v2_validate_domain_scoped_token_returns_unauthorized(self):
         # Test that validating a domain scoped token in v2.0 returns
@@ -646,9 +665,10 @@ class TokenAPITests(object):
                                          domain_id=self.domain['id'])
 
         scoped_token = self._get_domain_scoped_token()
-        self.assertRaises(exception.Unauthorized,
-                          self.token_provider_api.validate_v2_token,
-                          scoped_token)
+        self._validate_token_v2(
+            scoped_token,
+            expected_status=http_client.UNAUTHORIZED
+        )
 
     def test_create_project_scoped_token_with_project_id_and_user_id(self):
         auth_data = self.build_authentication_request(
@@ -971,9 +991,10 @@ class TokenAPITests(object):
         # Disable the user
         self._set_user_enabled(self.user, enabled=False)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
+        self._validate_token(
+            project_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_project_scoped_token_invalid_after_changing_user_password(self):
         project_scoped_token = self._get_project_scoped_token()
@@ -984,9 +1005,10 @@ class TokenAPITests(object):
         self.user['password'] = 'Password1'
         self.identity_api.update_user(self.user['id'], self.user)
         # Ensure updating user's password revokes existing tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
+        self._validate_token(
+            project_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_project_scoped_token_invalid_after_disabling_project(self):
         project_scoped_token = self._get_project_scoped_token()
@@ -997,9 +1019,10 @@ class TokenAPITests(object):
         self.project['enabled'] = False
         self.resource_api.update_project(self.project['id'], self.project)
         # Ensure validating a token for a disabled project fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
+        self._validate_token(
+            project_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_project_scoped_token_is_invalid_after_deleting_grant(self):
         # disable caching so that user grant deletion is not hidden
@@ -1020,9 +1043,10 @@ class TokenAPITests(object):
                                          user_id=self.user['id'],
                                          project_id=self.project['id'])
         # Ensure the token has been revoked
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          project_scoped_token)
+        self._validate_token(
+            project_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_no_access_to_default_project_result_in_unscoped_token(self):
         # create a disabled project to work with
@@ -1075,9 +1099,10 @@ class TokenAPITests(object):
         trustee_update_ref = dict(enabled=False)
         self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_trust_token_is_invalid_when_trustee_domain_disabled(self):
         # create a new domain with new user in that domain
@@ -1137,9 +1162,10 @@ class TokenAPITests(object):
         trustee_update_ref = dict(password='Password1')
         self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
         # Ensure updating trustee's password revokes existing tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
         trustee_user, trust = self._create_trust()
@@ -1152,9 +1178,10 @@ class TokenAPITests(object):
         trustor_update_ref = dict(enabled=False)
         self.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure validating a token for a disabled user fails
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_trust_scoped_token_invalid_after_changing_trustor_password(self):
         trustee_user, trust = self._create_trust()
@@ -1167,9 +1194,10 @@ class TokenAPITests(object):
         trustor_update_ref = dict(password='Password1')
         self.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure updating trustor's password revokes existing user's tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_trust_scoped_token_invalid_after_disabled_trustor_domain(self):
         trustee_user, trust = self._create_trust()
@@ -1185,18 +1213,20 @@ class TokenAPITests(object):
         trustor_update_ref = dict(password='Password1')
         self.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure updating trustor's password revokes existing user's tokens
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token,
-                          trust_scoped_token)
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.NOT_FOUND
+        )
 
     def test_validate_trust_token_on_v2_fails_outside_default_domain(self):
         # NOTE(lbragstad): This fails validation against the v2.0 API because
         # the actors of the trust are not within the default domain.
         trustee_user, trust = self._create_trust()
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
-        self.assertRaises(exception.Unauthorized,
-                          self.token_provider_api.validate_v2_token,
-                          trust_scoped_token)
+        self._validate_token_v2(
+            trust_scoped_token,
+            expected_status=http_client.UNAUTHORIZED
+        )
 
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
@@ -2510,9 +2540,20 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
     def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
         # NOTE(amakarov): have to override this test for non-persistent tokens
         # as TokenNotFound exception makes no sense for those.
-        self.assertRaises(
-            exception.Forbidden, super(TestFernetTokenAPIs, self)
-            .test_trust_scoped_token_is_invalid_after_disabling_trustor)
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
+
+        # Disable the trustor
+        trustor_update_ref = dict(enabled=False)
+        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure validating a token for a disabled user fails
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.FORBIDDEN
+        )
 
 
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
