@@ -92,8 +92,7 @@ class DomainConfigs(dict):
 
     def _load_config_from_file(self, resource_api, file_list, domain_name):
 
-        def _assert_no_more_than_one_sql_driver(domain_id, new_config,
-                                                config_file):
+        def _assert_no_more_than_one_sql_driver(new_config, config_file):
             """Ensure there is no more than one sql driver.
 
             Check to see if the addition of the driver in this new config
@@ -126,9 +125,7 @@ class DomainConfigs(dict):
         domain_config['cfg'](args=[], project='keystone',
                              default_config_files=file_list)
         domain_config['driver'] = self._load_driver(domain_config)
-        _assert_no_more_than_one_sql_driver(domain_ref['id'],
-                                            domain_config,
-                                            file_list)
+        _assert_no_more_than_one_sql_driver(domain_config, file_list)
         self[domain_ref['id']] = domain_config
 
     def _setup_domain_drivers_from_files(self, standard_driver, resource_api):
