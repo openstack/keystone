@@ -164,6 +164,10 @@ def configure_invalidation_region():
     CACHE_INVALIDATION_REGION.configure_from_config(
         config_dict, '%s.' % CONF.cache.config_prefix)
 
+    # NOTE(breton): Wrap the cache invalidation region to avoid excessive
+    # calls to memcached, which would result in poor performance.
+    CACHE_INVALIDATION_REGION.wrap(_context_cache._ResponseCacheProxy)
+
     # NOTE(morganfainberg): if the backend requests the use of a
     # key_mangler, we should respect that key_mangler function.  If a
     # key_mangler is not defined by the backend, use the sha1_mangle_key
