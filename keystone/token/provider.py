@@ -16,7 +16,6 @@
 
 import abc
 import base64
-import copy
 import datetime
 import sys
 import uuid
@@ -34,7 +33,6 @@ from keystone.i18n import _, _LE
 from keystone.models import token_model
 from keystone import notifications
 from keystone.token import persistence
-from keystone.token import providers
 from keystone.token import utils
 
 
@@ -217,32 +215,6 @@ class Manager(manager.Manager):
             token_data, CONF.identity.default_domain_id)
         self.revoke_api.check_token(token_values)
 
-    def validate_v2_token(self, token_id):
-        # NOTE(lbragstad): Only go to the persistence backend if the token
-        # provider requires it.
-        if self._needs_persistence:
-            # NOTE(morganfainberg): Ensure we never use the long-form token_id
-            # (PKI) as part of the cache_key.
-            unique_id = utils.generate_unique_id(token_id)
-            token_ref = self._persistence.get_token(unique_id)
-            token = self._validate_v2_token(token_ref)
-        else:
-            # NOTE(lbragstad): If the token doesn't require persistence, then
-            # it is a fernet token. The fernet token provider doesn't care if
-            # it's creating version 2.0 tokens or v3 tokens, so we use the same
-            # validate_non_persistent_token() method to validate both. Then we
-            # can leverage a separate method to make version 3 token data look
-            # like version 2.0 token data. The pattern we want to move towards
-            # is one where the token providers just handle data and the
-            # controller layers handle interpreting the token data in a format
-            # that makes sense for the request.
-            v3_token_ref = self.validate_non_persistent_token(token_id)
-            v2_token_data_helper = providers.common.V2TokenDataHelper()
-            token = v2_token_data_helper.v3_to_v2_token(v3_token_ref, token_id)
-
-        self._is_valid_token(token)
-        return token
-
     def check_revocation_v3(self, token):
         try:
             token_data = token['token']
@@ -284,10 +256,6 @@ class Manager(manager.Manager):
     @MEMOIZE_TOKENS
     def validate_non_persistent_token(self, token_id):
         return self.driver.validate_non_persistent_token(token_id)
-
-    @MEMOIZE_TOKENS
-    def _validate_v2_token(self, token_id):
-        return self.driver.validate_v2_token(token_id)
 
     @MEMOIZE_TOKENS
     def _validate_v3_token(self, token_id):
@@ -344,7 +312,17 @@ class Manager(manager.Manager):
         # isn't reflexive: there is no way to populate v3 validation cache
         # on issuing a token using v2.0 API.
         if CONF.token.cache_on_issue:
-            self._validate_v2_token.set(token_data, TOKENS_REGION, token_id)
+            if self._needs_persistence:
+                validate_response = self.driver.validate_v3_token(token_ref)
+            else:
+                validate_response = self.driver.validate_non_persistent_token(
+                    token_id
+                )
+            self._validate_v3_token.set(
+                validate_response,
+                TOKENS_REGION,
+                token_id
+            )
 
         return token_id, token_data
 
@@ -395,17 +373,6 @@ class Manager(manager.Manager):
             self.validate_non_persistent_token.set(
                 token_data, TOKENS_REGION, token_id)
 
-            try:
-                v2_helper = providers.common.V2TokenDataHelper()
-                v2_token_data = v2_helper.v3_to_v2_token(
-                    copy.deepcopy(token_data), token_id)
-            except exception.Unauthorized:
-                # Ignore trust and oauth tokens
-                pass
-            else:
-                self._validate_v2_token.set(
-                    v2_token_data, TOKENS_REGION, token_id)
-
         return token_id, token_data
 
     def invalidate_individual_token_cache(self, token_id):
@@ -418,7 +385,6 @@ class Manager(manager.Manager):
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
 
-        self._validate_v2_token.invalidate(self, token_id)
         self._validate_v3_token.invalidate(self, token_id)
         # This method isn't actually called in the case of non-persistent
         # tokens, but we include the invalidation in case this ever changes
@@ -581,20 +547,6 @@ class Provider(object):
         :param parent_audit_id: optional, the audit id of the parent token
         :type parent_audit_id: string
         :returns: (token_id, token_data)
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def validate_v2_token(self, token_ref):
-        """Validate the given V2 token and return the token data.
-
-        Must raise Unauthorized exception if unable to validate token.
-
-        :param token_ref: the token reference
-        :type token_ref: dict
-        :returns: token data
-        :raises keystone.exception.TokenNotFound: If the token doesn't exist.
-
         """
         raise exception.NotImplemented()  # pragma: no cover
 

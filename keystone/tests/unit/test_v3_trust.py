@@ -15,8 +15,11 @@ import uuid
 
 from six.moves import http_client
 
+import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+
+CONF = keystone.conf.CONF
 
 
 class TestTrustOperations(test_v3.RestfulTestCase):
@@ -241,25 +244,35 @@ class TestTrustOperations(test_v3.RestfulTestCase):
                   expected_status=http_client.NOT_FOUND)
 
     def test_validate_trust_scoped_token_against_v2(self):
+        # get a project-scoped token
+        auth_data = self.build_authentication_request(
+            user_id=self.default_domain_user['id'],
+            password=self.default_domain_user['password'],
+            project_id=self.default_domain_project_id)
+        token = self.get_requested_token(auth_data)
+
+        user = unit.new_user_ref(CONF.identity.default_domain_id)
+        trustee = self.identity_api.create_user(user)
+
         # create a new trust
         ref = unit.new_trust_ref(
-            trustor_user_id=self.user_id,
-            trustee_user_id=self.default_domain_user_id,
-            project_id=self.project_id,
+            trustor_user_id=self.default_domain_user['id'],
+            trustee_user_id=trustee['id'],
+            project_id=self.default_domain_project_id,
             impersonation=False,
             expires=dict(minutes=1),
             role_ids=[self.role_id])
-        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref}, token=token)
         trust = self.assertValidTrustResponse(r)
 
         # get a v3 trust-scoped token as the trustee
         auth_data = self.build_authentication_request(
-            user_id=self.default_domain_user['id'],
-            password=self.default_domain_user['password'],
+            user_id=trustee['id'],
+            password=user['password'],
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
         self.assertValidProjectScopedTokenResponse(
-            r, self.default_domain_user)
+            r, trustee)
         token = r.headers.get('X-Subject-Token')
 
         # now validate the v3 token with v2 API
@@ -270,7 +283,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             method='GET'
         )
 
-    def test_v3_v2_intermix_trustor_not_in_default_domain_failed(self):
+    def test_v3_v2_intermix_trustee_not_in_default_domain_failed(self):
         # get a project-scoped token
         auth_data = self.build_authentication_request(
             user_id=self.default_domain_user['id'],
