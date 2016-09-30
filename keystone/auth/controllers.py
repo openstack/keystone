@@ -564,7 +564,7 @@ class Auth(controller.V3Controller):
         return render_token_data_response(token_id, token_data)
 
     @controller.protected()
-    def revocation_list(self, request, auth=None):
+    def revocation_list(self, request):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
 
