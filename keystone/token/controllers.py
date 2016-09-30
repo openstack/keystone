@@ -179,11 +179,20 @@ class Auth(controller.V2Controller):
             v3_token_data = self.token_provider_api.validate_v3_token(
                 old_token
             )
+            # NOTE(lbragstad): Even though we are not using the v2.0 token
+            # reference after we translate it in v3_to_v2_token(), we still
+            # need to perform that check. We have to do this because
+            # v3_to_v2_token will ensure we don't use specific tokens only
+            # attainable via v3 to get new tokens on v2.0. For example, an
+            # exception would be raised if we passed a federated token to
+            # v3_to_v2_token, because federated tokens aren't supported by
+            # v2.0 (the same applies to OAuth tokens, domain-scoped tokens,
+            # etc..).
             v2_helper = providers.common.V2TokenDataHelper()
-            v2_token = v2_helper.v3_to_v2_token(v3_token_data, old_token)
+            v2_helper.v3_to_v2_token(v3_token_data, old_token)
             token_model_ref = token_model.KeystoneToken(
                 token_id=old_token,
-                token_data=v2_token
+                token_data=v3_token_data
             )
         except exception.NotFound as e:
             raise exception.Unauthorized(e)
