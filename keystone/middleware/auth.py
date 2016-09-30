@@ -46,7 +46,7 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
 
     def fetch_token(self, token):
         try:
-            return self.token_provider_api.validate_v3_token(token)
+            return self.token_provider_api.validate_token(token)
         except exception.TokenNotFound:
             raise auth_token.InvalidToken(_('Could not find token'))
 
