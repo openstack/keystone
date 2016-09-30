@@ -489,7 +489,7 @@ class TokenCacheInvalidation(object):
     def _check_unscoped_tokens_are_invalid(self):
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_provider_api.validate_token,
+            self.token_provider_api.validate_v3_token,
             self.unscoped_token_id)
         self.assertRaises(
             exception.TokenNotFound,
@@ -499,7 +499,7 @@ class TokenCacheInvalidation(object):
     def _check_scoped_tokens_are_invalid(self):
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_provider_api.validate_token,
+            self.token_provider_api.validate_v3_token,
             self.scoped_token_id)
         self.assertRaises(
             exception.TokenNotFound,
@@ -507,11 +507,11 @@ class TokenCacheInvalidation(object):
             self.scoped_token_id)
 
     def _check_scoped_tokens_are_valid(self):
-        self.token_provider_api.validate_token(self.scoped_token_id)
+        self.token_provider_api.validate_v3_token(self.scoped_token_id)
         self.token_provider_api.validate_v2_token(self.scoped_token_id)
 
     def _check_unscoped_tokens_are_valid(self):
-        self.token_provider_api.validate_token(self.unscoped_token_id)
+        self.token_provider_api.validate_v3_token(self.unscoped_token_id)
         self.token_provider_api.validate_v2_token(self.unscoped_token_id)
 
     def test_delete_unscoped_token(self):

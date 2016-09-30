@@ -35,7 +35,7 @@ class Token(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
-        response = self.token_provider_api.validate_token(token_id)
+        response = self.token_provider_api.validate_v3_token(token_id)
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 

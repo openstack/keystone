@@ -922,7 +922,7 @@ class AuthWithTrust(object):
     def _create_auth_request(self, token_id):
         token_ref = token_model.KeystoneToken(
             token_id=token_id,
-            token_data=self.token_provider_api.validate_token(token_id))
+            token_data=self.token_provider_api.validate_v3_token(token_id))
         auth_context = authorization.token_to_auth_context(token_ref)
         # NOTE(gyee): if public_endpoint and admin_endpoint are not set, which
         # is the default, the base url will be constructed from the environment

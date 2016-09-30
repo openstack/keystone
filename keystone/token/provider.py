@@ -207,14 +207,6 @@ class Manager(manager.Manager):
             except exception.TokenNotFound:
                 six.reraise(*exc_info)
 
-    def validate_token(self, token_id):
-        unique_id = utils.generate_unique_id(token_id)
-        # NOTE(morganfainberg): Ensure we never use the long-form token_id
-        # (PKI) as part of the cache_key.
-        token = self._validate_token(unique_id)
-        self._is_valid_token(token)
-        return token
-
     def check_revocation_v2(self, token):
         try:
             token_data = token['access']
@@ -292,27 +284,6 @@ class Manager(manager.Manager):
     @MEMOIZE_TOKENS
     def validate_non_persistent_token(self, token_id):
         return self.driver.validate_non_persistent_token(token_id)
-
-    @MEMOIZE_TOKENS
-    def _validate_token(self, token_id):
-        if not token_id:
-            raise exception.TokenNotFound(_('No token in the request'))
-
-        try:
-            if not self._needs_persistence:
-                # NOTE(lbragstad): This will validate v2 and v3 non-persistent
-                # tokens.
-                return self.driver.validate_non_persistent_token(token_id)
-            token_ref = self._persistence.get_token(token_id)
-            version = self.get_token_version(token_ref)
-            if version == self.V3:
-                return self.driver.validate_v3_token(token_ref)
-        except exception.Unauthorized as e:
-            LOG.debug('Unable to validate token: %s', e)
-            raise exception.TokenNotFound(token_id=token_id)
-        if version == self.V2:
-            return self.driver.validate_v2_token(token_ref)
-        raise exception.UnsupportedTokenVersionException()
 
     @MEMOIZE_TOKENS
     def _validate_v2_token(self, token_id):
@@ -421,7 +392,6 @@ class Manager(manager.Manager):
             # to serve as required positional "self" argument. It's ignored,
             # so I've put it here for convenience - any placeholder is fine.
             self._validate_v3_token.set(token_data, TOKENS_REGION, token_id)
-            self._validate_token.set(token_data, TOKENS_REGION, token_id)
             self.validate_non_persistent_token.set(
                 token_data, TOKENS_REGION, token_id)
 
@@ -448,7 +418,6 @@ class Manager(manager.Manager):
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
 
-        self._validate_token.invalidate(self, token_id)
         self._validate_v2_token.invalidate(self, token_id)
         self._validate_v3_token.invalidate(self, token_id)
         # This method isn't actually called in the case of non-persistent
@@ -459,7 +428,7 @@ class Manager(manager.Manager):
     def revoke_token(self, token_id, revoke_chain=False):
         token_ref = token_model.KeystoneToken(
             token_id=token_id,
-            token_data=self.validate_token(token_id))
+            token_data=self.validate_v3_token(token_id))
 
         project_id = token_ref.project_id if token_ref.project_scoped else None
         domain_id = token_ref.domain_id if token_ref.domain_scoped else None

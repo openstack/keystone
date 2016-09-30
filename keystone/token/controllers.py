@@ -477,7 +477,7 @@ class Auth(controller.V2Controller):
         """Return a list of endpoints available to the token."""
         self.assert_admin(request)
 
-        token_data = self.token_provider_api.validate_token(token_id)
+        token_data = self.token_provider_api.validate_v3_token(token_id)
         token_ref = token_model.KeystoneToken(token_id, token_data)
 
         catalog_ref = None
