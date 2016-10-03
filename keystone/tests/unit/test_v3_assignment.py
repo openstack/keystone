@@ -23,7 +23,6 @@ import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -1709,7 +1708,6 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self._test_list_role_assignments_include_names(role)
 
-    @test_utils.wip('Blocked by bug #1625230')
     def test_list_inherited_role_assignments_include_names(self):
         """Call ``GET /role_assignments?include_names``.
 

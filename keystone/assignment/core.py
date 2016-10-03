@@ -986,6 +986,8 @@ class Manager(manager.Manager):
                         new_assign['role_domain_name'] = (
                             self.resource_api.get_domain(_role['domain_id'])
                             ['name'])
+                elif id_type == 'inherited_to_projects':
+                    new_assign['inherited_to_projects'] = id_
             role_assign_list.append(new_assign)
         return role_assign_list
 
