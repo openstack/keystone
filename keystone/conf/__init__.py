@@ -170,7 +170,7 @@ def set_external_opts_defaults():
 
     # Oslo.cache is always enabled by default for request-local caching
     # TODO(morganfainberg): Fix this to not use internal interface when
-    # oslo.cache has proper interface to set defaults added. This is is
+    # oslo.cache has proper interface to set defaults added. This is
     # just a bad way to do this.
     opts = cache._opts.list_opts()
     for opt_list in opts:
