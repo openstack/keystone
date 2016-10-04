@@ -318,6 +318,20 @@ class TokenAPITests(object):
         r = self._validate_token(unscoped_token)
         self.assertValidUnscopedTokenResponse(r)
 
+    def test_validate_expired_unscoped_token_returns_not_found(self):
+        # NOTE(lbragstad): We set token expiration to 10 seconds so that we can
+        # use the context manager of freezegun without sqlite issues.
+        self.config_fixture.config(group='token',
+                                   expiration=10)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            unscoped_token = self._get_unscoped_token()
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
+            self._validate_token(
+                unscoped_token,
+                expected_status=http_client.NOT_FOUND
+            )
+
     def test_revoke_unscoped_token(self):
         unscoped_token = self._get_unscoped_token()
         r = self._validate_token(unscoped_token)
@@ -602,6 +616,24 @@ class TokenAPITests(object):
         self.assertIsNotNone(resp_json['token']['roles'])
         self.assertIsNotNone(resp_json['token']['domain'])
 
+    def test_validate_expired_domain_scoped_token_returns_not_found(self):
+        # Grant user access to domain
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user['id'],
+                                         domain_id=self.domain['id'])
+        # NOTE(lbragstad): We set token expiration to 10 seconds so that we can
+        # use the context manager of freezegun without sqlite issues.
+        self.config_fixture.config(group='token',
+                                   expiration=10)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            domain_scoped_token = self._get_domain_scoped_token()
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
+            self._validate_token(
+                domain_scoped_token,
+                expected_status=http_client.NOT_FOUND
+            )
+
     def test_domain_scoped_token_is_invalid_after_disabling_user(self):
         # Grant user access to domain
         self.assignment_api.create_grant(self.role['id'],
@@ -682,6 +714,20 @@ class TokenAPITests(object):
         project_scoped_token = self._get_project_scoped_token()
         r = self._validate_token(project_scoped_token)
         self.assertValidProjectScopedTokenResponse(r)
+
+    def test_validate_expired_project_scoped_token_returns_not_found(self):
+        # NOTE(lbragstad): We set token expiration to 10 seconds so that we can
+        # use the context manager of freezegun without sqlite issues.
+        self.config_fixture.config(group='token',
+                                   expiration=10)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            project_scoped_token = self._get_project_scoped_token()
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
+            self._validate_token(
+                project_scoped_token,
+                expected_status=http_client.NOT_FOUND
+            )
 
     def test_revoke_project_scoped_token(self):
         project_scoped_token = self._get_project_scoped_token()
@@ -1070,6 +1116,23 @@ class TokenAPITests(object):
         # Validate a trust scoped token
         r = self._validate_token(trust_scoped_token)
         self.assertValidProjectScopedTokenResponse(r)
+
+    def test_validate_expired_trust_scoped_token_returns_not_found(self):
+        # NOTE(lbragstad): We set token expiration to 10 seconds so that we can
+        # use the context manager of freezegun without sqlite issues.
+        self.config_fixture.config(group='token',
+                                   expiration=10)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            trustee_user, trust = self._create_trust()
+            trust_scoped_token = self._get_trust_scoped_token(
+                trustee_user, trust
+            )
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
+            self._validate_token(
+                trust_scoped_token,
+                expected_status=http_client.NOT_FOUND
+            )
 
     def test_validate_a_trust_scoped_token_impersonated(self):
         trustee_user, trust = self._create_trust(impersonation=True)
