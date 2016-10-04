@@ -37,10 +37,13 @@ class RevokeDriverBase(object):
     """Interface for recording and reporting revocation events."""
 
     @abc.abstractmethod
-    def list_events(self, last_fetch=None):
+    def list_events(self, last_fetch=None, token=None):
         """return the revocation events, as a list of objects.
 
         :param last_fetch:   Time of last fetch.  Return all events newer.
+        :param token: dictionary of values from a token, normalized for
+                      differences between v2 and v3. The checked values are a
+                      subset of the attributes of model.TokenEvent
         :returns: A list of keystone.revoke.model.RevokeEvent
                   newer than `last_fetch.`
                   If no last_fetch is specified, returns all events
