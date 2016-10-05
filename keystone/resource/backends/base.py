@@ -35,6 +35,9 @@ def get_project_from_domain(domain_ref):
     return project_ref
 
 
+# The provided SQL driver uses a special value to represent a domain_id of
+# None. See comment in Project class of resource/backends/sql.py for more
+# details.
 NULL_DOMAIN_ID = '<<keystone.domain.root>>'
 
 
