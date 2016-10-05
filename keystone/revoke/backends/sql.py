@@ -38,7 +38,7 @@ class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
     audit_chain_id = sql.Column(sql.String(32))
 
 
-class Revoke(base.RevokeDriverV8):
+class Revoke(base.RevokeDriverBase):
     def _flush_batch_size(self, dialect):
         batch_size = 0
         if dialect == 'ibm_db_sa':

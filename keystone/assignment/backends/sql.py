@@ -40,7 +40,7 @@ class AssignmentType(object):
         raise exception.AssignmentTypeCalculationError(**locals())
 
 
-class Assignment(base.AssignmentDriverV9):
+class Assignment(base.AssignmentDriverBase):
 
     def default_role_driver(self):
         return 'sql'

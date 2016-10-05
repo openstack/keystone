@@ -26,7 +26,7 @@ from keystone.identity.shadow_backends import base
 CONF = cfg.CONF
 
 
-class ShadowUsers(base.ShadowUsersDriverV10):
+class ShadowUsers(base.ShadowUsersDriverBase):
     @sql.handle_conflicts(conflict_type='federated_user')
     def create_federated_user(self, federated_dict):
         user = {

@@ -24,7 +24,7 @@ CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)
-class DomainConfigDriverV8(object):
+class DomainConfigDriverBase(object):
     """Interface description for a Domain Config driver."""
 
     @abc.abstractmethod

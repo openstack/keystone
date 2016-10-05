@@ -15,9 +15,6 @@
 
 """Main entry point into the Catalog service."""
 
-from oslo_log import versionutils
-
-from keystone.catalog.backends import base
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import driver_hints
@@ -329,15 +326,3 @@ class Manager(manager.Manager):
         except exception.NotImplemented:
             # Some catalog drivers don't support this
             pass
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.catalog.CatalogDriverV8',
-    in_favor_of='keystone.catalog.backends.base.CatalogDriverV8',
-    remove_in=+1)
-class CatalogDriverV8(base.CatalogDriverV8):
-    pass
-
-
-Driver = manager.create_legacy_driver(base.CatalogDriverV8)

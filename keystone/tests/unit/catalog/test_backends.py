@@ -187,7 +187,7 @@ class CatalogTests(object):
                           region_two['id'],
                           {'parent_region_id': region_four['id']})
 
-    @mock.patch.object(base.CatalogDriverV8,
+    @mock.patch.object(base.CatalogDriverBase,
                        "_ensure_no_circle_in_hierarchical_regions")
     def test_circular_regions_can_be_deleted(self, mock_ensure_on_circle):
         # turn off the enforcement so that cycles can be created for the test

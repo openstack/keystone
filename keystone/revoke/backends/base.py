@@ -33,7 +33,7 @@ def revoked_before_cutoff_time():
 
 
 @six.add_metaclass(abc.ABCMeta)
-class RevokeDriverV8(object):
+class RevokeDriverBase(object):
     """Interface for recording and reporting revocation events."""
 
     @abc.abstractmethod

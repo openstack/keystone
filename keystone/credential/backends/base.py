@@ -24,7 +24,7 @@ LOG = log.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
-class CredentialDriverV8(object):
+class CredentialDriverBase(object):
     # credential crud
 
     @abc.abstractmethod

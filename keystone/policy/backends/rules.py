@@ -69,7 +69,7 @@ def enforce(credentials, action, target, do_raise=True):
     return _ENFORCER.enforce(action, target, credentials, **extra)
 
 
-class Policy(base.PolicyDriverV8):
+class Policy(base.PolicyDriverBase):
     def enforce(self, credentials, action, target):
         msg = 'enforce %(action)s: %(credentials)s'
         LOG.debug(msg, {

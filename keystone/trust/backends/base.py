@@ -20,7 +20,7 @@ from keystone import exception
 
 
 @six.add_metaclass(abc.ABCMeta)
-class TrustDriverV8(object):
+class TrustDriverBase(object):
 
     @abc.abstractmethod
     def create_trust(self, trust_id, trust, roles):

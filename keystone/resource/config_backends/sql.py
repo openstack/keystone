@@ -48,7 +48,7 @@ class ConfigRegister(sql.ModelBase, sql.ModelDictMixin):
     domain_id = sql.Column(sql.String(64), nullable=False)
 
 
-class DomainConfig(base.DomainConfigDriverV8):
+class DomainConfig(base.DomainConfigDriverBase):
 
     def choose_table(self, sensitive):
         if sensitive:

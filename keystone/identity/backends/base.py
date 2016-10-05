@@ -49,7 +49,7 @@ def filter_user(user_ref):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class IdentityDriverV8(object):
+class IdentityDriverBase(object):
     """Interface description for an Identity driver.
 
     The schema for users and groups is different depending on whether the
@@ -180,7 +180,7 @@ class IdentityDriverV8(object):
         :param str user_id: User ID
         :param str password: Password
 
-        :returns: user. See user schema in :class:`~.IdentityDriverV8`.
+        :returns: user. See user schema in :class:`~.IdentityDriverBase`.
         :rtype: dict
 
         :raises AssertionError: If user or password is invalid.
@@ -195,7 +195,7 @@ class IdentityDriverV8(object):
 
         :param str user_id: user ID. The driver can ignore this value.
         :param dict user: user info. See user schema in
-                          :class:`~.IdentityDriverV8`.
+                          :class:`~.IdentityDriverBase`.
 
         :returns: user, matching the user schema. The driver should not return
                   the password.
@@ -215,7 +215,7 @@ class IdentityDriverV8(object):
         :type hints: keystone.common.driver_hints.Hints
 
         :returns: a list of users or an empty list. See user schema in
-                  :class:`~.IdentityDriverV8`.
+                  :class:`~.IdentityDriverBase`.
         :rtype: list of dict
 
         """
@@ -231,7 +231,7 @@ class IdentityDriverV8(object):
         :type hints: keystone.common.driver_hints.Hints
 
         :returns: a list of users or an empty list. See user schema in
-                  :class:`~.IdentityDriverV8`.
+                  :class:`~.IdentityDriverBase`.
         :rtype: list of dict
 
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
@@ -245,7 +245,7 @@ class IdentityDriverV8(object):
 
         :param str user_id: User ID.
 
-        :returns: user. See user schema in :class:`~.IdentityDriverV8`.
+        :returns: user. See user schema in :class:`~.IdentityDriverBase`.
         :rtype: dict
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
@@ -259,10 +259,10 @@ class IdentityDriverV8(object):
 
         :param str user_id: User ID.
         :param dict user: User modification. See user schema in
-            :class:`~.IdentityDriverV8`. Properties set to None will be
+            :class:`~.IdentityDriverBase`. Properties set to None will be
             removed. Required properties cannot be removed.
 
-        :returns: user. See user schema in :class:`~.IdentityDriverV8`.
+        :returns: user. See user schema in :class:`~.IdentityDriverBase`.
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
         :raises keystone.exception.Conflict: If a duplicate user exists in the
@@ -352,7 +352,7 @@ class IdentityDriverV8(object):
 
         :param str group_id: group ID. The driver can ignore this value.
         :param dict group: group info. See group schema in
-                           :class:`~.IdentityDriverV8`.
+                           :class:`~.IdentityDriverBase`.
 
         :returns: group, matching the group schema.
         :rtype: dict
@@ -371,7 +371,7 @@ class IdentityDriverV8(object):
         :type hints: keystone.common.driver_hints.Hints
 
         :returns: a list of group_refs or an empty list. See group schema in
-                  :class:`~.IdentityDriverV8`.
+                  :class:`~.IdentityDriverBase`.
 
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -386,7 +386,7 @@ class IdentityDriverV8(object):
         :type hints: keystone.common.driver_hints.Hints
 
         :returns: a list of group_refs or an empty list. See group schema in
-                  :class:`~.IdentityDriverV8`.
+                  :class:`~.IdentityDriverBase`.
 
         :raises keystone.exception.UserNotFound: If the user doesn't exist.
 
@@ -399,7 +399,7 @@ class IdentityDriverV8(object):
 
         :param str group_id: group ID.
 
-        :returns: group info. See group schema in :class:`~.IdentityDriverV8`.
+        :returns: group info. See group schema in :class:`~.IdentityDriverBase`
         :rtype: dict
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
 
@@ -413,7 +413,8 @@ class IdentityDriverV8(object):
         :param str group_name: group name.
         :param str domain_id: domain ID.
 
-        :returns: group info. See group schema in :class:`~.IdentityDriverV8`.
+        :returns: group info. See group schema in
+            :class:`~.IdentityDriverBase`.
         :rtype: dict
         :raises keystone.exception.GroupNotFound: If the group doesn't exist.
 
@@ -426,7 +427,8 @@ class IdentityDriverV8(object):
 
         :param str group_id: Group ID.
         :param dict group: Group modification. See group schema in
-            :class:`~.IdentityDriverV8`. Required properties cannot be removed.
+            :class:`~.IdentityDriverBase`. Required properties cannot be
+            removed.
 
         :returns: group, matching the group schema.
         :rtype: dict

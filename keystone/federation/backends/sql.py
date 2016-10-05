@@ -161,7 +161,7 @@ class ServiceProviderModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class Federation(base.FederationDriverV9):
+class Federation(base.FederationDriverBase):
 
     _CONFLICT_LOG_MSG = 'Conflict %(conflict_type)s: %(details)s'
 

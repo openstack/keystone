@@ -14,14 +14,11 @@
 
 """Main entry point into the Policy service."""
 
-from oslo_log import versionutils
-
 from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
 from keystone import notifications
-from keystone.policy.backends import base
 
 
 CONF = keystone.conf.CONF
@@ -78,15 +75,3 @@ class Manager(manager.Manager):
             raise exception.PolicyNotFound(policy_id=policy_id)
         notifications.Audit.deleted(self._POLICY, policy_id, initiator)
         return ret
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.policy.PolicyDriverV8',
-    in_favor_of='keystone.policy.backends.base.PolicyDriverV8',
-    remove_in=+1)
-class PolicyDriverV8(base.PolicyDriverV8):
-    pass
-
-
-Driver = manager.create_legacy_driver(base.PolicyDriverV8)

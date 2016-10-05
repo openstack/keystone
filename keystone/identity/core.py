@@ -33,10 +33,7 @@ from keystone.common.validation import validators
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
-from keystone.identity.backends import base as identity_interface
-from keystone.identity.mapping_backends import base as mapping_interface
 from keystone.identity.mapping_backends import mapping
-from keystone.identity.shadow_backends import base as shadow_interface
 from keystone import notifications
 
 
@@ -1280,17 +1277,6 @@ class Manager(manager.Manager):
         return user_dict
 
 
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.identity.IdentityDriverV8',
-    in_favor_of='keystone.identity.backends.base.IdentityDriverV8',
-    remove_in=+1)
-class IdentityDriverV8(identity_interface.IdentityDriverV8):
-    pass
-
-Driver = manager.create_legacy_driver(identity_interface.IdentityDriverV8)
-
-
 @dependency.provider('id_mapping_api')
 class MappingManager(manager.Manager):
     """Default pivot point for the ID Mapping backend."""
@@ -1343,18 +1329,6 @@ class MappingManager(manager.Manager):
         ID_MAPPING_REGION.invalidate()
 
 
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.identity.MappingDriverV8',
-    in_favor_of='keystone.identity.mapping_backends.base.MappingDriverV8',
-    remove_in=+1)
-class MappingDriverV8(mapping_interface.MappingDriverV8):
-    pass
-
-
-MappingDriver = manager.create_legacy_driver(mapping_interface.MappingDriverV8)
-
-
 @dependency.provider('shadow_users_api')
 class ShadowUsersManager(manager.Manager):
     """Default pivot point for the Shadow Users backend."""
@@ -1365,19 +1339,3 @@ class ShadowUsersManager(manager.Manager):
         shadow_driver = CONF.shadow_users.driver
 
         super(ShadowUsersManager, self).__init__(shadow_driver)
-
-        if isinstance(self.driver, shadow_interface.ShadowUsersDriverV9):
-            self.driver = (
-                shadow_interface.V10ShadowUsersWrapperForV9Driver(self.driver))
-        elif not isinstance(self.driver,
-                            shadow_interface.ShadowUsersDriverV10):
-            raise exception.UnsupportedDriverVersion(driver=shadow_driver)
-
-
-@versionutils.deprecated(
-    versionutils.deprecated.NEWTON,
-    what='keystone.identity.ShadowUsersDriverV9',
-    in_favor_of='keystone.identity.shadow_backends.base.ShadowUsersDriverV9',
-    remove_in=+1)
-class ShadowUsersDriverV9(shadow_interface.ShadowUsersDriverV9):
-    pass

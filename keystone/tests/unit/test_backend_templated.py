@@ -17,7 +17,7 @@ import uuid
 import mock
 from six.moves import zip
 
-from keystone import catalog
+from keystone.catalog.backends import base as catalog_base
 from keystone.tests import unit
 from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
@@ -205,7 +205,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     def test_avoid_creating_circular_references_in_regions_update(self):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
-    @mock.patch.object(catalog.Driver,
+    @mock.patch.object(catalog_base.CatalogDriverBase,
                        "_ensure_no_circle_in_hierarchical_regions")
     def test_circular_regions_can_be_deleted(self, mock_ensure_on_circle):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)

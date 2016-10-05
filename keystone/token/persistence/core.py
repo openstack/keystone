@@ -225,7 +225,7 @@ class Manager(object):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class TokenDriverV8(object):
+class TokenDriverBase(object):
     """Interface description for a Token driver."""
 
     @abc.abstractmethod
@@ -352,6 +352,3 @@ class TokenDriverV8(object):
     def flush_expired_tokens(self):
         """Archive or delete tokens that have expired."""
         raise exception.NotImplemented()  # pragma: no cover
-
-
-Driver = manager.create_legacy_driver(TokenDriverV8)

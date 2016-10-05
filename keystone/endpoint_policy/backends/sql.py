@@ -48,7 +48,7 @@ class PolicyAssociation(sql.ModelBase, sql.ModelDictMixin):
         return d
 
 
-class EndpointPolicy(base.EndpointPolicyDriverV8):
+class EndpointPolicy(base.EndpointPolicyDriverBase):
 
     def create_policy_association(self, policy_id, endpoint_id=None,
                                   service_id=None, region_id=None):
