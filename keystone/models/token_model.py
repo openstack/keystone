@@ -210,7 +210,8 @@ class KeystoneToken(dict):
     @property
     def is_domain(self):
         if self.version is V3:
-            return self['is_domain']
+            if 'is_domain' in self:
+                return self['is_domain']
         return False
 
     @property
