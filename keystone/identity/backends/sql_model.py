@@ -109,6 +109,10 @@ class User(sql.ModelBase, sql.DictBase):
         now = datetime.datetime.utcnow()
         if not self.local_user:
             self.local_user = LocalUser()
+        # truncate extra passwords
+        if self.local_user.passwords:
+            unique_cnt = CONF.security_compliance.unique_last_password_count
+            self.local_user.passwords = self.local_user.passwords[-unique_cnt:]
         # set all previous passwords to be expired
         for ref in self.local_user.passwords:
             if not ref.expires_at or ref.expires_at > now:

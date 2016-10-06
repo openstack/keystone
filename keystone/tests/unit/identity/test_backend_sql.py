@@ -157,84 +157,95 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
 class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
     def setUp(self):
         super(PasswordHistoryValidationTests, self).setUp()
-        self.passwords = [uuid.uuid4().hex,
-                          uuid.uuid4().hex,
-                          uuid.uuid4().hex,
-                          uuid.uuid4().hex]
         self.max_cnt = 3
         self.config_fixture.config(group='security_compliance',
                                    unique_last_password_count=self.max_cnt)
 
     def test_validate_password_history_with_invalid_password(self):
-        user = self._create_user(self.passwords[0])
-        self.assertValidPasswordUpdate(user, self.passwords[1])
-        # Attempt to update with the initial password
-        user['password'] = self.passwords[0]
-        self.assertRaises(exception.PasswordValidationError,
-                          self.identity_api.update_user,
-                          user['id'],
-                          user)
-
-    def test_validate_password_history_via_self_service_change_password(self):
-        user = self._create_user(self.passwords[0])
-        # Attempt to change password to a unique password
-        self.identity_api.change_password(self.make_request(),
-                                          user_id=user['id'],
-                                          original_password=self.passwords[0],
-                                          new_password=self.passwords[1])
-        self.identity_api.authenticate(self.make_request(),
-                                       user_id=user['id'],
-                                       password=self.passwords[1])
-        # Attempt to change password with the same password
+        password = uuid.uuid4().hex
+        user = self._create_user(password)
+        # Attempt to change to the same password
         self.assertRaises(exception.PasswordValidationError,
                           self.identity_api.change_password,
                           self.make_request(),
                           user_id=user['id'],
-                          original_password=self.passwords[1],
-                          new_password=self.passwords[1])
-        # Attempt to change password with the initial password
+                          original_password=password,
+                          new_password=password)
+        # Attempt to change to a unique password
+        new_password = uuid.uuid4().hex
+        self.assertValidChangePassword(user['id'], password, new_password)
+        # Attempt to change back to the initial password
         self.assertRaises(exception.PasswordValidationError,
                           self.identity_api.change_password,
                           self.make_request(),
                           user_id=user['id'],
-                          original_password=self.passwords[1],
-                          new_password=self.passwords[0])
+                          original_password=new_password,
+                          new_password=password)
 
     def test_validate_password_history_with_valid_password(self):
-        user = self._create_user(self.passwords[0])
-        self.assertValidPasswordUpdate(user, self.passwords[1])
-        self.assertValidPasswordUpdate(user, self.passwords[2])
-        self.assertValidPasswordUpdate(user, self.passwords[3])
+        passwords = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex,
+                     uuid.uuid4().hex]
+        user = self._create_user(passwords[0])
+        self.assertValidChangePassword(user['id'], passwords[0], passwords[1])
+        self.assertValidChangePassword(user['id'], passwords[1], passwords[2])
+        self.assertValidChangePassword(user['id'], passwords[2], passwords[3])
         # Now you should be able to change the password to match the initial
         # password because the password history only contains password elements
         # 1, 2, 3
-        self.assertValidPasswordUpdate(user, self.passwords[0])
+        self.assertValidChangePassword(user['id'], passwords[3], passwords[0])
 
     def test_validate_password_history_but_start_with_password_none(self):
+        passwords = [uuid.uuid4().hex, uuid.uuid4().hex]
         # Create user and confirm password is None
         user = self._create_user(None)
         user_ref = self._get_user_ref(user['id'])
         self.assertIsNone(user_ref.password)
-        # Update the password
-        self.assertValidPasswordUpdate(user, self.passwords[0])
-        self.assertValidPasswordUpdate(user, self.passwords[1])
+        # Admin password reset
+        user['password'] = passwords[0]
+        self.identity_api.update_user(user['id'], user)
+        # Self-service change password
+        self.assertValidChangePassword(user['id'], passwords[0], passwords[1])
         # Attempt to update with a previous password
-        user['password'] = self.passwords[0]
         self.assertRaises(exception.PasswordValidationError,
-                          self.identity_api.update_user,
-                          user['id'],
-                          user)
+                          self.identity_api.change_password,
+                          self.make_request(),
+                          user_id=user['id'],
+                          original_password=passwords[1],
+                          new_password=passwords[0])
 
-    def test_validate_password_history_disabled_and_repeat_same_password(self):
+    def test_disable_password_history_and_repeat_same_password(self):
         self.config_fixture.config(group='security_compliance',
                                    unique_last_password_count=1)
-        user = self._create_user(self.passwords[0])
-        # Repeatedly update the password with the same password
-        self.assertValidPasswordUpdate(user, self.passwords[0])
-        self.assertValidPasswordUpdate(user, self.passwords[0])
+        password = uuid.uuid4().hex
+        user = self._create_user(password)
+        # Repeatedly change password with the same password
+        self.assertValidChangePassword(user['id'], password, password)
+        self.assertValidChangePassword(user['id'], password, password)
+
+    def test_admin_password_reset_is_not_validated_by_password_history(self):
+        passwords = [uuid.uuid4().hex, uuid.uuid4().hex]
+        user = self._create_user(passwords[0])
+        # Attempt to change password to a unique password
+        user['password'] = passwords[1]
+        self.identity_api.update_user(user['id'], user)
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user['id'],
+                                       password=passwords[1])
+        # Attempt to change password with the same password
+        user['password'] = passwords[1]
+        self.identity_api.update_user(user['id'], user)
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user['id'],
+                                       password=passwords[1])
+        # Attempt to change password with the initial password
+        user['password'] = passwords[0]
+        self.identity_api.update_user(user['id'], user)
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user['id'],
+                                       password=passwords[0])
 
     def test_truncate_passwords(self):
-        user = self._create_user(self.passwords[0])
+        user = self._create_user(uuid.uuid4().hex)
         self._add_passwords_to_history(user, n=4)
         user_ref = self._get_user_ref(user['id'])
         self.assertEqual(
@@ -245,7 +256,7 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
         expected_length = self.max_cnt + 1
         self.config_fixture.config(group='security_compliance',
                                    unique_last_password_count=self.max_cnt)
-        user = self._create_user(self.passwords[0])
+        user = self._create_user(uuid.uuid4().hex)
         self._add_passwords_to_history(user, n=4)
         user_ref = self._get_user_ref(user['id'])
         self.assertEqual(len(user_ref.local_user.passwords), expected_length)
@@ -288,11 +299,13 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
         }
         return self.identity_api.create_user(user)
 
-    def assertValidPasswordUpdate(self, user, new_password):
-        user['password'] = new_password
-        self.identity_api.update_user(user['id'], user)
+    def assertValidChangePassword(self, user_id, password, new_password):
+        self.identity_api.change_password(self.make_request(),
+                                          user_id=user_id,
+                                          original_password=password,
+                                          new_password=new_password)
         self.identity_api.authenticate(self.make_request(),
-                                       user_id=user['id'],
+                                       user_id=user_id,
                                        password=new_password)
 
     def _add_passwords_to_history(self, user, n):
