@@ -52,14 +52,7 @@ class Manager(manager.Manager):
     _PROJECT = 'project'
 
     def __init__(self):
-        # If there is a specific driver specified for resource, then use it.
-        # Otherwise retrieve the driver type from the assignment driver.
         resource_driver = CONF.resource.driver
-
-        if resource_driver is None:
-            assignment_manager = dependency.get_provider('assignment_api')
-            resource_driver = assignment_manager.default_resource_driver()
-
         super(Manager, self).__init__(resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):

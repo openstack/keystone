@@ -17,11 +17,11 @@ from keystone.conf import utils
 
 driver = cfg.StrOpt(
     'driver',
+    default='sql',
     help=utils.fmt("""
 Entry point for the resource driver in the `keystone.resource` namespace. Only
-a `sql` driver is supplied by keystone. If a resource driver is not specified,
-the assignment driver will choose the resource driver to maintain backwards
-compatibility with older configuration files.
+a `sql` driver is supplied by keystone. Unless you are writing proprietary
+drivers for keystone, you do not need to set this option.
 """))
 
 caching = cfg.BoolOpt(
