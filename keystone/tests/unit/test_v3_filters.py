@@ -13,6 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
+
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 from six.moves import range
@@ -212,6 +214,13 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         user = self.user1
         user['name'] = '%my%name%'
         self.identity_api.update_user(user['id'], user)
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
 
         url_by_name = '/users?name=%my%name%'
         r = self.get(url_by_name, auth=self.auth)

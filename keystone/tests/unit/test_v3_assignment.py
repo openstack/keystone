@@ -11,6 +11,7 @@
 # under the License.
 
 import random
+import time
 import uuid
 
 from oslo_config import cfg
@@ -155,6 +156,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                          resource_url=collection_url)
 
         self.delete(member_url)
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
+
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0,
                                          resource_url=collection_url)
@@ -193,6 +202,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                          resource_url=collection_url)
 
         self.delete(member_url)
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+
+        time.sleep(1)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0,
                                          resource_url=collection_url)
@@ -232,6 +249,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                          resource_url=collection_url)
 
         self.delete(member_url)
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
+
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, expected_length=0,
                                          resource_url=collection_url)
@@ -325,10 +350,24 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                   headers={'x-subject-token': token},
                   expected_status=http_client.OK)
 
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
+
         # revokes the grant from group on project.
         self.assignment_api.delete_grant(role_id=self.role['id'],
                                          project_id=self.project['id'],
                                          group_id=self.group['id'])
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
 
         # validates the same token again; it should not longer be valid.
         self.head('/auth/tokens',
@@ -551,6 +590,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.delete(ud_entity['links']['assignment'])
         self.delete(gp_entity['links']['assignment'])
         self.delete(up_entity['links']['assignment'])
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
+
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r,
@@ -1414,6 +1461,14 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Delete indirect assignment
         self.delete(inherited_url)
+
+        # NOTE(breton): the sleep below is required because time
+        # in revocations and token was rounded down. In Newton
+        # release freezegun is used for this purpose instead of
+        # sleep. Freezegun cannot be used in Mitaka release, because
+        # it was not in requirements when release happened.
+        time.sleep(1)
+
         # Check the direct assignment exists, but the inherited one does not
         self.head(direct_url)
         self.head(inherited_url, expected_status=http_client.NOT_FOUND)
