@@ -20,7 +20,7 @@ from keystone.tests.unit.ksfixtures import database
 
 
 class TestIdentityDriver(db_test.DbTestCase,
-                         test_base.IdentityDriverV8Tests):
+                         test_base.IdentityDriverTests):
 
     expected_is_domain_aware = True
     expected_default_assignment_driver = 'sql'
