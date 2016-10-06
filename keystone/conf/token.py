@@ -134,10 +134,11 @@ other role assignments.
 
 cache_on_issue = cfg.BoolOpt(
     'cache_on_issue',
-    default=False,
+    default=True,
     help=utils.fmt("""
 Enable storing issued token data to token validation cache so that first token
-validation doesn't actually cause full validation cycle.
+validation doesn't actually cause full validation cycle. This option has no
+effect unless global caching and token caching are enabled.
 """))
 
 allow_expired_window = cfg.IntOpt(
