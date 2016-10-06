@@ -134,10 +134,9 @@ class Identity(base.IdentityDriverBase):
             try:
                 super(GroupApi, self.group).remove_member(user_dn, group_dn)
             except ldap.NO_SUCH_ATTRIBUTE:
-                LOG.warning(
-                    _LW('User %(user)s was not removed from group %(group)s '
-                        'because the relationship was not found'),
-                    {'user': user_id, 'group': group['id']})
+                msg = _LW('User %(user)s was not removed from group %(group)s '
+                          'because the relationship was not found')
+                LOG.warning(msg, {'user': user_id, 'group': group['id']})
 
         if hasattr(user, 'tenant_id'):
             self.project.remove_user(user.tenant_id, user_dn)
