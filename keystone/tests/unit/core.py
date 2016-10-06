@@ -647,7 +647,6 @@ class TestCase(BaseTestCase):
             keystone.conf.auth, '_register_auth_plugin_opt',
             new=mocked_register_auth_plugin_opt))
 
-        self.sql_driver_version_overrides = {}
         self.config_overrides()
         # NOTE(morganfainberg): ensure config_overrides has been called.
         self.addCleanup(self._assert_config_overrides_called)
@@ -874,20 +873,3 @@ class SQLDriverOverrides(object):
         self.config_fixture.config(group='policy', driver='sql')
         self.config_fixture.config(group='token', driver='sql')
         self.config_fixture.config(group='trust', driver='sql')
-
-    def use_specific_sql_driver_version(self, driver_path,
-                                        versionless_backend, version_suffix):
-        """Add this versioned driver to the list that will be loaded.
-
-        :param driver_path: The path to the drivers, e.g. 'keystone.assignment'
-        :param versionless_backend: The name of the versionless drivers, e.g.
-                                    'backends'
-        :param version_suffix: The suffix for the version , e.g. ``V8_``
-
-        This method assumes that versioned drivers are named:
-        <version_suffix><name of versionless driver>, e.g. 'V8_backends'.
-
-        """
-        self.sql_driver_version_overrides[driver_path] = {
-            'versionless_backend': versionless_backend,
-            'versioned_backend': version_suffix + versionless_backend}

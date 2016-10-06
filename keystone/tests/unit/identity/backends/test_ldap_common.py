@@ -208,7 +208,7 @@ class LDAPDeleteTreeTest(unit.TestCase):
 
         self.useFixture(
             ldapdb.LDAPDatabase(dbclass=fakeldap.FakeLdapNoSubtreeDelete))
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
@@ -371,7 +371,7 @@ class LDAPPagedResultsTest(unit.TestCase):
         super(LDAPPagedResultsTest, self).setUp()
 
         self.useFixture(ldapdb.LDAPDatabase())
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
 
         self.load_backends()
         self.load_fixtures(default_fixtures)

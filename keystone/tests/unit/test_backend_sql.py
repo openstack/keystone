@@ -52,7 +52,7 @@ class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         super(SqlTests, self).setUp()
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
         self.load_backends()
 
         # populate the engine with tables & fixtures

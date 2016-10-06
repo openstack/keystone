@@ -30,7 +30,7 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         super(TestResourceManagerNoFixtures, self).setUp()
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
         self.load_backends()
 
     def test_ensure_default_domain_exists(self):
