@@ -22,7 +22,6 @@ import uuid
 import freezegun
 from keystoneclient.common import cms
 import mock
-from oslo_log import versionutils
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
 from oslo_utils import timeutils
@@ -36,7 +35,6 @@ from keystone import auth
 from keystone.auth.plugins import totp
 from keystone.common import utils
 import keystone.conf
-from keystone.contrib.revoke import routers
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.policy.backends import rules
@@ -3500,16 +3498,6 @@ class TestTokenRevokeByAssignment(TestTokenRevokeById):
             t['id'] for t in self.token_provider_api.list_revoked_tokens()]
         # token is in token revocation list
         self.assertIn(project_token, revoked_tokens)
-
-
-class RevokeContribTests(test_v3.RestfulTestCase):
-
-    @mock.patch.object(versionutils, 'report_deprecated_feature')
-    def test_exception_happens(self, mock_deprecator):
-        routers.RevokeExtension(mock.ANY)
-        mock_deprecator.assert_called_once_with(mock.ANY, mock.ANY)
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("Remove revoke_extension from", args[1])
 
 
 class TestTokenRevokeApi(TestTokenRevokeById):

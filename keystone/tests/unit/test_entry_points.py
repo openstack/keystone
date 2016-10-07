@@ -22,23 +22,16 @@ class TestPasteDeploymentEntryPoints(test.TestCase):
         expected_names = [
             'admin_token_auth',
             'build_auth_context',
-            'crud_extension',
             'cors',
             'debug',
-            'endpoint_filter_extension',
             'ec2_extension',
             'ec2_extension_v3',
-            'federation_extension',
             'json_body',
-            'oauth1_extension',
             'request_id',
-            'revoke_extension',
             's3_extension',
-            'simple_cert_extension',
             'sizelimit',
             'token_auth',
             'url_normalize',
-            'user_crud_extension',
         ]
 
         em = stevedore.ExtensionManager('paste.filter_factory')

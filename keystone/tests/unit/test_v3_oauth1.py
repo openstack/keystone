@@ -17,14 +17,12 @@ import random
 import uuid
 
 import mock
-from oslo_log import versionutils
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
 from six.moves import http_client
 from six.moves import urllib
 
 import keystone.conf
-from keystone.contrib.oauth1 import routers
 from keystone import exception
 from keystone import oauth1
 from keystone.oauth1.backends import base
@@ -42,16 +40,6 @@ CONF = keystone.conf.CONF
 def _urllib_parse_qs_text_keys(content):
     results = urllib.parse.parse_qs(content)
     return {key.decode('utf-8'): value for key, value in results.items()}
-
-
-class OAuth1ContribTests(test_v3.RestfulTestCase):
-
-    @mock.patch.object(versionutils, 'report_deprecated_feature')
-    def test_exception_happens(self, mock_deprecator):
-        routers.OAuth1Extension(mock.ANY)
-        mock_deprecator.assert_called_once_with(mock.ANY, mock.ANY)
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("Remove oauth1_extension from", args[1])
 
 
 class OAuth1Tests(test_v3.RestfulTestCase):
