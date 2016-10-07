@@ -77,7 +77,10 @@ class User(controller.V2Controller):
         # The manager layer will generate the unique ID for users
         user_ref = self._normalize_domain_id(request, user.copy())
         new_user_ref = self.v3_to_v2_user(
-            self.identity_api.create_user(user_ref, request.audit_initiator))
+            self.identity_api.create_user(
+                user_ref, initiator=request.audit_initiator
+            )
+        )
 
         if default_project_id is not None:
             self.assignment_api.add_user_to_project(default_project_id,
@@ -111,9 +114,9 @@ class User(controller.V2Controller):
             # user update.
             self.resource_api.get_project(default_project_id)
 
-        user_ref = self.identity_api.update_user(user_id,
-                                                 user,
-                                                 request.audit_initiator)
+        user_ref = self.identity_api.update_user(
+            user_id, user, initiator=request.audit_initiator
+        )
         user_ref = self.v3_to_v2_user(user_ref)
 
         # If 'tenantId' is in either ref, we might need to add or remove the
@@ -159,7 +162,9 @@ class User(controller.V2Controller):
     @controller.v2_deprecated
     def delete_user(self, request, user_id):
         self.assert_admin(request)
-        self.identity_api.delete_user(user_id, request.audit_initiator)
+        self.identity_api.delete_user(
+            user_id, initiator=request.audit_initiator
+        )
 
     @controller.v2_deprecated
     def set_user_enabled(self, request, user_id, user):
@@ -211,7 +216,9 @@ class UserV3(controller.V3Controller):
         # The manager layer will generate the unique ID for users
         ref = self._normalize_dict(user)
         ref = self._normalize_domain_id(request, ref)
-        ref = self.identity_api.create_user(ref, request.audit_initiator)
+        ref = self.identity_api.create_user(
+            ref, initiator=request.audit_initiator
+        )
         return UserV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
@@ -237,9 +244,9 @@ class UserV3(controller.V3Controller):
         self._require_matching_id(user_id, user)
         self._require_matching_domain_id(
             user_id, user, self.identity_api.get_user)
-        ref = self.identity_api.update_user(user_id,
-                                            user,
-                                            request.audit_initiator)
+        ref = self.identity_api.update_user(
+            user_id, user, initiator=request.audit_initiator
+        )
         return UserV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
@@ -249,9 +256,9 @@ class UserV3(controller.V3Controller):
 
     @controller.protected(callback=_check_user_and_group_protection)
     def add_user_to_group(self, request, user_id, group_id):
-        self.identity_api.add_user_to_group(user_id,
-                                            group_id,
-                                            request.audit_initiator)
+        self.identity_api.add_user_to_group(
+            user_id, group_id, initiator=request.audit_initiator
+        )
 
     @controller.protected(callback=_check_user_and_group_protection)
     def check_user_in_group(self, request, user_id, group_id):
@@ -259,13 +266,15 @@ class UserV3(controller.V3Controller):
 
     @controller.protected(callback=_check_user_and_group_protection)
     def remove_user_from_group(self, request, user_id, group_id):
-        self.identity_api.remove_user_from_group(user_id,
-                                                 group_id,
-                                                 request.audit_initiator)
+        self.identity_api.remove_user_from_group(
+            user_id, group_id, initiator=request.audit_initiator
+        )
 
     @controller.protected()
     def delete_user(self, request, user_id):
-        return self.identity_api.delete_user(user_id, request.audit_initiator)
+        return self.identity_api.delete_user(
+            user_id, initiator=request.audit_initiator
+        )
 
     @controller.protected()
     def change_password(self, request, user_id, user):
@@ -305,7 +314,9 @@ class GroupV3(controller.V3Controller):
         # The manager layer will generate the unique ID for groups
         ref = self._normalize_dict(group)
         ref = self._normalize_domain_id(request, ref)
-        ref = self.identity_api.create_group(ref, request.audit_initiator)
+        ref = self.identity_api.create_group(
+            ref, initiator=request.audit_initiator
+        )
         return GroupV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('domain_id', 'name')
@@ -332,11 +343,13 @@ class GroupV3(controller.V3Controller):
         self._require_matching_id(group_id, group)
         self._require_matching_domain_id(
             group_id, group, self.identity_api.get_group)
-        ref = self.identity_api.update_group(group_id,
-                                             group,
-                                             request.audit_initiator)
+        ref = self.identity_api.update_group(
+            group_id, group, initiator=request.audit_initiator
+        )
         return GroupV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_group(self, request, group_id):
-        self.identity_api.delete_group(group_id, request.audit_initiator)
+        self.identity_api.delete_group(
+            group_id, initiator=request.audit_initiator
+        )

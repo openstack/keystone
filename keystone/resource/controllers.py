@@ -96,7 +96,7 @@ class Tenant(controller.V2Controller):
         tenant = self.resource_api.create_project(
             tenant_ref['id'],
             self._normalize_domain_id(request, tenant_ref),
-            request.audit_initiator)
+            initiator=request.audit_initiator)
         return {'tenant': self.v3_to_v2_project(tenant)}
 
     @controller.v2_deprecated
@@ -106,14 +106,17 @@ class Tenant(controller.V2Controller):
         self._assert_not_is_domain_project(tenant_id)
 
         tenant_ref = self.resource_api.update_project(
-            tenant_id, tenant, request.audit_initiator)
+            tenant_id, tenant, initiator=request.audit_initiator)
         return {'tenant': self.v3_to_v2_project(tenant_ref)}
 
     @controller.v2_deprecated
     def delete_project(self, request, tenant_id):
         self.assert_admin(request)
         self._assert_not_is_domain_project(tenant_id)
-        self.resource_api.delete_project(tenant_id, request.audit_initiator)
+        self.resource_api.delete_project(
+            tenant_id,
+            initiator=request.audit_initiator
+        )
 
 
 @dependency.requires('resource_api')
@@ -129,9 +132,9 @@ class DomainV3(controller.V3Controller):
     def create_domain(self, request, domain):
         validation.lazy_validate(schema.domain_create, domain)
         ref = self._assign_unique_id(self._normalize_dict(domain))
-        ref = self.resource_api.create_domain(ref['id'],
-                                              ref,
-                                              request.audit_initiator)
+        ref = self.resource_api.create_domain(
+            ref['id'], ref, initiator=request.audit_initiator
+        )
         return DomainV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('enabled', 'name')
@@ -150,15 +153,16 @@ class DomainV3(controller.V3Controller):
     def update_domain(self, request, domain_id, domain):
         validation.lazy_validate(schema.domain_update, domain)
         self._require_matching_id(domain_id, domain)
-        ref = self.resource_api.update_domain(domain_id,
-                                              domain,
-                                              request.audit_initiator)
+        ref = self.resource_api.update_domain(
+            domain_id, domain, initiator=request.audit_initiator
+        )
         return DomainV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_domain(self, request, domain_id):
-        return self.resource_api.delete_domain(domain_id,
-                                               request.audit_initiator)
+        return self.resource_api.delete_domain(
+            domain_id, initiator=request.audit_initiator
+        )
 
 
 @dependency.requires('domain_config_api')
