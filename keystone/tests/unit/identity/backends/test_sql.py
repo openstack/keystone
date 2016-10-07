@@ -40,8 +40,7 @@ class TestIdentityDriver(db_test.DbTestCase,
                         sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
         self.addCleanup(sql.cleanup)
 
-        version_specifiers = {}
-        database._load_sqlalchemy_models(version_specifiers)
+        database._load_sqlalchemy_models()
         sql.ModelBase.metadata.create_all(bind=self.engine)
 
         self.driver = sql_backend.Identity()

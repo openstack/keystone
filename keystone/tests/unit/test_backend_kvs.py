@@ -108,7 +108,7 @@ class KvsTokenCacheInvalidation(unit.TestCase,
                                 token_tests.TokenCacheInvalidation):
     def setUp(self):
         super(KvsTokenCacheInvalidation, self).setUp()
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
         self.load_backends()
         self._create_test_data()
 

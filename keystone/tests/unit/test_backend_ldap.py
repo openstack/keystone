@@ -1946,7 +1946,7 @@ class LDAPLimitTests(unit.TestCase, identity_tests.LimitTests):
         super(LDAPLimitTests, self).setUp()
 
         self.useFixture(ldapdb.LDAPDatabase())
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
         identity_tests.LimitTests.setUp(self)

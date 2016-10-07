@@ -57,7 +57,7 @@ class RestfulTestCase(unit.TestCase):
 
         self.auth_plugin_config_override()
 
-        self.useFixture(database.Database(self.sql_driver_version_overrides))
+        self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
