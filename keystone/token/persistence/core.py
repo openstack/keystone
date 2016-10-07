@@ -18,7 +18,6 @@ import abc
 import copy
 
 from oslo_log import log
-from oslo_utils import timeutils
 import six
 
 from keystone.common import cache
@@ -52,22 +51,8 @@ class PersistenceManager(manager.Manager):
     def __init__(self):
         super(PersistenceManager, self).__init__(CONF.token.driver)
 
-    def _assert_valid(self, token_id, token_ref):
-        """Raise TokenNotFound if the token is expired."""
-        current_time = timeutils.normalize_time(timeutils.utcnow())
-        expires = token_ref.get('expires')
-        if not expires or current_time > timeutils.normalize_time(expires):
-            raise exception.TokenNotFound(token_id=token_id)
-
     def get_token(self, token_id):
-        unique_id = utils.generate_unique_id(token_id)
-        token_ref = self._get_token(unique_id)
-        # NOTE(morganfainberg): Lift expired checking to the manager, there is
-        # no reason to make the drivers implement this check. With caching,
-        # self._get_token could return an expired token. Make sure we behave
-        # as expected and raise TokenNotFound on those instances.
-        self._assert_valid(token_id, token_ref)
-        return token_ref
+        return self._get_token(utils.generate_unique_id(token_id))
 
     @MEMOIZE
     def _get_token(self, token_id):

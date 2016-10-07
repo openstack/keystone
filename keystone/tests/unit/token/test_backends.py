@@ -23,7 +23,6 @@ from six.moves import range
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
-from keystone.tests.unit import utils as test_utils
 from keystone.token import provider
 
 
@@ -234,21 +233,6 @@ class TokenTests(object):
                           self.token_provider_api._persistence.delete_token,
                           uuid.uuid4().hex)
 
-    def test_expired_token(self):
-        token_id = uuid.uuid4().hex
-        expire_time = timeutils.utcnow() - datetime.timedelta(minutes=1)
-        data = {'id_hash': token_id, 'id': token_id, 'a': 'b',
-                'expires': expire_time,
-                'trust_id': None,
-                'user': {'id': 'testuserid'}}
-        data_ref = self.token_provider_api._persistence.create_token(token_id,
-                                                                     data)
-        data_ref.pop('user_id')
-        self.assertDictEqual(data, data_ref)
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api._persistence.get_token,
-                          token_id)
-
     def test_null_expires_token(self):
         token_id = uuid.uuid4().hex
         data = {'id': token_id, 'id_hash': token_id, 'a': 'b', 'expires': None,
@@ -431,32 +415,6 @@ class TokenTests(object):
         user_id = six.text_type(uuid.uuid4().hex)
         token_id, data = self.create_token_sample_data(user_id=user_id)
         self.token_provider_api._persistence.get_token(token_id)
-
-    def test_token_expire_timezone(self):
-
-        @test_utils.timezone
-        def _create_token(expire_time):
-            token_id = uuid.uuid4().hex
-            user_id = six.text_type(uuid.uuid4().hex)
-            return self.create_token_sample_data(token_id=token_id,
-                                                 user_id=user_id,
-                                                 expires=expire_time)
-
-        for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
-            test_utils.TZ = 'UTC' + d
-            expire_time = timeutils.utcnow() + datetime.timedelta(minutes=1)
-            token_id, data_in = _create_token(expire_time)
-            data_get = self.token_provider_api._persistence.get_token(token_id)
-
-            self.assertEqual(data_in['id'], data_get['id'],
-                             'TZ=%s' % test_utils.TZ)
-
-            expire_time_expired = (
-                timeutils.utcnow() + datetime.timedelta(minutes=-1))
-            token_id, data_in = _create_token(expire_time_expired)
-            self.assertRaises(exception.TokenNotFound,
-                              self.token_provider_api._persistence.get_token,
-                              data_in['id'])
 
 
 class TokenCacheInvalidation(object):
