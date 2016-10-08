@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import versionutils
 
 from keystone.conf import constants
 from keystone.conf import utils
@@ -20,96 +19,71 @@ from keystone.conf import utils
 certfile = cfg.StrOpt(
     'certfile',
     default=constants._CERTFILE,
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
-Absolute path to the public certificate file to use for signing PKI and PKIZ
-tokens. Set this together with `[signing] keyfile`. For non-production
-environments, you may be interested in using `keystone-manage pki_setup` to
-generate self-signed certificates. There is no reason to set this option unless
-you are using either a `pki` or `pkiz` `[token] provider`.
+Absolute path to the public certificate file to use for signing responses to
+revocation lists requests. Set this together with `[signing] keyfile`. For
+non-production environments, you may be interested in using `keystone-manage
+pki_setup` to generate self-signed certificates.
 """))
 
 keyfile = cfg.StrOpt(
     'keyfile',
     default=constants._KEYFILE,
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
-Absolute path to the private key file to use for signing PKI and PKIZ tokens.
-Set this together with `[signing] certfile`. There is no reason to set this
-option unless you are using either a `pki` or `pkiz` `[token] provider`.
+Absolute path to the private key file to use for signing responses to
+revocation lists requests. Set this together with `[signing] certfile`.
 """))
 
 ca_certs = cfg.StrOpt(
     'ca_certs',
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     default='/etc/keystone/ssl/certs/ca.pem',
     help=utils.fmt("""
 Absolute path to the public certificate authority (CA) file to use when
 creating self-signed certificates with `keystone-manage pki_setup`. Set this
 together with `[signing] ca_key`. There is no reason to set this option unless
-you are using a `pki` or `pkiz` `[token] provider` value in a non-production
-environment. Use a `[signing] certfile` issued from a trusted certificate
-authority instead.
+you are requesting revocation lists in a non-production environment. Use a
+`[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
 ca_key = cfg.StrOpt(
     'ca_key',
     default='/etc/keystone/ssl/private/cakey.pem',
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Absolute path to the private certificate authority (CA) key file to use when
 creating self-signed certificates with `keystone-manage pki_setup`. Set this
 together with `[signing] ca_certs`. There is no reason to set this option
-unless you are using a `pki` or `pkiz` `[token] provider` value in a
-non-production environment. Use a `[signing] certfile` issued from a trusted
-certificate authority instead.
+unless you are requesting revocation lists in a non-production environment.
+Use a `[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
 key_size = cfg.IntOpt(
     'key_size',
     default=2048,
     min=1024,
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 Key size (in bits) to use when generating a self-signed token signing
-certificate. There is no reason to set this option unless you are using a `pki`
-or `pkiz` `[token] provider` value in a non-production environment. Use a
-`[signing] certfile` issued from a trusted certificate authority instead.
+certificate. There is no reason to set this option unless you are requesting
+revocation lists in a non-production environment. Use a `[signing] certfile`
+issued from a trusted certificate authority instead.
 """))
 
 valid_days = cfg.IntOpt(
     'valid_days',
     default=3650,
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
 The validity period (in days) to use when generating a self-signed token
-signing certificate. There is no reason to set this option unless you are using
-a `pki` or `pkiz` `[token] provider` value in a non-production environment. Use
-a `[signing] certfile` issued from a trusted certificate authority instead.
+signing certificate. There is no reason to set this option unless you are
+requesting revocation lists in a non-production environment. Use a
+`[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
 cert_subject = cfg.StrOpt(
     'cert_subject',
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
     default=('/C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com'),
     help=utils.fmt("""
 The certificate subject to use when generating a self-signed token signing
-certificate. There is no reason to set this option unless you are using a `pki`
-or `pkiz` `[token] provider` value in a non-production environment. Use a
+certificate. There is no reason to set this option unless you are requesting
+revocation lists in a non-production environment. Use a
 `[signing] certfile` issued from a trusted certificate authority instead.
 """))
 
