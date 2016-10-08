@@ -26,7 +26,6 @@ from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
-from keystone import notifications
 from keystone.resource import schema
 
 
@@ -94,11 +93,10 @@ class Tenant(controller.V2Controller):
         self.resource_api.ensure_default_domain_exists()
 
         tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
-        initiator = notifications._get_request_audit_info(request.context_dict)
         tenant = self.resource_api.create_project(
             tenant_ref['id'],
             self._normalize_domain_id(request, tenant_ref),
-            initiator)
+            request.audit_initiator)
         return {'tenant': self.v3_to_v2_project(tenant)}
 
     @controller.v2_deprecated
@@ -107,17 +105,15 @@ class Tenant(controller.V2Controller):
         self.assert_admin(request)
         self._assert_not_is_domain_project(tenant_id)
 
-        initiator = notifications._get_request_audit_info(request.context_dict)
         tenant_ref = self.resource_api.update_project(
-            tenant_id, tenant, initiator)
+            tenant_id, tenant, request.audit_initiator)
         return {'tenant': self.v3_to_v2_project(tenant_ref)}
 
     @controller.v2_deprecated
     def delete_project(self, request, tenant_id):
         self.assert_admin(request)
         self._assert_not_is_domain_project(tenant_id)
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        self.resource_api.delete_project(tenant_id, initiator)
+        self.resource_api.delete_project(tenant_id, request.audit_initiator)
 
 
 @dependency.requires('resource_api')
@@ -133,8 +129,9 @@ class DomainV3(controller.V3Controller):
     def create_domain(self, request, domain):
         validation.lazy_validate(schema.domain_create, domain)
         ref = self._assign_unique_id(self._normalize_dict(domain))
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        ref = self.resource_api.create_domain(ref['id'], ref, initiator)
+        ref = self.resource_api.create_domain(ref['id'],
+                                              ref,
+                                              request.audit_initiator)
         return DomainV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('enabled', 'name')
@@ -153,14 +150,15 @@ class DomainV3(controller.V3Controller):
     def update_domain(self, request, domain_id, domain):
         validation.lazy_validate(schema.domain_update, domain)
         self._require_matching_id(domain_id, domain)
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        ref = self.resource_api.update_domain(domain_id, domain, initiator)
+        ref = self.resource_api.update_domain(domain_id,
+                                              domain,
+                                              request.audit_initiator)
         return DomainV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_domain(self, request, domain_id):
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        return self.resource_api.delete_domain(domain_id, initiator)
+        return self.resource_api.delete_domain(domain_id,
+                                               request.audit_initiator)
 
 
 @dependency.requires('domain_config_api')
@@ -241,10 +239,11 @@ class ProjectV3(controller.V3Controller):
         if not ref.get('parent_id'):
             ref['parent_id'] = ref.get('domain_id')
 
-        initiator = notifications._get_request_audit_info(request.context_dict)
         try:
-            ref = self.resource_api.create_project(ref['id'], ref,
-                                                   initiator=initiator)
+            ref = self.resource_api.create_project(
+                ref['id'],
+                ref,
+                initiator=request.audit_initiator)
         except (exception.DomainNotFound, exception.ProjectNotFound) as e:
             raise exception.ValidationError(e)
         return ProjectV3.wrap_member(request.context_dict, ref)
@@ -316,13 +315,14 @@ class ProjectV3(controller.V3Controller):
         self._require_matching_id(project_id, project)
         self._require_matching_domain_id(
             project_id, project, self.resource_api.get_project)
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        ref = self.resource_api.update_project(project_id, project,
-                                               initiator=initiator)
+        ref = self.resource_api.update_project(
+            project_id,
+            project,
+            initiator=request.audit_initiator)
         return ProjectV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_project(self, request, project_id):
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        return self.resource_api.delete_project(project_id,
-                                                initiator=initiator)
+        return self.resource_api.delete_project(
+            project_id,
+            initiator=request.audit_initiator)

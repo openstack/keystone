@@ -24,7 +24,6 @@ from keystone.common import utils
 from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
-from keystone import notifications
 from keystone.trust import schema
 
 
@@ -137,12 +136,10 @@ class TrustV3(controller.V3Controller):
         trust['expires_at'] = self._parse_expiration_date(
             trust.get('expires_at'))
         trust_id = uuid.uuid4().hex
-        initiator = notifications._get_request_audit_info(request.context_dict)
         new_trust = self.trust_api.create_trust(trust_id, trust,
                                                 normalized_roles,
                                                 redelegated_trust,
-                                                initiator)
-
+                                                request.audit_initiator)
         self._fill_in_roles(request.context_dict, new_trust)
         return TrustV3.wrap_member(request.context_dict, new_trust)
 
@@ -227,8 +224,7 @@ class TrustV3(controller.V3Controller):
                 not request.context.is_admin):
             raise exception.Forbidden()
 
-        initiator = notifications._get_request_audit_info(request.context_dict)
-        self.trust_api.delete_trust(trust_id, initiator)
+        self.trust_api.delete_trust(trust_id, request.audit_initiator)
 
     @controller.protected()
     def list_roles_for_trust(self, request, trust_id):

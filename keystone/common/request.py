@@ -12,11 +12,15 @@
 
 import logging
 
+from pycadf import cadftaxonomy as taxonomy
+from pycadf import host
+from pycadf import resource
 import webob
 from webob.descriptors import environ_getter
 
 from keystone.common import authorization
 from keystone.common import context
+from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
@@ -89,6 +93,26 @@ class Request(webob.Request):
         if not self.context.authenticated:
             # auth_context didn't decode anything we can use
             raise exception.Unauthorized()
+
+    @property
+    def audit_initiator(self):
+        """A pyCADF initiator describing the current authenticated context."""
+        pycadf_host = host.Host(address=self.remote_addr,
+                                agent=self.user_agent)
+        initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
+                                      host=pycadf_host)
+
+        if self.context.user_id:
+            initiator.id = utils.resource_uuid(self.context.user_id)
+            initiator.user_id = self.context.user_id
+
+        if self.context.project_id:
+            initiator.project_id = self.context.project_id
+
+        if self.context.domain_id:
+            initiator.domain_id = self.context.domain_id
+
+        return initiator
 
     auth_type = environ_getter('AUTH_TYPE', None)
     remote_domain = environ_getter('REMOTE_DOMAIN', None)
