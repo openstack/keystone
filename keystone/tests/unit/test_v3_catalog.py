@@ -753,7 +753,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_endpoint_create_with_valid_url(self):
         """Create endpoint with valid url should be tested,too."""
         # list one valid url is enough, no need to list too much
-        valid_url = 'http://127.0.0.1:8774/v1.1/$(tenant_id)s'
+        valid_url = 'http://127.0.0.1:8774/v1.1/$(project_id)s'
 
         ref = unit.new_endpoint_ref(self.service_id,
                                     interface='public',
@@ -778,9 +778,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
             'http://127.0.0.1:8774/v1.1/$(nonexistent)s',
 
             # invalid formatting - ValueError
-            'http://127.0.0.1:8774/v1.1/$(tenant_id)',
-            'http://127.0.0.1:8774/v1.1/$(tenant_id)t',
-            'http://127.0.0.1:8774/v1.1/$(tenant_id',
+            'http://127.0.0.1:8774/v1.1/$(project_id)',
+            'http://127.0.0.1:8774/v1.1/$(project_id)t',
+            'http://127.0.0.1:8774/v1.1/$(project_id',
 
             # invalid type specifier - TypeError
             # admin_url is a string not an int
@@ -840,7 +840,7 @@ class TestCatalogAPISQL(unit.TestCase):
 
         # create a new, invalid endpoint - malformed type declaration
         self.create_endpoint(self.service_id,
-                             url='http://keystone/%(tenant_id)')
+                             url='http://keystone/%(project_id)')
 
         # create a new, invalid endpoint - nonexistent key
         self.create_endpoint(self.service_id,
@@ -852,18 +852,18 @@ class TestCatalogAPISQL(unit.TestCase):
         # all three appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
 
-        # create another valid endpoint - tenant_id will be replaced
+        # create another valid endpoint - project_id will be replaced
         self.create_endpoint(self.service_id,
-                             url='http://keystone/%(tenant_id)s')
+                             url='http://keystone/%(project_id)s')
 
         # there are two valid endpoints, positive check
         catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertThat(catalog[0]['endpoints'], matchers.HasLength(2))
 
-        # If the URL has no 'tenant_id' to substitute, we will skip the
+        # If the URL has no 'project_id' to substitute, we will skip the
         # endpoint which contains this kind of URL, negative check.
-        tenant_id = None
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        project_id = None
+        catalog = self.catalog_api.get_v3_catalog(user_id, project_id)
         self.assertThat(catalog[0]['endpoints'], matchers.HasLength(1))
 
     def test_get_catalog_always_returns_service_name(self):

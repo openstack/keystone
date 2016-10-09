@@ -1,0 +1,5 @@
+---
+other:
+  - The signature of keystone catalog driver interfaces ``get_catalog``
+    and ``get_v3_catalog`` have been changed in favour of using ``project_id``
+    instead of ``tenant_id``.

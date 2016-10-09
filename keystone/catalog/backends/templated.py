@@ -71,7 +71,7 @@ class Catalog(base.CatalogDriverBase):
       http://localhost:$(public_port)s/
 
     When expanding the template it will pass in a dict made up of the conf
-    instance plus a few additional key-values, notably tenant_id and user_id.
+    instance plus a few additional key-values, notably project_id and user_id.
 
     It does not care what the keys and values are but it is worth noting that
     keystone_compat will expect certain keys to be there so that it can munge
@@ -195,14 +195,14 @@ class Catalog(base.CatalogDriverBase):
     def delete_endpoint(self, endpoint_id):
         raise exception.NotImplemented()
 
-    def get_catalog(self, user_id, tenant_id):
+    def get_catalog(self, user_id, project_id):
         """Retrieve and format the V2 service catalog.
 
         :param user_id: The id of the user who has been authenticated for
             creating service catalog.
-        :param tenant_id: The id of the project. 'tenant_id' will be None in
+        :param project_id: The id of the project. 'project_id' will be None in
             the case this being called to create a catalog to go in a domain
-            scoped token. In this case, any endpoint that requires a tenant_id
+            scoped token. In this case, any endpoint that requires a project_id
             as part of their URL will be skipped.
 
         :returns: A nested dict representing the service catalog or an
@@ -213,10 +213,10 @@ class Catalog(base.CatalogDriverBase):
             itertools.chain(CONF.items(), CONF.eventlet_server.items()))
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
-        if tenant_id:
+        if project_id:
             substitutions.update({
-                'tenant_id': tenant_id,
-                'project_id': tenant_id,
+                'tenant_id': project_id,
+                'project_id': project_id,
             })
         else:
             silent_keyerror_failures = ['tenant_id', 'project_id', ]

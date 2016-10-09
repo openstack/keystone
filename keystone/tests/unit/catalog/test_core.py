@@ -63,9 +63,9 @@ class FormatUrlTests(unit.BaseTestCase):
         # list then MalformedEndpoint is raised.
         # For example, admin_token isn't allowed.
         url_template = ('http://$(public_bind_host)s:$(public_port)d/'
-                        '$(tenant_id)s/$(user_id)s/$(admin_token)s')
+                        '$(project_id)s/$(user_id)s/$(admin_token)s')
         values = {'public_bind_host': 'server', 'public_port': 9090,
-                  'tenant_id': 'A', 'user_id': 'B', 'admin_token': 'C'}
+                  'project_id': 'A', 'user_id': 'B', 'admin_token': 'C'}
         self.assertRaises(exception.MalformedEndpoint,
                           utils.format_url,
                           url_template,
