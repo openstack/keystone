@@ -159,7 +159,6 @@ class BaseUserInfo(object):
         user_info = auth_payload['user']
         user_id = user_info.get('id')
         user_name = user_info.get('name')
-        user_ref = None
         if not user_id and not user_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='user')
