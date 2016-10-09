@@ -136,10 +136,13 @@ class TrustV3(controller.V3Controller):
         trust['expires_at'] = self._parse_expiration_date(
             trust.get('expires_at'))
         trust_id = uuid.uuid4().hex
-        new_trust = self.trust_api.create_trust(trust_id, trust,
-                                                normalized_roles,
-                                                redelegated_trust,
-                                                request.audit_initiator)
+        new_trust = self.trust_api.create_trust(
+            trust_id,
+            trust,
+            normalized_roles,
+            redelegated_trust,
+            initiator=request.audit_initiator
+        )
         self._fill_in_roles(request.context_dict, new_trust)
         return TrustV3.wrap_member(request.context_dict, new_trust)
 
@@ -224,7 +227,9 @@ class TrustV3(controller.V3Controller):
                 not request.context.is_admin):
             raise exception.Forbidden()
 
-        self.trust_api.delete_trust(trust_id, request.audit_initiator)
+        self.trust_api.delete_trust(
+            trust_id, initiator=request.audit_initiator
+        )
 
     @controller.protected()
     def list_roles_for_trust(self, request, trust_id):

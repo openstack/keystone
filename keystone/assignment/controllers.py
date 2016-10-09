@@ -107,13 +107,13 @@ class Role(controller.V2Controller):
         role['id'] = role_id
         role_ref = self.role_api.create_role(role_id,
                                              role,
-                                             request.audit_initiator)
+                                             initiator=request.audit_initiator)
         return {'role': role_ref}
 
     @controller.v2_deprecated
     def delete_role(self, request, role_id):
         self.assert_admin(request)
-        self.role_api.delete_role(role_id, request.audit_initiator)
+        self.role_api.delete_role(role_id, initiator=request.audit_initiator)
 
     @controller.v2_deprecated
     def get_roles(self, request):
@@ -399,7 +399,7 @@ class RoleV3(controller.V3Controller):
         ref = self._normalize_dict(role)
         ref = self.role_api.create_role(ref['id'],
                                         ref,
-                                        request.audit_initiator)
+                                        initiator=request.audit_initiator)
         return RoleV3.wrap_member(request.context_dict, ref)
 
     def _list_roles(self, request, filters):
@@ -413,11 +413,13 @@ class RoleV3(controller.V3Controller):
 
     def _update_role(self, request, role_id, role):
         self._require_matching_id(role_id, role)
-        ref = self.role_api.update_role(role_id, role, request.audit_initiator)
+        ref = self.role_api.update_role(
+            role_id, role, initiator=request.audit_initiator
+        )
         return RoleV3.wrap_member(request.context_dict, ref)
 
     def _delete_role(self, request, role_id):
-        self.role_api.delete_role(role_id, request.audit_initiator)
+        self.role_api.delete_role(role_id, initiator=request.audit_initiator)
 
     @classmethod
     def build_driver_hints(cls, request, supported_filters):

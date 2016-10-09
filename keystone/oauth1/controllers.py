@@ -65,8 +65,9 @@ class ConsumerCrudV3(controller.V3Controller):
     def create_consumer(self, request, consumer):
         validation.lazy_validate(schema.consumer_create, consumer)
         ref = self._assign_unique_id(self._normalize_dict(consumer))
-        consumer_ref = self.oauth_api.create_consumer(ref,
-                                                      request.audit_initiator)
+        consumer_ref = self.oauth_api.create_consumer(
+            ref, initiator=request.audit_initiator
+        )
         return ConsumerCrudV3.wrap_member(request.context_dict, consumer_ref)
 
     @controller.protected()
@@ -74,9 +75,9 @@ class ConsumerCrudV3(controller.V3Controller):
         validation.lazy_validate(schema.consumer_update, consumer)
         self._require_matching_id(consumer_id, consumer)
         ref = self._normalize_dict(consumer)
-        ref = self.oauth_api.update_consumer(consumer_id,
-                                             ref,
-                                             request.audit_initiator)
+        ref = self.oauth_api.update_consumer(
+            consumer_id, ref, initiator=request.audit_initiator
+        )
         return ConsumerCrudV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
@@ -95,7 +96,9 @@ class ConsumerCrudV3(controller.V3Controller):
         payload = {'user_id': user_token_ref.user_id,
                    'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
-        self.oauth_api.delete_consumer(consumer_id, request.audit_initiator)
+        self.oauth_api.delete_consumer(
+            consumer_id, initiator=request.audit_initiator
+        )
 
 
 @dependency.requires('oauth_api')
@@ -140,9 +143,9 @@ class AccessTokenCrudV3(controller.V3Controller):
         consumer_id = access_token['consumer_id']
         payload = {'user_id': user_id, 'consumer_id': consumer_id}
         _emit_user_oauth_consumer_token_invalidate(payload)
-        return self.oauth_api.delete_access_token(user_id,
-                                                  access_token_id,
-                                                  request.audit_initiator)
+        return self.oauth_api.delete_access_token(
+            user_id, access_token_id, initiator=request.audit_initiator
+        )
 
     @staticmethod
     def _get_user_id(entity):
@@ -252,7 +255,7 @@ class OAuthControllerV3(controller.V3Controller):
             consumer_id,
             requested_project_id,
             request_token_duration,
-            request.audit_initiator)
+            initiator=request.audit_initiator)
 
         result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
                   % {'key': token_ref['id'],
@@ -340,9 +343,11 @@ class OAuthControllerV3(controller.V3Controller):
             raise exception.Unauthorized(message=msg)
 
         access_token_duration = CONF.oauth1.access_token_duration
-        token_ref = self.oauth_api.create_access_token(request_token_id,
-                                                       access_token_duration,
-                                                       request.audit_initiator)
+        token_ref = self.oauth_api.create_access_token(
+            request_token_id,
+            access_token_duration,
+            initiator=request.audit_initiator
+        )
 
         result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
                   % {'key': token_ref['id'],
