@@ -618,7 +618,7 @@ names we have in the Identity Provider. It will map any user with the name
 .. code-block:: javascript
 
     {
-        rules = [
+        "rules": [
             {
                 "local": [
                     {
