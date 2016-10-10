@@ -173,7 +173,6 @@ class AuthInfo(object):
                                             target='domain')
         domain_id = domain_info.get('id')
         domain_name = domain_info.get('name')
-        domain_ref = None
         if not domain_id and not domain_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='domain')
@@ -199,7 +198,6 @@ class AuthInfo(object):
                                             target='project')
         project_id = project_info.get('id')
         project_name = project_info.get('name')
-        project_ref = None
         if not project_id and not project_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='project')
