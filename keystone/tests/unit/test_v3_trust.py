@@ -508,3 +508,30 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.assertRaises(exception.TrustNotFound,
                           self.trust_api.get_trust,
                           trust['id'])
+
+    def test_trust_deleted_when_project_deleted(self):
+        # create trust
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            role_ids=[self.role_id],
+            allow_redelegation=True)
+        resp = self.post('/OS-TRUST/trusts', body={'trust': ref})
+
+        trust = self.assertValidTrustResponse(resp)
+
+        # list all trusts
+        r = self.get('/OS-TRUST/trusts')
+        self.assertEqual(1, len(r.result['trusts']))
+
+        # delete the project will delete the trust.
+        self.delete(
+            '/projects/%(project_id)s' % {'project_id': trust['project_id']})
+
+        # call the backend method directly to bypass authentication since the
+        # user no longer has the assignment on the project.
+        self.assertRaises(exception.TrustNotFound,
+                          self.trust_api.get_trust,
+                          trust['id'])

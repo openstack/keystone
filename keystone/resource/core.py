@@ -37,7 +37,7 @@ MEMOIZE = cache.get_memoization_decorator(group='resource')
 
 @dependency.provider('resource_api')
 @dependency.requires('assignment_api', 'credential_api', 'domain_config_api',
-                     'identity_api', 'revoke_api')
+                     'identity_api', 'revoke_api', 'trust_api')
 class Manager(manager.Manager):
     """Default pivot point for the Resource backend.
 
@@ -467,6 +467,7 @@ class Manager(manager.Manager):
             # the specified project
             assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
             self.credential_api.delete_credentials_for_project(project_id)
+            self.trust_api.delete_trusts_for_project(project_id)
         finally:
             # attempt to send audit event even if the cache invalidation raises
             notifications.Audit.deleted(self._PROJECT, project_id, initiator)
