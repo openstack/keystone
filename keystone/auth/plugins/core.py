@@ -136,7 +136,6 @@ class BaseUserInfo(object):
     def _lookup_domain(self, domain_info):
         domain_id = domain_info.get('id')
         domain_name = domain_info.get('name')
-        domain_ref = None
         if not domain_id and not domain_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='domain')
