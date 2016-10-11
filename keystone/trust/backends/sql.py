@@ -82,9 +82,7 @@ class Trust(base.TrustDriverBase):
             roles.append({'id': role.role_id})
         trust_dict['roles'] = roles
 
-    @sql.handle_conflicts(conflict_type='trust')
     def consume_use(self, trust_id):
-
         for attempt in range(MAXIMUM_CONSUME_ATTEMPTS):
             with sql.session_for_write() as session:
                 try:
@@ -152,13 +150,11 @@ class Trust(base.TrustDriverBase):
             self._add_roles(trust_id, session, trust_dict)
             return trust_dict
 
-    @sql.handle_conflicts(conflict_type='trust')
     def list_trusts(self):
         with sql.session_for_read() as session:
             trusts = session.query(TrustModel).filter_by(deleted_at=None)
             return [trust_ref.to_dict() for trust_ref in trusts]
 
-    @sql.handle_conflicts(conflict_type='trust')
     def list_trusts_for_trustee(self, trustee_user_id):
         with sql.session_for_read() as session:
             trusts = (session.query(TrustModel).
@@ -166,7 +162,6 @@ class Trust(base.TrustDriverBase):
                       filter_by(trustee_user_id=trustee_user_id))
             return [trust_ref.to_dict() for trust_ref in trusts]
 
-    @sql.handle_conflicts(conflict_type='trust')
     def list_trusts_for_trustor(self, trustor_user_id):
         with sql.session_for_read() as session:
             trusts = (session.query(TrustModel).
