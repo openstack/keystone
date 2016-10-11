@@ -41,8 +41,6 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - policy: policy
-   - user_id: policy_user_id
-   - project_id: project_id
    - type: policy_type
    - blob: policy_blob_str
 
@@ -57,11 +55,9 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: policy_user_id
    - links: policy_links
    - blob: policy_blob_str
    - policy: policy
-   - project_id: project_id
    - type: policy_type
    - id: policy_id
 
@@ -91,11 +87,9 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: policy_user_id
    - links: policy_links
    - blob: policy_blob_obj
    - policies: policies
-   - project_id: project_id
    - type: policy_type
    - id: policy_id
 
@@ -131,11 +125,9 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: policy_user_id
    - links: policy_links
    - blob: policy_blob_obj
    - policy: policy
-   - project_id: project_id
    - type: policy_type
    - id: policy_id
 
@@ -166,8 +158,6 @@ Request
 
    - policy_id: policy_id_path
    - policy: policy
-   - user_id: policy_user_id
-   - project_id: project_id
    - type: policy_type
    - blob: policy_blob_obj
 
@@ -182,11 +172,9 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: policy_user_id
    - links: policy_links
    - blob: policy_blob_obj
    - policy: policy
-   - project_id: project_id
    - type: policy_type
    - id: policy_id
 

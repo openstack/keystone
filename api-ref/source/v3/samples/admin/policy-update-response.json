@@ -9,8 +9,6 @@
         "links": {
             "self": "http://example.com/identity/v3/policies/717273"
         },
-        "project_id": "456789",
-        "type": "application/json",
-        "user_id": "616263"
+        "type": "application/json"
     }
 }
