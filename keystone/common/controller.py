@@ -133,7 +133,7 @@ def protected(callback=None):
                 if request.context_dict.get('subject_token_id') is not None:
                     token_ref = token_model.KeystoneToken(
                         token_id=request.context_dict['subject_token_id'],
-                        token_data=self.token_provider_api.validate_token(
+                        token_data=self.token_provider_api.validate_v3_token(
                             request.context_dict['subject_token_id']))
                     policy_dict.setdefault('target', {})
                     policy_dict['target'].setdefault(self.member_name, {})
