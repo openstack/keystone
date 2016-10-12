@@ -67,6 +67,8 @@ class V2TokenDataHelper(object):
         token['expires'] = v3_token.get('expires_at')
         token['issued_at'] = v3_token.get('issued_at')
         token['audit_ids'] = v3_token.get('audit_ids')
+        if v3_token.get('bind'):
+            token['bind'] = v3_token['bind']
         token['id'] = token_id
 
         if 'project' in v3_token:
@@ -726,67 +728,84 @@ class BaseProvider(provider.Provider):
             raise exception.Unauthorized()
         return token_ref
 
-    def _assert_is_not_federation_token(self, token_ref):
-        """Make sure we aren't using v2 auth on a federation token."""
-        token_data = token_ref.get('token_data')
-        if (token_data and self.get_token_version(token_data) ==
-                token.provider.V3):
-            if 'OS-FEDERATION' in token_data['token']['user']:
-                msg = _('Attempting to use OS-FEDERATION token with V2 '
-                        'Identity Service, use V3 Authentication')
-                raise exception.Unauthorized(msg)
-
-    def _assert_default_domain(self, token_ref):
-        """Make sure we are operating on default domain only."""
-        if (token_ref.get('token_data') and
-                self.get_token_version(token_ref.get('token_data')) ==
-                token.provider.V3):
-            # this is a V3 token
-            msg = _('Non-default domain is not supported')
-            # domain scoping is prohibited
-            if token_ref['token_data']['token'].get('domain'):
-                raise exception.Unauthorized(
-                    _('Domain scoped token is not supported'))
-            # if token is scoped to trust, both trustor and trustee must
-            # be in the default domain. Furthermore, the delegated project
-            # must also be in the default domain
-            metadata_ref = token_ref['metadata']
-            if CONF.trust.enabled and 'trust_id' in metadata_ref:
-                trust_ref = self.trust_api.get_trust(metadata_ref['trust_id'])
-                trustee_user_ref = self.identity_api.get_user(
-                    trust_ref['trustee_user_id'])
-                if (trustee_user_ref['domain_id'] !=
-                        CONF.identity.default_domain_id):
-                    raise exception.Unauthorized(msg)
-                trustor_user_ref = self.identity_api.get_user(
-                    trust_ref['trustor_user_id'])
-                if (trustor_user_ref['domain_id'] !=
-                        CONF.identity.default_domain_id):
-                    raise exception.Unauthorized(msg)
-                project_ref = self.resource_api.get_project(
-                    trust_ref['project_id'])
-                if (project_ref['domain_id'] !=
-                        CONF.identity.default_domain_id):
-                    raise exception.Unauthorized(msg)
-
     def validate_v2_token(self, token_ref):
-        self._assert_is_not_federation_token(token_ref)
-        self._assert_default_domain(token_ref)
-        # FIXME(gyee): performance or correctness? Should we return the
-        # cached token or reconstruct it? Obviously if we are going with
-        # the cached token, any role, project, or domain name changes
-        # will not be reflected. One may argue that with PKI tokens,
-        # we are essentially doing cached token validation anyway.
-        # Lets go with the cached token strategy. Since token
-        # management layer is now pluggable, one can always provide
-        # their own implementation to suit their needs.
-        token_data = token_ref.get('token_data')
+        user_id = token_ref['user_id']
         token_id = token_ref['id']
-        if (self.get_token_version(token_data) != token.provider.V2):
-            # Validate the V3 token as V2
-            token_data = self.v2_token_data_helper.v3_to_v2_token(
-                token_data, token_id)
-        return token_data
+        methods = None  # list of methods used to obtain a token
+        bind = None  # dictionary of bind methods
+        issued_at = None  # time at which the token was issued
+        expires_at = None  # time at which the token will expire
+        audit_ids = None  # list of audit ids specific to the token
+        domain_id = None  # domain scope of the token
+        project_id = None  # project scope of the token
+        access_token = None  # dictionary containing OAUTH1 information
+        token_dict = None  # existing token information
+        trust_ref = None  # dictionary containing trust scope
+        trust_id = token_ref.get('trust_id')
+        if trust_id:
+            trust_ref = self.trust_api.get_trust(trust_id)
+
+        token_data = token_ref.get('token_data')
+        if (self.get_token_version(token_data) == token.provider.V2):
+            methods = ['password', 'token']
+            bind = token_ref.get('bind')
+            # I have no idea why issued_at and expires_at come from two
+            # different places...
+            issued_at = token_ref['token_data']['access']['token']['issued_at']
+            expires_at = token_ref['expires']
+            audit_ids = token_ref['token_data']['access']['token'].get(
+                'audit_ids'
+            )
+            project_id = None
+            project_ref = token_ref.get('tenant')
+            if project_ref:
+                project_id = project_ref['id']
+        else:
+            methods = token_data['token']['methods']
+            bind = token_data['token'].get('bind')
+            issued_at = token_data['token']['issued_at']
+            expires_at = token_data['token']['expires_at']
+            audit_ids = token_data['token'].get('audit_ids')
+            domain_id = token_data['token'].get('domain', {}).get('id')
+            project_id = token_data['token'].get('project', {}).get('id')
+            access_token = None
+            if token_data['token'].get('OS-OAUTH1'):
+                access_token = {
+                    'id': token_data['token'].get('OS-OAUTH1', {}).get(
+                        'access_token_id'
+                    ),
+                    'consumer_id': token_data['token'].get(
+                        'OS-OAUTH1', {}
+                    ).get('consumer_id')
+                }
+            trust_ref = None
+            token_dict = None
+            if token_data['token']['user'].get(
+                    federation_constants.FEDERATION):
+                token_dict = {'user': token_ref['user']}
+
+        # NOTE(lbragstad): Let's use the get_token_data() to rebuild the
+        # information about the token. Even though the token reference we get
+        # back formatted like a v3 token, we can use the v3_to_v2_token()
+        # method to enforce the v2.0 contracts and make the reference look like
+        # a v2 token. This beats having two different methods to build the same
+        # information for each format. Let's just use one and translate it when
+        # needed.
+        v3_token_data = self.v3_token_data_helper.get_token_data(
+            user_id,
+            method_names=methods,
+            domain_id=domain_id,
+            project_id=project_id,
+            issued_at=issued_at,
+            expires=expires_at,
+            trust=trust_ref,
+            token=token_dict,
+            bind=bind,
+            access_token=access_token,
+            audit_info=audit_ids)
+        return self.v2_token_data_helper.v3_to_v2_token(
+            v3_token_data, token_id
+        )
 
     def validate_non_persistent_token(self, token_id):
         try:
