@@ -266,7 +266,8 @@ class V2TokenDataHelper(object):
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'federation_api',
-                     'identity_api', 'resource_api', 'role_api', 'trust_api')
+                     'identity_api', 'resource_api', 'role_api', 'trust_api',
+                     'oauth_api')
 class V3TokenDataHelper(object):
     """Token data helper."""
 
@@ -436,7 +437,10 @@ class V3TokenDataHelper(object):
 
         if access_token:
             filtered_roles = []
-            authed_role_ids = jsonutils.loads(access_token['role_ids'])
+            access_token_ref = self.oauth_api.get_access_token(
+                access_token['id']
+            )
+            authed_role_ids = jsonutils.loads(access_token_ref['role_ids'])
             all_roles = self.role_api.list_roles()
             for role in all_roles:
                 for authed_role in authed_role_ids:
@@ -827,37 +831,74 @@ class BaseProvider(provider.Provider):
             audit_info=audit_ids)
 
     def validate_v3_token(self, token_ref):
-        # FIXME(gyee): performance or correctness? Should we return the
-        # cached token or reconstruct it? Obviously if we are going with
-        # the cached token, any role, project, or domain name changes
-        # will not be reflected. One may argue that with PKI tokens,
-        # we are essentially doing cached token validation anyway.
-        # Lets go with the cached token strategy. Since token
-        # management layer is now pluggable, one can always provide
-        # their own implementation to suit their needs.
-
-        trust_id = token_ref.get('trust_id')
-        if trust_id:
-            # token trust validation
-            self.trust_api.get_trust(trust_id)
+        user_id = token_ref['user_id']
+        methods = None  # list of methods used to obtain a token
+        bind = None  # dictionary of bind methods
+        issued_at = None  # time at which the token was issued
+        expires_at = None  # time at which the token will expire
+        audit_ids = None  # list of audit ids specific to the token
+        domain_id = None  # domain scope of the token
+        project_id = None  # project scope of the token
+        access_token = None  # dictionary containing OAUTH1 information
+        trust_ref = None  # dictionary containing trust scope
+        token_dict = None  # existing token information
 
         token_data = token_ref.get('token_data')
         if not token_data or 'token' not in token_data:
-            # token ref is created by V2 API
+            # NOTE(lbragstad): v2.0 tokens have an `access` dictionary instead
+            # of a `token` one. At this point we can safely assume we are
+            # validating a token that was created using the v2.0 API.
+            methods = ['password', 'token']
+            bind = token_ref.get('bind')
+            # I have no idea why issued_at and expires_at come from two
+            # different places...
+            issued_at = token_ref['token_data']['access']['token']['issued_at']
+            expires_at = token_ref['expires']
+            audit_ids = token_ref['token_data']['access']['token'].get(
+                'audit_ids'
+            )
             project_id = None
             project_ref = token_ref.get('tenant')
             if project_ref:
                 project_id = project_ref['id']
+        else:
+            # NOTE(lbragstad): Otherwise assume we are validating a token that
+            # was created using the v3 token API.
+            methods = token_data['token']['methods']
+            bind = token_data['token'].get('bind')
+            issued_at = token_data['token']['issued_at']
+            expires_at = token_data['token']['expires_at']
+            audit_ids = token_data['token'].get('audit_ids')
+            domain_id = token_data['token'].get('domain', {}).get('id')
+            project_id = token_data['token'].get('project', {}).get('id')
+            access_token = None
+            if token_data['token'].get('OS-OAUTH1'):
+                access_token = {
+                    'id': token_data['token'].get('OS-OAUTH1', {}).get(
+                        'access_token_id'
+                    ),
+                    'consumer_id': token_data['token'].get(
+                        'OS-OAUTH1', {}
+                    ).get('consumer_id')
+                }
+            trust_ref = None
+            trust_id = token_ref.get('trust_id')
+            if trust_id:
+                trust_ref = self.trust_api.get_trust(trust_id)
+            token_dict = None
+            if token_data['token']['user'].get(
+                    federation_constants.FEDERATION):
+                token_dict = {'user': token_ref['user']}
 
-            issued_at = token_ref['token_data']['access']['token']['issued_at']
-            audit = token_ref['token_data']['access']['token'].get('audit_ids')
-
-            token_data = self.v3_token_data_helper.get_token_data(
-                token_ref['user']['id'],
-                ['password', 'token'],
-                project_id=project_id,
-                bind=token_ref.get('bind'),
-                expires=token_ref['expires'],
-                issued_at=issued_at,
-                audit_info=audit)
-        return token_data
+        return self.v3_token_data_helper.get_token_data(
+            user_id,
+            method_names=methods,
+            domain_id=domain_id,
+            project_id=project_id,
+            issued_at=issued_at,
+            expires=expires_at,
+            trust=trust_ref,
+            token=token_dict,
+            bind=bind,
+            access_token=access_token,
+            audit_info=audit_ids)
