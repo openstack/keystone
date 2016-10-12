@@ -728,85 +728,6 @@ class BaseProvider(provider.Provider):
             raise exception.Unauthorized()
         return token_ref
 
-    def validate_v2_token(self, token_ref):
-        user_id = token_ref['user_id']
-        token_id = token_ref['id']
-        methods = None  # list of methods used to obtain a token
-        bind = None  # dictionary of bind methods
-        issued_at = None  # time at which the token was issued
-        expires_at = None  # time at which the token will expire
-        audit_ids = None  # list of audit ids specific to the token
-        domain_id = None  # domain scope of the token
-        project_id = None  # project scope of the token
-        access_token = None  # dictionary containing OAUTH1 information
-        token_dict = None  # existing token information
-        trust_ref = None  # dictionary containing trust scope
-        trust_id = token_ref.get('trust_id')
-        if trust_id:
-            trust_ref = self.trust_api.get_trust(trust_id)
-
-        token_data = token_ref.get('token_data')
-        if (self.get_token_version(token_data) == token.provider.V2):
-            methods = ['password', 'token']
-            bind = token_ref.get('bind')
-            # I have no idea why issued_at and expires_at come from two
-            # different places...
-            issued_at = token_ref['token_data']['access']['token']['issued_at']
-            expires_at = token_ref['expires']
-            audit_ids = token_ref['token_data']['access']['token'].get(
-                'audit_ids'
-            )
-            project_id = None
-            project_ref = token_ref.get('tenant')
-            if project_ref:
-                project_id = project_ref['id']
-        else:
-            methods = token_data['token']['methods']
-            bind = token_data['token'].get('bind')
-            issued_at = token_data['token']['issued_at']
-            expires_at = token_data['token']['expires_at']
-            audit_ids = token_data['token'].get('audit_ids')
-            domain_id = token_data['token'].get('domain', {}).get('id')
-            project_id = token_data['token'].get('project', {}).get('id')
-            access_token = None
-            if token_data['token'].get('OS-OAUTH1'):
-                access_token = {
-                    'id': token_data['token'].get('OS-OAUTH1', {}).get(
-                        'access_token_id'
-                    ),
-                    'consumer_id': token_data['token'].get(
-                        'OS-OAUTH1', {}
-                    ).get('consumer_id')
-                }
-            trust_ref = None
-            token_dict = None
-            if token_data['token']['user'].get(
-                    federation_constants.FEDERATION):
-                token_dict = {'user': token_ref['user']}
-
-        # NOTE(lbragstad): Let's use the get_token_data() to rebuild the
-        # information about the token. Even though the token reference we get
-        # back formatted like a v3 token, we can use the v3_to_v2_token()
-        # method to enforce the v2.0 contracts and make the reference look like
-        # a v2 token. This beats having two different methods to build the same
-        # information for each format. Let's just use one and translate it when
-        # needed.
-        v3_token_data = self.v3_token_data_helper.get_token_data(
-            user_id,
-            method_names=methods,
-            domain_id=domain_id,
-            project_id=project_id,
-            issued_at=issued_at,
-            expires=expires_at,
-            trust=trust_ref,
-            token=token_dict,
-            bind=bind,
-            access_token=access_token,
-            audit_info=audit_ids)
-        return self.v2_token_data_helper.v3_to_v2_token(
-            v3_token_data, token_id
-        )
-
     def validate_non_persistent_token(self, token_id):
         try:
             (user_id, methods, audit_ids, domain_id, project_id, trust_id,
@@ -880,6 +801,9 @@ class BaseProvider(provider.Provider):
             project_ref = token_ref.get('tenant')
             if project_ref:
                 project_id = project_ref['id']
+            trust_id = token_ref.get('trust_id')
+            if trust_id:
+                trust_ref = self.trust_api.get_trust(trust_id)
         else:
             # NOTE(lbragstad): Otherwise assume we are validating a token that
             # was created using the v3 token API.

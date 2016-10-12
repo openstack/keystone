@@ -594,10 +594,10 @@ class AuthWithToken(object):
         self.token_provider_api.revoke_token(token_id, revoke_chain=True)
 
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_v2_token,
+                          self.token_provider_api.validate_v3_token,
                           token_id=token_id)
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_v2_token,
+                          self.token_provider_api.validate_v3_token,
                           token_id=token_2_id)
 
     def test_revoke_by_audit_chain_id_chained_token(self):
@@ -620,10 +620,10 @@ class AuthWithToken(object):
         self.token_provider_api.revoke_token(token_2_id, revoke_chain=True)
 
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_v2_token,
+                          self.token_provider_api.validate_v3_token,
                           token_id=token_id)
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_v2_token,
+                          self.token_provider_api.validate_v3_token,
                           token_id=token_2_id)
 
     def _mock_audit_info(self, parent_audit_id):

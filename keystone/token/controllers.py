@@ -30,6 +30,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone.token import provider
+from keystone.token import providers
 
 
 CONF = keystone.conf.CONF
@@ -175,9 +176,14 @@ class Auth(controller.V2Controller):
                                                 size=CONF.max_token_size)
 
         try:
+            v3_token_data = self.token_provider_api.validate_v3_token(
+                old_token
+            )
+            v2_helper = providers.common.V2TokenDataHelper()
+            v2_token = v2_helper.v3_to_v2_token(v3_token_data, old_token)
             token_model_ref = token_model.KeystoneToken(
                 token_id=old_token,
-                token_data=self.token_provider_api.validate_v2_token(old_token)
+                token_data=v2_token
             )
         except exception.NotFound as e:
             raise exception.Unauthorized(e)
@@ -423,7 +429,9 @@ class Auth(controller.V2Controller):
         the content body.
 
         """
-        token = self.token_provider_api.validate_v2_token(token_id)
+        v3_token_response = self.token_provider_api.validate_v3_token(token_id)
+        v2_helper = providers.common.V2TokenDataHelper()
+        token = v2_helper.v3_to_v2_token(v3_token_response, token_id)
         belongs_to = request.params.get('belongsTo')
         if belongs_to:
             self._token_belongs_to(token, belongs_to)
@@ -440,7 +448,9 @@ class Auth(controller.V2Controller):
 
         """
         # TODO(ayoung) validate against revocation API
-        token = self.token_provider_api.validate_v2_token(token_id)
+        v3_token_response = self.token_provider_api.validate_v3_token(token_id)
+        v2_helper = providers.common.V2TokenDataHelper()
+        token = v2_helper.v3_to_v2_token(v3_token_response, token_id)
         belongs_to = request.params.get('belongsTo')
         if belongs_to:
             self._token_belongs_to(token, belongs_to)
