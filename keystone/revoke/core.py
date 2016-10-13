@@ -190,17 +190,18 @@ class Manager(manager.Manager):
         self.revoke(revoke_model.RevokeEvent(domain_id=domain_id,
                                              role_id=role_id))
 
-    def check_token(self, token_values):
+    def check_token(self, token):
         """Check the values from a token against the revocation list.
 
-        :param token_values: dictionary of values from a token, normalized for
+        :param token: dictionary of values from a token, normalized for
                              differences between v2 and v3. The checked values
                              are a subset of the attributes of model.TokenEvent
 
         :raises keystone.exception.TokenNotFound: If the token is invalid.
 
         """
-        if revoke_model.is_revoked(self.list_events(), token_values):
+        if revoke_model.is_revoked(self.driver.list_events(token=token),
+                                   token):
             raise exception.TokenNotFound(_('Failed to validate token'))
 
     def revoke(self, event):

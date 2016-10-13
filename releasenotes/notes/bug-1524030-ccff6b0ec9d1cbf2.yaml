@@ -1,0 +1,12 @@
+---
+fixes:
+  - >
+    [`bug 1524030 <https://bugs.launchpad.net/keystone/+bug/1524030>`_]
+    During token validation we've reduced the number of revocation events
+    returned, only returning a subset of events relevant to the token. Thus,
+    improving overall token validation performance.
+other:
+  - >
+    The revoke backend driver interface has changed. We've added a token
+    parameter to the ``list_events`` method in order to improve performance by
+    reducing the number of revocation events returned during token validation.

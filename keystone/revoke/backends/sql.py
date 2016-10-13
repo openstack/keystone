@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sqlalchemy
+
 from keystone.common import sql
 from keystone.models import revoke_model
 from keystone.revoke.backends import base
@@ -88,7 +90,30 @@ class Revoke(base.RevokeDriverBase):
 
             session.flush()
 
-    def list_events(self, last_fetch=None):
+    def _list_token_events(self, token):
+        with sql.session_for_read() as session:
+            query = session.query(RevocationEvent).filter(
+                RevocationEvent.issued_before >= token['issued_at'])
+            user = [RevocationEvent.user_id.is_(None)]
+            proj = [RevocationEvent.project_id.is_(None)]
+            audit = [RevocationEvent.audit_id.is_(None)]
+            if token['user_id']:
+                user.append(RevocationEvent.user_id == token['user_id'])
+            if token['trustor_id']:
+                user.append(RevocationEvent.user_id == token['trustor_id'])
+            if token['trustee_id']:
+                user.append(RevocationEvent.user_id == token['trustee_id'])
+            if token['project_id']:
+                proj.append(RevocationEvent.project_id == token['project_id'])
+            if token['audit_id']:
+                audit.append(RevocationEvent.audit_id == token['audit_id'])
+            query = query.filter(sqlalchemy.and_(sqlalchemy.or_(*user),
+                                                 sqlalchemy.or_(*proj),
+                                                 sqlalchemy.or_(*audit)))
+            events = [revoke_model.RevokeEvent(**e.to_dict()) for e in query]
+            return events
+
+    def _list_last_fetch_events(self, last_fetch=None):
         with sql.session_for_read() as session:
             query = session.query(RevocationEvent).order_by(
                 RevocationEvent.revoked_at)
@@ -97,8 +122,13 @@ class Revoke(base.RevokeDriverBase):
                 query = query.filter(RevocationEvent.revoked_at > last_fetch)
 
             events = [revoke_model.RevokeEvent(**e.to_dict()) for e in query]
-
             return events
+
+    def list_events(self, last_fetch=None, token=None):
+        if token:
+            return self._list_token_events(token)
+        else:
+            return self._list_last_fetch_events(last_fetch)
 
     @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def revoke(self, event):
