@@ -26,6 +26,7 @@ from keystone.federation import constants as federation_constants
 from keystone.i18n import _
 from keystone import token
 from keystone.token import provider
+from keystone.token.providers import base
 
 
 LOG = log.getLogger(__name__)
@@ -601,7 +602,7 @@ class V3TokenDataHelper(object):
 
 @dependency.requires('catalog_api', 'identity_api', 'oauth_api',
                      'resource_api', 'role_api', 'trust_api')
-class BaseProvider(provider.Provider):
+class BaseProvider(base.Provider):
     def __init__(self, *args, **kwargs):
         super(BaseProvider, self).__init__(*args, **kwargs)
         self.v3_token_data_helper = V3TokenDataHelper()
