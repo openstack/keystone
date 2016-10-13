@@ -291,6 +291,10 @@ class SqlMigrateBase(test_base.DbTestCase):
         insert = this_table.insert().values(**d)
         session.execute(insert)
 
+    def does_index_exist(self, table_name, index_name):
+        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
+        return index_name in [idx.name for idx in table.indexes]
+
 
 class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
     def test_blank_db_to_start(self):
@@ -428,10 +432,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
             if fk_column in fk['constrained_columns']:
                 return True
         return False
-
-    def does_index_exist(self, table_name, index_name):
-        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
-        return index_name in [idx.name for idx in table.indexes]
 
     def does_constraint_exist(self, table_name, constraint_name):
         table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
@@ -1783,6 +1783,38 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         else:
             self.assertEqual('DATETIME', str(password.c.created_at.type))
         self.assertFalse(password.c.created_at.nullable)
+
+    def test_migration_010_add_revocation_event_indexes(self):
+        self.expand(9)
+        self.migrate(9)
+        self.contract(9)
+        self.assertFalse(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_issued_before'))
+        self.assertFalse(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_project_id_issued_before'))
+        self.assertFalse(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_user_id_issued_before'))
+        self.assertFalse(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_audit_id_issued_before'))
+        self.expand(10)
+        self.migrate(10)
+        self.contract(10)
+        self.assertTrue(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_issued_before'))
+        self.assertTrue(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_project_id_issued_before'))
+        self.assertTrue(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_user_id_issued_before'))
+        self.assertTrue(self.does_index_exist(
+            'revocation_event',
+            'ix_revocation_event_audit_id_issued_before'))
 
 
 class MySQLOpportunisticFullMigration(FullMigration):
