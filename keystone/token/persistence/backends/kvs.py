@@ -27,7 +27,7 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LE, _LW
 from keystone import token
-from keystone.token import provider
+from keystone.token.providers import common
 
 
 CONF = keystone.conf.CONF
@@ -109,7 +109,7 @@ class Token(token.persistence.TokenDriverBase):
         data_copy = copy.deepcopy(data)
         ptk = self._prefix_token_id(token_id)
         if not data_copy.get('expires'):
-            data_copy['expires'] = provider.default_expire_time()
+            data_copy['expires'] = common.default_expire_time()
         if not data_copy.get('user_id'):
             data_copy['user_id'] = data_copy['user']['id']
 

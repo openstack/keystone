@@ -10,21 +10,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 from six.moves import urllib
 
 from keystone.tests import unit
-from keystone.token import provider
+from keystone.token.providers import common
 
 
-class TestRandomStrings(unit.BaseTestCase):
+class TestTokenProvidersCommon(unit.TestCase):
+    def setUp(self):
+        super(TestTokenProvidersCommon, self).setUp()
+
     def test_strings_are_url_safe(self):
-        s = provider.random_urlsafe_str()
+        s = common.random_urlsafe_str()
         self.assertEqual(s, urllib.parse.quote_plus(s))
-
-    def test_strings_can_be_converted_to_bytes(self):
-        s = provider.random_urlsafe_str()
-        self.assertIsInstance(s, six.text_type)
-
-        b = provider.random_urlsafe_str_to_bytes(s)
-        self.assertIsInstance(b, six.binary_type)

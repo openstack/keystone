@@ -29,8 +29,7 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
-from keystone.token import provider
-from keystone.token import providers
+from keystone.token.providers import common
 
 
 CONF = keystone.conf.CONF
@@ -188,7 +187,7 @@ class Auth(controller.V2Controller):
             # v3_to_v2_token, because federated tokens aren't supported by
             # v2.0 (the same applies to OAuth tokens, domain-scoped tokens,
             # etc..).
-            v2_helper = providers.common.V2TokenDataHelper()
+            v2_helper = common.V2TokenDataHelper()
             v2_helper.v3_to_v2_token(v3_token_data, old_token)
             token_model_ref = token_model.KeystoneToken(
                 token_id=old_token,
@@ -321,7 +320,7 @@ class Auth(controller.V2Controller):
         tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
             user_id, tenant_id)
 
-        expiry = provider.default_expire_time()
+        expiry = common.default_expire_time()
         bind = None
         audit_id = None
         return (user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id)
@@ -348,7 +347,7 @@ class Auth(controller.V2Controller):
         tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
             user_id, tenant_id)
 
-        expiry = provider.default_expire_time()
+        expiry = common.default_expire_time()
         bind = None
         if ('kerberos' in CONF.token.bind and
                 request.environ.get('AUTH_TYPE', '').lower() == 'negotiate'):
@@ -439,7 +438,7 @@ class Auth(controller.V2Controller):
 
         """
         v3_token_response = self.token_provider_api.validate_token(token_id)
-        v2_helper = providers.common.V2TokenDataHelper()
+        v2_helper = common.V2TokenDataHelper()
         token = v2_helper.v3_to_v2_token(v3_token_response, token_id)
         belongs_to = request.params.get('belongsTo')
         if belongs_to:
@@ -458,7 +457,7 @@ class Auth(controller.V2Controller):
         """
         # TODO(ayoung) validate against revocation API
         v3_token_response = self.token_provider_api.validate_token(token_id)
-        v2_helper = providers.common.V2TokenDataHelper()
+        v2_helper = common.V2TokenDataHelper()
         token = v2_helper.v3_to_v2_token(v3_token_response, token_id)
         belongs_to = request.params.get('belongsTo')
         if belongs_to:

@@ -29,7 +29,6 @@ from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LI
-from keystone.token import provider
 
 
 CONF = keystone.conf.CONF
@@ -333,6 +332,32 @@ class BasePayload(object):
             # federation)
             return (False, value)
 
+    @classmethod
+    def base64_encode(cls, s):
+        """Encode a URL-safe string.
+
+        :type s: six.text_type
+        :rtype: six.text_type
+
+        """
+        # urlsafe_b64encode() returns six.binary_type so need to convert to
+        # six.text_type, might as well do it before stripping.
+        return base64.urlsafe_b64encode(s).decode('utf-8').rstrip('=')
+
+    @classmethod
+    def random_urlsafe_str_to_bytes(cls, s):
+        """Convert a string from :func:`random_urlsafe_str()` to six.binary_type.
+
+        :type s: six.text_type
+        :rtype: six.binary_type
+
+        """
+        # urlsafe_b64decode() requires str, unicode isn't accepted.
+        s = str(s)
+
+        # restore the padding (==) at the end of the string
+        return base64.urlsafe_b64decode(s + '==')
+
 
 class UnscopedPayload(BasePayload):
     version = 0
@@ -347,7 +372,7 @@ class UnscopedPayload(BasePayload):
         b_user_id = cls.attempt_convert_uuid_hex_to_bytes(user_id)
         methods = auth_plugins.convert_method_list_to_integer(methods)
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                            audit_ids))
         return (b_user_id, methods, expires_at_int, b_audit_ids)
 
@@ -358,7 +383,7 @@ class UnscopedPayload(BasePayload):
             user_id = cls.convert_uuid_bytes_to_hex(user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         expires_at_str = cls._convert_float_to_time_string(payload[2])
-        audit_ids = list(map(provider.base64_encode, payload[3]))
+        audit_ids = list(map(cls.base64_encode, payload[3]))
         project_id = None
         domain_id = None
         trust_id = None
@@ -389,7 +414,7 @@ class DomainScopedPayload(BasePayload):
             else:
                 raise
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                            audit_ids))
         return (b_user_id, methods, b_domain_id, expires_at_int, b_audit_ids)
 
@@ -408,7 +433,7 @@ class DomainScopedPayload(BasePayload):
             else:
                 raise
         expires_at_str = cls._convert_float_to_time_string(payload[3])
-        audit_ids = list(map(provider.base64_encode, payload[4]))
+        audit_ids = list(map(cls.base64_encode, payload[4]))
         project_id = None
         trust_id = None
         federated_info = None
@@ -431,7 +456,7 @@ class ProjectScopedPayload(BasePayload):
         methods = auth_plugins.convert_method_list_to_integer(methods)
         b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                            audit_ids))
         return (b_user_id, methods, b_project_id, expires_at_int, b_audit_ids)
 
@@ -445,7 +470,7 @@ class ProjectScopedPayload(BasePayload):
         if is_stored_as_bytes:
             project_id = cls.convert_uuid_bytes_to_hex(project_id)
         expires_at_str = cls._convert_float_to_time_string(payload[3])
-        audit_ids = list(map(provider.base64_encode, payload[4]))
+        audit_ids = list(map(cls.base64_encode, payload[4]))
         domain_id = None
         trust_id = None
         federated_info = None
@@ -469,7 +494,7 @@ class TrustScopedPayload(BasePayload):
         b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
         b_trust_id = cls.convert_uuid_hex_to_bytes(trust_id)
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                            audit_ids))
 
         return (b_user_id, methods, b_project_id, expires_at_int, b_audit_ids,
@@ -485,7 +510,7 @@ class TrustScopedPayload(BasePayload):
         if is_stored_as_bytes:
             project_id = cls.convert_uuid_bytes_to_hex(project_id)
         expires_at_str = cls._convert_float_to_time_string(payload[3])
-        audit_ids = list(map(provider.base64_encode, payload[4]))
+        audit_ids = list(map(cls.base64_encode, payload[4]))
         trust_id = cls.convert_uuid_bytes_to_hex(payload[5])
         domain_id = None
         federated_info = None
@@ -523,7 +548,7 @@ class FederatedUnscopedPayload(BasePayload):
             federated_info['idp_id'])
         protocol_id = federated_info['protocol_id']
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                                audit_ids))
 
         return (b_user_id, methods, b_group_ids, b_idp_id, protocol_id,
@@ -545,7 +570,7 @@ class FederatedUnscopedPayload(BasePayload):
         if isinstance(protocol_id, six.binary_type):
             protocol_id = protocol_id.decode('utf-8')
         expires_at_str = cls._convert_float_to_time_string(payload[5])
-        audit_ids = list(map(provider.base64_encode, payload[6]))
+        audit_ids = list(map(cls.base64_encode, payload[6]))
         federated_info = dict(group_ids=group_ids, idp_id=idp_id,
                               protocol_id=protocol_id)
         project_id = None
@@ -572,7 +597,7 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
             federated_info['idp_id'])
         protocol_id = federated_info['protocol_id']
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                                audit_ids))
 
         return (b_user_id, methods, b_scope_id, b_group_ids, b_idp_id,
@@ -599,7 +624,7 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
             idp_id = cls.convert_uuid_bytes_to_hex(idp_id)
         protocol_id = payload[5]
         expires_at_str = cls._convert_float_to_time_string(payload[6])
-        audit_ids = list(map(provider.base64_encode, payload[7]))
+        audit_ids = list(map(cls.base64_encode, payload[7]))
         federated_info = dict(idp_id=idp_id, protocol_id=protocol_id,
                               group_ids=group_ids)
         trust_id = None
@@ -638,7 +663,7 @@ class OauthScopedPayload(BasePayload):
         methods = auth_plugins.convert_method_list_to_integer(methods)
         b_project_id = cls.attempt_convert_uuid_hex_to_bytes(project_id)
         expires_at_int = cls._convert_time_string_to_float(expires_at)
-        b_audit_ids = list(map(provider.random_urlsafe_str_to_bytes,
+        b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                            audit_ids))
         b_access_token_id = cls.attempt_convert_uuid_hex_to_bytes(
             access_token_id)
@@ -658,7 +683,7 @@ class OauthScopedPayload(BasePayload):
         if is_stored_as_bytes:
             access_token_id = cls.convert_uuid_bytes_to_hex(access_token_id)
         expires_at_str = cls._convert_float_to_time_string(payload[4])
-        audit_ids = list(map(provider.base64_encode, payload[5]))
+        audit_ids = list(map(cls.base64_encode, payload[5]))
         domain_id = None
         trust_id = None
         federated_info = None

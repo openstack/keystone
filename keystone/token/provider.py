@@ -14,10 +14,7 @@
 
 """Token provider interface."""
 
-import base64
-import datetime
 import sys
-import uuid
 
 from oslo_log import log
 from oslo_utils import timeutils
@@ -51,76 +48,6 @@ UnsupportedTokenVersionException = exception.UnsupportedTokenVersionException
 V2 = token_model.V2
 V3 = token_model.V3
 VERSIONS = token_model.VERSIONS
-
-
-def base64_encode(s):
-    """Encode a URL-safe string.
-
-    :type s: six.text_type
-    :rtype: six.text_type
-
-    """
-    # urlsafe_b64encode() returns six.binary_type so need to convert to
-    # six.text_type, might as well do it before stripping.
-    return base64.urlsafe_b64encode(s).decode('utf-8').rstrip('=')
-
-
-def random_urlsafe_str():
-    """Generate a random URL-safe string.
-
-    :rtype: six.text_type
-
-    """
-    # chop the padding (==) off the end of the encoding to save space
-    return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2].decode('utf-8')
-
-
-def random_urlsafe_str_to_bytes(s):
-    """Convert a string from :func:`random_urlsafe_str()` to six.binary_type.
-
-    :type s: six.text_type
-    :rtype: six.binary_type
-
-    """
-    # urlsafe_b64decode() requires str, unicode isn't accepted.
-    s = str(s)
-
-    # restore the padding (==) at the end of the string
-    return base64.urlsafe_b64decode(s + '==')
-
-
-def default_expire_time():
-    """Determine when a fresh token should expire.
-
-    Expiration time varies based on configuration (see ``[token] expiration``).
-
-    :returns: a naive UTC datetime.datetime object
-
-    """
-    expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
-    expires_at = timeutils.utcnow() + expire_delta
-    return expires_at.replace(microsecond=0)
-
-
-def audit_info(parent_audit_id):
-    """Build the audit data for a token.
-
-    If ``parent_audit_id`` is None, the list will be one element in length
-    containing a newly generated audit_id.
-
-    If ``parent_audit_id`` is supplied, the list will be two elements in length
-    containing a newly generated audit_id and the ``parent_audit_id``. The
-    ``parent_audit_id`` will always be element index 1 in the resulting
-    list.
-
-    :param parent_audit_id: the audit of the original token in the chain
-    :type parent_audit_id: str
-    :returns: Keystone token audit data
-    """
-    audit_id = random_urlsafe_str()
-    if parent_audit_id is not None:
-        return [audit_id, parent_audit_id]
-    return [audit_id]
 
 
 @dependency.provider('token_provider_api')

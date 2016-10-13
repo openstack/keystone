@@ -24,7 +24,7 @@ from keystone.models import revoke_model
 from keystone.revoke.backends import sql
 from keystone.tests import unit
 from keystone.tests.unit import test_backend_sql
-from keystone.token import provider
+from keystone.token.providers import common
 
 
 def _new_id():
@@ -245,7 +245,7 @@ class RevokeTests(object):
         # check to make sure that list_events matches the token to the event we
         # just revoked.
         first_token = _sample_blank_token()
-        first_token['audit_id'] = provider.random_urlsafe_str()
+        first_token['audit_id'] = common.random_urlsafe_str()
         add_event(events, revoke_model.RevokeEvent(
             audit_id=first_token['audit_id']))
         self.revoke_api.revoke_by_audit_id(
@@ -258,7 +258,7 @@ class RevokeTests(object):
         # sure that list events only finds 1 match since there are 2 and they
         # dont both have different populated audit_id fields
         second_token = _sample_blank_token()
-        second_token['audit_id'] = provider.random_urlsafe_str()
+        second_token['audit_id'] = common.random_urlsafe_str()
         add_event(events, revoke_model.RevokeEvent(
             audit_id=second_token['audit_id']))
         self.revoke_api.revoke_by_audit_id(
@@ -294,7 +294,7 @@ class RevokeTests(object):
         first_token = _sample_blank_token()
         first_token['user_id'] = uuid.uuid4().hex
         first_token['project_id'] = uuid.uuid4().hex
-        first_token['audit_id'] = provider.random_urlsafe_str()
+        first_token['audit_id'] = common.random_urlsafe_str()
         # revoke event and then verify that that there is only one revocation
         # and verify the only revoked event is the token
         add_event(events, revoke_model.RevokeEvent(
@@ -327,7 +327,7 @@ class RevokeTests(object):
         fourth_token = _sample_blank_token()
         fourth_token['user_id'] = uuid.uuid4().hex
         fourth_token['project_id'] = uuid.uuid4().hex
-        fourth_token['audit_id'] = provider.random_urlsafe_str()
+        fourth_token['audit_id'] = common.random_urlsafe_str()
         add_event(events, revoke_model.RevokeEvent(
             project_id=fourth_token['project_id'],
             audit_id=fourth_token['audit_id']))
@@ -544,7 +544,7 @@ class RevokeListTests(unit.TestCase):
         self._user_field_test('trustor_id')
 
     def test_revoke_by_audit_id(self):
-        audit_id = provider.audit_info(parent_audit_id=None)[0]
+        audit_id = common.build_audit_info(parent_audit_id=None)[0]
         token_data_1 = _sample_blank_token()
         # Audit ID and Audit Chain ID are populated with the same value
         # if the token is an original token
@@ -553,7 +553,7 @@ class RevokeListTests(unit.TestCase):
         event = self._revoke_by_audit_id(audit_id)
         self._assertTokenRevoked(token_data_1)
 
-        audit_id_2 = provider.audit_info(parent_audit_id=audit_id)[0]
+        audit_id_2 = common.build_audit_info(parent_audit_id=audit_id)[0]
         token_data_2 = _sample_blank_token()
         token_data_2['audit_id'] = audit_id_2
         token_data_2['audit_chain_id'] = audit_id
@@ -563,7 +563,7 @@ class RevokeListTests(unit.TestCase):
         self._assertTokenNotRevoked(token_data_1)
 
     def test_revoke_by_audit_chain_id(self):
-        audit_id = provider.audit_info(parent_audit_id=None)[0]
+        audit_id = common.build_audit_info(parent_audit_id=None)[0]
         token_data_1 = _sample_blank_token()
         # Audit ID and Audit Chain ID are populated with the same value
         # if the token is an original token
@@ -572,7 +572,7 @@ class RevokeListTests(unit.TestCase):
         event = self._revoke_by_audit_chain_id(audit_id)
         self._assertTokenRevoked(token_data_1)
 
-        audit_id_2 = provider.audit_info(parent_audit_id=audit_id)[0]
+        audit_id_2 = common.build_audit_info(parent_audit_id=audit_id)[0]
         token_data_2 = _sample_blank_token()
         token_data_2['audit_id'] = audit_id_2
         token_data_2['audit_chain_id'] = audit_id
