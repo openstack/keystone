@@ -53,7 +53,7 @@ class UserController(identity.controllers.User):
         token_id = request.context_dict.get('token_id')
         original_password = user.get('original_password')
 
-        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token_data = self.token_provider_api.validate_token(token_id)
         token_ref = token_model.KeystoneToken(token_id=token_id,
                                               token_data=token_data)
 

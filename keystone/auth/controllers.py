@@ -539,7 +539,7 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def check_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
-        token_data = self.token_provider_api.validate_v3_token(
+        token_data = self.token_provider_api.validate_token(
             token_id)
         # NOTE(morganfainberg): The code in
         # ``keystone.common.wsgi.render_response`` will remove the content
@@ -555,7 +555,7 @@ class Auth(controller.V3Controller):
     def validate_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
         include_catalog = 'nocatalog' not in request.params
-        token_data = self.token_provider_api.validate_v3_token(
+        token_data = self.token_provider_api.validate_token(
             token_id)
         if not include_catalog and 'catalog' in token_data['token']:
             del token_data['token']['catalog']

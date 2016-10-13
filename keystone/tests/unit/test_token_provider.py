@@ -794,7 +794,7 @@ class TestTokenProvider(unit.TestCase):
     def test_validate_v3_token_with_no_token_raises_token_not_found(self):
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_provider_api.validate_v3_token,
+            self.token_provider_api.validate_token,
             None)
 
 

@@ -364,7 +364,7 @@ class Auth(auth_controllers.Auth):
         sp_url = service_provider['sp_url']
 
         token_id = auth['identity']['token']['id']
-        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token_data = self.token_provider_api.validate_token(token_id)
         token_ref = token_model.KeystoneToken(token_id, token_data)
 
         if not token_ref.project_scoped:

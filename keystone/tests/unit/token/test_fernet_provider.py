@@ -55,14 +55,10 @@ class TestFernetTokenProvider(unit.TestCase):
         self.assertFalse(self.provider.needs_persistence())
 
     def test_invalid_v3_token_raises_token_not_found(self):
-        # NOTE(lbragstad): Here we use the validate_non_persistent_token()
-        # methods because the validate_v3_token() method is strictly for
-        # validating UUID formatted tokens. It is written to assume cached
-        # tokens from a backend, where validate_non_persistent_token() is not.
         token_id = uuid.uuid4().hex
         e = self.assertRaises(
             exception.TokenNotFound,
-            self.provider.validate_non_persistent_token,
+            self.provider.validate_token,
             token_id)
         self.assertIn(token_id, u'%s' % e)
 
@@ -70,7 +66,7 @@ class TestFernetTokenProvider(unit.TestCase):
         token_id = uuid.uuid4().hex
         e = self.assertRaises(
             exception.TokenNotFound,
-            self.provider.validate_non_persistent_token,
+            self.provider.validate_token,
             token_id)
         self.assertIn(token_id, u'%s' % e)
 
@@ -107,7 +103,7 @@ class TestValidate(unit.TestCase):
         token_id, token_data_ = self.token_provider_api.issue_v3_token(
             user_ref['id'], method_names)
 
-        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token_data = self.token_provider_api.validate_token(token_id)
         token = token_data['token']
         self.assertIsInstance(token['audit_ids'], list)
         self.assertIsInstance(token['expires_at'], str)
@@ -149,7 +145,7 @@ class TestValidate(unit.TestCase):
         token_id, token_data_ = self.token_provider_api.issue_v3_token(
             user_ref['id'], method_names, auth_context=auth_context)
 
-        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token_data = self.token_provider_api.validate_token(token_id)
         token = token_data['token']
         exp_user_info = {
             'id': user_ref['id'],
@@ -207,7 +203,7 @@ class TestValidate(unit.TestCase):
             user_ref['id'], method_names, project_id=project_ref['id'],
             trust=trust_ref)
 
-        token_data = self.token_provider_api.validate_v3_token(token_id)
+        token_data = self.token_provider_api.validate_token(token_id)
         token = token_data['token']
         exp_trust_info = {
             'id': trust_ref['id'],
@@ -223,7 +219,7 @@ class TestValidate(unit.TestCase):
         # A uuid string isn't a valid Fernet token.
         token_id = uuid.uuid4().hex
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_v3_token, token_id)
+                          self.token_provider_api.validate_token, token_id)
 
 
 class TestTokenFormatter(unit.TestCase):

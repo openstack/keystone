@@ -230,7 +230,7 @@ class Manager(manager.Manager):
         else:
             return self.check_revocation_v3(token)
 
-    def validate_v3_token(self, token_id):
+    def validate_token(self, token_id):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
 
@@ -239,14 +239,15 @@ class Manager(manager.Manager):
             # to fetch from the backend (the driver persists the token).
             # Otherwise the information about the token must be in the token
             # id.
-            if not self._needs_persistence:
-                token_ref = self.validate_non_persistent_token(token_id)
-            else:
+            if self._needs_persistence:
                 unique_id = utils.generate_unique_id(token_id)
                 # NOTE(morganfainberg): Ensure we never use the long-form
                 # token_id (PKI) as part of the cache_key.
                 token_ref = self._persistence.get_token(unique_id)
-                token_ref = self._validate_v3_token(token_ref)
+                # Overload the token_id variable to be a token reference
+                # instead.
+                token_id = token_ref
+            token_ref = self._validate_token(token_id)
             self._is_valid_token(token_ref)
             return token_ref
         except exception.Unauthorized as e:
@@ -254,12 +255,8 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(token_id=token_id)
 
     @MEMOIZE_TOKENS
-    def validate_non_persistent_token(self, token_id):
-        return self.driver.validate_non_persistent_token(token_id)
-
-    @MEMOIZE_TOKENS
-    def _validate_v3_token(self, token_id):
-        return self.driver.validate_v3_token(token_id)
+    def _validate_token(self, token_id):
+        return self.driver.validate_token(token_id)
 
     def _is_valid_token(self, token):
         """Verify the token is valid format and has not expired."""
@@ -313,12 +310,10 @@ class Manager(manager.Manager):
         # on issuing a token using v2.0 API.
         if CONF.token.cache_on_issue:
             if self._needs_persistence:
-                validate_response = self.driver.validate_v3_token(token_ref)
+                validate_response = self.driver.validate_token(token_ref)
             else:
-                validate_response = self.driver.validate_non_persistent_token(
-                    token_id
-                )
-            self._validate_v3_token.set(
+                validate_response = self.driver.validate_token(token_id)
+            self._validate_token.set(
                 validate_response,
                 TOKENS_REGION,
                 token_id
@@ -369,9 +364,7 @@ class Manager(manager.Manager):
             # NOTE(amakarov): here and above TOKENS_REGION is to be passed
             # to serve as required positional "self" argument. It's ignored,
             # so I've put it here for convenience - any placeholder is fine.
-            self._validate_v3_token.set(token_data, TOKENS_REGION, token_id)
-            self.validate_non_persistent_token.set(
-                token_data, TOKENS_REGION, token_id)
+            self._validate_token.set(token_data, TOKENS_REGION, token_id)
 
         return token_id, token_data
 
@@ -385,16 +378,12 @@ class Manager(manager.Manager):
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
 
-        self._validate_v3_token.invalidate(self, token_id)
-        # This method isn't actually called in the case of non-persistent
-        # tokens, but we include the invalidation in case this ever changes
-        # in the future.
-        self.validate_non_persistent_token.invalidate(self, token_id)
+        self._validate_token.invalidate(self, token_id)
 
     def revoke_token(self, token_id, revoke_chain=False):
         token_ref = token_model.KeystoneToken(
             token_id=token_id,
-            token_data=self.validate_v3_token(token_id))
+            token_data=self.validate_token(token_id))
 
         project_id = token_ref.project_id if token_ref.project_scoped else None
         domain_id = token_ref.domain_id if token_ref.domain_scoped else None
@@ -551,18 +540,7 @@ class Provider(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def validate_non_persistent_token(self, token_id):
-        """Validate a given non-persistent token id and return the token_data.
-
-        :param token_id: the token id
-        :type token_id: string
-        :returns: token data
-        :raises keystone.exception.TokenNotFound: When the token is invalid
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def validate_v3_token(self, token_ref):
+    def validate_token(self, token_ref):
         """Validate the given V3 token and return the token_data.
 
         :param token_ref: the token reference
