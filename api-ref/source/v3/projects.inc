@@ -27,6 +27,17 @@ A project acting as a domain can potentially also act as a container for
 OpenStack resources, although this depends on whether the policy rule for the
 relevant resource creation allows this.
 
+.. note::
+
+  A project's name must be unique within a domain and no more than 64 characters.
+  A project's name must be able to be sent within valid JSON, which could be any
+  UTF-8 character. However, this is constrained to the given backend where project
+  names are stored. For instance, MySQL's restrictions states that UTF-8 support
+  is constrained to the characters in the Basic Multilingual Plane (BMP).
+  Supplementary characters are not permitted. Note that this last restriction is
+  generally true for all ``names`` within resources of the Identity API.
+
+
 List projects
 =============
 
