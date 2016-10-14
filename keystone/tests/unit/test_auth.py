@@ -1335,12 +1335,12 @@ class AuthWithTrust(object):
         # We need to disable the user using the driver directly for the same
         # reason stated above. This test really just ensures that if a trustee
         # is disabled the logic in
-        # keystone.token.controller:Auth._authenticate_token will throw a
-        # Forbidden.
+        # keystone.token.controller:Auth._authenticate_token will throw an
+        # Unauthorized.
         user = {'enabled': False}
         self.identity_api.driver.update_user(self.trustee['id'], user)
         self.assertRaises(
-            exception.Forbidden,
+            exception.Unauthorized,
             self.controller.authenticate, self.make_request(), request_body)
 
 
@@ -1406,7 +1406,7 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
 
         self.disable_user(self.trustee)
         self.assertRaises(
-            exception.Forbidden,
+            exception.Unauthorized,
             self.controller.authenticate, self.make_request(), request_body)
 
 

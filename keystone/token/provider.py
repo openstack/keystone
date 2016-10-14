@@ -255,15 +255,6 @@ class Manager(manager.Manager):
         if metadata_ref is None:
             metadata_ref = {}
 
-        if 'project' in token_data['token']:
-            # project-scoped token, fill in the v2 token data
-            # all we care are the role IDs
-
-            # FIXME(gyee): is there really a need to store roles in metadata?
-            role_ids = [r['id'] for r in token_data['token']['roles']]
-            metadata_ref = {'roles': role_ids}
-            is_domain = token_data['token']['is_domain']
-
         if trust:
             metadata_ref.setdefault('trust_id', trust['id'])
             metadata_ref.setdefault('trustee_user_id',
