@@ -392,7 +392,8 @@
                 "name": "Default"
             },
             "id": "10a2e6e717a245d9acad3e5f97aeca3d",
-            "name": "admin"
+            "name": "admin",
+            "password_expires_at": "2016-11-06T15:32:17.000000"
         },
         "audit_ids": [
             "wLc7nDMsQiKqf8VFU4ySpg"

@@ -116,6 +116,7 @@ class TestValidate(unit.TestCase):
                 'id': domain_ref['id'],
                 'name': domain_ref['name'],
             },
+            'password_expires_at': user_ref['password_expires_at']
         }
         self.assertEqual(exp_user_info, token['user'])
 

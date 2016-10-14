@@ -422,7 +422,8 @@ class V3TokenDataHelper(object):
         filtered_user = {
             'id': user_ref['id'],
             'name': user_ref['name'],
-            'domain': self._get_filtered_domain(user_ref['domain_id'])}
+            'domain': self._get_filtered_domain(user_ref['domain_id']),
+            'password_expires_at': user_ref['password_expires_at']}
         token_data['user'] = filtered_user
 
     def _populate_oauth_section(self, token_data, access_token):

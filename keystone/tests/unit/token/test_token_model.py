@@ -48,6 +48,9 @@ class TestKeystoneTokenModel(core.TestCase):
                          token_data.user_id)
         self.assertEqual(self.v3_sample_token['token']['user']['name'],
                          token_data.user_name)
+        self.assertEqual(
+            self.v3_sample_token['token']['user']['password_expires_at'],
+            token_data.user_password_expires_at)
         self.assertEqual(self.v3_sample_token['token']['user']['domain']['id'],
                          token_data.user_domain_id)
         self.assertEqual(

@@ -107,6 +107,15 @@ class KeystoneToken(dict):
         raise exception.UnexpectedError()
 
     @property
+    def user_password_expires_at(self):
+        try:
+            return self['user']['password_expires_at']
+        except KeyError:
+            # Do not raise KeyError, raise UnexpectedError
+            pass
+        raise exception.UnexpectedError()
+
+    @property
     def user_domain_id(self):
         try:
             return self['user']['domain']['id']
