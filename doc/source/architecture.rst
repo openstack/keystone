@@ -174,7 +174,7 @@ directory as ``base.py``. The corresponding drivers for the services are:
 * :mod:`keystone.resource.backends.base.DomainConfigDriver`
 * :mod:`keystone.resource.backends.base.ResourceDriver`
 * :mod:`keystone.revoke.backends.base.RevokeDriver`
-* :mod:`keystone.token.backends.base.TokenDriver`
+* :mod:`keystone.token.providers.base.Provider`
 * :mod:`keystone.trust.backends.base.TrustDriver`
 
 If you implement a backend driver for one of the Keystone services, you're

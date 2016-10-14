@@ -1,0 +1,7 @@
+---
+other:
+  - >
+    The token provider driver interface has moved from
+    ``keystone.token.provider.Provider`` to ``keystone.token.providers.base.Provider``.
+    This is consistent with other backend drivers. If you have implemented a
+    custom token provider, you will want to subclass from the new location.
