@@ -4880,10 +4880,11 @@ class TestTrustChain(test_v3.RestfulTestCase):
         self.identity_api.delete_user(self.user_list[0]['id'])
 
         # Bypass policy enforcement
+        # Delete trustee will invalidate the trust.
         with mock.patch.object(rules, 'enforce', return_value=True):
             headers = {'X-Subject-Token': self.last_token}
             self.head('/auth/tokens', headers=headers,
-                      expected_status=http_client.FORBIDDEN)
+                      expected_status=http_client.NOT_FOUND)
 
 
 class TestAuthContext(unit.TestCase):
