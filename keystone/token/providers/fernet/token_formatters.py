@@ -35,7 +35,7 @@ from keystone.token import provider
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-# Fernet byte indexes as as computed by pypi/keyless_fernet and defined in
+# Fernet byte indexes as computed by pypi/keyless_fernet and defined in
 # https://github.com/fernet/spec
 TIMESTAMP_START = 1
 TIMESTAMP_END = 9
