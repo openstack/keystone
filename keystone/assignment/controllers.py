@@ -22,9 +22,9 @@ from oslo_log import log
 from six.moves import urllib
 
 from keystone.assignment import schema
+from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
-from keystone.common import utils
 from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
@@ -50,7 +50,7 @@ class TenantAssignment(controller.V2Controller):
         Doesn't care about token scopedness.
 
         """
-        token_ref = utils.get_token_ref(request.context_dict)
+        token_ref = authorization.get_token_ref(request.context_dict)
 
         tenant_refs = (
             self.assignment_api.list_projects_for_user(token_ref.user_id))
@@ -964,7 +964,7 @@ class RoleAssignmentV3(controller.V3Controller):
 
         """
         ref = {}
-        for filter, value in protection_info['filter_attr'].items():
+        for filter, value in protection_info.get('filter_attr', {}).items():
             if filter == 'scope.project.id' and value:
                 ref['project'] = self.resource_api.get_project(value)
 

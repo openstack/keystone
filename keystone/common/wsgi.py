@@ -18,7 +18,6 @@
 
 """Utility methods for working with WSGI servers."""
 
-import copy
 import functools
 import itertools
 import re
@@ -35,9 +34,9 @@ from six.moves import http_client
 import webob.dec
 import webob.exc
 
+from keystone.common import authorization
 from keystone.common import dependency
 from keystone.common import json_home
-from keystone.common import policy
 from keystone.common import request as request_mod
 from keystone.common import utils
 import keystone.conf
@@ -292,28 +291,7 @@ class Application(BaseApplication):
             does not have the admin role
 
         """
-        request.assert_authenticated()
-
-        if not request.context.is_admin:
-            user_token_ref = utils.get_token_ref(request.context_dict)
-
-            creds = copy.deepcopy(user_token_ref.metadata)
-
-            try:
-                creds['user_id'] = user_token_ref.user_id
-            except exception.UnexpectedError:
-                LOG.debug('Invalid user')
-                raise exception.Unauthorized(_('Invalid user'))
-
-            if user_token_ref.project_scoped:
-                creds['tenant_id'] = user_token_ref.project_id
-            else:
-                LOG.debug('Invalid tenant')
-                raise exception.Unauthorized(_('Invalid tenant'))
-
-            creds['roles'] = user_token_ref.role_names
-            # Accept either is_admin or the admin role
-            policy.enforce(creds, 'admin_required', {})
+        authorization.assert_admin(self, request)
 
     def _attribute_is_empty(self, ref, attribute):
         """Determine if the attribute in ref is empty or None."""

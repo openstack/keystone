@@ -34,7 +34,6 @@ import passlib.hash
 import six
 from six import moves
 
-from keystone.common import authorization
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -524,24 +523,6 @@ def isotime(at=None, subsecond=False):
     tz = at.tzinfo.tzname(None) if at.tzinfo else 'UTC'
     st += ('Z' if tz == 'UTC' else tz)
     return st
-
-
-def get_token_ref(context):
-    """Retrieve KeystoneToken object from the auth context and returns it.
-
-    :param dict context: The request context.
-    :raises keystone.exception.Unauthorized: If auth context cannot be found.
-    :returns: The KeystoneToken object.
-    """
-    try:
-        # Retrieve the auth context that was prepared by AuthContextMiddleware.
-        auth_context = (context['environment']
-                        [authorization.AUTH_CONTEXT_ENV])
-        return auth_context['token']
-    except KeyError:
-        msg = _("Couldn't find the auth context.")
-        LOG.warning(msg)
-        raise exception.Unauthorized(msg)
 
 
 URL_RESERVED_CHARS = ":/?#[]@!$&'()*+,;="
