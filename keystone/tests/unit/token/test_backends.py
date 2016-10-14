@@ -391,7 +391,7 @@ class TokenCacheInvalidation(object):
         time = datetime.datetime.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             # Create an equivalent of a scoped token
-            token_id, data = self.token_provider_api.issue_v3_token(
+            token_id, data = self.token_provider_api.issue_token(
                 self.user_foo['id'],
                 ['password'],
                 project_id=self.tenant_bar['id']
@@ -399,7 +399,7 @@ class TokenCacheInvalidation(object):
             self.scoped_token_id = token_id
 
             # ..and an un-scoped one
-            token_id, data = self.token_provider_api.issue_v3_token(
+            token_id, data = self.token_provider_api.issue_token(
                 self.user_foo['id'],
                 ['password']
             )
