@@ -119,6 +119,9 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertIsNone(token_data.audit_id)
         self.assertIsNone(token_data.audit_chain_id)
 
+        # by default admin project is True
+        self.assertTrue(token_data.is_admin_project)
+
     def test_token_model_v3_federated_user(self):
         token_data = token_model.KeystoneToken(token_id=uuid.uuid4().hex,
                                                token_data=self.v3_sample_token)
@@ -158,3 +161,10 @@ class TestKeystoneTokenModel(core.TestCase):
                           token_model.KeystoneToken,
                           token_id=uuid.uuid4().hex,
                           token_data=self.v3_sample_token)
+
+    def test_token_model_is_admin_project(self):
+        token_data = token_model.KeystoneToken(token_id=uuid.uuid4().hex,
+                                               token_data=self.v3_sample_token)
+
+        token_data['is_admin_project'] = False
+        self.assertFalse(token_data.is_admin_project)

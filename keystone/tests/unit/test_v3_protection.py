@@ -64,6 +64,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
     def load_sample_data(self):
         self._populate_default_domain()
+
         # Start by creating a couple of domains
         self.domainA = unit.new_domain_ref()
         self.resource_api.create_domain(self.domainA['id'], self.domainA)
@@ -71,6 +72,12 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.domainC = unit.new_domain_ref(enabled=False)
         self.resource_api.create_domain(self.domainC['id'], self.domainC)
+
+        # Some projects in the domains
+        self.projectA = unit.new_project_ref(domain_id=self.domainA['id'])
+        self.resource_api.create_project(self.projectA['id'], self.projectA)
+        self.projectB = unit.new_project_ref(domain_id=self.domainB['id'])
+        self.resource_api.create_project(self.projectB['id'], self.projectB)
 
         # Now create some users, one in domainA and two of them in domainB
         self.user1 = unit.create_user(self.identity_api,
@@ -93,6 +100,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.role_api.create_role(self.role['id'], self.role)
         self.role1 = unit.new_role_ref()
         self.role_api.create_role(self.role1['id'], self.role1)
+
         self.assignment_api.create_grant(self.role['id'],
                                          user_id=self.user1['id'],
                                          domain_id=self.domainA['id'])
@@ -102,6 +110,12 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assignment_api.create_grant(self.role1['id'],
                                          user_id=self.user1['id'],
                                          domain_id=self.domainA['id'])
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user1['id'],
+                                         project_id=self.projectA['id'])
+        self.assignment_api.create_grant(self.role['id'],
+                                         user_id=self.user2['id'],
+                                         project_id=self.projectB['id'])
 
     def _get_id_list_from_ref_list(self, ref_list):
         result_list = []
@@ -129,6 +143,44 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
         self.assertIn(self.user1['id'], id_list)
         self.assertIn(self.user2['id'], id_list)
         self.assertIn(self.user3['id'], id_list)
+
+    def test_list_users_admin_project(self):
+        self.config_fixture.config(
+            admin_project_name=self.projectA['name'],
+            admin_project_domain_name=self.domainA['name'],
+            group='resource')
+
+        self.auth = self.build_authentication_request(
+            user_id=self.user1['id'],
+            password=self.user1['password'],
+            project_id=self.projectA['id'])
+
+        rule = 'role:%s and is_admin_project:True' % self.role['name']
+        self._set_policy({"identity:list_users": rule})
+
+        r = self.get('/users', auth=self.auth)
+        id_list = self._get_id_list_from_ref_list(r.result.get('users'))
+        self.assertIn(self.user1['id'], id_list)
+        self.assertIn(self.user2['id'], id_list)
+        self.assertIn(self.user3['id'], id_list)
+
+    def test_list_users_not_in_admin_project(self):
+        self.config_fixture.config(
+            admin_project_name=self.projectA['name'],
+            admin_project_domain_name=self.domainA['name'],
+            group='resource')
+
+        self.auth = self.build_authentication_request(
+            user_id=self.user2['id'],
+            password=self.user2['password'],
+            project_id=self.projectB['id'])
+
+        rule = 'role:%s and is_admin_project:True' % self.role['name']
+        self._set_policy({"identity:list_users": rule})
+
+        self.get('/users',
+                 auth=self.auth,
+                 expected_status=exception.ForbiddenAction.code)
 
     def test_list_users_filtered_by_domain(self):
         """GET /users?domain_id=mydomain (filtered).

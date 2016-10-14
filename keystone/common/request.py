@@ -66,6 +66,9 @@ class Request(webob.Request):
         # set is not yet known.
         context['environment'] = self.environ
 
+        if self.context:
+            context['is_admin_project'] = self.context.is_admin_project
+
         context.setdefault('is_admin', False)
         return context
 
