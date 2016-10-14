@@ -14,6 +14,7 @@ import copy
 import datetime
 import uuid
 
+import freezegun
 from oslo_utils import timeutils
 import six
 from six.moves import range
@@ -387,70 +388,91 @@ class TokenTests(object):
 
 class TokenCacheInvalidation(object):
     def _create_test_data(self):
-        # Create an equivalent of a scoped token
-        token_dict = {
-            'user': self.user_foo,
-            'tenant': self.tenant_bar,
-            'metadata': {},
-            'id': 'placeholder'
-        }
-        token_id, data = self.token_provider_api.issue_v2_token(token_dict)
-        self.scoped_token_id = token_id
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            # Create an equivalent of a scoped token
+            token_id, data = self.token_provider_api.issue_v3_token(
+                self.user_foo['id'],
+                ['password'],
+                project_id=self.tenant_bar['id']
+            )
+            self.scoped_token_id = token_id
 
-        # ..and an un-scoped one
-        token_dict = {
-            'user': self.user_foo,
-            'tenant': None,
-            'metadata': {},
-            'id': 'placeholder'
-        }
-        token_id, data = self.token_provider_api.issue_v2_token(token_dict)
-        self.unscoped_token_id = token_id
+            # ..and an un-scoped one
+            token_id, data = self.token_provider_api.issue_v3_token(
+                self.user_foo['id'],
+                ['password']
+            )
+            self.unscoped_token_id = token_id
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
 
-        # Validate them, in the various ways possible - this will load the
-        # responses into the token cache.
-        self._check_scoped_tokens_are_valid()
-        self._check_unscoped_tokens_are_valid()
-
-    def _check_unscoped_tokens_are_invalid(self):
-        self.assertRaises(
-            exception.TokenNotFound,
-            self.token_provider_api.validate_token,
-            self.unscoped_token_id)
-
-    def _check_scoped_tokens_are_invalid(self):
-        self.assertRaises(
-            exception.TokenNotFound,
-            self.token_provider_api.validate_token,
-            self.scoped_token_id)
-
-    def _check_scoped_tokens_are_valid(self):
-        self.token_provider_api.validate_token(self.scoped_token_id)
-
-    def _check_unscoped_tokens_are_valid(self):
-        self.token_provider_api.validate_token(self.unscoped_token_id)
+            # Validate them, in the various ways possible - this will load the
+            # responses into the token cache.
+            self.token_provider_api.validate_token(self.scoped_token_id)
+            self.token_provider_api.validate_token(self.unscoped_token_id)
 
     def test_delete_unscoped_token(self):
-        self.token_provider_api._persistence.delete_token(
-            self.unscoped_token_id)
-        self._check_unscoped_tokens_are_invalid()
-        self._check_scoped_tokens_are_valid()
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            self.token_provider_api._persistence.delete_token(
+                self.unscoped_token_id)
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            # Ensure the unscoped token is invalid
+            self.assertRaises(
+                exception.TokenNotFound,
+                self.token_provider_api.validate_token,
+                self.unscoped_token_id)
+            # Ensure the scoped token is still valid
+            self.token_provider_api.validate_token(self.scoped_token_id)
 
     def test_delete_scoped_token_by_id(self):
-        self.token_provider_api._persistence.delete_token(self.scoped_token_id)
-        self._check_scoped_tokens_are_invalid()
-        self._check_unscoped_tokens_are_valid()
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            self.token_provider_api._persistence.delete_token(
+                self.scoped_token_id
+            )
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            # Ensure the project token is invalid
+            self.assertRaises(
+                exception.TokenNotFound,
+                self.token_provider_api.validate_token,
+                self.scoped_token_id)
+            # Ensure the unscoped token is still valid
+            self.token_provider_api.validate_token(self.unscoped_token_id)
 
     def test_delete_scoped_token_by_user(self):
-        self.token_provider_api._persistence.delete_tokens(self.user_foo['id'])
-        # Since we are deleting all tokens for this user, they should all
-        # now be invalid.
-        self._check_scoped_tokens_are_invalid()
-        self._check_unscoped_tokens_are_invalid()
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            self.token_provider_api._persistence.delete_tokens(
+                self.user_foo['id']
+            )
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            # Since we are deleting all tokens for this user, they should all
+            # now be invalid.
+            self.assertRaises(
+                exception.TokenNotFound,
+                self.token_provider_api.validate_token,
+                self.scoped_token_id)
+            self.assertRaises(
+                exception.TokenNotFound,
+                self.token_provider_api.validate_token,
+                self.unscoped_token_id)
 
     def test_delete_scoped_token_by_user_and_tenant(self):
-        self.token_provider_api._persistence.delete_tokens(
-            self.user_foo['id'],
-            tenant_id=self.tenant_bar['id'])
-        self._check_scoped_tokens_are_invalid()
-        self._check_unscoped_tokens_are_valid()
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            self.token_provider_api._persistence.delete_tokens(
+                self.user_foo['id'],
+                tenant_id=self.tenant_bar['id'])
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            # Ensure the scoped token is invalid
+            self.assertRaises(
+                exception.TokenNotFound,
+                self.token_provider_api.validate_token,
+                self.scoped_token_id)
+            # Ensure the unscoped token is still valid
+            self.token_provider_api.validate_token(self.unscoped_token_id)

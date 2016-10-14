@@ -49,20 +49,6 @@ class Provider(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
-        """Issue a V2 token.
-
-        :param token_ref: token data to generate token from
-        :type token_ref: dict
-        :param roles_ref: optional roles list
-        :type roles_ref: dict
-        :param catalog_ref: optional catalog information
-        :type catalog_ref: dict
-        :returns: (token_id, token_data)
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, domain_id=None, auth_context=None,
                        trust=None, metadata_ref=None, include_catalog=True,

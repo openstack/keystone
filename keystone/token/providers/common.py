@@ -675,24 +675,6 @@ class BaseProvider(base.Provider):
                 return token_model.V3
         raise exception.UnsupportedTokenVersionException()
 
-    def issue_v2_token(self, token_ref, roles_ref=None,
-                       catalog_ref=None):
-        if token_ref.get('bind') and not self._supports_bind_authentication:
-            msg = _('The configured token provider does not support bind '
-                    'authentication.')
-            raise exception.NotImplemented(message=msg)
-
-        metadata_ref = token_ref['metadata']
-        trust_ref = None
-        if CONF.trust.enabled and metadata_ref and 'trust_id' in metadata_ref:
-            trust_ref = self.trust_api.get_trust(metadata_ref['trust_id'])
-
-        token_data = self.v2_token_data_helper.format_token(
-            token_ref, roles_ref, catalog_ref, trust_ref)
-        token_id = self._get_token_id(token_data)
-        token_data['access']['token']['id'] = token_id
-        return token_id, token_data
-
     def _is_mapped_token(self, auth_context):
         return (federation_constants.IDENTITY_PROVIDER in auth_context and
                 federation_constants.PROTOCOL in auth_context)

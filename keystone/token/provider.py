@@ -206,43 +206,6 @@ class Manager(manager.Manager):
         else:
             raise exception.TokenNotFound(_('Failed to validate token'))
 
-    def issue_v2_token(self, token_ref, roles_ref=None, catalog_ref=None):
-        token_id, token_data = self.driver.issue_v2_token(
-            token_ref, roles_ref, catalog_ref)
-
-        if self._needs_persistence:
-            data = dict(key=token_id,
-                        id=token_id,
-                        expires=token_data['access']['token']['expires'],
-                        user=token_ref['user'],
-                        tenant=token_ref['tenant'],
-                        metadata=token_ref['metadata'],
-                        token_data=token_data,
-                        bind=token_ref.get('bind'),
-                        trust_id=token_ref['metadata'].get('trust_id'),
-                        token_version=self.V2)
-            self._create_token(token_id, data)
-
-        # NOTE(amakarov): TOKENS_REGION is to be passed to serve as
-        # required positional "self" argument. It's ignored, so I've put
-        # it here for convenience - any placeholder is fine.
-        # NOTE(amakarov): v3 token data can be converted to v2.0 version,
-        # so v2.0 token validation cache can also be populated. However it
-        # isn't reflexive: there is no way to populate v3 validation cache
-        # on issuing a token using v2.0 API.
-        if CONF.token.cache_on_issue:
-            if self._needs_persistence:
-                validate_response = self.driver.validate_token(token_ref)
-            else:
-                validate_response = self.driver.validate_token(token_id)
-            self._validate_token.set(
-                validate_response,
-                TOKENS_REGION,
-                token_id
-            )
-
-        return token_id, token_data
-
     def issue_v3_token(self, user_id, method_names, expires_at=None,
                        project_id=None, is_domain=False, domain_id=None,
                        auth_context=None, trust=None, metadata_ref=None,
