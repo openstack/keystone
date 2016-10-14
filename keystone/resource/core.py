@@ -445,7 +445,7 @@ class Manager(manager.Manager):
 
         return ret
 
-    def _pre_delete_cleanup_project(self, project_id, project, initiator=None):
+    def _pre_delete_cleanup_project(self, project_id):
         project_user_ids = (
             self.assignment_api.list_user_ids_for_project(project_id))
         for user_id in project_user_ids:
@@ -519,12 +519,12 @@ class Manager(manager.Manager):
             projects_ids = [x['id'] for x in project_list]
 
             for prj in project_list:
-                self._pre_delete_cleanup_project(prj['id'], prj, initiator)
+                self._pre_delete_cleanup_project(prj['id'])
             ret = self.driver.delete_projects_from_ids(projects_ids)
             for prj in project_list:
                 self._post_delete_cleanup_project(prj['id'], prj, initiator)
         else:
-            self._pre_delete_cleanup_project(project_id, project, initiator)
+            self._pre_delete_cleanup_project(project_id)
             ret = self.driver.delete_project(project_id)
             self._post_delete_cleanup_project(project_id, project, initiator)
 
