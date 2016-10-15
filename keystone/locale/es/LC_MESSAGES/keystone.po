@@ -12,9 +12,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-10-14 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,10 +88,6 @@ msgid "%s cannot be empty."
 msgstr "%s no puede estar vacío."
 
 #, python-format
-msgid "%s extension does not exist."
-msgstr "La extensión %s no existe."
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "campo %s es necesario y no puede estar vacío"
 
@@ -163,26 +159,8 @@ msgstr "Debe proporcionarse al menos una opción, utilice --all o --domain-name"
 msgid "At least one role should be specified."
 msgstr "Al menos debe especificarse un rol"
 
-#, python-format
-msgid ""
-"Attempted automatic driver selection for assignment based upon "
-"[identity]\\driver option failed since driver %s is not found. Set "
-"[assignment]/driver to a valid driver in keystone config."
-msgstr ""
-"Se ha intentado la seleción automática de controlador para la asignación en "
-"base a la opción [identity]\\driver, pero ha fallado porque no se encuentra "
-"el controlador %s. Defina [assignment]/driver con un controlador válido en "
-"la configuración de keystone."
-
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "Se ha intentado autenticar con un método no compatible."
-
-msgid ""
-"Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
-"Authentication"
-msgstr ""
-"Intentando utilizar la señal OS-FEDERATION con el servicio de identidad V2, "
-"utilice la autenticación V3 ."
 
 msgid "Authentication plugin error."
 msgstr "Error en el complemento de autenticación "
@@ -537,12 +515,6 @@ msgstr "El dominio está inhabilitado: %s"
 msgid "Domain name cannot contain reserved characters."
 msgstr "El nombre de dominio no puede contener caracteres reservados."
 
-msgid "Domain scoped token is not supported"
-msgstr "La señal con ámbito de dominio no está soportada"
-
-msgid "Domain specific roles are not supported in the V8 role driver"
-msgstr "El controlador de roles V8 no admite roles específicos de dominio."
-
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
@@ -580,12 +552,6 @@ msgid ""
 "Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
 msgstr ""
 "Se debe definir el argumento bootstrap-password o bien OS_BOOTSTRAP_PASSWORD."
-
-msgid "Enabled field must be a boolean"
-msgstr "El campo habilitado debe ser un booleano"
-
-msgid "Enabled field should be a boolean"
-msgstr "El campo habilitado debe ser un booleano"
 
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
@@ -884,9 +850,6 @@ msgstr "Se debe llamar dentro de un contexto de bloqueo activo."
 msgid "Must specify either domain or project"
 msgstr "Debe especificar dominio o proyecto"
 
-msgid "Name field is required and cannot be empty"
-msgstr "El nombre de campo es necesario y no puede estar vacío"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr ""
 "No se ha proporcionado el ID de dominio de proyecto ni el nombre de dominio "
@@ -984,81 +947,6 @@ msgstr ""
 "La profundidad de redelegación restante de %(redelegation_depth)d está fuera "
 "del rango permitido de [0..%(max_count)d]"
 
-msgid ""
-"Remove admin_crud_extension from the paste pipeline, the admin_crud "
-"extension is now always available. Updatethe [pipeline:admin_api] section in "
-"keystone-paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"Elimine admin_crud_extension de la interconexión de pegar, la extensión "
-"admin_crud ahora está siempre disponible. Actualice la sección  [pipeline:"
-"admin_api] en keystone-paste.ini consecuentemente, ya que se eliminará en el "
-"release O."
-
-msgid ""
-"Remove endpoint_filter_extension from the paste pipeline, the endpoint "
-"filter extension is now always available. Update the [pipeline:api_v3] "
-"section in keystone-paste.ini accordingly as it will be removed in the O "
-"release."
-msgstr ""
-"Elimine endpoint_filter_extension de la interconexión de pegar, la extensión "
-"de filtro de punto final ahora está siempre disponible. Actualice la "
-"sección  [pipeline:api_v3] en keystone-paste.ini consecuentemente, ya que se "
-"eliminará en el release O."
-
-msgid ""
-"Remove federation_extension from the paste pipeline, the federation "
-"extension is now always available. Update the [pipeline:api_v3] section in "
-"keystone-paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"Elimine federation_extension de la interconexión de pegar, la extensión de "
-"federación ahora está siempre disponible. Actualice la sección  [pipeline:"
-"api_v3] en keystone-paste.ini consecuentemente, ya que se eliminará en el "
-"release O."
-
-msgid ""
-"Remove oauth1_extension from the paste pipeline, the oauth1 extension is now "
-"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"Elimine oauth1_extension de la interconexión de pegar, la extensión oauth1 "
-"ahora está siempre disponible. Actualice la sección  [pipeline:api_v3] en "
-"keystone-paste.ini consecuentemente, ya que se eliminará en el release O."
-
-msgid ""
-"Remove revoke_extension from the paste pipeline, the revoke extension is now "
-"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"Elimine revoke_extension de la interconexión de pegar, la extensión de "
-"revocación ahora está siempre disponible. Actualice la sección  [pipeline:"
-"api_v3] en keystone-paste.ini consecuentemente, ya que se eliminará en el "
-"release O."
-
-msgid ""
-"Remove simple_cert from the paste pipeline, the PKI and PKIz token providers "
-"are now deprecated and simple_cert was only used insupport of these token "
-"providers. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"Elimine simple_cert de la interconexión de pegar, los proveedores de token "
-"PKI y PKIz están ahora en desuso y simple_cert se utilizaba únicamente para "
-"dar soporte a estos proveedores de token. Actualice la sección  [pipeline:"
-"api_v3] en keystone-paste.ini consecuentemente, ya que se eliminará en el "
-"release O."
-
-msgid ""
-"Remove user_crud_extension from the paste pipeline, the user_crud extension "
-"is now always available. Updatethe [pipeline:public_api] section in keystone-"
-"paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"Elimine user_crud_extension de la interconexión de pegar, la extensión "
-"user_crud ahora está siempre disponible. Actualice la sección  [pipeline:"
-"public_api] en keystone-paste.ini consecuentemente, ya que se eliminará en "
-"el release O."
-
-msgid "Request Token does not have an authorizing user id"
-msgstr "El token de solicitud no tiene un id de usuario de autorización"
-
 #, python-format
 msgid ""
 "Request attribute %(attribute)s must be less than or equal to %(size)i. The "
@@ -1130,16 +1018,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "El nombre de inquilino no puede contener caracteres reservados."
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"La extensión %s se ha trasladado al núcleo de keystone y, como tal, el "
-"mantenimiento de sus migraciones se hace desde el control de bases de datos "
-"principal de keystone. Utilice el comando: keystone-manage db_sync"
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1186,9 +1064,6 @@ msgstr ""
 "El proveedor de señales configurado no da soporte a la autenticación de "
 "enlaces."
 
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "En la v2, no se permite crear proyectos que actúen como dominios."
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -1230,9 +1105,6 @@ msgstr ""
 "El valor de grupo %(group)s especificado en la configuración debe ser un "
 "diccionario de opciones"
 
-msgid "There should not be any non-oauth parameters"
-msgstr "Solo puede haber parámetros de oauth"
-
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Esta no es una versión de carga útil Fernet reconocida: %s"
@@ -1252,9 +1124,6 @@ msgstr ""
 
 msgid "Token belongs to another user"
 msgstr "El token pertenece a otro usuario"
-
-msgid "Token does not belong to specified tenant."
-msgstr "La señal no pertenece al arrendatario especificado."
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "Versión de la señal no reconocida o no soportada."
@@ -1312,12 +1181,6 @@ msgstr ""
 
 msgid "Unable to downgrade schema"
 msgstr "No se ha podido degradar el esquema"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr ""
-"No se pueden encontrar grupos válidos mientras se utiliza la correlación "
-"%(mapping_id)s"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1400,17 +1263,6 @@ msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 "Utilice un token de ámbito de proyecto cuando intente crear una aserción SAML"
 
-msgid ""
-"Use of the identity driver config to automatically configure the same "
-"assignment driver has been deprecated, in the \"O\" release, the assignment "
-"driver will need to be expicitly configured if different than the default "
-"(SQL)."
-msgstr ""
-"El uso de la configuración del controlador de identidad para configurar "
-"automáticamente el mismo controlador de asignación está en desuso. En el "
-"release \"O\", el controlador de asignación se deberá configurar "
-"explícitamente si es distinto que el valor predeterminado (SQL)."
-
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "El usuario %(u_id)s no está autorizado en el proyecto %(t_id)s"
@@ -1445,9 +1297,6 @@ msgstr ""
 #, python-format
 msgid "User is disabled: %s"
 msgstr "El usuario está inhabilitado: %s"
-
-msgid "User is not a member of the requested project"
-msgstr "El usuario no es miembro del proyecto solicitado"
 
 msgid "User is not a trustee."
 msgstr "El usuario no es de confianza."
@@ -1540,19 +1389,6 @@ msgstr "Sólo los proyectos raíz pueden actuar como dominios."
 msgid "option %(option)s in group %(group)s"
 msgstr "opción %(option)s en el grupo %(group)s"
 
-msgid "provided consumer key does not match stored consumer key"
-msgstr ""
-"la clave de consumidor proporcionada no coincide con la clave de consumidor "
-"almacenada"
-
-msgid "provided request key does not match stored request key"
-msgstr ""
-"la clave de solicitud proporcionada no coincide con la clave de solicitud "
-"almacenada"
-
-msgid "provided verifier does not match stored verifier"
-msgstr "el verificador proporcionado no coincide con el verificador almacenado"
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses debe ser un entero positivo o nulo."
 
@@ -1595,11 +1431,3 @@ msgid ""
 "update of domain_id is deprecated as of Mitaka and will be removed in O."
 msgstr ""
 "La actualización de domain_id está en desuso en Mitaka y se eliminará en O."
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr ""
-"En la validación se esperaba encontrar %(param_name)r en la firma de función "
-"para %(func_name)r."

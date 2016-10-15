@@ -6,9 +6,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-10-14 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -79,10 +79,6 @@ msgid "%s cannot be empty."
 msgstr "%s 不能是空的。"
 
 #, python-format
-msgid "%s extension does not exist."
-msgstr "%s 延伸不存在。"
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "%s 欄位是必要欄位，因此不能是空的"
 
@@ -145,24 +141,8 @@ msgstr "必須提供至少一個選項，請使用 --all 或 --domain-name"
 msgid "At least one role should be specified."
 msgstr "應該至少指定一個角色。"
 
-#, python-format
-msgid ""
-"Attempted automatic driver selection for assignment based upon "
-"[identity]\\driver option failed since driver %s is not found. Set "
-"[assignment]/driver to a valid driver in keystone config."
-msgstr ""
-"針對基於 [identity]\\driver 選項的指派，嘗試自動選取驅動程式失敗，因為找不到"
-"驅動程式 %s。請在 Keystone 配置中，將 [assignment]/driver 設為有效的驅動程"
-"式。"
-
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "已嘗試使用不支援的方法進行鑑別。"
-
-msgid ""
-"Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
-"Authentication"
-msgstr ""
-"正在嘗試使用具有第 2 版身分服務的 OS-FEDERATION 記號，請使用第 3 版鑑別"
 
 msgid "Authentication plugin error."
 msgstr "鑑別外掛程式錯誤。"
@@ -472,12 +452,6 @@ msgstr "已停用網域：%s"
 msgid "Domain name cannot contain reserved characters."
 msgstr "網域名稱不能包含保留字元。"
 
-msgid "Domain scoped token is not supported"
-msgstr "不支援網域範圍的記號"
-
-msgid "Domain specific roles are not supported in the V8 role driver"
-msgstr "網域專屬角色在第 8 版角色驅動程式中不受支援"
-
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
@@ -512,12 +486,6 @@ msgstr "未提供 EC2 簽章。"
 msgid ""
 "Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
 msgstr "必須設定 --bootstrap-password 引數或 OS_BOOTSTRAP_PASSWORD。"
-
-msgid "Enabled field must be a boolean"
-msgstr "「已啟用」欄位必須是布林值"
-
-msgid "Enabled field should be a boolean"
-msgstr "「已啟用」欄位應該是布林值"
 
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
@@ -780,9 +748,6 @@ msgstr "必須在作用中鎖定環境定義內呼叫。"
 msgid "Must specify either domain or project"
 msgstr "必須指定 Domain 或 Project"
 
-msgid "Name field is required and cannot be empty"
-msgstr "名稱欄位是必要欄位，因此不能是空的"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "既未提供「專案網域 ID」，也未提供「專案網域名稱」。"
 
@@ -868,73 +833,6 @@ msgid ""
 msgstr ""
 "剩餘的重新委派深度 %(redelegation_depth)d 超出容許的範圍 [0..%(max_count)d]"
 
-msgid ""
-"Remove admin_crud_extension from the paste pipeline, the admin_crud "
-"extension is now always available. Updatethe [pipeline:admin_api] section in "
-"keystone-paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"從貼上 Pipeline 中移除 admin_crud_extension，admin_crud 延伸現在將一律可用。"
-"相應地更新 keystone-paste.ini 中的 [pipeline:admin_api] 區段，因為它在 O 版本"
-"中將予以移除。"
-
-msgid ""
-"Remove endpoint_filter_extension from the paste pipeline, the endpoint "
-"filter extension is now always available. Update the [pipeline:api_v3] "
-"section in keystone-paste.ini accordingly as it will be removed in the O "
-"release."
-msgstr ""
-"從貼上 Pipeline 中移除 endpoint_filter_extension，端點過濾器延伸現在將一律可"
-"用。相應地更新 keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版"
-"本中將予以移除。"
-
-msgid ""
-"Remove federation_extension from the paste pipeline, the federation "
-"extension is now always available. Update the [pipeline:api_v3] section in "
-"keystone-paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"從貼上 Pipeline 中移除 federation_extension，聯合延伸現在將一律可用。相應地更"
-"新 keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移"
-"除。"
-
-msgid ""
-"Remove oauth1_extension from the paste pipeline, the oauth1 extension is now "
-"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"從貼上 Pipeline 中移除 oauth1_extension，oauth1 延伸現在將一律可用。相應地更"
-"新 keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移"
-"除。"
-
-msgid ""
-"Remove revoke_extension from the paste pipeline, the revoke extension is now "
-"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"從貼上 Pipeline 中移除 revoke_extension，撤銷延伸現在將一律可用。相應地更新 "
-"keystone-paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移除。"
-
-msgid ""
-"Remove simple_cert from the paste pipeline, the PKI and PKIz token providers "
-"are now deprecated and simple_cert was only used insupport of these token "
-"providers. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"從貼上 Pipeline 中移除 simple_cert，PKI 和 PKIz 記號提供者現在已予以淘汰，並"
-"且使用 simple_cert 的目的只是為了支援這些記號提供者。相應地更新 keystone-"
-"paste.ini 中的 [pipeline:api_v3] 區段，因為它在 O 版本中將予以移除。"
-
-msgid ""
-"Remove user_crud_extension from the paste pipeline, the user_crud extension "
-"is now always available. Updatethe [pipeline:public_api] section in keystone-"
-"paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"從貼上 Pipeline 中移除 user_crud_extension，user_crud 延伸現在將一律可用。相"
-"應地更新 keystone-paste.ini 中的 [pipeline:public_api] 區段，因為它在 O 版本"
-"中將予以移除。"
-
-msgid "Request Token does not have an authorizing user id"
-msgstr "要求記號不具有授權使用者 ID"
-
 #, python-format
 msgid ""
 "Request attribute %(attribute)s must be less than or equal to %(size)i. The "
@@ -1001,15 +899,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "租戶名稱不能包含保留字元。"
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"%s 延伸已移到 Keystone 核心內，因此它的移轉將由主要 Keystone 資料庫控制進行維"
-"護。請使用指令：keystone-manage db_sync"
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1049,9 +938,6 @@ msgstr ""
 msgid "The configured token provider does not support bind authentication."
 msgstr "所配置的記號提供者不支援連結鑑別。"
 
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "在第 2 版中，不容許建立專案以充當網域。"
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -1086,9 +972,6 @@ msgid ""
 "of options"
 msgstr "在配置中指定的群組 %(group)s 的值應該為選項字典"
 
-msgid "There should not be any non-oauth parameters"
-msgstr "不應該具有任何 non-oauth 參數"
-
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "這不是已辨識的 Fernet 內容版本：%s"
@@ -1107,9 +990,6 @@ msgstr ""
 
 msgid "Token belongs to another user"
 msgstr "記號屬於另一個使用者"
-
-msgid "Token does not belong to specified tenant."
-msgstr "記號不屬於所指定的 Tenant。"
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "無法辨識或不支援記號版本。"
@@ -1160,10 +1040,6 @@ msgstr "無法刪除區域 %(region_id)s，因為此區域或其子區域具有�
 
 msgid "Unable to downgrade schema"
 msgstr "無法將綱目降級"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr "使用對映 %(mapping_id)s 時找不到有效的群組"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1241,15 +1117,6 @@ msgstr "不容許更新正在充當網域之專案的 domain_id。"
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr "嘗試建立 SAML 主張時，使用專案範圍的記號"
 
-msgid ""
-"Use of the identity driver config to automatically configure the same "
-"assignment driver has been deprecated, in the \"O\" release, the assignment "
-"driver will need to be expicitly configured if different than the default "
-"(SQL)."
-msgstr ""
-"不建議使用身分驅動程式配置來自動配置相同的指派驅動程式，在 \"O\" 版本中，如果"
-"指派驅動程式與預設值 (SQL) 不同，則需要明確配置指派驅動程式。"
-
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "使用者 %(u_id)s 未獲承租人 %(t_id)s 的授權"
@@ -1283,9 +1150,6 @@ msgstr ""
 #, python-format
 msgid "User is disabled: %s"
 msgstr "已停用使用者：%s"
-
-msgid "User is not a member of the requested project"
-msgstr "使用者並不隸屬於所要求的專案"
 
 msgid "User is not a trustee."
 msgstr "使用者不是受託人。"
@@ -1369,15 +1233,6 @@ msgstr "只容許根專案充當網域。"
 msgid "option %(option)s in group %(group)s"
 msgstr "群組 %(group)s 中的選項 %(option)s"
 
-msgid "provided consumer key does not match stored consumer key"
-msgstr "提供的消費者金鑰，與儲存的消費者金鑰不符"
-
-msgid "provided request key does not match stored request key"
-msgstr "提供的要求金鑰，與儲存的要求金鑰不符"
-
-msgid "provided verifier does not match stored verifier"
-msgstr "提供的驗證器，與儲存的驗證器不符"
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses 必須是正整數或空值。"
 
@@ -1415,9 +1270,3 @@ msgstr "記號參照必須是 KeystoneToken 類型，但卻取得：%s"
 msgid ""
 "update of domain_id is deprecated as of Mitaka and will be removed in O."
 msgstr "不建議更新 domain_id，因為 Mitaka 將在 O 版本中予以移除。"
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr "在下列函數的函數簽章中，驗證預期尋找 %(param_name)r：%(func_name)r。"
