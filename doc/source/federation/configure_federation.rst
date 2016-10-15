@@ -35,7 +35,8 @@ Prerequisites
 
 This approach to federation supports keystone as a Service Provider, consuming
 identity properties issued by an external Identity Provider, such as SAML
-assertions or OpenID Connect claims.
+assertions or OpenID Connect claims, or by using
+`Keystone as an Identity Provider (IdP)`_.
 
 Federated users are not mirrored in the keystone identity backend
 (for example, using the SQL driver). The external Identity Provider is
@@ -44,13 +45,15 @@ authentication to keystone using identity properties. Keystone maps these
 values to keystone user groups and assignments created in keystone.
 
 The following configuration steps were performed on a machine running
-Ubuntu 12.04 and Apache 2.2.22.
+Ubuntu 14.04 and Apache 2.4.7.
 
 To enable federation, you'll need to:
 
-1. Run keystone under Apache, rather than using uwsgi command.
-2. Configure Apache to use a federation capable authentication method.
-3. Configure ``federation`` in keystone.
+1. `Run keystone under Apache`_, rather than using uwsgi command.
+2. `Configure Apache to use a federation capable authentication method`_.
+3. `Configure Federation in Keystone`_.
+
+.. _`Run keystone under Apache`: ../apache-httpd.html
 
 Configure Apache to use a federation capable authentication method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,18 +79,18 @@ Configure keystone and Horizon for Single Sign-On
 
 .. _`Keystone Federation and Horizon`: websso.html
 
-Configuring Federation in Keystone
-----------------------------------
+Configure Federation in Keystone
+--------------------------------
 
 Now that the Identity Provider and keystone are communicating we can start to
 configure ``federation``.
 
-1. Configure authentication drivers in ``keystone.conf``
-2. Add local keystone groups and roles
-3. Add Identity Provider(s), Mapping(s), and Protocol(s)
+1. `Configure authentication drivers in keystone.conf`_
+2. `Create keystone groups and assign roles`_
+3. `Add Identity Provider(s), Mapping(s), and Protocol(s)`_
 
-Configure authentication drivers in ``keystone.conf``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure authentication drivers in keystone.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. NOTE::
     ``saml2`` has been deprecated as of the Mitaka release. Support for the
@@ -122,14 +125,37 @@ and `role assignments
 both of which are exposed to the CLI via `python-openstackclient
 <https://pypi.python.org/pypi/python-openstackclient/>`_.
 
+For example, create a new domain and project like this:
+
+.. code-block:: bash
+
+    $ openstack domain create federated_domain
+    $ openstack project create federated_project --domain federated_domain
+
+And a new group like this:
+
+.. code-block:: bash
+
+    $ openstack group create federated_users
+
+Add the group to the domain and project:
+
+.. code-block:: bash
+
+    $ openstack role add --group federated_users --domain federated_domain Member
+    $ openstack role add --group federated_users --project federated_project Member
+
+We'll later add a mapping that makes all federated users a part of this group
+and therefore members of the new domain.
+
 Add Identity Provider(s), Mapping(s), and Protocol(s)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To utilize federation the following must be created in the Identity Service:
 
-* Identity Provider
-* Mapping
-* Protocol
+* `Identity Provider`_
+* `Mapping`_
+* `Protocol`_
 
 Read more about `federation in keystone
 <http://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api>`__.
@@ -139,7 +165,46 @@ Identity Provider
 ~~~~~~~~~~~~~~~~~
 
 Create an Identity Provider object in keystone, which represents the Identity
-Provider we will use to authenticate end users.
+Provider we will use to authenticate end users:
+
+.. code-block:: bash
+
+    $ openstack identity provider create --remote-id https://myidp.example.com/v3/OS-FEDERATION/saml2/idp myidp
+
+The value for the ``remote-id`` option is the Entity ID provided by the IdP. It
+is the same value that you set for the SSO entityID in /etc/shibboleth/shibboleth2.xml.
+If the IdP is a Keystone IdP, it is the value set in that Keystone's
+``[saml]/idp_entity_id`` option. It will usually appear as a URI but there
+is no requirement for it to resolve to anything and may be arbitrarily decided
+by the administrator of the IdP. The local name, here called 'myidp', is
+decided by you and will be used by the mapping and protocol, and later for
+authentication.
+
+A keystone identity provider may have multiple `remote_ids` specified, this
+allows the same *keystone* identity provider resource to be used with multiple
+external identity providers. For example, an identity provider resource
+``university-idp``, may have the following `remote_ids`:
+``['university-x', 'university-y', 'university-z']``.
+This removes the need to configure N identity providers in keystone.
+
+.. NOTE::
+
+    Remote IDs are globally unique. Two identity providers cannot be
+    associated with the same remote ID. Once authenticated with the external
+    identity provider, keystone will determine which identity provider
+    and mapping to use based on the protocol and the value returned from the
+    `remote_id_attribute` key.
+
+    For example, if our identity provider is ``google``, the mapping used is
+    ``google_mapping`` and the protocol is ``oidc``. The identity provider's
+    remote IDs  would be: [``accounts.google.com``].
+    The `remote_id_attribute` value may be set to ``HTTP_OIDC_ISS``, since
+    this value will always be ``accounts.google.com``.
+
+    The motivation for this approach is that there will always be some data
+    sent by the identity provider (in the assertion or claim) that uniquely
+    identifies the identity provider. This removes the requirement for horizon
+    to list all the identity providers that are trusted by keystone.
 
 Read more about `identity providers
 <http://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers>`__.
@@ -157,6 +222,71 @@ rules can be found on the :doc:`mapping_combinations` page.
 An Identity Provider has exactly one mapping specified per protocol.
 Mapping objects can be used multiple times by different combinations of Identity Provider and Protocol.
 
+As a simple example, if keystone is your IdP, you can map a few known remote
+users to the group you already created:
+
+.. code-block:: bash
+
+    $ cat > rules.json <<EOF
+    [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}"
+                    },
+                    "group": {
+                        "domain": {
+                            "name": "Default"
+                        },
+                        "name": "federated_users"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "openstack_user",
+                    "any_one_of": [
+                        "demo",
+                        "alt_demo"
+                    ]
+                }
+            ]
+        }
+    ]
+    EOF
+    $ openstack mapping create --rules rules.json myidp_mapping
+
+As another example, if Shibboleth is your IdP, the remote section should use REMOTE_USER as the remote type:
+
+.. code-block:: bash
+
+    $ cat > rules.json <<EOF
+    [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}"
+                    },
+                    "group": {
+                        "domain": {
+                            "name": "Default"
+                        },
+                        "name": "federated_users"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "REMOTE_USER"
+                }
+            ]
+        }
+    ]
+    EOF
+    $ openstack mapping create --rules rules.json myidp_mapping
+
 Read more about `mapping
 <http://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
 
@@ -167,12 +297,26 @@ Protocol
 A protocol contains information that dictates which Mapping rules to use for an incoming
 request made by an IdP. An IdP may have multiple supported protocols.
 
-Add `Protocol object
-<http://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__ and specify the mapping id
-you want to use with the combination of the IdP and Protocol.
+You can create a protocol like this:
+
+.. code-block:: bash
+
+    $ openstack federation protocol create mapped --mapping myidp_mapping --identity-provider myidp
+
+The name you give the protocol is not arbitrary. It must match the method name
+you gave in the ``[auth]/methods`` config option. When authenticating it will be
+referred to as the ``protocol_id``.
+
+Read more about `federation protocols
+<http://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__
 
 Performing federated authentication
 -----------------------------------
+
+.. NOTE::
+
+    Authentication with keystone-to-keystone federation does not follow these steps.
+    See `Testing it all out`_ to authenticate with keystone-to-keystone.
 
 1. Authenticate externally and generate an unscoped token in keystone
 2. Determine accessible resources
@@ -192,7 +336,8 @@ In this instance we follow a standard SAML2 authentication procedure, that is,
 the user will be redirected to the Identity Provider's authentication webpage
 and be prompted for credentials. After successfully authenticating the user
 will be redirected to the Service Provider's endpoint. If using a web browser,
-a token will be returned in XML format.
+a token will be returned in JSON format, with the ID in the X-Subject-Token
+header.
 
 In the returned unscoped token, a list of Identity Service groups the user
 belongs to will be included.
@@ -255,7 +400,7 @@ Example cURL
 
 .. code-block:: bash
 
-    $ curl -X POST -H "Content-Type: application/json" -d '{"auth":{"identity":{"methods":["mapped"],"saml2":{"id":"<unscoped_token_id>"}},"scope":{"project":{"domain": {"name": "Default"},"name":"service"}}}}' -D - http://localhost:5000/v3/auth/tokens
+    $ curl -X POST -H "Content-Type: application/json" -d '{"auth":{"identity":{"methods":["mapped"],"mapped":{"id":"<unscoped_token_id>"}},"scope":{"project":{"domain": {"name": "federated_domain"},"name":"federated_project"}}}}' -D - http://localhost:5000/v3/auth/tokens
 
 --------------------------------------
 Keystone as an Identity Provider (IdP)
@@ -290,10 +435,21 @@ example:
 .. code-block:: ini
 
     [saml]
-    certfile=/etc/keystone/ssl/certs/ca.pem
-    keyfile=/etc/keystone/ssl/private/cakey.pem
-    idp_entity_id=https://keystone.example.com/v3/OS-FEDERATION/saml2/idp
-    idp_sso_endpoint=https://keystone.example.com/v3/OS-FEDERATION/saml2/sso
+    idp_entity_id=https://myidp.example.com/v3/OS-FEDERATION/saml2/idp
+    idp_sso_endpoint=https://myidp.example.com/v3/OS-FEDERATION/saml2/sso
+
+``idp_entity_id`` is the unique identifier for the Identity Provider. It
+usually takes the form of a URI but it does not have to resolve to anything.
+``idp_sso_endpoint`` is required to generate valid metadata but its value is
+not important, though it may be in the future.
+
+Note the ``certfile``, ``keyfile``, and ``idp_metadata_path`` settings and adjust them if
+necessary:
+
+.. code-block:: ini
+
+    certfile=/etc/keystone/ssl/certs/signing_cert.pem
+    keyfile=/etc/keystone/ssl/private/signing_key.pem
     idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
 
 Though not necessary, the follow Organization configuration options should
@@ -314,15 +470,26 @@ it's advisable to set these values too.
     idp_contact_name=John
     idp_contact_surname=Smith
     idp_contact_email=jsmith@example.com
-    idp_contact_telephone=555-55-5555
+    idp_contact_telephone=555-555-5555
     idp_contact_type=technical
 
 Generate Metadata
 -----------------
 
 In order to create a trust between the IdP and SP, metadata must be exchanged.
+
+First, if you haven't already generated a PKI key pair, you need to do so and
+copy those files the locations designated by ``certfile`` and ``keyfile``
+options that were assigned in the previous section. Ensure that your apache
+vhost has SSL enabled and is using that keypair by adding the following to the
+vhost::
+
+    SSLEngine on
+    SSLCertificateFile /etc/keystone/ssl/certs/signing_cert.pem
+    SSLCertificateKeyFile /etc/keystone/ssl/private/signing_key.pem
+
 To create metadata for your keystone IdP, run the ``keystone-manage`` command
-and pipe the output to a file. For example:
+and redirect the output to a file. For example:
 
 .. code-block:: bash
 
@@ -332,50 +499,50 @@ and pipe the output to a file. For example:
     The file location should match the value of the configuration option
     ``idp_metadata_path`` that was assigned in the previous section.
 
+Finally, restart apache.
+
 Create a Service Provider (SP)
 ------------------------------
 
-In this example we are creating a new Service Provider with an ID of ``BETA``,
-a ``sp_url`` of ``http://beta.example.com/Shibboleth.sso/SAML2/ECP`` and a
-``auth_url`` of ``http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth``
-. The ``sp_url`` will be used when creating a SAML assertion for ``BETA`` and
+In this example we are creating a new Service Provider with an ID of ``mysp``,
+a ``sp_url`` of ``http://mysp.example.com/Shibboleth.sso/SAML2/ECP`` and a
+``auth_url`` of ``http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth``
+. The ``sp_url`` will be used when creating a SAML assertion for ``mysp`` and
 signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
-token for ``BETA`` once the SAML assertion is sent. Although the ``enabled``
-field is optional we are passing it set to ``true`` otherwise it will be set to
-``false`` by default.
+token for ``mysp`` once the SAML assertion is sent. The auth_url has the format
+described in `Get an unscoped token`_.
 
 .. code-block:: bash
 
-    $ curl -s -X PUT \
-      -H "X-Auth-Token: $OS_TOKEN" \
-      -H "Content-Type: application/json" \
-      -d '{"service_provider": {"auth_url": "http://beta.example.com:5000/v3/OS-FEDERATION/identity_providers/beta/protocols/saml2/auth", "sp_url": "https://example.com:5000/Shibboleth.sso/SAML2/ECP", "enabled": true}}' \
-      http://localhost:5000/v3/OS-FEDERATION/service_providers/BETA | python -mjson.tool
+    $ openstack service provider create --service-provider-url 'http://mysp.example.com/Shibboleth.sso/SAML2/ECP' --auth-url http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth mysp
 
 Testing it all out
 ------------------
 
-Lastly, if a scoped token and a Service Provider scope are presented to the
-local keystone, the result will be a full ECP wrapped SAML Assertion,
-specifically intended for the Service Provider keystone.
+Use keystoneauth to create a password session with the IdP, then use the
+session to authenticate with the SP, and get a scoped token from the SP.
 
 .. NOTE::
     ECP stands for Enhanced Client or Proxy, an extension from the SAML2
-    protocol used in non-browser interfaces, like in the following example
-    with cURL.
+    protocol used in non-browser interfaces, like in the following example.
 
-.. code-block:: bash
+.. code-block:: python
 
-    $ curl -s -X POST \
-      -H "Content-Type: application/json" \
-      -d '{"auth": {"scope": {"service_provider": {"id": "BETA"}}, "identity": {"token": {"id": "d793d935b9c343f783955cf39ee7dc3c"}, "methods": ["token"]}}}' \
-      http://localhost:5000/v3/auth/OS-FEDERATION/saml2/ecp
+    import os
 
-.. NOTE::
-    Use URL http://localhost:5000/v3/auth/OS-FEDERATION/saml2 to request for
-    pure SAML Assertions.
+    from keystoneauth1 import session
+    from keystoneauth1.identity import v3
+    from keystoneauth1.identity.v3 import k2k
 
-At this point the ECP wrapped SAML Assertion can be sent to the Service
-Provider keystone using the provided ``auth_url`` in the ``X-Auth-Url`` header
-present in the response containing the Assertion, and a valid OpenStack
-token, issued by a Service Provider keystone, will be returned.
+    auth = v3.Password(auth_url=os.environ.get('OS_AUTH_URL'),
+                       username=os.environ.get('OS_USERNAME'),
+                       password=os.environ.get('OS_PASSWORD'),
+                       user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME'),
+                       project_name=os.environ.get('OS_PROJECT_NAME'),
+                       project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME'))
+    password_session = session.Session(auth=auth)
+    k2ksession = k2k.Keystone2Keystone(password_session.auth, 'mysp',
+                                       domain_name='federated_domain')
+    auth_ref = k2ksession.get_auth_ref(password_session)
+    scoped_token_id = auth_ref.auth_token
+    print('Scoped token id: %s' % scoped_token_id)

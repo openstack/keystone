@@ -35,16 +35,15 @@ Add *WSGIScriptAlias* directive to your vhost configuration::
 
     WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /var/www/keystone/main/$1
 
-Make sure the *wsgi-keystone.conf* contains a *<Location>* directive for the Shibboleth module and
+Make sure the *keystone.conf* vhost file contains a *<Location>* directive for the Shibboleth module and
 a *<Location>* directive for each identity provider::
 
     <Location /Shibboleth.sso>
         SetHandler shib
     </Location>
 
-    <Location /v3/OS-FEDERATION/identity_providers/idp_1/protocols/saml2/auth>
+    <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth>
         ShibRequestSetting requireSession 1
-        ShibRequestSetting applicationId idp_1
         AuthType shibboleth
         ShibExportAssertion Off
         Require valid-user
@@ -56,28 +55,18 @@ a *<Location>* directive for each identity provider::
     </Location>
 
 .. NOTE::
-    * ``saml2`` may be different in your deployment, but do not use a wildcard value.
-      Otherwise *every* federated protocol will be handled by Shibboleth.
-    * ``idp_1`` has to be replaced with the name associated with the idp in Keystone.
-      The same name is used inside the shibboleth2.xml configuration file but they could
-      be different.
+    * ``mapped`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
+    * ``myidp`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
     * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
       Apache 2.4+.
     * You are advised to carefully examine `Shibboleth Apache configuration
       documentation
       <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig>`_
 
-Enable the Keystone virtual host, for example:
+Enable the ``shib2`` module, for example:
 
 .. code-block:: bash
 
-    $ a2ensite wsgi-keystone.conf
-
-Enable the ``ssl`` and ``shib2`` modules, for example:
-
-.. code-block:: bash
-
-    $ a2enmod ssl
     $ a2enmod shib2
 
 Restart Apache, for example:
@@ -93,185 +82,192 @@ Configuring shibboleth2.xml
 Once you have your Keystone vhost (virtual host) ready, it's then time to
 configure Shibboleth and upload your Metadata to the Identity Provider.
 
-If new certificates are required, they can be easily created by executing:
+Create a new keypair for Shibboleth with:
 
 .. code-block:: bash
 
     $ shib-keygen -y <number of years>
 
-The newly created file will be stored under ``/etc/shibboleth/sp-key.pem``
-
-You should fetch your Service Provider's Metadata file. Typically this can be
-achieved by simply fetching a Metadata file, for example:
-
-.. code-block:: bash
-
-    $ wget --no-check-certificate -O <name of the file> https://service.example.org/Shibboleth.sso/Metadata
-
-Upload your Service Provider's Metadata file to your Identity Provider.
-This step depends on your Identity Provider choice and is not covered here.
+The newly created key file will be stored under ``/etc/shibboleth/sp-key.pem``.
 
 Configure your Service Provider by editing ``/etc/shibboleth/shibboleth2.xml``
-file. You are advised to examine `Shibboleth Service Provider Configuration documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
+file. You will want to change five settings:
 
-An example of your ``/etc/shibboleth/shibboleth2.xml`` may look like
-(The example shown below is for reference only, not to be used in a production
-environment):
+* Set the SP entity ID. This value usually has the form of a URI but it does not
+  have to resolve to anything. It must uniquely identify your Service Provider
+  to your Identity Provider.
 
 .. code-block:: xml
 
-    <!--
-    File configuration courtesy of http://testshib.org
+    <ApplicationDefaults entityID="http://mysp.example.com/shibboleth">
 
-    More  information:
-    https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfiguration
-    -->
+* Set the IdP entity ID. This value is determined by the IdP. For example, if
+Keystone is the IdP:
+
+.. code-block:: xml
+
+    <SSO entityID="https://myidp.example.com/v3/OS-FEDERATION/saml2/idp">
+
+Example if testshib.org is the IdP:
+
+.. code-block:: xml
+
+    <SSO entityID="https://idp.testshib.org/idp/shibboleth">
+
+* Remove the discoveryURL lines unless you want to enable advanced IdP discovery.
+
+* Add a MetadataProvider block. The URI given here is a real URL that Shibboleth
+  will use to fetch metadata from the IdP. For example, if Keystone is the IdP:
+
+.. code-block:: xml
+
+    <MetadataProvider type="XML" uri="https://myidp.example.com:5000/v3/OS-FEDERATION/saml2/metadata"/>
+
+Example if testshib.org is the IdP:
+
+.. code-block:: xml
+
+    <MetadataProvider type="XML" uri="http://www.testshib.org/metadata/testshib-providers.xml" />
+
+You are advised to examine `Shibboleth Service Provider Configuration documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
+
+The result should look like (The example shown below is for reference only, not
+to be used in a production environment):
+
+.. code-block:: xml
 
     <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
-    xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" clockSkew="1800 ">
+        xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
+        xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+        xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+        xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+        clockSkew="180">
 
-        <!-- The entityID is the name TestShib made for your SP. -->
-        <ApplicationDefaults entityID="https://<yourhosthere>/shibboleth">
+        <!--
+        By default, in-memory StorageService, ReplayCache, ArtifactMap, and SessionCache
+        are used. See example-shibboleth2.xml for samples of explicitly configuring them.
+        -->
+
+        <!--
+        To customize behavior for specific resources on Apache, and to link vhosts or
+        resources to ApplicationOverride settings below, use web server options/commands.
+        See https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfigurationElements for help.
+
+        For examples with the RequestMap XML syntax instead, see the example-shibboleth2.xml
+        file, and the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPRequestMapHowTo topic.
+        -->
+
+        <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
+        <ApplicationDefaults entityID="https://mysp.example.com/shibboleth">
 
             <!--
-            You should use secure cookies if at all possible.
-            See cookieProps in this Wiki article.
+            Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
+            You MUST supply an effectively unique handlerURL value for each of your applications.
+            The value defaults to /Shibboleth.sso, and should be a relative path, with the SP computing
+            a relative value based on the virtual host. Using handlerSSL="true", the default, will force
+            the protocol to be https. You should also set cookieProps to "https" for SSL-only sites.
+            Note that while we default checkAddress to "false", this has a negative impact on the
+            security of your site. Stealing sessions via cookie theft is much easier with this disabled.
             -->
-            <!-- https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPSessions  -->
-            <Sessions lifetime="28800" timeout="3600" checkAddress="false"
-            relayState="ss:mem" handlerSSL="false">
+            <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
+                      checkAddress="false" handlerSSL="false" cookieProps="http">
 
-                <!-- Triggers a login request directly to the TestShib IdP. -->
-                <!-- https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPServiceSSO -->
-                <SSO entityID="https://<idp-url>/idp/shibboleth" ECP="true">
-                    SAML2 SAML1
+                <!--
+                Configures SSO for a default IdP. To allow for >1 IdP, remove
+                entityID property and adjust discoveryURL to point to discovery service.
+                (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
+                You can also override entityID on /Login query string, or in RequestMap/htaccess.
+                -->
+                <SSO entityID="https://myidp.example.com/v3/OS-FEDERATION/saml2/idp">
+                  SAML2 SAML1
                 </SSO>
 
                 <!-- SAML and local-only logout. -->
-                <!-- https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPServiceLogout -->
                 <Logout>SAML2 Local</Logout>
 
-                <!--
-                Handlers allow you to interact with the SP and gather
-                more information. Try them out!
-                Attribute value s received by the SP through SAML
-                will be visible at:
-                http://<yourhosthere>/Shibboleth.sso/Session
-                -->
-
-                <!--
-                Extension service that generates "approximate" metadata
-                based on SP configuration.
-                -->
-                <Handler type="MetadataGenerator" Location="/Metadata"
-                signing="false"/>
+                <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
+                <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
 
                 <!-- Status reporting service. -->
-                <Handler type="Status" Location="/Status"
-                acl="127.0.0.1"/>
+                <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
 
                 <!-- Session diagnostic service. -->
-                <Handler type="Session" Location="/Session"
-                showAttributeValues="true"/>
+                <Handler type="Session" Location="/Session" showAttributeValues="false"/>
+
                 <!-- JSON feed of discovery information. -->
                 <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
             </Sessions>
-
             <!--
-            Error pages to display to yourself if
-            something goes horribly wrong.
+            Allows overriding of error template information/filenames. You can
+            also add attributes with values that can be plugged into the templates.
             -->
-            <Errors supportContact  ="<admin_email_address>"
-                logoLocation="/shibboleth-sp/logo.jpg"
+            <Errors supportContact="root@localhost"
+                helpLocation="/about.html"
                 styleSheet="/shibboleth-sp/main.css"/>
 
+            <!-- Example of remotely supplied batch of signed metadata. -->
             <!--
-            Loads and trusts a metadata file that describes only one IdP
-            and  how to communicate with it.
+            <MetadataProvider type="XML" uri="http://federation.org/federation-metadata.xml"
+                  backingFilePath="federation-metadata.xml" reloadInterval="7200">
+                <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
+                <MetadataFilter type="Signature" certificate="fedsigner.pem"/>
+            </MetadataProvider>
             -->
-            <MetadataProvider type="XML" uri="<idp-metadata-file>"
-                 backingFilePath="<local idp metadata>"
-                 reloadInterval="180000" />
 
-            <!-- Attribute and trust options you shouldn't need to change. -->
-            <AttributeExtractor type="XML" validate="true"
-            path="attribute-map.xml"/>
+            <!-- Example of locally maintained metadata. -->
+            <!--
+            <MetadataProvider type="XML" file="partner-metadata.xml"/>
+            -->
+            <MetadataProvider type="XML" uri="https://myidp.example.com:5000/v3/OS-FEDERATION/saml2/metadata"/>
+
+            <!-- Map to extract attributes from SAML assertions. -->
+            <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+
+            <!-- Use a SAML query if no attributes are supplied during SSO. -->
             <AttributeResolver type="Query" subjectMatch="true"/>
-            <AttributeFilter type="XML" validate="true"
-            path="attribute-policy.xml"/>
+
+            <!-- Default filtering policy for recognized attributes, lets other data pass. -->
+            <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+            <!-- Simple file-based resolver for using a single keypair. -->
+            <CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
 
             <!--
-            Your SP generated these credentials.
-            They're used to talk to IdP's.
+            The default settings can be overridden by creating ApplicationOverride elements (see
+            the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApplicationOverride topic).
+            Resource requests are mapped by web server commands, or the RequestMapper, to an
+            applicationId setting.
+            Example of a second application (for a second vhost) that has a different entityID.
+            Resources on the vhost would map to an applicationId of "admin":
             -->
-            <CredentialResolver type="File" key="sp-key.pem"
-            certificate="sp-cert.pem"/>
-
-            <ApplicationOverride id="idp_1" entityID="https://<yourhosthere>/shibboleth">
-               <Sessions lifetime="28800" timeout="3600" checkAddress="false"
-               relayState="ss:mem" handlerSSL="false">
-
-                <!-- Triggers a login request directly to the TestShib IdP. -->
-                <SSO entityID="https://<idp_1-url>/idp/shibboleth" ECP="true">
-                    SAML2 SAML1
-                </SSO>
-
-                <Logout>SAML2 Local</Logout>
-               </Sessions>
-
-               <MetadataProvider type="XML" uri="<idp_1-metadata-file>"
-                 backingFilePath="<local idp_1 metadata>"
-                 reloadInterval="180000" />
-
-            </ApplicationOverride>
-
-            <ApplicationOverride id="idp_2" entityID="https://<yourhosthere>/shibboleth">
-               <Sessions lifetime="28800" timeout="3600" checkAddress="false"
-               relayState="ss:mem" handlerSSL="false">
-
-                <!-- Triggers a login request directly to the TestShib IdP. -->
-                <SSO entityID="https://<idp_2-url>/idp/shibboleth" ECP="true">
-                    SAML2 SAML1
-                </SSO>
-
-                <Logout>SAML2 Local</Logout>
-               </Sessions>
-
-               <MetadataProvider type="XML" uri="<idp_2-metadata-file>"
-                 backingFilePath="<local idp_2 metadata>"
-                 reloadInterval="180000" />
-
-            </ApplicationOverride>
-
+            <!--
+            <ApplicationOverride id="admin" entityID="https://admin.example.org/shibboleth"/>
+            -->
         </ApplicationDefaults>
 
-        <!--
-        Security policies you shouldn't change unless you
-        know what you're doing.
-        -->
-        <SecurityPolicyProvider type="XML" validate="true"
-        path="security-policy.xml"/>
+        <!-- Policies that determine how to process and authenticate runtime messages. -->
+        <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
 
-        <!--
-        Low-level configuration about protocols and bindings
-        available for use.
-        -->
-        <ProtocolProvider type="XML" validate="true" reloadChanges="false"
-        path="protocols.xml"/>
+        <!-- Low-level configuration about protocols and bindings available for use. -->
+        <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
 
     </SPConfig>
 
-Keystone enforces `external authentication`_ when the ``REMOTE_USER``
-environment variable is present so make sure Shibboleth doesn't set the
-``REMOTE_USER`` environment variable.  To do so, scan through the
-``/etc/shibboleth/shibboleth2.xml`` configuration file and remove the
-``REMOTE_USER`` directives.
+If keystone is your IdP, you will need to examine your attributes map file
+``/etc/shibboleth/attribute-map.xml`` and add the following attributes:
 
-Examine your attributes map file ``/etc/shibboleth/attribute-map.xml`` and adjust
-your requirements if needed. For more information see
+.. code-block:: xml
+
+    <Attribute name="openstack_user" id="openstack_user"/>
+    <Attribute name="openstack_roles" id="openstack_roles"/>
+    <Attribute name="openstack_project" id="openstack_project"/>
+    <Attribute name="openstack_user_domain" id="openstack_user_domain"/>
+    <Attribute name="openstack_project_domain" id="openstack_project_domain"/>
+
+For more information see the
 `attributes documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
 
-Once you are done, restart your Shibboleth daemon:
+Once you are done, restart your Shibboleth daemon and apache:
 
 .. _`external authentication`: ../external-auth.html
 
@@ -279,3 +275,16 @@ Once you are done, restart your Shibboleth daemon:
 
     $ service shibd restart
     $ service apache2 restart
+
+Check ``/var/log/shibboleth/shibd_warn.log`` for any ERROR or CRIT notices and
+correct them.
+
+Upload your Service Provider's metadata file to your Identity Provider. You can
+fetch it with:
+
+.. code-block:: bash
+
+    $ wget http://mysp.example.com/Shibboleth.sso/Metadata
+
+This step depends on your Identity Provider choice and is not covered here.
+If keystone is your Identity Provider you do not need to upload this file.

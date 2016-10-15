@@ -53,15 +53,16 @@ If `mod_shib` is used, then use the following as an example:
 
       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
+      <Location ~ "/v3/auth/OS-FEDERATION/websso/mapped">
         AuthType shibboleth
         Require valid-user
-        ...
+        ShibRequestSetting requireSession 1
+        ShibRequireSession On
+        ShibExportAssertion Off
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/saml2/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/mapped/websso">
         AuthType shibboleth
         Require valid-user
-        ...
       </Location>
   </VirtualHost>
 
@@ -72,7 +73,7 @@ If `mod_auth_openidc` is used, then use the following as an example:
   <VirtualHost *:5000>
 
       OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/websso/redirect
-      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocol/oidc/websso/redirect
+      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/identity_providers/myidp/protocol/oidc/websso/redirect
 
       ...
 
@@ -81,7 +82,7 @@ If `mod_auth_openidc` is used, then use the following as an example:
         Require valid-user
         ...
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/oidc/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/oidc/websso">
         AuthType openid-connect
         Require valid-user
         ...
@@ -104,7 +105,7 @@ If `mod_auth_kerb` is used, then use the following as an example:
         Krb5Keytab /etc/apache2/http.keytab
         ...
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/kerberos/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/kerberos/websso">
         AuthType Kerberos
         AuthName "Acme Corporation"
         KrbMethodNegotiate on
@@ -122,13 +123,13 @@ If `mod_auth_mellon` is used, then use the following as an example:
 
       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
+      <Location ~ "/v3/auth/OS-FEDERATION/websso/mapped">
         AuthType Mellon
         MellonEnable auth
         Require valid-user
         ...
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/idp_1/protocols/saml2/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/mapped/websso">
         AuthType Mellon
         MellonEnable auth
         Require valid-user
@@ -154,7 +155,7 @@ It is recommended that this option be set on a per-protocol basis.
 
 .. code-block:: ini
 
-  [saml2]
+  [mapped]
   remote_id_attribute = Shib-Identity-Provider
   [oidc]
   remote_id_attribute = HTTP_OIDC_ISS
@@ -166,45 +167,9 @@ Alternatively, a generic option may be set at the `[federation]` level.
   [federation]
   remote_id_attribute = HTTP_OIDC_ISS
 
-4. Set `remote_ids` for a keystone identity provider using the API or CLI.
-
-A keystone identity provider may have multiple `remote_ids` specified, this
-allows the same *keystone* identity provider resource to be used with multiple
-external identity providers. For example, an identity provider resource
-``university-idp``, may have the following `remote_ids`:
-``['university-x', 'university-y', 'university-z']``.
-This removes the need to configure N identity providers in keystone.
-
-This can be performed using the `OS-FEDERATION API`_:
-``PATCH /OS-FEDERATION/identity_providers/{idp_id}``
-
-Or by using the `OpenStackClient CLI`_:
-
-.. code-block:: bash
-
-    $ openstack identity provider set --remote-id <remote-id>  <idp-id>
-
-.. NOTE::
-
-    Remote IDs are globally unique. Two identity providers cannot be
-    associated with the same remote ID. Once authenticated with the external
-    identity provider, keystone will determine which identity provider
-    and mapping to use based on the protocol and the value returned from the
-    `remote_id_attribute` key.
-
-    For example, if our identity provider is ``google``, the mapping used is
-    ``google_mapping`` and the protocol is ``oidc``. The identity provider's
-    remote IDs  would be: [``accounts.google.com``].
-    The `remote_id_attribute` value may be set to ``HTTP_OIDC_ISS``, since
-    this value will always be ``accounts.google.com``.
-
-    The motivation for this approach is that there will always be some data
-    sent by the identity provider (in the assertion or claim) that uniquely
-    identifies the identity provider. This removes the requirement for horizon
-    to list all the identity providers that are trusted by keystone.
-
-.. _`OpenStackClient CLI`: http://docs.openstack.org/developer/python-openstackclient/command-objects/identity-provider.html#identity-provider-set
-.. _`OS-FEDERATION API`: http://specs.openstack.org/openstack/keystone-specs/api/v3/identity-api-v3-os-federation-ext.html#update-identity-provider
+4. Copy the `sso_callback_template.html
+<http://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html>`__
+template into the location specified by `[federation]/sso_callback_template`.
 
 ---------------
 Horizon Changes
@@ -217,27 +182,7 @@ Horizon Changes
     Identity provider and federation protocol specific webSSO is only available
     in Django OpenStack Auth version 2.0.0 or higher.
 
-1. Set the Identity Service version to 3
-
-Ensure the `OPENSTACK_API_VERSIONS` option in horizon's local_settings.py has
-been updated to indicate that the `identity` version to use is `3`.
-
-.. code-block:: python
-
-  OPENSTACK_API_VERSIONS = {
-    "identity": 3,
-  }
-
-2. Authenticate against Identity Server v3.
-
-Ensure the `OPENSTACK_KEYSTONE_URL` option in horizon's local_settings.py has
-been updated to point to a v3 URL.
-
-.. code-block:: python
-
-  OPENSTACK_KEYSTONE_URL = "http://localhost:5000/v3"
-
-3. Set the `WEBSSO_ENABLED` option.
+1. Set the `WEBSSO_ENABLED` option.
 
 Ensure the `WEBSSO_ENABLED` option is set to True in horizon's local_settings.py file,
 this will provide users with an updated login screen for horizon.
@@ -246,7 +191,7 @@ this will provide users with an updated login screen for horizon.
 
   WEBSSO_ENABLED = True
 
-4. (Optional) Create a list of authentication methods with the
+2. (Optional) Create a list of authentication methods with the
    `WEBSSO_CHOICES` option.
 
 Within horizon's settings.py file, a list of supported authentication methods can be
@@ -261,12 +206,12 @@ identity backend.
   WEBSSO_CHOICES = (
         ("credentials", _("Keystone Credentials")),
         ("oidc", _("OpenID Connect")),
-        ("saml2", _("Security Assertion Markup Language")),
-        ("idp_1_oidc", "Acme Corporation - OpenID Connect"),
-        ("idp_1_saml2", "Acme Corporation - SAML2")
+        ("mapped", _("Security Assertion Markup Language")),
+        ("myidp_oidc", "Acme Corporation - OpenID Connect"),
+        ("myidp_mapped", "Acme Corporation - SAML2")
       )
 
-5. (Optional) Create a dictionary of specific identity provider and federation
+3. (Optional) Create a dictionary of specific identity provider and federation
    protocol combinations.
 
 A dictionary of specific identity provider and federation protocol combinations.
@@ -279,8 +224,8 @@ protocol endpoint.
 .. code-block:: python
 
   WEBSSO_IDP_MAPPING = {
-        "idp_1_oidc": ("idp_1", "oidc"),
-        "idp_1_saml2": ("idp_1", "saml2")
+        "myidp_oidc": ("myidp", "oidc"),
+        "myidp_mapped": ("myidp", "mapped")
       }
 
 .. NOTE::
