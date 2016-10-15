@@ -8,9 +8,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-10-14 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -82,10 +82,6 @@ msgid "%s cannot be empty."
 msgstr "%s은(는) 공백일 수 없습니다. "
 
 #, python-format
-msgid "%s extension does not exist."
-msgstr "%s 확장자가 존재하지 않습니다."
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "%s 필드가 필요하며 비어 있을 수 없음"
 
@@ -152,24 +148,8 @@ msgstr ""
 msgid "At least one role should be specified."
 msgstr "최소한 하나의 역할을 지정해야 합니다."
 
-#, python-format
-msgid ""
-"Attempted automatic driver selection for assignment based upon "
-"[identity]\\driver option failed since driver %s is not found. Set "
-"[assignment]/driver to a valid driver in keystone config."
-msgstr ""
-"드라이버 %s을(를) 찾을 수 없으므로 [identity]\\driver 옵션을 기반으로 할당할 "
-"드라이버를 자동으로 선택하는 데 실패했습니다. keystone 구성에서 [assignment]/"
-"driver를 올바른 드라이버로 설정하십시오."
-
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "지원되지 않는 방법으로 인증을 시도했습니다."
-
-msgid ""
-"Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
-"Authentication"
-msgstr ""
-"V2 ID 서비스에서 OS-FEDERATION 토큰을 사용할 경우 V3 인증을 사용하십시오."
 
 msgid "Authentication plugin error."
 msgstr "인증 플러그인 오류."
@@ -495,12 +475,6 @@ msgstr "도메인을 사용 안함: %s"
 msgid "Domain name cannot contain reserved characters."
 msgstr "도메인 이름에는 예약된 문자가 포함될 수 없습니다."
 
-msgid "Domain scoped token is not supported"
-msgstr "도메인 범위 지정 토큰은 지원되지 않음"
-
-msgid "Domain specific roles are not supported in the V8 role driver"
-msgstr "V8 역할 드라이버에서는 도메인 특정 역할이 지원되지 않음"
-
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
@@ -537,12 +511,6 @@ msgstr "EC2 서명이 제공되지 않았습니다."
 msgid ""
 "Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
 msgstr "--bootstrap-password 인수나 OS_BOOTSTRAP_PASSWORD를 설정해야 합니다."
-
-msgid "Enabled field must be a boolean"
-msgstr "사용으로 설정된 필드는 부울이어야 함"
-
-msgid "Enabled field should be a boolean"
-msgstr "사용으로 설정된 필드는 부울이어야 함"
 
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
@@ -824,9 +792,6 @@ msgstr "활성 잠금 컨텍스트 내에서 호출되어야 합니다."
 msgid "Must specify either domain or project"
 msgstr "도메인 프로젝트 중 하나를 지정해야 함"
 
-msgid "Name field is required and cannot be empty"
-msgstr "이름 필드가 필요하며 비어 있을 수 없음"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "프로젝트 도메인 ID와 프로젝트 도메인 이름이 제공되지 않았습니다. "
 
@@ -918,75 +883,6 @@ msgstr ""
 "%(redelegation_depth)d의 나머지 재위임 깊이가 허용 범위 [0..%(max_count)d]을"
 "(를) 벗어남"
 
-msgid ""
-"Remove admin_crud_extension from the paste pipeline, the admin_crud "
-"extension is now always available. Updatethe [pipeline:admin_api] section in "
-"keystone-paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"붙여넣기 파이프라인에서 admin_crud_extension을 제거하십시오. admin_crud 확장"
-"은 이제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini"
-"에서 [pipeline:admin_api] 섹션을 적절하게 업데이트하십시오."
-
-msgid ""
-"Remove endpoint_filter_extension from the paste pipeline, the endpoint "
-"filter extension is now always available. Update the [pipeline:api_v3] "
-"section in keystone-paste.ini accordingly as it will be removed in the O "
-"release."
-msgstr ""
-"붙여넣기 파이프라인에서 endpoint_filter_extension을 제거하십시오. 엔드포인트 "
-"필터 확장은 이제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-"
-"paste.ini에서 [pipeline:api_v3] 섹션을 적절하게 업데이트하십시오."
-
-msgid ""
-"Remove federation_extension from the paste pipeline, the federation "
-"extension is now always available. Update the [pipeline:api_v3] section in "
-"keystone-paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"붙여넣기 파이프라인에서 federation_extension을 제거하십시오. 연합 확장은 이"
-"제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 "
-"[pipeline:api_v3]섹션을 적절하게 업데이트하십시오."
-
-msgid ""
-"Remove oauth1_extension from the paste pipeline, the oauth1 extension is now "
-"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"붙여넣기 파이프라인에서 oauth1_extension을 제거하십시오. oauth1 확장은 이제 "
-"항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 "
-"[pipeline:api_v3]섹션을 적절하게 업데이트하십시오."
-
-msgid ""
-"Remove revoke_extension from the paste pipeline, the revoke extension is now "
-"always available. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"붙여넣기 파이프라인에서 revoke_extension을 제거하십시오. 취소 확장은 이제 항"
-"상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 "
-"[pipeline:api_v3]섹션을 적절하게 업데이트하십시오."
-
-msgid ""
-"Remove simple_cert from the paste pipeline, the PKI and PKIz token providers "
-"are now deprecated and simple_cert was only used insupport of these token "
-"providers. Update the [pipeline:api_v3] section in keystone-paste.ini "
-"accordingly, as it will be removed in the O release."
-msgstr ""
-"붙여넣기 파이프라인에서 simple_cert를 제거하십시오. PKI 및 PKIz 토큰 제공자"
-"는 이제 더 이상 사용되지 않으며 simple_cert는 이러한 토큰 제공자를 지원하는 "
-"데만 사용됩니다. O 릴리스에서는 제거되므로 keystone-paste.ini에서 [pipeline:"
-"api_v3]섹션을 적절하게 업데이트하십시오."
-
-msgid ""
-"Remove user_crud_extension from the paste pipeline, the user_crud extension "
-"is now always available. Updatethe [pipeline:public_api] section in keystone-"
-"paste.ini accordingly, as it will be removed in the O release."
-msgstr ""
-"붙여넣기 파이프라인에서 user_crud_extension을 제거하십시오. user_crud 확장은 "
-"이제 항상 사용할 수 있습니다. O 릴리스에서는 제거되므로 keystone-paste.ini에"
-"서 [pipeline:public_api] 섹션을 적절하게 업데이트하십시오."
-
-msgid "Request Token does not have an authorizing user id"
-msgstr "요청 토큰에 인증하는 사용자 ID가 없음"
-
 #, python-format
 msgid ""
 "Request attribute %(attribute)s must be less than or equal to %(size)i. The "
@@ -1055,15 +951,6 @@ msgstr ""
 msgid "Tenant name cannot contain reserved characters."
 msgstr "테넌트 이름에 예약된 문자가 포함될 수 없습니다."
 
-#, python-format
-msgid ""
-"The %s extension has been moved into keystone core and as such its "
-"migrations are maintained by the main keystone database control. Use the "
-"command: keystone-manage db_sync"
-msgstr ""
-"%s 확장이 keystone 코어에 이동되었으므로 기본 keystone 데이터베이스 제어에서 "
-"마이그레이션을 유지 관리합니다. keystone-manage db_sync 명령을 사용하십시오."
-
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -1105,9 +992,6 @@ msgstr ""
 msgid "The configured token provider does not support bind authentication."
 msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
 
-msgid "The creation of projects acting as domains is not allowed in v2."
-msgstr "도메인 역할을 수행하는 프로젝트 생성은 v2에서 허용되지 않습니다. "
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -1144,9 +1028,6 @@ msgid ""
 "of options"
 msgstr "구성에 지정된 %(group)s 그룹의 값은 옵션의 사전이어야 함"
 
-msgid "There should not be any non-oauth parameters"
-msgstr "non-oauth 매개변수가 없어야 함"
-
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "인식되는 Fernet 페이로드 버전이 아님: %s"
@@ -1165,9 +1046,6 @@ msgstr ""
 
 msgid "Token belongs to another user"
 msgstr "토큰이 다른 사용자에 속함"
-
-msgid "Token does not belong to specified tenant."
-msgstr "토큰이 지정된 테넌트에 속하지 않습니다."
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "토큰 버전이 인식되지 않거나 지원되지 않습니다. "
@@ -1221,10 +1099,6 @@ msgstr ""
 
 msgid "Unable to downgrade schema"
 msgstr "스키마를 다운그레이드할 수 없음"
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr "%(mapping_id)s 맵핑을 사용하는 중에 올바른 그룹을 찾을 수 없음 "
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1303,16 +1177,6 @@ msgstr "도메인 역할을 하는 프로젝트의 domain_id는 업데이트할 
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr "SAML 어설션을 작성할 때 프로젝트 범위 지정 토큰 사용"
 
-msgid ""
-"Use of the identity driver config to automatically configure the same "
-"assignment driver has been deprecated, in the \"O\" release, the assignment "
-"driver will need to be expicitly configured if different than the default "
-"(SQL)."
-msgstr ""
-"ID 드라이버 구성을 사용하여 동일한 할당 드라이버를 자동으로 구성하는 기능은 "
-"더 이상 사용되지 않습니다. \"O\" 릴리스에서는 기본값(SQL)과 다른 경우 할당 드"
-"라이버를 명시적으로 구성해야 합니다."
-
 #, python-format
 msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
 msgstr "사용자 %(u_id)s이(는) 테넌트 %(t_id)s에 대한 권한이 없습니다. "
@@ -1348,9 +1212,6 @@ msgstr ""
 #, python-format
 msgid "User is disabled: %s"
 msgstr "사용자를 사용 안함: %s"
-
-msgid "User is not a member of the requested project"
-msgstr "사용자가 요청한 프로젝트의 구성원이 아님"
 
 msgid "User is not a trustee."
 msgstr "사용자는 trustee가 아닙니다."
@@ -1439,15 +1300,6 @@ msgstr "루트 프로젝트만 도메인 역할을 수행할 수 있습니다."
 msgid "option %(option)s in group %(group)s"
 msgstr "%(group)s 그룹의 %(option)s 옵션"
 
-msgid "provided consumer key does not match stored consumer key"
-msgstr "제공된 이용자 키가 저장된 이용자 키와 일치하지 않음"
-
-msgid "provided request key does not match stored request key"
-msgstr "제공된 요청 키가 저장된 요청 키와 일치하지 않음"
-
-msgid "provided verifier does not match stored verifier"
-msgstr "제공된 확인자가 저장된 확인자와 일치하지 않음 "
-
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses는 양의 정수 또는 널이어야 합니다."
 
@@ -1488,11 +1340,3 @@ msgid ""
 "update of domain_id is deprecated as of Mitaka and will be removed in O."
 msgstr ""
 "Mitaka에서 domain_id 업데이트는 더 이상 사용되지 않으므로, O에서 제거됩니다."
-
-#, python-format
-msgid ""
-"validated expected to find %(param_name)r in function signature for "
-"%(func_name)r."
-msgstr ""
-"%(func_name)r에 대한 함수 서명에서 %(param_name)r을(를) 찾기 위해 유효성 검증"
-"하고 예상했습니다. "

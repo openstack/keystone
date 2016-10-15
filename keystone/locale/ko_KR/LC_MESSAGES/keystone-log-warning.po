@@ -7,9 +7,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-10-14 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -143,9 +143,6 @@ msgstr "프로젝트 %s이(가) 없으므로 삭제되지 않았습니다."
 msgid "RBAC: Bypassing authorization"
 msgstr "RBAC: 권한 무시"
 
-msgid "RBAC: Invalid token"
-msgstr "RBAC: 올바르지 않은 토큰"
-
 msgid "RBAC: Invalid user data in token"
 msgstr "RBAC: 토큰에 잘못된 사용자 데이터"
 
@@ -187,14 +184,6 @@ msgstr "사용자 비밀번호를 %d자로 자릅니다."
 #, python-format
 msgid "Unable to add user %(user)s to %(tenant)s."
 msgstr "%(tenant)s 에 사용자 %(user)s 를 추가 할 수 없습니다."
-
-#, python-format
-msgid ""
-"Unable to change the ownership of [fernet_tokens] key_repository without a "
-"keystone user ID and keystone group ID both being provided: %s"
-msgstr ""
-"keystone 사용자 ID와 keystone 그룹 ID가 모두 제공되지 않으면 [fernet_tokens] "
-"key_repository의 소유권은 변경할 수 없음: %s"
 
 #, python-format
 msgid ""
@@ -253,45 +242,12 @@ msgstr ""
 "(를) 삭제할 수 없음"
 
 #, python-format
-msgid "[fernet_tokens] key_repository is world readable: %s"
-msgstr "[fernet_tokens] key_repository는 읽을 수 있음: %s"
-
-msgid ""
-"[fernet_tokens] max_active_keys must be at least 1 to maintain a primary key."
-msgstr ""
-"기본 키를 유지 보수하려면 [fernet_tokens] max_active_keys가 최소 1이어야 합니"
-"다."
-
-#, python-format
 msgid ""
 "`token_api.%s` is deprecated as of Juno in favor of utilizing methods on "
 "`token_provider_api` and may be removed in Kilo."
 msgstr ""
 "Juno에서는 `token_provider_api`의 메소드를 활용하기 위해 `token_api.%s`이"
 "(가) 더 이상 사용되지 않으므로 Kilo에서 제거될 수 있습니다."
-
-msgid ""
-"build_auth_context middleware checking for the admin token is deprecated as "
-"of the Mitaka release and will be removed in the O release. If your "
-"deployment requires use of the admin token, update keystone-paste.ini so "
-"that admin_token_auth is before build_auth_context in the paste pipelines, "
-"otherwise remove the admin_token_auth middleware from the paste pipelines."
-msgstr ""
-"build_auth_context 미들웨어에서 관리 토큰을 확인하는 기능은 Mitaka 릴리스에"
-"서 더 이상 사용되지 않으므로, O 릴리스에서 제거됩니다. 배포에서 관리 토큰을 "
-"사용해야 하는 경우 붙여넣기 파이프라인에서 build_auth_context 전에 "
-"admin_token_auth가 오도록 keystone-paste.ini를 업데이트하십시오. 그렇지 않으"
-"면 붙여넣기 파이프라인에서 admin_token_auth 미들웨어를 제거하십시오."
-
-#, python-format
-msgid ""
-"delete_domain_assignments method not found in custom assignment driver. "
-"Domain assignments for domain (%s) to users from other domains will not be "
-"removed. This was added in V9 of the assignment driver."
-msgstr ""
-"사용자 정의 할당 드라이버에서 delete_domain_assignments 메소드를 찾을 수 없습"
-"니다. 다른 도메인의 사용자에게 할당한 도메인(%s)은 제거되지 않습니다. 이 기능"
-"은 할당 드라이버의 V9에서 추가되었습니다."
 
 msgid ""
 "insecure_debug is enabled so responses may include sensitive information."

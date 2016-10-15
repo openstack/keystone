@@ -10,9 +10,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 9.0.1.dev95\n"
+"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-04-20 19:33+0000\n"
+"POT-Creation-Date: 2016-10-14 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,10 +66,6 @@ msgstr "%(property_name)s %(max_length)s karakterden büyük olmamalı."
 #, python-format
 msgid "%s cannot be empty."
 msgstr "%s boş olamaz."
-
-#, python-format
-msgid "%s extension does not exist."
-msgstr "%s eklentisi mevcut değil."
 
 #, python-format
 msgid "%s field is required and cannot be empty"
@@ -126,13 +122,6 @@ msgstr "En az bir kural belirtilmeli."
 
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "Desteklenmeyen yöntem ile doğrulama girişiminde bulunuldu."
-
-msgid ""
-"Attempting to use OS-FEDERATION token with V2 Identity Service, use V3 "
-"Authentication"
-msgstr ""
-"OS-FEDERATION jetonu V2 Kimlik Servisi ile kullanılmaya çalışılıyor, V3 "
-"Kimlik Doğrulama kullanın"
 
 msgid "Authentication plugin error."
 msgstr "Kimlik doğrulama eklenti hatası."
@@ -357,9 +346,6 @@ msgstr "Alan %s ID'sine sahip olamaz"
 msgid "Domain is disabled: %s"
 msgstr "Alan kapalı: %s"
 
-msgid "Domain scoped token is not supported"
-msgstr "Alan kapsamlı jeton desteklenmiyor"
-
 #, python-format
 msgid ""
 "Domain: %(domain)s already has a configuration defined - ignoring file: "
@@ -378,12 +364,6 @@ msgstr "Kopya ID, %s"
 #, python-format
 msgid "Duplicate name, %s."
 msgstr "Kopya isim, %s."
-
-msgid "Enabled field must be a boolean"
-msgstr "Etkin alan bool olmalı"
-
-msgid "Enabled field should be a boolean"
-msgstr "Etkin alan bool olmalı"
 
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
@@ -634,9 +614,6 @@ msgstr "Etkin kilik içeriği içinde çağrılmalı."
 msgid "Must specify either domain or project"
 msgstr "Alan ya da projeden biri belirtilmelidir"
 
-msgid "Name field is required and cannot be empty"
-msgstr "İsim alanı gerekli ve boş olamaz"
-
 msgid ""
 "No Authorization headers found, cannot proceed with OAuth related calls, if "
 "running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
@@ -714,9 +691,6 @@ msgid ""
 msgstr ""
 "izin verilen [0..%(max_count)d] aralığı içinden %(redelegation_depth)d izin "
 "verilen tekrar yetki verme derinliği"
-
-msgid "Request Token does not have an authorizing user id"
-msgstr "İstek Jetonu yetki veren bir kullanıcı id'sine sahip değil"
 
 #, python-format
 msgid ""
@@ -863,9 +837,6 @@ msgid ""
 msgstr ""
 "Yapılandırmada belirtilen %(group)s grubunun değeri seçenekler sözlüğü olmalı"
 
-msgid "There should not be any non-oauth parameters"
-msgstr "Herhangi bir non-oauth parametresi olmamalı"
-
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Bu bilinen bir Fernet faydalı yük sürümü değil: %s"
@@ -881,9 +852,6 @@ msgstr ""
 
 msgid "Token belongs to another user"
 msgstr "Jeton başka bir kullanıcıya ait"
-
-msgid "Token does not belong to specified tenant."
-msgstr "Jeton belirtilen kiracıya ait değil."
 
 msgid "Trustee has no delegated roles."
 msgstr "Yedieminin emanet edilen kuralları yok."
@@ -933,10 +901,6 @@ msgid ""
 msgstr ""
 "Bölge %(region_id)s silinemedi çünkü kendisi ya da alt bölgelerinin "
 "ilişkilendirilmiş bitiş noktaları var."
-
-#, python-format
-msgid "Unable to find valid groups while using mapping %(mapping_id)s"
-msgstr "Eşleştirme %(mapping_id)s kullanırken geçerli gruplar bulunamadı"
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1031,9 +995,6 @@ msgstr "Kullanıcı ID leri uyuşmuyor"
 msgid "User is disabled: %s"
 msgstr "Kullanıcı kapalı: %s"
 
-msgid "User is not a member of the requested project"
-msgstr "Kullanıcı istenen projenin üyesi değil"
-
 msgid "User is not a trustee."
 msgstr "Kullanıcı güvenilir değil."
 
@@ -1091,15 +1052,6 @@ msgstr "geçersiz tarih biçimi %s"
 #, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "%(group)s grubundaki %(option)s seçeneği"
-
-msgid "provided consumer key does not match stored consumer key"
-msgstr "sağlanan tüketici anahtarı depolanan tüketici anahtarıyla eşleşmiyor"
-
-msgid "provided request key does not match stored request key"
-msgstr "sağlanan istek anahtarı depolanan istek anahtarıyla eşleşmiyor"
-
-msgid "provided verifier does not match stored verifier"
-msgstr "sağlanan doğrulayıcı depolanan doğrulayıcı ile eşleşmiyor"
 
 msgid "remaining_uses must be a positive integer or null."
 msgstr "remaining_uses pozitif bir değer ya da null olmalı."
