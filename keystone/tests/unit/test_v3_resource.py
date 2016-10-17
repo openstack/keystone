@@ -307,8 +307,8 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         The sample data set up already has a user and project that is part of
         self.domain. Additionally we will create a group and a credential
-        within it. Since the user we will authenticate with is in this domain,
-        we create a another set of entities in a second domain.  Deleting this
+        within it. Since we will authenticate in this domain,
+        we create another set of entities in a second domain.  Deleting this
         second domain should delete all these new entities. In addition,
         all the entities in the regular self.domain should be unaffected
         by the delete.
