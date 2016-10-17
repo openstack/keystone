@@ -17,6 +17,9 @@
 import os
 import sys
 
+from keystone.cmd import cli
+
+
 # If ../../keystone/__init__.py exists, add ../../ to Python search path, so
 # that it will override what happens to be installed in
 # /usr/(local/)lib/python...
@@ -28,8 +31,6 @@ if os.path.exists(os.path.join(possible_topdir,
                                'keystone',
                                '__init__.py')):
     sys.path.insert(0, possible_topdir)
-
-from keystone.cmd import cli
 
 
 # entry point.
