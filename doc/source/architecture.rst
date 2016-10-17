@@ -35,38 +35,39 @@ token with the Token service.
 Identity
 --------
 
-The Identity service provides auth credential validation and data about Users,
-Groups.
+The Identity service provides auth credential validation and data about users
+and groups.
 
 In the basic case all this data is managed by the service, allowing the service
 to manage all the CRUD associated with the data.
 
-In other cases from an authoritative backend service. An example of this would
-be when backending on LDAP. See `LDAP Backend` below for more details.
+In other cases, data is managed from an authoritative backend service. An
+example of this would be when backending on LDAP. The LDAP backend utilizes
+the LDAP server as the source for user and group data.
 
 
 Resource
 --------
 
-The Resource service provides data about Projects and Domains.
+The Resource service provides data about projects and domains.
 
 Like the Identity service, this data may either be managed directly by the
-service or be pulled from another authoritative backend service, such as LDAP.
+service or be pulled from a custom authoritative backend service.
 
 
 Assignment
 ----------
 
-The Assignment service provides data about Roles and Role assignments to the
+The Assignment service provides data about roles and role assignments to the
 entities managed by the Identity and Resource services.  Again, like these two
 services, this data may either be managed directly by the Assignment service
-or be pulled from another authoritative backend service, such as LDAP.
+or be pulled from a custom authoritative backend service.
 
 
 Token
 -----
 
-The Token service validates and manages Tokens used for authenticating requests
+The Token service validates and manages tokens used for authenticating requests
 once a user's credentials have already been verified.
 
 
@@ -99,11 +100,11 @@ of pipelines of WSGI middleware, such as:
     json_body ec2_extension_v3 s3_extension service_v3
 
 These in turn use a subclass of :mod:`keystone.common.wsgi.ComposingRouter` to
-link URLs to Controllers (a subclass of
-:mod:`keystone.common.wsgi.Application`). Within each Controller, one or more
-Managers are loaded (for example, see :mod:`keystone.catalog.core.Manager`),
+link URLs to controllers (a subclass of
+:mod:`keystone.common.wsgi.Application`). Within each controller, one or more
+managers are loaded (for example, see :mod:`keystone.catalog.core.Manager`),
 which are thin wrapper classes which load the appropriate service driver based
-on the Keystone configuration.
+on the keystone configuration.
 
 * Assignment
 
@@ -151,15 +152,15 @@ on the Keystone configuration.
 Service Backends
 ----------------
 
-Each of the services can be configured to use a backend to allow Keystone to fit a
-variety of environments and needs. The backend for each service is defined in
-the keystone.conf file with the key ``driver`` under a group associated with
-each service.
+Each of the services can be configured to use a backend to allow keystone to
+fit a variety of environments and needs. The backend for each service is
+defined in the keystone.conf file with the key ``driver`` under a group
+associated with each service.
 
-A general class exists under each backend to provide an
-abstract base class for any implementations, identifying the expected service
-implementations. The abstract base classes are stored in the service's backends
-directory as ``base.py``. The corresponding drivers for the services are:
+A general class exists under each backend to provide an abstract base class
+for any implementations, identifying the expected service implementations. The
+abstract base classes are stored in the service's backends directory as
+``base.py``. The corresponding drivers for the services are:
 
 * :mod:`keystone.assignment.backends.base.AssignmentDriver`
 * :mod:`keystone.assignment.backends.base.RoleDriver`
@@ -177,15 +178,15 @@ directory as ``base.py``. The corresponding drivers for the services are:
 * :mod:`keystone.token.providers.base.Provider`
 * :mod:`keystone.trust.backends.base.TrustDriver`
 
-If you implement a backend driver for one of the Keystone services, you're
+If you implement a backend driver for one of the keystone services, you're
 expected to subclass from these classes.
 
 
 Templated Backend
 -----------------
 
-Largely designed for a common use case around service catalogs in the Keystone
-project, a Catalog backend that simply expands pre-configured templates to
+Largely designed for a common use case around service catalogs in the keystone
+project, a catalog backend that simply expands pre-configured templates to
 provide catalog data.
 
 Example paste.deploy config (uses $ instead of % to avoid ConfigParser's
@@ -196,13 +197,6 @@ interpolation)::
   catalog.RegionOne.identity.adminURL = http://localhost:$(public_port)s/v2.0
   catalog.RegionOne.identity.internalURL = http://localhost:$(public_port)s/v2.0
   catalog.RegionOne.identity.name = 'Identity Service'
-
-
-LDAP Backend
-------------
-
-The LDAP backend stores Users and Projects in separate Subtrees. Roles are recorded
-as entries under the Projects.
 
 
 ----------
@@ -224,8 +218,8 @@ There are a few main data types:
  * **Extras**: bucket of key-value metadata associated with a user-project pair.
  * **Rule**: describes a set of requirements for performing an action.
 
-While the general data model allows a many-to-many relationship between Users
-and Groups to Projects and Domains; the actual backend implementations take
+While the general data model allows a many-to-many relationship between users
+and groups to projects and domains; the actual backend implementations take
 varying levels of advantage of that functionality.
 
 
@@ -234,8 +228,8 @@ Approach to CRUD
 ----------------
 
 While it is expected that any "real" deployment at a large company will manage
-their users, groups, projects and domains in their existing user systems, a
-variety of CRUD operations are provided for the sake of development and testing.
+their users and groups in their existing user systems, a variety of CRUD
+operations are provided for the sake of development and testing.
 
 CRUD is treated as an extension or additional feature to the core feature set
 in that it is not required that a backend support it. It is expected that
@@ -250,7 +244,7 @@ Approach to Authorization (Policy)
 Various components in the system require that different actions are allowed
 based on whether the user is authorized to perform that action.
 
-For the purposes of Keystone there are only a couple levels of authorization
+For the purposes of keystone there are only a couple levels of authorization
 being checked for:
 
  * Require that the performing user is considered an admin.
@@ -258,8 +252,8 @@ being checked for:
 
 Other systems wishing to use the policy engine will require additional styles
 of checks and will possibly write completely custom backends. By default,
-Keystone leverages Policy enforcement that is maintained in Oslo-Incubator,
-found in `keystone/openstack/common/policy.py`.
+keystone leverages policy enforcement that is maintained in `oslo.policy
+<https://git.openstack.org/cgit/openstack/oslo.policy/>`_.
 
 
 Rules
