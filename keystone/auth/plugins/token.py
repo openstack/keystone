@@ -46,14 +46,13 @@ class Token(base.AuthMethodHandler):
         token_ref = self._get_token_ref(auth_payload)
         if token_ref.is_federated_user and self.federation_api:
             mapped.handle_scoped_token(
-                request, auth_payload, user_context, token_ref,
-                self.federation_api, self.identity_api,
-                self.token_provider_api)
+                request, user_context, token_ref,
+                self.federation_api, self.identity_api)
         else:
-            token_authenticate(request, auth_payload, user_context, token_ref)
+            token_authenticate(request, user_context, token_ref)
 
 
-def token_authenticate(request, auth_payload, user_context, token_ref):
+def token_authenticate(request, user_context, token_ref):
     try:
 
         # Do not allow tokens used for delegation to

@@ -56,12 +56,10 @@ class Mapped(base.AuthMethodHandler):
         if 'id' in auth_payload:
             token_ref = self._get_token_ref(auth_payload)
             handle_scoped_token(request,
-                                auth_payload,
                                 auth_context,
                                 token_ref,
                                 self.federation_api,
-                                self.identity_api,
-                                self.token_provider_api)
+                                self.identity_api)
         else:
             handle_unscoped_token(request,
                                   auth_payload,
@@ -71,8 +69,8 @@ class Mapped(base.AuthMethodHandler):
                                   self.identity_api)
 
 
-def handle_scoped_token(request, auth_payload, auth_context, token_ref,
-                        federation_api, identity_api, token_provider_api):
+def handle_scoped_token(request, auth_context, token_ref,
+                        federation_api, identity_api):
     utils.validate_expiration(token_ref)
     token_audit_id = token_ref.audit_id
     identity_provider = token_ref.federation_idp_id
