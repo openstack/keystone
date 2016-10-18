@@ -413,25 +413,16 @@ Token Persistence Driver
 
 Keystone supports customizable token persistence drivers. These can be
 specified in the ``[token]`` section of the configuration file. Keystone
-provides three non-test persistence backends. These can be set with the
+provides two non-test persistence backends. These can be set with the
 ``[token] driver`` configuration option.
 
 The drivers keystone provides are:
 
-* ``memcache_pool`` - The pooled memcached token persistence engine. This
-  backend supports the concept of pooled memcache client object (allowing for
-  the re-use of the client objects). This backend has a number of extra tunable
-  options in the ``[memcache]`` section of the config. Implemented by
-  :class:`keystone.token.persistence.backends.memcache_pool.Token`
+* ``kvs`` - The key-value store token persistence engine. Implemented by
+  :class:`keystone.token.persistence.backends.kvs.Token`
 
 * ``sql`` - The SQL-based (default) token persistence engine. Implemented by
   :class:`keystone.token.persistence.backends.sql.Token`
-
-* ``memcache`` - The memcached based token persistence backend. This backend
-  relies on ``dogpile.cache`` and stores the token data in a set of memcached
-  servers. The servers URLs are specified in the ``[memcache] servers``
-  configuration option in the keystone config. Implemented by
-  :class:`keystone.token.persistence.backends.memcache.Token`
 
 
 Token Provider
