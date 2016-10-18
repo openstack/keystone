@@ -18,6 +18,7 @@ import uuid
 
 import msgpack
 from oslo_utils import timeutils
+import six
 from six.moves import urllib
 
 from keystone.common import fernet_utils
@@ -28,7 +29,7 @@ from keystone.federation import constants as federation_constants
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
-from keystone.token import provider
+from keystone.token.providers import common
 from keystone.token.providers import fernet
 from keystone.token.providers.fernet import token_formatters
 
@@ -309,6 +310,13 @@ class TestPayloads(unit.TestCase):
         return self.assertCloseEnoughForGovernmentWork(exp_time, actual_time,
                                                        delta=1e-05)
 
+    def test_strings_can_be_converted_to_bytes(self):
+        s = common.random_urlsafe_str()
+        self.assertIsInstance(s, six.text_type)
+
+        b = token_formatters.BasePayload.random_urlsafe_str_to_bytes(s)
+        self.assertIsInstance(b, six.binary_type)
+
     def test_uuid_hex_to_byte_conversions(self):
         payload_cls = token_formatters.BasePayload
 
@@ -359,7 +367,7 @@ class TestPayloads(unit.TestCase):
         exp_user_id = exp_user_id or uuid.uuid4().hex
         exp_methods = exp_methods or ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
-        exp_audit_ids = [provider.random_urlsafe_str()]
+        exp_audit_ids = [common.random_urlsafe_str()]
 
         payload = payload_class.assemble(
             exp_user_id, exp_methods, exp_project_id, exp_domain_id,

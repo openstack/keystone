@@ -12,8 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from __future__ import absolute_import
+
+import base64
+import datetime
+import uuid
+
 from oslo_log import log
 from oslo_serialization import jsonutils
+from oslo_utils import timeutils
 import six
 from six.moves.urllib import parse
 
@@ -24,13 +31,56 @@ import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.i18n import _
-from keystone import token
-from keystone.token import provider
+from keystone.models import token_model
 from keystone.token.providers import base
 
 
 LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
+
+
+def default_expire_time():
+    """Determine when a fresh token should expire.
+
+    Expiration time varies based on configuration (see ``[token] expiration``).
+
+    :returns: a naive UTC datetime.datetime object
+
+    """
+    expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
+    expires_at = timeutils.utcnow() + expire_delta
+    return expires_at.replace(microsecond=0)
+
+
+def random_urlsafe_str():
+    """Generate a random URL-safe string.
+
+    :rtype: six.text_type
+
+    """
+    # chop the padding (==) off the end of the encoding to save space
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2].decode('utf-8')
+
+
+def build_audit_info(parent_audit_id=None):
+    """Build the audit data for a token.
+
+    If ``parent_audit_id`` is None, the list will be one element in length
+    containing a newly generated audit_id.
+
+    If ``parent_audit_id`` is supplied, the list will be two elements in length
+    containing a newly generated audit_id and the ``parent_audit_id``. The
+    ``parent_audit_id`` will always be element index 1 in the resulting
+    list.
+
+    :param parent_audit_id: the audit of the original token in the chain
+    :type parent_audit_id: str
+    :returns: Keystone token audit data
+    """
+    audit_id = random_urlsafe_str()
+    if parent_audit_id is not None:
+        return [audit_id, parent_audit_id]
+    return [audit_id]
 
 
 @dependency.requires('catalog_api', 'resource_api', 'assignment_api',
@@ -165,7 +215,7 @@ class V2TokenDataHelper(object):
         metadata_ref = token_ref['metadata']
         if roles_ref is None:
             roles_ref = []
-        expires = token_ref.get('expires', provider.default_expire_time())
+        expires = token_ref.get('expires', default_expire_time())
         if expires is not None:
             if not isinstance(expires, six.text_type):
                 expires = utils.isotime(expires)
@@ -177,7 +227,7 @@ class V2TokenDataHelper(object):
             audit_info = token_audit
 
         if audit_info is None:
-            audit_info = provider.audit_info(token_ref.get('parent_audit_id'))
+            audit_info = build_audit_info(token_ref.get('parent_audit_id'))
 
         o = {'access': {'token': {'id': token_ref['id'],
                                   'expires': expires,
@@ -550,7 +600,7 @@ class V3TokenDataHelper(object):
 
     def _populate_token_dates(self, token_data, expires=None, issued_at=None):
         if not expires:
-            expires = provider.default_expire_time()
+            expires = default_expire_time()
         if not isinstance(expires, six.string_types):
             expires = utils.isotime(expires, subsecond=True)
         token_data['expires_at'] = expires
@@ -559,7 +609,7 @@ class V3TokenDataHelper(object):
 
     def _populate_audit_info(self, token_data, audit_info=None):
         if audit_info is None or isinstance(audit_info, six.string_types):
-            token_data['audit_ids'] = provider.audit_info(audit_info)
+            token_data['audit_ids'] = build_audit_info(audit_info)
         elif isinstance(audit_info, list):
             token_data['audit_ids'] = audit_info
         else:
@@ -612,16 +662,16 @@ class BaseProvider(base.Provider):
     def get_token_version(self, token_data):
         if token_data and isinstance(token_data, dict):
             if 'token_version' in token_data:
-                if token_data['token_version'] in token.provider.VERSIONS:
+                if token_data['token_version'] in token_model.VERSIONS:
                     return token_data['token_version']
             # FIXME(morganfainberg): deprecate the following logic in future
             # revisions. It is better to just specify the token_version in
             # the token_data itself. This way we can support future versions
             # that might have the same fields.
             if 'access' in token_data:
-                return token.provider.V2
+                return token_model.V2
             if 'token' in token_data and 'methods' in token_data['token']:
-                return token.provider.V3
+                return token_model.V3
         raise exception.UnsupportedTokenVersionException()
 
     def issue_v2_token(self, token_ref, roles_ref=None,
