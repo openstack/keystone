@@ -20,6 +20,115 @@ However, a group without role assignments is permitted as a way of
 acquiring or loading users and groups from external sources before
 mapping them to projects and domains.
 
+
+List groups
+===========
+
+.. rest_method::  GET /v3/groups
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
+
+Lists groups.
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Request Parameters
+------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - name: group_name_query
+   - domain_id: domain_id_query
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - links: link_collection
+   - groups: groups
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/groups-list-response.json
+   :language: javascript
+
+
+Create group
+============
+
+.. rest_method::  POST /v3/groups
+
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
+
+Creates a group.
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 409
+
+Request Parameters
+------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group
+   - description: group_description_request_body
+   - domain_id: group_domain_id_request_body
+   - name: group_name_request_body
+
+Request Example
+---------------
+
+.. literalinclude:: ./samples/admin/group-create-request.json
+   :language: javascript
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/group-show-response.json
+   :language: javascript
+
+
 Show group details
 ==================
 
@@ -164,14 +273,14 @@ Request Parameters
    - group_id: group_id_path
 
 
-Add user to group
-=================
+List users in group
+===================
 
-.. rest_method::  PUT /v3/groups/{group_id}/users/{user_id}
+.. rest_method::  GET /v3/groups/{group_id}/users
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_users``
 
-Adds a user to a group.
+Lists the users that belong to a group.
 
 Response Codes
 --------------
@@ -192,25 +301,30 @@ Request Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - user_id: user_id_path
    - group_id: group_id_path
 
+Response Example
+----------------
 
-Remove user from group
-======================
+.. literalinclude:: ./samples/admin/group-users-list-response.json
+   :language: javascript
 
-.. rest_method::  DELETE /v3/groups/{group_id}/users/{user_id}
+
+Add user to group
+=================
+
+.. rest_method::  PUT /v3/groups/{group_id}/users/{user_id}
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_user``
 
-Removes a user from a group.
+Adds a user to a group.
 
 Response Codes
 --------------
 
 .. rest_status_code:: success status.yaml
 
-   - 204
+   - 200
 
 .. rest_status_code:: error status.yaml
 
@@ -260,21 +374,21 @@ Request Parameters
    - group_id: group_id_path
 
 
-List users in group
-===================
+Remove user from group
+======================
 
-.. rest_method::  GET /v3/groups/{group_id}/users
+.. rest_method::  DELETE /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_users``
+Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_user``
 
-Lists the users that belong to a group.
+Removes a user from a group.
 
 Response Codes
 --------------
 
 .. rest_status_code:: success status.yaml
 
-   - 200
+   - 204
 
 .. rest_status_code:: error status.yaml
 
@@ -288,118 +402,5 @@ Request Parameters
 
 .. rest_parameters:: parameters.yaml
 
+   - user_id: user_id_path
    - group_id: group_id_path
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/admin/group-users-list-response.json
-   :language: javascript
-
-
-Create group
-============
-
-.. rest_method::  POST /v3/groups
-
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
-
-Creates a group.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 201
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-   - 409
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group: group
-   - description: group_description_request_body
-   - domain_id: group_domain_id_request_body
-   - name: group_name_request_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/group-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group: group
-   - description: group_description_response_body
-   - domain_id: group_domain_id_response_body
-   - id: group_id_response_body
-   - links: link_response_body
-   - name: group_name_response_body
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/admin/group-show-response.json
-   :language: javascript
-
-
-List groups
-===========
-
-.. rest_method::  GET /v3/groups
-
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
-
-Lists groups.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - name: group_name_query
-   - domain_id: domain_id_query
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - links: link_collection
-   - groups: groups
-   - description: group_description_response_body
-   - domain_id: group_domain_id_response_body
-   - id: group_id_response_body
-   - links: link_response_body
-   - name: group_name_response_body
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/admin/groups-list-response.json
-   :language: javascript
