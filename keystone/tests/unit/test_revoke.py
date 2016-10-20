@@ -27,10 +27,6 @@ from keystone.tests.unit import test_backend_sql
 from keystone.token.providers import common
 
 
-def _new_id():
-    return uuid.uuid4().hex
-
-
 def _future_time():
     expire_delta = datetime.timedelta(seconds=1000)
     future_time = timeutils.utcnow() + expire_delta
@@ -354,7 +350,7 @@ class RevokeTests(object):
         # future 'synchronize' call.
         token_values = _sample_token_values()
 
-        audit_chain_id = _new_id()
+        audit_chain_id = uuid.uuid4().hex
         self.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
         token_values['audit_chain_id'] = audit_chain_id
         self.assertRaises(exception.TokenNotFound,
@@ -403,9 +399,9 @@ class RevokeListTests(unit.TestCase):
         project_ids = []
         role_ids = []
         for i in range(0, 3):
-            user_ids.append(_new_id())
-            project_ids.append(_new_id())
-            role_ids.append(_new_id())
+            user_ids.append(uuid.uuid4().hex)
+            project_ids.append(uuid.uuid4().hex)
+            role_ids.append(uuid.uuid4().hex)
 
         project_tokens = []
         i = len(project_tokens)
@@ -521,14 +517,14 @@ class RevokeListTests(unit.TestCase):
         self.events.append(event)
 
     def _user_field_test(self, field_name):
-        user_id = _new_id()
+        user_id = uuid.uuid4().hex
         event = self._revoke_by_user(user_id)
         self.events.append(event)
         token_data_u1 = _sample_blank_token()
         token_data_u1[field_name] = user_id
         self._assertTokenRevoked(token_data_u1)
         token_data_u2 = _sample_blank_token()
-        token_data_u2[field_name] = _new_id()
+        token_data_u2[field_name] = uuid.uuid4().hex
         self._assertTokenNotRevoked(token_data_u2)
         remove_event(self.revoke_events, event)
         self.events.remove(event)
@@ -638,9 +634,9 @@ class RevokeListTests(unit.TestCase):
         self._assertTokenRevoked(token_to_revoke)
 
     def test_by_project_and_user_and_role(self):
-        user_id1 = _new_id()
-        user_id2 = _new_id()
-        project_id = _new_id()
+        user_id1 = uuid.uuid4().hex
+        user_id2 = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
         self.events.append(self._revoke_by_user(user_id1))
         self.events.append(
             self._revoke_by_user_and_project(user_id2, project_id))
@@ -652,8 +648,8 @@ class RevokeListTests(unit.TestCase):
     def test_by_domain_user(self):
         # If revoke a domain, then a token for a user in the domain is revoked
 
-        user_id = _new_id()
-        domain_id = _new_id()
+        user_id = uuid.uuid4().hex
+        domain_id = uuid.uuid4().hex
 
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id
@@ -667,11 +663,11 @@ class RevokeListTests(unit.TestCase):
         # If revoke a domain, then a token scoped to a project in the domain
         # is revoked.
 
-        user_id = _new_id()
-        user_domain_id = _new_id()
+        user_id = uuid.uuid4().hex
+        user_domain_id = uuid.uuid4().hex
 
-        project_id = _new_id()
-        project_domain_id = _new_id()
+        project_id = uuid.uuid4().hex
+        project_domain_id = uuid.uuid4().hex
 
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id
@@ -686,10 +682,10 @@ class RevokeListTests(unit.TestCase):
     def test_by_domain_domain(self):
         # If revoke a domain, then a token scoped to the domain is revoked.
 
-        user_id = _new_id()
-        user_domain_id = _new_id()
+        user_id = uuid.uuid4().hex
+        user_domain_id = uuid.uuid4().hex
 
-        domain_id = _new_id()
+        domain_id = uuid.uuid4().hex
 
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id
@@ -708,13 +704,17 @@ class RevokeListTests(unit.TestCase):
         self._assertEmpty(self.revoke_events)
         for i in range(0, 10):
             events.append(
-                self._revoke_by_project_role_assignment(_new_id(), _new_id()))
+                self._revoke_by_project_role_assignment(uuid.uuid4().hex,
+                                                        uuid.uuid4().hex))
             events.append(
-                self._revoke_by_domain_role_assignment(_new_id(), _new_id()))
+                self._revoke_by_domain_role_assignment(uuid.uuid4().hex,
+                                                       uuid.uuid4().hex))
             events.append(
-                self._revoke_by_domain_role_assignment(_new_id(), _new_id()))
+                self._revoke_by_domain_role_assignment(uuid.uuid4().hex,
+                                                       uuid.uuid4().hex))
             events.append(
-                self._revoke_by_user_and_project(_new_id(), _new_id()))
+                self._revoke_by_user_and_project(uuid.uuid4().hex,
+                                                 uuid.uuid4().hex))
 
         for event in self.events:
             remove_event(self.revoke_events, event)
