@@ -712,6 +712,23 @@ class BaseProvider(base.Provider):
             token_data = token_ref.get('token_data')
             user_id = token_ref['user_id']
             if not token_data or 'token' not in token_data:
+                # NOTE(lbragstad): We should never get here. With the
+                # issue_token refactors that landed in Ocata, we should no
+                # longer be persisting different types of tokens. Everything is
+                # a v3 token, period. If a token needs to be represented in the
+                # v2.0 format, it should be translated at the controller layer.
+                # This code can be removed when Pike opens for development.
+                # The only reason I'm not removing it now is because of the
+                # ability for v2.0 token to be persisted while Newton code is
+                # still active in an upgrade to Ocata. Hopefully once a
+                # deployer is ready to upgrade to Ocata, there won't be any
+                # valid v2.0 formatted tokens in the backend and we can safely
+                # remove this case. I'm proposing this with an exception here
+                # to prove the tests will pass - ultimately meaning absolutely
+                # nothing in keystone uses this.
+                raise Exception(
+                    'Validating a v2.0 token! This should not happen!'
+                )
                 # NOTE(lbragstad): v2.0 tokens have an `access` dictionary
                 # instead of a `token` one. At this point we can safely assume
                 # we are validating a token that was created using the v2.0
