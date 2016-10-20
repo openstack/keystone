@@ -209,69 +209,6 @@ class V2TokenDataHelper(object):
         return {'access': token_data}
 
     @classmethod
-    def format_token(cls, token_ref, roles_ref=None, catalog_ref=None,
-                     trust_ref=None):
-        audit_info = None
-        user_ref = token_ref['user']
-        metadata_ref = token_ref['metadata']
-        if roles_ref is None:
-            roles_ref = []
-        expires = token_ref.get('expires', default_expire_time())
-        if expires is not None:
-            if not isinstance(expires, six.text_type):
-                expires = utils.isotime(expires)
-
-        token_data = token_ref.get('token_data')
-        if token_data:
-            token_audit = token_data.get(
-                'access', token_data).get('token', {}).get('audit_ids')
-            audit_info = token_audit
-
-        if audit_info is None:
-            audit_info = build_audit_info(token_ref.get('parent_audit_id'))
-
-        o = {'access': {'token': {'id': token_ref['id'],
-                                  'expires': expires,
-                                  'issued_at': utils.isotime(subsecond=True),
-                                  'audit_ids': audit_info
-                                  },
-                        'user': {'id': user_ref['id'],
-                                 'name': user_ref['name'],
-                                 'username': user_ref['name'],
-                                 'roles': roles_ref,
-                                 'roles_links': metadata_ref.get('roles_links',
-                                                                 [])
-                                 }
-                        }
-             }
-        if 'bind' in token_ref:
-            o['access']['token']['bind'] = token_ref['bind']
-        if 'tenant' in token_ref and token_ref['tenant']:
-            token_ref['tenant']['enabled'] = True
-            o['access']['token']['tenant'] = token_ref['tenant']
-        if catalog_ref is not None:
-            o['access']['serviceCatalog'] = V2TokenDataHelper.format_catalog(
-                catalog_ref)
-        if metadata_ref:
-            if 'is_admin' in metadata_ref:
-                o['access']['metadata'] = {'is_admin':
-                                           metadata_ref['is_admin']}
-            else:
-                o['access']['metadata'] = {'is_admin': 0}
-        if 'roles' in metadata_ref:
-            o['access']['metadata']['roles'] = metadata_ref['roles']
-        if CONF.trust.enabled and trust_ref:
-            o['access']['trust'] = {'trustee_user_id':
-                                    trust_ref['trustee_user_id'],
-                                    'id': trust_ref['id'],
-                                    'trustor_user_id':
-                                    trust_ref['trustor_user_id'],
-                                    'impersonation':
-                                    trust_ref['impersonation']
-                                    }
-        return o
-
-    @classmethod
     def format_catalog(cls, catalog_ref):
         """Munge catalogs from internal to output format.
 
