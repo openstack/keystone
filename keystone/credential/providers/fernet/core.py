@@ -80,7 +80,7 @@ class Provider(core.Provider):
                 crypto.encrypt(credential.encode('utf-8')),
                 primary_key_hash(keys))
         except (TypeError, ValueError) as e:
-            msg = 'Credential could not be encrypted: %s' % str(e)
+            msg = _('Credential could not be encrypted: %s') % str(e)
             LOG.error(msg)
             raise exception.CredentialEncryptionError(msg)
 
