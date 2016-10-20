@@ -3279,3 +3279,60 @@ class LdapFilterTests(identity_tests.FilterTests, LDAPTestSetup):
         # The LDAP identity driver currently does not support filtering on the
         # listing users for a given group, so will fail this test.
         super(LdapFilterTests, self).test_list_users_in_group_exact_filtered()
+
+
+class LDAPMatchingRuleInChainTests(LDAPTestSetup):
+
+    def setUp(self):
+        self.useFixture(database.Database())
+        super(LDAPMatchingRuleInChainTests, self).setUp()
+        _assert_backends(self, identity='ldap')
+
+        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
+        self.group = self.identity_api.create_group(group)
+
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        self.user = self.identity_api.create_user(user)
+
+        self.identity_api.add_user_to_group(self.user['id'],
+                                            self.group['id'])
+
+    def config_overrides(self):
+        super(LDAPMatchingRuleInChainTests, self).config_overrides()
+        self.config_fixture.config(group='identity', driver='ldap')
+        self.config_fixture.config(
+            group='ldap',
+            group_ad_nesting=True,
+            url='fake://memory',
+            chase_referrals=False,
+            group_tree_dn='cn=UserGroups,cn=example,cn=com',
+            query_scope='one')
+
+    def config_files(self):
+        config_files = super(LDAPMatchingRuleInChainTests, self).config_files()
+        config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
+        return config_files
+
+    def test_get_group(self):
+        group_ref = self.identity_api.get_group(self.group['id'])
+        self.assertDictEqual(self.group, group_ref)
+
+    def test_list_user_groups(self):
+        # tests indirectly by calling delete user
+        self.identity_api.delete_user(self.user['id'])
+
+    def test_list_groups_for_user(self):
+        groups_ref = self.identity_api.list_groups_for_user(self.user['id'])
+        self.assertEqual(0, len(groups_ref))
+
+    def test_list_groups(self):
+        groups_refs = self.identity_api.list_groups()
+        self.assertEqual(1, len(groups_refs))
+        self.assertEqual(self.group['id'], groups_refs[0]['id'])
+        self.identity_api.delete_group(self.group['id'])
+        self.assertRaises(exception.GroupNotFound,
+                          self.identity_api.get_group,
+                          self.group['id'])
+
+        groups_refs = self.identity_api.list_groups()
+        self.assertEqual([], groups_refs)
