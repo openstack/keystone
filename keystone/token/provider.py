@@ -208,20 +208,11 @@ class Manager(manager.Manager):
 
     def issue_token(self, user_id, method_names, expires_at=None,
                     project_id=None, is_domain=False, domain_id=None,
-                    auth_context=None, trust=None, metadata_ref=None,
-                    include_catalog=True, parent_audit_id=None):
+                    auth_context=None, trust=None, include_catalog=True,
+                    parent_audit_id=None):
         token_id, token_data = self.driver.issue_token(
             user_id, method_names, expires_at, project_id, domain_id,
-            auth_context, trust, metadata_ref, include_catalog,
-            parent_audit_id)
-
-        if metadata_ref is None:
-            metadata_ref = {}
-
-        if trust:
-            metadata_ref.setdefault('trust_id', trust['id'])
-            metadata_ref.setdefault('trustee_user_id',
-                                    trust['trustee_user_id'])
+            auth_context, trust, include_catalog, parent_audit_id)
 
         data = dict(key=token_id,
                     id=token_id,
@@ -229,7 +220,6 @@ class Manager(manager.Manager):
                     user=token_data['token']['user'],
                     tenant=token_data['token'].get('project'),
                     is_domain=is_domain,
-                    metadata=metadata_ref,
                     token_data=token_data,
                     trust_id=trust['id'] if trust else None,
                     token_version=self.V3)

@@ -236,7 +236,6 @@ class TokenDriverBase(object):
                 id=token_id,
                 user=user_ref,
                 tenant=tenant_ref,
-                metadata=metadata_ref
             }
 
         :type data: dict

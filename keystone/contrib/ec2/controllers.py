@@ -113,7 +113,7 @@ class Ec2ControllerCommon(object):
     def _authenticate(self, credentials=None, ec2credentials=None):
         """Common code shared between the V2 and V3 authenticate methods.
 
-        :returns: user_ref, tenant_ref, metadata_ref, roles_ref, catalog_ref
+        :returns: user_ref, tenant_ref, roles_ref, catalog_ref
         """
         # FIXME(ja): validate that a service token was used!
 
@@ -132,15 +132,6 @@ class Ec2ControllerCommon(object):
         # TODO(termie): this is copied from TokenController.authenticate
         tenant_ref = self.resource_api.get_project(creds_ref['tenant_id'])
         user_ref = self.identity_api.get_user(creds_ref['user_id'])
-        metadata_ref = {}
-        metadata_ref['roles'] = (
-            self.assignment_api.get_roles_for_user_and_project(
-                user_ref['id'], tenant_ref['id']))
-
-        trust_id = creds_ref.get('trust_id')
-        if trust_id:
-            metadata_ref['trust_id'] = trust_id
-            metadata_ref['trustee_user_id'] = user_ref['id']
 
         # Validate that the auth info is valid and nothing is disabled
         try:
@@ -154,7 +145,9 @@ class Ec2ControllerCommon(object):
             six.reraise(exception.Unauthorized, exception.Unauthorized(e),
                         sys.exc_info()[2])
 
-        roles = metadata_ref.get('roles', [])
+        roles = self.assignment_api.get_roles_for_user_and_project(
+            user_ref['id'], tenant_ref['id']
+        )
         if not roles:
             raise exception.Unauthorized(
                 message=_('User not valid for tenant.'))
@@ -163,7 +156,7 @@ class Ec2ControllerCommon(object):
         catalog_ref = self.catalog_api.get_catalog(
             user_ref['id'], tenant_ref['id'])
 
-        return user_ref, tenant_ref, metadata_ref, roles_ref, catalog_ref
+        return user_ref, tenant_ref, roles_ref, catalog_ref
 
     def create_credential(self, request, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
@@ -377,15 +370,14 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         self.check_protection(request, prep_info, ref)
 
     def authenticate(self, context, credentials=None, ec2Credentials=None):
-        (user_ref, project_ref, metadata_ref, roles_ref,
-         catalog_ref) = self._authenticate(credentials=credentials,
-                                           ec2credentials=ec2Credentials)
+        (user_ref, project_ref, roles_ref, catalog_ref) = self._authenticate(
+            credentials=credentials, ec2credentials=ec2Credentials
+        )
 
         method_names = ['ec2credential']
 
         token_id, token_data = self.token_provider_api.issue_token(
-            user_ref['id'], method_names, project_id=project_ref['id'],
-            metadata_ref=metadata_ref)
+            user_ref['id'], method_names, project_id=project_ref['id'])
         return render_token_data_response(token_id, token_data)
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
