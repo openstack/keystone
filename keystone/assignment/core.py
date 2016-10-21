@@ -180,21 +180,9 @@ class Manager(manager.Manager):
         role_ids = list(set([x['role_id'] for x in assignment_list]))
         return self.role_api.list_roles_from_ids(role_ids)
 
-    def add_user_to_project(self, tenant_id, user_id):
-        """Add user to a tenant by creating a default role relationship.
-
-        :raises keystone.exception.ProjectNotFound: If the project doesn't
-            exist.
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-
-        """
-        self.resource_api.get_project(tenant_id)
+    def ensure_default_role(self):
         try:
             self.role_api.get_role(CONF.member_role_id)
-            self.driver.add_role_to_user_and_project(
-                user_id,
-                tenant_id,
-                CONF.member_role_id)
         except exception.RoleNotFound:
             LOG.info(_LI("Creating the default role %s "
                          "because it does not exist."),
@@ -207,11 +195,23 @@ class Manager(manager.Manager):
                 LOG.info(_LI("Creating the default role %s failed because it "
                              "was already created"),
                          CONF.member_role_id)
-            # now that default role exists, the add should succeed
-            self.driver.add_role_to_user_and_project(
-                user_id,
-                tenant_id,
-                CONF.member_role_id)
+
+    def add_user_to_project(self, tenant_id, user_id):
+        """Add user to a tenant by creating a default role relationship.
+
+        :raises keystone.exception.ProjectNotFound: If the project doesn't
+            exist.
+        :raises keystone.exception.UserNotFound: If the user doesn't exist.
+
+        """
+        self.resource_api.get_project(tenant_id)
+        self.ensure_default_role()
+
+        # now that default role exists, the add should succeed
+        self.driver.add_role_to_user_and_project(
+            user_id,
+            tenant_id,
+            CONF.member_role_id)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     @notifications.role_assignment('created')
