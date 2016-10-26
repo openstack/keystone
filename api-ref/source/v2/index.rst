@@ -10,3 +10,4 @@
 .. include:: identity-auth.inc
 .. include:: versions.inc
 .. include:: overview.inc
+.. include:: revocations.inc
