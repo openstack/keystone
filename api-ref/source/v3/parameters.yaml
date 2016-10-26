@@ -1595,6 +1595,13 @@ services:
   in: body
   required: true
   type: array
+signed:
+  description: |
+    List of expired PKI tokens, signed by the
+    cryptographic message syntax (CMS).
+  in: body
+  required: true
+  type: string
 token:
   description: |
     A ``token`` object.
