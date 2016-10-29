@@ -208,7 +208,7 @@ class RegionV3(controller.V3Controller):
     collection_name = 'regions'
     member_name = 'region'
 
-    def create_region_with_id(self, context, region_id, region):
+    def create_region_with_id(self, request, region_id, region):
         """Create a region with a user-specified ID.
 
         This method is unprotected because it depends on ``self.create_region``
@@ -221,7 +221,7 @@ class RegionV3(controller.V3Controller):
                       'url_id': region_id,
                       'ref_id': region['id']})
         region['id'] = region_id
-        return self.create_region(context, region)
+        return self.create_region(request, region)
 
     @controller.protected()
     def create_region(self, request, region):

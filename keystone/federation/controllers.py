@@ -408,14 +408,14 @@ class Auth(auth_controllers.Auth):
             status=(http_client.OK, http_client.responses[http_client.OK]),
             headers=headers)
 
-    def create_ecp_assertion(self, context, auth):
+    def create_ecp_assertion(self, request, auth):
         """Exchange a scoped token for an ECP assertion.
 
         :param auth: Dictionary that contains a token and service provider ID
         :returns: ECP Assertion based on properties from the token
         """
         validation.lazy_validate(schema.saml_create, auth)
-        t = self._create_base_saml_assertion(context, auth)
+        t = self._create_base_saml_assertion(request.context_dict, auth)
         (saml_assertion, service_provider) = t
         relay_state_prefix = service_provider['relay_state_prefix']
 

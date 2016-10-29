@@ -309,11 +309,11 @@ class RoleV3(controller.V3Controller):
             return False
         return self._is_domain_role(role)
 
-    def create_role_wrapper(self, context, role):
+    def create_role_wrapper(self, request, role):
         if self._is_domain_role(role):
-            return self.create_domain_role(context, role=role)
+            return self.create_domain_role(request, role=role)
         else:
-            return self.create_role(context, role=role)
+            return self.create_role(request, role=role)
 
     @controller.protected()
     def create_role(self, request, role):
@@ -339,11 +339,11 @@ class RoleV3(controller.V3Controller):
     def list_domain_roles(self, request, filters):
         return self._list_roles(request, filters)
 
-    def get_role_wrapper(self, context, role_id):
+    def get_role_wrapper(self, request, role_id):
         if self._is_domain_role_target(role_id):
-            return self.get_domain_role(context, role_id=role_id)
+            return self.get_domain_role(request, role_id=role_id)
         else:
-            return self.get_role(context, role_id=role_id)
+            return self.get_role(request, role_id=role_id)
 
     @controller.protected()
     def get_role(self, request, role_id):
@@ -353,15 +353,15 @@ class RoleV3(controller.V3Controller):
     def get_domain_role(self, request, role_id):
         return self._get_role(request, role_id)
 
-    def update_role_wrapper(self, context, role_id, role):
+    def update_role_wrapper(self, request, role_id, role):
         # Since we don't allow you change whether a role is global or domain
         # specific, we can ignore the new update attributes and just look at
         # the existing role.
         if self._is_domain_role_target(role_id):
             return self.update_domain_role(
-                context, role_id=role_id, role=role)
+                request, role_id=role_id, role=role)
         else:
-            return self.update_role(context, role_id=role_id, role=role)
+            return self.update_role(request, role_id=role_id, role=role)
 
     @controller.protected()
     def update_role(self, request, role_id, role):
@@ -373,11 +373,11 @@ class RoleV3(controller.V3Controller):
         validation.lazy_validate(schema.role_update, role)
         return self._update_role(request, role_id, role)
 
-    def delete_role_wrapper(self, context, role_id):
+    def delete_role_wrapper(self, request, role_id):
         if self._is_domain_role_target(role_id):
-            return self.delete_domain_role(context, role_id=role_id)
+            return self.delete_domain_role(request, role_id=role_id)
         else:
-            return self.delete_role(context, role_id=role_id)
+            return self.delete_role(request, role_id=role_id)
 
     @controller.protected()
     def delete_role(self, request, role_id):
