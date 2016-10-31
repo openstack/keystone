@@ -88,6 +88,7 @@ Tips
    with `HTTP_`, so for instance, if you set OIDCClaimPrefix to `OIDC-`, then a
    typical remote value to check for is: `HTTP_OIDC_ISS`.
 
-2. Don't forget to add oidc as an [auth] plugin in keystone.conf, see `Step 2`_
+2. Don't forget to add oidc as an [auth] plugin in keystone.conf, see
+   `Configure authentication drivers in keystone.conf`_
 
-.. _`Step 2`: federation.html
+.. _`Configure authentication drivers in keystone.conf`: federated_identity.html#configure-authentication-drivers-in-keystone-conf
