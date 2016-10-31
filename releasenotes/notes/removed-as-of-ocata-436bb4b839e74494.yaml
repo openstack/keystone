@@ -58,10 +58,11 @@ other:
     The ``keystone/service.py`` file has been removed, the logic has been
     moved to the ``keystone/version/service.py``.
   - >
-    The ``build_auth_context`` middleware has been removed. If your deployment
-    requires use of the `admin token`, update ``keystone-paste.ini`` so that
-    ``admin_token_auth`` is before ``build_auth_context`` in the paste
-    pipelines, otherwise remove the ``admin_token_auth`` middleware entirely.
+    The check for admin token from ``build_auth_context`` middleware has been
+    removed. If your deployment requires the use of `admin token`, update
+    ``keystone-paste.ini`` so that ``admin_token_auth`` is before
+    ``build_auth_context`` in the paste pipelines, otherwise remove the
+    ``admin_token_auth`` middleware from ``keystone-paste.ini`` entirely.
   - >
     The ``CONF [assignment] driver`` now defaults to ``sql``. Logic to
     determine the default assignment driver if one wasn't supplied through
