@@ -247,12 +247,9 @@ userAccountControl`.
 user_attribute_ignore = cfg.ListOpt(
     'user_attribute_ignore',
     default=['default_project_id'],
-    deprecated_for_removal=True,
-    deprecated_reason=_DEPRECATED_LDAP_WRITE,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
-List of user attributes to ignore on create and update. This is only used for
-write operations.
+List of user attributes to ignore on create and update, or whether a specific
+user attribute should be filtered for list or show user.
 """))
 
 user_default_project_id_attribute = cfg.StrOpt(
@@ -394,12 +391,9 @@ The LDAP attribute mapped to group descriptions in keystone.
 group_attribute_ignore = cfg.ListOpt(
     'group_attribute_ignore',
     default=[],
-    deprecated_for_removal=True,
-    deprecated_reason=_DEPRECATED_LDAP_WRITE,
-    deprecated_since=versionutils.deprecated.MITAKA,
     help=utils.fmt("""
-List of group attributes to ignore on create and update. This is only used for
-write operations.
+List of group attributes to ignore on create and update. or whether a specific
+group attribute should be filtered for list or show group.
 """))
 
 group_allow_create = cfg.BoolOpt(
