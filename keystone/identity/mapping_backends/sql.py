@@ -57,6 +57,10 @@ class Mapping(base.MappingDriverBase):
             except sql.NotFound:
                 return None
 
+    def get_domain_mapping_list(self, domain_id):
+        with sql.session_for_read() as session:
+            return session.query(IDMapping).filter_by(domain_id=domain_id)
+
     def get_id_mapping(self, public_id):
         with sql.session_for_read() as session:
             mapping_ref = session.query(IDMapping).get(public_id)
