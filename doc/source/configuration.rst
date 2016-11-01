@@ -437,8 +437,8 @@ configuring the following property.
   :class:`keystone.token.providers.uuid.Provider`
 
 
-UUID, PKI, PKIZ, or Fernet?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UUID or Fernet?
+^^^^^^^^^^^^^^^
 
 Each token format uses different technologies to achieve various performance,
 scaling and architectural requirements.
@@ -449,29 +449,6 @@ transport and are thus URL-friendly. They must be persisted by the identity
 service in order to be later validated. Revoking them is simply a matter of
 deleting them from the token persistence backend.
 
-Both PKI and PKIZ tokens contain JSON payloads that represent the entire token
-validation response that would normally be retrieved from keystone. The payload
-is then signed using `Cryptographic Message Syntax (CMS)
-<http://en.wikipedia.org/wiki/Cryptographic_Message_Syntax>`_. The combination
-of CMS and the exhaustive payload allows PKI and PKIZ tokens to be verified
-offline using keystone's public signing key. The only reason for them to be
-persisted by the identity service is to later build token revocation *lists*
-(explicit lists of tokens that have been revoked), otherwise they are
-theoretically ephemeral when supported by token revocation *events* (which
-describe invalidated tokens rather than enumerate them). PKIZ tokens add zlib
-compression after signing to achieve a smaller overall token size. To make them
-URL-friendly, PKI tokens are base64 encoded and then arbitrarily manipulated to
-replace unsafe characters with safe ones whereas PKIZ tokens use conventional
-base64url encoding. Due to the size of the payload and the overhead incurred by
-the CMS format, both PKI and PKIZ tokens may be too long to fit in either
-headers or URLs if they contain extensive service catalogs or other additional
-attributes. Some third-party applications such as web servers and clients may
-need to be recompiled from source to customize the limitations that PKI and
-PKIZ tokens would otherwise exceed). Both PKI and PKIZ tokens require signing
-certificates which may be created using ``keystone-manage pki_setup`` for
-demonstration purposes (this is not recommended for production deployments: use
-certificates issued by an trusted CA instead).
-
 Fernet tokens contain a limited amount of identity and authorization data in a
 `MessagePacked <http://msgpack.org/>`_ payload. The payload is then wrapped as
 a `Fernet <https://github.com/fernet/spec>`_ message for transport, where
@@ -481,7 +458,7 @@ established using ``keystone-manage fernet_setup`` and periodically rotated
 using ``keystone-manage fernet_rotate``.
 
 .. WARNING::
-    UUID, PKI, PKIZ, and Fernet tokens are all bearer tokens, meaning that they
+    UUID and Fernet tokens are both bearer tokens, meaning that they
     must be protected from unnecessary disclosure to prevent unauthorized
     access.
 
@@ -1352,7 +1329,7 @@ through the normal REST API. At the moment, the following calls are supported:
 * ``mapping_engine``: Test your federation mapping rules.
 * ``mapping_populate``: Prepare domain-specific LDAP backend
 * ``mapping_purge``: Purge the identity mapping table.
-* ``pki_setup``: Initialize the certificates used to sign tokens.
+* ``pki_setup``: Initialize the certificates used to sign revocation lists.
 * ``saml_idp_metadata``: Generate identity provider metadata.
 * ``token_flush``: Purge expired tokens
 

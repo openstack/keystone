@@ -82,16 +82,16 @@ max_param_size = cfg.IntOpt(
 Limit the sizes of user & project ID/names.
 """))
 
-# we allow tokens to be a bit larger to accommodate PKI
+# NOTE(breton): 255 is the size of the database columns used for ID fields.
+# This size is picked so that the tokens can be indexed in-place as opposed to
+# being entries in a string table. Thus, this is a performance decision.
 max_token_size = cfg.IntOpt(
     'max_token_size',
-    default=8192,
+    default=255,
     help=utils.fmt("""
 Similar to `[DEFAULT] max_param_size`, but provides an exception for token
-values. With PKI / PKIZ tokens, this needs to be set close to 8192 (any higher,
-and other HTTP implementations may break), depending on the size of your
-service catalog and other factors. With Fernet tokens, this can be set as low
-as 255. With UUID tokens, this should be set to 32).
+values. With Fernet tokens, this can be set as low as 255. With UUID tokens,
+this should be set to 32).
 """))
 
 member_role_id = cfg.StrOpt(

@@ -53,7 +53,7 @@ Available commands:
 * ``mapping_populate``: Prepare domain-specific LDAP backend.
 * ``mapping_purge``: Purge the identity mapping table.
 * ``mapping_engine``: Test your federation mapping rules.
-* ``pki_setup``: Initialize the certificates used to sign tokens. **deprecated**
+* ``pki_setup``: Initialize the certificates used to sign revocation lists. **deprecated**
 * ``saml_idp_metadata``: Generate identity provider metadata.
 * ``token_flush``: Purge expired tokens.
 

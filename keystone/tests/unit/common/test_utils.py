@@ -18,7 +18,6 @@ import uuid
 import freezegun
 from oslo_config import fixture as config_fixture
 from oslo_log import log
-from oslo_serialization import jsonutils
 import six
 
 from keystone.common import fernet_utils
@@ -195,12 +194,6 @@ class UtilsTestCase(unit.BaseTestCase):
         for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
             TZ = 'UTC' + d
             _test_unixtime()
-
-    def test_pki_encoder(self):
-        data = {'field': 'value'}
-        json = jsonutils.dumps(data, cls=common_utils.PKIEncoder)
-        expected_json = '{"field":"value"}'
-        self.assertEqual(expected_json, json)
 
     def test_url_safe_check(self):
         base_str = 'i am safe'

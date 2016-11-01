@@ -10,13 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import hashlib
 import sys
 
 from oslo_config import cfg
-from oslo_log import versionutils
 
-from keystone.conf import constants
 from keystone.conf import utils
 
 
@@ -66,14 +63,12 @@ provider = cfg.StrOpt(
     help=utils.fmt("""
 Entry point for the token provider in the `keystone.token.provider` namespace.
 The token provider controls the token construction, validation, and revocation
-operations. Keystone includes `fernet`, `pkiz`, `pki`, and `uuid` token
+operations. Keystone includes `fernet` and `uuid` token
 providers. `uuid` tokens must be persisted (using the backend specified in the
 `[token] driver` option), but do not require any extra configuration or setup.
 `fernet` tokens do not need to be persisted at all, but require that you run
 `keystone-manage fernet_setup` (also see the `keystone-manage fernet_rotate`
-command). `pki` and `pkiz` tokens can be validated offline, without making HTTP
-calls to keystone, but require that certificates be installed and distributed
-to facilitate signing tokens and later validating those signatures.
+command).
 """))
 
 driver = cfg.StrOpt(
@@ -128,26 +123,6 @@ for tokens with a more specific scope) or to provide their credentials in every
 request for a scoped token to avoid re-scoping altogether.
 """))
 
-# This attribute only exists in Python 2.7.8+ or 3.2+
-hash_choices = getattr(hashlib, 'algorithms_guaranteed', None)
-hash_choices = sorted(hash_choices) if hash_choices else None
-hash_algorithm = cfg.StrOpt(
-    'hash_algorithm',
-    default='md5',
-    choices=hash_choices,
-    deprecated_for_removal=True,
-    deprecated_reason=constants._DEPRECATE_PKI_MSG,
-    deprecated_since=versionutils.deprecated.MITAKA,
-    help=utils.fmt("""
-This controls the hash algorithm to use to uniquely identify PKI tokens without
-having to transmit the entire token to keystone (which may be several
-kilobytes). This can be set to any algorithm that hashlib supports. WARNING:
-Before changing this value, the `auth_token` middleware protecting all other
-services must be configured with the set of hash algorithms to expect from
-keystone (both your old and new value for this option), otherwise token
-revocation will not be processed correctly.
-"""))
-
 infer_roles = cfg.BoolOpt(
     'infer_roles',
     default=True,
@@ -176,7 +151,6 @@ ALL_OPTS = [
     cache_time,
     revoke_by_id,
     allow_rescope_scoped_token,
-    hash_algorithm,
     infer_roles,
     cache_on_issue,
 ]
