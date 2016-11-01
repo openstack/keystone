@@ -146,6 +146,13 @@ serviceCatalog:
   in: body
   required: true
   type: array
+signed:
+  description: |
+    List of expired PKI tokens, signed by associated
+    cryptographic message syntax (CMS).
+  in: body
+  required: true
+  type: string
 tenant:
   description: |
     A ``tenant`` object.
