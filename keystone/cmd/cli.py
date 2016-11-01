@@ -437,7 +437,12 @@ class DbSync(BaseApp):
     def main():
         assert_not_extension(CONF.command.extension)
 
-        if CONF.command.expand:
+        # It is possible to run expand and migrate at the same time,
+        # expand needs to run first however.
+        if CONF.command.expand and CONF.command.migrate:
+            upgrades.expand_schema()
+            upgrades.migrate_data()
+        elif CONF.command.expand:
             upgrades.expand_schema()
         elif CONF.command.migrate:
             upgrades.migrate_data()
