@@ -181,6 +181,7 @@ class AuthInfo(object):
                 if (CONF.resource.domain_name_url_safe == 'strict' and
                         utils.is_not_url_safe(domain_name)):
                     msg = _('Domain name cannot contain reserved characters.')
+                    LOG.warning(msg)
                     raise exception.Unauthorized(message=msg)
                 domain_ref = self.resource_api.get_domain_by_name(
                     domain_name)
@@ -206,6 +207,7 @@ class AuthInfo(object):
                 if (CONF.resource.project_name_url_safe == 'strict' and
                         utils.is_not_url_safe(project_name)):
                     msg = _('Project name cannot contain reserved characters.')
+                    LOG.warning(msg)
                     raise exception.Unauthorized(message=msg)
                 if 'domain' not in project_info:
                     raise exception.ValidationError(attribute='domain',
@@ -220,6 +222,7 @@ class AuthInfo(object):
                 # disabled.
                 self._lookup_domain({'id': project_ref['domain_id']})
         except exception.ProjectNotFound as e:
+            LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
         self._assert_project_is_enabled(project_ref)
         return project_ref
@@ -427,6 +430,7 @@ class Auth(controller.V3Controller):
             return render_token_data_response(token_id, token_data,
                                               created=True)
         except exception.TrustNotFound as e:
+            LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
 
     def _check_and_set_default_scoping(self, auth_info, auth_context):
@@ -533,7 +537,8 @@ class Auth(controller.V3Controller):
             raise exception.AdditionalAuthRequired(auth_response)
 
         if 'user_id' not in auth_context:
-            msg = _('User not found')
+            msg = _('User not found by auth plugin; authentication failed')
+            LOG.warning(msg)
             raise exception.Unauthorized(msg)
 
     @controller.protected()
