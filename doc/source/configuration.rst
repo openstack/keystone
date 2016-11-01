@@ -490,13 +490,27 @@ using ``keystone-manage fernet_rotate``.
 Caching Layer
 -------------
 
-Keystone supports a caching layer that is above the configurable subsystems
-(e.g. ``token``, ``identity``, etc). Keystone uses the `dogpile.cache`_ library
-which allows for flexible cache backends. The majority of the caching
-configuration options are set in the ``[cache]`` section. However, each section
-that has the capability to be cached usually has a ``caching`` boolean value
-that will toggle caching for that specific section. The current default
-behavior is that global and subsystem caching is enabled.
+Keystone's configuration file offers two separate sections related to caching,
+``[memcache]`` and ``[cache]``. The ``[memcache]`` section provides caching
+options to configure memcache backends. For example, if your deployment issues
+UUID tokens (``[token] provider = uuid``) and your token storage driver is
+memcache (``[token] driver = kvs``), the configuration options in the
+``[memcache]`` section will effect token storage behavior. The ``[cache]``
+section is provided through the ``oslo.cache`` library and consists of options
+to configure the caching of data between a particular keystone subsystem (e.g.
+``token``, ``identity``, etc) and its configured storage backend. For example,
+if your deployment's identity backend is using SQL (``[identity] driver =
+sql``) and you have caching enabled (``[cache] enabled = true``),
+``oslo.cache`` will cache responses from SQL improving the overall performance
+of the identity subsystem. The options in the ``[cache]`` section will effect
+the caching layer in-between a keystone subsystem and its storage backend.
+
+Keystone uses the `dogpile.cache`_ library which allows for flexible cache
+backends. The majority of the caching configuration options are set in the
+``[cache]`` section.  However, each section that has the capability to be
+cached usually has a ``caching`` boolean value that will toggle caching for
+that specific section.  The current default behavior is that global and
+subsystem caching is enabled.
 
 ``[cache]`` configuration section:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
