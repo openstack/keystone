@@ -993,9 +993,21 @@ class DomainConfigUploadFiles(object):
                 return False
             return True
 
+        success_cnt = 0
+        failure_cnt = 0
         for filename, domain_name in self._domain_config_finder(conf_dir):
-            self._upload_config_to_database(filename, domain_name)
+            if self._upload_config_to_database(filename, domain_name):
+                success_cnt += 1
+                LOG.info(_LI('Successfully uploaded domain config %r'),
+                         filename)
+            else:
+                failure_cnt += 1
 
+        if success_cnt == 0:
+            LOG.warning(_LW('No domain configs uploaded from %r'), conf_dir)
+
+        if failure_cnt:
+            return False
         return True
 
     def run(self):
