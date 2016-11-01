@@ -51,7 +51,7 @@ on GitHub for example, or even keeping your implementation private. We
 use `Setuptools entry points`_ to load your driver from anywhere in the
 Python path.
 
-.. _Setuptools entry points: no good resource?
+.. _Setuptools entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 
 How To Make a Driver
 --------------------
