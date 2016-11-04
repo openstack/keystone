@@ -37,9 +37,8 @@ def validate_password(password):
             if not re.match(pattern, password):
                 pattern_desc = (
                     CONF.security_compliance.password_regex_description)
-                detail = _("The password does not meet the requirements: "
-                           "%(message)s") % {'message': pattern_desc}
-                raise exception.PasswordValidationError(detail=detail)
+                raise exception.PasswordRequirementsValidationError(
+                    detail=pattern_desc)
         except re.error:
             msg = _LE("Unable to validate password due to invalid regular "
                       "expression - password_regex: ")

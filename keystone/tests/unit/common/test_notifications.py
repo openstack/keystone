@@ -12,9 +12,11 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import datetime
 import uuid
 
 import fixtures
+import freezegun
 import mock
 from oslo_config import fixture as config_fixture
 from oslo_log import log
@@ -24,6 +26,7 @@ from pycadf import eventfactory
 from pycadf import resource as cadfresource
 
 import keystone.conf
+from keystone import exception
 from keystone import notifications
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
@@ -76,13 +79,14 @@ class AuditNotificationsTestCase(unit.BaseTestCase):
                 'keystone.notifications._create_cadf_payload') as cadf_notify:
             notify_function(EXP_RESOURCE_TYPE, exp_resource_id)
             initiator = None
+            reason = None
             cadf_notify.assert_called_once_with(
                 operation, EXP_RESOURCE_TYPE, exp_resource_id,
-                notifications.taxonomy.OUTCOME_SUCCESS, initiator)
+                notifications.taxonomy.OUTCOME_SUCCESS, initiator, reason)
             notify_function(EXP_RESOURCE_TYPE, exp_resource_id, public=False)
             cadf_notify.assert_called_once_with(
                 operation, EXP_RESOURCE_TYPE, exp_resource_id,
-                notifications.taxonomy.OUTCOME_SUCCESS, initiator)
+                notifications.taxonomy.OUTCOME_SUCCESS, initiator, reason)
 
     def test_resource_created_notification(self):
         self._test_notification_operation_with_basic_format(
@@ -248,7 +252,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
             notifications, '_send_notification', fake_notify))
 
         def fake_audit(action, initiator, outcome, target,
-                       event_type, **kwargs):
+                       event_type, reason=None, **kwargs):
             service_security = cadftaxonomy.SERVICE_SECURITY
 
             event = eventfactory.EventFactory().new_event(
@@ -257,13 +261,16 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
                 action=action,
                 initiator=initiator,
                 target=target,
+                reason=reason,
                 observer=cadfresource.Resource(typeURI=service_security))
 
             for key, value in kwargs.items():
                 setattr(event, key, value)
 
+            payload = event.as_dict()
+
             audit = {
-                'payload': event.as_dict(),
+                'payload': payload,
                 'event_type': event_type,
                 'send_notification_called': True}
             self._audits.append(audit)
@@ -290,7 +297,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
             self.assertEqual(actor_operation, note['actor_operation'])
 
     def _assert_last_audit(self, resource_id, operation, resource_type,
-                           target_uri):
+                           target_uri, reason=None):
         # NOTE(stevemar): If 'cadf' format is not used, then simply
         # return since this assertion is not valid.
         if CONF.notification_format != 'cadf':
@@ -298,13 +305,22 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self.assertGreater(len(self._audits), 0)
         audit = self._audits[-1]
         payload = audit['payload']
-        self.assertEqual(resource_id, payload['resource_info'])
-        action = '%s.%s' % (operation, resource_type)
+        if 'resource_info' in payload:
+            self.assertEqual(resource_id, payload['resource_info'])
+        action = '.'.join(filter(None, [operation, resource_type]))
         self.assertEqual(action, payload['action'])
         self.assertEqual(target_uri, payload['target']['typeURI'])
-        self.assertEqual(resource_id, payload['target']['id'])
-        event_type = '%s.%s.%s' % ('identity', resource_type, operation)
+        if resource_id:
+            self.assertEqual(resource_id, payload['target']['id'])
+        event_type = '.'.join(filter(None, ['identity',
+                                            resource_type,
+                                            operation]))
         self.assertEqual(event_type, audit['event_type'])
+        if reason:
+            self.assertEqual(reason['reasonCode'],
+                             payload['reason']['reasonCode'])
+            self.assertEqual(reason['reasonType'],
+                             payload['reason']['reasonType'])
         self.assertTrue(audit['send_notification_called'])
 
     def _assert_initiator_data_is_set(self, operation, resource_type, typeURI):
@@ -686,6 +702,171 @@ class NotificationsForEntities(BaseNotificationTest):
                                actor_operation='removed')
 
 
+class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
+
+    def setUp(self):
+        super(CADFNotificationsForPCIDSSEvents, self).setUp()
+        conf = self.useFixture(config_fixture.Config(CONF))
+        conf.config(notification_format='cadf')
+        conf.config(group='security_compliance',
+                    password_expires_days=2)
+        conf.config(group='security_compliance',
+                    lockout_failure_attempts=3)
+        conf.config(group='security_compliance',
+                    unique_last_password_count=2)
+        conf.config(group='security_compliance',
+                    minimum_password_age=2)
+        conf.config(group='security_compliance',
+                    password_regex='^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
+        conf.config(group='security_compliance',
+                    password_regex_description='1 letter, 1 digit, 7 chars')
+
+    def test_password_expired_sends_notification(self):
+        password = uuid.uuid4().hex
+        password_creation_time = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(
+                days=CONF.security_compliance.password_expires_days + 1)
+        )
+        freezer = freezegun.freeze_time(password_creation_time)
+
+        # NOTE(gagehugo): This part below uses freezegun to spoof
+        # the time as being three days in the past from right now. We will
+        # create a user and have that user successfully authenticate,
+        # then stop the time machine and return to the present time,
+        # where the user's password is now expired.
+        freezer.start()
+        user_ref = unit.new_user_ref(domain_id=self.domain_id,
+                                     password=password)
+        user_ref = self.identity_api.create_user(user_ref)
+        self.identity_api.authenticate(self.make_request(),
+                                       user_ref['id'], password)
+        freezer.stop()
+
+        reason_type = (exception.PasswordExpired.message_format %
+                       {'user_id': user_ref['id']})
+        expected_reason = {'reasonCode': '401',
+                           'reasonType': reason_type}
+        self.assertRaises(exception.PasswordExpired,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=user_ref['id'],
+                          password=password)
+        self._assert_last_audit(None, 'authenticate', None,
+                                cadftaxonomy.ACCOUNT_USER,
+                                reason=expected_reason)
+
+    def test_locked_out_user_sends_notification(self):
+        password = uuid.uuid4().hex
+        new_password = uuid.uuid4().hex
+        expected_responses = [AssertionError, AssertionError, AssertionError,
+                              exception.AccountLocked]
+        user_ref = unit.new_user_ref(domain_id=self.domain_id,
+                                     password=password)
+        user_ref = self.identity_api.create_user(user_ref)
+        reason_type = (exception.AccountLocked.message_format %
+                       {'user_id': user_ref['id']})
+        expected_reason = {'reasonCode': '401',
+                           'reasonType': reason_type}
+        for ex in expected_responses:
+            self.assertRaises(ex,
+                              self.identity_api.change_password,
+                              self.make_request(),
+                              user_id=user_ref['id'],
+                              original_password=new_password,
+                              new_password=new_password)
+
+        self._assert_last_audit(None, 'authenticate', None,
+                                cadftaxonomy.ACCOUNT_USER,
+                                reason=expected_reason)
+
+    def test_repeated_password_sends_notification(self):
+        conf = self.useFixture(config_fixture.Config(CONF))
+        conf.config(group='security_compliance',
+                    minimum_password_age=0)
+        password = uuid.uuid4().hex
+        new_password = uuid.uuid4().hex
+        count = CONF.security_compliance.unique_last_password_count
+        reason_type = (exception.PasswordHistoryValidationError.message_format
+                       % {'unique_count': count})
+        expected_reason = {'reasonCode': '400',
+                           'reasonType': reason_type}
+        user_ref = unit.new_user_ref(domain_id=self.domain_id,
+                                     password=password)
+        user_ref = self.identity_api.create_user(user_ref)
+        self.identity_api.change_password(self.make_request(),
+                                          user_id=user_ref['id'],
+                                          original_password=password,
+                                          new_password=new_password)
+        self.assertRaises(exception.PasswordValidationError,
+                          self.identity_api.change_password,
+                          self.make_request(),
+                          user_id=user_ref['id'],
+                          original_password=new_password,
+                          new_password=password)
+
+        self._assert_last_audit(user_ref['id'], UPDATED_OPERATION, 'user',
+                                cadftaxonomy.SECURITY_ACCOUNT_USER,
+                                reason=expected_reason)
+
+    def test_invalid_password_sends_notification(self):
+        password = uuid.uuid4().hex
+        invalid_password = '1'
+        regex = CONF.security_compliance.password_regex_description
+        reason_type = (exception.PasswordRequirementsValidationError
+                       .message_format %
+                       {'detail': regex})
+        expected_reason = {'reasonCode': '400',
+                           'reasonType': reason_type}
+        user_ref = unit.new_user_ref(domain_id=self.domain_id,
+                                     password=password)
+        user_ref = self.identity_api.create_user(user_ref)
+        self.assertRaises(exception.PasswordValidationError,
+                          self.identity_api.change_password,
+                          self.make_request(),
+                          user_id=user_ref['id'],
+                          original_password=password,
+                          new_password=invalid_password)
+
+        self._assert_last_audit(user_ref['id'], UPDATED_OPERATION, 'user',
+                                cadftaxonomy.SECURITY_ACCOUNT_USER,
+                                reason=expected_reason)
+
+    def test_changing_password_too_early_sends_notification(self):
+        password = uuid.uuid4().hex
+        new_password = uuid.uuid4().hex
+        next_password = uuid.uuid4().hex
+
+        user_ref = unit.new_user_ref(domain_id=self.domain_id,
+                                     password=password,
+                                     password_created_at=(
+                                         datetime.datetime.utcnow()))
+        user_ref = self.identity_api.create_user(user_ref)
+
+        min_days = CONF.security_compliance.minimum_password_age
+        min_age = (user_ref['password_created_at'] +
+                   datetime.timedelta(days=min_days))
+        days_left = (min_age - datetime.datetime.utcnow()).days
+        reason_type = (exception.PasswordAgeValidationError.message_format %
+                       {'min_age_days': min_days, 'days_left': days_left})
+        expected_reason = {'reasonCode': '400',
+                           'reasonType': reason_type}
+        self.identity_api.change_password(self.make_request(),
+                                          user_id=user_ref['id'],
+                                          original_password=password,
+                                          new_password=new_password)
+        self.assertRaises(exception.PasswordValidationError,
+                          self.identity_api.change_password,
+                          self.make_request(),
+                          user_id=user_ref['id'],
+                          original_password=new_password,
+                          new_password=next_password)
+
+        self._assert_last_audit(user_ref['id'], UPDATED_OPERATION, 'user',
+                                cadftaxonomy.SECURITY_ACCOUNT_USER,
+                                reason=expected_reason)
+
+
 class CADFNotificationsForEntities(NotificationsForEntities):
 
     def setUp(self):
@@ -990,7 +1171,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self._notifications = []
 
         def fake_notify(action, initiator, outcome, target,
-                        event_type, **kwargs):
+                        event_type, reason=None, **kwargs):
             service_security = cadftaxonomy.SERVICE_SECURITY
 
             event = eventfactory.EventFactory().new_event(
@@ -999,6 +1180,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                 action=action,
                 initiator=initiator,
                 target=target,
+                reason=reason,
                 observer=cadfresource.Resource(typeURI=service_security))
 
             for key, value in kwargs.items():

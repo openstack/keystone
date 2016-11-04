@@ -1,0 +1,22 @@
+---
+features:
+  - >
+   [`blueprint pci-dss-notifications <https://blueprints.launchpad.net/keystone/+spec/pci-dss-notifications>`_]
+   CADF notifications now extend to PCI-DSS events. A ``reason`` object
+   is added to the notification. A ``reason`` object has both a ``reasonType``
+   (a short description of the reason) and ``reasonCode`` (the HTTP return code).
+   The following events will be impacted:
+
+     * If a user does not change their passwords at least once every X days.
+       See ``[security_compliance] password_expires_days``.
+     * If a user is locked out after many failed authentication attempts.
+       See ``[security_compliance] lockout_failure_attempts``.
+     * If a user submits a new password that was recently used. See
+       ``[security_compliance] unique_last_password_count``.
+     * If a password does not meet the specified criteria. See
+       ``[security_compliance] password_regex``.
+     * If a user attempts to change their password too often. See
+       ``[security_compliance] minimum_password_age``.
+
+   See http://docs.openstack.org/developer/keystone/event_notifications.html for
+   additional details.

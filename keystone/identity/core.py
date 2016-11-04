@@ -22,6 +22,7 @@ import uuid
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
+from pycadf import reason
 
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
 from keystone.common import cache
@@ -1282,17 +1283,23 @@ class Manager(manager.Manager):
 
     @domains_configured
     def change_password(self, request, user_id, original_password,
-                        new_password):
+                        new_password, initiator=None):
 
         # authenticate() will raise an AssertionError if authentication fails
         self.authenticate(request, user_id, original_password)
 
-        validators.validate_password(new_password)
-
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
-        driver.change_password(entity_id, new_password)
-        notifications.Audit.updated(self._USER, user_id)
+        try:
+            validators.validate_password(new_password)
+            driver.change_password(entity_id, new_password)
+        except exception.PasswordValidationError as ex:
+            audit_reason = reason.Reason(str(ex), str(ex.code))
+            notifications.Audit.updated(self._USER, user_id,
+                                        initiator, reason=audit_reason)
+            raise
+
+        notifications.Audit.updated(self._USER, user_id, initiator)
         self.emit_invalidate_user_token_persistence(user_id)
 
     @MEMOIZE
