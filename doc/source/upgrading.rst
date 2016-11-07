@@ -199,7 +199,7 @@ authenticate requests normally.
 
    When this process completes, all data will be available in both the new
    schema and the old schema, so both the previous release and the next release
-   will be capable are operating normally.
+   will be capable of operating normally.
 
 #. Update your configuration files (``/etc/keystone/``) on all nodes (except
    the first node, which you've already done) with those corresponding to the
