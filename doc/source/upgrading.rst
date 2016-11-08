@@ -184,6 +184,12 @@ authenticate requests normally.
    database schema to a superset of what both the previous and next release can
    utilize, and create triggers to facilitate the live migration process.
 
+   .. warning::
+
+     For MySQL, using the ``keystone-manage db_sync --expand`` command requires
+     that you either grant your keystone user ``SUPER`` privileges, or run
+     ``set global log_bin_trust_function_creators=1;`` in mysql beforehand.
+
    At this point, new columns and tables may exist in the database, but will
    *not* all be populated in such a way that the next release will be able to
    function normally.
