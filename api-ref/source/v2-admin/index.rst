@@ -11,3 +11,4 @@
 .. include:: admin-users.inc
 .. include:: admin-endpoints.inc
 .. include:: admin-versions.inc
+.. include:: admin-certificates.inc
