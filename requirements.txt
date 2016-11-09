@@ -6,7 +6,7 @@
 # in keystone-coverage-db CI job
 Babel>=2.3.4 # BSD
 
-pbr>=1.6 # Apache-2.0
+pbr>=1.8 # Apache-2.0
 WebOb>=1.6.0 # MIT
 PasteDeploy>=1.5.0 # MIT
 Paste # MIT
