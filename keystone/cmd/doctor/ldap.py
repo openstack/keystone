@@ -21,6 +21,7 @@ import keystone.conf
 
 
 CONF = keystone.conf.CONF
+CONFIG_REGEX = '^keystone\..*?\.conf$'
 
 
 def symptom_LDAP_user_enabled_emulation_dn_ignored():
@@ -78,7 +79,7 @@ def symptom_LDAP_file_based_domain_specific_configs():
     filedir = CONF.identity.domain_config_dir
     if os.path.isdir(filedir):
         for filename in os.listdir(filedir):
-            if not re.match('^keystone\..*?\.conf$', filename):
+            if not re.match(CONFIG_REGEX, filename):
                 invalid_files.append(filename)
         if invalid_files:
             invalid_str = ', '.join(invalid_files)
@@ -130,15 +131,16 @@ def symptom_LDAP_file_based_domain_specific_configs_formatted_correctly():
 
     invalid_files = []
     for filename in os.listdir(filedir):
-        try:
-            parser = configparser.ConfigParser()
-            parser.read(os.path.join(filedir, filename))
-        except configparser.Error:
-            invalid_files.append(filename)
+        if re.match(CONFIG_REGEX, filename):
+            try:
+                parser = configparser.ConfigParser()
+                parser.read(os.path.join(filedir, filename))
+            except configparser.Error:
+                invalid_files.append(filename)
 
     if invalid_files:
         invalid_str = ', '.join(invalid_files)
-        print('Error: The following files are formatted incorrectly: ',
+        print('Error: The following config files are formatted incorrectly: ',
               invalid_str)
         return True
 
