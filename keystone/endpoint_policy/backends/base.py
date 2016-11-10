@@ -47,7 +47,7 @@ class EndpointPolicyDriverBase(object):
     @abc.abstractmethod
     def check_policy_association(self, policy_id, endpoint_id=None,
                                  service_id=None, region_id=None):
-        """Check existence a policy association.
+        """Check existence of a policy association.
 
         :param policy_id: identity of policy that is being associated
         :type policy_id: string
@@ -98,7 +98,8 @@ class EndpointPolicyDriverBase(object):
         :type region_id: string
         :raises keystone.exception.PolicyAssociationNotFound: If there is no
             match for the specified association.
-        :returns: dict containing policy_id
+        :returns: dict containing policy_id (value is a tuple containing only
+                  the policy_id)
 
         """
         raise exception.NotImplemented()  # pragma: no cover
