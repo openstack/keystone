@@ -35,6 +35,8 @@ _DEPRECATION_MSG = _('%s for the LDAP identity backend has been deprecated in '
                      'the Mitaka release in favor of read-only identity LDAP '
                      'access. It will be removed in the "O" release.')
 
+LDAP_MATCHING_RULE_IN_CHAIN = "1.2.840.113556.1.4.1941"
+
 
 class Identity(base.IdentityDriverBase):
     def __init__(self, conf=None):
@@ -337,6 +339,7 @@ class GroupApi(common_ldap.BaseLdap):
 
     def __init__(self, conf):
         super(GroupApi, self).__init__(conf)
+        self.group_ad_nesting = conf.ldap.group_ad_nesting
         self.member_attribute = (conf.ldap.group_member_attribute
                                  or self.DEFAULT_MEMBER_ATTRIBUTE)
 
@@ -386,15 +389,29 @@ class GroupApi(common_ldap.BaseLdap):
     def list_user_groups(self, user_dn):
         """Return a list of groups for which the user is a member."""
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
-        query = '(%s=%s)' % (self.member_attribute,
-                             user_dn_esc)
+        if self.group_ad_nesting:
+            query = '(%s:%s:=%s)' % (
+                self.member_attribute,
+                LDAP_MATCHING_RULE_IN_CHAIN,
+                user_dn_esc)
+        else:
+            query = '(%s=%s)' % (self.member_attribute,
+                                 user_dn_esc)
         return self.get_all(query)
 
     def list_user_groups_filtered(self, user_dn, hints):
         """Return a filtered list of groups for which the user is a member."""
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
-        query = '(%s=%s)' % (self.member_attribute,
-                             user_dn_esc)
+        if self.group_ad_nesting:
+            # Hardcoded to member as that is how the Matching Rule in Chain
+            # Mechanisms expects it.  The member_attribute might actually be
+            # member_of elsewhere, so they are not the same.
+            query = '(member:%s:=%s)' % (
+                LDAP_MATCHING_RULE_IN_CHAIN,
+                user_dn_esc)
+        else:
+            query = '(%s=%s)' % (self.member_attribute,
+                                 user_dn_esc)
         return self.get_all_filtered(hints, query)
 
     def list_group_users(self, group_id):
@@ -403,8 +420,20 @@ class GroupApi(common_ldap.BaseLdap):
         group_dn = group_ref['dn']
 
         try:
-            attrs = self._ldap_get_list(group_dn, ldap.SCOPE_BASE,
-                                        attrlist=[self.member_attribute])
+            if self.group_ad_nesting:
+                # NOTE(ayoung): LDAP_SCOPE is used here instead of hard-
+                # coding to SCOPE_SUBTREE to get through the unit tests.
+                # However, it is also probably more correct.
+                attrs = self._ldap_get_list(
+                    self.tree_dn, self.LDAP_SCOPE,
+                    query_params={
+                        "member:%s:" % LDAP_MATCHING_RULE_IN_CHAIN:
+                        group_dn},
+                    attrlist=[self.member_attribute])
+            else:
+                attrs = self._ldap_get_list(group_dn, ldap.SCOPE_BASE,
+                                            attrlist=[self.member_attribute])
+
         except ldap.NO_SUCH_OBJECT:
             raise self.NotFound(group_id=group_id)
 

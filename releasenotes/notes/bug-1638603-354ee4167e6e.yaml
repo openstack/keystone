@@ -1,0 +1,9 @@
+---
+features:
+  - >
+    [`bug 1638603 <https://bugs.launchpad.net/keystone/+bug/1638603>`_]
+    Support nested groups in Active Directory. A new boolean option
+    ``[ldap] group_ad_nesting`` has been added, it defaults to ``False``.
+    Enable the option is using Active Directory with nested groups. This
+    option will impact the ``list_users_in_group``, ``list_groups_for_user``,
+    and ``check_user_in_group`` operations.

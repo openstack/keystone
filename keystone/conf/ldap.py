@@ -437,6 +437,14 @@ object and `group_attr` is the attribute which should appear in the identity
 API.
 """))
 
+group_ad_nesting = cfg.BoolOpt(
+    'group_ad_nesting',
+    default=False,
+    help=utils.fmt("""
+If enabled, group queries will use Active Directory specific filters for
+nested groups.
+"""))
+
 tls_cacertfile = cfg.StrOpt(
     'tls_cacertfile',
     help=utils.fmt("""
@@ -608,6 +616,7 @@ ALL_OPTS = [
     group_allow_update,
     group_allow_delete,
     group_additional_attribute_mapping,
+    group_ad_nesting,
     tls_cacertfile,
     tls_cacertdir,
     use_tls,
