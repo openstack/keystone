@@ -212,17 +212,17 @@ class CatalogDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def get_catalog(self, user_id, tenant_id):
+    def get_catalog(self, user_id, project_id):
         """Retrieve and format the current service catalog.
 
         Example::
 
             { 'RegionOne':
                 {'compute': {
-                    'adminURL': u'http://host:8774/v1.1/tenantid',
-                    'internalURL': u'http://host:8774/v1.1/tenant_id',
+                    'adminURL': u'http://host:8774/v1.1/project_id',
+                    'internalURL': u'http://host:8774/v1.1/project_id',
                     'name': 'Compute Service',
-                    'publicURL': u'http://host:8774/v1.1/tenantid'},
+                    'publicURL': u'http://host:8774/v1.1/project_id'},
                  'ec2': {
                     'adminURL': 'http://host:8773/services/Admin',
                     'internalURL': 'http://host:8773/services/Cloud',
@@ -236,7 +236,7 @@ class CatalogDriverBase(object):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
-    def get_v3_catalog(self, user_id, tenant_id):
+    def get_v3_catalog(self, user_id, project_id):
         """Retrieve and format the current V3 service catalog.
 
         The default implementation builds the V3 catalog from the V2 catalog.
@@ -266,7 +266,7 @@ class CatalogDriverBase(object):
         :raises keystone.exception.NotFound: If the endpoint doesn't exist.
 
         """
-        v2_catalog = self.get_catalog(user_id, tenant_id)
+        v2_catalog = self.get_catalog(user_id, project_id)
         v3_catalog = []
 
         for region_name, region in v2_catalog.items():

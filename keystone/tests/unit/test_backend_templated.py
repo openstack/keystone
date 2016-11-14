@@ -133,10 +133,10 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
 
     def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
         user_id = uuid.uuid4().hex
-        tenant_id = None
-        # If the URL has no 'tenant_id' to substitute, we will skip the
+        project_id = None
+        # If the URL has no 'project_id' to substitute, we will skip the
         # endpoint which contains this kind of URL.
-        catalog_ref = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog_ref = self.catalog_api.get_v3_catalog(user_id, project_id)
         exp_catalog = [
             {'endpoints': [],
              'type': 'compute',

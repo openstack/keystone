@@ -216,15 +216,15 @@ class Manager(manager.Manager):
         return self.driver.list_endpoints(hints or driver_hints.Hints())
 
     @MEMOIZE_COMPUTED_CATALOG
-    def get_catalog(self, user_id, tenant_id):
+    def get_catalog(self, user_id, project_id):
         try:
-            return self.driver.get_catalog(user_id, tenant_id)
+            return self.driver.get_catalog(user_id, project_id)
         except exception.NotFound:
             raise exception.NotFound('Catalog not found for user and tenant')
 
     @MEMOIZE_COMPUTED_CATALOG
-    def get_v3_catalog(self, user_id, tenant_id):
-        return self.driver.get_v3_catalog(user_id, tenant_id)
+    def get_v3_catalog(self, user_id, project_id):
+        return self.driver.get_v3_catalog(user_id, project_id)
 
     def add_endpoint_to_project(self, endpoint_id, project_id):
         self.driver.add_endpoint_to_project(endpoint_id, project_id)

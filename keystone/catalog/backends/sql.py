@@ -253,15 +253,15 @@ class Catalog(base.CatalogDriverBase):
             ref.extra = new_endpoint.extra
             return ref.to_dict()
 
-    def get_catalog(self, user_id, tenant_id):
+    def get_catalog(self, user_id, project_id):
         """Retrieve and format the V2 service catalog.
 
         :param user_id: The id of the user who has been authenticated for
             creating service catalog.
-        :param tenant_id: The id of the project. 'tenant_id' will be None
+        :param project_id: The id of the project. 'project_id' will be None
             in the case this being called to create a catalog to go in a
             domain scoped token. In this case, any endpoint that requires
-            a tenant_id as part of their URL will be skipped (as would a whole
+            a project_id as part of their URL will be skipped (as would a whole
             service if, as a consequence, it has no valid endpoints).
 
         :returns: A nested dict representing the service catalog or an
@@ -272,13 +272,13 @@ class Catalog(base.CatalogDriverBase):
             itertools.chain(CONF.items(), CONF.eventlet_server.items()))
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
-        if tenant_id:
+        if project_id:
             substitutions.update({
-                'tenant_id': tenant_id,
-                'project_id': tenant_id
+                'tenant_id': project_id,
+                'project_id': project_id
             })
         else:
-            silent_keyerror_failures = ['tenant_id', 'project_id', ]
+            silent_keyerror_failures = ['tenant_id', 'project_id']
 
         with sql.session_for_read() as session:
             endpoints = (session.query(Endpoint).
@@ -315,15 +315,15 @@ class Catalog(base.CatalogDriverBase):
 
             return catalog
 
-    def get_v3_catalog(self, user_id, tenant_id):
+    def get_v3_catalog(self, user_id, project_id):
         """Retrieve and format the current V3 service catalog.
 
         :param user_id: The id of the user who has been authenticated for
             creating service catalog.
-        :param tenant_id: The id of the project. 'tenant_id' will be None in
+        :param project_id: The id of the project. 'project_id' will be None in
             the case this being called to create a catalog to go in a domain
             scoped token. In this case, any endpoint that requires a
-            tenant_id as part of their URL will be skipped.
+            project_id as part of their URL will be skipped.
 
         :returns: A list representing the service catalog or an empty list
 
@@ -332,13 +332,13 @@ class Catalog(base.CatalogDriverBase):
             itertools.chain(CONF.items(), CONF.eventlet_server.items()))
         d.update({'user_id': user_id})
         silent_keyerror_failures = []
-        if tenant_id:
+        if project_id:
             d.update({
-                'tenant_id': tenant_id,
-                'project_id': tenant_id,
+                'tenant_id': project_id,
+                'project_id': project_id,
             })
         else:
-            silent_keyerror_failures = ['tenant_id', 'project_id', ]
+            silent_keyerror_failures = ['tenant_id', 'project_id']
 
         with sql.session_for_read() as session:
             services = (session.query(Service).filter(
@@ -383,9 +383,9 @@ class Catalog(base.CatalogDriverBase):
             # Filter the `catalog_ref` above by any project-endpoint
             # association configured by endpoint filter.
             filtered_endpoints = {}
-            if tenant_id:
+            if project_id:
                 filtered_endpoints = (
-                    self.catalog_api.list_endpoints_for_project(tenant_id))
+                    self.catalog_api.list_endpoints_for_project(project_id))
             # endpoint filter is enabled, only return the filtered endpoints.
             if filtered_endpoints:
                 filtered_ids = list(filtered_endpoints.keys())
@@ -412,7 +412,7 @@ class Catalog(base.CatalogDriverBase):
                     if not service.get('endpoints'):
                         catalog_ref.remove(service)
             # When it arrives here it means it's domain scoped token (
-            # `tenant_id` is not set) or it's a project scoped token
+            # `project_id` is not set) or it's a project scoped token
             # but the endpoint filtering is not performed.
             # Both of them tell us the endpoint filtering is not enabled, so
             # check the option of `return_all_endpoints_if_no_filter`, it will

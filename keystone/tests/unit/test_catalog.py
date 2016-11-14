@@ -213,9 +213,9 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             'http://127.0.0.1:8774/v1.1/$(nonexistent)s',
 
             # invalid formatting - ValueError
-            'http://127.0.0.1:8774/v1.1/$(tenant_id)',
-            'http://127.0.0.1:8774/v1.1/$(tenant_id)t',
-            'http://127.0.0.1:8774/v1.1/$(tenant_id',
+            'http://127.0.0.1:8774/v1.1/$(project_id)',
+            'http://127.0.0.1:8774/v1.1/$(project_id)t',
+            'http://127.0.0.1:8774/v1.1/$(project_id',
 
             # invalid type specifier - TypeError
             # admin_url is a string not an int
@@ -223,7 +223,7 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         ]
 
         # list one valid url is enough, no need to list too much
-        valid_url = 'http://127.0.0.1:8774/v1.1/$(tenant_id)s'
+        valid_url = 'http://127.0.0.1:8774/v1.1/$(project_id)s'
 
         # Case one: publicurl, internalurl and adminurl are
         # all invalid
@@ -308,31 +308,31 @@ class TestV2CatalogAPISQL(unit.TestCase):
 
     def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
         user_id = uuid.uuid4().hex
-        tenant_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
 
         # the only endpoint in the catalog is the one created in setUp
-        catalog = self.catalog_api.get_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_catalog(user_id, project_id)
         self.assertEqual(1, len(catalog))
         # it's also the only endpoint in the backend
         self.assertEqual(1, len(self.catalog_api.list_endpoints()))
 
         # create a new, invalid endpoint - malformed type declaration
         self.create_endpoint(self.service_id,
-                             url='http://keystone/%(tenant_id)')
+                             url='http://keystone/%(project_id)')
 
         # create a new, invalid endpoint - nonexistent key
         self.create_endpoint(self.service_id,
                              url='http://keystone/%(you_wont_find_me)s')
 
         # verify that the invalid endpoints don't appear in the catalog
-        catalog = self.catalog_api.get_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_catalog(user_id, project_id)
         self.assertEqual(1, len(catalog))
         # all three endpoints appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
 
     def test_get_catalog_always_returns_service_name(self):
         user_id = uuid.uuid4().hex
-        tenant_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
 
         # new_service_ref() returns a ref with a `name`.
         named_svc = unit.new_service_ref()
@@ -346,7 +346,7 @@ class TestV2CatalogAPISQL(unit.TestCase):
         self.create_endpoint(service_id=unnamed_svc['id'])
 
         region = None
-        catalog = self.catalog_api.get_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_catalog(user_id, project_id)
 
         self.assertEqual(named_svc['name'],
                          catalog[region][named_svc['type']]['name'])
