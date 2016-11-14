@@ -827,6 +827,70 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
                           self.catalog_api.delete_region,
                           region['id'])
 
+    def test_v3_catalog_domain_scoped_token(self):
+        # test the case that tenant_id is None.
+        srv_1 = unit.new_service_ref()
+        self.catalog_api.create_service(srv_1['id'], srv_1)
+        endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
+                                           region_id=None)
+        self.catalog_api.create_endpoint(endpoint_1['id'], endpoint_1)
+
+        srv_2 = unit.new_service_ref()
+        self.catalog_api.create_service(srv_2['id'], srv_2)
+        endpoint_2 = unit.new_endpoint_ref(service_id=srv_2['id'],
+                                           region_id=None)
+        self.catalog_api.create_endpoint(endpoint_2['id'], endpoint_2)
+
+        self.config_fixture.config(group='endpoint_filter',
+                                   return_all_endpoints_if_no_filter=True)
+        catalog_ref = self.catalog_api.get_v3_catalog(uuid.uuid4().hex, None)
+        self.assertThat(catalog_ref, matchers.HasLength(2))
+        self.config_fixture.config(group='endpoint_filter',
+                                   return_all_endpoints_if_no_filter=False)
+        catalog_ref = self.catalog_api.get_v3_catalog(uuid.uuid4().hex, None)
+        self.assertThat(catalog_ref, matchers.HasLength(0))
+
+    def test_v3_catalog_endpoint_filter_enabled(self):
+        srv_1 = unit.new_service_ref()
+        self.catalog_api.create_service(srv_1['id'], srv_1)
+        endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
+                                           region_id=None)
+        self.catalog_api.create_endpoint(endpoint_1['id'], endpoint_1)
+        endpoint_2 = unit.new_endpoint_ref(service_id=srv_1['id'],
+                                           region_id=None)
+        self.catalog_api.create_endpoint(endpoint_2['id'], endpoint_2)
+        # create endpoint-project association.
+        self.catalog_api.add_endpoint_to_project(
+            endpoint_1['id'],
+            self.tenant_bar['id'])
+
+        catalog_ref = self.catalog_api.get_v3_catalog(uuid.uuid4().hex,
+                                                      self.tenant_bar['id'])
+        self.assertThat(catalog_ref, matchers.HasLength(1))
+        self.assertThat(catalog_ref[0]['endpoints'], matchers.HasLength(1))
+        # the endpoint is that defined in the endpoint-project association.
+        self.assertEqual(endpoint_1['id'],
+                         catalog_ref[0]['endpoints'][0]['id'])
+
+    def test_v3_catalog_endpoint_filter_disabled(self):
+        # there is no endpoint-project association defined.
+        self.config_fixture.config(group='endpoint_filter',
+                                   return_all_endpoints_if_no_filter=True)
+        srv_1 = unit.new_service_ref()
+        self.catalog_api.create_service(srv_1['id'], srv_1)
+        endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
+                                           region_id=None)
+        self.catalog_api.create_endpoint(endpoint_1['id'], endpoint_1)
+
+        srv_2 = unit.new_service_ref()
+        self.catalog_api.create_service(srv_2['id'], srv_2)
+
+        catalog_ref = self.catalog_api.get_v3_catalog(uuid.uuid4().hex,
+                                                      self.tenant_bar['id'])
+        self.assertThat(catalog_ref, matchers.HasLength(2))
+        srv_id_list = [catalog_ref[0]['id'], catalog_ref[1]['id']]
+        self.assertItemsEqual([srv_1['id'], srv_2['id']], srv_id_list)
+
 
 class SqlPolicy(SqlTests, policy_tests.PolicyTests):
     pass

@@ -18,7 +18,6 @@ import uuid
 from six.moves import http_client
 from testtools import matchers
 
-from keystone import catalog
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_v3
@@ -803,7 +802,7 @@ class TestCatalogAPISQL(unit.TestCase):
     def setUp(self):
         super(TestCatalogAPISQL, self).setUp()
         self.useFixture(database.Database())
-        self.catalog_api = catalog.Manager()
+        self.load_backends()
 
         service = unit.new_service_ref()
         self.service_id = service['id']
@@ -824,10 +823,17 @@ class TestCatalogAPISQL(unit.TestCase):
 
     def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
         user_id = uuid.uuid4().hex
-        tenant_id = uuid.uuid4().hex
+
+        # create a project since the project should exist if we want to
+        # filter the catalog by the project or replace the url with a
+        # valid project id.
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
 
         # the only endpoint in the catalog is the one created in setUp
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertEqual(1, len(catalog[0]['endpoints']))
         # it's also the only endpoint in the backend
         self.assertEqual(1, len(self.catalog_api.list_endpoints()))
@@ -841,7 +847,7 @@ class TestCatalogAPISQL(unit.TestCase):
                              url='http://keystone/%(you_wont_find_me)s')
 
         # verify that the invalid endpoints don't appear in the catalog
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertEqual(1, len(catalog[0]['endpoints']))
         # all three appear in the backend
         self.assertEqual(3, len(self.catalog_api.list_endpoints()))
@@ -851,7 +857,7 @@ class TestCatalogAPISQL(unit.TestCase):
                              url='http://keystone/%(tenant_id)s')
 
         # there are two valid endpoints, positive check
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertThat(catalog[0]['endpoints'], matchers.HasLength(2))
 
         # If the URL has no 'tenant_id' to substitute, we will skip the
@@ -862,7 +868,13 @@ class TestCatalogAPISQL(unit.TestCase):
 
     def test_get_catalog_always_returns_service_name(self):
         user_id = uuid.uuid4().hex
-        tenant_id = uuid.uuid4().hex
+        # create a project since the project should exist if we want to
+        # filter the catalog by the project or replace the url with a
+        # valid project id.
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
 
         # create a service, with a name
         named_svc = unit.new_service_ref()
@@ -875,7 +887,7 @@ class TestCatalogAPISQL(unit.TestCase):
         self.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
         self.create_endpoint(service_id=unnamed_svc['id'])
 
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
 
         named_endpoint = [ep for ep in catalog
                           if ep['type'] == named_svc['type']][0]
@@ -894,7 +906,7 @@ class TestCatalogAPISQLRegions(unit.TestCase):
     def setUp(self):
         super(TestCatalogAPISQLRegions, self).setUp()
         self.useFixture(database.Database())
-        self.catalog_api = catalog.Manager()
+        self.load_backends()
 
     def config_overrides(self):
         super(TestCatalogAPISQLRegions, self).config_overrides()
@@ -910,10 +922,15 @@ class TestCatalogAPISQLRegions(unit.TestCase):
         del endpoint['region_id']
         self.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
+        # create a project since the project should exist if we want to
+        # filter the catalog by the project or replace the url with a
+        # valid project id.
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
         user_id = uuid.uuid4().hex
-        tenant_id = uuid.uuid4().hex
-
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertValidCatalogEndpoint(
             catalog[0]['endpoints'][0], ref=endpoint)
 
@@ -929,9 +946,15 @@ class TestCatalogAPISQLRegions(unit.TestCase):
 
         endpoint = self.catalog_api.get_endpoint(endpoint['id'])
         user_id = uuid.uuid4().hex
-        tenant_id = uuid.uuid4().hex
+        # create a project since the project should exist if we want to
+        # filter the catalog by the project or replace the url with a
+        # valid project id.
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        project = unit.new_project_ref(domain_id=domain['id'])
+        self.resource_api.create_project(project['id'], project)
 
-        catalog = self.catalog_api.get_v3_catalog(user_id, tenant_id)
+        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertValidCatalogEndpoint(
             catalog[0]['endpoints'][0], ref=endpoint)
 

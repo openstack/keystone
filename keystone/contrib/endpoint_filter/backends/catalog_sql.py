@@ -12,66 +12,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 
 from keystone.catalog.backends import sql
-from keystone.common import dependency
-from keystone.common import utils
 import keystone.conf
 
 
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('catalog_api')
+@versionutils.deprecated(
+    what=('keystone.contrib.endpoint_filter.'
+          'backends.catalog_sql.EndPointFilterCatalog'),
+    as_of=versionutils.deprecated.OCATA,
+    remove_in=+1,
+    in_favor_of='keystone.catalog.backends.sql.Catalog')
 class EndpointFilterCatalog(sql.Catalog):
     def get_v3_catalog(self, user_id, project_id):
-        substitutions = dict(CONF.items())
-        substitutions.update({
-            'tenant_id': project_id,
-            'project_id': project_id,
-            'user_id': user_id,
-        })
-
-        services = {}
-
-        dict_of_endpoint_refs = (self.catalog_api.
-                                 list_endpoints_for_project(project_id))
-
-        if (not dict_of_endpoint_refs and
-                CONF.endpoint_filter.return_all_endpoints_if_no_filter):
-            return super(EndpointFilterCatalog, self).get_v3_catalog(
-                user_id, project_id)
-
-        for endpoint_id, endpoint in dict_of_endpoint_refs.items():
-            if not endpoint['enabled']:
-                # Skip disabled endpoints.
-                continue
-            service_id = endpoint['service_id']
-            services.setdefault(
-                service_id,
-                self.get_service(service_id))
-            service = services[service_id]
-            del endpoint['service_id']
-            del endpoint['enabled']
-            del endpoint['legacy_endpoint_id']
-            # Include deprecated region for backwards compatibility
-            endpoint['region'] = endpoint['region_id']
-            endpoint['url'] = utils.format_url(
-                endpoint['url'], substitutions)
-            # populate filtered endpoints
-            if 'endpoints' in services[service_id]:
-                service['endpoints'].append(endpoint)
-            else:
-                service['endpoints'] = [endpoint]
-
-        # format catalog
-        catalog = []
-        for service_id, service in services.items():
-            formatted_service = {}
-            formatted_service['id'] = service['id']
-            formatted_service['type'] = service['type']
-            formatted_service['name'] = service['name']
-            formatted_service['endpoints'] = service['endpoints']
-            catalog.append(formatted_service)
-
-        return catalog
+        return super(EndpointFilterCatalog, self).get_v3_catalog(
+            user_id, project_id)
