@@ -44,11 +44,11 @@ class DriverTestCase(object):
 
     def test_recreate_policy_association(self):
         # Creating a policy association to a target that already has a policy
-        # associated to it, will cause the original policy to be overridden
+        # associated to it will cause the original policy to be overridden
         original_association = self.create_association(
             service_id=uuid.uuid4().hex)
         override_association = original_association.copy()
-        override_association.update({'policy_id': uuid.uuid4().hex})
+        override_association['policy_id'] = uuid.uuid4().hex
 
         self.driver.create_policy_association(**override_association)
 
@@ -94,10 +94,8 @@ class DriverTestCase(object):
         second = self.create_association(service_id=uuid.uuid4().hex,
                                          policy_id=policy_id)
 
-        associations_ref = self.driver.list_associations_for_policy(policy_id)
-
-        self.assertIn(first, associations_ref)
-        self.assertIn(second, associations_ref)
+        associations = self.driver.list_associations_for_policy(policy_id)
+        self.assertItemsEqual([first, second], associations)
 
     def test_delete_association_by_endpoint(self):
         endpoint_id = uuid.uuid4().hex
