@@ -92,11 +92,6 @@ configure ``federation``.
 Configure authentication drivers in keystone.conf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. NOTE::
-    ``saml2`` has been deprecated as of the Mitaka release. Support for the
-    ``saml2`` wrapper will be removed as of the "O" release. The recommended authentication method
-    is ``mapped``, which supports ``saml2``.
-
 Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
 Names should be equal to protocol names added via Identity API v3. Here we use
 examples ``mapped`` and ``openid``.
