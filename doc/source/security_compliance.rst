@@ -55,6 +55,14 @@ the ``lockout_duration`` in seconds:
 If the ``lockout_duration`` is not set, then users may be locked out
 indefinitely until the user is explicitly enabled via the API.
 
+Finally, you can set it so that some users, such as service users, are never
+locked out by adding their user ID to the ``lockout_ignored_user_ids`` list:
+
+.. code-block:: ini
+
+    [security_compliance]
+    lockout_ignored_user_ids = 3a54353c9dcc44f690975ea768512f6a,14b78ed1421a47d0b741ba218e1a49a1
+
 Disabling Inactive Users
 ------------------------
 

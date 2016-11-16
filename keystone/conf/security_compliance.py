@@ -53,6 +53,17 @@ non-zero value. This feature depends on the `sql` backend for the `[identity]
 driver`.
 """))
 
+lockout_ignored_user_ids = cfg.ListOpt(
+    'lockout_ignored_user_ids',
+    default=[],
+    help=utils.fmt("""
+Comma separated list of user IDs to be ignored when checking if a user should
+be locked out based on failed authentication attempts. Thus, users in this list
+can fail to authenticate for an unlimited amount of times and will never be
+locked out. This feature will only be enabled if `[security_compliance]
+lockout_failure_attempts` is set.
+"""))
+
 password_expires_days = cfg.IntOpt(
     'password_expires_days',
     min=1,
@@ -125,6 +136,7 @@ ALL_OPTS = [
     disable_user_account_days_inactive,
     lockout_failure_attempts,
     lockout_duration,
+    lockout_ignored_user_ids,
     password_expires_days,
     password_expires_ignore_user_ids,
     unique_last_password_count,
