@@ -46,7 +46,7 @@ Domains
 -------
 
 ``Domains`` are a high-level container for projects, users and groups. Each is
-owned by exactly one domain. Each domain defines a namespace where certain an
+owned by exactly one domain. Each domain defines a namespace where an
 API-visible name attribute exists. keystone provides a default domain, aptly
 named 'Default'.
 
