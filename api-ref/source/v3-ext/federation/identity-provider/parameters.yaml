@@ -40,6 +40,15 @@ description:
   required: false
   type: string
 
+domain_id:
+  description: |
+    The ID of a domain that is associated with the Identity Provider. Federated
+    users that authenticate with the Identity Provider will be created under
+    the domain specified.
+  in: body
+  required: true
+  type: string
+
 enabled:
   description: |
     Whether the Identity Provider is enabled or not

@@ -72,6 +72,13 @@ Identity API to authenticate identities.
 
 Optional attributes:
 
+- ``domain_id`` (string)
+
+  The ID of the domain that is associated with the IdP.
+
+  If a value is not specified by the client, the service will automatically
+  create a domain and associate it to the IdP.
+
 - ``description`` (string)
 
   Describes the identity provider.
