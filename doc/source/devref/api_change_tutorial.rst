@@ -11,6 +11,7 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+===================
 API Change Tutorial
 ===================
 
@@ -21,10 +22,7 @@ Prerequisites
 -------------
 
 In order to follow this tutorial, it is assumed that you have read our
-`developer guide`_ and `architecture`_ documents.
-
-.. _`developer guide`: http://docs.openstack.org/developer/keystone/developing.html
-.. _`architecture`: http://docs.openstack.org/developer/keystone/architecture.html
+:doc:`development_best_practices` and :doc:`../architecture` documents.
 
 Proposing a change
 ------------------
@@ -75,7 +73,7 @@ code to implement such change.
 Architectural Recapitulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As you saw in the `architecture`_ document, there are four logical levels of
+As you saw in the :doc:`../architecture` document, there are four logical levels of
 code at which a successful request calls: router, controller, manager and
 driver.
 
