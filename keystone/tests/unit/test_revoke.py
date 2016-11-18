@@ -17,6 +17,7 @@ import uuid
 import mock
 from oslo_utils import timeutils
 from six.moves import range
+from testtools import matchers
 
 from keystone.common import utils
 import keystone.conf
@@ -517,6 +518,54 @@ class RevokeTests(object):
         self.assertRaises(exception.TokenNotFound,
                           self.revoke_api.check_token,
                           token_values)
+
+    def test_delete_group_without_role_does_not_revoke_users(self):
+        revocation_backend = sql.Revoke()
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+        # Create two groups. Group1 will be used to test deleting a group,
+        # without role assignments and users in the group, doesn't create
+        # revoked events. Group2 will show that deleting a group with role
+        # assignment and users in the group does create revoked events
+        group1 = unit.new_group_ref(domain_id=domain['id'])
+        group1 = self.identity_api.create_group(group1)
+        group2 = unit.new_group_ref(domain_id=domain['id'])
+        group2 = self.identity_api.create_group(group2)
+        role = unit.new_role_ref()
+        self.role_api.create_role(role['id'], role)
+        user1 = unit.new_user_ref(domain_id=domain['id'])
+        user1 = self.identity_api.create_user(user1)
+        user2 = unit.new_user_ref(domain_id=domain['id'])
+        user2 = self.identity_api.create_user(user2)
+
+        # Add two users to the group, verify they are added, delete group, and
+        # check that the revocaiton events have not been created
+        self.identity_api.add_user_to_group(user_id=user1['id'],
+                                            group_id=group1['id'])
+        self.identity_api.add_user_to_group(user_id=user2['id'],
+                                            group_id=group1['id'])
+        self.assertEqual(
+            2, len(self.identity_api.list_users_in_group(group1['id'])))
+        self.identity_api.delete_group(group1['id'])
+        self.assertEqual(0, len(revocation_backend.list_events()))
+
+        # Assign a role to the group, add two users to the group, verify that
+        # the role has been assigned to the group, verify the users have been
+        # added to the group, delete the group, check that the revocation
+        # events have been created
+        self.assignment_api.create_grant(group_id=group2['id'],
+                                         domain_id=domain['id'],
+                                         role_id=role['id'])
+        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
+        self.assertThat(grants, matchers.HasLength(1))
+        self.identity_api.add_user_to_group(user_id=user1['id'],
+                                            group_id=group2['id'])
+        self.identity_api.add_user_to_group(user_id=user2['id'],
+                                            group_id=group2['id'])
+        self.assertEqual(
+            2, len(self.identity_api.list_users_in_group(group2['id'])))
+        self.identity_api.delete_group(group2['id'])
+        self.assertEqual(2, len(revocation_backend.list_events()))
 
 
 class UUIDSqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
