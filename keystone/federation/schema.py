@@ -78,7 +78,20 @@ service_provider_update = {
     'additionalProperties': False
 }
 
-_identity_provider_properties = {
+_identity_provider_properties_create = {
+    'enabled': parameter_types.boolean,
+    'description': validation.nullable(parameter_types.description),
+    'domain_id': validation.nullable(parameter_types.id_string),
+    'remote_ids': {
+        'type': ['array', 'null'],
+        'items': {
+            'type': 'string'
+        },
+        'uniqueItems': True
+    }
+}
+
+_identity_provider_properties_update = {
     'enabled': parameter_types.boolean,
     'description': validation.nullable(parameter_types.description),
     'remote_ids': {
@@ -92,13 +105,13 @@ _identity_provider_properties = {
 
 identity_provider_create = {
     'type': 'object',
-    'properties': _identity_provider_properties,
+    'properties': _identity_provider_properties_create,
     'additionalProperties': False
 }
 
 identity_provider_update = {
     'type': 'object',
-    'properties': _identity_provider_properties,
+    'properties': _identity_provider_properties_update,
     # Make sure at least one property is being updated
     'minProperties': 1,
     'additionalProperties': False

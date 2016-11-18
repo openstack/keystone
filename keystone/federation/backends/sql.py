@@ -51,10 +51,11 @@ class FederationProtocolModel(sql.ModelBase, sql.DictBase):
 
 class IdentityProviderModel(sql.ModelBase, sql.DictBase):
     __tablename__ = 'identity_provider'
-    attributes = ['id', 'enabled', 'description', 'remote_ids']
+    attributes = ['id', 'domain_id', 'enabled', 'description', 'remote_ids']
     mutable_attributes = frozenset(['description', 'enabled', 'remote_ids'])
 
     id = sql.Column(sql.String(64), primary_key=True)
+    domain_id = sql.Column(sql.String(64), nullable=False, unique=True)
     enabled = sql.Column(sql.Boolean, nullable=False)
     description = sql.Column(sql.Text(), nullable=True)
     remote_ids = orm.relationship('IdPRemoteIdsModel',
