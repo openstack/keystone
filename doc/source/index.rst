@@ -54,7 +54,6 @@ Getting Started
     performance
     apache-httpd
     policy_mapping
-    configuringservices
     extensions
     key_terms
     community

@@ -106,6 +106,193 @@ is not an absolute path, then keystone looks for it in the same directories as
 above. If not specified, WSGI pipeline definitions are loaded from the primary
 configuration file.
 
+Bootstrapping Keystone with ``keystone-manage bootstrap``
+=========================================================
+
+Setting up projects, users, and roles
+-------------------------------------
+
+The ``keystone-manage bootstrap`` command will create a user, project and role,
+and will assign the newly created role to the newly created user on the newly
+created project. By default, the names of these new resources will be called
+``admin``.
+
+The defaults may be overridden by calling ``--bootstrap-username``,
+``--bootstrap-project-name`` and ``--bootstrap-role-name``. Each of these have
+an environment variable equivalent: ``OS_BOOTSTRAP_USERNAME``,
+``OS_BOOTSTRAP_PROJECT_NAME`` and ``OS_BOOTSTRAP_ROLE_NAME``.
+
+A user password must also be supplied. This can be passed in as either
+``--bootstrap-password``, or set as an environment variable using
+``OS_BOOTSTRAP_PASSWORD``.
+
+Optionally, if specified by ``--bootstrap-public-url``,
+``--bootstrap-admin-url`` and/or ``--bootstrap-internal-url`` or the equivalent
+environment variables, the command will create an identity service with the
+specified endpoint information. You may also configure the
+``--bootstrap-region-id`` and ``--bootstrap-service-name`` for the endpoints to
+your deployment's requirements.
+
+.. NOTE::
+
+    It is strongly encouraged to configure the identity service and its
+    endpoints while bootstrapping keystone.
+
+Minimally, keystone can be bootstrapped with:
+
+.. code-block:: bash
+
+    $ keystone-manage bootstrap --bootstrap-password s3cr3t
+
+Verbosely, keystone can be bootstrapped with:
+
+.. code-block:: bash
+
+    $ keystone-manage bootstrap \
+        --bootstrap-password s3cr3t \
+        --bootstrap-username admin \
+        --bootstrap-project-name admin \
+        --bootstrap-role-name admin \
+        --bootstrap-service-name keystone \
+        --bootstrap-region-id RegionOne \
+        --bootstrap-admin-url http://localhost:35357 \
+        --bootstrap-public-url http://localhost:5000 \
+        --bootstrap-internal-url http://localhost:5000
+
+This will create an ``admin`` user with the ``admin`` role on the ``admin``
+project. The user will have the password specified in the command. Note that
+both the user and the project will be created in the ``default`` domain. By not
+creating an endpoint in the catalog users will need to provide endpoint
+overrides to perform additional identity operations.
+
+By creating an ``admin`` user and an identity endpoint deployers may
+authenticate to keystone and perform identity operations like creating
+additional services and endpoints using that ``admin`` user. This will preclude
+the need to ever use or configure the ``admin_token`` (described below).
+
+To test a proper configuration, a user can use OpenStackClient CLI:
+
+.. code-block:: bash
+
+    $ openstack project list --os-username admin --os-project-name admin \
+        --os-user-domain-id default --os-project-domain-id default \
+        --os-identity-api-version 3 --os-auth-url http://localhost:5000 \
+        --os-password s3cr3t
+
+Bootstrapping Keystone with ``ADMIN_TOKEN``
+===========================================
+
+.. NOTE::
+
+    It is strongly recommended to configure the identity service with the
+     ``keystone-manage bootstrap`` command and not the ``ADMIN_TOKEN``.
+
+
+Admin Token
+-----------
+
+For a default installation of Keystone, before you can use the REST API, you
+need to define an authorization token. This is configured in ``keystone.conf``
+file under the section ``[DEFAULT]``. In the sample file provided with the
+Keystone project, the line defining this token is::
+
+    [DEFAULT]
+    admin_token = ADMIN
+
+A "shared secret" that can be used to bootstrap Keystone. This token does not
+represent a user, and carries no explicit authorization.
+To disable in production (highly recommended), remove
+``AdminTokenAuthMiddleware`` from your paste application pipelines (for example,
+in ``keystone-paste.ini``)
+
+Setting up projects, users, and roles
+-------------------------------------
+
+You need to minimally define a project, user, and role to link the project and
+user as the most basic set of details to get other services authenticating
+and authorizing with Keystone.
+
+You will also want to create service users for nova, glance, swift, etc. to
+be able to use to authenticate users against Keystone. The ``auth_token``
+middleware supports using either the shared secret described above as
+`admin_token` or users for each service.
+
+Setting up other OpenStack Services
+===================================
+
+Creating Service Users
+----------------------
+
+To configure the OpenStack services with service users, we need to create
+a project for all the services, and then users for each of the services. We
+then assign those service users an ``admin`` role on the service project. This
+allows them to validate tokens - and to authenticate and authorize other user
+requests.
+
+Create a project for the services, typically named ``service`` (however, the
+name can be whatever you choose):
+
+.. code-block:: bash
+
+    $ openstack project create service
+
+Create service users for ``nova``, ``glance``, ``swift``, and ``neutron``
+(or whatever subset is relevant to your deployment):
+
+.. code-block:: bash
+
+    $ openstack user create nova --password Sekr3tPass --project service
+
+Repeat this for each service you want to enable.
+
+Create an administrative role for the service accounts, typically named
+``admin`` (however the name can be whatever you choose). For adding the
+administrative role to the service accounts, you'll need to know the
+name of the role you want to add. If you don't have it handy, you can look it
+up quickly with:
+
+.. code-block:: bash
+
+    $ openstack role list
+
+Once you have it, grant the administrative role to the service users.
+
+.. code-block:: bash
+
+    $ openstack role add admin --project service --user nova
+
+Defining Services
+-----------------
+
+Keystone also acts as a service catalog to let other OpenStack systems know
+where relevant API endpoints exist for OpenStack Services. The OpenStack
+Dashboard, in particular, uses this heavily - and this **must** be configured
+for the OpenStack Dashboard to properly function.
+
+The endpoints for these services are defined in a template, an example of
+which is in the project as the file ``etc/default_catalog.templates``.
+
+Keystone supports two means of defining the services, one is the catalog
+template, as described above - in which case everything is detailed in that
+template.
+
+The other is a SQL backend for the catalog service, in which case after
+Keystone is online, you need to add the services to the catalog:
+
+.. code-block:: bash
+
+    $ openstack service create compute --name nova \
+                                    --description "Nova Compute Service"
+    $ openstack service create ec2 --name ec2 \
+                                   --description "EC2 Compatibility Layer"
+    $ openstack service create image --name glance \
+                                      --description "Glance Image Service"
+    $ openstack service create identity --name keystone \
+                                        --description "Keystone Identity Service"
+    $ openstack service create object-store --name swift \
+                                     --description "Swift Service"
+
+
 Identity sources
 ================
 
