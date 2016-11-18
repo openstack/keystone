@@ -18,34 +18,13 @@
 Configuring Keystone
 ====================
 
-.. toctree::
-   :maxdepth: 1
+Config Files
+============
 
-   man/keystone-manage
-
-Once keystone is installed, it is configured via a primary configuration file
-(``etc/keystone.conf``), a PasteDeploy configuration file
+Once keystone is installed, keystone is configured via a primary configuration
+file (``etc/keystone.conf``), a PasteDeploy configuration file
 (``etc/keystone-paste.ini``), possibly a separate logging configuration file,
 and initializing data into keystone using the command line client.
-
-By default, keystone starts a service on `IANA-assigned port 35357
-<http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.txt>`_.
-This may overlap with your system's ephemeral port range, so another process
-may already be using this port without being explicitly configured to do so. To
-prevent this scenario from occurring, it's recommended that you explicitly
-exclude port 35357 from the available ephemeral port range. On a Linux system,
-this would be accomplished by:
-
-.. code-block:: bash
-
-    $ sysctl -w 'net.ipv4.ip_local_reserved_ports=35357'
-
-To make the above change persistent,
-``net.ipv4.ip_local_reserved_ports = 35357`` should be added to
-``/etc/sysctl.conf`` or to ``/etc/sysctl.d/keystone.conf``.
-
-Configuration Files
-===================
 
 The keystone configuration files are an ``ini`` file format based on Paste_, a
 common system used to configure Python WSGI based applications. The PasteDeploy
@@ -61,6 +40,21 @@ parameters are in the primary configuration file ``keystone.conf``.
    go in the main keystone configuration file instead of the PasteDeploy
    configuration file, i.e. configuration in ``keystone-paste.ini``
    is not supported.
+
+Sample Configuration Files
+--------------------------
+
+The ``etc/`` folder distributed with keystone contains example configuration
+files for each Server application.
+
+* ``etc/keystone.conf.sample``
+* ``etc/keystone-paste.ini``
+* ``etc/logging.conf.sample``
+* ``etc/default_catalog.templates``
+* ``etc/sso_callback_template.html``
+
+``keystone.conf`` sections
+--------------------------
 
 The primary configuration file is organized into the following sections:
 
@@ -113,7 +107,7 @@ above. If not specified, WSGI pipeline definitions are loaded from the primary
 configuration file.
 
 Identity sources
-----------------
+================
 
 One of the most impactful decisions you'll have to make when configuring
 keystone is deciding how you want keystone to source your identity data.
@@ -158,19 +152,14 @@ Keystone also supports the ability to store the domain-specific configuration
 options in the keystone SQL database, managed via the Identity API, as opposed
 to using domain-specific configuration files.
 
-.. NOTE:: Support status for configuring options via the Identity API
-
-   *Experimental* (Kilo, Liberty, Mitaka)
-   *Stable* (Newton)
-
 This capability (which is disabled by default) is enabled by specifying the
 following options in the main keystone configuration file:
 
 .. code-block:: ini
 
- [identity]
- domain_specific_drivers_enabled = true
- domain_configurations_from_database = true
+  [identity]
+  domain_specific_drivers_enabled = true
+  domain_configurations_from_database = true
 
 Once enabled, any existing domain-specific configuration files in the
 configuration directory will be ignored and only those domain-specific
@@ -337,7 +326,7 @@ following property:
     immutable for a given installation.
 
 Authentication Plugins
-----------------------
+======================
 
 .. NOTE::
 
@@ -359,7 +348,7 @@ container web server that sets the ``REMOTE_USER`` environment variable. For
 more details, refer to :doc:`External Authentication <external-auth>`.
 
 How to Implement an Authentication Plugin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
 
 All authentication plugins must extend the
 :class:`keystone.auth.plugins.base.AuthMethodHandler` class and implement the
@@ -407,6 +396,8 @@ plugins specified in ``methods``. This effectively disables external
 authentication. For more details, refer to :doc:`ExternalAuthentication
 <external-auth>`.
 
+Token Drivers and Providers
+===========================
 
 Token Persistence Driver
 ------------------------
@@ -429,12 +420,16 @@ Token Provider
 --------------
 
 Keystone supports customizable token providers and it is specified in the
-``[token]`` section of the configuration file. Keystone provides a UUID and
-Fernet token provider. However, users may register their own token
-provider by configuring the following property.
+``[token]`` section of the configuration file. Keystone provides two token
+provider options (``fernet`` and ``uuid``, with ``fernet`` being the default).
+Users may register their own token provider by configuring the
+``[token] provider`` property.
 
-* ``provider`` - token provider driver. Defaults to ``fernet``. Implemented by
+* ``fernet`` - A Fernet based token provider. Implemented by
   :class:`keystone.token.providers.fernet.Provider`
+
+* ``uuid`` - A UUID based token provider. Implemented by
+  :class:`keystone.token.providers.uuid.Provider`
 
 
 UUID or Fernet?
@@ -442,7 +437,7 @@ UUID or Fernet?
 Each token format uses different technologies to achieve various performance,
 scaling and architectural requirements.
 
-UUID tokens contain randomly generated UUID4 payloads that are issued and
+UUID tokens contain randomly generated UUID4 IDs that are issued and
 validated by the identity service. They are encoded using their hex digest for
 transport and are thus URL-friendly. They must be persisted by the identity
 service in order to be later validated. Revoking them is simply a matter of
@@ -463,8 +458,56 @@ using ``keystone-manage fernet_rotate``.
 
 .. support_matrix:: token-support-matrix.ini
 
+Encryption Keys for Fernet Tokens
+=================================
+
+``keystone-manage fernet_setup`` will attempt to create a key repository as
+configured in the ``[fernet_tokens]`` section of ``keystone.conf`` and
+bootstrap it with encryption keys.
+
+A single 256-bit key is actually composed of two smaller keys: a 128-bit key
+used for SHA256 HMAC signing and a 128-bit key used for AES encryption. See the
+`Fernet token <https://github.com/fernet/spec>`_ specification for more detail.
+
+``keystone-manage fernet_rotate`` will rotate encryption keys through the
+following states:
+
+* **Staged key**: In a key rotation, a new key is introduced into the rotation
+  in this state. Only one key is considered to be the *staged* key at any given
+  time. This key will become the *primary* during the *next* key rotation. This
+  key is only used to validate tokens and serves to avoid race conditions in
+  multi-node deployments (all nodes should recognize all *primary* keys in the
+  deployment at all times). In a multi-node keystone deployment this would
+  allow for the *staged* key to be replicated to all keystone nodes before
+  being promoted to *primary* on a single node. This prevents the case where a
+  *primary* key is created on one keystone node and tokens encrypted/signed with
+  that new *primary* are rejected on another keystone node because the new
+  *primary* doesn't exist there yet.
+
+* **Primary key**: In a key rotation, the old *staged* key is promoted to be
+  the *primary*. Only one key is considered to be the *primary* key at any
+  given time. This is the key used to generate new tokens. This key is also
+  used to validate previously generated tokens.
+
+* **Secondary keys**: In a key rotation, the old *primary* key is demoted to be
+  a *secondary* key. *Secondary* keys are only used to validate previously
+  generated tokens. You can maintain any number of *secondary* keys, up to
+  ``[fernet_tokens] max_active_keys`` (where "active" refers to the sum of all
+  recognized keys in any state: *staged*, *primary* or *secondary*). When
+  ``max_active_keys`` is exceeded during a key rotation, the oldest keys are
+  discarded.
+
+When a new primary key is created, all new tokens will be encrypted using the
+new primary key. The old primary key is demoted to a secondary key, which can
+still be used for validating tokens. Excess secondary keys (beyond
+``[fernet_tokens] max_active_keys``) are revoked. Revoked keys are permanently
+deleted.
+
+Rotating keys too frequently, or with ``[fernet_tokens] max_active_keys`` set
+too low, will cause tokens to become invalid prior to their expiration.
+
 Caching Layer
--------------
+=============
 
 Keystone's configuration file offers two separate sections related to caching,
 ``[memcache]`` and ``[cache]``. The ``[memcache]`` section provides caching
@@ -488,8 +531,8 @@ cached usually has a ``caching`` boolean value that will toggle caching for
 that specific section.  The current default behavior is that global and
 subsystem caching is enabled.
 
-``[cache]`` configuration section:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``[cache]`` configuration section
+---------------------------------
 
 * ``enabled`` - enables/disables caching across all of keystone
 * ``debug_cache_backend`` - enables more in-depth logging from the cache
@@ -612,7 +655,7 @@ For more information about the different backends (and configuration options):
 
 
 Certificates for PKI
---------------------
+====================
 
 PKI stands for Public Key Infrastructure. Tokens are documents,
 cryptographically signed using the X509 standard. In order to work correctly
@@ -634,7 +677,7 @@ that will run keystone. The values that specify the certificates are under the
   above certificate. Default is ``/etc/keystone/ssl/certs/ca.pem``
 
 Signing Certificate Issued by External CA
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
 
 You may use a signing certificate issued by an external CA instead of generated
 by ``keystone-manage``. However, certificate issued by external CA must satisfy
@@ -652,7 +695,7 @@ involves:
 
 
 Request Signing Certificate from External CA
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------
 
 One way to request a signing certificate from an external CA is to first
 generate a PKCS #10 Certificate Request Syntax (CRS) using OpenSSL CLI.
@@ -696,7 +739,7 @@ format.
 
 
 Install External Signing Certificate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
 
 Assuming you have the following already:
 
@@ -721,8 +764,8 @@ If your certificate directory path is different from the default
 section of the configuration file.
 
 
-Generating a Signing Certificate using pki_setup
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Generating a Signing Certificate using ``pki_setup``
+----------------------------------------------------
 
 ``keystone-manage pki_setup`` is a development tool. We recommend that you do
 not use ``keystone-manage pki_setup`` in a production environment. In
@@ -744,61 +787,13 @@ If ``keystone-manage pki_setup`` is not used then these options don't need to
 be set.
 
 
-Encryption Keys for Fernet
---------------------------
-
-``keystone-manage fernet_setup`` will attempt to create a key repository as
-configured in the ``[fernet_tokens]`` section of ``keystone.conf`` and
-bootstrap it with encryption keys.
-
-A single 256-bit key is actually composed of two smaller keys: a 128-bit key
-used for SHA256 HMAC signing and a 128-bit key used for AES encryption. See the
-`Fernet token <https://github.com/fernet/spec>`_ specification for more detail.
-
-``keystone-manage fernet_rotate`` will rotate encryption keys through the
-following states:
-
-* **Staged key**: In a key rotation, a new key is introduced into the rotation
-  in this state. Only one key is considered to be the *staged* key at any given
-  time. This key will become the *primary* during the *next* key rotation. This
-  key is only used to validate tokens and serves to avoid race conditions in
-  multi-node deployments (all nodes should recognize all *primary* keys in the
-  deployment at all times). In a multi-node keystone deployment this would
-  allow for the *staged* key to be replicated to all keystone nodes before
-  being promoted to *primary* on a single node. This prevents the case where a
-  *primary* key is created on one keystone node and tokens encrypted/signed with
-  that new *primary* are rejected on another keystone node because the new
-  *primary* doesn't exist there yet.
-
-* **Primary key**: In a key rotation, the old *staged* key is promoted to be
-  the *primary*. Only one key is considered to be the *primary* key at any
-  given time. This is the key used to generate new tokens. This key is also
-  used to validate previously generated tokens.
-
-* **Secondary keys**: In a key rotation, the old *primary* key is demoted to be
-  a *secondary* key. *Secondary* keys are only used to validate previously
-  generated tokens. You can maintain any number of *secondary* keys, up to
-  ``[fernet_tokens] max_active_keys`` (where "active" refers to the sum of all
-  recognized keys in any state: *staged*, *primary* or *secondary*). When
-  ``max_active_keys`` is exceeded during a key rotation, the oldest keys are
-  discarded.
-
-When a new primary key is created, all new tokens will be encrypted using the
-new primary key. The old primary key is demoted to a secondary key, which can
-still be used for validating tokens. Excess secondary keys (beyond
-``[fernet_tokens] max_active_keys``) are revoked. Revoked keys are permanently
-deleted.
-
-Rotating keys too frequently, or with ``[fernet_tokens] max_active_keys`` set
-too low, will cause tokens to become invalid prior to their expiration.
-
 Service Catalog
----------------
+===============
 
-Keystone provides two configuration options for your service catalog.
+Keystone provides two configuration options for managing a service catalog.
 
 SQL-based Service Catalog (``sql.Catalog``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------
 
 A dynamic database-backed driver fully supporting persistent configuration.
 
@@ -811,21 +806,18 @@ A dynamic database-backed driver fully supporting persistent configuration.
 
 .. NOTE::
 
-    A `template_file` does not need to be defined for the sql.Catalog driver.
+    A `template_file` does not need to be defined for the sql based catalog.
 
 To build your service catalog using this driver, see the built-in help:
 
 .. code-block:: bash
 
     $ openstack --help
-    $ openstack help service create
-    $ openstack help endpoint create
-
-You can also refer to `an example in keystone (tools/sample_data.sh)
-<https://git.openstack.org/cgit/openstack/keystone/tree/tools/sample_data.sh>`_.
+    $ openstack service create --help
+    $ openstack endpoint create --help
 
 File-based Service Catalog (``templated.Catalog``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------
 
 The templated catalog is an in-memory backend initialized from a read-only
 ``template_file``. Choose this option only if you know that your service
@@ -850,9 +842,8 @@ The value of ``template_file`` is expected to be an absolute path to your
 service catalog configuration. An example ``template_file`` is included in
 keystone, however you should create your own to reflect your deployment.
 
-Another such example is `available in devstack
-(files/default_catalog.templates)
-<https://git.openstack.org/cgit/openstack-dev/devstack/tree/files/default_catalog.templates>`_.
+Endpoint Filtering
+==================
 
 Endpoint Filtering enables creation of ad-hoc catalogs for each project-scoped
 token request.
@@ -877,67 +868,8 @@ For example:
 See `API Specification for Endpoint Filtering <http://developer.openstack.org/
 api-ref/identity/v3-ext/#os-ep-filter-api>`_ for the details of API definition.
 
-.. NOTE:: Support status for Endpoint Filtering
-
-   *Experimental* (Icehouse, Juno)
-   *Stable* (Kilo)
-
-Logging
--------
-
-Logging is configured externally to the rest of keystone. Configure the path to
-your logging configuration file using the ``[DEFAULT] log_config_append``
-option of ``keystone.conf``. If you wish to route all your logging through
-syslog, set the ``[DEFAULT] use_syslog`` option.
-
-A sample ``log_config_append`` file is included with the project at
-``etc/logging.conf.sample``. Like other OpenStack projects, keystone uses the
-`Python logging module`_, which includes extensive configuration options for
-choosing the output levels and formats.
-
-.. _Paste: http://pythonpaste.org/
-.. _`Python logging module`: http://docs.python.org/library/logging.html
-
-SSL
----
-
-A secure deployment should have keystone running in a web server (such as
-Apache httpd), or behind an SSL terminator.
-
-User CRUD additions for the V2.0 API
-------------------------------------
-
-For the V2.0 API, keystone provides an additional capability that allows users
-to use a HTTP PATCH to change their own password.
-
-Each user can then change their own password with a HTTP PATCH :
-
-.. code-block:: bash
-
-    $ curl -X PATCH http://localhost:5000/v2.0/OS-KSCRUD/users/<userid> -H "Content-type: application/json" \
-    -H "X_Auth_Token: <authtokenid>" -d '{"user": {"password": "ABCD", "original_password": "DCBA"}}'
-
-In addition to changing their password all of the user's current tokens will be
-revoked.
-
-
-Inherited Role Assignments
---------------------------
-
-Keystone provides an optional capability to assign roles on a project or domain
-that, rather than affect the project or domain itself, are instead inherited to
-the project subtree or to all projects owned by that domain. This capability is
-enabled by default, but can be disabled by including the following in
-``keystone.conf``:
-
-.. code-block:: ini
-
-    [os_inherit]
-    enabled = False
-
-
 Endpoint Policy
----------------
+===============
 
 The Endpoint Policy feature provides associations between service endpoints
 and policies that are already stored in the Identity server and referenced
@@ -955,14 +887,46 @@ See `API Specification for Endpoint Policy <http://specs.openstack.org/
 openstack/keystone-specs/api/v3/identity-api-v3-os-endpoint-policy.html>`_
 for the details of API definition.
 
-.. NOTE:: Support status for Endpoint Policy
+Logging
+=======
 
-   *Experimental* (Juno)
-   *Stable* (Kilo)
+Logging is configured externally to the rest of keystone. Configure the path to
+your logging configuration file using the ``[DEFAULT] log_config_append``
+option of ``keystone.conf``. If you wish to route all your logging through
+syslog, set the ``[DEFAULT] use_syslog`` option.
+
+A sample ``log_config_append`` file is included with the project at
+``etc/logging.conf.sample``. Like other OpenStack projects, keystone uses the
+`Python logging module`_, which includes extensive configuration options for
+choosing the output levels and formats.
+
+.. _Paste: http://pythonpaste.org/
+.. _`Python logging module`: http://docs.python.org/library/logging.html
+
+SSL
+===
+
+A secure deployment should have keystone running in a web server (such as
+Apache httpd), or behind an SSL terminator.
+
+
+Inherited Role Assignments
+==========================
+
+Keystone provides an optional capability to assign roles on a project or domain
+that, rather than affect the project or domain itself, are instead inherited to
+the project subtree or to all projects owned by that domain. This capability is
+enabled by default, but can be disabled by including the following in
+``keystone.conf``:
+
+.. code-block:: ini
+
+    [os_inherit]
+    enabled = False
 
 
 OAuth1 1.0a
------------
+===========
 
 The OAuth 1.0a feature provides the ability for Identity users to delegate
 roles to third party consumers via the OAuth 1.0a specification.
@@ -998,14 +962,9 @@ See `API Specification for OAuth 1.0a <http://specs.openstack.org/openstack/
 keystone-specs/api/v3/identity-api-v3-os-oauth1-ext.html>`_ for the details of
 API definition.
 
-.. NOTE:: Support status for OAuth 1.0a
-
-   *Experimental* (Havana, Icehouse)
-   *Stable* (Juno)
-
 
 Revocation Events
------------------
+=================
 
 The Revocation Events feature provides a list of token revocations. Each event
 expresses a set of criteria which describes a set of tokens that are
@@ -1023,14 +982,9 @@ See `API Specification for Revocation Events <https://specs.openstack.org/
 openstack/keystone-specs/api/v3/identity-api-v3-os-revoke-ext.html>`_ for
 the details of API definition.
 
-.. NOTE:: Support status for Revocation Events
-
-   *Experimental* (Juno)
-   *Stable* (Kilo)
-
 
 Token Binding
--------------
+=============
 
 Token binding refers to the practice of embedding information from external
 authentication providers (like a company's Kerberos server) inside the token
@@ -1062,16 +1016,16 @@ should be set to one of the following modes:
 * named enable bind checking and require that the specified authentication
   mechanism is used. e.g.:
 
-  .. code-block:: ini
+.. code-block:: ini
 
     [token]
     enforce_token_bind = kerberos
 
-  *Do not* set ``enforce_token_bind = named`` as there is not an authentication
-  mechanism called ``named``.
+*Do not* set ``enforce_token_bind = named`` as there is not an authentication
+mechanism called ``named``.
 
-Limiting the number of entities returned in a collection
---------------------------------------------------------
+Limiting list return size
+=========================
 
 Keystone provides a method of setting a limit to the number of entities
 returned in a collection, which is useful to prevent overly long response times
@@ -1091,7 +1045,7 @@ collection will be set to ``true``.
 
 
 URL safe naming of projects and domains
----------------------------------------
+=======================================
 
 In the future, keystone may offer the ability to identify a project in a
 hierarchy via a URL style of naming from the root of the hierarchy (for example
@@ -1122,8 +1076,8 @@ status code of 401 (Unauthorized).
 It is recommended that installations take the steps necessary to where they
 can run with both options set to ``strict`` as soon as is practical.
 
-Configuring the Health Check
-----------------------------
+Health Check middleware
+=======================
 
 This health check middleware allows an operator to configure the endpoint URL
 that will provide information to a load balancer if the given API endpoint at
@@ -1151,22 +1105,10 @@ most efficient checks.
 For more information and configuration options for the middleware see
 `oslo.middleware <http://docs.openstack.org/developer/oslo.middleware/api.html#oslo_middleware.Healthcheck>`_.
 
-Sample Configuration Files
---------------------------
-
-The ``etc/`` folder distributed with keystone contains example configuration
-files for each Server application.
-
-* ``etc/keystone.conf.sample``
-* ``etc/keystone-paste.ini``
-* ``etc/logging.conf.sample``
-* ``etc/default_catalog.templates``
-* ``etc/sso_callback_template.html``
-
 .. _`API protection with RBAC`:
 
-Keystone API protection with Role Based Access Control (RBAC)
-=============================================================
+API protection with Role Based Access Control (RBAC)
+=====================================================
 
 Like most OpenStack projects, keystone supports the protection of its APIs by
 defining policy rules based on an RBAC approach. These are stored in a JSON
@@ -1338,100 +1280,47 @@ return an empty list from your new database):
     values, or deployed keystone to a different endpoint, you will need to
     change the provided command accordingly.
 
-Initializing Keystone
-=====================
+``keystone-manage``
+===================
 
-``keystone-manage`` is designed to execute commands that cannot be administered
-through the normal REST API. At the moment, the following calls are supported:
+``keystone-manage`` is the command line tool which interacts with the Keystone
+service to initialize and update data within Keystone. Generally,
+``keystone-manage`` is only used for operations that cannot be accomplished
+with the HTTP API, such data import/export and database migrations.
 
-* ``bootstrap``: Perform the basic bootstrap process.
-* ``credential_migrate``: Encrypt credentials using a new primary key.
-* ``credential_rotate``: Rotate Fernet keys for credential encryption.
-* ``credential_setup``: Setup a Fernet key repository for credential encryption.
-* ``db_sync``: Sync the database.
-* ``db_version``: Print the current migration version of the database.
-* ``doctor``: Diagnose common problems with keystone deployments.
-* ``domain_config_upload``: Upload domain configuration file.
-* ``fernet_rotate``: Rotate keys in the Fernet key repository.
-* ``fernet_setup``: Setup a Fernet key repository.
-* ``mapping_engine``: Test your federation mapping rules.
-* ``mapping_populate``: Prepare domain-specific LDAP backend
-* ``mapping_purge``: Purge the identity mapping table.
-* ``pki_setup``: Initialize the certificates used to sign revocation lists.
-* ``saml_idp_metadata``: Generate identity provider metadata.
-* ``token_flush``: Purge expired tokens
+.. include:: man/commands.rst
 
-Invoking ``keystone-manage`` by itself will give you additional usage
-information.
+Removing Expired Tokens
+=======================
 
-The private key used for token signing can only be read by its owner. This
-prevents unauthorized users from spuriously signing tokens.
-``keystone-manage pki_setup`` Should be run as the same system user that will
-be running the keystone service to ensure proper ownership for the private key
-file and the associated certificates.
+In the SQL backend expired UUID tokens are not automatically removed. These
+tokens can be removed with:
 
-Adding Users, Projects, and Roles via Command Line Interfaces
-=============================================================
+.. code-block:: bash
 
-Keystone APIs are protected by the rules in the policy file. The default policy
-rules require admin credentials to administer ``users``, ``projects``, and
-``roles``. See section
-`Keystone API protection with Role Based Access Control (RBAC)`_ for more
-details on policy files.
+    $ keystone-manage token_flush
 
-The keystone command line interface packaged in `python-keystoneclient`_ only
-supports the Identity v2.0 API. The OpenStack common command line interface
-packaged in `python-openstackclient`_ supports both v2.0 and v3 APIs.
-
-With both command line interfaces there are two ways to configure the client to
-use admin credentials, using either an existing token or password credentials.
+It is recommended to run this command periodically with ``cron`` if using UUID
+tokens.
 
 .. NOTE::
 
-    As of the Juno release, it is recommended to use
-    ``python-openstackclient``, as it supports both v2.0 and v3 APIs. For the
-    purpose of backwards compatibility, the CLI packaged in
-    ``python-keystoneclient`` is not being removed.
+   It it not required to run this command at all if using Fernet tokens. Fernet
+   tokens are not persisted.
+
+Supported clients
+=================
+
+There are two supported clients, `python-keystoneclient`_ project provides
+python bindings and `python-openstackclient`_ provides a command line
+interface.
 
 .. _`python-openstackclient`: http://docs.openstack.org/developer/python-openstackclient/
 .. _`python-keystoneclient`: http://docs.openstack.org/developer/python-keystoneclient/
 
-Authenticating with a Token
----------------------------
 
-.. NOTE::
-
-    If your keystone deployment is brand new, you will need to use this
-    authentication method, along with your ``[DEFAULT] admin_token``.
-
-To authenticate with keystone using a token and ``python-openstackclient``, set
-the following flags.
-
-* ``--os-url OS_URL``: Keystone endpoint the user communicates with
-* ``--os-token OS_TOKEN``: User's service token
-
-To administer a keystone endpoint, your token should be either belong to a user
-with the ``admin`` role, or, if you haven't created one yet, should be equal to
-the value defined by ``[DEFAULT] admin_token`` in your ``keystone.conf``.
-
-You can also set these variables in your environment so that they do not need
-to be passed as arguments each time:
-
-.. code-block:: bash
-
-    $ export OS_URL=http://localhost:35357/v2.0
-    $ export OS_TOKEN=ADMIN
-
-Instead of ``python-openstackclient``, if using ``python-keystoneclient``, set
-the following:
-
-* ``--os-endpoint OS_SERVICE_ENDPOINT``: equivalent to ``--os-url OS_URL``
-* ``--os-service-token OS_SERVICE_TOKEN``: equivalent to
-  ``--os-token OS_TOKEN``
-
-
-Authenticating with a Password
-------------------------------
+Authenticating with a Password via CLI
+--------------------------------------
 
 To authenticate with keystone using a password and ``python-openstackclient``,
 set the following flags, note that the following user referenced below should
@@ -1452,35 +1341,10 @@ to be passed as arguments each time:
     $ export OS_PROJECT_NAME=my_project
     $ export OS_AUTH_URL=http://localhost:35357/v2.0
 
-If using ``python-keystoneclient``, set the following instead:
-
-* ``--os-tenant-name OS_TENANT_NAME``: equivalent to
-  ``--os-project-name OS_PROJECT_NAME``
-
-
-Example usage
--------------
-
-``python-openstackclient`` is set up to expect commands in the general form of:
+For example, the commands ``user list``, ``token issue`` and ``project create``
+can be invoked as follows:
 
 .. code-block:: bash
-
-  $ openstack [<global-options>] <object-1> <action> [<object-2>] [<command-arguments>]
-
-For example, the commands ``user list`` and ``project create`` can be invoked
-as follows:
-
-.. code-block:: bash
-
-    # Using token authentication, with environment variables
-    $ export OS_URL=http://127.0.0.1:35357/v2.0/
-    $ export OS_TOKEN=secrete_token
-    $ openstack user list
-    $ openstack project create demo
-
-    # Using token authentication, with flags
-    $ openstack --os-token=secrete --os-url=http://127.0.0.1:35357/v2.0/ user list
-    $ openstack --os-token=secrete --os-url=http://127.0.0.1:35357/v2.0/ project create demo
 
     # Using password authentication, with environment variables
     $ export OS_USERNAME=admin
@@ -1489,27 +1353,15 @@ as follows:
     $ export OS_AUTH_URL=http://localhost:35357/v2.0
     $ openstack user list
     $ openstack project create demo
+    $ openstack token issue
 
     # Using password authentication, with flags
     $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 user list
     $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 project create demo
 
-Removing Expired Tokens
-=======================
 
-In the SQL backend expired tokens are not automatically removed. These tokens
-can be removed with:
-
-.. code-block:: bash
-
-    $ keystone-manage token_flush
-
-The memcache backend automatically discards expired tokens and so flushing is
-unnecessary and if attempted will fail with a NotImplemented error.
-
-
-Configuring the LDAP Identity Provider
-======================================
+Using an LDAP server
+====================
 
 As an alternative to the SQL Database backing store, keystone can use a
 directory server to provide the Identity service. An example schema for
@@ -1696,10 +1548,10 @@ the standard options permitted by the ``TLS_REQCERT`` TLS option.
 
 .. NOTE::
 
-If unable to connect to LDAP via keystone (more specifically, if a
-*SERVER DOWN* error is seen), set the ``TLS_CACERT`` in ``/etc/ldap/ldap.conf``
-to the same value specified in the ``[ldap] tls_certificate`` section of
-``keystone.conf``.
+    If unable to connect to LDAP via keystone (more specifically, if a
+    *SERVER DOWN* error is seen), set the ``TLS_CACERT`` in
+    ``/etc/ldap/ldap.conf`` to the same value specified in the
+    ``[ldap] tls_certificate`` section of ``keystone.conf``.
 
 Read Only LDAP
 --------------

@@ -50,7 +50,6 @@ Getting Started
     :maxdepth: 1
 
     installing
-    configuration
     upgrading
     performance
     apache-httpd
@@ -60,6 +59,14 @@ Getting Started
     key_terms
     community
 
+Configuration
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+   configuration
+
 Advanced Topics
 ===============
 
@@ -67,7 +74,6 @@ Advanced Topics
    :maxdepth: 2
 
    federation/federated_identity
-
 .. toctree::
    :maxdepth: 1
 
@@ -76,14 +82,6 @@ Advanced Topics
    event_notifications
    external-auth
    security_compliance
-
-Man Pages
-=========
-
-.. toctree::
-    :maxdepth: 1
-
-    man/keystone-manage
 
 Developers Documentation
 ========================
@@ -101,7 +99,6 @@ Developers Documentation
    services
    online_schema_migration_examples
 
-
 Sample Configuration File
 =========================
 
@@ -109,6 +106,14 @@ Sample Configuration File
     :maxdepth: 1
 
     sample_config
+
+Man Pages
+=========
+
+.. toctree::
+    :maxdepth: 1
+
+    man/keystone-manage
 
 Code Documentation
 ==================
