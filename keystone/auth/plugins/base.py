@@ -27,16 +27,19 @@ class AuthMethodHandler(object):
         pass
 
     @abc.abstractmethod
-    def authenticate(self, context, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload, auth_context):
         """Authenticate user and return an authentication context.
 
-        :param context: keystone's request context
-        :param auth_payload: the content of the authentication for a given
-                             method
+        :param request: context of an authentication request
+        :type request: common.request.Request
+        :param auth_payload: the payload content of the authentication request
+                             for a given method
+        :type auth_payload: dict
         :param auth_context: user authentication context, a dictionary shared
                              by all plugins. It contains "method_names" and
                              "extras" by default. "method_names" is a list and
                              "extras" is a dictionary.
+        :type auth_context: oslo_context.RequestContext
 
         If successful, plugin must set ``user_id`` in ``auth_context``.
         ``method_name`` is used to convey any additional authentication methods
