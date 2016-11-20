@@ -143,7 +143,7 @@ class Auth(controller.V2Controller):
         if CONF.trust.enabled and 'trust_id' in auth:
             trust_ref = self.trust_api.get_trust(auth['trust_id'])
 
-        (token_id, token_data) = self.token_provider_api.issue_v3_token(
+        (token_id, token_data) = self.token_provider_api.issue_token(
             user_ref['id'], ['password'], expires_at=expiry,
             project_id=project_id, trust=trust_ref, parent_audit_id=audit_id,
             auth_context=auth_context)

@@ -206,11 +206,11 @@ class Manager(manager.Manager):
         else:
             raise exception.TokenNotFound(_('Failed to validate token'))
 
-    def issue_v3_token(self, user_id, method_names, expires_at=None,
-                       project_id=None, is_domain=False, domain_id=None,
-                       auth_context=None, trust=None, metadata_ref=None,
-                       include_catalog=True, parent_audit_id=None):
-        token_id, token_data = self.driver.issue_v3_token(
+    def issue_token(self, user_id, method_names, expires_at=None,
+                    project_id=None, is_domain=False, domain_id=None,
+                    auth_context=None, trust=None, metadata_ref=None,
+                    include_catalog=True, parent_audit_id=None):
+        token_id, token_data = self.driver.issue_token(
             user_id, method_names, expires_at, project_id, domain_id,
             auth_context, trust, metadata_ref, include_catalog,
             parent_audit_id)

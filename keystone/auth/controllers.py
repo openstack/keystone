@@ -411,13 +411,13 @@ class Auth(controller.V3Controller):
             method_names = list(set(method_names))
             expires_at = auth_context.get('expires_at')
             # NOTE(morganfainberg): define this here so it is clear what the
-            # argument is during the issue_v3_token provider call.
+            # argument is during the issue_token provider call.
             metadata_ref = None
 
             token_audit_id = auth_context.get('audit_id')
 
             is_domain = auth_context.get('is_domain')
-            (token_id, token_data) = self.token_provider_api.issue_v3_token(
+            (token_id, token_data) = self.token_provider_api.issue_token(
                 auth_context['user_id'], method_names, expires_at, project_id,
                 is_domain, domain_id, auth_context, trust, metadata_ref,
                 include_catalog, parent_audit_id=token_audit_id)
