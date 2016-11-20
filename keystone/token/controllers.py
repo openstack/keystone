@@ -35,6 +35,32 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
+def authentication_method_generator(request, auth):
+    """Given an request return a suitable authentication method.
+
+    This is simply a generator to handle matching an authentication request
+    with the appropriate authentication method.
+
+    :param auth: Dictionary containing authentication information from the
+                 request.
+    :returns: An authentication method class object.
+    """
+    if auth is None:
+        raise exception.ValidationError(attribute='auth',
+                                        target='request body')
+
+    if request.environ.get('REMOTE_USER'):
+        method = ExternalAuthenticationMethod()
+    elif 'token' in auth:
+        method = TokenAuthenticationMethod()
+    elif 'passwordCredentials' in auth:
+        method = LocalAuthenticationMethod()
+    else:
+        raise exception.ValidationError(attribute='auth',
+                                        target='request body')
+    return method
+
+
 class ExternalAuthNotApplicable(Exception):
     """External authentication is not applicable."""
 
@@ -80,22 +106,11 @@ class Auth(controller.V2Controller):
         Alternatively, this call accepts auth with only a token and tenant
         that will return a token that is scoped to that tenant.
         """
-        if auth is None:
-            raise exception.ValidationError(attribute='auth',
-                                            target='request body')
+        method = authentication_method_generator(request, auth)
+        user_ref, project_id, expiry, bind, audit_id = (
+            method.authenticate(request, auth)
+        )
 
-        if 'token' in auth:
-            # Try to authenticate using a token
-            auth_info = self._authenticate_token(request, auth)
-        else:
-            # Try external authentication
-            try:
-                auth_info = self._authenticate_external(request, auth)
-            except ExternalAuthNotApplicable:
-                # Try local authentication
-                auth_info = self._authenticate_local(request, auth)
-
-        user_ref, project_id, expiry, bind, audit_id = auth_info
         # Ensure the entities provided in the authentication information are
         # valid and not disabled.
         try:
@@ -142,214 +157,12 @@ class Auth(controller.V2Controller):
 
         return token_data
 
-    def _restrict_scope(self, token_model_ref):
-        # A trust token cannot be used to get another token
-        if token_model_ref.trust_scoped:
-            raise exception.Forbidden()
-        if not CONF.token.allow_rescope_scoped_token:
-            # Do not allow conversion from scoped tokens.
-            if token_model_ref.project_scoped or token_model_ref.domain_scoped:
-                raise exception.Forbidden(action=_("rescope a scoped token"))
-
-    def _authenticate_token(self, request, auth):
-        """Try to authenticate using an already existing token.
-
-        :param request: request object
-        :param auth: Dictionary representing the authentication request
-        :returns: A tuple containing the user reference, project identifier,
-                  token expiration, bind information, and original audit
-                  information.
-        """
-        if 'token' not in auth:
-            raise exception.ValidationError(
-                attribute='token', target='auth')
-
-        if 'id' not in auth['token']:
-            raise exception.ValidationError(
-                attribute='id', target='token')
-
-        old_token = auth['token']['id']
-        if len(old_token) > CONF.max_token_size:
-            raise exception.ValidationSizeError(attribute='token',
-                                                size=CONF.max_token_size)
-
-        try:
-            v3_token_data = self.token_provider_api.validate_token(
-                old_token
-            )
-            # NOTE(lbragstad): Even though we are not using the v2.0 token
-            # reference after we translate it in v3_to_v2_token(), we still
-            # need to perform that check. We have to do this because
-            # v3_to_v2_token will ensure we don't use specific tokens only
-            # attainable via v3 to get new tokens on v2.0. For example, an
-            # exception would be raised if we passed a federated token to
-            # v3_to_v2_token, because federated tokens aren't supported by
-            # v2.0 (the same applies to OAuth tokens, domain-scoped tokens,
-            # etc..).
-            v2_helper = common.V2TokenDataHelper()
-            v2_helper.v3_to_v2_token(v3_token_data, old_token)
-            token_model_ref = token_model.KeystoneToken(
-                token_id=old_token,
-                token_data=v3_token_data
-            )
-        except exception.NotFound as e:
-            raise exception.Unauthorized(e)
-
-        wsgi.validate_token_bind(request.context_dict, token_model_ref)
-
-        self._restrict_scope(token_model_ref)
-        user_id = token_model_ref.user_id
-        tenant_id = self._get_project_id_from_auth(auth)
-
-        if not CONF.trust.enabled and 'trust_id' in auth:
-            raise exception.Forbidden('Trusts are disabled.')
-        elif CONF.trust.enabled and 'trust_id' in auth:
-            try:
-                trust_ref = self.trust_api.get_trust(auth['trust_id'])
-            except exception.TrustNotFound:
-                raise exception.Forbidden()
-            # If a trust is being used to obtain access to another project and
-            # the other project doesn't match the project in the trust, we need
-            # to bail because trusts are only good up to a single project.
-            if (trust_ref['project_id'] and
-                    tenant_id != trust_ref['project_id']):
-                raise exception.Forbidden()
-
-        expiry = token_model_ref.expires
-
-        user_ref = self.identity_api.get_user(user_id)
-        bind = token_model_ref.bind
-        original_audit_id = token_model_ref.audit_chain_id
-
-        return (user_ref, tenant_id, expiry, bind, original_audit_id)
-
-    def _authenticate_local(self, request, auth):
-        """Try to authenticate against the identity backend.
-
-        :param request: request object
-        :param auth: Dictionary representing the authentication request
-        :returns: A tuple containing the user reference, project identifier,
-                  token expiration, bind information, and original audit
-                  information.
-        """
-        if 'passwordCredentials' not in auth:
-            raise exception.ValidationError(
-                attribute='passwordCredentials', target='auth')
-
-        if 'password' not in auth['passwordCredentials']:
-            raise exception.ValidationError(
-                attribute='password', target='passwordCredentials')
-
-        password = auth['passwordCredentials']['password']
-        if password and len(password) > CONF.identity.max_password_length:
-            raise exception.ValidationSizeError(
-                attribute='password', size=CONF.identity.max_password_length)
-
-        if (not auth['passwordCredentials'].get('userId') and
-                not auth['passwordCredentials'].get('username')):
-            raise exception.ValidationError(
-                attribute='username or userId',
-                target='passwordCredentials')
-
-        user_id = auth['passwordCredentials'].get('userId')
-        if user_id and len(user_id) > CONF.max_param_size:
-            raise exception.ValidationSizeError(attribute='userId',
-                                                size=CONF.max_param_size)
-
-        username = auth['passwordCredentials'].get('username', '')
-
-        if username:
-            if len(username) > CONF.max_param_size:
-                raise exception.ValidationSizeError(attribute='username',
-                                                    size=CONF.max_param_size)
-            try:
-                user_ref = self.identity_api.get_user_by_name(
-                    username, CONF.identity.default_domain_id)
-                user_id = user_ref['id']
-            except exception.UserNotFound as e:
-                raise exception.Unauthorized(e)
-
-        try:
-            user_ref = self.identity_api.authenticate(
-                request,
-                user_id=user_id,
-                password=password)
-        except AssertionError as e:
-            raise exception.Unauthorized(e.args[0])
-
-        tenant_id = self._get_project_id_from_auth(auth)
-        expiry = common.default_expire_time()
-        bind = None
-        audit_id = None
-        return (user_ref, tenant_id, expiry, bind, audit_id)
-
-    def _authenticate_external(self, request, auth):
-        """Try to authenticate an external user via REMOTE_USER variable.
-
-        :param request: request object
-        :param auth: Dictionary representing the authentication request
-        :returns: A tuple containing the user reference, project identifier,
-                  token expiration, bind information, and original audit
-                  information.
-        """
-        username = request.environ.get('REMOTE_USER')
-
-        if not username:
-            raise ExternalAuthNotApplicable()
-
-        try:
-            user_ref = self.identity_api.get_user_by_name(
-                username, CONF.identity.default_domain_id)
-        except exception.UserNotFound as e:
-            raise exception.Unauthorized(e)
-
-        tenant_id = self._get_project_id_from_auth(auth)
-        expiry = common.default_expire_time()
-        bind = None
-        if ('kerberos' in CONF.token.bind and
-                request.environ.get('AUTH_TYPE', '').lower() == 'negotiate'):
-            bind = {'kerberos': username}
-        audit_id = None
-
-        return (user_ref, tenant_id, expiry, bind, audit_id)
-
     def _get_auth_token_data(self, user, tenant, metadata, expiry, audit_id):
         return dict(user=user,
                     tenant=tenant,
                     metadata=metadata,
                     expires=expiry,
                     parent_audit_id=audit_id)
-
-    def _get_project_id_from_auth(self, auth):
-        """Extract and normalize tenant information from auth dict.
-
-        :param auth: Dictionary representing the authentication request.
-        :returns: A string representing the project in the authentication
-                  request. If project scope isn't present in the request None
-                  is returned.
-        """
-        tenant_id = auth.get('tenantId')
-        if tenant_id and len(tenant_id) > CONF.max_param_size:
-            raise exception.ValidationSizeError(attribute='tenantId',
-                                                size=CONF.max_param_size)
-
-        tenant_name = auth.get('tenantName')
-        if tenant_name and len(tenant_name) > CONF.max_param_size:
-            raise exception.ValidationSizeError(attribute='tenantName',
-                                                size=CONF.max_param_size)
-
-        if tenant_name:
-            if (CONF.resource.project_name_url_safe == 'strict' and
-                    utils.is_not_url_safe(tenant_name)):
-                msg = _('Tenant name cannot contain reserved characters.')
-                raise exception.Unauthorized(message=msg)
-            try:
-                tenant_ref = self.resource_api.get_project_by_name(
-                    tenant_name, CONF.identity.default_domain_id)
-                tenant_id = tenant_ref['id']
-            except exception.ProjectNotFound as e:
-                raise exception.Unauthorized(e)
-        return tenant_id
 
     def _token_belongs_to(self, token, belongs_to):
         """Check if the token belongs to the right project.
@@ -482,3 +295,225 @@ class Auth(controller.V2Controller):
                 })
 
         return {'endpoints': endpoints, 'endpoints_links': []}
+
+
+@dependency.requires('resource_api', 'identity_api')
+class BaseAuthenticationMethod(object):
+    """Common utilities/dependencies for all authentication method classes."""
+
+    def _get_project_id_from_auth(self, auth):
+        """Extract and normalize project information from auth dict.
+
+        :param auth: Dictionary representing the authentication request.
+        :returns: A string representing the project in the authentication
+                  request. If project scope isn't present in the request None
+                  is returned.
+        """
+        project_id = auth.get('tenantId')
+        project_name = auth.get('tenantName')
+
+        if project_id:
+            if len(project_id) > CONF.max_param_size:
+                raise exception.ValidationSizeError(
+                    attribute='tenantId', size=CONF.max_param_size
+                )
+        elif project_name:
+            if len(project_name) > CONF.max_param_size:
+                raise exception.ValidationSizeError(
+                    attribute='tenantName', size=CONF.max_param_size
+                )
+            if (CONF.resource.project_name_url_safe == 'strict' and
+                    utils.is_not_url_safe(project_name)):
+                msg = _('Tenant name cannot contain reserved characters.')
+                raise exception.Unauthorized(message=msg)
+            try:
+                project_id = self.resource_api.get_project_by_name(
+                    project_name, CONF.identity.default_domain_id
+                )['id']
+            except exception.ProjectNotFound as e:
+                raise exception.Unauthorized(e)
+        else:
+            project_id = None
+
+        return project_id
+
+
+@dependency.requires('token_provider_api', 'trust_api')
+class TokenAuthenticationMethod(BaseAuthenticationMethod):
+    """Authenticate using an existing token."""
+
+    def _restrict_scope(self, token_model_ref):
+        """Determine if rescoping is allowed based on the token model.
+
+        :param token_model_ref: `keystone.models.token.KeystoneToken` object.
+        """
+        # A trust token cannot be used to get another token
+        if token_model_ref.trust_scoped:
+            raise exception.Forbidden()
+        if not CONF.token.allow_rescope_scoped_token:
+            # Do not allow conversion from scoped tokens.
+            if token_model_ref.project_scoped or token_model_ref.domain_scoped:
+                raise exception.Forbidden(action=_('rescope a scoped token'))
+
+    def authenticate(self, request, auth):
+        """Try to authenticate using an already existing token.
+
+        :param request: A request object.
+        :param auth: Dictionary representing the authentication request.
+        :returns: A tuple containing the user reference, project identifier,
+                  token expiration, bind information, and original audit
+                  information.
+        """
+        if 'token' not in auth:
+            raise exception.ValidationError(
+                attribute='token', target='auth')
+
+        if 'id' not in auth['token']:
+            raise exception.ValidationError(
+                attribute='id', target='token')
+
+        old_token = auth['token']['id']
+        if len(old_token) > CONF.max_token_size:
+            raise exception.ValidationSizeError(attribute='token',
+                                                size=CONF.max_token_size)
+
+        try:
+            v3_token_data = self.token_provider_api.validate_token(
+                old_token
+            )
+            # NOTE(lbragstad): Even though we are not using the v2.0 token
+            # reference after we translate it in v3_to_v2_token(), we still
+            # need to perform that check. We have to do this because
+            # v3_to_v2_token will ensure we don't use specific tokens only
+            # attainable via v3 to get new tokens on v2.0. For example, an
+            # exception would be raised if we passed a federated token to
+            # v3_to_v2_token, because federated tokens aren't supported by
+            # v2.0 (the same applies to OAuth tokens, domain-scoped tokens,
+            # etc..).
+            v2_helper = common.V2TokenDataHelper()
+            v2_helper.v3_to_v2_token(v3_token_data, old_token)
+            token_model_ref = token_model.KeystoneToken(
+                token_id=old_token,
+                token_data=v3_token_data
+            )
+        except exception.NotFound as e:
+            raise exception.Unauthorized(e)
+
+        wsgi.validate_token_bind(request.context_dict, token_model_ref)
+
+        self._restrict_scope(token_model_ref)
+        user_id = token_model_ref.user_id
+        project_id = self._get_project_id_from_auth(auth)
+
+        if not CONF.trust.enabled and 'trust_id' in auth:
+            raise exception.Forbidden('Trusts are disabled.')
+        elif CONF.trust.enabled and 'trust_id' in auth:
+            try:
+                trust_ref = self.trust_api.get_trust(auth['trust_id'])
+            except exception.TrustNotFound:
+                raise exception.Forbidden()
+            # If a trust is being used to obtain access to another project and
+            # the other project doesn't match the project in the trust, we need
+            # to bail because trusts are only good up to a single project.
+            if (trust_ref['project_id'] and
+                    project_id != trust_ref['project_id']):
+                raise exception.Forbidden()
+
+        expiry = token_model_ref.expires
+        user_ref = self.identity_api.get_user(user_id)
+        bind = token_model_ref.bind
+        original_audit_id = token_model_ref.audit_chain_id
+        return (user_ref, project_id, expiry, bind, original_audit_id)
+
+
+class LocalAuthenticationMethod(BaseAuthenticationMethod):
+    """Authenticate against a local backend using password credentials."""
+
+    def authenticate(self, request, auth):
+        """Try to authenticate against the identity backend.
+
+        :param request: A request object.
+        :param auth: Dictionary representing the authentication request.
+        :returns: A tuple containing the user reference, project identifier,
+                  token expiration, bind information, and original audit
+                  information.
+        """
+        if 'password' not in auth['passwordCredentials']:
+            raise exception.ValidationError(
+                attribute='password', target='passwordCredentials')
+
+        password = auth['passwordCredentials']['password']
+        if password and len(password) > CONF.identity.max_password_length:
+            raise exception.ValidationSizeError(
+                attribute='password', size=CONF.identity.max_password_length)
+
+        if (not auth['passwordCredentials'].get('userId') and
+                not auth['passwordCredentials'].get('username')):
+            raise exception.ValidationError(
+                attribute='username or userId',
+                target='passwordCredentials')
+
+        user_id = auth['passwordCredentials'].get('userId')
+        if user_id and len(user_id) > CONF.max_param_size:
+            raise exception.ValidationSizeError(attribute='userId',
+                                                size=CONF.max_param_size)
+
+        username = auth['passwordCredentials'].get('username', '')
+
+        if username:
+            if len(username) > CONF.max_param_size:
+                raise exception.ValidationSizeError(attribute='username',
+                                                    size=CONF.max_param_size)
+            try:
+                user_ref = self.identity_api.get_user_by_name(
+                    username, CONF.identity.default_domain_id)
+                user_id = user_ref['id']
+            except exception.UserNotFound as e:
+                raise exception.Unauthorized(e)
+
+        try:
+            user_ref = self.identity_api.authenticate(
+                request,
+                user_id=user_id,
+                password=password)
+        except AssertionError as e:
+            raise exception.Unauthorized(e.args[0])
+
+        project_id = self._get_project_id_from_auth(auth)
+        expiry = common.default_expire_time()
+        bind = None
+        audit_id = None
+        return (user_ref, project_id, expiry, bind, audit_id)
+
+
+class ExternalAuthenticationMethod(BaseAuthenticationMethod):
+    """Authenticate using an external authentication method."""
+
+    def authenticate(self, request, auth):
+        """Try to authenticate an external user via REMOTE_USER variable.
+
+        :param request: A request object.
+        :param auth: Dictionary representing the authentication request.
+        :returns: A tuple containing the user reference, project identifier,
+                  token expiration, bind information, and original audit
+                  information.
+        """
+        username = request.environ.get('REMOTE_USER')
+
+        if not username:
+            raise ExternalAuthNotApplicable()
+
+        try:
+            user_ref = self.identity_api.get_user_by_name(
+                username, CONF.identity.default_domain_id)
+        except exception.UserNotFound as e:
+            raise exception.Unauthorized(e)
+
+        tenant_id = self._get_project_id_from_auth(auth)
+        expiry = common.default_expire_time()
+        bind = None
+        if ('kerberos' in CONF.token.bind and
+                request.environ.get('AUTH_TYPE', '').lower() == 'negotiate'):
+            bind = {'kerberos': username}
+        audit_id = None
+        return (user_ref, tenant_id, expiry, bind, audit_id)

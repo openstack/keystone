@@ -125,39 +125,45 @@ class AuthTest(unit.TestCase):
 class AuthBadRequests(AuthTest):
     def test_no_external_auth(self):
         """Verify that _authenticate_external() raises exception if N/A."""
+        external_method = token.controllers.ExternalAuthenticationMethod()
         request = webob.Request.blank('/')
         self.assertRaises(
             token.controllers.ExternalAuthNotApplicable,
-            self.controller._authenticate_external,
+            external_method.authenticate,
             request, auth={})
 
     def test_empty_remote_user(self):
         """Verify exception is raised when REMOTE_USER is an empty string."""
+        external_method = token.controllers.ExternalAuthenticationMethod()
         request = webob.Request.blank('/', environ={'REMOTE_USER': ''})
         self.assertRaises(
             token.controllers.ExternalAuthNotApplicable,
-            self.controller._authenticate_external,
+            external_method.authenticate,
             request, auth={})
 
     def test_no_token_in_auth(self):
-        """Verify that _authenticate_token() raises exception if no token."""
+        """Verify that authenticate raises exception if no token."""
+        token_method = token.controllers.TokenAuthenticationMethod()
         self.assertRaises(
             exception.ValidationError,
-            self.controller._authenticate_token,
+            token_method.authenticate,
             None, {})
 
     def test_no_credentials_in_auth(self):
-        """Verify that _authenticate_local() raises exception if no creds."""
+        """Verify that the method generator raises exception if no creds."""
         self.assertRaises(
             exception.ValidationError,
-            self.controller._authenticate_local,
-            None, {})
+            token.controllers.authentication_method_generator,
+            self.make_request(),
+            {}
+        )
 
     def test_empty_username_and_userid_in_auth(self):
         """Verify that empty username and userID raises ValidationError."""
+        token_method = token.controllers.LocalAuthenticationMethod()
         self.assertRaises(
             exception.ValidationError,
-            self.controller._authenticate_local,
+            token_method.authenticate,
             None, {'passwordCredentials': {'password': 'abc',
                                            'userId': '', 'username': ''}})
 
