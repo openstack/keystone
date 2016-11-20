@@ -19,7 +19,6 @@ from keystone.common import utils
 from keystoneclient.common import cms
 from oslo_log import log
 from oslo_serialization import jsonutils
-from oslo_utils import timeutils
 import six
 
 from keystone.common import controller
@@ -96,14 +95,21 @@ class Auth(controller.V2Controller):
                 # Try local authentication
                 auth_info = self._authenticate_local(request, auth)
 
-        user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id = auth_info
-        # Validate that the auth info is valid and nothing is disabled
+        user_ref, project_id, expiry, bind, audit_id = auth_info
+        # Ensure the entities provided in the authentication information are
+        # valid and not disabled.
         try:
             self.identity_api.assert_user_enabled(
                 user_id=user_ref['id'], user=user_ref)
-            if tenant_ref:
-                self.resource_api.assert_project_enabled(
-                    project_id=tenant_ref['id'], project=tenant_ref)
+            if project_id:
+                try:
+                    self.resource_api.get_project(project_id)
+                except exception.ProjectNotFound:
+                    msg = _(
+                        'Project ID not found: %(p_id)s'
+                    ) % {'p_id': project_id}
+                    raise exception.Unauthorized(msg)
+                self.resource_api.assert_project_enabled(project_id)
         except AssertionError as e:
             six.reraise(exception.Unauthorized, exception.Unauthorized(e),
                         sys.exc_info()[2])
@@ -113,32 +119,21 @@ class Auth(controller.V2Controller):
         # part of the token data. The token provider doesn't care about the
         # format.
         user_ref = self.v3_to_v2_user(user_ref)
-        if tenant_ref:
-            tenant_ref = self.v3_to_v2_project(tenant_ref)
 
-        auth_token_data = self._get_auth_token_data(user_ref,
-                                                    tenant_ref,
-                                                    metadata_ref,
-                                                    expiry,
-                                                    audit_id)
-
-        if tenant_ref:
-            catalog_ref = self.catalog_api.get_catalog(
-                user_ref['id'], tenant_ref['id'])
-        else:
-            catalog_ref = {}
-
-        auth_token_data['id'] = 'placeholder'
+        auth_context = {}
         if bind:
-            auth_token_data['bind'] = bind
+            auth_context['bind'] = bind
 
-        roles_ref = []
-        for role_id in metadata_ref.get('roles', []):
-            role_ref = self.role_api.get_role(role_id)
-            roles_ref.append(dict(name=role_ref['name']))
+        trust_ref = None
+        if CONF.trust.enabled and 'trust_id' in auth:
+            trust_ref = self.trust_api.get_trust(auth['trust_id'])
 
-        (token_id, token_data) = self.token_provider_api.issue_v2_token(
-            auth_token_data, roles_ref=roles_ref, catalog_ref=catalog_ref)
+        (token_id, token_data) = self.token_provider_api.issue_v3_token(
+            user_ref['id'], ['password'], expires_at=expiry,
+            project_id=project_id, trust=trust_ref, parent_audit_id=audit_id,
+            auth_context=auth_context)
+        v2_helper = common.V2TokenDataHelper()
+        token_data = v2_helper.v3_to_v2_token(token_data, token_id)
 
         # NOTE(wanghong): We consume a trust use only when we are using trusts
         # and have successfully issued a token.
@@ -159,7 +154,11 @@ class Auth(controller.V2Controller):
     def _authenticate_token(self, request, auth):
         """Try to authenticate using an already existing token.
 
-        Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
+        :param request: request object
+        :param auth: Dictionary representing the authentication request
+        :returns: A tuple containing the user reference, project identifier,
+                  token expiration, bind information, and original audit
+                  information.
         """
         if 'token' not in auth:
             raise exception.ValidationError(
@@ -209,66 +208,29 @@ class Auth(controller.V2Controller):
                 trust_ref = self.trust_api.get_trust(auth['trust_id'])
             except exception.TrustNotFound:
                 raise exception.Forbidden()
-            if user_id != trust_ref['trustee_user_id']:
-                raise exception.Forbidden()
+            # If a trust is being used to obtain access to another project and
+            # the other project doesn't match the project in the trust, we need
+            # to bail because trusts are only good up to a single project.
             if (trust_ref['project_id'] and
                     tenant_id != trust_ref['project_id']):
                 raise exception.Forbidden()
-            if ('expires' in trust_ref) and (trust_ref['expires']):
-                expiry = trust_ref['expires']
-                if expiry < timeutils.parse_isotime(utils.isotime()):
-                    raise exception.Forbidden()
-            user_id = trust_ref['trustor_user_id']
-            trustor_user_ref = self.identity_api.get_user(
-                trust_ref['trustor_user_id'])
-            if not trustor_user_ref['enabled']:
-                raise exception.Forbidden()
-            trustee_user_ref = self.identity_api.get_user(
-                trust_ref['trustee_user_id'])
-            if not trustee_user_ref['enabled']:
-                raise exception.Forbidden()
-
-            if trust_ref['impersonation'] is True:
-                current_user_ref = trustor_user_ref
-            else:
-                current_user_ref = trustee_user_ref
-
-        else:
-            current_user_ref = self.identity_api.get_user(user_id)
-
-        metadata_ref = {}
-        tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
-            user_id, tenant_id)
 
         expiry = token_model_ref.expires
-        if CONF.trust.enabled and 'trust_id' in auth:
-            trust_id = auth['trust_id']
-            trust_roles = []
-            for role in trust_ref['roles']:
-                if 'roles' not in metadata_ref:
-                    raise exception.Forbidden()
-                if role['id'] in metadata_ref['roles']:
-                    trust_roles.append(role['id'])
-                else:
-                    raise exception.Forbidden()
-            if 'expiry' in trust_ref and trust_ref['expiry']:
-                trust_expiry = timeutils.parse_isotime(trust_ref['expiry'])
-                if trust_expiry < expiry:
-                    expiry = trust_expiry
-            metadata_ref['roles'] = trust_roles
-            metadata_ref['trustee_user_id'] = trust_ref['trustee_user_id']
-            metadata_ref['trust_id'] = trust_id
 
+        user_ref = self.identity_api.get_user(user_id)
         bind = token_model_ref.bind
-        audit_id = token_model_ref.audit_chain_id
+        original_audit_id = token_model_ref.audit_chain_id
 
-        return (current_user_ref, tenant_ref, metadata_ref, expiry, bind,
-                audit_id)
+        return (user_ref, tenant_id, expiry, bind, original_audit_id)
 
     def _authenticate_local(self, request, auth):
         """Try to authenticate against the identity backend.
 
-        Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
+        :param request: request object
+        :param auth: Dictionary representing the authentication request
+        :returns: A tuple containing the user reference, project identifier,
+                  token expiration, bind information, and original audit
+                  information.
         """
         if 'passwordCredentials' not in auth:
             raise exception.ValidationError(
@@ -315,20 +277,20 @@ class Auth(controller.V2Controller):
         except AssertionError as e:
             raise exception.Unauthorized(e.args[0])
 
-        metadata_ref = {}
         tenant_id = self._get_project_id_from_auth(auth)
-        tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
-            user_id, tenant_id)
-
         expiry = common.default_expire_time()
         bind = None
         audit_id = None
-        return (user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id)
+        return (user_ref, tenant_id, expiry, bind, audit_id)
 
     def _authenticate_external(self, request, auth):
         """Try to authenticate an external user via REMOTE_USER variable.
 
-        Returns auth_token_data, (user_ref, tenant_ref, metadata_ref)
+        :param request: request object
+        :param auth: Dictionary representing the authentication request
+        :returns: A tuple containing the user reference, project identifier,
+                  token expiration, bind information, and original audit
+                  information.
         """
         username = request.environ.get('REMOTE_USER')
 
@@ -338,15 +300,10 @@ class Auth(controller.V2Controller):
         try:
             user_ref = self.identity_api.get_user_by_name(
                 username, CONF.identity.default_domain_id)
-            user_id = user_ref['id']
         except exception.UserNotFound as e:
             raise exception.Unauthorized(e)
 
-        metadata_ref = {}
         tenant_id = self._get_project_id_from_auth(auth)
-        tenant_ref, metadata_ref['roles'] = self._get_project_roles_and_ref(
-            user_id, tenant_id)
-
         expiry = common.default_expire_time()
         bind = None
         if ('kerberos' in CONF.token.bind and
@@ -354,7 +311,7 @@ class Auth(controller.V2Controller):
             bind = {'kerberos': username}
         audit_id = None
 
-        return (user_ref, tenant_ref, metadata_ref, expiry, bind, audit_id)
+        return (user_ref, tenant_id, expiry, bind, audit_id)
 
     def _get_auth_token_data(self, user, tenant, metadata, expiry, audit_id):
         return dict(user=user,
@@ -364,9 +321,12 @@ class Auth(controller.V2Controller):
                     parent_audit_id=audit_id)
 
     def _get_project_id_from_auth(self, auth):
-        """Extract tenant information from auth dict.
+        """Extract and normalize tenant information from auth dict.
 
-        Returns a valid tenant_id if it exists, or None if not specified.
+        :param auth: Dictionary representing the authentication request.
+        :returns: A string representing the project in the authentication
+                  request. If project scope isn't present in the request None
+                  is returned.
         """
         tenant_id = auth.get('tenantId')
         if tenant_id and len(tenant_id) > CONF.max_param_size:
@@ -390,27 +350,6 @@ class Auth(controller.V2Controller):
             except exception.ProjectNotFound as e:
                 raise exception.Unauthorized(e)
         return tenant_id
-
-    def _get_project_roles_and_ref(self, user_id, tenant_id):
-        """Return the project roles for this user, and the project ref."""
-        tenant_ref = None
-        role_list = []
-        if tenant_id:
-            try:
-                tenant_ref = self.resource_api.get_project(tenant_id)
-                role_list = self.assignment_api.get_roles_for_user_and_project(
-                    user_id, tenant_id)
-            except exception.ProjectNotFound:
-                msg = _('Project ID not found: %(t_id)s') % {'t_id': tenant_id}
-                raise exception.Unauthorized(msg)
-
-            if not role_list:
-                msg = _('User %(u_id)s is unauthorized for tenant %(t_id)s')
-                msg = msg % {'u_id': user_id, 't_id': tenant_id}
-                LOG.warning(msg)
-                raise exception.Unauthorized(msg)
-
-        return (tenant_ref, role_list)
 
     def _token_belongs_to(self, token, belongs_to):
         """Check if the token belongs to the right project.

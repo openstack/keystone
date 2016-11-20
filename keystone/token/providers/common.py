@@ -157,11 +157,12 @@ class V2TokenDataHelper(object):
                 if (trustor_user_ref['domain_id'] !=
                         CONF.identity.default_domain_id):
                     raise exception.Unauthorized(msg)
-                project_ref = self.resource_api.get_project(
-                    trust_ref['project_id'])
-                if (project_ref['domain_id'] !=
-                        CONF.identity.default_domain_id):
-                    raise exception.Unauthorized(msg)
+                if trust_ref.get('project_id'):
+                    project_ref = self.resource_api.get_project(
+                        trust_ref['project_id'])
+                    if (project_ref['domain_id'] !=
+                            CONF.identity.default_domain_id):
+                        raise exception.Unauthorized(msg)
 
             token_data['trust'] = {
                 'impersonation': v3_trust['impersonation'],
