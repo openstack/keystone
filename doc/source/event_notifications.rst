@@ -57,69 +57,6 @@ The ``priority`` of the notification being sent is not configurable through
 the Keystone configuration file. This value is defaulted to INFO for all
 notifications sent in Keystone's case.
 
-Basic Notifications
-===================
-
-All basic notifications contain a limited amount of information, specifically,
-just the resource type, operation, and resource id.
-
-The ``payload`` portion of a Basic Notification is a single key-value pair.
-
-.. code-block:: javascript
-
-    {
-        "resource_info": <resource_id>
-    }
-
-Where ``<resource_id>`` is the unique identifier assigned to the
-``resource_type`` that is undergoing the ``<operation>``.
-
-Supported Events
-----------------
-
-The following table displays the compatibility between resource types and
-operations.
-
-========================  =================================
-resource type             supported operations
-========================  =================================
-group                     create, update, delete
-project                   create, update, delete
-role                      create, update, delete
-domain                    create, update, delete
-user                      create, update, delete
-trust                     create, delete
-region                    create, update, delete
-endpoint                  create, update, delete
-service                   create, update, delete
-policy                    create, update, delete
-========================  =================================
-
-Note, ``trusts`` are an immutable resource, they do not support ``update``
-operations.
-
-Example Notification
---------------------
-
-This is an example of a notification sent for a newly created user:
-
-.. code-block:: javascript
-
-    {
-        "event_type": "identity.user.created",
-        "message_id": "0156ee79-b35f-4cef-ac37-d4a85f231c69",
-        "payload": {
-            "resource_info": "671da331c47d4e29bb6ea1d270154ec3"
-        },
-        "priority": "INFO",
-        "publisher_id": "identity.host1234",
-        "timestamp": "2013-08-29 19:03:45.960280"
-    }
-
-If the operation fails, the notification won't be sent, and no special error
-notification will be sent. Information about the error is handled through
-normal exception paths.
-
 Auditing with CADF
 ==================
 
@@ -400,6 +337,69 @@ the unique identifier of the resource type.
         "timestamp": "2014-08-20T01:20:47.932842"
     }
 
+Basic Notifications
+===================
+
+All basic notifications contain a limited amount of information, specifically,
+just the resource type, operation, and resource id.
+
+The ``payload`` portion of a Basic Notification is a single key-value pair.
+
+.. code-block:: javascript
+
+    {
+        "resource_info": <resource_id>
+    }
+
+Where ``<resource_id>`` is the unique identifier assigned to the
+``resource_type`` that is undergoing the ``<operation>``.
+
+Supported Events
+----------------
+
+The following table displays the compatibility between resource types and
+operations.
+
+========================  =================================
+resource type             supported operations
+========================  =================================
+group                     create, update, delete
+project                   create, update, delete
+role                      create, update, delete
+domain                    create, update, delete
+user                      create, update, delete
+trust                     create, delete
+region                    create, update, delete
+endpoint                  create, update, delete
+service                   create, update, delete
+policy                    create, update, delete
+========================  =================================
+
+Note, ``trusts`` are an immutable resource, they do not support ``update``
+operations.
+
+Example Notification
+--------------------
+
+This is an example of a notification sent for a newly created user:
+
+.. code-block:: javascript
+
+    {
+        "event_type": "identity.user.created",
+        "message_id": "0156ee79-b35f-4cef-ac37-d4a85f231c69",
+        "payload": {
+            "resource_info": "671da331c47d4e29bb6ea1d270154ec3"
+        },
+        "priority": "INFO",
+        "publisher_id": "identity.host1234",
+        "timestamp": "2013-08-29 19:03:45.960280"
+    }
+
+If the operation fails, the notification won't be sent, and no special error
+notification will be sent. Information about the error is handled through
+normal exception paths.
+
 Recommendations for consumers
 =============================
 
@@ -435,5 +435,9 @@ Example:
 This will opt-out notifications for user creation, role assignment creation and
 successful authentications. For a list of event types that can be used, refer
 to: `Telemetry Measurements`_.
+
+By default, messages for the following authentication events are suppressed
+since they are too noisy: ``identity.authenticate.success``,
+``identity.authenticate.pending`` and ``identity.authenticate.failed``.
 
 .. _Telemetry Measurements: http://docs.openstack.org/admin-guide/telemetry-measurements.html#openstack-identity
