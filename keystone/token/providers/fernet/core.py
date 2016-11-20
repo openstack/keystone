@@ -50,12 +50,6 @@ class Provider(common.BaseProvider):
         """Should the token be written to a backend."""
         return False
 
-    def issue_v2_token(self, *args, **kwargs):
-        token_id, token_data = super(Provider, self).issue_v2_token(
-            *args, **kwargs)
-        self._build_issued_at_info(token_id, token_data)
-        return token_id, token_data
-
     def issue_v3_token(self, *args, **kwargs):
         token_id, token_data = super(Provider, self).issue_v3_token(
             *args, **kwargs)
