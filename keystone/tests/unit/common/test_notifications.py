@@ -122,6 +122,9 @@ class NotificationsTestCase(unit.BaseTestCase):
         resource_type = EXP_RESOURCE_TYPE
         operation = CREATED_OPERATION
 
+        conf = self.useFixture(config_fixture.Config(CONF))
+        conf.config(notification_format='basic')
+
         # NOTE(ldbragst): Even though notifications._send_notification doesn't
         # contain logic that creates cases, this is supposed to test that
         # context is always empty and that we ensure the resource ID of the
