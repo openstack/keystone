@@ -280,7 +280,7 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         self._do_test_bootstrap(bootstrap)
 
     def test_assignment_created_with_region_exists(self):
-        # test assignment can be created if role already exists.
+        # test assignment can be created if region already exists.
         bootstrap = cli.BootStrap()
         bootstrap.resource_manager.create_domain(self.default_domain['id'],
                                                  self.default_domain)
@@ -289,7 +289,7 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         self._do_test_bootstrap(bootstrap)
 
     def test_endpoints_created_with_service_exists(self):
-        # test assignment can be created if role already exists.
+        # test assignment can be created if service already exists.
         bootstrap = cli.BootStrap()
         bootstrap.resource_manager.create_domain(self.default_domain['id'],
                                                  self.default_domain)
@@ -298,7 +298,7 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         self._do_test_bootstrap(bootstrap)
 
     def test_endpoints_created_with_endpoint_exists(self):
-        # test assignment can be created if role already exists.
+        # test assignment can be created if endpoint already exists.
         bootstrap = cli.BootStrap()
         bootstrap.resource_manager.create_domain(self.default_domain['id'],
                                                  self.default_domain)
