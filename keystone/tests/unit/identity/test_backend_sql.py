@@ -356,6 +356,24 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
                           user_id=self.user['id'],
                           password=uuid.uuid4().hex)
 
+    def test_lock_out_for_ignored_user(self):
+        # add the user id to the ignore list
+        self.config_fixture.config(
+            group='security_compliance',
+            lockout_ignored_user_ids=[self.user['id']])
+        # fail authentication repeatedly the max number of times
+        self._fail_auth_repeatedly(self.user['id'])
+        # authenticate with wrong password, account should not be locked
+        self.assertRaises(AssertionError,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=self.user['id'],
+                          password=uuid.uuid4().hex)
+        # authenticate with correct password, account should not be locked
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=self.user['id'],
+                                       password=self.password)
+
     def test_set_enabled_unlocks_user(self):
         # lockout user
         self._fail_auth_repeatedly(self.user['id'])

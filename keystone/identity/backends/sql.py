@@ -83,6 +83,8 @@ class Identity(base.IdentityDriverBase):
         :returns Boolean: True if the account is locked; False otherwise
 
         """
+        if user_id in CONF.security_compliance.lockout_ignored_user_ids:
+            return False
         attempts = user_ref.local_user.failed_auth_count or 0
         max_attempts = CONF.security_compliance.lockout_failure_attempts
         lockout_duration = CONF.security_compliance.lockout_duration
