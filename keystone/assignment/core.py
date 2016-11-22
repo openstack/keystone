@@ -347,11 +347,11 @@ class Manager(manager.Manager):
             user_id, group_id, domain_id, project_id, inherited_to_projects)
         return self.role_api.list_roles_from_ids(grant_ids)
 
-    @notifications.role_assignment('deleted')
     def _emit_revoke_user_grant(self, role_id, user_id, domain_id, project_id,
                                 inherited_to_projects, context):
         self._emit_invalidate_grant_token_persistence(user_id, project_id)
 
+    @notifications.role_assignment('deleted')
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
