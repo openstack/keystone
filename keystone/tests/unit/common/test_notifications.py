@@ -56,14 +56,22 @@ class AuditNotificationsTestCase(unit.BaseTestCase):
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.addCleanup(notifications.clear_subscribers)
 
-    def _test_notification_operation(self, notify_function, operation):
+    def _test_notification_operation_with_basic_format(self,
+                                                       notify_function,
+                                                       operation):
+        self.config_fixture.config(notification_format='basic')
         exp_resource_id = uuid.uuid4().hex
         callback = register_callback(operation)
         notify_function(EXP_RESOURCE_TYPE, exp_resource_id)
         callback.assert_called_once_with('identity', EXP_RESOURCE_TYPE,
                                          operation,
                                          {'resource_info': exp_resource_id})
+
+    def _test_notification_operation_with_cadf_format(self,
+                                                      notify_function,
+                                                      operation):
         self.config_fixture.config(notification_format='cadf')
+        exp_resource_id = uuid.uuid4().hex
         with mock.patch(
                 'keystone.notifications._create_cadf_payload') as cadf_notify:
             notify_function(EXP_RESOURCE_TYPE, exp_resource_id)
@@ -77,20 +85,28 @@ class AuditNotificationsTestCase(unit.BaseTestCase):
                 notifications.taxonomy.OUTCOME_SUCCESS, initiator)
 
     def test_resource_created_notification(self):
-        self._test_notification_operation(notifications.Audit.created,
-                                          CREATED_OPERATION)
+        self._test_notification_operation_with_basic_format(
+            notifications.Audit.created, CREATED_OPERATION)
+        self._test_notification_operation_with_cadf_format(
+            notifications.Audit.created, CREATED_OPERATION)
 
     def test_resource_updated_notification(self):
-        self._test_notification_operation(notifications.Audit.updated,
-                                          UPDATED_OPERATION)
+        self._test_notification_operation_with_basic_format(
+            notifications.Audit.updated, UPDATED_OPERATION)
+        self._test_notification_operation_with_cadf_format(
+            notifications.Audit.updated, UPDATED_OPERATION)
 
     def test_resource_deleted_notification(self):
-        self._test_notification_operation(notifications.Audit.deleted,
-                                          DELETED_OPERATION)
+        self._test_notification_operation_with_basic_format(
+            notifications.Audit.deleted, DELETED_OPERATION)
+        self._test_notification_operation_with_cadf_format(
+            notifications.Audit.deleted, DELETED_OPERATION)
 
     def test_resource_disabled_notification(self):
-        self._test_notification_operation(notifications.Audit.disabled,
-                                          DISABLED_OPERATION)
+        self._test_notification_operation_with_basic_format(
+            notifications.Audit.disabled, DISABLED_OPERATION)
+        self._test_notification_operation_with_cadf_format(
+            notifications.Audit.disabled, DISABLED_OPERATION)
 
 
 class NotificationsTestCase(unit.BaseTestCase):
