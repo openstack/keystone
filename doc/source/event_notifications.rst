@@ -112,15 +112,52 @@ Where the following are defined:
 * ``<action>``: The action being performed, typically:
   ``<operation>``. ``<resource_type>``
 
+.. note::
+   The ``eventType`` property of the CADF payload is different from the
+   ``event_type`` property of a notifications. The former (``eventType``) is a
+   CADF keyword which designates the type of event that is being measured, this
+   can be: `activity`, `monitor` or `control`. Whereas the latter
+   (``event_type``) is described in previous sections as:
+   `identity.<resource_type>.<operation>`
+
 Additionally there may be extra keys present depending on the operation being
 performed, these will be discussed below.
 
-Note, the ``eventType`` property of the CADF payload is different from the
-``event_type`` property of a notifications. The former (``eventType``) is a
-CADF keyword which designates the type of event that is being measured, this
-can be: `activity`, `monitor` or `control`. Whereas the latter
-(``event_type``) is described in previous sections as:
-`identity.<resource_type>.<operation>`
+Reason
+------
+
+There is a specific ``reason`` object that will be present for the following
+PCI-DSS related events:
+
+.. list-table::
+   :widths: 45 10 45
+   :header-rows: 1
+
+   * - PCI-DSS Section
+     - reasonCode
+     - reasonType
+   * - 8.1.6 Limit repeated access attempts by locking out the user after more than X failed attempts.
+     - 401
+     - Maximum number of <number> login attempts exceeded.
+   * - 8.2.3 Passwords must meet the established criteria.
+     - 400
+     - Password does not meet expected requirements: <regex_description>
+   * - 8.2.4 Password must be changed every X days.
+     - 401
+     - Password for <user> expired and must be changed
+   * - 8.2.5 Do not let users reuse the last X passwords.
+     - 400
+     - Changed password cannot be identical to the last <number> passwords.
+   * - Other - Prevent passwords from being changed for a minimum of X days.
+     - 401
+     - Cannot change password before minimum age <number> days is met
+
+The reason object will contain the following keys:
+
+* ``reasonType``: Description of the PCI-DSS event
+* ``reasonCode``: HTTP response code for the event
+
+For more information, see :doc:`security_compliance` for configuring PCI-DSS in keystone.
 
 Supported Events
 ----------------
@@ -128,22 +165,49 @@ Supported Events
 The following table displays the compatibility between resource types and
 operations.
 
-======================  =============================  =============================
-resource type           supported operations           typeURI
-======================  =============================  =============================
-group                   create, update, delete         data/security/group
-project                 create, update, delete         data/security/project
-role                    create, update, delete         data/security/role
-domain                  create, update, delete         data/security/domain
-user                    create, update, delete         data/security/account/user
-trust                   create, delete                 data/security/trust
-region                  create, update, delete         data/security/region
-endpoint                create, update, delete         data/security/endpoint
-service                 create, update, delete         data/security/service
-policy                  create, update, delete         data/security/policy
-role assignment         add, remove                    data/security/account/user
-None                    authenticate                   data/security/account/user
-======================  =============================  =============================
+.. list-table::
+   :widths: 6 8 8
+   :header-rows: 1
+
+   * - Resource Type
+     - Supported Operations
+     - typeURI
+   * - group
+     - create,update,delete
+     - data/security/group
+   * - project
+     - create,update,delete
+     - data/security/project
+   * - role
+     - create,update,delete
+     - data/security/role
+   * - domain
+     - create,update,delete
+     - data/security/domain
+   * - user
+     - create,update,delete
+     - data/security/account/user
+   * - trust
+     - create,delete
+     - data/security/trust
+   * - region
+     - create,update,delete
+     - data/security/region
+   * - endpoint
+     - create,update,delete
+     - data/security/endpoint
+   * - service
+     - create,update,delete
+     - data/security/service
+   * - policy
+     - create,update,delete
+     - data/security/policy
+   * - role assignment
+     - add,remove
+     - data/security/account/user
+   * - None
+     - authenticate
+     - data/security/account/user
 
 Example Notification - Project Create
 -------------------------------------
@@ -337,6 +401,53 @@ the unique identifier of the resource type.
         "timestamp": "2014-08-20T01:20:47.932842"
     }
 
+Example Notification - Expired Password
+---------------------------------------
+
+The following is an example of a notification that is sent when a user
+attempts to authenticate but their password has expired.
+
+In this example, the ``payload`` contains a ``reason`` portion which contains
+both a ``reasonCode`` and ``reasonType``.
+
+.. code-block:: javascript
+
+   {
+       "priority": "INFO",
+       "_unique_id": "222441bdc958423d8af6f28f9c558614",
+       "event_type": "identity.authenticate",
+       "timestamp": "2016-11-11 18:31:11.290821",
+       "publisher_id": "identity.host1234",
+       "payload": {
+           "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event",
+           "initiator": {
+               "typeURI": "service/security/account/user",
+               "host": {
+                   "address": "127.0.0.1"
+               },
+               "id": "73a19db6-e26b-5313-a6df-58d297fa652e"
+               },
+               "target": {
+                   "typeURI": "service/security/account/user",
+                   "id": "c23e6cb7-abe0-5e42-b7f7-4c4104ea77b0"
+               },
+               "observer": {
+                   "typeURI": "service/security",
+                   "id": "9bdddeda6a0b451e9e0439646e532afd"
+               },
+               "eventType": "activity",
+               "eventTime": "2016-11-11T18:31:11.156356+0000",
+               "reason": {
+                   "reasonCode": 401,
+                   "reasonType": "The password is expired and needs to be reset for user: ed1ab0b40f284fb48fea9e25d0d157fc"
+               },
+               "action": "authenticate",
+               "outcome": "failure",
+               "id": "78cd795f-5850-532f-9ab1-5adb04e30c0f"
+       },
+       "message_id": "9a97e9d0-fef1-4852-8e82-bb693358bc46"
+   }
+
 Basic Notifications
 ===================
 
@@ -360,20 +471,32 @@ Supported Events
 The following table displays the compatibility between resource types and
 operations.
 
-========================  =================================
-resource type             supported operations
-========================  =================================
-group                     create, update, delete
-project                   create, update, delete
-role                      create, update, delete
-domain                    create, update, delete
-user                      create, update, delete
-trust                     create, delete
-region                    create, update, delete
-endpoint                  create, update, delete
-service                   create, update, delete
-policy                    create, update, delete
-========================  =================================
+.. list-table::
+   :widths: 6 8
+   :header-rows: 1
+
+   * - Resource Type
+     - Supported Operations
+   * - group
+     - create,update,delete
+   * - project
+     - create,update,delete
+   * - role
+     - create,update,delete
+   * - domain
+     - create,update,delete
+   * - user
+     - create,update,delete
+   * - trust
+     - create,delete
+   * - region
+     - create,update,delete
+   * - endpoint
+     - create,update,delete
+   * - service
+     - create,update,delete
+   * - policy
+     - create,update,delete
 
 Note, ``trusts`` are an immutable resource, they do not support ``update``
 operations.
