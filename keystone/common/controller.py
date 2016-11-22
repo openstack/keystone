@@ -712,9 +712,9 @@ class V3Controller(wsgi.Application):
         elif token_ref.project_scoped:
             return token_ref.project_domain_id
         else:
-            LOG.warning(
-                _LW('No domain information specified as part of list request'))
-            raise exception.Unauthorized()
+            msg = _('No domain information specified as part of list request')
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
 
     def _get_domain_id_from_token(self, request):
         """Get the domain_id for a v3 create call.

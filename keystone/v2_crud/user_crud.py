@@ -18,6 +18,7 @@ from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import wsgi
 from keystone import exception
+from keystone.i18n import _
 from keystone import identity
 from keystone.models import token_model
 from keystone.token.providers import common
@@ -71,7 +72,9 @@ class UserController(identity.controllers.User):
                 # NOTE(dolph): why can't you set a disabled user's password?
                 raise exception.Unauthorized('User is disabled')
         except AssertionError:
-            raise exception.Unauthorized()
+            raise exception.Unauthorized(
+                _('v2.0 password change call failed '
+                  'due to rejected authentication'))
 
         update_dict = {'password': user['password'], 'id': user_id}
 

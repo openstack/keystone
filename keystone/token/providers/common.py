@@ -692,7 +692,7 @@ class BaseProvider(base.Provider):
     def _verify_token_ref(self, token_ref):
         """Verify and return the given token_ref."""
         if not token_ref:
-            raise exception.Unauthorized()
+            raise exception.Unauthorized(_('Token is absent'))
         return token_ref
 
     def validate_token(self, token_id):
