@@ -202,7 +202,7 @@ will default to using the server's host name.
 
 notification_format = cfg.StrOpt(
     'notification_format',
-    default='basic',
+    default='cadf',
     choices=['basic', 'cadf'],
     help=utils.fmt("""
 Define the notification format for identity service events. A `basic`
@@ -215,14 +215,18 @@ auditing use cases.
 
 notification_opt_out = cfg.MultiStrOpt(
     'notification_opt_out',
-    default=[],
+    default=["identity.authenticate.success",
+             "identity.authenticate.pending",
+             "identity.authenticate.failed"],
     help=utils.fmt("""
-If left undefined, keystone will emit notifications for all types of events.
-You can reduce the number of notifications keystone emits by using this option
-to enumerate notification topics that should be suppressed. Values are expected
-to be in the form `identity.<resource_type>.<operation>`. This field can be set
-multiple times in order to opt-out of multiple notification topics. For
-example:
+You can reduce the number of notifications keystone emits by explicitly
+opting out. Keystone will not emit notifications that match the patterns
+expressed in this list. Values are expected to be in the form of
+`identity.<resource_type>.<operation>`. By default, all notifications
+related to authentication are automatically suppressed. This field can be
+set multiple times in order to opt-out of multiple notification topics. For
+example, the following suppresses notifications describing user creation or
+successful authentication events:
 notification_opt_out=identity.user.create
 notification_opt_out=identity.authenticate.success
 """))
