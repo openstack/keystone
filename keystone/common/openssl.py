@@ -217,7 +217,7 @@ class BaseCertificateConfigure(object):
             self.exec_command(['openssl', 'ca', '-batch',
                                '-out', '%(signing_cert)s',
                                '-config', '%(ssl_config)s',
-                               '-days', '%(valid_days)dd',
+                               '-days', '%(valid_days)d',
                                '-cert', '%(ca_cert)s',
                                '-keyfile', '%(ca_private_key)s',
                                '-infiles', '%(request_file)s'])
