@@ -30,8 +30,8 @@ from keystone.trust import schema
 def _trustor_trustee_only(trust, user_id):
     if user_id not in [trust.get('trustee_user_id'),
                        trust.get('trustor_user_id')]:
-        raise exception.Forbidden(
-            _('Requested user has no relation to this trust'))
+        raise exception.ForbiddenAction(
+            action=_('Requested user has no relation to this trust'))
 
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api',
@@ -100,8 +100,8 @@ class TrustV3(controller.V3Controller):
             # Redelegation case
             src_trust_id = request.context.trust_id
             if not src_trust_id:
-                raise exception.Forbidden(
-                    _('Redelegation allowed for delegated by trust only'))
+                action = _('Redelegation allowed for delegated by trust only')
+                raise exception.ForbiddenAction(action=action)
 
             redelegated_trust = self.trust_api.get_trust(src_trust_id)
         else:
@@ -119,13 +119,13 @@ class TrustV3(controller.V3Controller):
         redelegated_trust = self._find_redelegated_trust(request)
 
         if trust.get('project_id') and not trust.get('roles'):
-            msg = _('At least one role should be specified.')
-            raise exception.Forbidden(msg)
+            action = _('At least one role should be specified')
+            raise exception.ForbiddenAction(action=action)
 
         # the creating user must be the trustor
         if request.context.user_id != trust.get('trustor_user_id'):
-            msg = _("The authenticated user should match the trustor.")
-            raise exception.Forbidden(msg)
+            action = _("The authenticated user should match the trustor")
+            raise exception.ForbiddenAction(action=action)
 
         # ensure trustee exists
         self.identity_api.get_user(trust['trustee_user_id'])
@@ -195,16 +195,16 @@ class TrustV3(controller.V3Controller):
             self.assert_admin(request)
             trusts += self.trust_api.list_trusts()
 
-        forbidden_msg = _('list trusts for another user')
+        action = _('list trusts for another user')
         if trustor_user_id:
             if trustor_user_id != request.context.user_id:
-                raise exception.Forbidden(forbidden_msg)
+                raise exception.Forbidden(action=action)
 
             trusts += self.trust_api.list_trusts_for_trustor(trustor_user_id)
 
         if trustee_user_id:
             if trustee_user_id != request.context.user_id:
-                raise exception.Forbidden(forbidden_msg)
+                raise exception.ForbiddenAction(action=action)
 
             trusts += self.trust_api.list_trusts_for_trustee(trustee_user_id)
 
@@ -227,8 +227,8 @@ class TrustV3(controller.V3Controller):
 
         if (request.context.user_id != trust.get('trustor_user_id') and
                 not request.context.is_admin):
-            raise exception.Forbidden(
-                _('Only admin or trustor can delete the trust'))
+            action = _('Only admin or trustor can delete the trust')
+            raise exception.ForbiddenAction(action=action)
 
         self.trust_api.delete_trust(
             trust_id, initiator=request.audit_initiator
