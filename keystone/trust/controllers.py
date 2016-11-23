@@ -195,7 +195,7 @@ class TrustV3(controller.V3Controller):
             self.assert_admin(request)
             trusts += self.trust_api.list_trusts()
 
-        action = _('list trusts for another user')
+        action = _('Cannot list trusts for another user')
         if trustor_user_id:
             if trustor_user_id != request.context.user_id:
                 raise exception.Forbidden(action=action)
@@ -227,7 +227,7 @@ class TrustV3(controller.V3Controller):
 
         if (request.context.user_id != trust.get('trustor_user_id') and
                 not request.context.is_admin):
-            action = _('Only admin or trustor can delete the trust')
+            action = _('Only admin or trustor can delete a trust')
             raise exception.ForbiddenAction(action=action)
 
         self.trust_api.delete_trust(
