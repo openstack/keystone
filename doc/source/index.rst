@@ -84,16 +84,19 @@ Advanced Topics
 Developers Documentation
 ========================
 .. toctree::
+   :maxdepth: 2
+
+   devref/development_best_practices
+
+.. toctree::
    :maxdepth: 1
 
    devref/development.environment
-   developing
-   developing_drivers
-   api_change_tutorial
-   http-api
-   api_curl_examples
-   services
-   online_schema_migration_examples
+   devref/developing_drivers
+   devref/api_curl_examples
+   devref/api_change_tutorial
+   devref/http-api
+   devref/services
 
 Sample Configuration File
 =========================

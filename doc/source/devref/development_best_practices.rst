@@ -14,12 +14,12 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-========================
-Developing with Keystone
-========================
+==============
+Best Practices
+==============
 
-Setup
------
+Setting up Keystone
+===================
 
 Get your development environment set up according to
 :doc:`devref/development.environment`. It is recommended that you install
@@ -27,9 +27,9 @@ Keystone into a virtualenv.
 
 
 Configuring Keystone
---------------------
+====================
 
-Keystone requires a configuration file.  There is a sample configuration file
+Keystone requires a configuration file. There is a sample configuration file
 that can be used to get started:
 
 .. code-block:: bash
@@ -41,7 +41,7 @@ needed.
 
 
 Running Keystone
-----------------
+================
 
 To run the Keystone Admin and API server instances, use:
 
@@ -54,27 +54,15 @@ See :doc:`configuration` for details on how Keystone is configured. By default,
 Keystone is configured with SQL backends.
 
 
-Interacting with Keystone
--------------------------
+Initializing Keystone
+=====================
 
-You can interact with Keystone through the command line using
-:doc:`man/keystone-manage` which allows you to initialize keystone, etc.
-
-You can also interact with Keystone through its REST API. There is a Python
-Keystone client library `python-keystoneclient`_ which interacts exclusively
-through the REST API, and which Keystone itself uses to provide its
-command-line interface.
-
-When initially getting set up, after you've configured which databases to use,
-you're probably going to need to run the following to your database schema in
-place:
+Before using keystone, it is necessary to create the database tables and ensures
+the database schemas are up to date, perform the following:
 
 .. code-block:: bash
 
     $ keystone-manage db_sync
-
-.. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
-.. _`openstackclient`: https://git.openstack.org/cgit/openstack/python-openstackclient
 
 If the above commands result in a ``KeyError``, or they fail on a
 ``.pyc`` file with the message, ``You can only have one Python script per
@@ -88,155 +76,6 @@ following from the Keystone root project directory:
 
     $ find . -name "*.pyc" -delete
 
-
-Developing ``doctor`` checks
-----------------------------
-
-As noted in the section above, keystone's management CLI provides various tools
-for administrating OpenStack Identity. One of those tools is called
-``keystone-manage doctor`` and it is responsible for performing health checks
-about the deployment. If ``keystone-manage doctor`` detects a symptom, it
-will provide the operator with suggestions to improve the overall health of the
-deployment. This section is dedicated to documenting how to write symptoms for
-``doctor``.
-
-The ``doctor`` tool consists of a list of symptoms. Each symptom is something
-that we can check against, and provide a warning for if we detect a
-misconfiguration. The ``doctor`` module is located in
-:py:mod:`keystone.cmd.doctor`. The current checks are based heavily on
-inspecting configuration values. As a result, many of the submodules within the
-``doctor`` module are named after the configuration section for the symptoms
-they check. For example, if we want to ensure the ``keystone.conf [DEFAULT]
-max_token_size`` option is properly configured for whatever ``keystone.conf
-[token] provider`` is set to, we can place that symptom in a module called
-:py:mod:`keystone.cmd.doctor.tokens`. The symptom will be loaded by
-importing the ``doctor`` module, which is done when ``keystone-manage doctor``
-is invoked from the command line. When adding new symptoms, it's important to
-remember to add new modules to the ``SYMPTOM_MODULES`` list in
-:py:mod:`keystone.cmd.doctor.__init__`. Doing that will ensure ``doctor``
-discovers properly named symptoms when executed.
-
-Now that we know symptoms are organized according to configuration sections,
-and how to add them, how exactly do we write a new symptom? ``doctor`` will
-automatically discover new symptoms by inspecting the methods of each symptom
-module (i.e. ``SYMPTOM_MODULES``). If a method declaration starts with
-``def symptom_`` it is considered a symptom that ``doctor`` should check for,
-and it should be run. The naming of the symptom, or method name, is extremely
-important since ``doctor`` will use it to describe what it's doing to whoever
-runs ``doctor``. In addition to a well named method, we also need to provide a
-complete documentation string for the method. If ``doctor`` detects a symptom,
-it will use the method's documentation string as feedback to the operator. It
-should describe why the check is being done, why it was triggered, and possible
-solutions to cure the symptom. For examples of this, see the existing symptoms
-in any of ``doctor``'s symptom modules.
-
-The last step is evaluating the logic within the symptom. As previously stated,
-``doctor`` will check for a symptom if methods within specific symptom modules
-make a specific naming convention. In order for ``doctor`` to suggest feedback,
-it needs to know whether or not the symptom is actually present. We accomplish
-this by making all symptoms return ``True`` when a symptom is present. When a
-symptom evaluates to ``False``, ``doctor`` will move along to the next symptom
-in the list since. If the deployment isn't suffering for a specific symptom,
-``doctor`` should not suggest any actions related to that symptom (i.e. if
-you have your cholesterol under control, why would a physician recommend
-cholesterol medication if you don't need it).
-
-To summarize:
-
-- Symptoms should live in modules named according to the most relevant
-  configuration section they apply to. This ensure we keep our symptoms
-  organized, grouped, and easy to find.
-- When writing symptoms for a new section, remember to add the module name to
-  the ``SYMPTOM_MODULES`` list in :py:mod:`keystone.cmd.doctor.__init__`.
-- Remember to use a good name for the symptom method signature and to prepend
-  it with ``symptom_`` in order for it to be discovered automatically by
-  ``doctor``.
-- Symptoms have to evaluate to ``True`` in order to provide feedback to
-  operators.
-- Symptoms should have very thorough documentation strings that describe the
-  symptom, side-effects of the symptom, and ways to remedy it.
-
-For examples, feel free to run ``doctor`` locally using ``keystone-manage`` and
-inspect the existing symptoms. For help on developing specific symptoms for
-``doctor``.
-
-Database Migrations
--------------------
-
-Starting with Newton, keystone supports upgrading both with and without
-downtime. In order to support this, there are three separate migration
-repositories (all under ``keystone/common/sql/``) that match the three phases
-of an upgrade (schema expansion, data migration, and schema contraction):
-
-``expand_repo``
-    For additive schema modifications and triggers to ensure data is kept in
-    sync between the old and new schema until the point when there are no
-    keystone instances running old code.
-
-``data_migration_repo``
-    To ensure new tables/columns are fully populated with data from the old
-    schema.
-
-``contract_repo``
-    Run after all old code versions have been upgraded to running the new code,
-    so remove any old schema columns/tables that are not used by the new
-    version of the code. Drop any triggers added in the expand phase.
-
-All migrations are required to have a migration script in each of these repos,
-each with the same version number (which is indicated by the first three digits
-of the name of the script, e.g. ``003_add_X_table.py``). If there is no work to
-do in a specific phase, then include a no-op migration to simply ``pass`` (in
-fact the ``001`` migration in each of these repositories is a no-op migration,
-so that can be used as a template).
-
-.. NOTE::
-
-    Since rolling upgrade support was added part way through the Newton cycle,
-    some migrations had already been added to the legacy repository
-    (``keystone/common/sql/migrate_repo``). This repository is now closed and
-    no new migrations should be added (except for backporting of previous
-    placeholders).
-
-In order to support rolling upgrades, where two releases of keystone briefly
-operate side-by-side using the same database without downtime, each phase of
-the migration must adhere to following constraints:
-
-These triggers should be removed in the contract phase. There are further
-restrictions as to what can and cannot be included in migration scripts in each
-phase:
-
-Expand phase:
-    Only additive schema changes are allowed, such as new columns, tables,
-    indices, and triggers.
-
-    Data insertion, alteration, and removal is not allowed.
-
-    Triggers must be created to keep data in sync between the previous release
-    and the next release. Data written by the previous release must be readable
-    by both the previous release and the next release. Data written by the next
-    release must be readable by both the next release and the previous release.
-
-    In cases it is not possible for triggers to maintain data integrity across
-    multiple schemas, writing data should be forbidden using triggers.
-
-Data Migration phase:
-    Data is allowed to be inserted, updated, and deleted.
-
-    No schema changes are allowed.
-
-Contract phase:
-    Only contractive schema changes are allowed, such as dropping or altering
-    columns, tables, indices, and triggers.
-
-    Data insertion, alteration, and removal is not allowed.
-
-    Triggers created during the expand phase must be dropped.
-
-For more information on writing individual migration scripts refer to
-`SQLAlchemy-migrate`_.
-
-.. _SQLAlchemy-migrate: https://git.openstack.org/cgit/openstack/sqlalchemy-migrate
-
 Initial Sample Data
 -------------------
 
@@ -248,7 +87,7 @@ data for use with keystone:
     $ ADMIN_PASSWORD=s3cr3t tools/sample_data.sh
 
 Once run, you can see the sample data that has been created by using the
-`openstackclient`_ command-line interface:
+`python-openstackclient`_ command-line interface:
 
 .. code-block:: bash
 
@@ -261,79 +100,107 @@ Once run, you can see the sample data that has been created by using the
     $ export OS_AUTH_URL=http://localhost:5000/v3
     $ openstack user list
 
-The `openstackclient`_ can be installed using the following:
+The `python-openstackclient`_ can be installed using the following:
 
 .. code-block:: bash
 
     $ pip install python-openstackclient
 
-Filtering responsibilities between controllers and drivers
-----------------------------------------------------------
+Interacting with Keystone
+=========================
 
-Keystone supports the specification of filtering on list queries as part of the
-v3 identity API. By default these queries are satisfied in the controller
-class when a controller calls the ``wrap_collection`` method at the end of a
-``list_{entity}`` method.  However, to enable optimum performance, any driver
-can implement some or all of the specified filters (for example, by adding
-filtering to the generated SQL statements to generate the list).
+You can also interact with keystone through its REST API. There is a Python
+keystone client library `python-keystoneclient`_ which interacts exclusively
+through the REST API, and a command-line interface `python-openstackclient`_
+command-line interface.
 
-The communication of the filter details between the controller level and its
-drivers is handled by the passing of a reference to a Hints object,
-which is a list of dicts describing the filters. A driver that satisfies a
-filter must delete the filter from the Hints object so that when it is returned
-to the controller level, it knows to only execute any unsatisfied
-filters.
+.. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
+.. _`python-openstackclient`: https://git.openstack.org/cgit/openstack/python-openstackclient
 
-The contract for a driver for ``list_{entity}`` methods is therefore:
+Building the Documentation
+==========================
 
-* It MUST return a list of entities of the specified type
-* It MAY either just return all such entities, or alternatively reduce the
-  list by filtering for one or more of the specified filters in the passed
-  Hints reference, and removing any such satisfied filters. An exception to
-  this is that for identity drivers that support domains, then they should
-  at least support filtering by domain_id.
+The documentation is generated with Sphinx using the tox command. To create HTML
+docs and man pages:
 
-Entity list truncation by drivers
----------------------------------
+.. code-block:: bash
 
-Keystone supports the ability for a deployment to restrict the number of
-entries returned from ``list_{entity}`` methods, typically to prevent poorly
-formed searches (e.g. without sufficient filters) from becoming a performance
-issue.
+    $ tox -e docs
 
-These limits are set in the configuration file, either for a specific driver or
-across all drivers.  These limits are read at the Manager level and passed into
-individual drivers as part of the Hints list object. A driver should try and
-honor any such limit if possible, but if it is unable to do so then it may
-ignore it (and the truncation of the returned list of entities will happen at
-the controller level).
+The results are in the ``doc/build/html`` and ``doc/build/man`` directories
+respectively.
 
-Identity entity ID management between controllers and drivers
--------------------------------------------------------------
 
-Keystone supports the option of having domain-specific backends for the
-identity driver (i.e. for user and group storage), allowing, for example,
-a different LDAP server for each domain. To ensure that Keystone can determine
-to which backend it should route an API call, starting with Juno, the
-identity manager will, provided that domain-specific backends are enabled,
-build on-the-fly a persistent mapping table between Keystone Public IDs that
-are presented to the controller and the domain that holds the entity, along
-with whatever local ID is understood by the driver.  This hides, for instance,
-the LDAP specifics of whatever ID is being used.
+Generating a new Sample Config File
+===================================
 
-To ensure backward compatibility, the default configuration of either a
-single SQL or LDAP backend for Identity will not use the mapping table,
-meaning that public facing IDs will be the unchanged. If keeping these IDs
-the same for the default LDAP backend is not required, then setting the
-configuration variable ``backward_compatible_ids`` to ``False`` will enable
-the mapping for the default LDAP driver, hence hiding the LDAP specifics of the
-IDs being used.
+Keystone's sample configuration file ``etc/keystone.conf.sample`` is automatically
+generated based upon all of the options available within Keystone. These options
+are sourced from the many files around Keystone as well as some external libraries.
 
-Testing
--------
+The sample configuration file will be updated as the end of the development
+cycle approaches. Developers should *NOT* generate the config file and propose
+it as part of their patches, this will cause unnecessary conflicts.
+
+To generate a new sample configuration to see what it looks like, run:
+
+.. code-block:: bash
+
+    $ tox -egenconfig -r
+
+The tox command will place an updated sample config in ``etc/keystone.conf.sample``.
+
+If there is a new external library (e.g. ``oslo.messaging``) that utilizes the
+``oslo.config`` package for configuration, it can be added to the list of libraries
+found in ``config-generator/keystone.conf``.
+
+
+Release Notes
+=============
+
+The release notes for a patch should be included in the patch. If not, the
+release notes should be in a follow-on review.
+
+If the following applies to the patch, a release note is required:
+
+* The deployer needs to take an action when upgrading
+* The backend driver interface changes
+* A new feature is implemented
+* Function was removed (hopefully it was deprecated)
+* Current behavior is changed
+* A new config option is added that the deployer should consider changing from
+  the default
+* A security bug is fixed
+
+A release note is suggested if a long-standing or important bug is fixed.
+Otherwise, a release note is not required.
+
+Keystone uses `reno <http://docs.openstack.org/developer/reno/usage.html>`_ to
+generate release notes. Please read the docs for details. In summary, use
+
+.. code-block:: bash
+
+  $ tox -e venv -- reno new <bug-,bp-,whatever>
+
+Then edit the sample file that was created and push it with your change.
+
+To see the results:
+
+.. code-block:: bash
+
+  $ git commit  # Commit the change because reno scans git log.
+
+  $ tox -e releasenotes
+
+Then look at the generated release notes files in ``releasenotes/build/html`` in
+your favorite browser.
+
+
+Testing Keystone
+================
 
 Running Tests
-=============
+-------------
 
 Before running tests, you should have ``tox`` installed and available in your
 environment (in addition to the other external dependencies in
@@ -412,9 +279,9 @@ For example, to discard logging data during a test run:
     $ OS_LOG_CAPTURE=0 tox -e py27
 
 Test Structure
-==============
+--------------
 
-Not all of the tests in the keystone/tests/unit directory are strictly unit
+Not all of the tests in the ``keystone/tests/unit`` directory are strictly unit
 tests. Keystone intentionally includes tests that run the service locally and
 drives the entire configuration to achieve basic functional testing.
 
@@ -439,7 +306,7 @@ running local keystone instance to explicitly verify basic functional testing
 across the API.
 
 Testing Schema Migrations
-=========================
+-------------------------
 
 The application of schema migrations can be tested using SQLAlchemy Migrate’s
 built-in test runner, one migration at a time.
@@ -464,7 +331,7 @@ of your data during migration.
 
 
 Writing Tests
-=============
+-------------
 
 To add tests covering all drivers, update the base test class in
 ``test_backend.py``.
@@ -484,7 +351,7 @@ configuration of the test class in ``setUp()``.
 
 
 Further Testing
-===============
+---------------
 
 devstack_ is the *best* way to quickly deploy Keystone with the rest of the
 OpenStack universe and should be critical step in your development workflow!
@@ -499,7 +366,7 @@ You may also be interested in either the
 
 
 LDAP Tests
-==========
+----------
 
 LDAP has a fake backend that performs rudimentary operations.  If you
 are building more significant LDAP functionality, you should test against
@@ -522,7 +389,7 @@ password.
 
 
 "Work in progress" Tests
-========================
+------------------------
 
 Work in progress (WIP) tests are very useful in a variety of situations
 including:
@@ -564,34 +431,220 @@ require that these messages are descriptive and accurate.
    code currently incorrectly works. Which strategy is chosen is up to the
    developer.
 
-Generating Updated Sample Config File
--------------------------------------
 
-Keystone's sample configuration file ``etc/keystone.conf.sample`` is automatically
-generated based upon all of the options available within Keystone. These options
-are sourced from the many files around Keystone as well as some external libraries.
+Developing ``doctor`` checks
+============================
 
-The sample configuration file is now kept up to date by an infra job that
-generates the config file and if there are any changes will propose a review
-as the OpenStack Proposal Bot. Developers should *NOT* generate the config file
-and propose it as part of their patches since the proposal bot will do this for
-you.
+As noted in the section above, keystone's management CLI provides various tools
+for administrating OpenStack Identity. One of those tools is called
+``keystone-manage doctor`` and it is responsible for performing health checks
+about the deployment. If ``keystone-manage doctor`` detects a symptom, it
+will provide the operator with suggestions to improve the overall health of the
+deployment. This section is dedicated to documenting how to write symptoms for
+``doctor``.
 
-To generate a new sample configuration to see what it looks like, run:
+The ``doctor`` tool consists of a list of symptoms. Each symptom is something
+that we can check against, and provide a warning for if we detect a
+misconfiguration. The ``doctor`` module is located in
+:py:mod:`keystone.cmd.doctor`. The current checks are based heavily on
+inspecting configuration values. As a result, many of the submodules within the
+``doctor`` module are named after the configuration section for the symptoms
+they check. For example, if we want to ensure the ``keystone.conf [DEFAULT]
+max_token_size`` option is properly configured for whatever ``keystone.conf
+[token] provider`` is set to, we can place that symptom in a module called
+:py:mod:`keystone.cmd.doctor.tokens`. The symptom will be loaded by
+importing the ``doctor`` module, which is done when ``keystone-manage doctor``
+is invoked from the command line. When adding new symptoms, it's important to
+remember to add new modules to the ``SYMPTOM_MODULES`` list in
+:py:mod:`keystone.cmd.doctor.__init__`. Doing that will ensure ``doctor``
+discovers properly named symptoms when executed.
 
-.. code-block:: bash
+Now that we know symptoms are organized according to configuration sections,
+and how to add them, how exactly do we write a new symptom? ``doctor`` will
+automatically discover new symptoms by inspecting the methods of each symptom
+module (i.e. ``SYMPTOM_MODULES``). If a method declaration starts with
+``def symptom_`` it is considered a symptom that ``doctor`` should check for,
+and it should be run. The naming of the symptom, or method name, is extremely
+important since ``doctor`` will use it to describe what it's doing to whoever
+runs ``doctor``. In addition to a well named method, we also need to provide a
+complete documentation string for the method. If ``doctor`` detects a symptom,
+it will use the method's documentation string as feedback to the operator. It
+should describe why the check is being done, why it was triggered, and possible
+solutions to cure the symptom. For examples of this, see the existing symptoms
+in any of ``doctor``'s symptom modules.
 
-    $ tox -egenconfig -r
+The last step is evaluating the logic within the symptom. As previously stated,
+``doctor`` will check for a symptom if methods within specific symptom modules
+make a specific naming convention. In order for ``doctor`` to suggest feedback,
+it needs to know whether or not the symptom is actually present. We accomplish
+this by making all symptoms return ``True`` when a symptom is present. When a
+symptom evaluates to ``False``, ``doctor`` will move along to the next symptom
+in the list since. If the deployment isn't suffering for a specific symptom,
+``doctor`` should not suggest any actions related to that symptom (i.e. if
+you have your cholesterol under control, why would a physician recommend
+cholesterol medication if you don't need it).
 
-The tox command will place an updated sample config in ``etc/keystone.conf.sample``.
+To summarize:
 
-If there is a new external library (e.g. ``oslo.messaging``) that utilizes the
-``oslo.config`` package for configuration, it can be added to the list of libraries
-found in ``config-generator/keystone.conf``.
+- Symptoms should live in modules named according to the most relevant
+  configuration section they apply to. This ensure we keep our symptoms
+  organized, grouped, and easy to find.
+- When writing symptoms for a new section, remember to add the module name to
+  the ``SYMPTOM_MODULES`` list in :py:mod:`keystone.cmd.doctor.__init__`.
+- Remember to use a good name for the symptom method signature and to prepend
+  it with ``symptom_`` in order for it to be discovered automatically by
+  ``doctor``.
+- Symptoms have to evaluate to ``True`` in order to provide feedback to
+  operators.
+- Symptoms should have very thorough documentation strings that describe the
+  symptom, side-effects of the symptom, and ways to remedy it.
+
+For examples, feel free to run ``doctor`` locally using ``keystone-manage`` and
+inspect the existing symptoms.
+
+Database Migrations
+===================
+
+Starting with Newton, keystone supports upgrading both with and without
+downtime. In order to support this, there are three separate migration
+repositories (all under ``keystone/common/sql/``) that match the three phases
+of an upgrade (schema expansion, data migration, and schema contraction):
+
+``expand_repo``
+    For additive schema modifications and triggers to ensure data is kept in
+    sync between the old and new schema until the point when there are no
+    keystone instances running old code.
+
+``data_migration_repo``
+    To ensure new tables/columns are fully populated with data from the old
+    schema.
+
+``contract_repo``
+    Run after all old code versions have been upgraded to running the new code,
+    so remove any old schema columns/tables that are not used by the new
+    version of the code. Drop any triggers added in the expand phase.
+
+All migrations are required to have a migration script in each of these repos,
+each with the same version number (which is indicated by the first three digits
+of the name of the script, e.g. ``003_add_X_table.py``). If there is no work to
+do in a specific phase, then include a no-op migration to simply ``pass`` (in
+fact the ``001`` migration in each of these repositories is a no-op migration,
+so that can be used as a template).
+
+.. NOTE::
+
+    Since rolling upgrade support was added part way through the Newton cycle,
+    some migrations had already been added to the legacy repository
+    (``keystone/common/sql/migrate_repo``). This repository is now closed and
+    no new migrations should be added (except for backporting of previous
+    placeholders).
+
+In order to support rolling upgrades, where two releases of keystone briefly
+operate side-by-side using the same database without downtime, each phase of
+the migration must adhere to following constraints:
+
+These triggers should be removed in the contract phase. There are further
+restrictions as to what can and cannot be included in migration scripts in each
+phase:
+
+Expand phase:
+    Only additive schema changes are allowed, such as new columns, tables,
+    indices, and triggers.
+
+    Data insertion, modification, and removal is not allowed.
+
+    Triggers must be created to keep data in sync between the previous release
+    and the next release. Data written by the previous release must be readable
+    by both the previous release and the next release. Data written by the next
+    release must be readable by both the next release and the previous release.
+
+    In cases it is not possible for triggers to maintain data integrity across
+    multiple schemas, writing data should be forbidden using triggers.
+
+Data Migration phase:
+    Data is allowed to be inserted, updated, and deleted.
+
+    No schema changes are allowed.
+
+Contract phase:
+    Only contractive schema changes are allowed, such as dropping or altering
+    columns, tables, indices, and triggers.
+
+    Data insertion, modification, and removal is not allowed.
+
+    Triggers created during the expand phase must be dropped.
+
+For more information on writing individual migration scripts refer to
+`SQLAlchemy-migrate`_.
+
+.. _SQLAlchemy-migrate: https://git.openstack.org/cgit/openstack/sqlalchemy-migrate
+
+
+Filtering responsibilities between controllers and drivers
+==========================================================
+
+Keystone supports the specification of filtering on list queries as part of the
+v3 identity API. By default these queries are satisfied in the controller
+class when a controller calls the ``wrap_collection`` method at the end of a
+``list_{entity}`` method.  However, to enable optimum performance, any driver
+can implement some or all of the specified filters (for example, by adding
+filtering to the generated SQL statements to generate the list).
+
+The communication of the filter details between the controller level and its
+drivers is handled by the passing of a reference to a Hints object,
+which is a list of dicts describing the filters. A driver that satisfies a
+filter must delete the filter from the Hints object so that when it is returned
+to the controller level, it knows to only execute any unsatisfied
+filters.
+
+The contract for a driver for ``list_{entity}`` methods is therefore:
+
+* It MUST return a list of entities of the specified type
+* It MAY either just return all such entities, or alternatively reduce the
+  list by filtering for one or more of the specified filters in the passed
+  Hints reference, and removing any such satisfied filters. An exception to
+  this is that for identity drivers that support domains, then they should
+  at least support filtering by domain_id.
+
+Entity list truncation by drivers
+=================================
+
+Keystone supports the ability for a deployment to restrict the number of
+entries returned from ``list_{entity}`` methods, typically to prevent poorly
+formed searches (e.g. without sufficient filters) from becoming a performance
+issue.
+
+These limits are set in the configuration file, either for a specific driver or
+across all drivers.  These limits are read at the Manager level and passed into
+individual drivers as part of the Hints list object. A driver should try and
+honor any such limit if possible, but if it is unable to do so then it may
+ignore it (and the truncation of the returned list of entities will happen at
+the controller level).
+
+Identity entity ID management between controllers and drivers
+=============================================================
+
+Keystone supports the option of having domain-specific backends for the
+identity driver (i.e. for user and group storage), allowing, for example,
+a different LDAP server for each domain. To ensure that Keystone can determine
+to which backend it should route an API call, starting with Juno, the
+identity manager will, provided that domain-specific backends are enabled,
+build on-the-fly a persistent mapping table between Keystone Public IDs that
+are presented to the controller and the domain that holds the entity, along
+with whatever local ID is understood by the driver.  This hides, for instance,
+the LDAP specifics of whatever ID is being used.
+
+To ensure backward compatibility, the default configuration of either a
+single SQL or LDAP backend for Identity will not use the mapping table,
+meaning that public facing IDs will be the unchanged. If keeping these IDs
+the same for the default LDAP backend is not required, then setting the
+configuration variable ``backward_compatible_ids`` to ``False`` will enable
+the mapping for the default LDAP driver, hence hiding the LDAP specifics of the
+IDs being used.
 
 
 Translated responses
---------------------
+====================
 
 The Keystone server can provide error responses translated into the language in
 the ``Accept-Language`` header of the request. In order to test this in your
@@ -629,7 +682,7 @@ Now you can get a translated error response:
 
 
 Caching Layer
--------------
+=============
 
 The caching layer is designed to be applied to any ``manager`` object within Keystone
 via the use of the ``on_arguments`` decorator provided in the ``keystone.common.cache``
@@ -898,56 +951,3 @@ Similar to other backends, this backend can be added via Keystone configuration 
 
 This backend is registered in ``keystone.common.cache.core`` module. So, its usage
 is similar to other dogpile caching backends as it implements the same dogpile APIs.
-
-
-Building the Documentation
---------------------------
-
-The documentation is generated with Sphinx using the tox command.  To create HTML docs and man pages:
-
-.. code-block:: bash
-
-    $ tox -e docs
-
-The results are in the doc/build/html and doc/build/man directories respectively.
-
-
-Release Notes
--------------
-
-The release notes for a patch should be included in the patch. If not, the
-release notes should be in a follow-on review.
-
-If the following applies to the patch, a release note is required:
-
-* The deployer needs to take an action when upgrading
-* The backend driver interface changes
-* A new feature is implemented
-* Function was removed (hopefully it was deprecated)
-* Current behavior is changed
-* A new config option is added that the deployer should consider changing from
-  the default
-* A security bug is fixed
-
-A release note is suggested if a long-standing or important bug is fixed.
-Otherwise, a release note is not required.
-
-Keystone uses `reno <http://docs.openstack.org/developer/reno/usage.html>`_ to
-generate release notes. Please read the docs for details. In summary, use
-
-.. code-block:: bash
-
-  $ tox -e venv -- reno new <bug-,bp-,whatever>
-
-Then edit the sample file that was created and push it with your change.
-
-To see the results:
-
-.. code-block:: bash
-
-  $ git commit  # Commit the change because reno scans git log.
-
-  $ tox -e releasenotes
-
-Then look at the generated release notes files in releasenotes/build/html in
-your favorite browser.
