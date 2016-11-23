@@ -132,8 +132,13 @@ def hash_user_password(user):
 def hash_password(password):
     """Hash a password. Hard."""
     password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
-    return passlib.hash.sha512_crypt.encrypt(
-        password_utf8, rounds=CONF.crypt_strength)
+    try:
+        return passlib.hash.sha512_crypt.encrypt(
+            password_utf8, rounds=CONF.crypt_strength)
+    except DeprecationWarning:
+        # TODO(stevemar): Remove this warning once we switch over to passlib
+        # version 1.7.0 and replace encrypt() with hash()
+        pass
 
 
 def check_password(password, hashed):
