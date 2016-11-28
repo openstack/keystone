@@ -64,6 +64,14 @@ namespace. You do not need to set this unless you are overriding keystone's own
 `oauth1` authentication plugin.
 """))
 
+mapped = cfg.StrOpt(
+    'mapped',
+    help=utils.fmt("""
+Entry point for the mapped auth plugin module in the `keystone.auth.mapped`
+namespace. You do not need to set this unless you are overriding keystone's own
+`mapped` authentication plugin.
+"""))
+
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     methods,
@@ -71,6 +79,7 @@ ALL_OPTS = [
     token,
     external,
     oauth1,
+    mapped,
 ]
 
 
