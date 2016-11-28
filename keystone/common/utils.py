@@ -136,9 +136,10 @@ def hash_password(password):
         return passlib.hash.sha512_crypt.encrypt(
             password_utf8, rounds=CONF.crypt_strength)
     except DeprecationWarning:
-        # TODO(stevemar): Remove this warning once we switch over to passlib
+        # TODO(stevemar): Remove this try/except once we switch over to passlib
         # version 1.7.0 and replace encrypt() with hash()
-        pass
+        return passlib.hash.sha512_crypt.hash(
+            password_utf8, rounds=CONF.crypt_strength)
 
 
 def check_password(password, hashed):
