@@ -1,5 +1,14 @@
 # variables in header
 
+X-Subject-Token:
+  description: |
+    The authentication token. An authentication
+    response returns the token ID in this header rather than in the
+    response body.
+  in: header
+  required: true
+  type: string
+
 # variables in path
 
 idp_id:

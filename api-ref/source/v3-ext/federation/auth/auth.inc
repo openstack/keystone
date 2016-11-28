@@ -40,6 +40,7 @@ Response
 
 .. rest_parameters:: federation/auth/parameters.yaml
 
+   - X-Subject-Token: X-Subject-Token
    - token: unscoped_token
 
 Response Example
@@ -81,6 +82,7 @@ Response
 
 .. rest_parameters:: federation/auth/parameters.yaml
 
+   - X-Subject-Token: X-Subject-Token
    - token: scoped_token
 
 Response Example
