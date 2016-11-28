@@ -1134,7 +1134,6 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                (self.domain_id, group['id'], self.role_id))
         self._test_role_assignment(url, self.role_id,
                                    domain=self.domain_id,
-                                   user=self.user_id,
                                    group=group['id'])
 
     def test_add_role_to_user_and_project(self):
