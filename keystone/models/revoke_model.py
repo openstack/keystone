@@ -169,13 +169,6 @@ def matches(event, token_values):
     # that the token is still valid and short-circuits the
     # rest of the logic.
 
-    # The token has three attributes that can match the user_id.
-    if event.user_id is not None and event.user_id not in (
-            token_values['user_id'],
-            token_values['trustor_id'],
-            token_values['trustee_id'],):
-        return False
-
     # The token has two attributes that can match the domain_id.
     if event.domain_id is not None and event.domain_id not in(
             token_values['identity_domain_id'],
@@ -188,10 +181,6 @@ def matches(event, token_values):
 
     # If an event specifies an attribute name, but it does not match, the token
     # is not revoked.
-    if event.project_id is not None and event.project_id not in (
-            token_values['project_id'],):
-        return False
-
     if event.expires_at is not None and event.expires_at not in (
             token_values['expires_at'],):
         return False
@@ -208,19 +197,12 @@ def matches(event, token_values):
             token_values['access_token_id'],):
         return False
 
-    if event.audit_id is not None and event.audit_id not in (
-            token_values['audit_id'],):
-        return False
-
     if event.audit_chain_id is not None and event.audit_chain_id not in (
             token_values['audit_chain_id'],):
         return False
 
     if event.role_id is not None and event.role_id not in (
             token_values['roles']):
-        return False
-
-    if token_values['issued_at'] > event.issued_before:
         return False
 
     return True
