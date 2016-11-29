@@ -248,8 +248,8 @@ class Unauthorized(SecurityError):
 
 
 class PasswordExpired(Unauthorized):
-    message_format = _("The password is expired and needs to be reset by an "
-                       "administrator for user: %(user_id)s.")
+    message_format = _("The password is expired and needs to be changed for "
+                       "user: %(user_id)s.")
 
 
 class AuthPluginException(Unauthorized):

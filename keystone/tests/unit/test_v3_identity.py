@@ -835,6 +835,20 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
     def setUp(self):
         super(UserSelfServiceChangingPasswordsTestCase, self).setUp()
 
+    def _create_user_with_expired_password(self):
+        expire_days = CONF.security_compliance.password_expires_days + 1
+        time = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(expire_days)
+        )
+        password = uuid.uuid4().hex
+        user_ref = unit.new_user_ref(domain_id=self.domain_id,
+                                     password=password)
+        with freezegun.freeze_time(time):
+            self.user_ref = self.identity_api.create_user(user_ref)
+
+        return password
+
     def test_changing_password(self):
         # original password works
         token_id = self.get_request_token(self.user_ref['password'],
@@ -930,6 +944,31 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
 
         self.assertNotIn(self.user_ref['password'], log_fix.output)
         self.assertNotIn(new_password, log_fix.output)
+
+    def test_changing_expired_password_succeeds(self):
+        self.config_fixture.config(group='security_compliance',
+                                   password_expires_days=2)
+        password = self._create_user_with_expired_password()
+
+        new_password = uuid.uuid4().hex
+        self.change_password(password=new_password,
+                             original_password=password,
+                             expected_status=http_client.NO_CONTENT)
+
+    def test_changing_expired_password_with_disabled_user_fails(self):
+        self.config_fixture.config(group='security_compliance',
+                                   password_expires_days=2)
+
+        password = self._create_user_with_expired_password()
+        # disable the user account
+        self.user_ref['enabled'] = False
+        self.patch('/users/%s' % self.user_ref['id'],
+                   body={'user': self.user_ref})
+
+        new_password = uuid.uuid4().hex
+        self.change_password(password=new_password,
+                             original_password=password,
+                             expected_status=http_client.UNAUTHORIZED)
 
 
 class PasswordValidationTestCase(ChangePasswordTestCase):
