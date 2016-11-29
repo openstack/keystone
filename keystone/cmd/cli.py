@@ -1211,8 +1211,8 @@ class MappingPopulate(BaseApp):
         try:
             domain_id = cls.resource_api.get_domain_by_name(domain_name)['id']
         except exception.DomainNotFound:
-            print(_('Invalid domain name or ID: %(domain)s') % {
-                'domain': domain_id})
+            print(_('Invalid domain name: %(domain)s') % {
+                'domain': domain_name})
             return False
         # We don't actually need to tackle id_mapping_api in order to get
         # entries there, because list_users does this anyway. That's why it
