@@ -45,9 +45,6 @@ class Assignment(base.AssignmentDriverBase):
     def default_role_driver(self):
         return 'sql'
 
-    def default_resource_driver(self):
-        return 'sql'
-
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
