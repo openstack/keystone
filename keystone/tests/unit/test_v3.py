@@ -1306,7 +1306,6 @@ class VersionTestCase(RestfulTestCase):
 # has been split out to allow testing admin_token auth without enabling it
 # for other tests.
 class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
-    EXTENSION_TO_ADD = 'admin_token_auth'
 
     def config_overrides(self):
         super(AuthContextMiddlewareAdminTokenTestCase, self).config_overrides()

@@ -38,7 +38,6 @@ CONF = keystone.conf.CONF
 # removed. This was moved to it's own testcase so it can setup the
 # admin_token_auth pipeline without impacting other tests.
 class IdentityTestCaseStaticAdminToken(test_v3.RestfulTestCase):
-    EXTENSION_TO_ADD = 'admin_token_auth'
 
     def config_overrides(self):
         super(IdentityTestCaseStaticAdminToken, self).config_overrides()
