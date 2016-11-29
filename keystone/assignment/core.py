@@ -91,13 +91,6 @@ class Manager(manager.Manager):
         # Use set() to process the list to remove any duplicates
         return list(set([x['user_id'] for x in assignment_list]))
 
-    def _list_parent_ids_of_project(self, project_id):
-        if CONF.os_inherit.enabled:
-            return [x['id'] for x in (
-                self.resource_api.list_project_parents(project_id))]
-        else:
-            return []
-
     @MEMOIZE_COMPUTED_ASSIGNMENTS
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given project.
