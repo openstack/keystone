@@ -1114,6 +1114,7 @@ class Manager(manager.Manager):
     def delete_group(self, group_id, initiator=None):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
+        roles = self.assignment_api.list_role_assignments(group_id=group_id)
         user_ids = (u['id'] for u in self.list_users_in_group(group_id))
         driver.delete_group(entity_id)
         self.get_group.invalidate(self, group_id)
@@ -1122,8 +1123,12 @@ class Manager(manager.Manager):
 
         notifications.Audit.deleted(self._GROUP, group_id, initiator)
 
-        for uid in user_ids:
-            self.emit_invalidate_user_token_persistence(uid)
+        # If the group has been created and has users but has no role
+        # assignment for the group then we do not need to revoke all the users
+        # tokens and can just delete the group.
+        if roles:
+            for uid in user_ids:
+                self.emit_invalidate_user_token_persistence(uid)
 
         # Invalidate user role assignments cache region, as it may be caching
         # role assignments expanded from the specified group to its users
