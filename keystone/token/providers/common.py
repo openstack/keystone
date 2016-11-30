@@ -719,20 +719,11 @@ class BaseProvider(base.Provider):
                 # v2.0 format, it should be translated at the controller layer.
                 # This code can be removed when Pike opens for development.
                 # The only reason I'm not removing it now is because of the
-                # ability for v2.0 token to be persisted while Newton code is
+                # ability for a v2.0 token to be persisted while Newton code is
                 # still active in an upgrade to Ocata. Hopefully once a
                 # deployer is ready to upgrade to Ocata, there won't be any
                 # valid v2.0 formatted tokens in the backend and we can safely
-                # remove this case. I'm proposing this with an exception here
-                # to prove the tests will pass - ultimately meaning absolutely
-                # nothing in keystone uses this.
-                raise Exception(
-                    'Validating a v2.0 token! This should not happen!'
-                )
-                # NOTE(lbragstad): v2.0 tokens have an `access` dictionary
-                # instead of a `token` one. At this point we can safely assume
-                # we are validating a token that was created using the v2.0
-                # API.
+                # remove this case, which will be in Pike.
                 methods = ['password', 'token']
                 bind = token_ref.get('bind')
                 # I have no idea why issued_at and expires_at come from two
