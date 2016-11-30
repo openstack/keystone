@@ -284,11 +284,6 @@ class ForbiddenAction(Forbidden):
                        " requested action: %(action)s")
 
 
-class ImmutableAttributeError(Forbidden):
-    message_format = _("Could not change immutable attribute(s) "
-                       "'%(attributes)s' in target %(target)s")
-
-
 class CrossBackendNotAllowed(Forbidden):
     message_format = _("Group membership across backend boundaries is not "
                        "allowed, group in question is %(group_id)s, "
@@ -314,14 +309,6 @@ class NotFound(Error):
 
 class EndpointNotFound(NotFound):
     message_format = _("Could not find endpoint: %(endpoint_id)s")
-
-
-class MetadataNotFound(NotFound):
-    # NOTE (dolph): metadata is not a user-facing concept,
-    # so this exception should not be exposed.
-
-    message_format = _("An unhandled exception has occurred:"
-                       " Could not find metadata.")
 
 
 class PolicyNotFound(NotFound):
@@ -369,10 +356,6 @@ class DomainNotFound(NotFound):
 
 class ProjectNotFound(NotFound):
     message_format = _("Could not find project: %(project_id)s")
-
-
-class InvalidParentProject(NotFound):
-    message_format = _("Cannot create project with parent: %(project_id)s")
 
 
 class TokenNotFound(NotFound):
@@ -439,12 +422,6 @@ class ConfigRegistrationNotFound(Exception):
     # This is used internally between the domain config backend and the
     # manager, so should not escape to the client.  If it did, it is a coding
     # error on our part, and would end up, appropriately, as a 500 error.
-    pass
-
-
-class KeystoneConfigurationError(Exception):
-    # This is an exception to be used in the case that Keystone config is
-    # invalid and Keystone should not start.
     pass
 
 
@@ -577,10 +554,6 @@ class TokenlessAuthConfigError(ValidationError):
     message_format = _('Could not determine Identity Provider ID. The '
                        'configuration option %(issuer_attribute)s '
                        'was not found in the request environment.')
-
-
-class UnsupportedDriverVersion(UnexpectedError):
-    debug_message_format = _('%(driver)s is not supported driver version')
 
 
 class CredentialEncryptionError(Exception):
