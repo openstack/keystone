@@ -22,9 +22,11 @@ from oslo_utils import importutils
 import six
 import stevedore
 
+from keystone.auth import schema
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
+from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
@@ -168,14 +170,8 @@ class AuthInfo(object):
                         sys.exc_info()[2])
 
     def _lookup_domain(self, domain_info):
-        if isinstance(domain_info, dict) is False:
-            raise exception.ValidationError(attribute='dict',
-                                            target='domain')
         domain_id = domain_info.get('id')
         domain_name = domain_info.get('name')
-        if not domain_id and not domain_name:
-            raise exception.ValidationError(attribute='id or name',
-                                            target='domain')
         try:
             if domain_name:
                 if (CONF.resource.domain_name_url_safe == 'strict' and
@@ -194,14 +190,8 @@ class AuthInfo(object):
         return domain_ref
 
     def _lookup_project(self, project_info):
-        if isinstance(project_info, dict) is False:
-            raise exception.ValidationError(attribute='dict',
-                                            target='project')
         project_id = project_info.get('id')
         project_name = project_info.get('name')
-        if not project_id and not project_name:
-            raise exception.ValidationError(attribute='id or name',
-                                            target='project')
         try:
             if project_name:
                 if (CONF.resource.project_name_url_safe == 'strict' and
@@ -269,15 +259,6 @@ class AuthInfo(object):
                 self._scope_data = (None, None, trust_ref, None)
 
     def _validate_auth_methods(self):
-        if 'identity' not in self.auth:
-            raise exception.ValidationError(attribute='identity',
-                                            target='auth')
-
-        # make sure auth methods are provided
-        if 'methods' not in self.auth['identity']:
-            raise exception.ValidationError(attribute='methods',
-                                            target='identity')
-
         # make sure all the method data/payload are provided
         for method_name in self.get_method_names():
             if method_name not in self.auth['identity']:
@@ -369,6 +350,51 @@ class AuthInfo(object):
         self._scope_data = (domain_id, project_id, trust, unscoped)
 
 
+def validate_issue_token_auth(auth=None):
+    if auth is None:
+        return
+    validation.lazy_validate(schema.token_issue, auth)
+
+    user = auth['identity'].get('password', {}).get('user')
+    if user is not None:
+        if 'id' not in user and 'name' not in user:
+            msg = _('Invalid input for field identity/password/user: '
+                    'id or name must be present.')
+            raise exception.SchemaValidationError(detail=msg)
+
+        domain = user.get('domain')
+        if domain is not None:
+            if 'id' not in domain and 'name' not in domain:
+                msg = _(
+                    'Invalid input for field identity/password/user/domain: '
+                    'id or name must be present.')
+                raise exception.SchemaValidationError(detail=msg)
+
+    scope = auth.get('scope')
+    if scope is not None and isinstance(scope, dict):
+        project = scope.get('project')
+        if project is not None:
+            if 'id' not in project and 'name' not in project:
+                msg = _(
+                    'Invalid input for field scope/project: '
+                    'id or name must be present.')
+                raise exception.SchemaValidationError(detail=msg)
+            domain = project.get('domain')
+            if domain is not None:
+                if 'id' not in domain and 'name' not in domain:
+                    msg = _(
+                        'Invalid input for field scope/project/domain: '
+                        'id or name must be present.')
+                    raise exception.SchemaValidationError(detail=msg)
+        domain = scope.get('domain')
+        if domain is not None:
+            if 'id' not in domain and 'name' not in domain:
+                msg = _(
+                    'Invalid input for field scope/domain: '
+                    'id or name must be present.')
+                raise exception.SchemaValidationError(detail=msg)
+
+
 @dependency.requires('assignment_api', 'catalog_api', 'identity_api',
                      'resource_api', 'token_provider_api', 'trust_api')
 class Auth(controller.V3Controller):
@@ -393,6 +419,8 @@ class Auth(controller.V3Controller):
     def authenticate_for_token(self, request, auth=None):
         """Authenticate user and issue a token."""
         include_catalog = 'nocatalog' not in request.params
+
+        validate_issue_token_auth(auth)
 
         try:
             auth_info = AuthInfo.create(auth=auth)
