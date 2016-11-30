@@ -82,8 +82,9 @@ class SchemaValidator(object):
                 # too long, then we should build the masking in here so that
                 # we don't expose sensitive user information in the event it
                 # fails validation.
+                path = '/'.join(map(six.text_type, ex.path))
                 detail = _("Invalid input for field '%(path)s': "
-                           "%(message)s") % {'path': ex.path.pop(),
+                           "%(message)s") % {'path': path,
                                              'message': ex.message}
             else:
                 detail = ex.message
