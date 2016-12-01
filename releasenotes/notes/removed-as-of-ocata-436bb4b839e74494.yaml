@@ -60,3 +60,6 @@ other:
     configuration has been removed. Keystone only supports one resource
     driver and it shouldn't be changed unless you're deploying a custom
     resource driver.
+  - >
+    Removed the config option ``[os_inherit] enabled`` as the OS-INHERIT
+    extension is now always enabled.

@@ -1992,20 +1992,9 @@ class AssignmentTests(AssignmentTestHelperMixin):
                                          project_id=project2['id'],
                                          role_id=role_list[5]['id'])
 
-        # Now get the effective roles for all groups on the Project1. With
-        # inheritance off, we should only get back the direct role.
-
-        self.config_fixture.config(group='os_inherit', enabled=False)
-        role_refs = self.assignment_api.get_roles_for_groups(
-            group_id_list, project_id=project1['id'])
-
-        self.assertThat(role_refs, matchers.HasLength(1))
-        self.assertIn(role_list[2], role_refs)
-
         # With inheritance on, we should also get back the inherited role from
         # its owning domain.
 
-        self.config_fixture.config(group='os_inherit', enabled=True)
         role_refs = self.assignment_api.get_roles_for_groups(
             group_id_list, project_id=project1['id'])
 
@@ -2130,24 +2119,11 @@ class AssignmentTests(AssignmentTestHelperMixin):
                                          project_id=project4['id'],
                                          role_id=role_list[6]['id'])
 
-        # Now get the projects for the groups that have roles on Project1,
-        # Project2 and the inherited role on Domain!. With inheritance off,
-        # we should only get back the projects with direct role.
-
-        self.config_fixture.config(group='os_inherit', enabled=False)
         group_id_list = [group_list[1]['id'], group_list[2]['id'],
                          group_list[3]['id']]
-        project_refs = (
-            self.assignment_api.list_projects_for_groups(group_id_list))
-
-        self.assertThat(project_refs, matchers.HasLength(2))
-        self.assertIn(project1, project_refs)
-        self.assertIn(project2, project_refs)
 
         # With inheritance on, we should also get back the Project3 due to the
         # inherited role from its owning domain.
-
-        self.config_fixture.config(group='os_inherit', enabled=True)
         project_refs = (
             self.assignment_api.list_projects_for_groups(group_id_list))
 
@@ -2497,38 +2473,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
                               'indirect': {'domain': 0}}]}
             ]
         }
-        self.config_fixture.config(group='os_inherit', enabled=True)
-        self.execute_assignment_plan(test_plan)
-
-    def test_inherited_role_assignments_excluded_if_os_inherit_false(self):
-        test_plan = {
-            'entities': {'domains': {'users': 2, 'groups': 1, 'projects': 1},
-                         'roles': 4},
-            'group_memberships': [{'group': 0, 'users': [0]}],
-            'assignments': [{'user': 0, 'role': 0, 'domain': 0},
-                            {'user': 0, 'role': 1, 'project': 0},
-                            {'user': 0, 'role': 2, 'domain': 0,
-                             'inherited_to_projects': True},
-                            {'user': 1, 'role': 1, 'project': 0},
-                            {'group': 0, 'role': 3, 'project': 0}],
-            'tests': [
-                # List all direct assignments for user[0], since os-inherit is
-                # disabled, we should not see the inherited role
-                {'params': {'user': 0},
-                 'results': [{'user': 0, 'role': 0, 'domain': 0},
-                             {'user': 0, 'role': 1, 'project': 0}]},
-                # Same in effective mode - inherited roles should not be
-                # included or expanded...but the group role should now
-                # turn up as a user role, since group expansion is not
-                # part of os-inherit.
-                {'params': {'user': 0, 'effective': True},
-                 'results': [{'user': 0, 'role': 0, 'domain': 0},
-                             {'user': 0, 'role': 1, 'project': 0},
-                             {'user': 0, 'role': 3, 'project': 0,
-                              'indirect': {'group': 0}}]},
-            ]
-        }
-        self.config_fixture.config(group='os_inherit', enabled=False)
         self.execute_assignment_plan(test_plan)
 
     def _test_crud_inherited_and_direct_assignment(self, **kwargs):
@@ -2540,7 +2484,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         ('project_id' or 'domain_id'), respectively.
 
         """
-        self.config_fixture.config(group='os_inherit', enabled=True)
         # Create a new role to avoid assignments loaded from default fixtures
         role = unit.new_role_ref()
         role = self.role_api.create_role(role['id'], role)
@@ -2622,7 +2565,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
           inherited should not show up
 
         """
-        self.config_fixture.config(group='os_inherit', enabled=True)
         role_list = []
         for _ in range(3):
             role = unit.new_role_ref()
@@ -2730,7 +2672,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
           direct and two by virtue of inherited group roles
 
         """
-        self.config_fixture.config(group='os_inherit', enabled=True)
         role_list = []
         for _ in range(4):
             role = unit.new_role_ref()
@@ -2839,7 +2780,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         - Get a list of projects for user, should return all three projects
 
         """
-        self.config_fixture.config(group='os_inherit', enabled=True)
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         user1 = unit.new_user_ref(domain_id=domain['id'])
@@ -2909,7 +2849,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         """
         # Enable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=True)
         root_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         root_project = self.resource_api.create_project(root_project['id'],
@@ -2939,13 +2878,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertIn(root_project, user_projects)
         self.assertIn(leaf_project, user_projects)
 
-        # Disable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=False)
-        # Should get back just root project - due the direct role assignment
-        user_projects = self.assignment_api.list_projects_for_user(user['id'])
-        self.assertEqual(1, len(user_projects))
-        self.assertIn(root_project, user_projects)
-
         # TODO(henry-nash): The test above uses list_projects_for_user
         # which may, in a subsequent patch, be re-implemented to call
         # list_role_assignments and then report only the distinct projects.
@@ -2974,21 +2906,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
                               'indirect': {'project': 0}}]}
             ]
         }
-
-        test_plan_with_os_inherit_disabled = {
-            'tests': [
-                # List all effective assignments for user[0] - should only get
-                # back the one direct role.
-                {'params': {'user': 0, 'effective': True},
-                 'results': [{'user': 0, 'role': 0, 'project': 0}]}
-            ]
-        }
-        self.config_fixture.config(group='os_inherit', enabled=True)
-        test_data = self.execute_assignment_plan(test_plan)
-        self.config_fixture.config(group='os_inherit', enabled=False)
-        # Pass the existing test data in to allow execution of 2nd test plan
-        self.execute_assignment_cases(
-            test_plan_with_os_inherit_disabled, test_data)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_projects_for_user_with_inherited_group_grants(self):
         """Test inherited group roles.
@@ -3006,7 +2924,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
           from the domain, plus the one separate project
 
         """
-        self.config_fixture.config(group='os_inherit', enabled=True)
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
         domain2 = unit.new_domain_ref()
@@ -3105,7 +3022,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         - Get a list of projects for user, should return only root project
 
         """
-        self.config_fixture.config(group='os_inherit', enabled=True)
         root_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         root_project = self.resource_api.create_project(root_project['id'],
@@ -3139,13 +3055,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         self.assertIn(root_project, user_projects)
         self.assertIn(leaf_project, user_projects)
 
-        # Disable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=False)
-        # Should get back just root project - due the direct role assignment
-        user_projects = self.assignment_api.list_projects_for_user(user['id'])
-        self.assertEqual(1, len(user_projects))
-        self.assertIn(root_project, user_projects)
-
         # TODO(henry-nash): The test above uses list_projects_for_user
         # which may, in a subsequent patch, be re-implemented to call
         # list_role_assignments and then report only the distinct projects.
@@ -3177,27 +3086,11 @@ class InheritanceTests(AssignmentTestHelperMixin):
                               'indirect': {'group': 0, 'project': 0}}]}
             ]
         }
-
-        test_plan_with_os_inherit_disabled = {
-            'tests': [
-                # List all effective assignments for user[0] - should only get
-                # back the one direct role.
-                {'params': {'user': 0, 'effective': True},
-                 'results': [{'user': 0, 'role': 0, 'project': 0,
-                              'indirect': {'group': 0}}]}
-            ]
-        }
-        self.config_fixture.config(group='os_inherit', enabled=True)
-        test_data = self.execute_assignment_plan(test_plan)
-        self.config_fixture.config(group='os_inherit', enabled=False)
-        # Pass the existing test data in to allow execution of 2nd test plan
-        self.execute_assignment_cases(
-            test_plan_with_os_inherit_disabled, test_data)
+        self.execute_assignment_plan(test_plan)
 
     def test_list_assignments_for_tree(self):
         """Test we correctly list direct assignments for a tree."""
         # Enable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=True)
 
         test_plan = {
             # Create a domain with a project hierarchy 3 levels deep:
@@ -3245,9 +3138,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
     def test_list_effective_assignments_for_tree(self):
         """Test we correctly list effective assignments for a tree."""
-        # Enable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=True)
-
         test_plan = {
             # Create a domain with a project hierarchy 3 levels deep:
             #
@@ -3303,9 +3193,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         itself.
 
         """
-        # Enable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=True)
-
         test_plan = {
             # Create a domain with a project hierarchy 3 levels deep:
             #
@@ -3379,9 +3266,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
     def test_list_effective_assignments_for_tree_with_domain_assignments(self):
         """Test we correctly honor domain inherited assignments on the tree."""
-        # Enable OS-INHERIT extension
-        self.config_fixture.config(group='os_inherit', enabled=True)
-
         test_plan = {
             # Create a domain with a project hierarchy 3 levels deep:
             #
@@ -3457,7 +3341,6 @@ class InheritanceTests(AssignmentTestHelperMixin):
         # Use assignment plan helper to create all the entities and
         # assignments - then we'll run our own tests using the data
         test_data = self.execute_assignment_plan(test_plan)
-        self.config_fixture.config(group='os_inherit', enabled=True)
         user_ids = self.assignment_api.list_user_ids_for_project(
             test_data['projects'][1]['id'])
         self.assertThat(user_ids, matchers.HasLength(4))
@@ -3722,7 +3605,6 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
                               'indirect': {'domain': 0, 'role': 0}}]},
             ]
         }
-        self.config_fixture.config(group='os_inherit', enabled=True)
         self.execute_assignment_plan(test_plan)
 
     def test_role_assignments_domain_specific_with_implied_roles(self):

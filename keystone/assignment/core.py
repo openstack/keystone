@@ -922,16 +922,7 @@ class Manager(manager.Manager):
         This stripping can be disabled by specifying strip_domain_roles=False,
         which is useful for internal calls like trusts which need to examine
         the full set of roles.
-
-        If OS-INHERIT extension is disabled or the used driver does not support
-        inherited roles retrieval, inherited role assignments will be ignored.
-
         """
-        if not CONF.os_inherit.enabled:
-            if inherited:
-                return []
-            inherited = False
-
         subtree_ids = None
         if project_id and include_subtree:
             subtree_ids = (

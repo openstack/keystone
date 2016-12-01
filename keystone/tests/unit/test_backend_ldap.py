@@ -311,7 +311,6 @@ class LDAPTestSetup(unit.TestCase):
         self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
         self.load_backends()
         self.load_fixtures(default_fixtures)
-        self.config_fixture.config(group='os_inherit', enabled=False)
 
 
 class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
@@ -322,7 +321,6 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
-        self.config_fixture.config(group='os_inherit', enabled=False)
 
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""

@@ -600,8 +600,7 @@ class GrantAssignmentV3(controller.V3Controller):
             raise exception.ValidationError(msg)
 
     def _check_if_inherited(self, context):
-        return (CONF.os_inherit.enabled and
-                context['path'].startswith('/OS-INHERIT') and
+        return (context['path'].startswith('/OS-INHERIT') and
                 context['path'].endswith('/inherited_to_projects'))
 
     def _check_grant_protection(self, request, protection, role_id=None,

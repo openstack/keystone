@@ -1054,8 +1054,6 @@ class RoleAssignmentFailureTestCase(RoleAssignmentBaseTestCase):
                                   expected_status=http_client.BAD_REQUEST)
 
     def test_get_role_assignments_by_effective_and_inherited(self):
-        self.config_fixture.config(group='os_inherit', enabled=True)
-
         self.get_role_assignments(domain_id=self.domain_id, effective=True,
                                   inherited_to_projects=True,
                                   expected_status=http_client.BAD_REQUEST)
@@ -1217,10 +1215,6 @@ class RoleAssignmentInheritedTestCase(RoleAssignmentDirectTestCase):
 
     """
 
-    def config_overrides(self):
-        super(RoleAssignmentBaseTestCase, self).config_overrides()
-        self.config_fixture.config(group='os_inherit', enabled=True)
-
     def _test_get_role_assignments(self, **filters):
         """Add inherited_to_project filter to expected entity in tests."""
         super(RoleAssignmentInheritedTestCase,
@@ -1312,10 +1306,6 @@ class RoleAssignmentEffectiveTestCase(RoleAssignmentInheritedTestCase):
 class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                                     test_v3.AssignmentTestMixin):
     """Test inheritance crud and its effects."""
-
-    def config_overrides(self):
-        super(AssignmentInheritanceTestCase, self).config_overrides()
-        self.config_fixture.config(group='os_inherit', enabled=True)
 
     def test_get_token_from_inherited_user_domain_role_grants(self):
         # Create a new user to ensure that no grant is loaded from sample data
@@ -1779,16 +1769,6 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             inherited_to_projects=True)
 
         self.assertRoleAssignmentInListResponse(r, up_entity)
-
-        # Disable the extension and re-check the list, the role inherited
-        # from the project should no longer show up
-        self.config_fixture.config(group='os_inherit', enabled=False)
-        r = self.get(collection_url)
-        self.assertValidRoleAssignmentListResponse(r,
-                                                   expected_length=2,
-                                                   resource_url=collection_url)
-
-        self.assertRoleAssignmentNotInListResponse(r, up_entity)
 
     def test_list_role_assignments_for_inherited_group_domain_grants(self):
         """Call ``GET /role_assignments with inherited group domain grants``.
@@ -2418,32 +2398,6 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         # Assert that the user does not have inherited role on leaf project
         inher_up_entity['scope']['project']['id'] = leaf_id
         self.assertRoleAssignmentNotInListResponse(r, inher_up_entity)
-
-
-class AssignmentInheritanceDisabledTestCase(test_v3.RestfulTestCase):
-    """Test inheritance crud and its effects."""
-
-    def config_overrides(self):
-        super(AssignmentInheritanceDisabledTestCase, self).config_overrides()
-        self.config_fixture.config(group='os_inherit', enabled=False)
-
-    def test_crud_inherited_role_grants_failed_if_disabled(self):
-        role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
-
-        base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles' % {
-                'domain_id': self.domain_id,
-                'user_id': self.user['id']})
-        member_url = '%(collection_url)s/%(role_id)s/inherited_to_projects' % {
-            'collection_url': base_collection_url,
-            'role_id': role['id']}
-        collection_url = base_collection_url + '/inherited_to_projects'
-
-        self.put(member_url, expected_status=http_client.NOT_FOUND)
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
-        self.get(collection_url, expected_status=http_client.NOT_FOUND)
-        self.delete(member_url, expected_status=http_client.NOT_FOUND)
 
 
 class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,

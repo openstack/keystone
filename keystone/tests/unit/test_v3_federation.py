@@ -1863,7 +1863,6 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def test_scope_to_project_with_only_inherited_roles(self):
         """Try to scope token whose only roles are inherited."""
-        self.config_fixture.config(group='os_inherit', enabled=True)
         r = self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_INHERITED_FROM_CUSTOMER)
         token_resp = r.result['token']
@@ -1941,7 +1940,6 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                  self.tokens['EMPLOYEE_ASSERTION'],
                  self.tokens['ADMIN_ASSERTION'])
 
-        self.config_fixture.config(group='os_inherit', enabled=True)
         projects_refs = (set([self.proj_customers['id'],
                               self.project_inherited['id']]),
                          set([self.proj_employees['id'],
@@ -1964,9 +1962,6 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     # have tests specific to this functionality grouped, easing readability and
     # maintenability.
     def test_list_projects_for_inherited_project_assignment(self):
-        # Enable os_inherit extension
-        self.config_fixture.config(group='os_inherit', enabled=True)
-
         # Create a subproject
         subproject_inherited = unit.new_project_ref(
             domain_id=self.domainD['id'],

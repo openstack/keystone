@@ -36,7 +36,6 @@ from keystone.conf import kvs
 from keystone.conf import ldap
 from keystone.conf import memcache
 from keystone.conf import oauth1
-from keystone.conf import os_inherit
 from keystone.conf import paste_deploy
 from keystone.conf import policy
 from keystone.conf import resource
@@ -72,7 +71,6 @@ conf_modules = [
     ldap,
     memcache,
     oauth1,
-    os_inherit,
     paste_deploy,
     policy,
     resource,
