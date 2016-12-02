@@ -342,8 +342,8 @@ Request
    - role_id: role_id_path
 
 
-List effective role assignments
-===============================
+List role assignments
+=====================
 
 .. rest_method::  GET /v3/role_assignments
 
