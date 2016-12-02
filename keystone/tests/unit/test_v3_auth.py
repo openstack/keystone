@@ -52,13 +52,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         super(TestAuthInfo, self).setUp()
         auth.controllers.load_auth_methods()
 
-    def test_missing_auth_methods(self):
-        auth_data = {'identity': {}}
-        auth_data['identity']['token'] = {'id': uuid.uuid4().hex}
-        self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo.create,
-                          auth_data)
-
     def test_unsupported_auth_method(self):
         auth_data = {'methods': ['abc']}
         auth_data['abc'] = {'test': 'test'}
@@ -114,26 +107,6 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         self.assertRaises(exception.ValidationError,
                           auth_info.get_method_data,
                           method_name)
-
-    def test_empty_domain_in_scope(self):
-        auth_data = self.build_authentication_request(
-            user_id='test',
-            password='test',
-            domain_name='')['auth']
-        auth_data['scope']['domain'] = []
-        self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo.create,
-                          auth_data)
-
-    def test_empty_project_in_scope(self):
-        auth_data = self.build_authentication_request(
-            user_id='test',
-            password='test',
-            project_name='')['auth']
-        auth_data['scope']['project'] = []
-        self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo.create,
-                          auth_data)
 
 
 class TokenAPITests(object):
