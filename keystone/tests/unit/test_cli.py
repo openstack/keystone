@@ -26,6 +26,7 @@ from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.cmd.doctor import caching
+from keystone.cmd.doctor import federation
 from keystone.common import dependency
 from keystone.common.sql import upgrades
 import keystone.conf
@@ -758,3 +759,28 @@ class DoctorTestCase(unit.TestCase):
         self.config_fixture.config(group='cache',
                                    backend='dogpile.cache.memory')
         self.assertFalse(caching.symptom_caching_enabled_without_a_backend())
+
+
+class FederationDoctorTests(unit.TestCase):
+
+    def test_symptom_comma_in_SAML_public_certificate_path(self):
+        # Symptom Detected: There is a comma in path to public cert file
+        self.config_fixture.config(group='saml', certfile='file,cert.pem')
+        self.assertTrue(
+            federation.symptom_comma_in_SAML_public_certificate_path())
+
+        # No Symptom Detected: There is no comma in the path
+        self.config_fixture.config(group='saml', certfile='signing_cert.pem')
+        self.assertFalse(
+            federation.symptom_comma_in_SAML_public_certificate_path())
+
+    def test_symptom_comma_in_SAML_private_key_file_path(self):
+        # Symptom Detected: There is a comma in path to private key file
+        self.config_fixture.config(group='saml', keyfile='file,key.pem')
+        self.assertTrue(
+            federation.symptom_comma_in_SAML_private_key_file_path())
+
+        # No Symptom Detected: There is no comma in the path
+        self.config_fixture.config(group='saml', keyfile='signing_key.pem')
+        self.assertFalse(
+            federation.symptom_comma_in_SAML_private_key_file_path())
