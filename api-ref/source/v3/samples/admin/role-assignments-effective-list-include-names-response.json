@@ -5,6 +5,10 @@
                     "assignment": "http://example.com/identity/v3/domains/161718/users/313233/roles/123456"
                 },
                 "role": {
+                    "domain": {
+                        "id": "161718",
+                        "name": "Default"
+                    },
                     "id": "123456",
                     "name": "admin"
                 },
@@ -29,6 +33,10 @@
                     "membership": "http://example.com/identity/v3/groups/101112/users/313233"
                 },
                 "role": {
+                    "domain": {
+                        "id": "161718",
+                        "name": "Default"
+                    },
                     "id": "123456",
                     "name": "admin"
                 },

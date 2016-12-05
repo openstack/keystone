@@ -77,6 +77,15 @@ in the response, the ``links`` entity section for each assignment gained by
 virtue of group membership will contain a URL that enables access to the
 membership of the group.
 
+By default only the IDs of entities are returned in collections from the
+role_assignment API calls. The names of entities may also be returned,
+in addition to the IDs, by using the ``include_names`` query parameter
+on any of these calls, for example:
+
+- List role assignments including names::
+
+    GET /role_assignments?include_names
+
 
 List roles
 ==========
