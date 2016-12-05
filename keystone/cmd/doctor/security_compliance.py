@@ -18,7 +18,7 @@ import keystone.conf
 CONF = keystone.conf.CONF
 
 
-def symptom_minimum_password_age_should_be_less_than_password_expires_days():
+def symptom_password_age_should_be_less_than_password_expiration():
     """Minimum password age should be less than the password expires days.
 
     If the minimum password age is greater than or equal to the password
