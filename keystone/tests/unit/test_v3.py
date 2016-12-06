@@ -199,15 +199,13 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 'minItems': 1,
             }
             properties['domain'] = {
-                'domain': {
-                    'type': 'object',
-                    'required': ['id', 'name'],
-                    'properties': {
-                        'id': {'type': 'string'},
-                        'name': {'type': 'string'}
-                    },
-                    'additionalProperties': False
-                }
+                'type': 'object',
+                'required': ['id', 'name'],
+                'properties': {
+                    'id': {'type': 'string'},
+                    'name': {'type': 'string'}
+                },
+                'additionalProperties': False
             }
         elif project_scoped:
             properties['is_admin_project'] = {'type': 'boolean'}
@@ -247,7 +245,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             schema['optional'].append('catalog')
         elif project_scoped:
             schema['required'].append('project')
-            schema['optional'].append('bind')
             schema['optional'].append('catalog')
             schema['optional'].append('OS-TRUST:trust')
             schema['optional'].append('is_admin_project')
