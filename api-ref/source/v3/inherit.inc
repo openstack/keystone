@@ -444,7 +444,7 @@ additionally include the names of the entities. For example:
 ``GET /v3/role_assignments?user.id={user_id}&effective&include_names=true``
 would return:
 
-.. literalinclude::samples/admin/role-assignments-effective-list-include-names-response.json
+.. literalinclude:: samples/admin/role-assignments-effective-list-include-names-response.json
    :language: javascript
 
 Normal response codes: 200
