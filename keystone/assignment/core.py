@@ -981,6 +981,11 @@ class Manager(manager.Manager):
                     _role = self.role_api.get_role(id_)
                     new_assign['role_id'] = _role['id']
                     new_assign['role_name'] = _role['name']
+                    if _role['domain_id'] is not None:
+                        new_assign['role_domain_id'] = _role['domain_id']
+                        new_assign['role_domain_name'] = (
+                            self.resource_api.get_domain(_role['domain_id'])
+                            ['name'])
             role_assign_list.append(new_assign)
         return role_assign_list
 

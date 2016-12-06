@@ -1604,7 +1604,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             inherited_to_projects=True)
         self.assertRoleAssignmentInListResponse(r, up_entity)
 
-    def test_list_role_assignments_include_names(self):
+    def _test_list_role_assignments_include_names(self, role1):
         """Call ``GET /role_assignments with include names``.
 
         Test Plan:
@@ -1695,6 +1695,18 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(rs_group, expected_entity4)
         self.assertRoleAssignmentInListResponse(rs_user, expected_entity3)
         self.assertRoleAssignmentInListResponse(rs_role, expected_entity1)
+
+    def test_list_role_assignments_include_names_global_role(self):
+        role = unit.new_role_ref()
+        self.role_api.create_role(role['id'], role)
+
+        self._test_list_role_assignments_include_names(role)
+
+    def test_list_role_assignments_include_names_domain_role(self):
+        role = unit.new_role_ref(domain_id=self.domain['id'])
+        self.role_api.create_role(role['id'], role)
+
+        self._test_list_role_assignments_include_names(role)
 
     def test_list_role_assignments_for_disabled_inheritance_extension(self):
         """Call ``GET /role_assignments with inherited domain grants``.
