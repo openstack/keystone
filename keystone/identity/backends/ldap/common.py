@@ -1298,6 +1298,8 @@ class BaseLdap(object):
             # if we don't have any user/pass
             if user and password:
                 conn.simple_bind_s(user, password)
+            else:
+                conn.simple_bind_s()
 
             return conn
         except ldap.SERVER_DOWN:

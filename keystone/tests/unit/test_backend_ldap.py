@@ -1409,13 +1409,12 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     def test_user_api_get_connection_no_user_password(self, mocked_method):
-        """Don't bind in case the user and password are blank."""
+        """Bind anonymously when the user and password are blank."""
         # Ensure the username/password are in-fact blank
         self.config_fixture.config(group='ldap', user=None, password=None)
         user_api = identity.backends.ldap.UserApi(CONF)
         user_api.get_connection(user=None, password=None)
-        self.assertFalse(mocked_method.called,
-                         msg='`simple_bind_s` method was unexpectedly called')
+        self.assertTrue(mocked_method.called)
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'connect')
     def test_chase_referrals_off(self, mocked_fakeldap):

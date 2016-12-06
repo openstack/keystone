@@ -1,0 +1,9 @@
+---
+fixes:
+  - >
+    [`bug 1649138 <https://bugs.launchpad.net/keystone/+bug/1649138>`_]
+    When using LDAP as an identity backend, the initial bind will now
+    occur upon creation of a connection object, i.e. early on when
+    performing LDAP queries, no matter whether the bind is
+    authenticated or anonymous, so that any connection errors can be
+    handled correctly and early.

@@ -305,19 +305,19 @@ class FakeLdap(common.LDAPHandler):
                 common.utf8_decode(cred) in ['password', CONF.ldap.password]):
             return
 
-        try:
-            attrs = self.db[self.key(who)]
-        except KeyError:
-            LOG.debug('bind fail: who=%s not found', common.utf8_decode(who))
-            raise ldap.NO_SUCH_OBJECT
-
-        db_password = None
-        try:
-            db_password = attrs['userPassword'][0]
-        except (KeyError, IndexError):
-            LOG.debug('bind fail: password for who=%s not found',
+        attrs = self.db.get(self.key(who))
+        if not attrs:
+            LOG.debug('who=%s not found, binding anonymously',
                       common.utf8_decode(who))
-            raise ldap.INAPPROPRIATE_AUTH
+
+        db_password = ''
+        if attrs:
+            try:
+                db_password = attrs['userPassword'][0]
+            except (KeyError, IndexError):
+                LOG.debug('bind fail: password for who=%s not found',
+                          common.utf8_decode(who))
+                raise ldap.INAPPROPRIATE_AUTH
 
         if cred != common.utf8_encode(db_password):
             LOG.debug('bind fail: password for who=%s does not match',

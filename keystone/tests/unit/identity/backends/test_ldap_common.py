@@ -283,14 +283,16 @@ class LDAPDeleteTreeTest(unit.TestCase):
 class MultiURLTests(unit.TestCase):
     """Test for setting multiple LDAP URLs."""
 
-    def test_multiple_urls_with_comma_no_conn_pool(self):
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_multiple_urls_with_comma_no_conn_pool(self, mock_ldap_bind):
         urls = 'ldap://localhost,ldap://backup.localhost'
         self.config_fixture.config(group='ldap', url=urls, use_pool=False)
         base_ldap = common_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
         self.assertEqual(urls, ldap_connection.conn.conn._uri)
 
-    def test_multiple_urls_with_comma_with_conn_pool(self):
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_multiple_urls_with_comma_with_conn_pool(self, mock_ldap_bind):
         urls = 'ldap://localhost,ldap://backup.localhost'
         self.config_fixture.config(group='ldap', url=urls, use_pool=True)
         base_ldap = common_ldap.BaseLdap(CONF)
@@ -301,7 +303,8 @@ class MultiURLTests(unit.TestCase):
 class LDAPConnectionTimeoutTest(unit.TestCase):
     """Test for Network Connection timeout on LDAP URL connection."""
 
-    def test_connectivity_timeout_no_conn_pool(self):
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_connectivity_timeout_no_conn_pool(self, mock_ldap_bind):
         url = 'ldap://localhost'
         conn_timeout = 1  # 1 second
         self.config_fixture.config(group='ldap',
@@ -325,7 +328,8 @@ class LDAPConnectionTimeoutTest(unit.TestCase):
                          ldap.get_option(ldap.OPT_NETWORK_TIMEOUT))
         self.assertEqual(url, ldap_connection.conn.conn._uri)
 
-    def test_connectivity_timeout_with_conn_pool(self):
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_connectivity_timeout_with_conn_pool(self, mock_ldap_bind):
         url = 'ldap://localhost'
         conn_timeout = 1  # 1 second
         self.config_fixture.config(group='ldap',
