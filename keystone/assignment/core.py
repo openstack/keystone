@@ -947,47 +947,40 @@ class Manager(manager.Manager):
         role_assign_list = []
 
         for role_asgmt in role_assignments:
-            new_assign = {}
-            for id_type, id_ in role_asgmt.items():
-                if id_type == 'domain_id':
-                    _domain = self.resource_api.get_domain(id_)
-                    new_assign['domain_id'] = _domain['id']
+            new_assign = copy.deepcopy(role_asgmt)
+            for key, value in role_asgmt.items():
+                if key == 'domain_id':
+                    _domain = self.resource_api.get_domain(value)
                     new_assign['domain_name'] = _domain['name']
-                elif id_type == 'user_id':
-                    _user = self.identity_api.get_user(id_)
-                    new_assign['user_id'] = _user['id']
+                elif key == 'user_id':
+                    _user = self.identity_api.get_user(value)
                     new_assign['user_name'] = _user['name']
                     new_assign['user_domain_id'] = _user['domain_id']
                     new_assign['user_domain_name'] = (
                         self.resource_api.get_domain(_user['domain_id'])
                         ['name'])
-                elif id_type == 'group_id':
-                    _group = self.identity_api.get_group(id_)
-                    new_assign['group_id'] = _group['id']
+                elif key == 'group_id':
+                    _group = self.identity_api.get_group(value)
                     new_assign['group_name'] = _group['name']
                     new_assign['group_domain_id'] = _group['domain_id']
                     new_assign['group_domain_name'] = (
                         self.resource_api.get_domain(_group['domain_id'])
                         ['name'])
-                elif id_type == 'project_id':
-                    _project = self.resource_api.get_project(id_)
-                    new_assign['project_id'] = _project['id']
+                elif key == 'project_id':
+                    _project = self.resource_api.get_project(value)
                     new_assign['project_name'] = _project['name']
                     new_assign['project_domain_id'] = _project['domain_id']
                     new_assign['project_domain_name'] = (
                         self.resource_api.get_domain(_project['domain_id'])
                         ['name'])
-                elif id_type == 'role_id':
-                    _role = self.role_api.get_role(id_)
-                    new_assign['role_id'] = _role['id']
+                elif key == 'role_id':
+                    _role = self.role_api.get_role(value)
                     new_assign['role_name'] = _role['name']
                     if _role['domain_id'] is not None:
                         new_assign['role_domain_id'] = _role['domain_id']
                         new_assign['role_domain_name'] = (
                             self.resource_api.get_domain(_role['domain_id'])
                             ['name'])
-                elif id_type == 'inherited_to_projects':
-                    new_assign['inherited_to_projects'] = id_
             role_assign_list.append(new_assign)
         return role_assign_list
 
