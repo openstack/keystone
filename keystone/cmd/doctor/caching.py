@@ -22,7 +22,7 @@ def symptom_caching_disabled():
     Caching greatly improves the performance of keystone, and it is highly
     recommended that you enable it.
     """
-    return not CONF.cache.enabled and not CONF.debug
+    return not CONF.cache.enabled
 
 
 def symptom_caching_enabled_without_a_backend():
