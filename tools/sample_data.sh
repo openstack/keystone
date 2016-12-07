@@ -89,10 +89,6 @@ export OS_PROJECT_DOMAIN_ID=default
 export OS_IDENTITY_API_VERSION=3
 export OS_AUTH_URL=http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-35357}/v3
 
-function get_id () {
-    echo `"$@" | grep ' id ' | awk '{print $4}'`
-}
-
 export OS_BOOTSTRAP_PASSWORD=$ADMIN_PASSWORD
 export OS_BOOTSTRAP_REGION_ID=RegionOne
 export OS_BOOTSTRAP_ADMIN_URL="http://$CONTROLLER_PUBLIC_ADDRESS:\$(public_port)s/v3"
@@ -240,7 +236,7 @@ if [[ -z "$DISABLE_ENDPOINTS" ]]; then
 fi
 
 # create ec2 creds and parse the secret and access key returned
-ADMIN_USER=$(get_id openstack user show admin)
+ADMIN_USER=$(openstack user show admin -f value -c id)
 RESULT=$(openstack ec2 credentials create --project service --user $ADMIN_USER)
 ADMIN_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
 ADMIN_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
