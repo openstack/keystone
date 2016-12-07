@@ -1592,6 +1592,11 @@ class AssignmentTestMixin(object):
         if role_ref:
             entity['role'] = {'id': role_ref['id'],
                               'name': role_ref['name']}
+            if role_ref['domain_id']:
+                dmn_name = self.resource_api.get_domain(
+                    role_ref['domain_id'])['name']
+                entity['role']['domain'] = {'id': role_ref['domain_id'],
+                                            'name': dmn_name}
             attributes_for_links['role_id'] = role_ref['id']
 
         if inherited_assignment:
