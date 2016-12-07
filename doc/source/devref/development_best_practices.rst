@@ -22,7 +22,7 @@ Setting up Keystone
 ===================
 
 Get your development environment set up according to
-:doc:`devref/development.environment`. It is recommended that you install
+:doc:`development.environment`. It is recommended that you install
 Keystone into a virtualenv.
 
 
@@ -50,7 +50,7 @@ To run the Keystone Admin and API server instances, use:
     $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
 
 This runs Keystone with the configuration the etc/ directory of the project.
-See :doc:`configuration` for details on how Keystone is configured. By default,
+See :doc:`../configuration` for details on how Keystone is configured. By default,
 Keystone is configured with SQL backends.
 
 
@@ -204,7 +204,7 @@ Running Tests
 
 Before running tests, you should have ``tox`` installed and available in your
 environment (in addition to the other external dependencies in
-:doc:`devref/development.environment`):
+:doc:`development.environment`):
 
 .. code-block:: bash
 

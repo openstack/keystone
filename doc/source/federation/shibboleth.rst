@@ -102,7 +102,7 @@ file. You will want to change five settings:
     <ApplicationDefaults entityID="http://mysp.example.com/shibboleth">
 
 * Set the IdP entity ID. This value is determined by the IdP. For example, if
-Keystone is the IdP:
+  Keystone is the IdP:
 
 .. code-block:: xml
 

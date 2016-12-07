@@ -20,7 +20,8 @@ Installing Keystone
 ===================
 
 This document describes how to install Keystone in order to use it. If you are
-intending to develop on or with Keystone, please read :doc:`developing` and
+intending to develop on or with Keystone, please read
+:doc:`devref/development_best_practices` and
 :doc:`devref/development.environment`.
 
 Installing from Source
@@ -82,7 +83,7 @@ the command:
 
 By default, this will show logging on the console from which it was started.
 Once started, you can initialize data in Keystone for use with the rest of
-OpenStack, as described in :doc:`configuringservices`.
+OpenStack, as described in :doc:`configuration`.
 
 An excellent reference implementation of setting up Keystone is DEVSTACK_,
 most commonly used for development and testing setup of not only Keystone,
@@ -110,7 +111,7 @@ the Keystone service (`keystone`), and place default configurations in
 all SQL based, stored locally in SQLite.
 
 Once installed, you still need to initialize data in Keystone, which you can
-find described in :doc:`configuringservices`.
+find described in :doc:`configuration`.
 
 Installing from packages: Fedora
 --------------------------------
@@ -125,6 +126,6 @@ To install the packages:
     $ sudo yum install openstack-keystone
 
 Once installed, you still need to initialize data in Keystone, which you can
-find described in :doc:`configuringservices`.
+find described in :doc:`configuration`.
 
 .. _`OpenStack Install Guide`: http://docs.openstack.org/liberty/install-guide-rdo/keystone-install.html
