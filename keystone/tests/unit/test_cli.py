@@ -26,6 +26,7 @@ from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.cmd.doctor import caching
+from keystone.cmd.doctor import database as doc_database
 from keystone.cmd.doctor import debug
 from keystone.cmd.doctor import federation
 from keystone.common import dependency
@@ -755,6 +756,24 @@ class CachingDoctorTests(unit.TestCase):
         self.config_fixture.config(group='cache',
                                    backend='dogpile.cache.memory')
         self.assertFalse(caching.symptom_caching_enabled_without_a_backend())
+
+
+class DatabaseDoctorTests(unit.TestCase):
+
+    def test_symptom_is_raised_if_database_connection_is_SQLite(self):
+        # Symptom Detected: Database connection is sqlite
+        self.config_fixture.config(
+            group='database',
+            connection='sqlite:///mydb')
+        self.assertTrue(
+            doc_database.symptom_database_connection_is_not_SQLite())
+
+        # No Symptom Detected: Database connection is MySQL
+        self.config_fixture.config(
+            group='database',
+            connection='mysql+mysqlconnector://admin:secret@localhost/mydb')
+        self.assertFalse(
+            doc_database.symptom_database_connection_is_not_SQLite())
 
 
 class DebugDoctorTests(unit.TestCase):
