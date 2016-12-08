@@ -26,6 +26,7 @@ from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.cmd.doctor import caching
+from keystone.cmd.doctor import debug
 from keystone.cmd.doctor import federation
 from keystone.common import dependency
 from keystone.common.sql import upgrades
@@ -714,27 +715,15 @@ class CliDomainConfigUploadNothing(unit.BaseTestCase):
                         matchers.Contains(expected_msg))
 
 
-class DoctorTestCase(unit.TestCase):
+class CachingDoctorTests(unit.TestCase):
 
     def test_symptom_caching_disabled(self):
-        # Success Case: Caching enabled and debug disabled
+        # Symptom Detected: Caching disabled
         self.config_fixture.config(group='cache', enabled=False)
-        self.config_fixture.config(debug=False)
         self.assertTrue(caching.symptom_caching_disabled())
 
-        # Failure Case 1: Caching disabled and debug enabled
-        self.config_fixture.config(group='cache', enabled=False)
-        self.config_fixture.config(debug=True)
-        self.assertFalse(caching.symptom_caching_disabled())
-
-        # Failure Case 2: Caching enabled and debug enabled
+        # No Symptom Detected: Caching is enabled
         self.config_fixture.config(group='cache', enabled=True)
-        self.config_fixture.config(debug=True)
-        self.assertFalse(caching.symptom_caching_disabled())
-
-        # Failure Case 3: Caching enabled and debug disabled
-        self.config_fixture.config(group='cache', enabled=True)
-        self.config_fixture.config(debug=False)
         self.assertFalse(caching.symptom_caching_disabled())
 
     def test_caching_symptom_caching_enabled_without_a_backend(self):
@@ -759,6 +748,18 @@ class DoctorTestCase(unit.TestCase):
         self.config_fixture.config(group='cache',
                                    backend='dogpile.cache.memory')
         self.assertFalse(caching.symptom_caching_enabled_without_a_backend())
+
+
+class DebugDoctorTests(unit.TestCase):
+
+    def test_symptom_debug_mode_is_enabled(self):
+        # Symptom Detected: Debug mode is enabled
+        self.config_fixture.config(debug=True)
+        self.assertTrue(debug.symptom_debug_mode_is_enabled())
+
+        # No Symptom Detected: Debug mode is disabled
+        self.config_fixture.config(debug=False)
+        self.assertFalse(debug.symptom_debug_mode_is_enabled())
 
 
 class FederationDoctorTests(unit.TestCase):

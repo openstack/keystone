@@ -13,6 +13,7 @@
 from keystone.cmd.doctor import caching
 from keystone.cmd.doctor import credential
 from keystone.cmd.doctor import database
+from keystone.cmd.doctor import debug
 from keystone.cmd.doctor import federation
 from keystone.cmd.doctor import ldap
 from keystone.cmd.doctor import security_compliance
@@ -29,6 +30,7 @@ SYMPTOM_MODULES = [
     caching,
     credential,
     database,
+    debug,
     federation,
     ldap,
     security_compliance,

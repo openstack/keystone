@@ -16,14 +16,13 @@ import keystone.conf
 CONF = keystone.conf.CONF
 
 
-def symptom_database_connection_is_not_SQLite():
-    """SQLite is not recommended for production deployments.
+def symptom_debug_mode_is_enabled():
+    """Debug mode should be set to False.
 
-    SQLite does not enforce type checking and has limited support for
-    migrations, making it unsuitable for use in keystone. Please change your
-    `keystone.conf [database] connection` value to point to a supported
-    database driver, such as MySQL.
+    Debug mode can be used to get more information back when trying to isolate
+    a problem, but it is not recommended to be enabled when running a
+    production environment.
+
+    Ensure `keystone.conf debug` is set to False
     """
-    return (
-        CONF.database.connection is not None
-        and 'sqlite' in CONF.database.connection)
+    return CONF.debug
