@@ -156,9 +156,9 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 self.assertEqual(svc['id'], endpoint['service_id'])
                 self.assertEqual(interface, endpoint['interface'])
 
-    def test_bootstrap_is_idempotent(self):
-        # NOTE(morganfainberg): Ensure we can run bootstrap multiple times
-        # without erroring.
+    def test_bootstrap_is_idempotent_when_password_does_not_change(self):
+        # NOTE(morganfainberg): Ensure we can run bootstrap with the same
+        # configuration multiple times without erroring.
         bootstrap = cli.BootStrap()
         self._do_test_bootstrap(bootstrap)
         v3_token_controller = controllers.Auth()
@@ -181,23 +181,44 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         token = auth_response.headers['X-Subject-Token']
         self._do_test_bootstrap(bootstrap)
         # build validation request
-        request = self.make_request(
-            is_admin=True,
-            headers={
-                'X-Subject-Token': token,
-                'X-Auth-Token': token
-            }
-        )
+        request = self.make_request(is_admin=True)
         request.context_dict['subject_token_id'] = token
-        # NOTE(lbragstad): This is currently broken because the bootstrap
-        # operation will automatically reset a user's password even if it is
-        # the same as it was before. Bootstrap has this behavior so it's
-        # possible to recover admin accounts, which was one of our main
-        # usecases for introducing the bootstrap functionality. The side-effect
-        # is that changing the password will create a revocation event. So if a
-        # token is obtained in-between two bootstrap calls, the token will no
-        # longer be valid after the second bootstrap operation completes, even
-        # if the password is the same.
+        # Make sure the token we authenticate for is still valid.
+        v3_token_controller.validate_token(request)
+
+    def test_bootstrap_is_not_idempotent_when_password_does_change(self):
+        # NOTE(lbragstad): Ensure bootstrap isn't idempotent when run with
+        # different arguments or configuration values.
+        bootstrap = cli.BootStrap()
+        self._do_test_bootstrap(bootstrap)
+        v3_token_controller = controllers.Auth()
+        v3_password_data = {
+            'identity': {
+                "methods": ["password"],
+                "password": {
+                    "user": {
+                        "name": bootstrap.username,
+                        "password": bootstrap.password,
+                        "domain": {
+                            "id": CONF.identity.default_domain_id
+                        }
+                    }
+                }
+            }
+        }
+        auth_response = v3_token_controller.authenticate_for_token(
+            self.make_request(), v3_password_data)
+        token = auth_response.headers['X-Subject-Token']
+        os.environ['OS_BOOTSTRAP_PASSWORD'] = uuid.uuid4().hex
+        self._do_test_bootstrap(bootstrap)
+        # build validation request
+        request = self.make_request(is_admin=True)
+        request.context_dict['subject_token_id'] = token
+        # Since the user account was recovered with a different password, we
+        # shouldn't be able to validate this token. Bootstrap should have
+        # persisted a revocation event because the user's password was updated.
+        # Since this token was obtained using the original password, it should
+        # now be invalid.
         self.assertRaises(
             exception.TokenNotFound,
             v3_token_controller.validate_token,
