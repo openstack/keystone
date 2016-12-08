@@ -433,8 +433,27 @@ def handle_conflicts(conflict_type='object'):
                 # as it can contain raw SQL.
                 LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
                                           'details': six.text_type(e)})
+                name = None
+                domain_id = None
+                # First element is unnessecary for extracting name and causes
+                # object not iterable error. Remove it.
+                params = args[1:]
+                for arg in params:
+                    if 'name' in arg:
+                        name = arg['name']
+                    if 'domain_id' in arg:
+                        domain_id = arg['domain_id']
+                msg = _('Duplicate entry')
+                if name and domain_id:
+                    msg = _('Duplicate entry found with name %(name)s '
+                            'at domain ID %(domain_id)s') % {
+                        'name': name, 'domain_id': domain_id}
+                elif name:
+                    msg = (_('Duplicate entry found with name %s') % name)
+                elif domain_id:
+                    msg = (_('Duplicate entry at domain ID %s') % domain_id)
                 raise exception.Conflict(type=conflict_type,
-                                         details=_('Duplicate Entry'))
+                                         details=msg)
             except db_exception.DBError as e:
                 # TODO(blk-u): inspecting inner_exception breaks encapsulation;
                 # oslo_db should provide exception we need.
