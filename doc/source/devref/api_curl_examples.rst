@@ -851,7 +851,7 @@ Authenticate by exchanging credentials for an access token:
 
 .. code-block:: bash
 
-    $ curl -d '{"auth":{"tenantName": "customer-x", "passwordCredentials": {"username": "joeuser", "password": "secrete"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
+    $ curl -d '{"auth":{"tenantName": "customer-x", "passwordCredentials": {"username": "joeuser", "password": "secret"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
 
 Returns:
 
