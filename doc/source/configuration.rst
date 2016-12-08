@@ -1522,7 +1522,7 @@ can be invoked as follows:
 
     # Using password authentication, with environment variables
     $ export OS_USERNAME=admin
-    $ export OS_PASSWORD=secrete
+    $ export OS_PASSWORD=secret
     $ export OS_PROJECT_NAME=admin
     $ export OS_AUTH_URL=http://localhost:35357/v2.0
     $ openstack user list
@@ -1530,8 +1530,8 @@ can be invoked as follows:
     $ openstack token issue
 
     # Using password authentication, with flags
-    $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 user list
-    $ openstack --os-username=admin --os-password=secrete --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 project create demo
+    $ openstack --os-username=admin --os-password=secret --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 user list
+    $ openstack --os-username=admin --os-password=secret --os-project-name=admin --os-auth-url=http://localhost:35357/v2.0 project create demo
 
 
 Using an LDAP server

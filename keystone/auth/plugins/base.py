@@ -75,7 +75,7 @@ class AuthMethodHandler(object):
                         "password": {
                             "user": {
                                 "id": "s23sfad1",
-                                "password": "secrete"
+                                "password": "secret"
                             }
                         },
                         "token": {
