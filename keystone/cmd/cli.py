@@ -216,23 +216,37 @@ class BootStrap(BaseApp):
             LOG.info(_LI('User %s already exists, skipping creation.'),
                      self.username)
 
-            # Remember whether the user was enabled or not, so that we can
-            # provide useful logging output later.
-            was_enabled = user['enabled']
+            # If the user is not enabled, re-enable them. This also helps
+            # provide some useful logging output later.
+            update = {}
+            enabled = user['enabled']
+            if not enabled:
+                update['enabled'] = True
 
-            # To keep bootstrap idempotent, try to reset the user's password
-            # and ensure that they are enabled. This allows bootstrap to act as
-            # a recovery tool, without having to create a new user.
-            user = self.identity_manager.update_user(
-                user['id'],
-                {'enabled': True,
-                 'password': self.password})
-            LOG.info(_LI('Reset password for user %s.'), self.username)
-            if not was_enabled and user['enabled']:
-                # Although we always try to enable the user, this log message
-                # only makes sense if we know that the user was previously
-                # disabled.
-                LOG.info(_LI('Enabled user %s.'), self.username)
+            try:
+                self.identity_manager.driver.authenticate(
+                    user['id'], self.password
+                )
+            except AssertionError:
+                # This means that authentication failed and that we need to
+                # update the user's password. This is going to persist a
+                # revocation event that will make all previous tokens for the
+                # user invalid, which is OK because it falls within the scope
+                # of revocation. If a password changes, we shouldn't be able to
+                # use tokens obtained with an old password.
+                update['password'] = self.password
+
+            # Only make a call to update the user if the password has changed
+            # or the user was previously disabled. This allows bootstrap to act
+            # as a recovery tool, without having to create a new user.
+            if update:
+                user = self.identity_manager.update_user(user['id'], update)
+                LOG.info(_LI('Reset password for user %s.'), self.username)
+                if not enabled and user['enabled']:
+                    # Although we always try to enable the user, this log
+                    # message only makes sense if we know that the user was
+                    # previously disabled.
+                    LOG.info(_LI('Enabled user %s.'), self.username)
         except exception.UserNotFound:
             user = self.identity_manager.create_user(
                 user_ref={'name': self.username,
