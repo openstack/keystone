@@ -76,4 +76,4 @@ Once set up, you should be able to invoke Python and import the libraries:
     $ .tox/py27/bin/python -c "import keystone"
 
 If you can import keystone without a traceback, you should be ready to move on
-to :doc:`../developing`.
+to :doc:`development_best_practices`.
