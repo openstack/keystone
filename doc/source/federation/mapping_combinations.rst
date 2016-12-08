@@ -182,7 +182,7 @@ In ``<other_condition>`` shown below, please supply one of the following:
                 ],
                 "remote": [
                     {
-                    "type": "UserName"
+                        "type": "UserName"
                     },
                     {
                         "type": "HTTP_OIDC_GROUPIDS",
@@ -218,7 +218,7 @@ In ``<other_condition>`` shown below, please supply one of the following:
                 ],
                 "remote": [
                     {
-                    "type": "UserName"
+                        "type": "UserName"
                     },
                     {
                         "type": "HTTP_OIDC_GROUPIDS",
@@ -293,13 +293,13 @@ If a mapping is valid you will receive the following output:
         "group_ids": "[<group-ids>]",
         "user":
             {
-            "domain":
-                {
-                    "id": "Federated" or "<local-domain-id>"
-                },
-            "type": "ephemeral" or "local",
-            "name": "<local-user-name>",
-            "id": "<local-user-id>"
+                "domain":
+                    {
+                        "id": "Federated" or "<local-domain-id>"
+                    },
+                "type": "ephemeral" or "local",
+                "name": "<local-user-name>",
+                "id": "<local-user-id>"
             },
         "group_names":
             [
@@ -367,7 +367,7 @@ setting it to ``true``.
                 ],
                 "remote": [
                     {
-                    "type": "UserName"
+                        "type": "UserName"
                     },
                     {
                         "type": "HTTP_OIDC_GROUPIDS",
@@ -411,7 +411,7 @@ but cannot be repeated within the same condition. ``any_one_of`` and
                 ],
                 "remote": [
                     {
-                    "type": "UserName"
+                        "type": "UserName"
                     },
                     {
                         "type": "cn=IBM_Canada_Lab",
@@ -474,7 +474,7 @@ Multiple rules can also be utilized in a mapping.
                 ],
                 "remote": [
                     {
-                    "type": "UserName"
+                        "type": "UserName"
                     },
                     {
                         "type": "orgPersonType",
@@ -501,7 +501,7 @@ Multiple rules can also be utilized in a mapping.
                 ],
                 "remote": [
                     {
-                    "type": "UserName"
+                        "type": "UserName"
                     },
                     {
                         "type": "orgPersonType",
