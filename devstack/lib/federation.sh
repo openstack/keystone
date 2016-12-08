@@ -12,6 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
+IDP_ID=${IDP_ID:-testshib}
+
+
 function install_federation {
     if is_ubuntu; then
         install_package libapache2-mod-shib2
@@ -22,10 +26,23 @@ function install_federation {
         # Enable the Shibboleth module for Apache
         sudo a2enmod shib2
     else
-        # Note(knikolla): For CentOS/RHEL, installing shibboleth is tricky
+        # NOTE(knikolla): For CentOS/RHEL, installing shibboleth is tricky
         # It requires adding a separate repo not officially supported
         echo "Skipping installation of shibboleth for non ubuntu host"
     fi
+}
+
+function upload_sp_metadata {
+    local metadata_fname=${HOST_IP//./}_"$RANDOM"_sp
+    local metadata_url=http://$HOST_IP/Shibboleth.sso/Metadata
+
+    wget $metadata_url -O $FILES/$metadata_fname
+    if [[ $? -ne 0 ]]; then
+        echo "Not found: $metadata_url"
+        return
+    fi
+
+    curl --form userfile=@"$FILES/${metadata_fname}" "https://www.testshib.org/procupload.php"
 }
 
 function configure_federation {
@@ -50,8 +67,12 @@ function configure_federation {
 
     # Enable the mapped auth method in /etc/keystone.conf
     iniset $KEYSTONE_CONF auth methods "external,password,token,mapped"
+
     # Specify the header that contains information about the identity provider
     iniset $KEYSTONE_CONF mapped remote_id_attribute "Shib-Identity-Provider"
+
+    # Register the service provider
+    upload_sp_metadata
 }
 
 function register_federation {

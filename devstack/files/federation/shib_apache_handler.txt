@@ -3,7 +3,7 @@
     SetHandler shib
 </Location>
 
-<Location /identity/v3/OS-FEDERATION/identity_providers/testshib/protocols/mapped/auth>
+<Location /identity/v3/OS-FEDERATION/identity_providers/%IDP_ID%/protocols/mapped/auth>
     ShibRequestSetting requireSession 1
     AuthType shibboleth
     ShibExportAssertion Off
