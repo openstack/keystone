@@ -21,6 +21,7 @@ import mock
 import oslo_config.fixture
 from oslo_log import log
 from oslotest import mockpatch
+from six.moves import configparser
 from six.moves import range
 from testtools import matchers
 
@@ -30,6 +31,7 @@ from keystone.cmd.doctor import caching
 from keystone.cmd.doctor import database as doc_database
 from keystone.cmd.doctor import debug
 from keystone.cmd.doctor import federation
+from keystone.cmd.doctor import ldap
 from keystone.cmd.doctor import security_compliance
 from keystone.common import dependency
 from keystone.common.sql import upgrades
@@ -875,6 +877,196 @@ class FederationDoctorTests(unit.TestCase):
         self.config_fixture.config(group='saml', keyfile='signing_key.pem')
         self.assertFalse(
             federation.symptom_comma_in_SAML_private_key_file_path())
+
+
+class LdapDoctorTests(unit.TestCase):
+
+    def test_user_enabled_emulation_dn_ignored_raised(self):
+        # Symptom when user_enabled_emulation_dn is being ignored because the
+        # user did not enable the user_enabled_emulation
+        self.config_fixture.config(group='ldap', user_enabled_emulation=False)
+        self.config_fixture.config(
+            group='ldap',
+            user_enabled_emulation_dn='cn=enabled_users,dc=example,dc=com')
+        self.assertTrue(
+            ldap.symptom_LDAP_user_enabled_emulation_dn_ignored())
+
+    def test_user_enabled_emulation_dn_ignored_not_raised(self):
+        # No symptom when configuration set properly
+        self.config_fixture.config(group='ldap', user_enabled_emulation=True)
+        self.config_fixture.config(
+            group='ldap',
+            user_enabled_emulation_dn='cn=enabled_users,dc=example,dc=com')
+        self.assertFalse(
+            ldap.symptom_LDAP_user_enabled_emulation_dn_ignored())
+        # No symptom when both configurations disabled
+        self.config_fixture.config(group='ldap', user_enabled_emulation=False)
+        self.config_fixture.config(group='ldap',
+                                   user_enabled_emulation_dn=None)
+        self.assertFalse(
+            ldap.symptom_LDAP_user_enabled_emulation_dn_ignored())
+
+    def test_user_enabled_emulation_use_group_config_ignored_raised(self):
+        # Symptom when user enabled emulation isn't enabled but group_config is
+        # enabled
+        self.config_fixture.config(group='ldap', user_enabled_emulation=False)
+        self.config_fixture.config(
+            group='ldap',
+            user_enabled_emulation_use_group_config=True)
+        self.assertTrue(
+            ldap.
+            symptom_LDAP_user_enabled_emulation_use_group_config_ignored())
+
+    def test_user_enabled_emulation_use_group_config_ignored_not_raised(self):
+        # No symptom when configuration deactivated
+        self.config_fixture.config(group='ldap', user_enabled_emulation=False)
+        self.config_fixture.config(
+            group='ldap',
+            user_enabled_emulation_use_group_config=False)
+        self.assertFalse(
+            ldap.
+            symptom_LDAP_user_enabled_emulation_use_group_config_ignored())
+        # No symptom when configurations set properly
+        self.config_fixture.config(group='ldap', user_enabled_emulation=True)
+        self.config_fixture.config(
+            group='ldap',
+            user_enabled_emulation_use_group_config=True)
+        self.assertFalse(
+            ldap.
+            symptom_LDAP_user_enabled_emulation_use_group_config_ignored())
+
+    def test_group_members_are_ids_disabled_raised(self):
+        # Symptom when objectclass is set to posixGroup but members_are_ids are
+        # not enabled
+        self.config_fixture.config(group='ldap',
+                                   group_objectclass='posixGroup')
+        self.config_fixture.config(group='ldap',
+                                   group_members_are_ids=False)
+        self.assertTrue(ldap.symptom_LDAP_group_members_are_ids_disabled())
+
+    def test_group_members_are_ids_disabled_not_raised(self):
+        # No symptom when the configurations are set properly
+        self.config_fixture.config(group='ldap',
+                                   group_objectclass='posixGroup')
+        self.config_fixture.config(group='ldap',
+                                   group_members_are_ids=True)
+        self.assertFalse(ldap.symptom_LDAP_group_members_are_ids_disabled())
+        # No symptom when configuration deactivated
+        self.config_fixture.config(group='ldap',
+                                   group_objectclass='groupOfNames')
+        self.config_fixture.config(group='ldap',
+                                   group_members_are_ids=False)
+        self.assertFalse(ldap.symptom_LDAP_group_members_are_ids_disabled())
+
+    @mock.patch('os.listdir')
+    @mock.patch('os.path.isdir')
+    def test_file_based_domain_specific_configs_raised(self, mocked_isdir,
+                                                       mocked_listdir):
+        self.config_fixture.config(
+            group='identity',
+            domain_specific_drivers_enabled=True)
+        self.config_fixture.config(
+            group='identity',
+            domain_configurations_from_database=False)
+
+        # Symptom if there is no existing directory
+        mocked_isdir.return_value = False
+        self.assertTrue(ldap.symptom_LDAP_file_based_domain_specific_configs())
+
+        # Symptom if there is an invalid filename inside the domain directory
+        mocked_isdir.return_value = True
+        mocked_listdir.return_value = ['openstack.domains.conf']
+        self.assertTrue(ldap.symptom_LDAP_file_based_domain_specific_configs())
+
+    @mock.patch('os.listdir')
+    @mock.patch('os.path.isdir')
+    def test_file_based_domain_specific_configs_not_raised(self, mocked_isdir,
+                                                           mocked_listdir):
+        # No symptom if both configurations deactivated
+        self.config_fixture.config(
+            group='identity',
+            domain_specific_drivers_enabled=False)
+        self.config_fixture.config(
+            group='identity',
+            domain_configurations_from_database=False)
+        self.assertFalse(
+            ldap.symptom_LDAP_file_based_domain_specific_configs())
+
+        # No symptom if directory exists with no invalid filenames
+        self.config_fixture.config(
+            group='identity',
+            domain_specific_drivers_enabled=True)
+        self.config_fixture.config(
+            group='identity',
+            domain_configurations_from_database=False)
+        mocked_isdir.return_value = True
+        mocked_listdir.return_value = ['keystone.domains.conf']
+        self.assertFalse(
+            ldap.symptom_LDAP_file_based_domain_specific_configs())
+
+    @mock.patch('os.listdir')
+    @mock.patch('os.path.isdir')
+    @mock.patch('keystone.cmd.doctor.ldap.configparser.ConfigParser')
+    def test_file_based_domain_specific_configs_formatted_correctly_raised(
+            self, mocked_parser, mocked_isdir, mocked_listdir):
+        symptom = ('symptom_LDAP_file_based_domain_specific_configs'
+                   '_formatted_correctly')
+        # Symptom Detected: Ldap domain specific configuration files are not
+        # formatted correctly
+        self.config_fixture.config(
+            group='identity',
+            domain_specific_drivers_enabled=True)
+        self.config_fixture.config(
+            group='identity',
+            domain_configurations_from_database=False)
+        mocked_isdir.return_value = True
+
+        mocked_listdir.return_value = ['keystone.domains.conf']
+        mock_instance = mock.MagicMock()
+        mock_instance.read.side_effect = configparser.Error('No Section')
+        mocked_parser.return_value = mock_instance
+
+        self.assertTrue(getattr(ldap, symptom)())
+
+    @mock.patch('os.listdir')
+    @mock.patch('os.path.isdir')
+    def test_file_based_domain_specific_configs_formatted_correctly_not_raised(
+            self, mocked_isdir, mocked_listdir):
+        symptom = ('symptom_LDAP_file_based_domain_specific_configs'
+                   '_formatted_correctly')
+        # No Symptom Detected: Domain_specific drivers is not enabled
+        self.config_fixture.config(
+            group='identity',
+            domain_specific_drivers_enabled=False)
+        self.assertFalse(getattr(ldap, symptom)())
+
+        # No Symptom Detected: Domain configuration from database is enabled
+        self.config_fixture.config(
+            group='identity',
+            domain_specific_drivers_enabled=True)
+        self.assertFalse(getattr(ldap, symptom)())
+        self.config_fixture.config(
+            group='identity',
+            domain_configurations_from_database=True)
+        self.assertFalse(getattr(ldap, symptom)())
+
+        # No Symptom Detected: The directory in domain_config_dir doesn't exist
+        mocked_isdir.return_value = False
+        self.assertFalse(getattr(ldap, symptom)())
+
+        # No Symptom Detected: domain specific drivers are enabled, domain
+        # configurations from database are disabled, directory exists, and no
+        # exceptions found.
+        self.config_fixture.config(
+            group='identity',
+            domain_configurations_from_database=False)
+        mocked_isdir.return_value = True
+        # An empty directory should not raise this symptom
+        self.assertFalse(getattr(ldap, symptom)())
+
+        # Test again with a file inside the directory
+        mocked_listdir.return_value = ['keystone.domains.conf']
+        self.assertFalse(getattr(ldap, symptom)())
 
 
 class SecurityComplianceDoctorTests(unit.TestCase):
