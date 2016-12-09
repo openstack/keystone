@@ -24,6 +24,7 @@ from oslotest import mockpatch
 from six.moves import range
 from testtools import matchers
 
+from keystone.auth import controllers
 from keystone.cmd import cli
 from keystone.cmd.doctor import caching
 from keystone.cmd.doctor import database as doc_database
@@ -165,7 +166,48 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         # without erroring.
         bootstrap = cli.BootStrap()
         self._do_test_bootstrap(bootstrap)
+        v3_token_controller = controllers.Auth()
+        v3_password_data = {
+            'identity': {
+                "methods": ["password"],
+                "password": {
+                    "user": {
+                        "name": bootstrap.username,
+                        "password": bootstrap.password,
+                        "domain": {
+                            "id": CONF.identity.default_domain_id
+                        }
+                    }
+                }
+            }
+        }
+        auth_response = v3_token_controller.authenticate_for_token(
+            self.make_request(), v3_password_data)
+        token = auth_response.headers['X-Subject-Token']
         self._do_test_bootstrap(bootstrap)
+        # build validation request
+        request = self.make_request(
+            is_admin=True,
+            headers={
+                'X-Subject-Token': token,
+                'X-Auth-Token': token
+            }
+        )
+        request.context_dict['subject_token_id'] = token
+        # NOTE(lbragstad): This is currently broken because the bootstrap
+        # operation will automatically reset a user's password even if it is
+        # the same as it was before. Bootstrap has this behavior so it's
+        # possible to recover admin accounts, which was one of our main
+        # usecases for introducing the bootstrap functionality. The side-effect
+        # is that changing the password will create a revocation event. So if a
+        # token is obtained in-between two bootstrap calls, the token will no
+        # longer be valid after the second bootstrap operation completes, even
+        # if the password is the same.
+        self.assertRaises(
+            exception.TokenNotFound,
+            v3_token_controller.validate_token,
+            request
+        )
 
     def test_bootstrap_recovers_user(self):
         bootstrap = cli.BootStrap()
