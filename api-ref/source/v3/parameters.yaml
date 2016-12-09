@@ -237,7 +237,7 @@ is_domain_query:
     included.
   in: query
   required: false
-  type: boolen
+  type: boolean
   min_version: 3.6
 name_user_query:
   description: |
@@ -298,7 +298,7 @@ project_enabled_query:
     other than ``0`` (including no value) will be interpreted as true.
   in: query
   required: false
-  type: boolen
+  type: boolean
 project_name_query:
   description: |
     Filters the response by a project name.
