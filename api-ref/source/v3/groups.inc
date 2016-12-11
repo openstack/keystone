@@ -310,6 +310,81 @@ Response Example
    :language: javascript
 
 
+List users in group based on password expiration time
+=====================================================
+
+.. rest_method:: GET /v3/groups/{group_id}/users?password_expires_at={operator}:{timestamp}
+
+List users that belong to a group with a password expiring in relation
+to the `timestamp` given based on the `operator`. Similar to listing
+users based on password expiration time, but also filtering by
+the specified group.
+
+The operators are:
+
+- lt: expiration time lower than the timestamp
+- lte: expiration time lower than or equal to the timestamp
+- gt: expiration time higher than the timestamp
+- gte: expiration time higher than or equal to the timestamp
+- eq: expiration time equal to the timestamp
+- neq: expiration time not equal to the timestamp
+
+For example::
+
+  GET /v3/groups/079c578fd99b428ab61fcd4c9bd88ecd/users?password_expires_at=lt:2016-12-08T22:02:00Z
+
+The example would return a list of users that belong to the group with
+ID `079c578fd99b428ab61fcd4c9bd88ecd1 and whose password has expired
+before the given timestamp `2016-12-08T22:02:00Z`.
+
+Response Codes
+--------------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+   - 501
+
+Request Parameters
+------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id_path
+   - operator: operator_query
+   - timestamp: timestamp_query
+
+Response Parameters
+-------------------
+
+Responses will contain a list of users in the group, each
+represented with the response parameters described below.
+
+.. rest_parameters:: parameters.yaml
+
+   - default_project_id: default_project_id_response_body
+   - domain_id: domain_id_response_body
+   - enabled: enabled_user_response_body
+   - id: id_user_body
+   - links: links_user
+   - name: user_name_response_body
+   - password_expires_at: password_expires_at
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/admin/users-in-group-list-password-expired.json
+   :language: javascript
+
+
 Add user to group
 =================
 

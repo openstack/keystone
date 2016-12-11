@@ -237,7 +237,7 @@ is_domain_query:
     included.
   in: query
   required: false
-  type: boolean
+  type: boolen
   min_version: 3.6
 name_user_query:
   description: |
@@ -250,6 +250,13 @@ nocatalog:
     (Since v3.1) The authentication response excludes
     the service catalog. By default, the response includes the service
     catalog.
+  in: query
+  required: false
+  type: string
+operator_query:
+  description: |
+    Filter used in the password_expire_at query on list users to compare time
+    ranges. Can be lt, lte, gt, gte, eq, or neq.
   in: query
   required: false
   type: string
@@ -285,6 +292,14 @@ parents_as_list:
   required: false
   type: key-only, no value expected
   min_version: 3.4
+password_expires_at_query:
+  description: |
+    Filter used in the user list call to determine which user passwords
+    expire. It can be paired with an operator for a range of time in
+    which passwords will expire.
+  in: query
+  required: false
+  type: string
 policy_type_query:
   description: |
     Filters the response by a MIME media type for the
@@ -298,7 +313,7 @@ project_enabled_query:
     other than ``0`` (including no value) will be interpreted as true.
   in: query
   required: false
-  type: boolean
+  type: boolen
 project_name_query:
   description: |
     Filters the response by a project name.
@@ -369,6 +384,13 @@ subtree_as_list:
   required: false
   type: key-only, no value expected
   min_version: 3.4
+timestamp_query:
+  description: |
+    Filters the response for when a user's password expires.
+    A valid timestamp is formatted as ``YYYY-MM-DDTHH:mm:ssZ``.
+  in: query
+  required: false
+  type: string
 user_id_query:
   description: |
     Filters the response by a user ID.
