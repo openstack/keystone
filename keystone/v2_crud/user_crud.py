@@ -21,7 +21,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import identity
 from keystone.models import token_model
-from keystone.token.providers import common
+from keystone.token import controllers as token_controllers
 
 
 LOG = log.getLogger(__name__)
@@ -101,7 +101,7 @@ class UserController(identity.controllers.User):
             token_ref.user_id, token_ref.methods,
             project_id=token_ref.project_id,
             parent_audit_id=token_ref.audit_chain_id)
-        v2_helper = common.V2TokenDataHelper()
+        v2_helper = token_controllers.V2TokenDataHelper()
         v2_token_data = v2_helper.v3_to_v2_token(new_token_data, new_token_id)
         LOG.debug('TOKEN_REF %s', new_token_data)
         return v2_token_data
