@@ -39,6 +39,15 @@ After you obtain an authentication token, you can:
 
 - List revoked public key infrastructure (PKI) tokens.
 
+In v3.7 of the Identity API service, two new configuration options
+were added: ``[resource] admin_project_name`` and
+``[resource] admin_project_domain_name``. The options represent the
+project that only the cloud administrator should be able to access.
+When an authentication request for a token scoped to the admin project
+is processed, it will have an additional field in the token
+``{is_admin_project: True}``. The additional field can be used when
+writing policy rules that evaluate access control to APIs.
+
 The Identity API treats expired tokens as no longer valid tokens.
 The deployment determines how long expired tokens are stored.
 
