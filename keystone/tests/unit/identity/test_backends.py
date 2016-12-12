@@ -1351,6 +1351,23 @@ class ShadowUsersTests(object):
         user_ref = self._get_user_ref(new_nonlocal_user['id'])
         self.assertIsNone(user_ref.local_user)
 
+    def test_nonlocal_user_unique_user_id_constraint(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = self.shadow_users_api.create_nonlocal_user(user_ref)
+        # attempt to create a nonlocal_user with the same user_id
+        nonlocal_user = {
+            'domain_id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex,
+            'user_id': user['id']
+        }
+        self.assertRaises(sql.DBDuplicateEntry, self._add_nonlocal_user,
+                          nonlocal_user)
+
+    def _add_nonlocal_user(self, nonlocal_user):
+        with sql.session_for_write() as session:
+            nonlocal_user_ref = model.NonLocalUser.from_dict(nonlocal_user)
+            session.add(nonlocal_user_ref)
+
     def test_get_user(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user.pop('email')

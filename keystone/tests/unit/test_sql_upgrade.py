@@ -295,6 +295,15 @@ class SqlMigrateBase(test_base.DbTestCase):
         table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         return index_name in [idx.name for idx in table.indexes]
 
+    def does_unique_constraint_exist(self, table_name, column_name):
+        inspector = reflection.Inspector.from_engine(self.engine)
+        constraints = inspector.get_unique_constraints(table_name)
+        for c in constraints:
+            if (len(c['column_names']) == 1 and
+                    column_name in c['column_names']):
+                return True
+        return False
+
 
 class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
     def test_blank_db_to_start(self):
@@ -1815,6 +1824,18 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.assertTrue(self.does_index_exist(
             'revocation_event',
             'ix_revocation_event_audit_id_issued_before'))
+
+    def test_migration_011_user_id_unique_for_nonlocal_user(self):
+        table_name = 'nonlocal_user'
+        column = 'user_id'
+        self.expand(10)
+        self.migrate(10)
+        self.contract(10)
+        self.assertFalse(self.does_unique_constraint_exist(table_name, column))
+        self.expand(11)
+        self.migrate(11)
+        self.contract(11)
+        self.assertTrue(self.does_unique_constraint_exist(table_name, column))
 
 
 class MySQLOpportunisticFullMigration(FullMigration):
