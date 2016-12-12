@@ -302,6 +302,7 @@ Request Parameters
 .. rest_parameters:: parameters.yaml
 
    - group_id: group_id_path
+   - password_expires_at: password_expires_at_query
 
 Response Example
 ----------------

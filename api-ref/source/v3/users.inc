@@ -47,6 +47,7 @@ Request Parameters
    - domain_id: domain_id_query
    - enabled: enabled_user_query
    - name: name_user_query
+   - password_expires_at: password_expires_at_query
 
 Response Parameters
 -------------------

@@ -27,6 +27,8 @@ What's New in Version 3.8
 =========================
 
 - Allow a service user to fetch a token that has expired.
+- Add a ``password_expires_at`` query parameter to user list and users in
+  group list.
 
 What's New in Version 3.7
 =========================
