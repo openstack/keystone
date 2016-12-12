@@ -133,6 +133,7 @@ class SqlModels(SqlTests):
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
+                ('domain_id', sql.String, 64),
                 ('default_project_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
                 ('extra', sql.JsonBlob, None),
