@@ -88,7 +88,6 @@ function register_federation {
 function uninstall_federation {
     if is_ubuntu; then
         uninstall_package libapache2-mod-shib2
-        sudo rm -rf /etc/shibboleth
     else
         echo "Skipping uninstallation of shibboleth for non ubuntu host"
     fi
