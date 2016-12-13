@@ -12,9 +12,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+DOMAIN_NAME=${DOMAIN_NAME:-federated_domain}
+PROJECT_NAME=${PROJECT_NAME:-federated_project}
+GROUP_NAME=${GROUP_NAME:-federated_users}
 
+# TODO(rodrigods): remove/update the settings based at testshib
 IDP_ID=${IDP_ID:-testshib}
+IDP_USERNAME=${IDP_USERNAME:-myself}
+IDP_PASSWORD=${IDP_PASSWORD:-myself}
+IDP_REMOTE_ID=${IDP_REMOTE_ID:-https://idp.testshib.org/idp/shibboleth}
+IDP_ECP_URL=${IDP_ECP_URL:-https://idp.testshib.org/idp/profile/SAML2/SOAP/ECP}
 
+MAPPING_REMOTE_TYPE=${MAPPING_REMOTE_TYPE:-eppn}
+MAPPING_USER_NAME=${MAPPING_USER_NAME:-"{0}"}
+
+PROTOCOL_ID=${PROTOCOL_ID:-mapped}
 
 function install_federation {
     if is_ubuntu; then
@@ -76,13 +88,34 @@ function configure_federation {
 }
 
 function register_federation {
-    local federated_domain=$(get_or_create_domain federated_domain)
-    local federated_project=$(get_or_create_project federated_project federated_domain)
-    local federated_users=$(get_or_create_group federated_users federated_domain)
+    local federated_domain=$(get_or_create_domain $DOMAIN_NAME)
+    local federated_project=$(get_or_create_project $PROJECT_NAME $DOMAIN_NAME)
+    local federated_users=$(get_or_create_group $GROUP_NAME $DOMAIN_NAME)
     local member_role=$(get_or_create_role Member)
 
     openstack role add --group $federated_users --domain $federated_domain $member_role
     openstack role add --group $federated_users --project $federated_project $member_role
+}
+
+function configure_tests_settings {
+    # Here we set any settings that might be need by the fed_scenario set of tests
+    iniset $TEMPEST_CONFIG identity-feature-enabled federation True
+
+    # Identity provider settings
+    iniset $TEMPEST_CONFIG fed_scenario idp_id $IDP_ID
+    iniset $TEMPEST_CONFIG fed_scenario idp_remote_ids $IDP_REMOTE_ID
+    iniset $TEMPEST_CONFIG fed_scenario idp_username $IDP_USERNAME
+    iniset $TEMPEST_CONFIG fed_scenario idp_password $IDP_PASSWORD
+    iniset $TEMPEST_CONFIG fed_scenario idp_ecp_url $IDP_ECP_URL
+
+    # Mapping rules settings
+    iniset $TEMPEST_CONFIG fed_scenario mapping_remote_type $MAPPING_REMOTE_TYPE
+    iniset $TEMPEST_CONFIG fed_scenario mapping_user_name $MAPPING_USER_NAME
+    iniset $TEMPEST_CONFIG fed_scenario mapping_group_name $GROUP_NAME
+    iniset $TEMPEST_CONFIG fed_scenario mapping_group_domain_name $DOMAIN_NAME
+
+    # Protocol settings
+    iniset $TEMPEST_CONFIG fed_scenario protocol_id $PROTOCOL_ID
 }
 
 function uninstall_federation {

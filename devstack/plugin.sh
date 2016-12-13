@@ -41,6 +41,12 @@ elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
     if is_service_enabled keystone-saml2-federation; then
         register_federation
     fi
+elif [[ "$1" == "stack" && "$2" == "test-config" ]]; then
+    # This phase is executed after Tempest was configured
+    echo "Keystone plugin - Test-config phase"
+    if is_service_enabled keystone-saml2-federation; then
+        configure_tests_settings
+    fi
 fi
 
 if [[ "$1" == "unstack" ]]; then
