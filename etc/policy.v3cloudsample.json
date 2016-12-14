@@ -219,6 +219,7 @@
 
     "identity:create_domain_config": "rule:cloud_admin",
     "identity:get_domain_config": "rule:cloud_admin",
+    "identity:get_security_compliance_domain_config": "",
     "identity:update_domain_config": "rule:cloud_admin",
     "identity:delete_domain_config": "rule:cloud_admin",
     "identity:get_domain_config_default": "rule:cloud_admin"
