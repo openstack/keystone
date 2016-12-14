@@ -31,6 +31,7 @@ from keystone.cmd.doctor import database as doc_database
 from keystone.cmd.doctor import debug
 from keystone.cmd.doctor import federation
 from keystone.cmd.doctor import security_compliance
+from keystone.cmd.doctor import tokens
 from keystone.common import dependency
 from keystone.common.sql import upgrades
 import keystone.conf
@@ -981,3 +982,28 @@ class SecurityComplianceDoctorTests(unit.TestCase):
         self.assertFalse(
             security_compliance.
             symptom_password_regular_expression_description_not_set())
+
+
+class TokensDoctorTests(unit.TestCase):
+
+    def test_unreasonable_max_token_size_raised(self):
+        # Symptom Detected: the max_token_size for uuid is not 32
+        self.config_fixture.config(group='token', provider='uuid')
+        self.config_fixture.config(max_token_size=33)
+        self.assertTrue(tokens.symptom_unreasonable_max_token_size())
+
+        # Symptom Detected: the max_token_size for fernet is greater than 255
+        self.config_fixture.config(group='token', provider='fernet')
+        self.config_fixture.config(max_token_size=256)
+        self.assertTrue(tokens.symptom_unreasonable_max_token_size())
+
+    def test_unreasonable_max_token_size_not_raised(self):
+        # No Symptom Detected: the max_token_size for uuid is 32
+        self.config_fixture.config(group='token', provider='uuid')
+        self.config_fixture.config(max_token_size=32)
+        self.assertFalse(tokens.symptom_unreasonable_max_token_size())
+
+        # Symptom Detected: the max_token_size for fernet is greater than 255
+        self.config_fixture.config(group='token', provider='fernet')
+        self.config_fixture.config(max_token_size=255)
+        self.assertFalse(tokens.symptom_unreasonable_max_token_size())
