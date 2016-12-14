@@ -434,22 +434,30 @@ def handle_conflicts(conflict_type='object'):
                 LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
                                           'details': six.text_type(e)})
                 name = None
+                field = None
                 domain_id = None
                 # First element is unnessecary for extracting name and causes
                 # object not iterable error. Remove it.
                 params = args[1:]
+                # We want to store the duplicate objects name in the error
+                # message for the user. If name is not available we use the id.
                 for arg in params:
                     if 'name' in arg:
+                        field = 'name'
                         name = arg['name']
+                    elif 'id' in arg:
+                        field = 'ID'
+                        name = arg['id']
                     if 'domain_id' in arg:
                         domain_id = arg['domain_id']
                 msg = _('Duplicate entry')
                 if name and domain_id:
-                    msg = _('Duplicate entry found with name %(name)s '
+                    msg = _('Duplicate entry found with %(field)s %(name)s '
                             'at domain ID %(domain_id)s') % {
-                        'name': name, 'domain_id': domain_id}
+                        'field': field, 'name': name, 'domain_id': domain_id}
                 elif name:
-                    msg = (_('Duplicate entry found with name %s') % name)
+                    msg = _('Duplicate entry found with %(field)s '
+                            '%(name)s') % {'field': field, 'name': name}
                 elif domain_id:
                     msg = (_('Duplicate entry at domain ID %s') % domain_id)
                 raise exception.Conflict(type=conflict_type,
