@@ -731,6 +731,23 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertItemsEqual(['210mlk', '321cba'],
                               mapped_properties['group_ids'])
 
+    def test_mapping_projects(self):
+        mapping = mapping_fixtures.MAPPING_PROJECTS
+        assertion = mapping_fixtures.EMPLOYEE_ASSERTION
+        rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
+        values = rp.process(assertion)
+
+        self.assertValidMappedUserObject(values)
+        expected_username = mapping_fixtures.EMPLOYEE_ASSERTION['UserName']
+        self.assertEqual(expected_username, values['user']['name'])
+
+        expected_projects = [
+            {"name": "a"},
+            {"name": "b"},
+            {"name": "project for %s" % expected_username},
+        ]
+        self.assertEqual(expected_projects, values['projects'])
+
 
 class TestUnicodeAssertionData(unit.BaseTestCase):
     """Ensure that unicode data in the assertion headers works.

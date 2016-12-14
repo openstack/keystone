@@ -1588,3 +1588,27 @@ MAPPING_UNICODE = {
         },
     ],
 }
+
+MAPPING_PROJECTS = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}"
+                    },
+                    "projects": [
+                        {"name": "a"},
+                        {"name": "b"},
+                        {"name": "project for {0}"},
+                    ],
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                }
+            ]
+        },
+    ]
+}
