@@ -33,6 +33,7 @@ from keystone.cmd.doctor import debug
 from keystone.cmd.doctor import federation
 from keystone.cmd.doctor import security_compliance
 from keystone.cmd.doctor import tokens
+from keystone.cmd.doctor import tokens_fernet
 from keystone.common import dependency
 from keystone.common.sql import upgrades
 import keystone.conf
@@ -1073,3 +1074,52 @@ class TokensDoctorTests(unit.TestCase):
         self.config_fixture.config(group='token', provider='fernet')
         self.config_fixture.config(max_token_size=255)
         self.assertFalse(tokens.symptom_unreasonable_max_token_size())
+
+
+class TokenFernetDoctorTests(unit.TestCase):
+
+    @mock.patch('keystone.cmd.doctor.tokens_fernet.utils')
+    def test_usability_of_Fernet_key_repository_raised(self, mock_utils):
+        # Symptom Detected: Fernet key repo is world readable
+        self.config_fixture.config(group='token', provider='fernet')
+        mock_utils.FernetUtils().validate_key_repository.return_value = False
+        self.assertTrue(
+            tokens_fernet.symptom_usability_of_Fernet_key_repository())
+
+    @mock.patch('keystone.cmd.doctor.tokens_fernet.utils')
+    def test_usability_of_Fernet_key_repository_not_raised(self, mock_utils):
+        # No Symptom Detected: UUID is used instead of fernet
+        self.config_fixture.config(group='token', provider='uuid')
+        mock_utils.FernetUtils().validate_key_repository.return_value = False
+        self.assertFalse(
+            tokens_fernet.symptom_usability_of_Fernet_key_repository())
+
+        # No Symptom Detected: configs set properly, key repo is not world
+        # readable but is user readable
+        self.config_fixture.config(group='token', provider='fernet')
+        mock_utils.FernetUtils().validate_key_repository.return_value = True
+        self.assertFalse(
+            tokens_fernet.symptom_usability_of_Fernet_key_repository())
+
+    @mock.patch('keystone.cmd.doctor.tokens_fernet.utils')
+    def test_keys_in_Fernet_key_repository_raised(self, mock_utils):
+        # Symptom Detected: Fernet key repository is empty
+        self.config_fixture.config(group='token', provider='fernet')
+        mock_utils.FernetUtils().load_keys.return_value = False
+        self.assertTrue(
+            tokens_fernet.symptom_keys_in_Fernet_key_repository())
+
+    @mock.patch('keystone.cmd.doctor.tokens_fernet.utils')
+    def test_keys_in_Fernet_key_repository_not_raised(self, mock_utils):
+        # No Symptom Detected: UUID is used instead of fernet
+        self.config_fixture.config(group='token', provider='uuid')
+        mock_utils.FernetUtils().load_keys.return_value = True
+        self.assertFalse(
+            tokens_fernet.symptom_usability_of_Fernet_key_repository())
+
+        # No Symptom Detected: configs set properly, key repo has been
+        # populated with keys
+        self.config_fixture.config(group='token', provider='fernet')
+        mock_utils.FernetUtils().load_keys.return_value = True
+        self.assertFalse(
+            tokens_fernet.symptom_usability_of_Fernet_key_repository())
