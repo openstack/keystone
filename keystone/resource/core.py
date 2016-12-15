@@ -1018,6 +1018,14 @@ class DomainConfigManager(manager.Manager):
 
         return option_list
 
+    def _option_dict(self, group, option):
+        group_attr = getattr(CONF, group)
+        if group_attr is None:
+            msg = _('Group  %s not found in config') % group
+            raise exception.UnexpectedError(msg)
+        return {'group': group, 'option': option,
+                'value': getattr(group_attr, option)}
+
     def _list_to_config(self, whitelisted, sensitive=None, req_option=None):
         """Build config dict from a list of option dicts.
 
@@ -1359,14 +1367,6 @@ class DomainConfigManager(manager.Manager):
             }
 
         """
-        def _option_dict(group, option):
-            group_attr = getattr(CONF, group)
-            if group_attr is None:
-                msg = _('Group  %s not found in config') % group
-                raise exception.UnexpectedError(msg)
-            return {'group': group, 'option': option,
-                    'value': getattr(group_attr, option)}
-
         self._assert_valid_group_and_option(group, option)
         config_list = []
         if group:
@@ -1376,13 +1376,15 @@ class DomainConfigManager(manager.Manager):
                             'group %(group)s is not supported') % {
                                 'option': option, 'group': group}
                     raise exception.InvalidDomainConfig(reason=msg)
-                config_list.append(_option_dict(group, option))
+                config_list.append(self._option_dict(group, option))
             else:
                 for each_option in self.whitelisted_options[group]:
-                    config_list.append(_option_dict(group, each_option))
+                    config_list.append(self._option_dict(group, each_option))
         else:
             for each_group in self.whitelisted_options:
                 for each_option in self.whitelisted_options[each_group]:
-                    config_list.append(_option_dict(each_group, each_option))
+                    config_list.append(
+                        self._option_dict(each_group, each_option)
+                    )
 
         return self._list_to_config(config_list, req_option=option)

@@ -15,6 +15,7 @@ import uuid
 
 import fixtures
 import mock
+from oslo_config import cfg
 from testtools import matchers
 
 import keystone.conf
@@ -681,3 +682,28 @@ class DomainConfigTests(object):
         self.assertRaises(exception.ConfigRegistrationNotFound,
                           self.domain_config_api.read_registration,
                           type2)
+
+    def test_option_dict_fails_when_group_is_none(self):
+        group = 'foo'
+        option = 'bar'
+        self.assertRaises(
+            cfg.NoSuchOptError,
+            self.domain_config_api._option_dict,
+            group,
+            option
+        )
+
+    def test_option_dict_returns_valid_config_values(self):
+        regex = uuid.uuid4().hex
+        self.config_fixture.config(
+            group='security_compliance', password_regex=regex
+        )
+        expected_dict = {
+            'group': 'security_compliance',
+            'option': 'password_regex',
+            'value': regex
+        }
+        option_dict = self.domain_config_api._option_dict(
+            'security_compliance', 'password_regex'
+        )
+        self.assertEqual(option_dict, expected_dict)
