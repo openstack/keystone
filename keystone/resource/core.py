@@ -1020,9 +1020,6 @@ class DomainConfigManager(manager.Manager):
 
     def _option_dict(self, group, option):
         group_attr = getattr(CONF, group)
-        if group_attr is None:
-            msg = _('Group  %s not found in config') % group
-            raise exception.UnexpectedError(msg)
         return {'group': group, 'option': option,
                 'value': getattr(group_attr, option)}
 
