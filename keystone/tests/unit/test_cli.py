@@ -1070,7 +1070,7 @@ class TokensDoctorTests(unit.TestCase):
         self.config_fixture.config(max_token_size=32)
         self.assertFalse(tokens.symptom_unreasonable_max_token_size())
 
-        # Symptom Detected: the max_token_size for fernet is greater than 255
+        # No Symptom Detected: the max_token_size for fernet is 255 or less
         self.config_fixture.config(group='token', provider='fernet')
         self.config_fixture.config(max_token_size=255)
         self.assertFalse(tokens.symptom_unreasonable_max_token_size())
