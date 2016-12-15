@@ -185,6 +185,25 @@ class DomainConfigV3(controller.V3Controller):
                 status=(http_client.CREATED,
                         http_client.responses[http_client.CREATED]))
 
+    def get_domain_config_wrapper(self, request, domain_id, group=None,
+                                  option=None):
+        if group and group == 'security_compliance':
+            return self.get_security_compliance_domain_config(
+                request, domain_id, group=group, option=option
+            )
+        else:
+            return self.get_domain_config(
+                request, domain_id, group=group, option=option
+            )
+
+    @controller.protected()
+    def get_security_compliance_domain_config(self, request, domain_id,
+                                              group=None, option=None):
+        ref = self.domain_config_api.get_security_compliance_config(
+            domain_id, group, option=option
+        )
+        return {self.member_name: ref}
+
     @controller.protected()
     def get_domain_config(self, request, domain_id, group=None, option=None):
         self.resource_api.get_domain(domain_id)

@@ -193,6 +193,8 @@ identity:create_domain_config                              PUT /v3/domains/{doma
 identity:get_domain_config                                 - GET /v3/domains/{domain_id}/config
                                                            - GET /v3/domains/{domain_id}/config/{group}
                                                            - GET /v3/domains/{domain_id}/config/{group}/{option}
+identity:get_security_compliance_domain_config             - GET /v3/domains/{domain_id}/config/security_compliance
+                                                           - GET /v3/domains/{domain_id}/config/security_compliance/{option}
 identity:update_domain_config                              - PATCH /v3/domains/{domain_id}/config
                                                            - PATCH /v3/domains/{domain_id}/config/{group}
                                                            - PATCH /v3/domains/{domain_id}/config/{group}/{option}
