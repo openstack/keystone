@@ -15,16 +15,21 @@
 
 import json
 import os
+import uuid
 
 from oslo_policy import policy as common_policy
 import six
 from testtools import matchers
 
+import keystone.conf
 from keystone import exception
 from keystone.policy.backends import rules
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
+
+
+CONF = keystone.conf.CONF
 
 
 class PolicyFileTestCase(unit.TestCase):
@@ -182,6 +187,30 @@ class PolicyJsonTestCase(unit.TestCase):
         diffs = set(policy_keys).difference(set(expected_policy_keys))
 
         self.assertThat(diffs, matchers.Equals(set()))
+
+    def test_policies_loads(self):
+        action = 'identity:list_projects'
+        target = {'user_id': uuid.uuid4().hex,
+                  'user.domain_id': uuid.uuid4().hex,
+                  'group.domain_id': uuid.uuid4().hex,
+                  'project.domain_id': uuid.uuid4().hex,
+                  'project_id': uuid.uuid4().hex,
+                  'domain_id': uuid.uuid4().hex}
+        credentials = {'username': uuid.uuid4().hex, 'token': uuid.uuid4().hex,
+                       'project_name': None, 'user_id': uuid.uuid4().hex,
+                       'roles': [u'admin'], 'is_admin': True,
+                       'is_admin_project': True, 'project_id': None,
+                       'domain_id': uuid.uuid4().hex}
+
+        standard_policy = unit.dirs.etc('policy.json')
+        enforcer = common_policy.Enforcer(CONF, policy_file=standard_policy)
+        result = enforcer.enforce(action, target, credentials)
+        self.assertTrue(result)
+
+        domain_policy = unit.dirs.etc('policy.v3cloudsample.json')
+        enforcer = common_policy.Enforcer(CONF, policy_file=domain_policy)
+        self.assertRaises(TypeError, enforcer.enforce,
+                          action, target, credentials)
 
     def test_all_targets_documented(self):
         # All the targets in the sample policy file must be documented in
