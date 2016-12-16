@@ -820,7 +820,7 @@ class TestCase(BaseTestCase):
             "%s != %s" % (expected, value))
 
     def assertNotEmpty(self, l):
-        self.assertTrue(len(l))
+        self.assertGreater(len(l), 0)
 
     def assertRaisesRegexp(self, expected_exception, expected_regexp,
                            callable_obj, *args, **kwargs):
