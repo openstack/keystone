@@ -1,0 +1,29 @@
+---
+fixes:
+  - |
+    [`bug 1651989 <https://bugs.launchpad.net/keystone/+bug/1651989>`_]
+    Due to ``bug 1547684``, when using the ``policy.v3cloudsample.json``
+    sample file, a domain admin token was being treated as a cloud admin.
+    Since the ``is_admin_project`` functionality only supports project-
+    scoped tokens, we automatically set any domain scoped token to have
+    the property ``is_admin_project`` to ``False``.
+
+    [`bug 1547684 <https://bugs.launchpad.net/keystone/+bug/1547684>`_]
+    A typo in the ``policy.v3cloudsample.json`` sample file was causing
+    `oslo.policy` to not load the file. See the ``upgrades`` section for
+    more details.
+upgrade:
+  - |
+    [`bug 1547684 <https://bugs.launchpad.net/keystone/+bug/1547684>`_]
+    A minor change to the ``policy.v3cloudsample.json`` sample file was
+    performed so the sample file loads correctly. The ``cloud_admin``
+    rule has changed from::
+
+      "role:admin and (token.is_admin_project:True or domain_id:admin_domain_id)"
+
+    To the properly written::
+
+      "role:admin and (is_admin_project:True or domain_id:admin_domain_id)"
+
+    Adjust configuration tools as necessary, see the ``fixes`` section for more
+    details on this change.
