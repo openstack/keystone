@@ -85,7 +85,7 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
                 self.assertEqual(2, len(ldappool_cm))
                 self.assertTrue(c3.connected)
                 self.assertTrue(c3.active)
-                self.assertTrue(c3 is c2)  # same connection is reused
+                self.assertIs(c3, c2)  # same connection is reused
                 self.assertTrue(c2.active)
                 with _get_conn() as c4:  # conn4
                     self.assertEqual(3, len(ldappool_cm))
