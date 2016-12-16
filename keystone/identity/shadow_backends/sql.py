@@ -105,7 +105,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
                 new_nonlocal_user_dict)
             new_user_ref = model.User.from_dict(new_user_dict)
             new_user_ref.created_at = datetime.datetime.utcnow()
-            new_user_ref.nonlocal_users.append(new_nonlocal_user_ref)
+            new_user_ref.nonlocal_user = new_nonlocal_user_ref
             session.add(new_user_ref)
             return identity_base.filter_user(new_user_ref.to_dict())
 

@@ -42,11 +42,12 @@ class User(sql.ModelBase, sql.DictBase):
                                        lazy='subquery',
                                        cascade='all,delete-orphan',
                                        backref='user')
-    nonlocal_users = orm.relationship('NonLocalUser',
-                                      single_parent=True,
-                                      lazy='subquery',
-                                      cascade='all,delete-orphan',
-                                      backref='user')
+    nonlocal_user = orm.relationship('NonLocalUser',
+                                     uselist=False,
+                                     single_parent=True,
+                                     lazy='subquery',
+                                     cascade='all,delete-orphan',
+                                     backref='user')
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
 
@@ -55,8 +56,8 @@ class User(sql.ModelBase, sql.DictBase):
     def name(self):
         if self.local_user:
             return self.local_user.name
-        elif self.nonlocal_users:
-            return self.nonlocal_users[0].name
+        elif self.nonlocal_user:
+            return self.nonlocal_user.name
         elif self.federated_users:
             return self.federated_users[0].display_name
         else:
@@ -140,8 +141,8 @@ class User(sql.ModelBase, sql.DictBase):
     def domain_id(self):
         if self.local_user:
             return self.local_user.domain_id
-        elif self.nonlocal_users:
-            return self.nonlocal_users[0].domain_id
+        elif self.nonlocal_user:
+            return self.nonlocal_user.domain_id
         else:
             return None
 
@@ -273,7 +274,7 @@ class NonLocalUser(sql.ModelBase, sql.ModelDictMixin):
     domain_id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), primary_key=True)
     user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
-                                                        ondelete='CASCADE'))
+                         ondelete='CASCADE'), unique=True)
 
 
 class Group(sql.ModelBase, sql.DictBase):
