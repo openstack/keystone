@@ -43,7 +43,7 @@ class ExceptionTestCase(unit.BaseTestCase):
         self.assertIsNotNone(j['error'].get('message'))
         self.assertNotIn('\n', j['error']['message'])
         self.assertNotIn('  ', j['error']['message'])
-        self.assertTrue(type(j['error']['code']) is int)
+        self.assertIs(type(j['error']['code']), int)
 
     def test_all_json_renderings(self):
         """Everything callable in the exception module should be renderable.
