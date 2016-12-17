@@ -700,4 +700,4 @@ class TestLoadKeys(unit.TestCase):
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))
-        self.assertTrue(len(keys[0]))
+        self.assertGreater(len(keys[0]), 0)
