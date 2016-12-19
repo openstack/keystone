@@ -69,7 +69,7 @@ details on how and why you might want to tune these options for yourself.
 =================================
 
 This configuration actually lives in the Paste pipelines of services consuming
-token validation from keystone (i.e.: nova, ciner, swift, etc.).
+token validation from keystone (i.e.: nova, cinder, swift, etc.).
 
 * ``cache``: When keystone's `auth_token` middleware is deployed with a
   swift cache, use this option to have `auth_token` middleware share a caching
