@@ -75,7 +75,7 @@ Google Authenticator
 
 On a device install Google Authenticator and inside the app click on 'Set up
 account' and then click on 'Enter provided key'.  In the input fields enter
-account name and secret.  Optionally a QR code can be generated programatically
+account name and secret.  Optionally a QR code can be generated programmatically
 to avoid having to type the information.
 
 QR code
