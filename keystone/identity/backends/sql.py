@@ -180,11 +180,8 @@ class Identity(base.IdentityDriverBase):
         if unique_cnt > 1:
             for password_ref in user_ref.local_user.passwords:
                 if utils.check_password(password, password_ref.password):
-                    detail = _('The new password cannot be identical to a '
-                               'previous password. The number of previous '
-                               'passwords that must be unique is: '
-                               '%(unique_cnt)d') % {'unique_cnt': unique_cnt}
-                    raise exception.PasswordValidationError(detail=detail)
+                    raise exception.PasswordHistoryValidationError(
+                        unique_count=unique_cnt)
 
     def change_password(self, user_id, new_password):
         with sql.session_for_write() as session:

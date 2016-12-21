@@ -97,6 +97,18 @@ class PasswordValidationError(ValidationError):
     message_format = _("Password validation error: %(detail)s")
 
 
+class PasswordRequirementsValidationError(PasswordValidationError):
+    message_format = _("The password does not match the requirements:"
+                       " %(detail)s")
+
+
+class PasswordHistoryValidationError(PasswordValidationError):
+    message_format = _("The new password cannot be identical to a "
+                       "previous password. The number of previous "
+                       "passwords that must be unique is "
+                       "%(unique_count)s")
+
+
 class PasswordAgeValidationError(PasswordValidationError):
     message_format = _("You cannot change your password at this time due "
                        "to the minimum password age. Once you change your "
