@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1642457 <https://bugs.launchpad.net/keystone/+bug/1642457>`_]
+    Handle disk write and IO failures when rotating keys for Fernet tokens.
+    Rather than creating empty keys, properly catch and log errors when
+    unable to write to disk.

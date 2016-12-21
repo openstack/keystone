@@ -100,6 +100,17 @@ class FernetUtils(object):
 
         Create a new key that is readable by the Keystone group and Keystone
         user.
+
+        To avoid disk write failure, this function will create a tmp key file
+        first, and then rename it as the valid new key.
+        """
+        self._create_tmp_new_key(keystone_user_id, keystone_group_id)
+        self._become_valid_new_key()
+
+    def _create_tmp_new_key(self, keystone_user_id, keystone_group_id):
+        """Securely create a new tmp encryption key.
+
+        This created key is not effective until _become_valid_new_key().
         """
         key = fernet.Fernet.generate_key()  # key is bytes
 
@@ -117,11 +128,17 @@ class FernetUtils(object):
                 '%s') %
                 self.key_repository)
         # Determine the file name of the new key
-        key_file = os.path.join(self.key_repository, '0')
+        key_file = os.path.join(self.key_repository, '0.tmp')
+        create_success = False
         try:
             with open(key_file, 'w') as f:
                 # convert key to str for the file.
                 f.write(key.decode('utf-8'))
+                f.flush()
+                create_success = True
+        except IOError:
+            LOG.error(_LE('Failed to create new temporary key: %s'), key_file)
+            raise
         finally:
             # After writing the key, set the umask back to it's original value.
             # Do the same with group and user identifiers if a Keystone group
@@ -130,8 +147,23 @@ class FernetUtils(object):
             if keystone_user_id and keystone_group_id:
                 os.seteuid(old_euid)
                 os.setegid(old_egid)
+            # Deal with the tmp key file
+            if not create_success and os.access(key_file, os.F_OK):
+                os.remove(key_file)
 
-        LOG.info(_LI('Created a new key: %s'), key_file)
+        LOG.info(_LI('Created a new temporary key: %s'), key_file)
+
+    def _become_valid_new_key(self):
+        """Make the tmp new key a valid new key.
+
+        The tmp new key must be created by _create_tmp_new_key().
+        """
+        tmp_key_file = os.path.join(self.key_repository, '0.tmp')
+        valid_key_file = os.path.join(self.key_repository, '0')
+
+        os.rename(tmp_key_file, valid_key_file)
+
+        LOG.info(_LI('Become a valid new key: %s'), valid_key_file)
 
     def initialize_key_repository(self, keystone_user_id=None,
                                   keystone_group_id=None):
@@ -190,6 +222,9 @@ class FernetUtils(object):
             'count': len(key_files),
             'list': list(key_files.values())})
 
+        # add a tmp new key to the rotation, which will be the *next* primary
+        self._create_tmp_new_key(keystone_user_id, keystone_group_id)
+
         # determine the number of the new primary key
         current_primary_key = max(key_files.keys())
         LOG.info(_LI('Current primary key is: %s'), current_primary_key)
@@ -207,8 +242,8 @@ class FernetUtils(object):
             str(new_primary_key))
         LOG.info(_LI('Promoted key 0 to be the primary: %s'), new_primary_key)
 
-        # add a new key to the rotation, which will be the *next* primary
-        self._create_new_key(keystone_user_id, keystone_group_id)
+        # rename the tmp key to the real staged key
+        self._become_valid_new_key()
 
         max_active_keys = self.max_active_keys
 
