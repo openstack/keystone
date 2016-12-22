@@ -289,10 +289,6 @@ class FederatedSetupMixin(object):
                                          group_id=self.group_admins['id'],
                                          project_id=self.project_all['id'])
 
-        self.assignment_api.create_grant(self.role_customer['id'],
-                                         group_id=self.group_customers['id'],
-                                         domain_id=self.domainA['id'])
-
         # Customers can access:
         # * domain A
         self.assignment_api.create_grant(self.role_customer['id'],
