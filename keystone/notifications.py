@@ -492,10 +492,7 @@ class CadfNotificationWrapper(object):
             try:
                 result = f(wrapped_self, request, user_id, *args, **kwargs)
             except (exception.AccountLocked,
-                    exception.PasswordExpired,
-                    exception.PasswordRequirementsValidationError,
-                    exception.PasswordHistoryValidationError,
-                    exception.PasswordAgeValidationError) as ex:
+                    exception.PasswordExpired) as ex:
                 # Send a CADF event with a reason for PCI-DSS related
                 # authentication failures
                 audit_reason = reason.Reason(str(ex), str(ex.code))
