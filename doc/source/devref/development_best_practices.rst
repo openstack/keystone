@@ -158,43 +158,13 @@ found in ``config-generator/keystone.conf``.
 Release Notes
 =============
 
-The release notes for a patch should be included in the patch. If not, the
-release notes should be in a follow-on review.
+The Keystone team uses `reno <http://docs.openstack.org/developer/reno/usage.html>`_
+to generate release notes. These are important user-facing documents that must
+be included when a user-facing change is performed. A release note should be
+included in the same patch the work is being performed.
 
-If the following applies to the patch, a release note is required:
-
-* The deployer needs to take an action when upgrading
-* The backend driver interface changes
-* A new feature is implemented
-* Function was removed (hopefully it was deprecated)
-* Current behavior is changed
-* A new config option is added that the deployer should consider changing from
-  the default
-* A security bug is fixed
-
-A release note is suggested if a long-standing or important bug is fixed.
-Otherwise, a release note is not required.
-
-Keystone uses `reno <http://docs.openstack.org/developer/reno/usage.html>`_ to
-generate release notes. Please read the docs for details. In summary, use
-
-.. code-block:: bash
-
-  $ tox -e venv -- reno new <bug-,bp-,whatever>
-
-Then edit the sample file that was created and push it with your change.
-
-To see the results:
-
-.. code-block:: bash
-
-  $ git commit  # Commit the change because reno scans git log.
-
-  $ tox -e releasenotes
-
-Then look at the generated release notes files in ``releasenotes/build/html`` in
-your favorite browser.
-
+For more information on how and when to create release notes, see the
+`project-team-guide <http://docs.openstack.org/project-team-guide/release-management.html#how-to-add-new-release-notes>`_.
 
 Testing Keystone
 ================
