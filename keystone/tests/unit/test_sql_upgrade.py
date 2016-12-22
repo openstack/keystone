@@ -291,6 +291,24 @@ class SqlMigrateBase(test_base.DbTestCase):
         insert = this_table.insert().values(**d)
         session.execute(insert)
 
+    def does_pk_exist(self, table, pk_column):
+        """Check whether a column is primary key on a table."""
+        inspector = reflection.Inspector.from_engine(self.engine)
+        pk_columns = inspector.get_pk_constraint(table)['constrained_columns']
+
+        return pk_column in pk_columns
+
+    def does_fk_exist(self, table, fk_column):
+        inspector = reflection.Inspector.from_engine(self.engine)
+        for fk in inspector.get_foreign_keys(table):
+            if fk_column in fk['constrained_columns']:
+                return True
+        return False
+
+    def does_constraint_exist(self, table_name, constraint_name):
+        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
+        return constraint_name in [con.name for con in table.constraints]
+
     def does_index_exist(self, table_name, index_name):
         table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         return index_name in [idx.name for idx in table.indexes]
@@ -427,24 +445,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                            assignment['target_id'], assignment['role_id'],
                            assignment['inherited']),
                           assignments)
-
-    def does_pk_exist(self, table, pk_column):
-        """Check whether a column is primary key on a table."""
-        inspector = reflection.Inspector.from_engine(self.engine)
-        pk_columns = inspector.get_pk_constraint(table)['constrained_columns']
-
-        return pk_column in pk_columns
-
-    def does_fk_exist(self, table, fk_column):
-        inspector = reflection.Inspector.from_engine(self.engine)
-        for fk in inspector.get_foreign_keys(table):
-            if fk_column in fk['constrained_columns']:
-                return True
-        return False
-
-    def does_constraint_exist(self, table_name, constraint_name):
-        table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
-        return constraint_name in [con.name for con in table.constraints]
 
     def test_endpoint_policy_upgrade(self):
         self.assertTableDoesNotExist('policy_association')
