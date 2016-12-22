@@ -1,0 +1,9 @@
+---
+features:
+  - The federated mapping engine now supports the ability
+    to automatically provision federated users into projects
+    specified in the mapping rules at federated login time. If the
+    project within the mapping does not exist, it will be
+    automatically created in the domain of the Identity Provider.
+    This behavior can be done using a specific syntax within
+    the ``local`` rules section of a mapping.

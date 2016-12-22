@@ -36,6 +36,20 @@ class UserType(object):
     EPHEMERAL = 'ephemeral'
     LOCAL = 'local'
 
+ROLE_PROPERTIES = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "additionalProperties": False
+        }
+    }
+}
+
 
 MAPPING_SCHEMA = {
     "type": "object",
@@ -71,6 +85,18 @@ MAPPING_SCHEMA = {
                                         }
                                     },
                                     "additionalProperties": False
+                                },
+                                "projects": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": ["name", "roles"],
+                                        "additionalProperties": False,
+                                        "properties": {
+                                            "name": {"type": "string"},
+                                            "roles": ROLE_PROPERTIES
+                                        }
+                                    }
                                 },
                                 "group": {
                                     "type": "object",
