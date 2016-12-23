@@ -1324,10 +1324,9 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         resp, idp_id, proto = self._assign_protocol_to_idp(proto='saml2',
                                                            url=url, **kwargs)
         kwargs = {'expected_status': http_client.CONFLICT}
-        resp, idp_id, proto = self._assign_protocol_to_idp(idp_id=idp_id,
-                                                           proto='saml2',
-                                                           validate=False,
-                                                           url=url, **kwargs)
+        self._assign_protocol_to_idp(
+            idp_id=idp_id, proto='saml2', validate=False, url=url, **kwargs
+        )
 
     def test_assign_protocol_to_nonexistent_idp(self):
         """Assign protocol to IdP that doesn't exist.
