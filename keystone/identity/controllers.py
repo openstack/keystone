@@ -221,7 +221,8 @@ class UserV3(controller.V3Controller):
         )
         return UserV3.wrap_member(request.context_dict, ref)
 
-    @controller.filterprotected('domain_id', 'enabled', 'name')
+    @controller.filterprotected('domain_id', 'enabled', 'idp_id', 'name',
+                                'protocol_id', 'unique_id')
     def list_users(self, request, filters):
         hints = UserV3.build_driver_hints(request, filters)
         domain = self._get_domain_id_for_list_request(request)

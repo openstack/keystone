@@ -466,6 +466,89 @@ class IdentityTests(object):
             self.assertNotIn('password', user_ref)
         self.assertEqual(expected_user_ids, user_ids)
 
+    def _build_hints(self, hints, filters, fed_dict):
+        for key in filters:
+            hints.add_filter(key,
+                             fed_dict[key],
+                             comparator='equals')
+        return hints
+
+    def _test_list_users_with_attribute(self, filters, fed_dict):
+        # Call list_users while no match exists for the federated user
+        hints = driver_hints.Hints()
+        hints = self._build_hints(hints, filters, fed_dict)
+        users = self.identity_api.list_users(hints=hints)
+        self.assertEqual(0, len(users))
+
+        # list_users with a new relational user and federated user
+        hints = self._build_hints(hints, filters, fed_dict)
+        self.shadow_users_api.create_federated_user(fed_dict)
+        users = self.identity_api.list_users(hints=hints)
+        self.assertEqual(1, len(users))
+
+        # create another federated user that shouldnt be matched and ensure
+        # that still only one match is found
+        hints = self._build_hints(hints, filters, fed_dict)
+        fed_dict2 = unit.new_federated_user_ref()
+        fed_dict2['idp_id'] = 'myidp'
+        fed_dict2['protocol_id'] = 'mapped'
+        self.shadow_users_api.create_federated_user(fed_dict2)
+        users = self.identity_api.list_users(hints=hints)
+        self.assertEqual(1, len(users))
+
+        # create another federated user that should also be matched and ensure
+        # that there are now two matches in the users list. Unless there is a
+        # unique id in the filter since unique_ids must be unique and would
+        # therefore cause a duplicate error.
+        hints = self._build_hints(hints, filters, fed_dict)
+        if not any('unique_id' in x['name'] for x in hints.filters):
+            hints = self._build_hints(hints, filters, fed_dict)
+            fed_dict3 = unit.new_federated_user_ref()
+            # check which filters are here and create another match
+            for filters_ in hints.filters:
+                if filters_['name'] == 'idp_id':
+                    fed_dict3['idp_id'] = fed_dict['idp_id']
+                elif filters_['name'] == 'protocol_id':
+                    fed_dict3['protocol_id'] = fed_dict['protocol_id']
+            self.shadow_users_api.create_federated_user(fed_dict3)
+            users = self.identity_api.list_users(hints=hints)
+            self.assertEqual(2, len(users))
+
+    def test_list_users_with_unique_id(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['unique_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
+    def test_list_users_with_idp_id(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['idp_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
+    def test_list_users_with_protocol_id(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['protocol_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
+    def test_list_users_with_unique_id_and_idp_id(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['unique_id', 'idp_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
+    def test_list_users_with_unique_id_and_protocol_id(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['unique_id', 'protocol_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
+    def test_list_users_with_idp_id_protocol_id(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['idp_id', 'protocol_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
+    def test_list_users_with_all_federated_attributes(self):
+        federated_dict = unit.new_federated_user_ref()
+        filters = ['unique_id', 'idp_id', 'protocol_id']
+        self._test_list_users_with_attribute(filters, federated_dict)
+
     def test_list_groups(self):
         group1 = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group2 = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
