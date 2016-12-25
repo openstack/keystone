@@ -828,14 +828,10 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                         expected_status=http_client.CREATED)
         return resp
 
-    def _http_idp_input(self, **kwargs):
-        """Create default input for IdP data."""
-        body = None
-        if 'body' not in kwargs:
-            body = self.default_body.copy()
-            body['description'] = uuid.uuid4().hex
-        else:
-            body = kwargs['body']
+    def _http_idp_input(self):
+        """Create default input dictionary for IdP data."""
+        body = self.default_body.copy()
+        body['description'] = uuid.uuid4().hex
         return body
 
     def _assign_protocol_to_idp(self, idp_id=None, proto=None, url=None,
