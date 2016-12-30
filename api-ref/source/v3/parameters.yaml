@@ -921,12 +921,12 @@ expires_at:
 
     ::
 
-       CCYY-MM-DDThh:mm:ss±hh:mm
+       CCYY-MM-DDThh:mm:ss±hhmm
 
-    For example, ``2015-08-27T09:49:58-05:00``.
+    For example, ``2015-08-27T09:49:58-0500``.
 
-    The ``±hh:mm`` value, if included, is the time zone as an offset
-    from UTC. In the previous example, the offset value is ``-05:00``.
+    The ``±hhmm`` value, if included, is the time zone as an offset
+    from UTC. In the previous example, the offset value is ``-0500``.
 
     A ``null`` value indicates that the token never expires.
   in: body
@@ -1094,12 +1094,12 @@ issued_at:
 
     ::
 
-       CCYY-MM-DDThh:mm:ss±hh:mm
+       CCYY-MM-DDThh:mm:ss±hhmm
 
-    For example, ``2015-08-27T09:49:58-05:00``.
+    For example, ``2015-08-27T09:49:58-0500``.
 
-    The ``±hh:mm`` value, if included, is the time zone as an offset
-    from UTC. In the previous example, the offset value is ``-05:00``.
+    The ``±hhmm`` value, if included, is the time zone as an offset
+    from UTC. In the previous example, the offset value is ``-0500``.
   in: body
   required: true
   type: string
