@@ -72,6 +72,7 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertEqual(
             self.v3_sample_token['token']['OS-TRUST:trust']['trustee_user_id'],
             token_data.trustee_user_id)
+
         # Project Scoped Token
         self.assertRaises(exception.UnexpectedError, getattr, token_data,
                           'domain_id')
@@ -85,12 +86,18 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertTrue(token_data.project_scoped)
         self.assertTrue(token_data.scoped)
         self.assertTrue(token_data.trust_scoped)
+
+        # by default admin project is True for project scoped tokens
+        self.assertTrue(token_data.is_admin_project)
+
         self.assertEqual(
             [r['id'] for r in self.v3_sample_token['token']['roles']],
             token_data.role_ids)
         self.assertEqual(
             [r['name'] for r in self.v3_sample_token['token']['roles']],
             token_data.role_names)
+
+        # Domain Scoped Token
         token_data.pop('project')
         self.assertFalse(token_data.project_scoped)
         self.assertFalse(token_data.scoped)
@@ -119,8 +126,8 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertIsNone(token_data.audit_id)
         self.assertIsNone(token_data.audit_chain_id)
 
-        # by default admin project is True
-        self.assertTrue(token_data.is_admin_project)
+        # by default admin project is False for domain scoped tokens
+        self.assertFalse(token_data.is_admin_project)
 
     def test_token_model_v3_federated_user(self):
         token_data = token_model.KeystoneToken(token_id=uuid.uuid4().hex,

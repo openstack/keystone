@@ -209,8 +209,8 @@ class PolicyJsonTestCase(unit.TestCase):
 
         domain_policy = unit.dirs.etc('policy.v3cloudsample.json')
         enforcer = common_policy.Enforcer(CONF, policy_file=domain_policy)
-        self.assertRaises(TypeError, enforcer.enforce,
-                          action, target, credentials)
+        result = enforcer.enforce(action, target, credentials)
+        self.assertTrue(result)
 
     def test_all_targets_documented(self):
         # All the targets in the sample policy file must be documented in
