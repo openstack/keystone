@@ -16,8 +16,8 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 
-from keystone_tempest_plugin.tests.api.identity import base
 from keystone_tempest_plugin.tests.api.identity.v3 import fixtures
+from keystone_tempest_plugin.tests import base
 
 
 class IndentityProvidersTest(base.BaseIdentityTest):
