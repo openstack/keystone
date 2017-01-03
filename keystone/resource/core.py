@@ -13,7 +13,6 @@
 """Main entry point into the Resource service."""
 
 from oslo_log import log
-from oslo_log import versionutils
 import six
 
 from keystone import assignment
@@ -311,38 +310,6 @@ class Manager(manager.Manager):
                 project['is_domain'] != original_project['is_domain']):
             raise exception.ValidationError(
                 message=_('Update of `is_domain` is not allowed.'))
-
-        update_domain = ('domain_id' in project and
-                         project['domain_id'] != original_project['domain_id'])
-
-        # NOTE(htruta): Even if we are allowing domain_ids to be
-        # modified (i.e. 'domain_id_immutable' is set False),
-        # a project.domain_id can only be updated for root projects
-        # that have no children. The update of domain_id of a project in
-        # the middle of the hierarchy creates an inconsistent project
-        # hierarchy.
-        if update_domain:
-            if original_project['is_domain']:
-                raise exception.ValidationError(
-                    message=_('Update of domain_id of projects acting as '
-                              'domains is not allowed.'))
-            parent_project = (
-                self.driver.get_project(original_project['parent_id']))
-            is_root_project = parent_project['is_domain']
-            if not is_root_project:
-                raise exception.ValidationError(
-                    message=_('Update of domain_id is only allowed for '
-                              'root projects.'))
-            subtree_list = self.list_projects_in_subtree(project_id)
-            if subtree_list:
-                raise exception.ValidationError(
-                    message=_('Cannot update domain_id of a project that '
-                              'has children.'))
-            versionutils.report_deprecated_feature(
-                LOG,
-                _('update of domain_id is deprecated as of Mitaka '
-                  'and will be removed in O.')
-            )
 
         original_project_enabled = original_project.get('enabled', True)
         project_enabled = project.get('enabled', True)

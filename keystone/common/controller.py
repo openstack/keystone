@@ -681,7 +681,7 @@ class V3Controller(wsgi.Application):
         # TODO(henry-nash): It might be safer and more efficient to do this
         # check in the managers affected, so look to migrate this check to
         # there in the future.
-        if CONF.domain_id_immutable and 'domain_id' in ref:
+        if 'domain_id' in ref:
             existing_ref = get_member(ref_id)
             if ref['domain_id'] != existing_ref['domain_id']:
                 raise exception.ValidationError(_('Cannot change Domain ID'))

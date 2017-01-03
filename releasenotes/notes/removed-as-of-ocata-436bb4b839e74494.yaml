@@ -63,3 +63,10 @@ other:
   - >
     Removed the config option ``[os_inherit] enabled`` as the OS-INHERIT
     extension is now always enabled.
+  - >
+    The ``CONF [DEFAULT] domain_id_immutable`` option has been removed.
+    This removes the ability to change the ``domain_id`` attribute of
+    users, groups, and projects. The behavior was introduced to allow
+    deployers to migrate entities from one domain to another by updating
+    the ``domain_id`` attribute of an entity. This functionality was
+    deprecated in the Mitaka release is now removed.

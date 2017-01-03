@@ -16,11 +16,6 @@ from oslo_log import versionutils
 from keystone.conf import utils
 
 
-_DEPRECATE_MUTABLE_DOMAIN_IDS = utils.fmt("""
-The option to set domain_id_immutable to false has been deprecated in the M
-release and will be removed in the O release.
-""")
-
 _DEPRECATE_PROXY_SSL = utils.fmt("""
 This option has been deprecated in the N release and will be removed in the P
 release. Use oslo.middleware.http_proxy_to_wsgi configuration instead.
@@ -147,21 +142,6 @@ to a reasonable number to prevent operations like listing all users and
 projects from placing an unnecessary load on the system.
 """))
 
-domain_id_immutable = cfg.BoolOpt(
-    'domain_id_immutable',
-    default=True,
-    deprecated_for_removal=True,
-    deprecated_reason=_DEPRECATE_MUTABLE_DOMAIN_IDS,
-    deprecated_since=versionutils.deprecated.MITAKA,
-    help=utils.fmt("""
-Set this to false if you want to enable the ability for user, group and project
-entities to be moved between domains by updating their `domain_id` attribute.
-Allowing such movement is not recommended if the scope of a domain admin is
-being restricted by use of an appropriate policy file (see
-`etc/policy.v3cloudsample.json` as an example). This feature is deprecated and
-will be removed in a future release, in favor of strictly immutable domain IDs.
-"""))
-
 strict_password_check = cfg.BoolOpt(
     'strict_password_check',
     default=False,
@@ -244,7 +224,6 @@ ALL_OPTS = [
     member_role_name,
     crypt_strength,
     list_limit,
-    domain_id_immutable,
     strict_password_check,
     secure_proxy_ssl_header,
     insecure_debug,
