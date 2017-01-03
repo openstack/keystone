@@ -3407,8 +3407,8 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
     @mock.patch('saml2.create_class_from_xml_string')
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
     @mock.patch.object(subprocess, 'check_output')
-    def test__sign_assertion(self, check_output_mock,
-                             write_to_tempfile_mock, create_class_mock):
+    def test_sign_assertion(self, check_output_mock,
+                            write_to_tempfile_mock, create_class_mock):
         write_to_tempfile_mock.return_value = 'tmp_path'
         check_output_mock.return_value = 'fakeoutput'
 
@@ -3418,8 +3418,8 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
     @mock.patch.object(subprocess, 'check_output')
-    def test__sign_assertion_exc(self, check_output_mock,
-                                 write_to_tempfile_mock):
+    def test_sign_assertion_exc(self, check_output_mock,
+                                write_to_tempfile_mock):
         # If the command fails the command output is logged.
 
         write_to_tempfile_mock.return_value = 'tmp_path'
@@ -3441,7 +3441,7 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
         self.assertEqual(expected_log, logger_fixture.output)
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
-    def test__sign_assertion_fileutils_exc(self, write_to_tempfile_mock):
+    def test_sign_assertion_fileutils_exc(self, write_to_tempfile_mock):
         exception_msg = 'fake'
         write_to_tempfile_mock.side_effect = Exception(exception_msg)
 
