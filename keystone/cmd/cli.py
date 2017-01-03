@@ -19,6 +19,7 @@ import os
 import sys
 import uuid
 
+import migrate
 from oslo_config import cfg
 from oslo_log import log
 from oslo_log import versionutils
@@ -445,15 +446,66 @@ class DbSync(BaseApp):
                                  'that are no longer required. This command '
                                  'should be run after all keystone nodes are '
                                  'running the new release.'))
+
+        group.add_argument('--check', default=False, action='store_true',
+                           help=('Check for outstanding database actions that '
+                                 'still need to be executed. This command can '
+                                 'be used to verify the condition of the '
+                                 'current database state.'))
         return parser
+
+    @classmethod
+    def check_db_sync_status(self):
+        status = 0
+        expand_version = upgrades.get_db_version(repo='expand_repo')
+        migrate_version = upgrades.get_db_version(
+            repo='data_migration_repo')
+        contract_version = upgrades.get_db_version(repo='contract_repo')
+
+        repo = migrate.versioning.repository.Repository(
+            upgrades.find_repo('expand_repo'))
+        migration_script_version = int(max(repo.versions.versions))
+
+        if (contract_version > migrate_version or migrate_version >
+                expand_version):
+            LOG.info(_LI('Your database is out of sync. For more information '
+                         'refer to https://docs.openstack.org/developer/'
+                         'keystone/upgrading.html'))
+            status = 1
+        elif migration_script_version > expand_version:
+            LOG.info(_LI('Your database is not up to date. Your first step is '
+                         'to run `keystone-manage db_sync --expand`.'))
+            status = 2
+        elif expand_version > migrate_version:
+            LOG.info(_LI('Expand version is ahead of migrate. Your next step '
+                         'is to run `keystone-manage db_sync --migrate`.'))
+            status = 3
+        elif migrate_version > contract_version:
+            LOG.info(_LI('Migrate version is ahead of contract. Your next '
+                         'step is to run `keystone-manage db_sync --contract`.'
+                         ))
+            status = 4
+        elif (migration_script_version == expand_version == migrate_version ==
+                contract_version):
+            LOG.info(_LI('All db_sync commands are upgraded to the same '
+                         'version and up-to-date.'))
+        LOG.info(_LI('The latest installed migration script version is: '
+                     '%(script)d.\nCurrent repository versions:\nExpand: '
+                     '%(expand)d \nMigrate: %(migrate)d\nContract: '
+                     '%(contract)d') % {'script': migration_script_version,
+                                        'expand': expand_version,
+                                        'migrate': migrate_version,
+                                        'contract': contract_version})
+        return status
 
     @staticmethod
     def main():
         assert_not_extension(CONF.command.extension)
-
         # It is possible to run expand and migrate at the same time,
         # expand needs to run first however.
-        if CONF.command.expand and CONF.command.migrate:
+        if CONF.command.check:
+            sys.exit(DbSync.check_db_sync_status())
+        elif CONF.command.expand and CONF.command.migrate:
             upgrades.expand_schema()
             upgrades.migrate_data()
         elif CONF.command.expand:

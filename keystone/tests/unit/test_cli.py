@@ -623,6 +623,7 @@ class CliDBSyncTestCase(unit.BaseTestCase):
     class FakeConfCommand(object):
         def __init__(self, parent):
             self.extension = False
+            self.check = parent.command_check
             self.expand = parent.command_expand
             self.migrate = parent.command_migrate
             self.contract = parent.command_contract
@@ -636,6 +637,7 @@ class CliDBSyncTestCase(unit.BaseTestCase):
         upgrades.expand_schema = mock.Mock()
         upgrades.migrate_data = mock.Mock()
         upgrades.contract_schema = mock.Mock()
+        self.command_check = False
         self.command_expand = False
         self.command_migrate = False
         self.command_contract = False

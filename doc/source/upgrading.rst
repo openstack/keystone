@@ -223,3 +223,27 @@ authenticate requests normally.
 
    When this process completes, the database will no longer be able to support
    the previous release.
+
+Using db_sync check
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to check the current state of your rolling upgrades, you may run the
+command ``keystone-manage db_sync --check``. This will inform you of any
+outstanding actions you have left to take as well as any possible upgrades you
+can make from your current version. Here are a list of possible return codes.
+
+* A return code of ``0`` means you are currently up to date with the latest
+  migration script version and all ``db_sync`` commands are complete.
+
+* A return code of ``1`` generally means something serious is wrong with your
+  database and operator intervention will be required.
+
+* A return code of ``2`` means that an upgrade from your current database
+  version is available and your first step is to run ``keystone-manage
+  db_sync --expand``.
+
+* A return code of ``3`` means that the expansion stage is complete, and the
+  next step is to run ``keystone-manage db_sync --migrate``.
+
+* A return code of ``4`` means that the expansion and data migration stages are
+  complete, and the next step is to run ``keystone-manage db_sync --contract``.

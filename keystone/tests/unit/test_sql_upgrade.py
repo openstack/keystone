@@ -41,16 +41,19 @@ WARNING::
 import json
 import uuid
 
+import fixtures
 import migrate
 from migrate.versioning import repository
 from migrate.versioning import script
 import mock
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import test_base
+from oslo_log import log
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
 from testtools import matchers
 
+from keystone.cmd import cli
 from keystone.common import sql
 from keystone.common.sql import upgrades
 import keystone.conf
@@ -1670,6 +1673,53 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.assertTrue(2, contract)
         self.assertTrue(1, expand)
         self.assertTrue(1, migrate)
+
+    def test_db_sync_check(self):
+        checker = cli.DbSync()
+        latest_version = self.repos[EXPAND_REPO].max_version
+
+        # Assert the correct message is printed when expand is the first step
+        # that needs to run
+        self.expand(1)
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
+        status = checker.check_db_sync_status()
+        self.assertIn("keystone-manage db_sync --expand", log_info.output)
+        self.assertEqual(status, 2)
+
+        # Assert the correct message is printed when expand is farther than
+        # migrate
+        self.expand(latest_version)
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
+        status = checker.check_db_sync_status()
+        self.assertIn("keystone-manage db_sync --migrate", log_info.output)
+        self.assertEqual(status, 3)
+
+        # Assert the correct message is printed when migrate is farther than
+        # contract
+        self.migrate(latest_version)
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
+        status = checker.check_db_sync_status()
+        self.assertIn("keystone-manage db_sync --contract", log_info.output)
+        self.assertEqual(status, 4)
+
+        # Assert the correct message gets printed when all commands are on
+        # the same version
+        self.contract(latest_version)
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
+        status = checker.check_db_sync_status()
+        self.assertIn("All db_sync commands are upgraded", log_info.output)
+        self.assertEqual(status, 0)
+
+    def test_db_sync_check_out_of_sync(self):
+        checker = cli.DbSync()
+        # Assert we alert operator upgrades are out of sync
+        self.expand(3)
+        self.migrate(3)
+        self.contract(4)
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
+        status = checker.check_db_sync_status()
+        self.assertIn("Your database is out of sync", log_info.output)
+        self.assertEqual(status, 1)
 
     def test_migration_002_password_created_at_not_nullable(self):
         # upgrade each repository to 001
