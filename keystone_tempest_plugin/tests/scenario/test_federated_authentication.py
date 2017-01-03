@@ -14,10 +14,9 @@
 
 from lxml import etree
 from six.moves import http_client
-
 from tempest import config
 from tempest.lib.common.utils import data_utils
-from testtools import skipUnless
+import testtools
 
 from keystone_tempest_plugin.tests import base
 
@@ -157,13 +156,13 @@ class TestSaml2EcpFederatedAuthentication(base.BaseIdentityTest):
 
         return resp
 
-    @skipUnless(CONF.identity_feature_enabled.federation,
-                "Federated Identity feature not enabled")
+    @testtools.skipUnless(CONF.identity_feature_enabled.federation,
+                          "Federated Identity feature not enabled")
     def test_request_unscoped_token(self):
         self._request_unscoped_token()
 
-    @skipUnless(CONF.identity_feature_enabled.federation,
-                "Federated Identity feature not enabled")
+    @testtools.skipUnless(CONF.identity_feature_enabled.federation,
+                          "Federated Identity feature not enabled")
     def test_request_scoped_token(self):
         resp = self._request_unscoped_token()
         token_id = resp.headers['X-Subject-Token']
