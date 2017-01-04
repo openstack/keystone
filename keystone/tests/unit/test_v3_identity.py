@@ -767,10 +767,10 @@ class IdentityV3toV2MethodsTestCase(unit.TestCase):
         self.assertDictEqual(self.expected_user_no_tenant_id, self.user4)
 
 
-class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
+class ChangePasswordTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(UserSelfServiceChangingPasswordsTestCase, self).setUp()
+        super(ChangePasswordTestCase, self).setUp()
         self.user_ref = unit.create_user(self.identity_api,
                                          domain_id=self.domain['id'])
         self.token = self.get_request_token(self.user_ref['password'],
@@ -790,6 +790,12 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
                          body={'user': kwargs},
                          token=self.token,
                          expected_status=expected_status)
+
+
+class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
+
+    def setUp(self):
+        super(UserSelfServiceChangingPasswordsTestCase, self).setUp()
 
     def test_changing_password(self):
         # original password works
@@ -888,8 +894,7 @@ class UserSelfServiceChangingPasswordsTestCase(test_v3.RestfulTestCase):
         self.assertNotIn(new_password, log_fix.output)
 
 
-class PasswordValidationTestCase(UserSelfServiceChangingPasswordsTestCase):
-    """Test password validation."""
+class PasswordValidationTestCase(ChangePasswordTestCase):
 
     def setUp(self):
         super(PasswordValidationTestCase, self).setUp()
