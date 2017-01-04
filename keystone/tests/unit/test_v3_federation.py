@@ -2665,9 +2665,11 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         """Ensure user_id is persistend for multiple federated authn calls."""
         r = self._issue_unscoped_token()
         user_id = r.json_body['token']['user']['id']
+        self.assertNotEmpty(self.identity_api.get_user(user_id))
 
         r = self._issue_unscoped_token()
         user_id2 = r.json_body['token']['user']['id']
+        self.assertNotEmpty(self.identity_api.get_user(user_id2))
         self.assertEqual(user_id, user_id2)
 
     def test_user_role_assignment(self):
