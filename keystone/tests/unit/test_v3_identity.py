@@ -18,6 +18,7 @@ import uuid
 import fixtures
 import freezegun
 import mock
+from oslo_db import exception as oslo_db_exception
 from oslo_log import log
 from six.moves import http_client
 from testtools import matchers
@@ -547,6 +548,43 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # But the credential for user2 is unaffected
         r = self.credential_api.get_credential(credential2['id'])
         self.assertDictEqual(credential2, r)
+
+    def test_delete_user_retries_on_deadlock(self):
+        patcher = mock.patch('sqlalchemy.orm.query.Query.delete',
+                             autospec=True)
+
+        class FakeDeadlock(object):
+            def __init__(self, mock_patcher):
+                self.deadlock_count = 2
+                self.mock_patcher = mock_patcher
+                self.patched = True
+
+            def __call__(self, *args, **kwargs):
+                if self.deadlock_count > 1:
+                    self.deadlock_count -= 1
+                else:
+                    self.mock_patcher.stop()
+                    self.patched = False
+                raise oslo_db_exception.DBDeadlock
+
+        sql_delete_mock = patcher.start()
+        side_effect = FakeDeadlock(patcher)
+        sql_delete_mock.side_effect = side_effect
+
+        user_ref = unit.create_user(self.identity_api,
+                                    domain_id=self.domain['id'])
+
+        try:
+            self.identity_api.delete_user(user_id=user_ref['id'])
+        finally:
+            if side_effect.patched:
+                patcher.stop()
+
+        call_count = sql_delete_mock.call_count
+
+        # initial attempt + 1 retry
+        delete_user_attempt_count = 2
+        self.assertEqual(call_count, delete_user_attempt_count)
 
     # group crud tests
 

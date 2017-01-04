@@ -14,6 +14,7 @@
 
 import datetime
 
+from oslo_db import api as oslo_db_api
 import sqlalchemy
 
 from keystone.common import driver_hints
@@ -265,6 +266,7 @@ class Identity(base.IdentityDriverBase):
             query = sql.filter_limit_query(model.User, query, hints)
             return [base.filter_user(u.to_dict()) for u in query]
 
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_user(self, user_id):
         with sql.session_for_write() as session:
             ref = self._get_user(session, user_id)
