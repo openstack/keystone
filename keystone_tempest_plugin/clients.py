@@ -24,8 +24,8 @@ from tempest import clients
 
 class Manager(clients.Manager):
 
-    def __init__(self, credentials, service=None):
-        super(Manager, self).__init__(credentials, service)
+    def __init__(self, credentials):
+        super(Manager, self).__init__(credentials)
 
         self.identity_providers_client = (
             identity_providers_client.IdentityProvidersClient(
