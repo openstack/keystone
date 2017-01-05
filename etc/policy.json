@@ -176,7 +176,7 @@
     "identity:list_projects_for_user": "",
     "identity:list_domains_for_user": "",
 
-    "identity:list_revoke_events": "",
+    "identity:list_revoke_events": "rule:service_or_admin",
 
     "identity:create_policy_association_for_endpoint": "rule:admin_required",
     "identity:check_policy_association_for_endpoint": "rule:admin_required",

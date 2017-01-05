@@ -1,0 +1,19 @@
+---
+fixes:
+  - |
+    [`Bug 1649446 <https://bugs.launchpad.net/keystone/+bug/1651989>`_]
+    The default policy for listing revocation events has changed. Previously,
+    any authenticated user could list revocation events; it is now, by default,
+    an admin or service user only function. This can be changed by modifying
+    the policy file being used by keystone.
+upgrade:
+  - |
+    [`Related to Bug 1649446 <https://bugs.launchpad.net/keystone/+bug/1649446>`_]
+    The ``identity:list_revoke_events`` rule has been changed in both sample
+    policy files, ``policy.json`` and ``policy.v3cloudsample.json``. From::
+
+      "identity:list_revoke_events": ""
+
+    To::
+
+      "identity:list_revoke_events": "rule:service_or_admin"
