@@ -56,7 +56,7 @@ class IdentityProvider(_ControllerBase):
     member_name = 'identity_provider'
 
     _public_parameters = frozenset(['id', 'enabled', 'description',
-                                    'remote_ids', 'links'
+                                    'remote_ids', 'links', 'domain_id'
                                     ])
 
     @classmethod

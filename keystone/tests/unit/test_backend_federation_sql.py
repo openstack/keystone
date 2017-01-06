@@ -21,6 +21,7 @@ class SqlFederation(test_backend_sql.SqlModels):
 
     def test_identity_provider(self):
         cols = (('id', sql.String, 64),
+                ('domain_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
                 ('description', sql.Text, None))
         self.assertExpectedSchema('identity_provider', cols)

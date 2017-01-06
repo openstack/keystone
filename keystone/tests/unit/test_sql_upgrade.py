@@ -48,6 +48,7 @@ from keystone.common import sql
 from keystone.common.sql import upgrades
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
+from keystone.resource.backends import base as resource_base
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
@@ -1836,6 +1837,72 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.migrate(11)
         self.contract(11)
         self.assertTrue(self.does_unique_constraint_exist(table_name, column))
+
+    def test_migration_012_add_domain_id_to_idp(self):
+        def _create_domain():
+            domain_id = uuid.uuid4().hex
+            domain = {
+                'id': domain_id,
+                'name': domain_id,
+                'enabled': True,
+                'description': uuid.uuid4().hex,
+                'domain_id': resource_base.NULL_DOMAIN_ID,
+                'is_domain': True,
+                'parent_id': None,
+                'extra': '{}'
+            }
+            self.insert_dict(session, 'project', domain)
+            return domain_id
+
+        def _get_new_idp(domain_id):
+            new_idp = {'id': uuid.uuid4().hex,
+                       'domain_id': domain_id,
+                       'enabled': True,
+                       'description': uuid.uuid4().hex}
+            return new_idp
+
+        session = self.sessionmaker()
+        idp_name = 'identity_provider'
+        self.expand(11)
+        self.migrate(11)
+        self.contract(11)
+        self.assertTableColumns(idp_name,
+                                ['id',
+                                 'enabled',
+                                 'description'])
+        # add some data
+        for i in range(5):
+            idp = {'id': uuid.uuid4().hex,
+                   'enabled': True,
+                   'description': uuid.uuid4().hex}
+            self.insert_dict(session, idp_name, idp)
+
+        # upgrade
+        self.expand(12)
+        self.assertTableColumns(idp_name,
+                                ['id',
+                                 'domain_id',
+                                 'enabled',
+                                 'description'])
+
+        # confirm we cannot insert an idp during expand
+        domain_id = _create_domain()
+        new_idp = _get_new_idp(domain_id)
+        self.assertRaises(db_exception.DBError, self.insert_dict, session,
+                          idp_name, new_idp)
+
+        # confirm we cannot insert an idp during migrate
+        self.migrate(12)
+        self.assertRaises(db_exception.DBError, self.insert_dict, session,
+                          idp_name, new_idp)
+
+        # confirm we can insert a new idp after contract
+        self.contract(12)
+        self.insert_dict(session, idp_name, new_idp)
+
+        # confirm domain_id column is not null
+        idp_table = sqlalchemy.Table(idp_name, self.metadata, autoload=True)
+        self.assertFalse(idp_table.c.domain_id.nullable)
 
 
 class MySQLOpportunisticFullMigration(FullMigration):

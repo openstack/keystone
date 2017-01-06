@@ -12,6 +12,8 @@
 
 """Main entry point into the Federation service."""
 
+import uuid
+
 from keystone.common import cache
 from keystone.common import dependency
 from keystone.common import extension
@@ -43,6 +45,7 @@ extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 
 @dependency.provider('federation_api')
+@dependency.requires('resource_api')
 class Manager(manager.Manager):
     """Default pivot point for the Federation backend.
 
@@ -55,6 +58,29 @@ class Manager(manager.Manager):
 
     def __init__(self):
         super(Manager, self).__init__(CONF.federation.driver)
+
+    def create_idp(self, idp_id, idp):
+        if not idp.get('domain_id'):
+            idp['domain_id'] = self._create_idp_domain(idp_id)
+        else:
+            self._assert_valid_domain_id(idp['domain_id'])
+        return self.driver.create_idp(idp_id, idp)
+
+    def _create_idp_domain(self, idp_id):
+        domain_id = uuid.uuid4().hex
+        desc = 'Auto generated federated domain for Identity Provider: '
+        desc += idp_id
+        domain = {
+            'id': domain_id,
+            'name': domain_id,
+            'description': desc,
+            'enabled': True
+        }
+        self.resource_api.create_domain(domain['id'], domain)
+        return domain_id
+
+    def _assert_valid_domain_id(self, domain_id):
+        self.resource_api.get_domain(domain_id)
 
     @MEMOIZE
     def get_enabled_service_providers(self):
