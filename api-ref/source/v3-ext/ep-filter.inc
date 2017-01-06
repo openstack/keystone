@@ -209,12 +209,19 @@ Status: 200 OK
 .. literalinclude:: samples/OS-EP-FILTER/endpoint-groups-response.json
    :language: javascript
 
+Project and Endpoint Associations
+---------------------------------
+
+As previously noted, projects can be associated with endpoints either directly
+or by using endpoint groups. The following API calls describe how to associate
+a project to a single endpoint and an endpoint group.
+
 Create Association
 ==================
 
 .. rest_method:: PUT /v3/OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
-Creates an association between ``project_id`` and ``endpoint_id``.
+Creates a direct association between ``project_id`` and ``endpoint_id``.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
@@ -266,7 +273,7 @@ Delete Association
 
 .. rest_method:: DELETE /v3/OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}
 
-Removes the association between ``project_id`` and ``endpoint_id``.
+Removes a direct association between ``project_id`` and ``endpoint_id``.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
@@ -287,12 +294,12 @@ Response
 
 Status: 204 No Content
 
-List Associations for Project
+List Associations by Project
 =============================
 
 .. rest_method:: GET /v3/OS-EP-FILTER/projects/{project_id}/endpoints
 
-Returns all the endpoints that are currently associated with ``project_id``.
+Returns all endpoints that are currently associated with ``project_id``.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoints``
 
@@ -312,11 +319,11 @@ Response
 
 Status: 200 OK
 
-.. literalinclude:: samples/OS-EP-FILTER/list-endpoints-response.json
+.. literalinclude:: samples/OS-EP-FILTER/list-associations-by-project-response.json
    :language: javascript
 
-Get projects associated with endpoint
-=====================================
+List Associations by Endpoint
+=============================
 
 .. rest_method:: GET /v3/OS-EP-FILTER/endpoints/{endpoint_id}/projects
 
@@ -340,15 +347,23 @@ Response
 
 Status: 200 OK
 
-.. literalinclude:: samples/OS-EP-FILTER/get-projects-response.json
+.. literalinclude:: samples/OS-EP-FILTER/list-associations-by-endpoint-response.json
    :language: javascript
+
+Project and Endpoint Group Associations
+---------------------------------------
+
+Projects can be associated to muliple endpoints by being associated to a single
+endpoint group. All endpoints that match the filter in the endpoint group will
+be associated with the project. The following API calls describe how to
+associate a project to an endpoint group.
 
 Create Endpoint Group to Project Association
 ============================================
 
 .. rest_method:: PUT /v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}/projects/{project_id}
 
-Creates an associate between ``endpoint_group_id`` and ``project_id``.
+Creates an association between ``endpoint_group_id`` and ``project_id``.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
@@ -475,7 +490,7 @@ Response
 
 Status: 200 OK
 
-.. literalinclude:: samples/OS-EP-FILTER/get-projects-response.json
+.. literalinclude:: samples/OS-EP-FILTER/list-associations-by-endpoint-response.json
    :language: javascript
 
 List Endpoints Associated with Endpoint Group
@@ -511,7 +526,7 @@ List Endpoint Groups Associated with Project
 
 .. rest_method:: GET /v3/OS-EP-FILTER/projects/{project_id}/endpoint_groups
 
-Returns all the endpoints that are currently associated with ``project_id``.
+Returns all the endpoint groups that are currently associated with ``project_id``.
 
 Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint_groups``
 
