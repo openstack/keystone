@@ -2,7 +2,7 @@
     "endpoint_group": {
         "description": "endpoint group description",
         "filters": {
-            "interface": "admin",
+            "interface": "public",
             "service_id": "1b501a"
         },
         "id": "ac4861",
