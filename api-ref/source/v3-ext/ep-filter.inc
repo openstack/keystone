@@ -127,7 +127,6 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id_path
-   - endpoint_id: endpoint_id_path
 
 Response
 --------
