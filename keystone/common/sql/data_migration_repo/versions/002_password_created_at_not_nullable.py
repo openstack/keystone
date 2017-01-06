@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# A null initial migration to open this repo. Do not re-use replace this with
-# a real migration, add additional ones in subsequent version scripts.
-
 
 def upgrade(migrate_engine):
     pass
