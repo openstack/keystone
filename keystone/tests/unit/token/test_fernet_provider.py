@@ -683,6 +683,11 @@ class TestFernetKeyRotation(unit.TestCase):
 
 
 class TestLoadKeys(unit.TestCase):
+
+    def assertValidFernetKey(self, keys):
+        self.assertGreater(len(keys[0]), 0)
+        self.assertIsInstance(keys[0], str)
+
     def test_non_numeric_files(self):
         self.useFixture(
             ksfixtures.KeyRepository(
@@ -700,4 +705,4 @@ class TestLoadKeys(unit.TestCase):
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))
-        self.assertGreater(len(keys[0]), 0)
+        self.assertValidFernetKey(keys)
