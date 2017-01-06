@@ -112,12 +112,12 @@ Paginated collections
 To reduce load on the service, list operations return a maximum number
 of items at a time. The maximum number of items returned is determined
 by the Identity provider. To navigate the collection, you can set the
-*``limit``* and *``marker``* parameters in the URI. For example,
-?\ *``limit``*\ =100&\ *``marker``*\ =1234. The *``marker``* parameter
+``limit`` and ``marker`` parameters in the URI. For example,
+``?limit=100&marker=1234``. The ``marker`` parameter
 is the ID of the last item in the previous list. Items are sorted by
 update time. When an update time is not available they are sorted by ID.
-The *``limit``* parameter sets the page size. Both parameters are
-optional. If the client requests a *``limit``* beyond that which is
+The ``limit`` parameter sets the page size. Both parameters are
+optional. If the client requests a ``limit`` beyond that which is
 supported by the deployment a ``413`` response code may be thrown. A
 marker with an invalid ID returns a ``404`` response code.
 
@@ -126,16 +126,16 @@ marker with an invalid ID returns a ``404`` response code.
     Paginated collections will never return a ``404`` error when the
     collection is empty - clients should expect an empty collection.
 
-For convenience, collections contain atom "next" and "previous" links.
+For convenience, collections contain atom ``next`` and ``previous`` links.
 The first page in the list does not contain a ``previous`` link, the
 last page in the list does not contain a ``next`` link. The following
 examples illustrate three pages in a collection of tenants. The first
 page was retrieved through a **GET** to
 ``http://identity.api.openstack.org/v2.0/1234/tenants?limit=1``. In
-these examples, the *``limit``* parameter sets the page size to a single
+these examples, the ``limit`` parameter sets the page size to a single
 item. Subsequent ``next`` and ``previous`` links honor the initial page
 size. Thus, a client might follow links to traverse a paginated
-collection without having to input the *``marker``* parameter.
+collection without having to input the ``marker`` parameter.
 
 **Example: Tenant collection, first page:**
 
@@ -215,7 +215,7 @@ collections. Links are accessed via the links property. The approach allows for
 extensibility of both the collection members and of the paginated collection
 itself. It also allows collections to be embedded in other objects as
 illustrated below.  Here, a subset of groups are presented within a user.
-Clients must follow the "next" link to continue to retrieve additional groups
+Clients must follow the ``next`` link to continue to retrieve additional groups
 belonging to a user.
 
 **Example: Paginated roles in user:**
