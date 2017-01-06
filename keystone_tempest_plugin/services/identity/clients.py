@@ -14,6 +14,7 @@
 
 import json
 
+import six
 from six.moves import http_client
 from tempest import config
 from tempest.lib.common import rest_client
@@ -59,19 +60,19 @@ class Federation(Identity):
         url = self._build_path(entity_id)
         resp, body = super(Federation, self).get(url, **kwargs)
         self.expected_success(http_client.OK, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
 
     def _patch(self, entity_id, body, **kwargs):
         url = self._build_path(entity_id)
         resp, body = super(Federation, self).patch(url, body, **kwargs)
         self.expected_success(http_client.OK, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
 
     def _put(self, entity_id, body, **kwargs):
         url = self._build_path(entity_id)
         resp, body = super(Federation, self).put(url, body, **kwargs)
         self.expected_success(http_client.CREATED, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)

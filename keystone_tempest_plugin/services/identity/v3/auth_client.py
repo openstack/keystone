@@ -14,6 +14,7 @@
 
 import json
 
+import six
 from tempest.lib.common import rest_client
 
 from keystone_tempest_plugin.services.identity import clients
@@ -25,7 +26,7 @@ class AuthClient(clients.Identity):
         resp, body = self.raw_request(
             url, 'GET', headers={'X-Auth-Token': token_id})
         self.expected_success(200, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
 
     def get_available_projects_scopes(self, keystone_v3_endpoint, token_id):

@@ -428,6 +428,8 @@ class DomainScopedPayload(BasePayload):
             domain_id = cls.convert_uuid_bytes_to_hex(payload[2])
         except ValueError:
             # the default domain ID is configurable, and probably isn't a UUID
+            if six.PY3 and isinstance(payload[2], six.binary_type):
+                payload[2] = payload[2].decode('utf-8')
             if payload[2] == CONF.identity.default_domain_id:
                 domain_id = payload[2]
             else:

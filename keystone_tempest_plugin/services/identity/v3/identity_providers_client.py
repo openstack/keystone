@@ -14,6 +14,7 @@
 
 import json
 
+import six
 from tempest.lib.common import rest_client
 
 from keystone_tempest_plugin.services.identity import clients
@@ -62,7 +63,7 @@ class IdentityProvidersClient(clients.Federation):
             self._build_path(entity_id=idp_id), 'protocols', protocol_id)
         resp, body = self.put(url, put_body)
         self.expected_success(201, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
 
     def delete_protocol_and_mapping(self, idp_id, protocol_id):
@@ -79,7 +80,7 @@ class IdentityProvidersClient(clients.Federation):
             self._build_path(entity_id=idp_id), 'protocols', protocol_id)
         resp, body = self.get(url)
         self.expected_success(200, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
 
     def list_protocols_and_mappings(self, idp_id):
@@ -87,7 +88,7 @@ class IdentityProvidersClient(clients.Federation):
         url = '%s/%s' % (self._build_path(entity_id=idp_id), 'protocols')
         resp, body = self.get(url)
         self.expected_success(200, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
 
     def update_protocol_mapping(self, idp_id, protocol_id, mapping_id):
@@ -97,5 +98,5 @@ class IdentityProvidersClient(clients.Federation):
             self._build_path(entity_id=idp_id), 'protocols', protocol_id)
         resp, body = self.patch(url, patch_body)
         self.expected_success(200, resp.status)
-        body = json.loads(body)
+        body = json.loads(body if six.PY2 else body.decode('utf-8'))
         return rest_client.ResponseBody(resp, body)
