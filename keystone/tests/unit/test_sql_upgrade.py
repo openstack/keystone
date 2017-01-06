@@ -190,7 +190,7 @@ class SqlMigrateBase(test_base.DbTestCase):
         super(SqlMigrateBase, self).setUp()
 
         # NOTE(dstanek): Clear out sqlalchemy-migrate's script cache to allow
-        # us to have multiple repos (expand, migrate, contrate) where the
+        # us to have multiple repos (expand, migrate, contract) where the
         # modules have the same name (001_awesome.py).
         self.addCleanup(script.PythonScript.clear)
 
