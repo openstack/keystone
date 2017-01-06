@@ -16,8 +16,8 @@ Endpoint Group
 --------------
 
 Represents a dynamic collection of service endpoints having the same
-characteristics, such as ``service_id``, ``interface``, or ``region``. Indeed,
-any endpoint attribute could be used as part of a filter.
+characteristics, such as ``service_id``, ``interface``, or ``region_id``.
+Indeed, any endpoint attribute could be used as part of a filter.
 
 A classic use case is to filter endpoints based on region. For example, suppose
 a user wants to filter service endpoints returned in the service catalog by
@@ -28,7 +28,7 @@ region, the following endpoint group may be used:
 
 This implies an Endpoint Group with filtering criteria of::
 
-  ``region_id = "1b501"``
+  region_id = "1b501"
 
 Create Association
 ==================
