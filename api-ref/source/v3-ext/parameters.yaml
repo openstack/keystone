@@ -135,7 +135,7 @@ eg_filters:
   type: object
 eg_name:
   description: |
-    User-facing name of the service.
+    The name of the endpoint group.
   in: body
   required: true
   type: string
