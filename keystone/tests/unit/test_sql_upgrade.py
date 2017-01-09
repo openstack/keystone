@@ -16,12 +16,19 @@ Test for SQL migration extensions.
 
 To run these tests against a live database:
 
-1. Modify the file ``keystone/tests/unit/config_files/backend_sql.conf`` to use
-   the connection for your live database.
-2. Set up a blank, live database
+1. Set up a blank, live database.
+2. Export database information to environment variable
+   ``OS_TEST_DBAPI_ADMIN_CONNECTION``. For example::
+
+    export OS_TEST_DBAPI_ADMIN_CONNECTION=postgresql://localhost/postgres?host=
+    /var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmpMGqN8C&port=9824
+
 3. Run the tests using::
 
     tox -e py27 -- keystone.tests.unit.test_sql_upgrade
+
+For further information, see `oslo.db documentation
+<http://docs.openstack.org/developer/oslo.db/contributing.html#how-to-run-unit-tests>`_.
 
 WARNING::
 
