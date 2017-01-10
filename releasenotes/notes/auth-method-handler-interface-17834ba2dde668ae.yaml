@@ -1,0 +1,17 @@
+---
+other:
+  - >
+    The signature on the ``authenticate`` method of
+    ``keystone.auth.plugins.base.AuthMethodHandler`` has been updated.
+
+    Third-party extensions that extend the abstract class
+    (``AuthMethodHandler``) should update their code according to the new
+    parameter names.
+
+    The method signature has changed from::
+
+      authenticate(self, context, auth_payload, auth_context)
+
+    to::
+
+      authenticate(self, request, auth_payload, auth_context)

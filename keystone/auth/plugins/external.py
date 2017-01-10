@@ -30,7 +30,7 @@ CONF = keystone.conf.CONF
 
 @six.add_metaclass(abc.ABCMeta)
 class Base(base.AuthMethodHandler):
-    def authenticate(self, request, auth_info, auth_context):
+    def authenticate(self, request, auth_payload, auth_context):
         """Use REMOTE_USER to look up the user in the identity backend.
 
         auth_context is an in-out variable that will be updated with the
