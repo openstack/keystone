@@ -605,6 +605,24 @@ class IdentityTestPolicySample(test_v3.RestfulTestCase):
         self.delete('/auth/tokens', token=admin_token,
                     headers={'X-Subject-Token': user_token})
 
+    def test_list_revoke_events_is_protected(self):
+        # An admin can list revoke events, a regular user cannot
+        # This is GET /v3/OS-REVOKE/events
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.admin_user['id'],
+            password=self.admin_user['password'],
+            project_id=self.project['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.get('/OS-REVOKE/events', token=admin_token)
+        self.get('/OS-REVOKE/events', token=user_token, expected_status=403)
+
 
 class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
                                       test_v3.AssignmentTestMixin):
@@ -1777,6 +1795,24 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         self.delete('/auth/tokens', token=admin_token,
                     headers={'X-Subject-Token': user_token})
+
+    def test_list_revoke_events_is_protected(self):
+        # An admin can list revoke events, a regular user cannot
+        # This is GET /v3/OS-REVOKE/events
+
+        admin_auth = self.build_authentication_request(
+            user_id=self.cloud_admin_user['id'],
+            password=self.cloud_admin_user['password'],
+            project_id=self.admin_project['id'])
+        admin_token = self.get_requested_token(admin_auth)
+
+        user_auth = self.build_authentication_request(
+            user_id=self.just_a_user['id'],
+            password=self.just_a_user['password'])
+        user_token = self.get_requested_token(user_auth)
+
+        self.get('/OS-REVOKE/events', token=admin_token)
+        self.get('/OS-REVOKE/events', token=user_token, expected_status=403)
 
     def test_user_with_a_role_get_project(self):
         user_auth = self.build_authentication_request(
