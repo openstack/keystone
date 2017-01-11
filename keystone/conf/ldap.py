@@ -483,6 +483,15 @@ always be requested but not required from the LDAP server. If set to `never`,
 then a certificate will never be requested.
 """))
 
+connection_timeout = cfg.IntOpt(
+    'connection_timeout',
+    default=-1,
+    min=-1,
+    help=utils.fmt("""
+The connection timeout to use with the LDAP server. A value of `-1` means that
+connections will never timeout.
+"""))
+
 use_pool = cfg.BoolOpt(
     'use_pool',
     default=True,
@@ -523,9 +532,9 @@ pool_connection_timeout = cfg.IntOpt(
     default=-1,
     min=-1,
     help=utils.fmt("""
-The connection timeout to use with the LDAP server. A value of `-1` means that
-connections will never timeout. This option has no effect unless `[ldap]
-use_pool` is also enabled.
+The connection timeout to use when pooling LDAP connections. A value of `-1`
+means that connections will never timeout. This option has no effect unless
+`[ldap] use_pool` is also enabled.
 """))
 
 pool_connection_lifetime = cfg.IntOpt(
@@ -621,6 +630,7 @@ ALL_OPTS = [
     tls_cacertdir,
     use_tls,
     tls_req_cert,
+    connection_timeout,
     use_pool,
     pool_size,
     pool_retry_max,

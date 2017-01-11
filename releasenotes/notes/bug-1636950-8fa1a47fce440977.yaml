@@ -1,0 +1,10 @@
+---
+fixes:
+  - >
+    [`bug 1636950 <https://bugs.launchpad.net/keystone/+bug/1636950>`_]
+    New option ``[ldap] connection_timeout`` allows a deployer to set a
+    ``OPT_NETWORK_TIMEOUT`` value to use with the LDAP server.
+    This allows the LDAP server to return a ``SERVER_DOWN`` exception,
+    if the LDAP URL is incorrect if there is a connection failure. By default,
+    the value for ``[ldap] connection_timeout`` is -1, meaning it is disabled.
+    Set a postive value (in seconds) to enable the option.

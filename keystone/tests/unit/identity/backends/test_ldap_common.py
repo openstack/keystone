@@ -298,6 +298,59 @@ class MultiURLTests(unit.TestCase):
         self.assertEqual(urls, ldap_connection.conn.conn_pool.uri)
 
 
+class LDAPConnectionTimeoutTest(unit.TestCase):
+    """Test for Network Connection timeout on LDAP URL connection."""
+
+    def test_connectivity_timeout_no_conn_pool(self):
+        url = 'ldap://localhost'
+        conn_timeout = 1  # 1 second
+        self.config_fixture.config(group='ldap',
+                                   url=url,
+                                   connection_timeout=conn_timeout,
+                                   use_pool=False)
+        base_ldap = common_ldap.BaseLdap(CONF)
+        ldap_connection = base_ldap.get_connection()
+        self.assertIsInstance(ldap_connection.conn,
+                              common_ldap.PythonLDAPHandler)
+
+        # Ensure that the Network Timeout option is set.
+        # Also ensure that the URL is set.
+        #
+        # We will not verify if an LDAP bind returns the timeout
+        # exception as that would fall under the realm of
+        # integration testing. If the LDAP option is set properly,
+        # and we get back a valid connection URI then that should
+        # suffice for this unit test.
+        self.assertEqual(conn_timeout,
+                         ldap.get_option(ldap.OPT_NETWORK_TIMEOUT))
+        self.assertEqual(url, ldap_connection.conn.conn._uri)
+
+    def test_connectivity_timeout_with_conn_pool(self):
+        url = 'ldap://localhost'
+        conn_timeout = 1  # 1 second
+        self.config_fixture.config(group='ldap',
+                                   url=url,
+                                   pool_connection_timeout=conn_timeout,
+                                   use_pool=True,
+                                   pool_retry_max=1)
+        base_ldap = common_ldap.BaseLdap(CONF)
+        ldap_connection = base_ldap.get_connection()
+        self.assertIsInstance(ldap_connection.conn,
+                              common_ldap.PooledLDAPHandler)
+
+        # Ensure that the Network Timeout option is set.
+        # Also ensure that the URL is set.
+        #
+        # We will not verify if an LDAP bind returns the timeout
+        # exception as that would fall under the realm of
+        # integration testing. If the LDAP option is set properly,
+        # and we get back a valid connection URI then that should
+        # suffice for this unit test.
+        self.assertEqual(conn_timeout,
+                         ldap.get_option(ldap.OPT_NETWORK_TIMEOUT))
+        self.assertEqual(url, ldap_connection.conn.conn_pool.uri)
+
+
 class SslTlsTest(unit.BaseTestCase):
     """Test for the SSL/TLS functionality in keystone.common.ldap.core."""
 

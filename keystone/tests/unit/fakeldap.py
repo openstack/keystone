@@ -244,7 +244,8 @@ class FakeLdap(common.LDAPHandler):
                 tls_req_cert='demand', chase_referrals=None, debug_level=None,
                 use_pool=None, pool_size=None, pool_retry_max=None,
                 pool_retry_delay=None, pool_conn_timeout=None,
-                pool_conn_lifetime=None):
+                pool_conn_lifetime=None,
+                conn_timeout=None):
         if url.startswith('fake://memory'):
             if url not in FakeShelves:
                 FakeShelves[url] = FakeShelve()
@@ -278,6 +279,7 @@ class FakeLdap(common.LDAPHandler):
         self.pool_retry_delay = pool_retry_delay
         self.pool_conn_timeout = pool_conn_timeout
         self.pool_conn_lifetime = pool_conn_lifetime
+        self.conn_timeout = conn_timeout
 
     def dn(self, dn):
         return common.utf8_decode(dn)

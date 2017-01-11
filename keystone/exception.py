@@ -571,3 +571,10 @@ class TokenlessAuthConfigError(ValidationError):
 class CredentialEncryptionError(Exception):
     message_format = _("An unexpected error prevented the server "
                        "from accessing encrypted credentials.")
+
+
+class LDAPServerConnectionError(Error):
+    message_format = _('Timed out waiting to establish a '
+                       'connection to the LDAP Server (%(url)s).')
+    code = 504
+    title = 'Gateway Timeout'
