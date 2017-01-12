@@ -22,6 +22,7 @@ from oslo_utils import timeutils
 import six
 from six.moves import urllib
 
+from keystone import auth
 from keystone.common import fernet_utils
 from keystone.common import utils
 import keystone.conf
@@ -138,13 +139,14 @@ class TestValidate(unit.TestCase):
         group_ids = [uuid.uuid4().hex, ]
         identity_provider = uuid.uuid4().hex
         protocol = uuid.uuid4().hex
-        auth_context = {
+        auth_context_params = {
             'user_id': user_ref['id'],
             'user_name': user_ref['name'],
             'group_ids': group_ids,
             federation_constants.IDENTITY_PROVIDER: identity_provider,
             federation_constants.PROTOCOL: protocol,
         }
+        auth_context = auth.controllers.AuthContext(**auth_context_params)
         token_id, token_data_ = self.token_provider_api.issue_token(
             user_ref['id'], method_names, auth_context=auth_context)
 

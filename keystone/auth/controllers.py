@@ -31,7 +31,7 @@ from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.federation import constants
-from keystone.i18n import _, _LI, _LW
+from keystone.i18n import _, _LI, _LW, _LE
 from keystone.resource import controllers as resource_controllers
 
 
@@ -522,6 +522,20 @@ class Auth(controller.V3Controller):
 
     def authenticate(self, request, auth_info, auth_context):
         """Authenticate user."""
+        # NOTE(notmorgan): This is not super pythonic, but we lean on the
+        # __setitem__ method in auth_context to handle edge cases and security
+        # of the attributes set by the plugins. This check to ensure
+        # `auth_context` is an instance of AuthContext is extra insurance and
+        # will prevent regressions.
+        if not isinstance(auth_context, AuthContext):
+            LOG.error(
+                _LE('`auth_context` passed to the Auth controller '
+                    '`authenticate` method is not of type '
+                    '`keystone.auth.controllers.AuthContext`. For security '
+                    'purposes this is required. This is likely a programming '
+                    'error. Received object of type `%s`'), type(auth_context))
+            raise exception.Unauthorized(
+                _('Cannot Authenticate due to internal error.'))
         # The 'external' method allows any 'REMOTE_USER' based authentication
         # In some cases the server can set REMOTE_USER as '' instead of
         # dropping it, so this must be filtered out

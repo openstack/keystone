@@ -2133,7 +2133,7 @@ class TokenAPITests(object):
         auth_data['identity']['external'] = {}
         api = auth.controllers.Auth()
         auth_info = auth.controllers.AuthInfo(auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        auth_context = auth.controllers.AuthContext(extras={}, methods=[])
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
                           self.make_request(),
