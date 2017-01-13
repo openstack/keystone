@@ -3007,6 +3007,21 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             self.assertNotIn(project['id'], user_project_ids)
             user_project_ids.append(project['id'])
 
+    def test_delete_protocol_after_federated_authentication(self):
+        # Create a protocol
+        protocol = self.proto_ref(mapping_id=self.mapping['id'])
+        self.federation_api.create_protocol(
+            self.IDP, protocol['id'], protocol)
+
+        # Authenticate to create a new federated_user entry with a foreign
+        # key pointing to the protocol
+        r = self._issue_unscoped_token()
+        user_id = r.json_body['token']['user']['id']
+        self.assertNotEmpty(self.identity_api.get_user(user_id))
+
+        # Now we should be able to delete the protocol
+        self.federation_api.delete_protocol(self.IDP, protocol['id'])
+
     def _authenticate_via_saml(self):
         r = self._issue_unscoped_token()
         unscoped_token = r.headers['X-Subject-Token']
