@@ -1613,7 +1613,7 @@ class VersionTests(SqlMigrateBase):
 
         For more information, see "Database Migrations" here:
 
-            http://docs.openstack.org/developer/keystone/developing.html
+            http://docs.openstack.org/developer/keystone/devref/development_best_practices.html#database-migrations
 
         """
         # Note to reviewers: this version number should never change.
@@ -1636,7 +1636,7 @@ class VersionTests(SqlMigrateBase):
 
         For more information, see "Database Migrations" here:
 
-            http://docs.openstack.org/developer/keystone/developing.html
+            http://docs.openstack.org/developer/keystone/devref/development_best_practices.html#database-migrations
 
         """
         # Transitive comparison: expand == data migration == contract
