@@ -80,8 +80,8 @@ class Error(Exception):
 
 
 class ValidationError(Error):
-    message_format = _("Expecting to find %(attribute)s in %(target)s -"
-                       " the server could not comply with the request"
+    message_format = _("Expecting to find %(attribute)s in %(target)s."
+                       " The server could not comply with the request"
                        " since it is either malformed or otherwise"
                        " incorrect. The client is assumed to be in error.")
     code = 400
@@ -90,23 +90,23 @@ class ValidationError(Error):
 
 class URLValidationError(ValidationError):
     message_format = _("Cannot create an endpoint with an invalid URL:"
-                       " %(url)s")
+                       " %(url)s.")
 
 
 class PasswordValidationError(ValidationError):
-    message_format = _("Password validation error: %(detail)s")
+    message_format = _("Password validation error: %(detail)s.")
 
 
 class PasswordRequirementsValidationError(PasswordValidationError):
     message_format = _("The password does not match the requirements:"
-                       " %(detail)s")
+                       " %(detail)s.")
 
 
 class PasswordHistoryValidationError(PasswordValidationError):
     message_format = _("The new password cannot be identical to a "
                        "previous password. The number of previous "
                        "passwords that must be unique is "
-                       "%(unique_count)s")
+                       "%(unique_count)s.")
 
 
 class PasswordAgeValidationError(PasswordValidationError):
@@ -143,8 +143,8 @@ class ValidationExpirationError(Error):
 
 
 class StringLengthExceeded(ValidationError):
-    message_format = _("String length exceeded.The length of"
-                       " string '%(string)s' exceeded the limit"
+    message_format = _("String length exceeded. The length of"
+                       " string '%(string)s' exceeds the limit"
                        " of column %(type)s(CHAR(%(length)d)).")
 
 
@@ -249,7 +249,7 @@ class Unauthorized(SecurityError):
 
 class PasswordExpired(Unauthorized):
     message_format = _("The password is expired and needs to be reset by an "
-                       "administrator for user: %(user_id)s")
+                       "administrator for user: %(user_id)s.")
 
 
 class AuthPluginException(Unauthorized):
@@ -261,11 +261,11 @@ class AuthPluginException(Unauthorized):
 
 
 class UserDisabled(Unauthorized):
-    message_format = _("The account is disabled for user: %(user_id)s")
+    message_format = _("The account is disabled for user: %(user_id)s.")
 
 
 class AccountLocked(Unauthorized):
-    message_format = _("The account is locked for user: %(user_id)s")
+    message_format = _("The account is locked for user: %(user_id)s.")
 
 
 class AuthMethodNotSupported(AuthPluginException):
@@ -293,130 +293,130 @@ class Forbidden(SecurityError):
 
 class ForbiddenAction(Forbidden):
     message_format = _("You are not authorized to perform the"
-                       " requested action: %(action)s")
+                       " requested action: %(action)s.")
 
 
 class CrossBackendNotAllowed(Forbidden):
     message_format = _("Group membership across backend boundaries is not "
-                       "allowed, group in question is %(group_id)s, "
-                       "user is %(user_id)s")
+                       "allowed. Group in question is %(group_id)s, "
+                       "user is %(user_id)s.")
 
 
 class InvalidPolicyAssociation(Forbidden):
-    message_format = _("Invalid mix of entities for policy association - "
-                       "only Endpoint, Service or Region+Service allowed. "
+    message_format = _("Invalid mix of entities for policy association: "
+                       "only Endpoint, Service, or Region+Service allowed. "
                        "Request was - Endpoint: %(endpoint_id)s, "
-                       "Service: %(service_id)s, Region: %(region_id)s")
+                       "Service: %(service_id)s, Region: %(region_id)s.")
 
 
 class InvalidDomainConfig(Forbidden):
-    message_format = _("Invalid domain specific configuration: %(reason)s")
+    message_format = _("Invalid domain specific configuration: %(reason)s.")
 
 
 class NotFound(Error):
-    message_format = _("Could not find: %(target)s")
+    message_format = _("Could not find: %(target)s.")
     code = 404
     title = 'Not Found'
 
 
 class EndpointNotFound(NotFound):
-    message_format = _("Could not find endpoint: %(endpoint_id)s")
+    message_format = _("Could not find endpoint: %(endpoint_id)s.")
 
 
 class PolicyNotFound(NotFound):
-    message_format = _("Could not find policy: %(policy_id)s")
+    message_format = _("Could not find policy: %(policy_id)s.")
 
 
 class PolicyAssociationNotFound(NotFound):
-    message_format = _("Could not find policy association")
+    message_format = _("Could not find policy association.")
 
 
 class RoleNotFound(NotFound):
-    message_format = _("Could not find role: %(role_id)s")
+    message_format = _("Could not find role: %(role_id)s.")
 
 
 class ImpliedRoleNotFound(NotFound):
-    message_format = _("%(prior_role_id)s does not imply %(implied_role_id)s")
+    message_format = _("%(prior_role_id)s does not imply %(implied_role_id)s.")
 
 
 class InvalidImpliedRole(Forbidden):
-    message_format = _("%(role_id)s cannot be an implied roles")
+    message_format = _("%(role_id)s cannot be an implied roles.")
 
 
 class DomainSpecificRoleMismatch(Forbidden):
-    message_format = _("project: %(project_id)s must be in the same domain "
-                       " as the role: %(role_id)s being assigned.")
+    message_format = _("Project %(project_id)s must be in the same domain "
+                       "as the role %(role_id)s being assigned.")
 
 
 class RoleAssignmentNotFound(NotFound):
     message_format = _("Could not find role assignment with role: "
                        "%(role_id)s, user or group: %(actor_id)s, "
-                       "project or domain: %(target_id)s")
+                       "project or domain: %(target_id)s.")
 
 
 class RegionNotFound(NotFound):
-    message_format = _("Could not find region: %(region_id)s")
+    message_format = _("Could not find region: %(region_id)s.")
 
 
 class ServiceNotFound(NotFound):
-    message_format = _("Could not find service: %(service_id)s")
+    message_format = _("Could not find service: %(service_id)s.")
 
 
 class DomainNotFound(NotFound):
-    message_format = _("Could not find domain: %(domain_id)s")
+    message_format = _("Could not find domain: %(domain_id)s.")
 
 
 class ProjectNotFound(NotFound):
-    message_format = _("Could not find project: %(project_id)s")
+    message_format = _("Could not find project: %(project_id)s.")
 
 
 class TokenNotFound(NotFound):
-    message_format = _("Could not find token: %(token_id)s")
+    message_format = _("Could not find token: %(token_id)s.")
 
 
 class UserNotFound(NotFound):
-    message_format = _("Could not find user: %(user_id)s")
+    message_format = _("Could not find user: %(user_id)s.")
 
 
 class GroupNotFound(NotFound):
-    message_format = _("Could not find group: %(group_id)s")
+    message_format = _("Could not find group: %(group_id)s.")
 
 
 class MappingNotFound(NotFound):
-    message_format = _("Could not find mapping: %(mapping_id)s")
+    message_format = _("Could not find mapping: %(mapping_id)s.")
 
 
 class TrustNotFound(NotFound):
-    message_format = _("Could not find trust: %(trust_id)s")
+    message_format = _("Could not find trust: %(trust_id)s.")
 
 
 class TrustUseLimitReached(Forbidden):
-    message_format = _("No remaining uses for trust: %(trust_id)s")
+    message_format = _("No remaining uses for trust: %(trust_id)s.")
 
 
 class CredentialNotFound(NotFound):
-    message_format = _("Could not find credential: %(credential_id)s")
+    message_format = _("Could not find credential: %(credential_id)s.")
 
 
 class VersionNotFound(NotFound):
-    message_format = _("Could not find version: %(version)s")
+    message_format = _("Could not find version: %(version)s.")
 
 
 class EndpointGroupNotFound(NotFound):
-    message_format = _("Could not find Endpoint Group: %(endpoint_group_id)s")
+    message_format = _("Could not find Endpoint Group: %(endpoint_group_id)s.")
 
 
 class IdentityProviderNotFound(NotFound):
-    message_format = _("Could not find Identity Provider: %(idp_id)s")
+    message_format = _("Could not find Identity Provider: %(idp_id)s.")
 
 
 class ServiceProviderNotFound(NotFound):
-    message_format = _("Could not find Service Provider: %(sp_id)s")
+    message_format = _("Could not find Service Provider: %(sp_id)s.")
 
 
 class FederatedProtocolNotFound(NotFound):
     message_format = _("Could not find federated protocol %(protocol_id)s for"
-                       " Identity Provider: %(idp_id)s")
+                       " Identity Provider: %(idp_id)s.")
 
 
 class PublicIDNotFound(NotFound):
@@ -427,7 +427,7 @@ class PublicIDNotFound(NotFound):
 
 class DomainConfigNotFound(NotFound):
     message_format = _('Could not find %(group_or_option)s in domain '
-                       'configuration for domain %(domain_id)s')
+                       'configuration for domain %(domain_id)s.')
 
 
 class ConfigRegistrationNotFound(Exception):
@@ -439,7 +439,7 @@ class ConfigRegistrationNotFound(Exception):
 
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
-                       " %(details)s")
+                       " %(details)s.")
     code = 409
     title = 'Conflict'
 
@@ -451,7 +451,7 @@ class UnexpectedError(SecurityError):
                        "from fulfilling your request.")
 
     debug_message_format = _("An unexpected error prevented the server "
-                             "from fulfilling your request: %(exception)s")
+                             "from fulfilling your request: %(exception)s.")
 
     def _build_message(self, message, **kwargs):
 
@@ -468,7 +468,7 @@ class UnexpectedError(SecurityError):
 
 
 class TrustConsumeMaximumAttempt(UnexpectedError):
-    debug_message_format = _("Unable to consume trust %(trust_id)s, unable to "
+    debug_message_format = _("Unable to consume trust %(trust_id)s. Unable to "
                              "acquire lock.")
 
 
@@ -489,7 +489,7 @@ class MappedGroupNotFound(UnexpectedError):
 
 
 class MetadataFileError(UnexpectedError):
-    debug_message_format = _("Error while reading metadata file, %(reason)s")
+    debug_message_format = _("Error while reading metadata file: %(reason)s.")
 
 
 class DirectMappingError(UnexpectedError):
@@ -502,7 +502,7 @@ class AssignmentTypeCalculationError(UnexpectedError):
     debug_message_format = _(
         'Unexpected combination of grant attributes - '
         'User: %(user_id)s, Group: %(group_id)s, Project: %(project_id)s, '
-        'Domain: %(domain_id)s')
+        'Domain: %(domain_id)s.')
 
 
 class NotImplemented(Error):
@@ -551,13 +551,13 @@ class UnsupportedTokenVersionException(UnexpectedError):
 class SAMLSigningError(UnexpectedError):
     debug_message_format = _('Unable to sign SAML assertion. It is likely '
                              'that this server does not have xmlsec1 '
-                             'installed, or this is the result of '
-                             'misconfiguration. Reason %(reason)s')
+                             'installed or this is the result of '
+                             'misconfiguration. Reason %(reason)s.')
 
 
 class OAuthHeadersMissingError(UnexpectedError):
     debug_message_format = _('No Authorization headers found, cannot proceed '
-                             'with OAuth related calls, if running under '
+                             'with OAuth related calls. If running under '
                              'HTTPd or Apache, ensure WSGIPassAuthorization '
                              'is set to On.')
 
