@@ -23,7 +23,7 @@
 # automatically treated as `http://server:5000`. You should only need to set
 # option if either the value of the base URL contains a path that keystone does
 # not automatically infer (`/prefix/v3`), or if the endpoint should be found on
-# a different host. (string value)
+# a different host. (uri value)
 #public_endpoint = <None>
 
 # The base admin endpoint URL for Keystone that is advertised to clients (NOTE:
@@ -33,7 +33,7 @@
 # treated as `http://server:35357`. You should only need to set option if
 # either the value of the base URL contains a path that keystone does not
 # automatically infer (`/prefix/v3`), or if the endpoint should be found on a
-# different host. (string value)
+# different host. (uri value)
 #admin_endpoint = <None>
 
 # Maximum depth of the project hierarchy, excluding the project acting as a
@@ -45,11 +45,9 @@
 #max_param_size = 64
 
 # Similar to `[DEFAULT] max_param_size`, but provides an exception for token
-# values. With PKI / PKIZ tokens, this needs to be set close to 8192 (any
-# higher, and other HTTP implementations may break), depending on the size of
-# your service catalog and other factors. With Fernet tokens, this can be set
-# as low as 255. With UUID tokens, this should be set to 32). (integer value)
-#max_token_size = 8192
+# values. With Fernet tokens, this can be set as low as 255. With UUID tokens,
+# this should be set to 32). (integer value)
+#max_token_size = 255
 
 # Similar to the `[DEFAULT] member_role_name` option, this represents the
 # default role ID used to associate users with their default projects in the v2
@@ -86,19 +84,6 @@
 # projects from placing an unnecessary load on the system. (integer value)
 #list_limit = <None>
 
-# DEPRECATED: Set this to false if you want to enable the ability for user,
-# group and project entities to be moved between domains by updating their
-# `domain_id` attribute. Allowing such movement is not recommended if the scope
-# of a domain admin is being restricted by use of an appropriate policy file
-# (see `etc/policy.v3cloudsample.json` as an example). This feature is
-# deprecated and will be removed in a future release, in favor of strictly
-# immutable domain IDs. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: The option to set domain_id_immutable to false has been deprecated in
-# the M release and will be removed in the O release.
-#domain_id_immutable = true
-
 # If set to true, strict password length checking is performed for password
 # manipulation. If a password exceeds the maximum length, the operation will
 # fail with an HTTP 403 Forbidden error. If set to false, passwords are
@@ -131,16 +116,20 @@
 # compatible with the `basic` option, but is fully CADF-compliant, and is
 # recommended for auditing use cases. (string value)
 # Allowed values: basic, cadf
-#notification_format = basic
+#notification_format = cadf
 
-# If left undefined, keystone will emit notifications for all types of events.
-# You can reduce the number of notifications keystone emits by using this
-# option to enumerate notification topics that should be suppressed. Values are
-# expected to be in the form `identity.<resource_type>.<operation>`. This field
-# can be set multiple times in order to opt-out of multiple notification
-# topics. For example: notification_opt_out=identity.user.create
+# You can reduce the number of notifications keystone emits by explicitly
+# opting out. Keystone will not emit notifications that match the patterns
+# expressed in this list. Values are expected to be in the form of
+# `identity.<resource_type>.<operation>`. By default, all notifications related
+# to authentication are automatically suppressed. This field can be set
+# multiple times in order to opt-out of multiple notification topics. For
+# example, the following suppresses notifications describing user creation or
+# successful authentication events: notification_opt_out=identity.user.create
 # notification_opt_out=identity.authenticate.success (multi valued)
-#notification_opt_out =
+#notification_opt_out = identity.authenticate.success
+#notification_opt_out = identity.authenticate.pending
+#notification_opt_out = identity.authenticate.failed
 
 #
 # From oslo.log
@@ -201,7 +190,7 @@
 
 # Log output to standard error. This option is ignored if log_config_append is
 # set. (boolean value)
-#use_stderr = true
+#use_stderr = false
 
 # Format string to use for log messages with context. (string value)
 #logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user_identity)s] %(instance)s%(message)s
@@ -236,6 +225,18 @@
 # value)
 #instance_uuid_format = "[instance: %(uuid)s] "
 
+# Interval, number of seconds, of log rate limiting. (integer value)
+#rate_limit_interval = 0
+
+# Maximum number of logged messages per rate_limit_interval. (integer value)
+#rate_limit_burst = 0
+
+# Log level name used by rate limiting: CRITICAL, ERROR, INFO, WARNING, DEBUG
+# or empty string. Logs with level greater or equal to rate_limit_except_level
+# are not filtered. An empty string means that all levels are filtered. (string
+# value)
+#rate_limit_except_level = CRITICAL
+
 # Enables or disables fatal status of deprecations. (boolean value)
 #fatal_deprecations = false
 
@@ -259,7 +260,7 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, dummy
+# Allowed values: redis, sentinel, dummy
 # Deprecated group/name - [DEFAULT]/rpc_zmq_matchmaker
 #rpc_zmq_matchmaker = redis
 
@@ -281,12 +282,13 @@
 # Deprecated group/name - [DEFAULT]/rpc_zmq_host
 #rpc_zmq_host = localhost
 
-# Seconds to wait before a cast expires (TTL). The default value of -1
-# specifies an infinite linger period. The value of 0 specifies no linger
-# period. Pending messages shall be discarded immediately when the socket is
-# closed. Only supported by impl_zmq. (integer value)
+# Number of seconds to wait before all pending messages will be sent after
+# closing a socket. The default value of -1 specifies an infinite linger
+# period. The value of 0 specifies no linger period. Pending messages shall be
+# discarded immediately when the socket is closed. Positive values specify an
+# upper bound for the linger period. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_cast_timeout
-#rpc_cast_timeout = -1
+#zmq_linger = -1
 
 # The default number of seconds that poll should wait. Poll raises timeout
 # exception when timeout expired. (integer value)
@@ -306,7 +308,7 @@
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
 # Deprecated group/name - [DEFAULT]/use_pub_sub
-#use_pub_sub = true
+#use_pub_sub = false
 
 # Use ROUTER remote proxy. (boolean value)
 # Deprecated group/name - [DEFAULT]/use_router_proxy
@@ -339,7 +341,63 @@
 # a queue when server side disconnects. False means to keep queue and messages
 # even if server is disconnected, when the server appears we send all
 # accumulated messages to it. (boolean value)
-#zmq_immediate = false
+#zmq_immediate = true
+
+# Enable/disable TCP keepalive (KA) mechanism. The default value of -1 (or any
+# other negative value) means to skip any overrides and leave it to OS default;
+# 0 and 1 (or any other positive value) mean to disable and enable the option
+# respectively. (integer value)
+#zmq_tcp_keepalive = -1
+
+# The duration between two keepalive transmissions in idle condition. The unit
+# is platform dependent, for example, seconds in Linux, milliseconds in Windows
+# etc. The default value of -1 (or any other negative value and 0) means to
+# skip any overrides and leave it to OS default. (integer value)
+#zmq_tcp_keepalive_idle = -1
+
+# The number of retransmissions to be carried out before declaring that remote
+# end is not available. The default value of -1 (or any other negative value
+# and 0) means to skip any overrides and leave it to OS default. (integer
+# value)
+#zmq_tcp_keepalive_cnt = -1
+
+# The duration between two successive keepalive retransmissions, if
+# acknowledgement to the previous keepalive transmission is not received. The
+# unit is platform dependent, for example, seconds in Linux, milliseconds in
+# Windows etc. The default value of -1 (or any other negative value and 0)
+# means to skip any overrides and leave it to OS default. (integer value)
+#zmq_tcp_keepalive_intvl = -1
+
+# Maximum number of (green) threads to work concurrently. (integer value)
+#rpc_thread_pool_size = 100
+
+# Expiration timeout in seconds of a sent/received message after which it is
+# not tracked anymore by a client/server. (integer value)
+#rpc_message_ttl = 300
+
+# Wait for message acknowledgements from receivers. This mechanism works only
+# via proxy without PUB/SUB. (boolean value)
+#rpc_use_acks = false
+
+# Number of seconds to wait for an ack from a cast/call. After each retry
+# attempt this timeout is multiplied by some specified multiplier. (integer
+# value)
+#rpc_ack_timeout_base = 15
+
+# Number to multiply base ack timeout by after each retry attempt. (integer
+# value)
+#rpc_ack_timeout_multiplier = 2
+
+# Default number of message sending attempts in case of any problems occurred:
+# positive value N means at most N retries, 0 means no retries, None or -1 (or
+# any other negative values) mean to retry forever. This option is used only if
+# acknowledgments are enabled. (integer value)
+#rpc_retry_attempts = 3
+
+# List of publisher hosts SubConsumer can subscribe on. This option has higher
+# priority then the default publishers list taken from the matchmaker. (list
+# value)
+#subscribe_on =
 
 # Size of executor thread pool. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
@@ -372,12 +430,9 @@
 
 # Entry point for the assignment backend driver (where role assignments are
 # stored) in the `keystone.assignment` namespace. Only a SQL driver is supplied
-# by keystone itself. If an assignment driver is not specified, the identity
-# driver will choose the assignment driver based on the deprecated
-# `[identity]/driver` option (the behavior will be removed in the "O" release).
-# Unless you are writing proprietary drivers for keystone, you do not need to
-# set this option. (string value)
-#driver = <None>
+# by keystone itself. Unless you are writing proprietary drivers for keystone,
+# you do not need to set this option. (string value)
+#driver = sql
 
 # A list of role names which are prohibited from being an implied role. (list
 # value)
@@ -391,7 +446,7 @@
 #
 
 # Allowed authentication methods. (list value)
-#methods = external,password,token,oauth1
+#methods = external,password,token,oauth1,mapped
 
 # Entry point for the password auth plugin module in the
 # `keystone.auth.password` namespace. You do not need to set this unless you
@@ -420,6 +475,11 @@
 # `keystone.auth.oauth1` namespace. You do not need to set this unless you are
 # overriding keystone's own `oauth1` authentication plugin. (string value)
 #oauth1 = <None>
+
+# Entry point for the mapped auth plugin module in the `keystone.auth.mapped`
+# namespace. You do not need to set this unless you are overriding keystone's
+# own `mapped` authentication plugin. (string value)
+#mapped = <None>
 
 
 [cache]
@@ -765,16 +825,6 @@
 # From keystone
 #
 
-# DEPRECATED: Enable endpoint-policy functionality, which allows policies to be
-# associated with either specific endpoints, or endpoints of a given service
-# type. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: The option to enable the OS-ENDPOINT-POLICY API extension has been
-# deprecated in the M release and will be removed in the O release. The OS-
-# ENDPOINT-POLICY API extension will be enabled by default.
-#enabled = true
-
 # Entry point for the endpoint policy driver in the `keystone.endpoint_policy`
 # namespace. Only a `sql` driver is provided by keystone, so there is no reason
 # to set this unless you are providing a custom entry point. (string value)
@@ -916,6 +966,34 @@
 # the rotation. (integer value)
 # Minimum value: 1
 #max_active_keys = 3
+
+
+[healthcheck]
+
+#
+# From oslo.middleware
+#
+
+# DEPRECATED: The path to respond to healtcheck requests on. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+#path = /healthcheck
+
+# Show more detailed information as part of the response (boolean value)
+#detailed = false
+
+# Additional backends that can perform health checks and report that
+# information back as part of a request. (list value)
+#backends =
+
+# Check the presence of a file to determine if an application is running on a
+# port. Used by DisableByFileHealthcheck plugin. (string value)
+#disable_by_file_path = <None>
+
+# Check the presence of a file based on a port to determine if an application
+# is running on a port. Expects a "port:path" list of strings. Used by
+# DisableByFilesPortsHealthcheck plugin. (list value)
+#disable_by_file_paths =
 
 
 [identity]
@@ -1201,12 +1279,8 @@
 # userAccountControl`. (string value)
 #user_enabled_default = True
 
-# DEPRECATED: List of user attributes to ignore on create and update. This is
-# only used for write operations. (list value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
+# List of user attributes to ignore on create and update, or whether a specific
+# user attribute should be filtered for list or show user. (list value)
 #user_attribute_ignore = default_project_id
 
 # The LDAP attribute mapped to a user's default_project_id in keystone. This is
@@ -1295,12 +1369,9 @@
 # The LDAP attribute mapped to group descriptions in keystone. (string value)
 #group_desc_attribute = description
 
-# DEPRECATED: List of group attributes to ignore on create and update. This is
-# only used for write operations. (list value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
+# List of group attributes to ignore on create and update. or whether a
+# specific group attribute should be filtered for list or show group. (list
+# value)
 #group_attribute_ignore =
 
 # DEPRECATED: If enabled, keystone is allowed to create groups in the LDAP
@@ -1334,6 +1405,10 @@
 # API. (list value)
 #group_additional_attribute_mapping =
 
+# If enabled, group queries will use Active Directory specific filters for
+# nested groups. (boolean value)
+#group_ad_nesting = false
+
 # An absolute path to a CA certificate file to use when communicating with LDAP
 # servers. This option will take precedence over `[ldap] tls_cacertdir`, so
 # there is no reason to set both. (string value)
@@ -1358,6 +1433,11 @@
 # Allowed values: demand, never, allow
 #tls_req_cert = demand
 
+# The connection timeout to use with the LDAP server. A value of `-1` means
+# that connections will never timeout. (integer value)
+# Minimum value: -1
+#connection_timeout = -1
+
 # Enable LDAP connection pooling for queries to the LDAP server. There is
 # typically no reason to disable this. (boolean value)
 #use_pool = true
@@ -1378,9 +1458,9 @@
 # (floating point value)
 #pool_retry_delay = 0.1
 
-# The connection timeout to use with the LDAP server. A value of `-1` means
-# that connections will never timeout. This option has no effect unless `[ldap]
-# use_pool` is also enabled. (integer value)
+# The connection timeout to use when pooling LDAP connections. A value of `-1`
+# means that connections will never timeout. This option has no effect unless
+# `[ldap] use_pool` is also enabled. (integer value)
 # Minimum value: -1
 #pool_connection_timeout = -1
 
@@ -1435,7 +1515,7 @@
 # Reason: Replaced by [DEFAULT]/transport_url
 #password =
 
-# DEPRECATED: List of Redis Sentinel hosts (fault tolerance mode) e.g.
+# DEPRECATED: List of Redis Sentinel hosts (fault tolerance mode), e.g.,
 # [host:port, host1:port ... ] (list value)
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
@@ -1451,7 +1531,7 @@
 # Time in ms to wait before the transaction is killed. (integer value)
 #check_timeout = 20000
 
-# Timeout in ms on blocking socket operations (integer value)
+# Timeout in ms on blocking socket operations. (integer value)
 #socket_timeout = 10000
 
 
@@ -1472,31 +1552,23 @@
 #servers = localhost:11211
 
 # Number of seconds memcached server is considered dead before it is tried
-# again. This is used by the key value store system (including, the `memcache`
-# and `memcache_pool` options for the `[token] driver` persistence backend).
-# (integer value)
+# again. This is used by the key value store system. (integer value)
 #dead_retry = 300
 
 # Timeout in seconds for every call to a server. This is used by the key value
-# store system (including, the `memcache` and `memcache_pool` options for the
-# `[token] driver` persistence backend). (integer value)
+# store system. (integer value)
 #socket_timeout = 3
 
 # Max total number of open connections to every memcached server. This is used
-# by the key value store system (including, the `memcache` and `memcache_pool`
-# options for the `[token] driver` persistence backend). (integer value)
+# by the key value store system. (integer value)
 #pool_maxsize = 10
 
 # Number of seconds a connection to memcached is held unused in the pool before
-# it is closed. This is used by the key value store system (including, the
-# `memcache` and `memcache_pool` options for the `[token] driver` persistence
-# backend). (integer value)
+# it is closed. This is used by the key value store system. (integer value)
 #pool_unused_timeout = 60
 
 # Number of seconds that an operation will wait to get a memcache client
-# connection. This is used by the key value store system (including, the
-# `memcache` and `memcache_pool` options for the `[token] driver` persistence
-# backend). (integer value)
+# connection. This is used by the key value store system. (integer value)
 #pool_connection_get_timeout = 10
 
 
@@ -1524,24 +1596,6 @@
 # means that access tokens will last forever. (integer value)
 # Minimum value: 0
 #access_token_duration = 86400
-
-
-[os_inherit]
-
-#
-# From keystone
-#
-
-# DEPRECATED: This allows domain-based role assignments to be inherited to
-# projects owned by that domain, or from parent projects to child projects.
-# (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: The option to disable the OS-INHERIT functionality has been
-# deprecated in the Mitaka release and will be removed in the Ocata release.
-# Starting in the Ocata release, OS-INHERIT functionality will always be
-# enabled.
-#enabled = true
 
 
 [oslo_messaging_amqp]
@@ -1637,6 +1691,11 @@
 # Minimum value: 5
 #default_notify_timeout = 30
 
+# The duration to schedule a purge of idle sender links. Detach link after
+# expiry. (integer value)
+# Minimum value: 1
+#default_sender_link_timeout = 600
+
 # Indicates the addressing mode used by the driver.
 # Permitted values:
 # 'legacy'   - use legacy non-routable addressing
@@ -1704,6 +1763,19 @@
 # Window size for incoming Notification messages (integer value)
 # Minimum value: 1
 #notify_server_credit = 100
+
+# Send messages of this type pre-settled.
+# Pre-settled messages will not receive acknowledgement
+# from the peer. Note well: pre-settled messages may be
+# silently discarded if the delivery fails.
+# Permitted values:
+# 'rpc-call' - send RPC Calls pre-settled
+# 'rpc-reply'- send RPC Replies pre-settled
+# 'rpc-cast' - Send RPC Casts pre-settled
+# 'notify'   - Send Notifications pre-settled
+#  (multi valued)
+#pre_settled = rpc-cast
+#pre_settled = rpc-reply
 
 
 [oslo_messaging_notifications]
@@ -1825,6 +1897,7 @@
 #rabbit_password = guest
 
 # The RabbitMQ login method. (string value)
+# Allowed values: PLAIN, AMQPLAIN, RABBIT-CR-DEMO
 # Deprecated group/name - [DEFAULT]/rabbit_login_method
 #rabbit_login_method = AMQPLAIN
 
@@ -1857,7 +1930,7 @@
 # Try to use HA queues in RabbitMQ (x-ha-policy: all). If you change this
 # option, you must wipe the RabbitMQ database. In RabbitMQ 3.0, queue mirroring
 # is no longer controlled by the x-ha-policy argument when declaring a queue.
-# If you just want to make sure that all queues (except  those with auto-
+# If you just want to make sure that all queues (except those with auto-
 # generated names) are mirrored across all nodes, run: "rabbitmqctl set_policy
 # HA '^(?!amq\.).*' '{"ha-mode": "all"}' " (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_ha_queues
@@ -1936,6 +2009,11 @@
 # (integer value)
 #pool_stale = 60
 
+# Default serialization mechanism for serializing/deserializing
+# outgoing/incoming messages (string value)
+# Allowed values: json, msgpack
+#default_serializer_type = json
+
 # Persist notification messages. (boolean value)
 #notification_persistence = false
 
@@ -1981,7 +2059,7 @@
 
 # Reconnecting retry count in case of connectivity problem during sending RPC
 # message, -1 means infinite retry. If actual retry attempts in not 0 the rpc
-# request could be processed more then one time (integer value)
+# request could be processed more than one time (integer value)
 #default_rpc_retry_attempts = -1
 
 # Reconnecting retry delay in case of connectivity problem during sending RPC
@@ -2001,7 +2079,7 @@
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
-# Allowed values: redis, dummy
+# Allowed values: redis, sentinel, dummy
 # Deprecated group/name - [DEFAULT]/rpc_zmq_matchmaker
 #rpc_zmq_matchmaker = redis
 
@@ -2023,12 +2101,13 @@
 # Deprecated group/name - [DEFAULT]/rpc_zmq_host
 #rpc_zmq_host = localhost
 
-# Seconds to wait before a cast expires (TTL). The default value of -1
-# specifies an infinite linger period. The value of 0 specifies no linger
-# period. Pending messages shall be discarded immediately when the socket is
-# closed. Only supported by impl_zmq. (integer value)
+# Number of seconds to wait before all pending messages will be sent after
+# closing a socket. The default value of -1 specifies an infinite linger
+# period. The value of 0 specifies no linger period. Pending messages shall be
+# discarded immediately when the socket is closed. Positive values specify an
+# upper bound for the linger period. (integer value)
 # Deprecated group/name - [DEFAULT]/rpc_cast_timeout
-#rpc_cast_timeout = -1
+#zmq_linger = -1
 
 # The default number of seconds that poll should wait. Poll raises timeout
 # exception when timeout expired. (integer value)
@@ -2048,7 +2127,7 @@
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
 # Deprecated group/name - [DEFAULT]/use_pub_sub
-#use_pub_sub = true
+#use_pub_sub = false
 
 # Use ROUTER remote proxy. (boolean value)
 # Deprecated group/name - [DEFAULT]/use_router_proxy
@@ -2081,7 +2160,63 @@
 # a queue when server side disconnects. False means to keep queue and messages
 # even if server is disconnected, when the server appears we send all
 # accumulated messages to it. (boolean value)
-#zmq_immediate = false
+#zmq_immediate = true
+
+# Enable/disable TCP keepalive (KA) mechanism. The default value of -1 (or any
+# other negative value) means to skip any overrides and leave it to OS default;
+# 0 and 1 (or any other positive value) mean to disable and enable the option
+# respectively. (integer value)
+#zmq_tcp_keepalive = -1
+
+# The duration between two keepalive transmissions in idle condition. The unit
+# is platform dependent, for example, seconds in Linux, milliseconds in Windows
+# etc. The default value of -1 (or any other negative value and 0) means to
+# skip any overrides and leave it to OS default. (integer value)
+#zmq_tcp_keepalive_idle = -1
+
+# The number of retransmissions to be carried out before declaring that remote
+# end is not available. The default value of -1 (or any other negative value
+# and 0) means to skip any overrides and leave it to OS default. (integer
+# value)
+#zmq_tcp_keepalive_cnt = -1
+
+# The duration between two successive keepalive retransmissions, if
+# acknowledgement to the previous keepalive transmission is not received. The
+# unit is platform dependent, for example, seconds in Linux, milliseconds in
+# Windows etc. The default value of -1 (or any other negative value and 0)
+# means to skip any overrides and leave it to OS default. (integer value)
+#zmq_tcp_keepalive_intvl = -1
+
+# Maximum number of (green) threads to work concurrently. (integer value)
+#rpc_thread_pool_size = 100
+
+# Expiration timeout in seconds of a sent/received message after which it is
+# not tracked anymore by a client/server. (integer value)
+#rpc_message_ttl = 300
+
+# Wait for message acknowledgements from receivers. This mechanism works only
+# via proxy without PUB/SUB. (boolean value)
+#rpc_use_acks = false
+
+# Number of seconds to wait for an ack from a cast/call. After each retry
+# attempt this timeout is multiplied by some specified multiplier. (integer
+# value)
+#rpc_ack_timeout_base = 15
+
+# Number to multiply base ack timeout by after each retry attempt. (integer
+# value)
+#rpc_ack_timeout_multiplier = 2
+
+# Default number of message sending attempts in case of any problems occurred:
+# positive value N means at most N retries, 0 means no retries, None or -1 (or
+# any other negative values) mean to retry forever. This option is used only if
+# acknowledgments are enabled. (integer value)
+#rpc_retry_attempts = 3
+
+# List of publisher hosts SubConsumer can subscribe on. This option has higher
+# priority then the default publishers list taken from the matchmaker. (list
+# value)
+#subscribe_on =
 
 
 [oslo_middleware]
@@ -2113,7 +2248,7 @@
 # From oslo.policy
 #
 
-# The JSON file that defines policies. (string value)
+# The file that defines policies. (string value)
 # Deprecated group/name - [DEFAULT]/policy_file
 #policy_file = policy.json
 
@@ -2230,10 +2365,10 @@
 #
 
 # Entry point for the resource driver in the `keystone.resource` namespace.
-# Only a `sql` driver is supplied by keystone. If a resource driver is not
-# specified, the assignment driver will choose the resource driver to maintain
-# backwards compatibility with older configuration files. (string value)
-#driver = <None>
+# Only a `sql` driver is supplied by keystone. Unless you are writing
+# proprietary drivers for keystone, you do not need to set this option. (string
+# value)
+#driver = sql
 
 # Toggle for resource caching. This has no effect unless global caching is
 # enabled. (boolean value)
@@ -2458,6 +2593,13 @@
 # Minimum value: 1
 #lockout_duration = 1800
 
+# Comma separated list of user IDs to be ignored when checking if a user should
+# be locked out based on failed authentication attempts. Thus, users in this
+# list can fail to authenticate for an unlimited amount of times and will never
+# be locked out. This feature will only be enabled if `[security_compliance]
+# lockout_failure_attempts` is set. (list value)
+#lockout_ignored_user_ids =
+
 # The number of days for which a password will be considered valid before
 # requiring it to be changed. This feature is disabled by default. If enabled,
 # new password changes will have an expiration date, however existing passwords
@@ -2526,84 +2668,51 @@
 # From keystone
 #
 
-# DEPRECATED: Absolute path to the public certificate file to use for signing
-# PKI and PKIZ tokens. Set this together with `[signing] keyfile`. For non-
-# production environments, you may be interested in using `keystone-manage
-# pki_setup` to generate self-signed certificates. There is no reason to set
-# this option unless you are using either a `pki` or `pkiz` `[token] provider`.
-# (string value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
+# Absolute path to the public certificate file to use for signing responses to
+# revocation lists requests. Set this together with `[signing] keyfile`. For
+# non-production environments, you may be interested in using `keystone-manage
+# pki_setup` to generate self-signed certificates. (string value)
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
-# DEPRECATED: Absolute path to the private key file to use for signing PKI and
-# PKIZ tokens. Set this together with `[signing] certfile`. There is no reason
-# to set this option unless you are using either a `pki` or `pkiz` `[token]
-# provider`. (string value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
+# Absolute path to the private key file to use for signing responses to
+# revocation lists requests. Set this together with `[signing] certfile`.
+# (string value)
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 
-# DEPRECATED: Absolute path to the public certificate authority (CA) file to
-# use when creating self-signed certificates with `keystone-manage pki_setup`.
-# Set this together with `[signing] ca_key`. There is no reason to set this
-# option unless you are using a `pki` or `pkiz` `[token] provider` value in a
-# non-production environment. Use a `[signing] certfile` issued from a trusted
-# certificate authority instead. (string value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
+# Absolute path to the public certificate authority (CA) file to use when
+# creating self-signed certificates with `keystone-manage pki_setup`. Set this
+# together with `[signing] ca_key`. There is no reason to set this option
+# unless you are requesting revocation lists in a non-production environment.
+# Use a `[signing] certfile` issued from a trusted certificate authority
+# instead. (string value)
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 
-# DEPRECATED: Absolute path to the private certificate authority (CA) key file
-# to use when creating self-signed certificates with `keystone-manage
-# pki_setup`. Set this together with `[signing] ca_certs`. There is no reason
-# to set this option unless you are using a `pki` or `pkiz` `[token] provider`
-# value in a non-production environment. Use a `[signing] certfile` issued from
-# a trusted certificate authority instead. (string value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
+# Absolute path to the private certificate authority (CA) key file to use when
+# creating self-signed certificates with `keystone-manage pki_setup`. Set this
+# together with `[signing] ca_certs`. There is no reason to set this option
+# unless you are requesting revocation lists in a non-production environment.
+# Use a `[signing] certfile` issued from a trusted certificate authority
+# instead. (string value)
 #ca_key = /etc/keystone/ssl/private/cakey.pem
 
-# DEPRECATED: Key size (in bits) to use when generating a self-signed token
-# signing certificate. There is no reason to set this option unless you are
-# using a `pki` or `pkiz` `[token] provider` value in a non-production
-# environment. Use a `[signing] certfile` issued from a trusted certificate
-# authority instead. (integer value)
+# Key size (in bits) to use when generating a self-signed token signing
+# certificate. There is no reason to set this option unless you are requesting
+# revocation lists in a non-production environment. Use a `[signing] certfile`
+# issued from a trusted certificate authority instead. (integer value)
 # Minimum value: 1024
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
 #key_size = 2048
 
-# DEPRECATED: The validity period (in days) to use when generating a self-
-# signed token signing certificate. There is no reason to set this option
-# unless you are using a `pki` or `pkiz` `[token] provider` value in a non-
-# production environment. Use a `[signing] certfile` issued from a trusted
-# certificate authority instead. (integer value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
+# The validity period (in days) to use when generating a self-signed token
+# signing certificate. There is no reason to set this option unless you are
+# requesting revocation lists in a non-production environment. Use a `[signing]
+# certfile` issued from a trusted certificate authority instead. (integer
+# value)
 #valid_days = 3650
 
-# DEPRECATED: The certificate subject to use when generating a self-signed
-# token signing certificate. There is no reason to set this option unless you
-# are using a `pki` or `pkiz` `[token] provider` value in a non-production
-# environment. Use a `[signing] certfile` issued from a trusted certificate
-# authority instead. (string value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
+# The certificate subject to use when generating a self-signed token signing
+# certificate. There is no reason to set this option unless you are requesting
+# revocation lists in a non-production environment. Use a `[signing] certfile`
+# issued from a trusted certificate authority instead. (string value)
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
 
 
@@ -2643,25 +2752,20 @@
 
 # Entry point for the token provider in the `keystone.token.provider`
 # namespace. The token provider controls the token construction, validation,
-# and revocation operations. Keystone includes `fernet`, `pkiz`, `pki`, and
-# `uuid` token providers. `uuid` tokens must be persisted (using the backend
-# specified in the `[token] driver` option), but do not require any extra
-# configuration or setup. `fernet` tokens do not need to be persisted at all,
-# but require that you run `keystone-manage fernet_setup` (also see the
-# `keystone-manage fernet_rotate` command). `pki` and `pkiz` tokens can be
-# validated offline, without making HTTP calls to keystone, but require that
-# certificates be installed and distributed to facilitate signing tokens and
-# later validating those signatures. (string value)
-#provider = uuid
+# and revocation operations. Keystone includes `fernet` and `uuid` token
+# providers. `uuid` tokens must be persisted (using the backend specified in
+# the `[token] driver` option), but do not require any extra configuration or
+# setup. `fernet` tokens do not need to be persisted at all, but require that
+# you run `keystone-manage fernet_setup` (also see the `keystone-manage
+# fernet_rotate` command). (string value)
+#provider = fernet
 
 # Entry point for the token persistence backend driver in the
-# `keystone.token.persistence` namespace. Keystone provides `kvs`, `memcache`,
-# `memcache_pool`, and `sql` drivers. The `kvs` backend depends on the
-# configuration in the `[kvs]` section. The `memcache` and `memcache_pool`
-# options depend on the configuration in the `[memcache]` section. The `sql`
-# option (default) depends on the options in your `[database]` section. If
-# you're using the `fernet` `[token] provider`, this backend will not be
-# utilized to persist tokens at all. (string value)
+# `keystone.token.persistence` namespace. Keystone provides `kvs` and `sql`
+# drivers. The `kvs` backend depends on the configuration in the `[kvs]`
+# section. The `sql` option (default) depends on the options in your
+# `[database]` section. If you're using the `fernet` `[token] provider`, this
+# backend will not be utilized to persist tokens at all. (string value)
 #driver = sql
 
 # Toggle for caching token creation and validation data. This has no effect
@@ -2691,29 +2795,21 @@
 # value)
 #allow_rescope_scoped_token = true
 
-# DEPRECATED: This controls the hash algorithm to use to uniquely identify PKI
-# tokens without having to transmit the entire token to keystone (which may be
-# several kilobytes). This can be set to any algorithm that hashlib supports.
-# WARNING: Before changing this value, the `auth_token` middleware protecting
-# all other services must be configured with the set of hash algorithms to
-# expect from keystone (both your old and new value for this option), otherwise
-# token revocation will not be processed correctly. (string value)
-# Allowed values: md5, sha1, sha224, sha256, sha384, sha512
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: PKI token support has been deprecated in the M release and will be
-# removed in the O release. Fernet or UUID tokens are recommended.
-#hash_algorithm = md5
-
 # This controls whether roles should be included with tokens that are not
 # directly assigned to the token's scope, but are instead linked implicitly to
 # other role assignments. (boolean value)
 #infer_roles = true
 
 # Enable storing issued token data to token validation cache so that first
-# token validation doesn't actually cause full validation cycle. (boolean
+# token validation doesn't actually cause full validation cycle. This option
+# has no effect unless global caching and token caching are enabled. (boolean
 # value)
-#cache_on_issue = false
+#cache_on_issue = true
+
+# This controls the number of seconds that a token can be retrieved for beyond
+# the built-in expiry time. This allows long running operations to succeed.
+# Defaults to two days. (integer value)
+#allow_expired_window = 172800
 
 
 [tokenless_auth]
