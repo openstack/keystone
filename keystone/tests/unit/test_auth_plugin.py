@@ -69,7 +69,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
             'test': 'test'}
         auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo.create(auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        auth_context = auth.controllers.AuthContext(extras={}, method_names=[])
         try:
             self.api.authenticate(self.make_request(), auth_info, auth_context)
         except exception.AdditionalAuthRequired as e:
@@ -84,7 +84,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
             'response': EXPECTED_RESPONSE}
         auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo.create(auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        auth_context = auth.controllers.AuthContext(extras={}, method_names=[])
         self.api.authenticate(self.make_request(), auth_info, auth_context)
         self.assertEqual(DEMO_USER_ID, auth_context['user_id'])
 
@@ -94,7 +94,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
             'response': uuid.uuid4().hex}
         auth_data = {'identity': auth_data}
         auth_info = auth.controllers.AuthInfo.create(auth_data)
-        auth_context = {'extras': {}, 'method_names': []}
+        auth_context = auth.controllers.AuthContext(extras={}, method_names=[])
         self.assertRaises(exception.Unauthorized,
                           self.api.authenticate,
                           self.make_request(),
@@ -145,9 +145,10 @@ class TestMapped(unit.TestCase):
                 }
             }
             auth_info = auth.controllers.AuthInfo.create(auth_data)
-            auth_context = {'extras': {},
-                            'method_names': [],
-                            'user_id': uuid.uuid4().hex}
+            auth_context = auth.controllers.AuthContext(
+                extras={},
+                method_names=[],
+                user_id=uuid.uuid4().hex)
             self.api.authenticate(request, auth_info, auth_context)
             # make sure Mapped plugin got invoked with the correct payload
             ((context, auth_payload, auth_context),
@@ -162,9 +163,10 @@ class TestMapped(unit.TestCase):
         auth_data[method_name] = {'protocol': method_name}
         auth_data = {'identity': auth_data}
 
-        auth_context = {'extras': {},
-                        'method_names': [],
-                        'user_id': uuid.uuid4().hex}
+        auth_context = auth.controllers.AuthContext(
+            extras={},
+            method_names=[],
+            user_id=uuid.uuid4().hex)
 
         self.useFixture(auth_plugins.LoadAuthPlugins(method_name))
 
