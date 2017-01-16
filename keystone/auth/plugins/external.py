@@ -52,6 +52,8 @@ class Base(base.AuthMethodHandler):
         if 'kerberos' in CONF.token.bind and auth_type == 'negotiate':
             auth_context['bind']['kerberos'] = user_ref['name']
 
+        return base.AuthHandlerResponse(status=True, response_body=None)
+
     @abc.abstractmethod
     def _authenticate(self, request):
         """Look up the user in the identity backend.

@@ -433,8 +433,10 @@ class Auth(controller.V3Controller):
             self._check_and_set_default_scoping(auth_info, auth_context)
             (domain_id, project_id, trust, unscoped) = auth_info.get_scope()
 
-            method_names = auth_info.get_method_names()
-            method_names += auth_context.get('method_names', [])
+            # NOTE(notmorgan): only methods that actually run and succeed will
+            # be in the auth_context['method_names'] list. Do not blindly take
+            # the values from auth_info, look at the authoritative values.
+            method_names = auth_context.get('method_names', [])
             # make sure the list is unique
             method_names = list(set(method_names))
             expires_at = auth_context.get('expires_at')
@@ -527,6 +529,7 @@ class Auth(controller.V3Controller):
         # of the attributes set by the plugins. This check to ensure
         # `auth_context` is an instance of AuthContext is extra insurance and
         # will prevent regressions.
+
         if not isinstance(auth_context, AuthContext):
             LOG.error(
                 _LE('`auth_context` passed to the Auth controller '
@@ -542,9 +545,15 @@ class Auth(controller.V3Controller):
         if request.remote_user:
             try:
                 external = get_auth_method('external')
-                external.authenticate(request,
-                                      auth_info,
-                                      auth_context)
+                resp = external.authenticate(request,
+                                             auth_info,
+                                             auth_context)
+                if resp and resp.status:
+                    # NOTE(notmorgan): ``external`` plugin cannot be multi-step
+                    # it is either a plain success/fail.
+                    auth_context.setdefault(
+                        'method_names', []).insert(0, 'external')
+
             except exception.AuthMethodNotSupported:
                 # This will happen there is no 'external' plugin registered
                 # and the container is performing authentication.
@@ -567,8 +576,12 @@ class Auth(controller.V3Controller):
                                        auth_info.get_method_data(method_name),
                                        auth_context)
             if resp:
-                auth_response['methods'].append(method_name)
-                auth_response[method_name] = resp
+                if resp.status:
+                    auth_context.setdefault(
+                        'method_names', []).insert(0, method_name)
+                elif resp.response_body:
+                    auth_response['methods'].append(method_name)
+                    auth_response[method_name] = resp.response_body
 
         if auth_response["methods"]:
             # authentication continuation required

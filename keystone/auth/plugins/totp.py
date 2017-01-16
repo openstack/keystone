@@ -97,3 +97,5 @@ class TOTP(base.AuthMethodHandler):
             raise exception.Unauthorized(msg)
 
         auth_context['user_id'] = user_info.user_id
+
+        return base.AuthHandlerResponse(status=True, response_body=None)
