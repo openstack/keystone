@@ -86,7 +86,6 @@ class Hints(object):
                       ``contains``, ``startswith`` or ``endswith``
     * ``case_sensitive``: whether any comparison should take account of
                           case
-    * ``type``: will always be 'filter'
 
     """
 
@@ -100,16 +99,14 @@ class Hints(object):
         """Add a filter to the filters list, which is publicly accessible."""
         self.filters.append({'name': name, 'value': value,
                              'comparator': comparator,
-                             'case_sensitive': case_sensitive,
-                             'type': 'filter'})
+                             'case_sensitive': case_sensitive})
 
     def get_exact_filter_by_name(self, name):
         """Return a filter key and value if exact filter exists for name."""
         for entry in self.filters:
-            if (entry['type'] == 'filter' and entry['name'] == name and
-                    entry['comparator'] == 'equals'):
+            if (entry['name'] == name and entry['comparator'] == 'equals'):
                 return entry
 
     def set_limit(self, limit, truncated=False):
         """Set a limit to indicate the list should be truncated."""
-        self.limit = {'limit': limit, 'type': 'limit', 'truncated': truncated}
+        self.limit = {'limit': limit, 'truncated': truncated}
