@@ -54,7 +54,8 @@ class V2CatalogTestCase(rest.RestfulTestCase):
                          service_id=SERVICE_FIXTURE,
                          publicurl='http://localhost:8080',
                          internalurl='http://localhost:8080',
-                         adminurl='http://localhost:8080'):
+                         adminurl='http://localhost:8080',
+                         region='RegionOne'):
         if service_id is SERVICE_FIXTURE:
             service_id = self.service_id
 
@@ -63,11 +64,12 @@ class V2CatalogTestCase(rest.RestfulTestCase):
             'endpoint': {
                 'adminurl': adminurl,
                 'service_id': service_id,
-                'region': 'RegionOne',
                 'internalurl': internalurl,
                 'publicurl': publicurl
             }
         }
+        if region is not None:
+            body['endpoint']['region'] = region
 
         r = self.admin_request(method='POST', token=self.get_scoped_token(),
                                path=path, expected_status=expected_status,
@@ -84,6 +86,14 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         req_body, response = self._endpoint_create()
         self.assertIn('endpoint', response.result)
         self.assertIn('id', response.result['endpoint'])
+        for field, value in req_body['endpoint'].items():
+            self.assertEqual(value, response.result['endpoint'][field])
+
+    def test_endpoint_create_without_region(self):
+        req_body, response = self._endpoint_create(region=None)
+        self.assertIn('endpoint', response.result)
+        self.assertIn('id', response.result['endpoint'])
+        self.assertNotIn('region', response.result['endpoint'])
         for field, value in req_body['endpoint'].items():
             self.assertEqual(value, response.result['endpoint'][field])
 
