@@ -1401,6 +1401,38 @@ MAPPING_BAD_LOCAL_SETUP = {
     ]
 }
 
+MAPPING_GROUPS_WITH_EMAIL = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "groups",
+                },
+                {
+                    "type": "userEmail",
+                },
+                {
+                    "type": "UserName"
+                }
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": DEVELOPER_GROUP_DOMAIN_ID
+                    }
+                },
+                {
+                    "user": {
+                        "name": "{2}",
+                        "email": "{1}"
+                    }
+                }
+            ]
+        }
+    ]
+}
+
 EMPLOYEE_ASSERTION = {
     'Email': 'tim@example.com',
     'UserName': 'tbo',
@@ -1545,6 +1577,12 @@ UNICODE_NAME_ASSERTION = {
     'PFX_FirstName': 'Jon Kåre',
     'PFX_LastName': 'Hellån',
     'PFX_orgPersonType': 'Admin;Chief'
+}
+
+GROUPS_ASSERTION_ONLY_ONE_GROUP = {
+    'userEmail': 'jill@example.com',
+    'UserName': 'jsmith',
+    'groups': 'ALL USERS'
 }
 
 MAPPING_UNICODE = {
