@@ -40,8 +40,8 @@ Related Identity Projects
 =========================
 
 In addition to creating OpenStack's Identity Service, the Keystone team also
-provides a `WSGI middleware`_, an `Authentication library`_ and as well
-as `Python client library`_.
+provides a `WSGI middleware`_, an `Authentication library`_ and a `Python
+client library`_.
 
 .. _`WSGI middleware`: http://docs.openstack.org/developer/keystonemiddleware/
 .. _`Authentication library`: http://docs.openstack.org/developer/keystoneauth/
