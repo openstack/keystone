@@ -51,9 +51,11 @@ class User(sql.ModelBase, sql.DictBase):
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
 
-    # name property
+    # NOTE(stevemar): we use a hybrid property here because we leverage the
+    # expression method, see `@name.expression` and `LocalUser.name` below.
     @hybrid_property
     def name(self):
+        """Return the current user name."""
         if self.local_user:
             return self.local_user.name
         elif self.nonlocal_user:
@@ -74,33 +76,40 @@ class User(sql.ModelBase, sql.DictBase):
         return LocalUser.name
 
     # password properties
-    @hybrid_property
+    @property
     def password_ref(self):
-        """Return the current password."""
+        """Return the current password ref."""
         if self.local_user and self.local_user.passwords:
             return self.local_user.passwords[-1]
         return None
 
+    # NOTE(stevemar): we use a hybrid property here because we leverage the
+    # expression method, see `@password.expression` and `Password.password`
+    # below.
     @hybrid_property
     def password(self):
+        """Return the current password."""
         if self.password_ref:
             return self.password_ref.password
         return None
 
-    @hybrid_property
+    @property
     def password_created_at(self):
+        """Return when password was created at."""
         if self.password_ref:
             return self.password_ref.created_at
         return None
 
-    @hybrid_property
+    @property
     def password_expires_at(self):
+        """Return when password expires at."""
         if self.password_ref:
             return self.password_ref.expires_at
         return None
 
-    @hybrid_property
+    @property
     def password_is_expired(self):
+        """Return whether password is expired or not."""
         if self.password_expires_at:
             return datetime.datetime.utcnow() >= self.password_expires_at
         return False
@@ -136,9 +145,12 @@ class User(sql.ModelBase, sql.DictBase):
     def password(cls):
         return Password.password
 
-    # domain_id property
+    # NOTE(stevemar): we use a hybrid property here because we leverage the
+    # expression method, see `@domain_id.expression` and `LocalUser.domain_id`
+    # below.
     @hybrid_property
     def domain_id(self):
+        """Return user's domain id."""
         if self.local_user:
             return self.local_user.domain_id
         elif self.nonlocal_user:
@@ -156,9 +168,11 @@ class User(sql.ModelBase, sql.DictBase):
     def domain_id(cls):
         return LocalUser.domain_id
 
-    # enabled property
+    # NOTE(stevemar): we use a hybrid property here because we leverage the
+    # expression method, see `@enabled.expression` and `User._enabled` below.
     @hybrid_property
     def enabled(self):
+        """Return whether user is enabled or not."""
         if self._enabled:
             max_days = (
                 CONF.security_compliance.disable_user_account_days_inactive)
