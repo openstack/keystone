@@ -39,22 +39,24 @@ class Token(base.AuthMethodHandler):
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 
-    def authenticate(self, request, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload):
         if 'id' not in auth_payload:
             raise exception.ValidationError(attribute='id',
                                             target='token')
         token_ref = self._get_token_ref(auth_payload)
         if token_ref.is_federated_user and self.federation_api:
-            mapped.handle_scoped_token(
-                request, auth_context, token_ref,
-                self.federation_api, self.identity_api)
+            response_data = mapped.handle_scoped_token(
+                request, token_ref, self.federation_api, self.identity_api)
         else:
-            token_authenticate(request, auth_context, token_ref)
+            response_data = token_authenticate(request,
+                                               token_ref)
 
-        return base.AuthHandlerResponse(status=True, response_body=None)
+        return base.AuthHandlerResponse(status=True, response_body=None,
+                                        response_data=response_data)
 
 
-def token_authenticate(request, user_context, token_ref):
+def token_authenticate(request, token_ref):
+    response_data = {}
     try:
 
         # Do not allow tokens used for delegation to
@@ -94,17 +96,20 @@ def token_authenticate(request, user_context, token_ref):
             # issued prior to audit id existing, the chain is not tracked.
             token_audit_id = None
 
-        user_context.setdefault('expires_at', token_ref.expires)
-        user_context['audit_id'] = token_audit_id
-        user_context.setdefault('user_id', token_ref.user_id)
+        response_data.setdefault('expires_at', token_ref.expires)
+        response_data['audit_id'] = token_audit_id
+        response_data.setdefault('user_id', token_ref.user_id)
         # TODO(morganfainberg: determine if token 'extras' can be removed
-        # from the user_context
-        user_context['extras'].update(token_ref.get('extras', {}))
+        # from the response_data
+        response_data.setdefault('extras', {}).update(
+            token_ref.get('extras', {}))
         # NOTE(notmorgan): The Token auth method is *very* special and sets the
         # previous values to the method_names. This is because it can be used
         # for re-scoping and we want to maintain the values. Most
         # AuthMethodHandlers do no such thing and this is not required.
-        user_context.setdefault('method_names', []).extend(token_ref.methods)
+        response_data.setdefault('method_names', []).extend(token_ref.methods)
+
+        return response_data
 
     except AssertionError as e:
         LOG.error(six.text_type(e))

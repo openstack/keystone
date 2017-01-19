@@ -25,8 +25,9 @@ from keystone.oauth1 import validator
 
 @dependency.requires('oauth_api')
 class OAuth(base.AuthMethodHandler):
-    def authenticate(self, request, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload):
         """Turn a signed request with an access key into a keystone token."""
+        response_data = {}
         oauth_headers = oauth.get_oauth_headers(request.headers)
         access_token_id = oauth_headers.get('oauth_token')
 
@@ -59,8 +60,9 @@ class OAuth(base.AuthMethodHandler):
         if not result:
             msg = _('Could not validate the access token')
             raise exception.Unauthorized(msg)
-        auth_context['user_id'] = acc_token['authorizing_user_id']
-        auth_context['access_token_id'] = access_token_id
-        auth_context['project_id'] = acc_token['project_id']
+        response_data['user_id'] = acc_token['authorizing_user_id']
+        response_data['access_token_id'] = access_token_id
+        response_data['project_id'] = acc_token['project_id']
 
-        return base.AuthHandlerResponse(status=True, response_body=None)
+        return base.AuthHandlerResponse(status=True, response_body=None,
+                                        response_data=response_data)

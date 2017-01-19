@@ -30,12 +30,13 @@ CONF = keystone.conf.CONF
 
 @six.add_metaclass(abc.ABCMeta)
 class Base(base.AuthMethodHandler):
-    def authenticate(self, request, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload,):
         """Use REMOTE_USER to look up the user in the identity backend.
 
-        auth_context is an in-out variable that will be updated with the
-        user_id from the actual user from the REMOTE_USER env variable.
+        The user_id from the actual user from the REMOTE_USER env variable is
+        placed in the response_data.
         """
+        response_data = {}
         if not request.remote_user:
             msg = _('No authenticated user')
             raise exception.Unauthorized(msg)
@@ -46,13 +47,14 @@ class Base(base.AuthMethodHandler):
             msg = _('Unable to lookup user %s') % request.remote_user
             raise exception.Unauthorized(msg)
 
-        auth_context['user_id'] = user_ref['id']
+        response_data['user_id'] = user_ref['id']
         auth_type = (request.auth_type or '').lower()
 
         if 'kerberos' in CONF.token.bind and auth_type == 'negotiate':
-            auth_context['bind']['kerberos'] = user_ref['name']
+            response_data.setdefault('bind', {})['kerberos'] = user_ref['name']
 
-        return base.AuthHandlerResponse(status=True, response_body=None)
+        return base.AuthHandlerResponse(status=True, response_body=None,
+                                        response_data=response_data)
 
     @abc.abstractmethod
     def _authenticate(self, request):

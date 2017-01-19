@@ -42,42 +42,39 @@ class Mapped(base.AuthMethodHandler):
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 
-    def authenticate(self, request, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload):
         """Authenticate mapped user and set an authentication context.
 
         :param request: keystone's request context
         :param auth_payload: the content of the authentication for a
                              given method
-        :param auth_context: user authentication context, a dictionary
-                             shared by all plugins.
 
-        In addition to ``user_id`` in ``auth_context``, this plugin sets
+        In addition to ``user_id`` in ``response_data``, this plugin sets
         ``group_ids``, ``OS-FEDERATION:identity_provider`` and
         ``OS-FEDERATION:protocol``
 
         """
         if 'id' in auth_payload:
             token_ref = self._get_token_ref(auth_payload)
-            handle_scoped_token(request,
-                                auth_context,
-                                token_ref,
-                                self.federation_api,
-                                self.identity_api)
+            response_data = handle_scoped_token(request,
+                                                token_ref,
+                                                self.federation_api,
+                                                self.identity_api)
         else:
-            handle_unscoped_token(request,
-                                  auth_payload,
-                                  auth_context,
-                                  self.resource_api,
-                                  self.federation_api,
-                                  self.identity_api,
-                                  self.assignment_api,
-                                  self.role_api)
+            response_data = handle_unscoped_token(request,
+                                                  auth_payload,
+                                                  self.resource_api,
+                                                  self.federation_api,
+                                                  self.identity_api,
+                                                  self.assignment_api,
+                                                  self.role_api)
 
-        return base.AuthHandlerResponse(status=True, response_body=None)
+        return base.AuthHandlerResponse(status=True, response_body=None,
+                                        response_data=response_data)
 
 
-def handle_scoped_token(request, auth_context, token_ref,
-                        federation_api, identity_api):
+def handle_scoped_token(request, token_ref, federation_api, identity_api):
+    response_data = {}
     utils.validate_expiration(token_ref)
     token_audit_id = token_ref.audit_id
     identity_provider = token_ref.federation_idp_id
@@ -105,15 +102,16 @@ def handle_scoped_token(request, auth_context, token_ref,
     else:
         send_notification(taxonomy.OUTCOME_SUCCESS)
 
-    auth_context['user_id'] = user_id
-    auth_context['group_ids'] = group_ids
-    auth_context[federation_constants.IDENTITY_PROVIDER] = identity_provider
-    auth_context[federation_constants.PROTOCOL] = protocol
+    response_data['user_id'] = user_id
+    response_data['group_ids'] = group_ids
+    response_data[federation_constants.IDENTITY_PROVIDER] = identity_provider
+    response_data[federation_constants.PROTOCOL] = protocol
+
+    return response_data
 
 
-def handle_unscoped_token(request, auth_payload, auth_context,
-                          resource_api, federation_api, identity_api,
-                          assignment_api, role_api):
+def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
+                          identity_api, assignment_api, role_api):
 
     def validate_shadow_mapping(shadow_projects, existing_roles, idp_domain_id,
                                 idp_id):
@@ -185,18 +183,23 @@ def handle_unscoped_token(request, auth_payload, auth_context,
     def is_ephemeral_user(mapped_properties):
         return mapped_properties['user']['type'] == utils.UserType.EPHEMERAL
 
-    def build_ephemeral_user_context(auth_context, user, mapped_properties,
+    def build_ephemeral_user_context(user, mapped_properties,
                                      identity_provider, protocol):
-        auth_context['user_id'] = user['id']
-        auth_context['group_ids'] = mapped_properties['group_ids']
-        auth_context[federation_constants.IDENTITY_PROVIDER] = (
-            identity_provider)
-        auth_context[federation_constants.PROTOCOL] = protocol
+        resp = {}
+        resp['user_id'] = user['id']
+        resp['group_ids'] = mapped_properties['group_ids']
+        resp[federation_constants.IDENTITY_PROVIDER] = identity_provider
+        resp[federation_constants.PROTOCOL] = protocol
 
-    def build_local_user_context(auth_context, mapped_properties):
+        return resp
+
+    def build_local_user_context(mapped_properties):
+        resp = {}
         user_info = auth_plugins.UserAuthInfo.create(mapped_properties,
                                                      METHOD_NAME)
-        auth_context['user_id'] = user_info.user_id
+        resp['user_id'] = user_info.user_id
+
+        return resp
 
     assertion = extract_assertion_data(request)
     identity_provider = auth_payload['identity_provider']
@@ -260,11 +263,10 @@ def handle_unscoped_token(request, auth_payload, auth_context,
 
             user_id = user['id']
             group_ids = mapped_properties['group_ids']
-            build_ephemeral_user_context(auth_context, user,
-                                         mapped_properties,
-                                         identity_provider, protocol)
+            response_data = build_ephemeral_user_context(
+                user, mapped_properties, identity_provider, protocol)
         else:
-            build_local_user_context(auth_context, mapped_properties)
+            response_data = build_local_user_context(mapped_properties)
 
     except Exception:
         # NOTE(topol): Diaper defense to catch any exception, so we can
@@ -286,6 +288,8 @@ def handle_unscoped_token(request, auth_payload, auth_context,
                                                    identity_provider,
                                                    protocol, token_id,
                                                    outcome)
+
+    return response_data
 
 
 def extract_assertion_data(request):

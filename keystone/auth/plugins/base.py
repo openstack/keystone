@@ -20,8 +20,8 @@ import six
 from keystone import exception
 
 
-AuthHandlerResponse = collections.namedtuple('AuthHandlerResponse',
-                                             'status, response_body')
+AuthHandlerResponse = collections.namedtuple(
+    'AuthHandlerResponse', 'status, response_body, response_data')
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -32,7 +32,7 @@ class AuthMethodHandler(object):
         pass
 
     @abc.abstractmethod
-    def authenticate(self, request, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload):
         """Authenticate user and return an authentication context.
 
         :param request: context of an authentication request
@@ -40,21 +40,16 @@ class AuthMethodHandler(object):
         :param auth_payload: the payload content of the authentication request
                              for a given method
         :type auth_payload: dict
-        :param auth_context: user authentication context, a dictionary shared
-                             by all plugins. It contains "method_names" and
-                             "extras" by default. "method_names" is a list and
-                             "extras" is a dictionary.
-        :type auth_context: oslo_context.RequestContext
 
-        If successful, plugin must set ``user_id`` in ``auth_context``.
+        If successful, plugin must set ``user_id`` in ``response_data``.
         ``method_name`` is used to convey any additional authentication methods
         in case authentication is for re-scoping. For example, if the
         authentication is for re-scoping, plugin must append the previous
         method names into ``method_names``; NOTE: This behavior is exclusive
         to the re-scope type action. Also, plugin may add any additional
         information into ``extras``. Anything in ``extras`` will be conveyed in
-        the token's ``extras`` attribute. Here's an example of ``auth_context``
-        on successful authentication::
+        the token's ``extras`` attribute. Here's an example of
+        ``response_data`` on successful authentication::
 
             {
                 "extras": {},
