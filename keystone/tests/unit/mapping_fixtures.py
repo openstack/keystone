@@ -1596,12 +1596,76 @@ MAPPING_PROJECTS = {
                 {
                     "user": {
                         "name": "{0}"
+                    }
+                },
+                {
+                    "projects": [
+                        {"name": "Production",
+                         "roles": [{"name": "observer"}]},
+                        {"name": "Staging",
+                         "roles": [{"name": "member"}]},
+                        {"name": "Project for {0}",
+                         "roles": [{"name": "admin"}]},
+                    ],
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "Email",
+                },
+                {
+                    "type": "orgPersonType",
+                    "any_one_of": [
+                        "Employee"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+MAPPING_PROJECTS_WITHOUT_ROLES = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}"
                     },
                     "projects": [
                         {"name": "a"},
                         {"name": "b"},
-                        {"name": "project for {0}"},
+                        {"name": "Project for {0}"},
                     ],
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                }
+            ]
+        },
+    ]
+}
+
+MAPPING_PROJECTS_WITHOUT_NAME = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}"
+                    },
+                    "projects": [
+                        {"roles": [{"name": "observer"}]},
+                        {"name": "Staging",
+                         "roles": [{"name": "member"}]},
+                        {"name": "Project for {0}",
+                         "roles": [{"name": "admin"}]},
+                    ]
                 }
             ],
             "remote": [

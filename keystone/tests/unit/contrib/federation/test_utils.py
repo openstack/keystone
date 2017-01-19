@@ -742,9 +742,18 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual(expected_username, values['user']['name'])
 
         expected_projects = [
-            {"name": "a"},
-            {"name": "b"},
-            {"name": "project for %s" % expected_username},
+            {
+                "name": "Production",
+                "roles": [{"name": "observer"}]
+            },
+            {
+                "name": "Staging",
+                "roles": [{"name": "member"}]
+            },
+            {
+                "name": "Project for %s" % expected_username,
+                "roles": [{"name": "admin"}]
+            }
         ]
         self.assertEqual(expected_projects, values['projects'])
 

@@ -348,6 +348,11 @@ class DomainSpecificRoleMismatch(Forbidden):
                        "as the role %(role_id)s being assigned.")
 
 
+class DomainSpecificRoleNotWithinIdPDomain(Forbidden):
+    message_format = _("role: %(role_name)s must be within the same domain as "
+                       "the identity provider: %(identity_provider)s.")
+
+
 class RoleAssignmentNotFound(NotFound):
     message_format = _("Could not find role assignment with role: "
                        "%(role_id)s, user or group: %(actor_id)s, "
