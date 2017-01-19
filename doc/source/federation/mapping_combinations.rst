@@ -657,13 +657,15 @@ For example, consider the following mapping:
         ]
     }
 
-The ``remote`` section of the mapping is relatively straight-forward. The main
-difference between this mapping and the other examples is the addition of a
-``projects`` section within the ``local`` rules. The ``projects`` list supplies
-a list of projects that the federated user will be given access to. This is
-achieved when a user has successfully authenticated and the mapping engine has
-applied values from the assertion and mapped them into the ``local`` rules. In
-the above example, an authenticated federated user will be granted the
+The semantics of the ``remote`` section have not changed. The difference
+between this mapping and the other examples is the addition of a ``projects``
+section within the ``local`` rules. The ``projects`` list supplies a list
+of projects that the federated user will be given access to. The projects
+will be automatically created if they don't exist when the user
+authenticates and the mapping engine has applied values from the assertion
+and mapped them into the ``local`` rules.
+
+In the above example, an authenticated federated user will be granted the
 ``observer`` role on the ``Production`` project, ``member`` role on the
 ``Staging`` project, and they will have ``admin`` role on the ``Project for
 jsmith``.
@@ -675,7 +677,11 @@ It is important to note the following constraints apply when auto-provisioning:
   Provider.
 * The ``projects`` section of the mapping must also contain a ``roles``
   section.
+
   + Roles within the project must already exist in the deployment or domain.
+
+* Assignments are actually created for the user which is unlike the
+  ephemeral group memberships.
 
 Since the creation of roles typically requires policy changes across other
 services in the deployment, it is expected that roles are created ahead of
