@@ -246,6 +246,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
+   - serviceName: service_name_path
    - type: service_type
    - description: service_description
    - name: service_name
@@ -378,6 +379,7 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - Location: Location
+   - role_name: role_name_path
    - description: role_description
    - name: role_name
    - id: role_id
