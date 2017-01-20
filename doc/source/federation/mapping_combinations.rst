@@ -603,6 +603,155 @@ global username mapping.
         ]
     }
 
+
+Auto-Provisioning
+-----------------
+
+The mapping engine has the ability to aid in the auto-provisioning of resources
+when a federated user authenticates for the first time. This can be achieved
+using a specific mapping syntax that the mapping engine can parse and
+ultimately make decisions on.
+
+For example, consider the following mapping:
+
+.. code-block:: javascript
+
+    {
+        "rules": [
+            {
+                "local": [
+                    {
+                        "user": {
+                            "name": "{0}"
+                        }
+                    },
+                    {
+                        "projects": [
+                            {
+                                "name": "Production",
+                                "roles": [
+                                    {
+                                        "name": "observer"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Staging",
+                                "roles": [
+                                    {
+                                        "name": "member"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Project for {0}",
+                                "roles": [
+                                    {
+                                        "name": "admin"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "remote": [
+                    {
+                        "type": "UserName"
+                    }
+                ]
+            }
+        ]
+    }
+
+The ``remote`` section of the mapping is relatively straight-forward. The main
+difference between this mapping and the other examples is the addition of a
+``projects`` section within the ``local`` rules. The ``projects`` list supplies
+a list of projects that the federated user will be given access to. This is
+achieved when a user has successfully authenticated and the mapping engine has
+applied values from the assertion and mapped them into the ``local`` rules. In
+the above example, an authenticated federated user will be granted the
+``observer`` role on the ``Production`` project, ``member`` role on the
+``Staging`` project, and they will have ``admin`` role on the ``Project for
+jsmith``.
+
+It is important to note the following constraints apply when auto-provisioning:
+
+* Projects are the only resource that will be created dynamically.
+* Projects will be created within the domain associated with the Identity
+  Provider.
+* The ``projects`` section of the mapping must also contain a ``roles``
+  section.
+  + Roles within the project must already exist in the deployment or domain.
+
+Since the creation of roles typically requires policy changes across other
+services in the deployment, it is expected that roles are created ahead of
+time. Federated authentication should also be considered idempotent if the
+attributes from the SAML assertion have not changed. In the example from above,
+if the user's name is still ``jsmith``, then no new projects will be
+created as a result of authentication.
+
+Mappings can be created that mix ``groups`` and ``projects`` within the
+``local`` section. The mapping shown in the example above does not contain a
+``groups`` section in the ``local`` rules. This will result in the federated
+user having direct role assignments on the projects in the ``projects`` list.
+The following example contains ``local`` rules comprised of both ``projects``
+and ``groups``, which allow for direct role assignments and group memberships.
+
+.. code-block:: javascript
+
+    {
+        "rules": [
+            {
+                "local": [
+                    {
+                        "user": {
+                            "name": "{0}"
+                        }
+                    },
+                    {
+                        "projects": [
+                            {
+                                "name": "Marketing",
+                                "roles": [
+                                    {
+                                        "name": "member"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "Development project for {0}",
+                                "roles": [
+                                    {
+                                        "name": "admin"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "group": {
+                            "name": "Finance",
+                            "domain": {
+                                "id": "6fe767"
+                            }
+                        }
+                    }
+                ],
+                "remote": [
+                    {
+                        "type": "UserName"
+                    }
+                ]
+            }
+        ]
+    }
+
+In the above example, a federated user will receive direct role assignments on
+the ``Marketing`` project, as well as a dedicated project specific to the
+federated user's name. In addition to that, they will also be placed in the
+``Finance`` group and receive all role assignments that group has on projects
+and domains.
+
 Keystone to Keystone
 --------------------
 
