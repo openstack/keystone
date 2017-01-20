@@ -4,16 +4,21 @@ Using external authentication with Keystone
 .. _external-auth:
 
 When Keystone is executed in a web server like :doc:`Apache HTTPD
-<apache-httpd>` it is possible to use external authentication methods different
-from the authentication provided by the identity store backend or the different
-authentication plugins. For example, this makes possible to use an SQL identity
-backend together with, X.509 authentication or Kerberos, for example, instead
-of using the username and password combination.
+<apache-httpd>`, it is possible to have the web server also handle
+authentication. This enables support for additional methods of authentication
+that are not provided by the identity store backend and the authentication
+plugins that Keystone supports.
 
-When a web server is in charge of authentication, it is normally possible to
-set the ``REMOTE_USER`` environment variable so that it can be used in the
-underlying application. Keystone can be configured to use that environment
-variable if set, so that the authentication is handled by the web server.
+Having the web server handle authentication is not exclusive, and both
+Keystone and the web server can provide different methods of authentication at
+the same time. For example, the web server can provide support for X.509 or
+Kerberos authentication, while Keystone provides support for password
+authentication (with SQL or an identity store as the backend).
+
+When the web server authenticates a user, it sets environment variables,
+usually ``REMOTE_USER``, which can be used in the underlying application.
+Keystone can be configured to use these environment variables to determine the
+identity of the user.
 
 Configuration
 =============
