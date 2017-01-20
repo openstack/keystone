@@ -278,7 +278,7 @@ class RevokeTests(object):
         # This gets a token but overrides project_id of the token to be None.
         # We expect that since there are two events which both have populated
         # project_ids, this should not match this third_token with any other
-        # event in the list so we should recieve 0
+        # event in the list so we should receive 0.
         third_token = _sample_blank_token()
         third_token['project_id'] = None
         self._assertTokenNotRevoked(events, token)
