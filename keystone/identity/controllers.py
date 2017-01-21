@@ -276,7 +276,9 @@ class UserV3(controller.V3Controller):
             user_id, initiator=request.audit_initiator
         )
 
-    @controller.protected()
+    # NOTE(gagehugo): We do not need this to be @protected.
+    # A user is already expected to know their password in order
+    # to change it, and can be authenticated as such.
     def change_password(self, request, user_id, user):
         original_password = user.get('original_password')
         if original_password is None:

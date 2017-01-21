@@ -360,6 +360,10 @@ Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_chan
 
 Changes the password for a user.
 
+.. note::
+    This API can be called directly without authenticating and providing a token in the
+    ``X-Auth-Token`` request header.
+
 Response Codes
 --------------
 
