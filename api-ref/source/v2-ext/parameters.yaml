@@ -18,9 +18,21 @@ role_id_path:
   in: path
   required: true
   type: string
+role_name_path:
+  description: |
+    The role name.
+  in: path
+  required: true
+  type: string
 service_id_path:
   description: |
     The service ID.
+  in: path
+  required: true
+  type: string
+service_name_path:
+  description: |
+    The service name.
   in: path
   required: true
   type: string
@@ -186,4 +198,3 @@ users:
   in: body
   required: true
   type: array
-

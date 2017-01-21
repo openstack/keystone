@@ -18,6 +18,14 @@ Normal response codes: 201
 
 Error response codes: 413,415,405,404,403,401,400,503,409,
 
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: user_id_path
+
+
 Request Example
 ---------------
 
@@ -36,6 +44,14 @@ Normal response codes: 200
 
 Error response codes: 413,405,404,403,401,400,503,
 
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: user_id_path
+
+
 Response Example
 ----------------
 
@@ -53,6 +69,14 @@ Updates credentials for a user.
 Normal response codes: 200
 
 Error response codes: 415,405,404,403,401,400,503,409,
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: user_id_path
+
 
 Request Example
 ---------------
@@ -79,6 +103,14 @@ Normal response codes: 204
 Error response codes: 413,415,405,404,403,401,400,503,409,
 
 
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: user_id_path
+
+
 Get user credentials
 ====================
 
@@ -89,6 +121,13 @@ Gets user credentials.
 Normal response codes: 200
 
 Error response codes: 413,405,404,403,401,400,503,
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - userId: user_id_path
 
 Response Example
 ----------------
@@ -113,6 +152,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
+   - userId: user_id_path
    - type: credential_type
 
 Response Example
