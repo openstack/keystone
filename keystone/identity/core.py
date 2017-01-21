@@ -436,7 +436,8 @@ def exception_translated(exception_type):
 @notifications.listener
 @dependency.provider('identity_api')
 @dependency.requires('assignment_api', 'credential_api', 'id_mapping_api',
-                     'resource_api', 'revoke_api', 'shadow_users_api')
+                     'resource_api', 'revoke_api', 'shadow_users_api',
+                     'federation_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
@@ -1383,14 +1384,16 @@ class Manager(manager.Manager):
             user_dict = self.shadow_users_api.get_federated_user(
                 idp_id, protocol_id, unique_id)
         except exception.UserNotFound:
+            idp = self.federation_api.get_idp(idp_id)
             federated_dict = {
                 'idp_id': idp_id,
                 'protocol_id': protocol_id,
                 'unique_id': unique_id,
                 'display_name': display_name
             }
-            user_dict = self.shadow_users_api.create_federated_user(
-                federated_dict)
+            user_dict = (
+                self.shadow_users_api.create_federated_user(idp['domain_id'],
+                                                            federated_dict))
         self.shadow_users_api.set_last_active_at(user_dict['id'])
         return user_dict
 

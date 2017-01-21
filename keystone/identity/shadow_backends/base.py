@@ -24,11 +24,11 @@ class ShadowUsersDriverBase(object):
     """Interface description for an Shadow Users driver."""
 
     @abc.abstractmethod
-    def create_federated_user(self, federated_dict):
+    def create_federated_user(self, domain_id, federated_dict):
         """Create a new user with the federated identity.
 
+        :param domain_id: The domain ID of the IdP used for the federated user
         :param dict federated_dict: Reference to the federated user
-        :param user_id: user ID for linking to the federated identity
         :returns dict: Containing the user reference
 
         """
