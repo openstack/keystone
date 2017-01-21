@@ -379,37 +379,6 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
                           self.identity_api.get_user,
                           user['id'])
 
-    def test_configurable_forbidden_user_actions(self):
-        driver = self.identity_api._select_identity_driver(
-            CONF.identity.default_domain_id)
-        driver.user.allow_create = False
-        driver.user.allow_update = False
-        driver.user.allow_delete = False
-
-        user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.create_user,
-                          user)
-
-        self.user_foo['password'] = u'fäképass2'
-        self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.update_user,
-                          self.user_foo['id'],
-                          self.user_foo)
-
-        self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.delete_user,
-                          self.user_foo['id'])
-
-    def test_configurable_forbidden_create_existing_user(self):
-        driver = self.identity_api._select_identity_driver(
-            CONF.identity.default_domain_id)
-        driver.user.allow_create = False
-
-        self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.create_user,
-                          self.user_foo)
-
     def test_user_filter(self):
         user_ref = self.identity_api.get_user(self.user_foo['id'])
         self.user_foo.pop('password')
@@ -705,47 +674,6 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
         after_assignments = len(self.assignment_api.list_role_assignments())
         self.assertEqual(existing_assignments + 2, after_assignments)
 
-    def test_list_role_assignments_dumb_member(self):
-        self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.ldapdb.clear()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-        new_domain = self._get_domain_fixture()
-        new_user = self.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
-        new_project = unit.new_project_ref(domain_id=new_domain['id'])
-        self.resource_api.create_project(new_project['id'], new_project)
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=new_project['id'],
-                                         role_id='other')
-
-        # Read back the list of assignments and ensure
-        # that the LDAP dumb member isn't listed.
-        assignment_ids = [a['user_id'] for a in
-                          self.assignment_api.list_role_assignments()]
-        dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
-        self.assertNotIn(dumb_id, assignment_ids)
-
-    def test_list_user_ids_for_project_dumb_member(self):
-        self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.ldapdb.clear()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-        user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-
-        user = self.identity_api.create_user(user)
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                user['id'])
-        user_ids = self.assignment_api.list_user_ids_for_project(
-            self.tenant_baz['id'])
-
-        self.assertIn(user['id'], user_ids)
-
-        dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
-        self.assertNotIn(dumb_id, user_ids)
-
     def test_list_group_members_missing_entry(self):
         """List group members with deleted user.
 
@@ -791,29 +719,6 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
         # If this doesn't raise, then the test is successful.
         self.identity_api.list_users_in_group(group['id'])
-
-    def test_list_group_members_dumb_member(self):
-        self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.ldapdb.clear()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-        # Create a group
-        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group)['id']
-
-        # Create a user
-        user = dict(name=uuid.uuid4().hex,
-                    domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user)['id']
-
-        # Add user to the group
-        self.identity_api.add_user_to_group(user_id, group_id)
-
-        user_ids = self.identity_api.list_users_in_group(group_id)
-        dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
-
-        self.assertNotIn(dumb_id, user_ids)
 
     def test_list_domains(self):
         # We have more domains here than the parent class, check for the
@@ -1181,47 +1086,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                           self.resource_api.get_project,
                           project['id'])
 
-    def test_configurable_subtree_delete(self):
-        self.config_fixture.config(group='ldap', allow_subtree_delete=True)
-        self.load_backends()
-
-        project1 = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project1['id'], project1)
-
-        role1 = unit.new_role_ref()
-        self.role_api.create_role(role1['id'], role1)
-
-        user1 = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user1 = self.identity_api.create_user(user1)
-
-        self.assignment_api.add_role_to_user_and_project(
-            user_id=user1['id'],
-            tenant_id=project1['id'],
-            role_id=role1['id'])
-
-        self.resource_api.delete_project(project1['id'])
-        self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
-                          project1['id'])
-
-        self.resource_api.create_project(project1['id'], project1)
-
-        list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'],
-            project1['id'])
-        self.assertEqual(0, len(list))
-
-    def test_dumb_member(self):
-        self.config_fixture.config(group='ldap', use_dumb_member=True)
-        self.ldapdb.clear()
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-        dumb_id = common_ldap.BaseLdap._dn_to_id(CONF.ldap.dumb_member)
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
-                          dumb_id)
-
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(group='ldap', user_enabled_mask=2,
                                    user_enabled_default='512')
@@ -1473,36 +1337,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
             ValueError,
             'Invalid LDAP deref option: %s\.' % CONF.ldap.alias_dereferencing,
             identity.backends.ldap.Identity)
-
-    def test_is_dumb_member(self):
-        self.config_fixture.config(group='ldap',
-                                   use_dumb_member=True)
-        self.load_backends()
-
-        dn = 'cn=dumb,dc=nonexistent'
-        self.assertTrue(self.identity_api.driver.user._is_dumb_member(dn))
-
-    def test_is_dumb_member_upper_case_keys(self):
-        self.config_fixture.config(group='ldap',
-                                   use_dumb_member=True)
-        self.load_backends()
-
-        dn = 'CN=dumb,DC=nonexistent'
-        self.assertTrue(self.identity_api.driver.user._is_dumb_member(dn))
-
-    def test_is_dumb_member_with_false_use_dumb_member(self):
-        self.config_fixture.config(group='ldap',
-                                   use_dumb_member=False)
-        self.load_backends()
-        dn = 'cn=dumb,dc=nonexistent'
-        self.assertFalse(self.identity_api.driver.user._is_dumb_member(dn))
-
-    def test_is_dumb_member_not_dumb(self):
-        self.config_fixture.config(group='ldap',
-                                   use_dumb_member=True)
-        self.load_backends()
-        dn = 'ou=some,dc=example.com'
-        self.assertFalse(self.identity_api.driver.user._is_dumb_member(dn))
 
     def test_user_extra_attribute_mapping(self):
         self.config_fixture.config(

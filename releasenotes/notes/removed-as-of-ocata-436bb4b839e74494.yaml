@@ -2,9 +2,24 @@
 prelude: >
   - The PKI and PKIz token format has been removed. See ``Other Notes`` for
     more details.
+
+  - Support for writing to LDAP has been removed. See ``Other Notes`` for more
+    details.
 other:
   - >
     PKI and PKIz token formats have been removed in favor of Fernet tokens.
+  - >
+    Write support for the LDAP has been removed in favor of read-only support.
+    The following operations are no longer supported for LDAP:
+
+      * ``create user``
+      * ``create group``
+      * ``delete user``
+      * ``delete group``
+      * ``update user``
+      * ``update group``
+      * ``add user to group``
+      * ``remove user from group``
   - >
     Routes and SQL backends for the contrib extensions have been removed, they
     have been incorporated into keystone and are no longer optional. This
