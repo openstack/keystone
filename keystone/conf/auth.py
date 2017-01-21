@@ -20,7 +20,11 @@ methods = cfg.ListOpt(
     'methods',
     default=constants._DEFAULT_AUTH_METHODS,
     help=utils.fmt("""
-Allowed authentication methods.
+Allowed authentication methods. Note: You should disable the `external` auth
+method if you are currently using federation. External auth and federation
+both use the REMOTE_USER variable. Since both the mapped and external plugin
+are being invoked to validate attributes in the request environment, it can
+cause conflicts.
 """))
 
 password = cfg.StrOpt(  # nosec : This is the name of the plugin, not
