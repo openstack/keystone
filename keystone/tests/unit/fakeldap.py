@@ -380,13 +380,6 @@ class FakeLdap(common.LDAPHandler):
             raise ldap.SERVER_DOWN
 
         try:
-            if CONTROL_TREEDELETE in [c.controlType for c in serverctrls]:
-                LOG.debug('FakeLdap subtree_delete item: dn=%s',
-                          common.utf8_decode(dn))
-                children = self._getChildren(dn)
-                for c in children:
-                    del self.db[c]
-
             key = self.key(dn)
             LOG.debug('FakeLdap delete item: dn=%s', common.utf8_decode(dn))
             del self.db[key]

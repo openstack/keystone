@@ -1566,8 +1566,6 @@ The corresponding entries in the keystone configuration file are:
   user = dc=Manager,dc=openstack,dc=org
   password = badpassword
   suffix = dc=openstack,dc=org
-  use_dumb_member = False
-  allow_subtree_delete = False
 
   user_tree_dn = ou=Users,dc=openstack,dc=org
   user_objectclass = inetOrgPerson
@@ -1586,18 +1584,6 @@ entries in the keystone configuration file are:
   [ldap]
   user_id_attribute = uidNumber
   user_name_attribute = cn
-
-
-There is a set of allowed actions per object type that you can modify depending
-on your specific deployment. For example, the users are managed by another tool
-and you have only read access, in such case the configuration is:
-
-.. code-block:: ini
-
-  [ldap]
-  user_allow_create = False
-  user_allow_update = False
-  user_allow_delete = False
 
 There are some configuration options for filtering users, tenants and roles, if
 the backend is providing too much output, in such case the configuration will
@@ -1765,18 +1751,7 @@ backend. Also note that if there is an LDAP Identity, and no resource,
 assignment or role backend is specified, they will default to LDAP. Although
 this may seem counter intuitive, it is provided for backwards compatibility.
 Nonetheless, the explicit option will always override the implicit option, so
-specifying the options as shown above will always be correct.  Finally, it is
-also worth noting that whether or not the LDAP accessible directory is to be
-considered read only is still configured as described in a previous section
-above by setting values such as the following in the ``[ldap]`` configuration
-section:
-
-.. code-block:: ini
-
-  [ldap]
-  user_allow_create = False
-  user_allow_update = False
-  user_allow_delete = False
+specifying the options as shown above will always be correct.
 
 .. NOTE::
 

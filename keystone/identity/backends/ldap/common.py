@@ -55,6 +55,10 @@ DN_ONLY = ['1.1']
 
 _utf8_encoder = codecs.getencoder('utf-8')
 
+# FIXME(knikolla): This enables writing to the LDAP backend
+# Only enabled during tests and unsupported
+WRITABLE = False
+
 
 def utf8_encode(value):
     """Encode a basestring to UTF-8.
@@ -1130,7 +1134,6 @@ class BaseLdap(object):
     DEFAULT_OBJECTCLASS = None
     DEFAULT_FILTER = None
     DEFAULT_EXTRA_ATTR_MAPPING = []
-    DUMB_MEMBER_DN = 'cn=dumb,dc=nonexistent'
     NotFound = None
     notfound_arg = None
     options_name = None
@@ -1195,15 +1198,6 @@ class BaseLdap(object):
             self.ldap_filter = getattr(conf.ldap,
                                        ldap_filter) or self.DEFAULT_FILTER
 
-            allow_create = '%s_allow_create' % self.options_name
-            self.allow_create = getattr(conf.ldap, allow_create)
-
-            allow_update = '%s_allow_update' % self.options_name
-            self.allow_update = getattr(conf.ldap, allow_update)
-
-            allow_delete = '%s_allow_delete' % self.options_name
-            self.allow_delete = getattr(conf.ldap, allow_delete)
-
             member_attribute = '%s_member_attribute' % self.options_name
             self.member_attribute = getattr(conf.ldap, member_attribute, None)
 
@@ -1214,12 +1208,6 @@ class BaseLdap(object):
 
             attribute_ignore = '%s_attribute_ignore' % self.options_name
             self.attribute_ignore = getattr(conf.ldap, attribute_ignore)
-
-        self.use_dumb_member = conf.ldap.use_dumb_member
-        self.dumb_member = (conf.ldap.dumb_member or
-                            self.DUMB_MEMBER_DN)
-
-        self.subtree_delete_enabled = conf.ldap.allow_subtree_delete
 
     def _not_found(self, object_id):
         if self.NotFound is None:
@@ -1241,14 +1229,6 @@ class BaseLdap(object):
                 continue
             mapping[ldap_attr] = attr_map
         return mapping
-
-    def _is_dumb_member(self, member_dn):
-        """Check that member is a dumb member.
-
-        :param member_dn: DN of member to be checked.
-        """
-        return (self.use_dumb_member
-                and is_dn_equal(member_dn, self.dumb_member))
 
     def get_connection(self, user=None, password=None, end_user_auth=False):
         use_pool = self.use_pool
@@ -1387,21 +1367,6 @@ class BaseLdap(object):
 
         return obj
 
-    def check_allow_create(self):
-        if not self.allow_create:
-            action = _('LDAP %s create') % self.options_name
-            raise exception.ForbiddenAction(action=action)
-
-    def check_allow_update(self):
-        if not self.allow_update:
-            action = _('LDAP %s update') % self.options_name
-            raise exception.ForbiddenAction(action=action)
-
-    def check_allow_delete(self):
-        if not self.allow_delete:
-            action = _('LDAP %s delete') % self.options_name
-            raise exception.ForbiddenAction(action=action)
-
     def affirm_unique(self, values):
         if values.get('name') is not None:
             try:
@@ -1446,8 +1411,6 @@ class BaseLdap(object):
                 for attr in extra_attrs:
                     attrs.append((attr, [v]))
 
-        if 'groupOfNames' in object_classes and self.use_dumb_member:
-            attrs.append(('member', [self.dumb_member]))
         with self.get_connection() as conn:
             conn.add_s(self._id_to_dn(values['id']), attrs)
         return values
@@ -1613,43 +1576,6 @@ class BaseLdap(object):
                 conn.delete_s(self._id_to_dn(object_id))
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(object_id)
-
-    def delete_tree(self, object_id):
-        tree_delete_control = ldap.controls.LDAPControl(CONTROL_TREEDELETE,
-                                                        0,
-                                                        None)
-        with self.get_connection() as conn:
-            try:
-                conn.delete_ext_s(self._id_to_dn(object_id),
-                                  serverctrls=[tree_delete_control])
-            except ldap.NO_SUCH_OBJECT:
-                raise self._not_found(object_id)
-            except ldap.NOT_ALLOWED_ON_NONLEAF:
-                # Most LDAP servers do not support the tree_delete_control.
-                # In these servers, the usual idiom is to first perform a
-                # search to get the entries to delete, then delete them
-                # in order of child to parent, since LDAP forbids the
-                # deletion of a parent entry before deleting the children
-                # of that parent.  The simplest way to do that is to delete
-                # the entries in order of the length of the DN, from longest
-                # to shortest DN.
-                dn = self._id_to_dn(object_id)
-                scope = ldap.SCOPE_SUBTREE
-                # With some directory servers, an entry with objectclass
-                # ldapsubentry will not be returned unless it is explicitly
-                # requested, by specifying the objectclass in the search
-                # filter.  We must specify this, with objectclass=*, in an
-                # LDAP filter OR clause, in order to return all entries
-                filt = '(|(objectclass=*)(objectclass=ldapsubentry))'
-                # We only need the DNs of the entries.  Since no attributes
-                # will be returned, we do not have to specify attrsonly=1.
-                entries = conn.search_s(dn, scope, filt, attrlist=DN_ONLY)
-                if entries:
-                    for dn in sorted((e[0] for e in entries),
-                                     key=len, reverse=True):
-                        conn.delete_s(dn)
-                else:
-                    LOG.debug('No entries in LDAP subtree %s', dn)
 
     def add_member(self, member_dn, member_list_dn):
         """Add member to the member list.
@@ -1897,8 +1823,6 @@ class EnabledEmuMixIn(BaseLdap):
                                  (self.member_attribute,
                                   [self._id_to_dn(object_id)]),
                                  self.enabled_emulation_naming_attr]
-                    if self.use_dumb_member:
-                        attr_list[1][1].append(self.dumb_member)
                     conn.add_s(self.enabled_emulation_dn, attr_list)
 
     def _remove_enabled(self, object_id):
