@@ -1037,6 +1037,29 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         self.token = self.get_request_token(reset_password,
                                             http_client.CREATED)
 
+    def test_lockout_exempt(self):
+        self.config_fixture.config(group='security_compliance',
+                                   lockout_failure_attempts=1)
+
+        # create user
+        self.user_ref = unit.create_user(self.identity_api,
+                                         domain_id=self.domain['id'])
+
+        # update the user, mark her as exempt from lockout
+        ignore_opt_name = options.IGNORE_LOCKOUT_ATTEMPT_OPT.option_name
+        self.user_ref['options'][ignore_opt_name] = True
+        self.identity_api.update_user(self.user_ref['id'], self.user_ref)
+
+        # fail to auth, this should lockout the user, since we're allowed
+        # one failure, but we're exempt from lockout!
+        bad_password = uuid.uuid4().hex
+        self.token = self.get_request_token(bad_password,
+                                            http_client.UNAUTHORIZED)
+
+        # attempt to authenticate with correct password
+        self.get_request_token(self.user_ref['password'],
+                               expected_status=http_client.CREATED)
+
 
 class PasswordValidationTestCase(ChangePasswordTestCase):
 

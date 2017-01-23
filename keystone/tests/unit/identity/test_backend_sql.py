@@ -533,10 +533,11 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
                           password=uuid.uuid4().hex)
 
     def test_lock_out_for_ignored_user(self):
-        # add the user id to the ignore list
-        self.config_fixture.config(
-            group='security_compliance',
-            lockout_ignored_user_ids=[self.user['id']])
+        # mark the user as exempt from failed password attempts
+        # ignore user and reset password, password not expired
+        self.user['options'][iro.IGNORE_LOCKOUT_ATTEMPT_OPT.option_name] = True
+        self.identity_api.update_user(self.user['id'], self.user)
+
         # fail authentication repeatedly the max number of times
         self._fail_auth_repeatedly(self.user['id'])
         # authenticate with wrong password, account should not be locked
