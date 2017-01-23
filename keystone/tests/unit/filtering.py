@@ -17,6 +17,7 @@ import uuid
 from six.moves import range
 
 import keystone.conf
+from keystone import exception
 
 
 CONF = keystone.conf.CONF
@@ -122,4 +123,9 @@ class FilterTests(object):
 
     def _delete_test_data(self, entity_type, entity_list):
         for entity in entity_list:
-            self._delete_entity(entity_type)(entity['id'])
+            try:
+                self._delete_entity(entity_type)(entity['id'])
+            except exception.Forbidden:
+                # Note(knikolla): Some identity backends such as LDAP are
+                # read only
+                break

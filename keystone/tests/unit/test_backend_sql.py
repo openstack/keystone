@@ -476,6 +476,69 @@ class SqlIdentity(SqlTests,
         # roles assignments.
         self.assertThat(user_domains, matchers.HasLength(0))
 
+    def test_list_groups_for_user(self):
+        domain = self._get_domain_fixture()
+        test_groups = []
+        test_users = []
+        GROUP_COUNT = 3
+        USER_COUNT = 2
+
+        for x in range(0, USER_COUNT):
+            new_user = unit.new_user_ref(domain_id=domain['id'])
+            new_user = self.identity_api.create_user(new_user)
+            test_users.append(new_user)
+        positive_user = test_users[0]
+        negative_user = test_users[1]
+
+        for x in range(0, USER_COUNT):
+            group_refs = self.identity_api.list_groups_for_user(
+                test_users[x]['id'])
+            self.assertEqual(0, len(group_refs))
+
+        for x in range(0, GROUP_COUNT):
+            before_count = x
+            after_count = x + 1
+            new_group = unit.new_group_ref(domain_id=domain['id'])
+            new_group = self.identity_api.create_group(new_group)
+            test_groups.append(new_group)
+
+            # add the user to the group and ensure that the
+            # group count increases by one for each
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEqual(before_count, len(group_refs))
+            self.identity_api.add_user_to_group(
+                positive_user['id'],
+                new_group['id'])
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEqual(after_count, len(group_refs))
+
+            # Make sure the group count for the unrelated user did not change
+            group_refs = self.identity_api.list_groups_for_user(
+                negative_user['id'])
+            self.assertEqual(0, len(group_refs))
+
+        # remove the user from each group and ensure that
+        # the group count reduces by one for each
+        for x in range(0, 3):
+            before_count = GROUP_COUNT - x
+            after_count = GROUP_COUNT - x - 1
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEqual(before_count, len(group_refs))
+            self.identity_api.remove_user_from_group(
+                positive_user['id'],
+                test_groups[x]['id'])
+            group_refs = self.identity_api.list_groups_for_user(
+                positive_user['id'])
+            self.assertEqual(after_count, len(group_refs))
+            # Make sure the group count for the unrelated user
+            # did not change
+            group_refs = self.identity_api.list_groups_for_user(
+                negative_user['id'])
+            self.assertEqual(0, len(group_refs))
+
     def test_storing_null_domain_id_in_project_ref(self):
         """Test the special storage of domain_id=None in sql resource driver.
 

@@ -760,26 +760,6 @@ class IdentityTests(object):
                 negative_user['id'])
             self.assertEqual(0, len(group_refs))
 
-        # remove the user from each group and ensure that
-        # the group count reduces by one for each
-        for x in range(0, 3):
-            before_count = GROUP_COUNT - x
-            after_count = GROUP_COUNT - x - 1
-            group_refs = self.identity_api.list_groups_for_user(
-                positive_user['id'])
-            self.assertEqual(before_count, len(group_refs))
-            self.identity_api.remove_user_from_group(
-                positive_user['id'],
-                test_groups[x]['id'])
-            group_refs = self.identity_api.list_groups_for_user(
-                positive_user['id'])
-            self.assertEqual(after_count, len(group_refs))
-            # Make sure the group count for the unrelated user
-            # did not change
-            group_refs = self.identity_api.list_groups_for_user(
-                negative_user['id'])
-            self.assertEqual(0, len(group_refs))
-
     def test_remove_user_from_group(self):
         domain = self._get_domain_fixture()
         new_group = unit.new_group_ref(domain_id=domain['id'])

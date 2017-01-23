@@ -36,7 +36,6 @@ from keystone.i18n import _
 LOG = log.getLogger(__name__)
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}
-CONTROL_TREEDELETE = '1.2.840.113556.1.4.805'
 LDAP_SCOPES = {'one': ldap.SCOPE_ONELEVEL,
                'sub': ldap.SCOPE_SUBTREE}
 LDAP_DEREF = {'always': ldap.DEREF_ALWAYS,
@@ -479,14 +478,6 @@ class LDAPHandler(object):
     def modify_s(self, dn, modlist):
         raise exception.NotImplemented()  # pragma: no cover
 
-    @abc.abstractmethod
-    def delete_s(self, dn):
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
-        raise exception.NotImplemented()  # pragma: no cover
-
 
 class PythonLDAPHandler(LDAPHandler):
     """LDAPHandler implementation which calls the python-ldap API.
@@ -564,12 +555,6 @@ class PythonLDAPHandler(LDAPHandler):
 
     def modify_s(self, dn, modlist):
         return self.conn.modify_s(dn, modlist)
-
-    def delete_s(self, dn):
-        return self.conn.delete_s(dn)
-
-    def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
-        return self.conn.delete_ext_s(dn, serverctrls, clientctrls)
 
 
 def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
@@ -832,14 +817,6 @@ class PooledLDAPHandler(LDAPHandler):
     def modify_s(self, conn, dn, modlist):
         return conn.modify_s(dn, modlist)
 
-    @use_conn_pool
-    def delete_s(self, conn, dn):
-        return conn.delete_s(dn)
-
-    @use_conn_pool
-    def delete_ext_s(self, conn, dn, serverctrls=None, clientctrls=None):
-        return conn.delete_ext_s(dn, serverctrls, clientctrls)
-
 
 class KeystoneLDAPHandler(LDAPHandler):
     """Convert data types and perform logging.
@@ -1077,17 +1054,6 @@ class KeystoneLDAPHandler(LDAPHandler):
                         else [utf8_encode(x) for x in safe_iter(values)]))
             for op, kind, values in ldap_modlist]
         return self.conn.modify_s(dn_utf8, ldap_modlist_utf8)
-
-    def delete_s(self, dn):
-        LOG.debug("LDAP delete: dn=%s", dn)
-        dn_utf8 = utf8_encode(dn)
-        return self.conn.delete_s(dn_utf8)
-
-    def delete_ext_s(self, dn, serverctrls=None, clientctrls=None):
-        LOG.debug('LDAP delete_ext: dn=%s serverctrls=%s clientctrls=%s',
-                  dn, serverctrls, clientctrls)
-        dn_utf8 = utf8_encode(dn)
-        return self.conn.delete_ext_s(dn_utf8, serverctrls, clientctrls)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit runtime context, unbind LDAP."""
@@ -1569,13 +1535,6 @@ class BaseLdap(object):
 
         return self.get(object_id)
 
-    def delete(self, object_id):
-        with self.get_connection() as conn:
-            try:
-                conn.delete_s(self._id_to_dn(object_id))
-            except ldap.NO_SUCH_OBJECT:
-                raise self._not_found(object_id)
-
     def add_member(self, member_dn, member_list_dn):
         """Add member to the member list.
 
@@ -1598,55 +1557,6 @@ class BaseLdap(object):
                                                'group': member_list_dn})
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(member_list_dn)
-
-    def remove_member(self, member_dn, member_list_dn):
-        """Remove member from the member list.
-
-        :param member_dn: DN of member to be removed.
-        :param member_list_dn: DN of group from which the
-                               member will be removed.
-
-        :raises self.NotFound: If the group entry didn't exist.
-        :raises ldap.NO_SUCH_ATTRIBUTE: If the user wasn't a member.
-        """
-        with self.get_connection() as conn:
-            try:
-                mod = (ldap.MOD_DELETE, self.member_attribute, member_dn)
-                conn.modify_s(member_list_dn, [mod])
-            except ldap.NO_SUCH_OBJECT:
-                raise self._not_found(member_list_dn)
-
-    def _delete_tree_nodes(self, search_base, scope, query_params=None):
-        query = u'(objectClass=%s)' % self.object_class
-        if query_params:
-            query = (u'(&%s%s)' %
-                     (query, ''.join(['(%s=%s)'
-                                      % (k, ldap.filter.escape_filter_chars(v))
-                                      for k, v in
-                                      query_params.items()])))
-        not_deleted_nodes = []
-        with self.get_connection() as conn:
-            try:
-                nodes = conn.search_s(search_base, scope, query,
-                                      attrlist=DN_ONLY)
-            except ldap.NO_SUCH_OBJECT:
-                LOG.debug('Could not find entry with dn=%s', search_base)
-                raise self._not_found(self._dn_to_id(search_base))
-            else:
-                for node_dn, _t in nodes:
-                    try:
-                        conn.delete_s(node_dn)
-                    except ldap.NO_SUCH_OBJECT:
-                        not_deleted_nodes.append(node_dn)
-
-        if not_deleted_nodes:
-            msg = ('When deleting entries for %(search_base)s, '
-                   'could not delete nonexistent entries '
-                   '%(entries)s%(dots)s')
-            LOG.warning(msg,
-                        {'search_base': search_base,
-                         'entries': not_deleted_nodes[:3],
-                         'dots': '...' if len(not_deleted_nodes) > 3 else ''})
 
     def filter_query(self, hints, query=None):
         """Apply filtering to a query.
@@ -1885,8 +1795,3 @@ class EnabledEmuMixIn(BaseLdap):
         else:
             return super(EnabledEmuMixIn, self).update(
                 object_id, values, old_obj)
-
-    def delete(self, object_id):
-        if self.enabled_emulation:
-            self._remove_enabled(object_id)
-        super(EnabledEmuMixIn, self).delete(object_id)

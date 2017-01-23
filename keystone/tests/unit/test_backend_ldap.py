@@ -142,6 +142,15 @@ class IdentityTests(identity_tests.IdentityTests):
         self.skip_test_overrides(
             "Using arbitrary attributes doesn't work under LDAP")
 
+    def test_remove_user_from_group(self):
+        self.skip_test_overrides('N/A: LDAP does not support write')
+
+    def test_remove_user_from_group_returns_not_found(self):
+        self.skip_test_overrides('N/A: LDAP does not support write')
+
+    def test_delete_user_returns_not_found(self):
+        self.skip_test_overrides('N/A: LDAP does not support write')
+
 
 class AssignmentTests(assignment_tests.AssignmentTests):
 
@@ -201,6 +210,21 @@ class AssignmentTests(assignment_tests.AssignmentTests):
 
     def test_multi_group_grants_on_project_domain(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
+    def test_delete_user_grant_no_user(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_group_grant_no_group(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_user_with_project_roles(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_user_with_project_association(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_group_removes_role_assignments(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
 
 
 class ResourceTests(resource_tests.ResourceTests):
@@ -355,9 +379,8 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         user['password'] = u'fäképass2'
         self.identity_api.update_user(user['id'], user)
 
-        self.identity_api.delete_user(user['id'])
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
+        self.assertRaises(exception.Forbidden,
+                          self.identity_api.delete_user,
                           user['id'])
 
     def test_user_filter(self):
@@ -663,43 +686,6 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         after_assignments = len(self.assignment_api.list_role_assignments())
         self.assertEqual(existing_assignments + 2, after_assignments)
 
-    def test_list_group_members_missing_entry(self):
-        """List group members with deleted user.
-
-        If a group has a deleted entry for a member, the non-deleted members
-        are returned.
-
-        """
-        # Create a group
-        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group)['id']
-
-        # Create a couple of users and add them to the group.
-        user = dict(name=uuid.uuid4().hex,
-                    domain_id=CONF.identity.default_domain_id)
-        user_1_id = self.identity_api.create_user(user)['id']
-
-        self.identity_api.add_user_to_group(user_1_id, group_id)
-
-        user = dict(name=uuid.uuid4().hex,
-                    domain_id=CONF.identity.default_domain_id)
-        user_2_id = self.identity_api.create_user(user)['id']
-
-        self.identity_api.add_user_to_group(user_2_id, group_id)
-
-        # Delete user 2
-        # NOTE(blk-u): need to go directly to user interface to keep from
-        # updating the group.
-        unused, driver, entity_id = (
-            self.identity_api._get_domain_driver_and_entity_id(user_2_id))
-        driver.user.delete(entity_id)
-
-        # List group users and verify only user 1.
-        res = self.identity_api.list_users_in_group(group_id)
-
-        self.assertEqual(1, len(res), "Expected 1 entry (user_1)")
-        self.assertEqual(user_1_id, res[0]['id'], "Expected user 1 id")
-
     def test_list_group_members_when_no_members(self):
         # List group members when there is no member in the group.
         # No exception should be raised.
@@ -741,6 +727,31 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
                           user_id=user['id'],
                           password=None)
 
+    @mock.patch.object(versionutils, 'report_deprecated_feature')
+    def test_user_crud(self, mock_deprecator):
+        # NOTE(stevemar): As of the Mitaka release, we now check for calls that
+        # the LDAP write functionality has been deprecated.
+        user_dict = self.new_user_ref(
+            domain_id=CONF.identity.default_domain_id)
+        user = self.identity_api.create_user(user_dict)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("create_user for the LDAP identity backend", args[1])
+
+        del user_dict['password']
+        user_ref = self.identity_api.get_user(user['id'])
+        user_ref_dict = {x: user_ref[x] for x in user_ref}
+        self.assertDictContainsSubset(user_dict, user_ref_dict)
+
+        user_dict['password'] = uuid.uuid4().hex
+        self.identity_api.update_user(user['id'], user_dict)
+        args, _kwargs = mock_deprecator.call_args
+        self.assertIn("update_user for the LDAP identity backend", args[1])
+
+        del user_dict['password']
+        user_ref = self.identity_api.get_user(user['id'])
+        user_ref_dict = {x: user_ref[x] for x in user_ref}
+        self.assertDictContainsSubset(user_dict, user_ref_dict)
+
     # The group and domain CRUD tests below override the standard ones in
     # unit.identity.test_backends.py so that we can exclude the update name
     # test, since we do not (and will not) support the update of either group
@@ -765,15 +776,8 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         group_ref = self.identity_api.get_group(group['id'])
         self.assertDictEqual(group, group_ref)
 
-        self.identity_api.delete_group(group['id'])
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("delete_group for the LDAP identity backend", args[1])
-        self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.get_group,
-                          group['id'])
-
     @mock.patch.object(versionutils, 'report_deprecated_feature')
-    def test_add_remove_user_group_deprecated(self, mock_deprecator):
+    def test_add_user_group_deprecated(self, mock_deprecator):
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -782,27 +786,10 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         args, _kwargs = mock_deprecator.call_args
         self.assertIn("add_user_to_group for the LDAP identity", args[1])
 
-        self.identity_api.remove_user_from_group(user['id'], group['id'])
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("remove_user_from_group for the LDAP identity", args[1])
-
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_group_crud(self):
-        group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
-        # cache the result
-        group_ref = self.identity_api.get_group(group['id'])
-        # delete the group bypassing identity api.
-        domain_id, driver, entity_id = (
-            self.identity_api._get_domain_driver_and_entity_id(group['id']))
-        driver.delete_group(entity_id)
-
-        self.assertEqual(group_ref,
-                         self.identity_api.get_group(group['id']))
-        self.identity_api.get_group.invalidate(self.identity_api, group['id'])
-        self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.get_group, group['id'])
-
+        # Note(knikolla): Since delete logic has been deleted from LDAP,
+        # this doesn't test caching on delete.
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group = self.identity_api.create_group(group)
         # cache the result
@@ -811,6 +798,41 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         group_ref = self.identity_api.update_group(group['id'], group)
         self.assertDictContainsSubset(self.identity_api.get_group(group['id']),
                                       group_ref)
+
+    @unit.skip_if_cache_disabled('identity')
+    def test_cache_layer_get_user(self):
+        # Note(knikolla): Since delete logic has been deleted from LDAP,
+        # this doesn't test caching on delete.
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = self.identity_api.create_user(user)
+        ref = self.identity_api.get_user_by_name(user['name'],
+                                                 user['domain_id'])
+        user['description'] = uuid.uuid4().hex
+        # cache the result.
+        self.identity_api.get_user(ref['id'])
+        # update using identity api and get back updated user.
+        user_updated = self.identity_api.update_user(ref['id'], user)
+        self.assertDictContainsSubset(self.identity_api.get_user(ref['id']),
+                                      user_updated)
+        self.assertDictContainsSubset(
+            self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
+            user_updated)
+
+    @unit.skip_if_cache_disabled('identity')
+    def test_cache_layer_get_user_by_name(self):
+        # Note(knikolla): Since delete logic has been deleted from LDAP,
+        # this doesn't test caching on delete.
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = self.identity_api.create_user(user)
+        ref = self.identity_api.get_user_by_name(user['name'],
+                                                 user['domain_id'])
+        user['description'] = uuid.uuid4().hex
+        user_updated = self.identity_api.update_user(ref['id'], user)
+        self.assertDictContainsSubset(self.identity_api.get_user(ref['id']),
+                                      user_updated)
+        self.assertDictContainsSubset(
+            self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
+            user_updated)
 
     def test_create_user_none_mapping(self):
         # When create a user where an attribute maps to None, the entry is
@@ -824,24 +846,6 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
         # If this doesn't raise, then the test is successful.
         user = self.identity_api.create_user(user)
-
-    def test_create_user_with_boolean_string_names(self):
-        # Ensure that any attribute that is equal to the string 'TRUE'
-        # or 'FALSE' will not be converted to a boolean value, it
-        # should be returned as is.
-        boolean_strings = ['TRUE', 'FALSE', 'true', 'false', 'True', 'False',
-                           'TrUe' 'FaLse']
-        for name in boolean_strings:
-            user = self.new_user_ref(name=name,
-                                     domain_id=CONF.identity.default_domain_id)
-            user_ref = self.identity_api.create_user(user)
-            user_info = self.identity_api.get_user(user_ref['id'])
-            self.assertEqual(name, user_info['name'])
-            # Delete the user to ensure  that the Keystone uniqueness
-            # requirements combined with the case-insensitive nature of a
-            # typical LDAP schema does not cause subsequent names in
-            # boolean_strings to clash.
-            self.identity_api.delete_user(user_ref['id'])
 
     def test_unignored_user_none_mapping(self):
         # Ensure that an attribute that maps to None that is not explicitly
@@ -1786,68 +1790,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         self.assertRaises(exception.ProjectNotFound,
                           self.resource_api.get_project,
                           project['id'])
-
-    @mock.patch.object(versionutils, 'report_deprecated_feature')
-    def test_user_crud(self, mock_deprecator):
-        # NOTE(stevemar): As of the Mitaka release, we now check for calls that
-        # the LDAP write functionality has been deprecated.
-        user_dict = self.new_user_ref(
-            domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user_dict)
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("create_user for the LDAP identity backend", args[1])
-
-        del user_dict['password']
-        user_ref = self.identity_api.get_user(user['id'])
-        user_ref_dict = {x: user_ref[x] for x in user_ref}
-        self.assertDictContainsSubset(user_dict, user_ref_dict)
-
-        user_dict['password'] = uuid.uuid4().hex
-        self.identity_api.update_user(user['id'], user_dict)
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("update_user for the LDAP identity backend", args[1])
-
-        del user_dict['password']
-        user_ref = self.identity_api.get_user(user['id'])
-        user_ref_dict = {x: user_ref[x] for x in user_ref}
-        self.assertDictContainsSubset(user_dict, user_ref_dict)
-
-        self.identity_api.delete_user(user['id'])
-        args, _kwargs = mock_deprecator.call_args
-        self.assertIn("delete_user for the LDAP identity backend", args[1])
-        self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
-                          user['id'])
-
-    def test_delete_user_group_cleanup(self):
-        domain = self._get_domain_fixture()
-        # setup: create user
-        user_dict = self.new_user_ref(domain_id=domain['id'])
-        user = self.identity_api.create_user(user_dict)
-        # setup: add user to 3 groups
-        group_names = []
-        numgroups = 3
-        for _ in range(numgroups):
-            group_dict = unit.new_group_ref(domain_id=domain['id'])
-            group = self.identity_api.create_group(group_dict)
-            group_names.append(group['name'])
-            self.identity_api.add_user_to_group(user['id'], group['id'])
-
-        # configure a group filter
-        driver = self.identity_api._select_identity_driver(domain['id'])
-        driver.group.ldap_filter = ('(|(ou=%s)(ou=%s))' %
-                                    tuple(group_names[:2]))
-        # confirm that user is a member of all 3 groups
-        group_api = self.identity_api.driver.group
-        user_dn_esc = self.identity_api.driver.user.get(user['id'])['dn']
-        groups = group_api.get_all('(%s=%s)' %
-                                   (group_api.member_attribute, user_dn_esc))
-        self.assertEqual(numgroups, len(groups))
-        # confirm that deleting user removes from all groups
-        self.identity_api.delete_user(user['id'])
-        groups = group_api.get_all('(%s=%s)' %
-                                   (group_api.member_attribute, user_dn_esc))
-        self.assertEqual(0, len(groups))
 
     def test_user_auth_emulated(self):
         driver = self.identity_api._select_identity_driver(
@@ -3080,8 +3022,7 @@ class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
         self.assertDictEqual(self.group, group_ref)
 
     def test_list_user_groups(self):
-        # tests indirectly by calling delete user
-        self.identity_api.delete_user(self.user['id'])
+        self.identity_api.list_groups_for_user(self.user['id'])
 
     def test_list_groups_for_user(self):
         groups_ref = self.identity_api.list_groups_for_user(self.user['id'])
@@ -3091,10 +3032,3 @@ class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
         groups_refs = self.identity_api.list_groups()
         self.assertEqual(1, len(groups_refs))
         self.assertEqual(self.group['id'], groups_refs[0]['id'])
-        self.identity_api.delete_group(self.group['id'])
-        self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.get_group,
-                          self.group['id'])
-
-        groups_refs = self.identity_api.list_groups()
-        self.assertEqual([], groups_refs)

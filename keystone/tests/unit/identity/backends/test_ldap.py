@@ -42,3 +42,27 @@ class TestIdentityDriver(core.BaseTestCase,
         self.useFixture(ldapdb.LDAPDatabase())
 
         self.driver = ldap.Identity()
+
+    def test_delete_user(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_user_no_user_exc(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_group(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_delete_group_doesnt_exist_exc(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_remove_user_from_group(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_remove_user_from_group_not_in_group(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_remove_user_from_group_no_user(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
+
+    def test_remove_user_from_group_no_group(self):
+        self.skip_test_overrides('N/A: LDAP has no write support')
