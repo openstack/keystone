@@ -2213,6 +2213,19 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
         self.assertFalse(user_table.c.domain_id.nullable)
 
+    def test_migration_016_add_user_options(self):
+        self.expand(15)
+        self.migrate(15)
+        self.contract(15)
+
+        user_option = 'user_option'
+        self.assertTableDoesNotExist(user_option)
+        self.expand(16)
+        self.migrate(16)
+        self.contract(16)
+        self.assertTableColumns(user_option,
+                                ['user_id', 'option_id', 'option_value'])
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
