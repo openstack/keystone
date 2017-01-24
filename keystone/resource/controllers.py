@@ -276,7 +276,7 @@ class ProjectV3(controller.V3Controller):
     def list_projects(self, request, filters):
         hints = ProjectV3.build_driver_hints(request, filters)
         # If 'is_domain' has not been included as a query, we default it to
-        # False (which in query terms means '0'
+        # False (which in query terms means '0')
         if 'is_domain' not in request.params:
             hints.add_filter('is_domain', '0')
         refs = self.resource_api.list_projects(hints=hints)
