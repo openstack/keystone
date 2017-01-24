@@ -21,7 +21,6 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
 from pycadf import reason
 
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
@@ -983,29 +982,34 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref_list, domain_scope, driver, mapping.EntityType.USER)
 
-    def _check_update_of_domain_id(self, new_domain, old_domain):
-        if new_domain != old_domain:
-            versionutils.report_deprecated_feature(
-                LOG,
-                _('update of domain_id is deprecated as of Mitaka '
-                    'and will be removed in O.')
-            )
+    def _require_matching_domain_id(self, new_ref, orig_ref):
+        """Ensure the current domain ID matches the reference one, if any.
+
+        Provided we want domain IDs to be immutable, check whether any
+        domain_id specified in the ref dictionary matches the existing
+        domain_id for this entity.
+
+        :param new_ref: the dictionary of new values proposed for this entity
+        :param orig_ref: the dictionary of original values proposed for this
+                         entity
+        :raises: :class:`keystone.exception.ValidationError`
+        """
+        if 'domain_id' in new_ref:
+            if new_ref['domain_id'] != orig_ref['domain_id']:
+                raise exception.ValidationError(_('Cannot change Domain ID'))
 
     @domains_configured
     @exception_translated('user')
     def update_user(self, user_id, user_ref, initiator=None):
         old_user_ref = self.get_user(user_id)
         user = user_ref.copy()
+        self._require_matching_domain_id(user, old_user_ref)
         if 'password' in user:
             validators.validate_password(user['password'])
         if 'name' in user:
             user['name'] = clean.user_name(user['name'])
         if 'enabled' in user:
             user['enabled'] = clean.user_enabled(user['enabled'])
-        if 'domain_id' in user:
-            self._check_update_of_domain_id(user['domain_id'],
-                                            old_user_ref['domain_id'])
-            self.resource_api.get_domain(user['domain_id'])
         if 'id' in user:
             if user_id != user['id']:
                 raise exception.ValidationError(_('Cannot change user ID'))
@@ -1101,11 +1105,8 @@ class Manager(manager.Manager):
     @domains_configured
     @exception_translated('group')
     def update_group(self, group_id, group, initiator=None):
-        if 'domain_id' in group:
-            old_group_ref = self.get_group(group_id)
-            self._check_update_of_domain_id(group['domain_id'],
-                                            old_group_ref['domain_id'])
-            self.resource_api.get_domain(group['domain_id'])
+        old_group_ref = self.get_group(group_id)
+        self._require_matching_domain_id(group, old_group_ref)
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
         group = self._clear_domain_id_if_domain_unaware(driver, group)
