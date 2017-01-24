@@ -222,7 +222,8 @@ class UserV3(controller.V3Controller):
         return UserV3.wrap_member(request.context_dict, ref)
 
     @controller.filterprotected('domain_id', 'enabled', 'idp_id', 'name',
-                                'protocol_id', 'unique_id')
+                                'protocol_id', 'unique_id',
+                                'password_expires_at')
     def list_users(self, request, filters):
         hints = UserV3.build_driver_hints(request, filters)
         domain = self._get_domain_id_for_list_request(request)
@@ -230,6 +231,7 @@ class UserV3(controller.V3Controller):
         return UserV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.filterprotected('domain_id', 'enabled', 'name',
+                                'password_expires_at',
                                 callback=_check_group_protection)
     def list_users_in_group(self, request, filters, group_id):
         hints = UserV3.build_driver_hints(request, filters)

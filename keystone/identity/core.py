@@ -15,6 +15,7 @@
 """Main entry point into the Identity service."""
 
 import functools
+import operator
 import os
 import threading
 import uuid
@@ -36,6 +37,7 @@ from keystone import exception
 from keystone.i18n import _, _LW
 from keystone.identity.mapping_backends import mapping
 from keystone import notifications
+from oslo_utils import timeutils
 
 
 CONF = keystone.conf.CONF
@@ -958,6 +960,45 @@ class Manager(manager.Manager):
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
 
+    def _translate_expired_password_hints(self, hints):
+        """Clean Up Expired Password Hints.
+
+        Any `password_expires_at` filters on the `list_users` or
+        `list_users_in_group` queries are modified so the call will
+        return valid data.
+
+        The filters `comparator` is changed to the operator specified in
+        the call, otherwise it is assumed to be `equals`. The filters
+        `value` becomes the timestamp specified. Both the operator and
+        timestamp are validated, and will raise a InvalidOperatorError
+        or ValidationTimeStampError exception respectively if invalid.
+
+        """
+        operators = {'lt': operator.lt, 'gt': operator.gt,
+                     'eq': operator.eq, 'lte': operator.le,
+                     'gte': operator.ge, 'neq': operator.ne}
+        for filter_ in hints.filters:
+            if 'password_expires_at' == filter_['name']:
+                # password_expires_at must be in the format
+                # 'lt:2016-11-06T15:32:17Z'. So we can assume the position
+                # of the ':' otherwise assign the operator to equals.
+                if ':' in filter_['value'][2:4]:
+                    op, timestamp = filter_['value'].split(':', 1)
+                else:
+                    op = 'eq'
+                    timestamp = filter_['value']
+
+                try:
+                    filter_['value'] = timeutils.parse_isotime(timestamp)
+                except ValueError:
+                    raise exception.ValidationTimeStampError
+
+                try:
+                    filter_['comparator'] = operators[op]
+                except KeyError:
+                    raise exception.InvalidOperatorError(op)
+        return hints
+
     def _handle_federated_attributes_in_hints(self, driver, hints):
         federated_attributes = ['idp_id', 'protocol_id', 'unique_id']
         for filter_ in hints.filters:
@@ -979,6 +1020,7 @@ class Manager(manager.Manager):
             # We are effectively satisfying any domain_id filter by the above
             # driver selection, so remove any such filter.
             self._mark_domain_id_filter_satisfied(hints)
+        hints = self._translate_expired_password_hints(hints)
         ref_list = self._handle_federated_attributes_in_hints(driver, hints)
         return self._set_domain_id_and_mapping(
             ref_list, domain_scope, driver, mapping.EntityType.USER)
@@ -1264,6 +1306,7 @@ class Manager(manager.Manager):
             # We are effectively satisfying any domain_id filter by the above
             # driver selection, so remove any such filter
             self._mark_domain_id_filter_satisfied(hints)
+        hints = self._translate_expired_password_hints(hints)
         ref_list = driver.list_users_in_group(entity_id, hints)
         return self._set_domain_id_and_mapping(
             ref_list, domain_id, driver, mapping.EntityType.USER)
