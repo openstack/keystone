@@ -145,7 +145,7 @@ class Identity(base.IdentityDriverBase):
     # Unsupported methods
     def _disallow_write(self):
         if not common_ldap.WRITABLE:
-            exception.Forbidden(READ_ONLY_LDAP_ERROR_MESSAGE)
+            raise exception.Forbidden(READ_ONLY_LDAP_ERROR_MESSAGE)
 
     def create_user(self, user_id, user):
         self._disallow_write()
