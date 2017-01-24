@@ -21,7 +21,7 @@ from dogpile.cache import api
 from dogpile.cache import proxy
 from dogpile.cache import region
 from dogpile.cache import util as dogpile_util
-from dogpile.core import nameregistry
+from dogpile.util import nameregistry
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_utils import importutils
