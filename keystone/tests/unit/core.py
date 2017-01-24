@@ -599,12 +599,6 @@ class TestCase(BaseTestCase):
             driver='sql',
             template_file=dirs.tests('default_catalog.templates'))
         self.config_fixture.config(
-            group='kvs',
-            backends=[
-                ('keystone.tests.unit.test_kvs.'
-                 'KVSBackendForcedKeyMangleFixture'),
-                'keystone.tests.unit.test_kvs.KVSBackendFixture'])
-        self.config_fixture.config(
             group='signing', certfile=signing_certfile,
             keyfile=signing_keyfile,
             ca_certs='examples/pki/certs/cacert.pem')

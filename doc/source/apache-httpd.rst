@@ -138,13 +138,6 @@ token persistence driver that can be shared between processes. The SQL and
 memcached token persistence drivers provided with keystone can be shared
 between processes.
 
-.. WARNING::
-
-    The KVS (``kvs``) token persistence driver cannot be shared between
-    processes so must not be used when running keystone under HTTPD (the tokens
-    will not be shared between the processes of the server and validation will
-    fail).
-
 For SQL, in ``/etc/keystone/keystone.conf`` set::
 
     [token]

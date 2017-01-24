@@ -71,7 +71,6 @@ The primary configuration file is organized into the following sections:
 * ``[fernet_tokens]`` - Fernet token configuration
 * ``[identity]`` - Identity system driver configuration
 * ``[identity_mapping]`` - Identity mapping system driver configuration
-* ``[kvs]`` - KVS storage backend configuration
 * ``[ldap]`` - LDAP configuration options
 * ``[memcache]`` - Memcache configuration options
 * ``[oauth1]`` - OAuth 1.0a system driver configuration
@@ -594,9 +593,6 @@ provides two non-test persistence backends. These can be set with the
 ``[token] driver`` configuration option.
 
 The drivers keystone provides are:
-
-* ``kvs`` - The key-value store token persistence engine. Implemented by
-  :class:`keystone.token.persistence.backends.kvs.Token`
 
 * ``sql`` - The SQL-based (default) token persistence engine. Implemented by
   :class:`keystone.token.persistence.backends.sql.Token`
