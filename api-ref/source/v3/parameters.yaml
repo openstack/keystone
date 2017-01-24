@@ -205,6 +205,12 @@ group_name_query:
   in: query
   required: false
   type: string
+idp_id_query:
+  description: |
+    Filters the response by an identity provider ID.
+  in: query
+  required: false
+  type: string
 include_names_query:
   description: |
     If set to true, then the names of any entities returned will be include as
@@ -334,6 +340,12 @@ project_name_query:
   in: query
   required: false
   type: string
+protocol_id_query:
+  description: |
+    Filters the response by a protocol ID.
+  in: query
+  required: false
+  type: string
 role_id_query:
   description: |
     Filters the response by a role ID.
@@ -398,6 +410,12 @@ subtree_as_list:
   required: false
   type: key-only, no value expected
   min_version: 3.4
+unique_id_query:
+  description: |
+    Filters the response by a unique ID.
+  in: query
+  required: false
+  type: string
 user_id_query:
   description: |
     Filters the response by a user ID.

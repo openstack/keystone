@@ -13,6 +13,7 @@
 # under the License.
 
 import datetime
+import itertools
 import uuid
 
 import fixtures
@@ -24,11 +25,16 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import controller
+from keystone.common import sql
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
+from keystone.identity.backends import base as identity_base
+from keystone.identity.backends import sql_model as model
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
+from keystone.tests.unit.ksfixtures import database
+from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
 
 
@@ -1023,3 +1029,105 @@ class PasswordValidationTestCase(ChangePasswordTestCase):
         self.change_password(password='mypas2',
                              original_password=self.user_ref['password'],
                              expected_status=http_client.BAD_REQUEST)
+
+
+class UserAPITests(test_v3.RestfulTestCase):
+    def _create_federated_attributes(self):
+        # Create the idp
+        idp = {
+            'id': uuid.uuid4().hex,
+            'enabled': True,
+            'description': uuid.uuid4().hex
+        }
+        self.federation_api.create_idp(idp['id'], idp)
+        # Create the mapping
+        mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        mapping['id'] = uuid.uuid4().hex
+        self.federation_api.create_mapping(mapping['id'], mapping)
+        # Create the protocol
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': mapping['id']
+        }
+        self.federation_api.create_protocol(idp['id'],
+                                            protocol['id'],
+                                            protocol)
+        return idp, protocol
+
+    def _create_user_with_federated_user(self, user, fed_dict):
+        with sql.session_for_write() as session:
+            federated_ref = model.FederatedUser.from_dict(fed_dict)
+            user_ref = model.User.from_dict(user)
+            user_ref.created_at = datetime.datetime.utcnow()
+            user_ref.federated_users.append(federated_ref)
+            session.add(user_ref)
+            return identity_base.filter_user(user_ref.to_dict())
+
+    def setUp(self):
+        super(UserAPITests, self).setUp()
+        self.useFixture(database.Database())
+        self.load_backends()
+        # Create the federated object
+        idp, protocol = self._create_federated_attributes()
+        self.fed_dict = unit.new_federated_user_ref()
+        self.fed_dict['idp_id'] = idp['id']
+        self.fed_dict['protocol_id'] = protocol['id']
+        self.fed_dict['unique_id'] = "jdoe"
+        # Create the domain_id, user, and federated_user relationship
+        self.domain = unit.new_domain_ref()
+        self.resource_api.create_domain(self.domain['id'], self.domain)
+        self.fed_user = unit.new_user_ref(domain_id=self.domain['id'])
+        self.fed_user = self._create_user_with_federated_user(self.fed_user,
+                                                              self.fed_dict)
+        # Create two new fed_users which will have the same idp and protocol
+        # but be completely different from the first fed_user
+        # Create a new idp and protocol for fed_user2 and 3
+        idp, protocol = self._create_federated_attributes()
+        self.fed_dict2 = unit.new_federated_user_ref()
+        self.fed_dict2['idp_id'] = idp['id']
+        self.fed_dict2['protocol_id'] = protocol['id']
+        self.fed_dict2['unique_id'] = "ravelar"
+        self.fed_user2 = unit.new_user_ref(domain_id=self.domain['id'])
+        self.fed_user2 = self._create_user_with_federated_user(self.fed_user2,
+                                                               self.fed_dict2)
+        self.fed_dict3 = unit.new_federated_user_ref()
+        self.fed_dict3['idp_id'] = idp['id']
+        self.fed_dict3['protocol_id'] = protocol['id']
+        self.fed_dict3['unique_id'] = "jsmith"
+        self.fed_user3 = unit.new_user_ref(domain_id=self.domain['id'])
+        self.fed_user3 = self._create_user_with_federated_user(self.fed_user3,
+                                                               self.fed_dict3)
+
+    def _test_list_users_with_federated_parameter(self, parameter):
+        # construct the resource url based off what's passed in parameter
+        resource_url = ('/users?%s=%s'
+                        % (parameter[0], self.fed_dict[parameter[0]]))
+        for attr in parameter[1:]:
+            resource_url += '&%s=%s' % (attr, self.fed_dict[attr])
+        r = self.get(resource_url)
+        # Check that only one out of 3 fed_users is matched by calling the api
+        # and that it is a valid response
+        self.assertEqual(1, len(r.result['users']))
+        self.assertValidUserListResponse(r, ref=self.fed_user,
+                                         resource_url=resource_url)
+        # Since unique_id will always return one user if matching for unique_id
+        # in the query, we rule out unique_id for the next tests
+        if not any('unique_id' in x for x in parameter):
+            # Check that we get two matches here since fed_user2 and fed_user3
+            # both have the same idp and protocol
+            resource_url = ('/users?%s=%s'
+                            % (parameter[0], self.fed_dict2[parameter[0]]))
+            for attr in parameter[1:]:
+                resource_url += '&%s=%s' % (attr, self.fed_dict2[attr])
+            r = self.get(resource_url)
+            self.assertEqual(2, len(r.result['users']))
+            self.assertValidUserListResponse(r, ref=self.fed_user2,
+                                             resource_url=resource_url)
+
+    def test_list_user_with_all_possible_federated_queries(self):
+        # Create a permutation to test every possible combination of federated
+        # attributes in the list users query
+        attributes = ['idp_id', 'protocol_id', 'unique_id']
+        for attr in range(1, len(attributes) + 1):
+            for param in list(itertools.combinations(attributes, attr)):
+                self._test_list_users_with_federated_parameter(param)

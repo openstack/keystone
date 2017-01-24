@@ -46,8 +46,11 @@ Request Parameters
 
    - domain_id: domain_id_query
    - enabled: enabled_user_query
+   - idp_id: idp_id_query
    - name: name_user_query
    - password_expires_at: password_expires_at_query
+   - protocol_id: protocol_id_query
+   - unique_id: unique_id_query
 
 Response Parameters
 -------------------

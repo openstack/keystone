@@ -12,6 +12,7 @@
 
 import copy
 import datetime
+import sqlalchemy
 import uuid
 
 from oslo_config import cfg
@@ -40,6 +41,36 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             user_ref.federated_users.append(federated_ref)
             session.add(user_ref)
             return identity_base.filter_user(user_ref.to_dict())
+
+    def _update_query_with_federated_statements(self, hints, query):
+        statements = []
+        for filter_ in hints.filters:
+            if filter_['name'] == 'idp_id':
+                statements.append(
+                    model.FederatedUser.idp_id == filter_['value'])
+            if filter_['name'] == 'protocol_id':
+                statements.append(
+                    model.FederatedUser.protocol_id == filter_['value'])
+            if filter_['name'] == 'unique_id':
+                statements.append(
+                    model.FederatedUser.unique_id == filter_['value'])
+
+        # Remove federated attributes to prevent redundancies from
+        # sql.filter_limit_query which filters remaining hints
+        hints.filters = [
+            x for x in hints.filters if x['name'] not in ('idp_id',
+                                                          'protocol_id',
+                                                          'unique_id')]
+        query = query.filter(sqlalchemy.and_(*statements))
+        return query
+
+    def get_federated_users(self, hints):
+        with sql.session_for_read() as session:
+            query = session.query(model.User).outerjoin(model.LocalUser)
+            query = query.filter(model.User.id == model.FederatedUser.user_id)
+            query = self._update_query_with_federated_statements(hints, query)
+            user_refs = sql.filter_limit_query(model.User, query, hints)
+            return [identity_base.filter_user(x.to_dict()) for x in user_refs]
 
     def get_federated_user(self, idp_id, protocol_id, unique_id):
         user_ref = self._get_federated_user(idp_id, protocol_id, unique_id)
