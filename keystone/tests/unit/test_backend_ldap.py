@@ -137,14 +137,8 @@ class IdentityTests(identity_tests.IdentityTests):
     def test_move_user_between_domains(self):
         self.skip_test_overrides('Domains are read-only against LDAP')
 
-    def test_move_user_between_domains_with_clashing_names_fails(self):
-        self.skip_test_overrides('Domains are read-only against LDAP')
-
     def test_move_group_between_domains(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
-
-    def test_move_group_between_domains_with_clashing_names_fails(self):
-        self.skip_test_overrides('Domains are read-only against LDAP')
 
     def test_arbitrary_attributes_are_returned_from_get_user(self):
         self.skip_test_overrides(

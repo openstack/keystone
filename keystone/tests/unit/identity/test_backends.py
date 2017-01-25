@@ -15,7 +15,6 @@
 import datetime
 import uuid
 
-import mock
 from six.moves import range
 from testtools import matchers
 
@@ -236,35 +235,8 @@ class IdentityTests(object):
         user = unit.new_user_ref(domain_id=domain1['id'])
         user = self.identity_api.create_user(user)
         user['domain_id'] = domain2['id']
-        # Update the user asserting that a deprecation warning is emitted
-        with mock.patch(
-                'oslo_log.versionutils.report_deprecated_feature') as mock_dep:
-            self.identity_api.update_user(user['id'], user)
-            self.assertTrue(mock_dep.called)
-
-        updated_user_ref = self.identity_api.get_user(user['id'])
-        self.assertEqual(domain2['id'], updated_user_ref['domain_id'])
-
-    def test_move_user_between_domains_with_clashing_names_fails(self):
-        domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
-        # First, create a user in domain1
-        user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
-        # Now create a user in domain2 with a potentially clashing
-        # name - which should work since we have domain separation
-        user2 = unit.new_user_ref(name=user1['name'],
-                                  domain_id=domain2['id'])
-        user2 = self.identity_api.create_user(user2)
-        # Now try and move user1 into the 2nd domain - which should
-        # fail since the names clash
-        user1['domain_id'] = domain2['id']
-        self.assertRaises(exception.Conflict,
-                          self.identity_api.update_user,
-                          user1['id'],
-                          user1)
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.update_user, user['id'], user)
 
     def test_rename_duplicate_user_name_fails(self):
         user1 = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -943,35 +915,9 @@ class IdentityTests(object):
         group = unit.new_group_ref(domain_id=domain1['id'])
         group = self.identity_api.create_group(group)
         group['domain_id'] = domain2['id']
-        # Update the group asserting that a deprecation warning is emitted
-        with mock.patch(
-                'oslo_log.versionutils.report_deprecated_feature') as mock_dep:
-            self.identity_api.update_group(group['id'], group)
-            self.assertTrue(mock_dep.called)
-
-        updated_group_ref = self.identity_api.get_group(group['id'])
-        self.assertEqual(domain2['id'], updated_group_ref['domain_id'])
-
-    def test_move_group_between_domains_with_clashing_names_fails(self):
-        domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
-        domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
-        # First, create a group in domain1
-        group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
-        # Now create a group in domain2 with a potentially clashing
-        # name - which should work since we have domain separation
-        group2 = unit.new_group_ref(name=group1['name'],
-                                    domain_id=domain2['id'])
-        group2 = self.identity_api.create_group(group2)
-        # Now try and move group1 into the 2nd domain - which should
-        # fail since the names clash
-        group1['domain_id'] = domain2['id']
-        self.assertRaises(exception.Conflict,
+        self.assertRaises(exception.ValidationError,
                           self.identity_api.update_group,
-                          group1['id'],
-                          group1)
+                          group['id'], group)
 
     def test_user_crud(self):
         user_dict = unit.new_user_ref(

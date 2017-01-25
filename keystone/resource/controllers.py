@@ -336,8 +336,6 @@ class ProjectV3(controller.V3Controller):
     def update_project(self, request, project_id, project):
         validation.lazy_validate(schema.project_update, project)
         self._require_matching_id(project_id, project)
-        self._require_matching_domain_id(
-            project_id, project, self.resource_api.get_project)
         ref = self.resource_api.update_project(
             project_id,
             project,

@@ -245,8 +245,6 @@ class UserV3(controller.V3Controller):
 
     def _update_user(self, request, user_id, user):
         self._require_matching_id(user_id, user)
-        self._require_matching_domain_id(
-            user_id, user, self.identity_api.get_user)
         ref = self.identity_api.update_user(
             user_id, user, initiator=request.audit_initiator
         )
@@ -348,8 +346,6 @@ class GroupV3(controller.V3Controller):
     def update_group(self, request, group_id, group):
         validation.lazy_validate(schema.group_update, group)
         self._require_matching_id(group_id, group)
-        self._require_matching_domain_id(
-            group_id, group, self.identity_api.get_group)
         ref = self.identity_api.update_group(
             group_id, group, initiator=request.audit_initiator
         )
