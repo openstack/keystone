@@ -1031,7 +1031,7 @@ class PasswordValidationTestCase(ChangePasswordTestCase):
                              expected_status=http_client.BAD_REQUEST)
 
 
-class UserAPITests(test_v3.RestfulTestCase):
+class UserFederatedAttributesTests(test_v3.RestfulTestCase):
     def _create_federated_attributes(self):
         # Create the idp
         idp = {
@@ -1064,7 +1064,7 @@ class UserAPITests(test_v3.RestfulTestCase):
             return identity_base.filter_user(user_ref.to_dict())
 
     def setUp(self):
-        super(UserAPITests, self).setUp()
+        super(UserFederatedAttributesTests, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
         # Create the federated object
