@@ -104,7 +104,7 @@ class OAuth1(base.Oauth1DriverBase):
         with sql.session_for_write() as session:
             consumer = Consumer.from_dict(consumer_ref)
             session.add(consumer)
-        return consumer.to_dict()
+            return consumer.to_dict()
 
     def _delete_consumer(self, session, consumer_id):
         consumer_ref = self._get_consumer(session, consumer_id)
@@ -145,7 +145,7 @@ class OAuth1(base.Oauth1DriverBase):
             new_consumer = Consumer.from_dict(old_consumer_dict)
             consumer.description = new_consumer.description
             consumer.extra = new_consumer.extra
-        return base.filter_consumer(consumer.to_dict())
+            return base.filter_consumer(consumer.to_dict())
 
     def create_request_token(self, consumer_id, requested_project,
                              request_token_duration):

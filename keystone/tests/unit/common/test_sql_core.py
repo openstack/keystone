@@ -49,4 +49,6 @@ class TestModelDictMixin(unit.BaseTestCase):
         expected = {'id': utils.new_uuid(), 'text': utils.new_uuid()}
         m = TestModel(id=expected['id'], text=expected['text'])
         m.extra = 'this should not be in the dictionary'
+        # NOTE(notmorgan): This is currently explicitly harmless as this does
+        # not actually use SQL-Alchemy.
         self.assertEqual(expected, m.to_dict())

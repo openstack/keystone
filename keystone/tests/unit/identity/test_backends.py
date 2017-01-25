@@ -1407,6 +1407,8 @@ class ShadowUsersTests(object):
             federated_dict["protocol_id"],
             federated_dict["unique_id"],
             new_display_name)
+        # NOTE(notmorgan): to_dict not called here, an explicit session context
+        # is not needed.
         user_ref = self.shadow_users_api._get_federated_user(
             federated_dict["idp_id"],
             federated_dict["protocol_id"],
