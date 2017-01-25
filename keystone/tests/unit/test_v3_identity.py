@@ -13,7 +13,6 @@
 # under the License.
 
 import datetime
-import itertools
 import uuid
 
 import fixtures
@@ -1124,10 +1123,30 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
             self.assertValidUserListResponse(r, ref=self.fed_user2,
                                              resource_url=resource_url)
 
-    def test_list_user_with_all_possible_federated_queries(self):
-        # Create a permutation to test every possible combination of federated
-        # attributes in the list users query
-        attributes = ['idp_id', 'protocol_id', 'unique_id']
-        for attr in range(1, len(attributes) + 1):
-            for param in list(itertools.combinations(attributes, attr)):
-                self._test_list_users_with_federated_parameter(param)
+    def test_list_users_with_idp_id(self):
+        attribute = ['idp_id']
+        self._test_list_users_with_federated_parameter(attribute)
+
+    def test_list_users_with_protocol_id(self):
+        attribute = ['protocol_id']
+        self._test_list_users_with_federated_parameter(attribute)
+
+    def test_list_users_with_unique_id(self):
+        attribute = ['unique_id']
+        self._test_list_users_with_federated_parameter(attribute)
+
+    def test_list_users_with_idp_id_and_unique_id(self):
+        attribute = ['idp_id', 'unique_id']
+        self._test_list_users_with_federated_parameter(attribute)
+
+    def test_list_users_with_idp_id_and_protocol_id(self):
+        attribute = ['idp_id', 'protocol_id']
+        self._test_list_users_with_federated_parameter(attribute)
+
+    def test_list_users_with_protocol_id_and_unique_id(self):
+        attribute = ['protocol_id', 'unique_id']
+        self._test_list_users_with_federated_parameter(attribute)
+
+    def test_list_users_with_all_federated_attributes(self):
+        attribute = ['idp_id', 'protocol_id', 'unique_id']
+        self._test_list_users_with_federated_parameter(attribute)
