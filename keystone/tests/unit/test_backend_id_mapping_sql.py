@@ -326,9 +326,13 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         local_entity5['public_id'] = self.id_mapping_api.create_id_mapping(
             local_entity5)
 
-        # list mappings for domainA
-        domain_a_mappings = self.id_mapping_api.get_domain_mapping_list(
-            self.domainA['id'])
-        domain_a_mappings = [m.to_dict() for m in domain_a_mappings]
+        # NOTE(notmorgan): Always call to_dict in an active session context to
+        # ensure that lazy-loaded relationships succeed. Edge cases could cause
+        # issues especially in attribute mappers.
+        with sql.session_for_read():
+            # list mappings for domainA
+            domain_a_mappings = self.id_mapping_api.get_domain_mapping_list(
+                self.domainA['id'])
+            domain_a_mappings = [m.to_dict() for m in domain_a_mappings]
         self.assertItemsEqual([local_entity1, local_entity2],
                               domain_a_mappings)

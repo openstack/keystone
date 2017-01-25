@@ -110,7 +110,7 @@ class Token(token.persistence.TokenDriverBase):
         token_ref.valid = True
         with sql.session_for_write() as session:
             session.add(token_ref)
-        return token_ref.to_dict()
+            return token_ref.to_dict()
 
     def delete_token(self, token_id):
         with sql.session_for_write() as session:

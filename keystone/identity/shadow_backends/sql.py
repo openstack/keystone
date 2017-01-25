@@ -73,8 +73,15 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             return [identity_base.filter_user(x.to_dict()) for x in user_refs]
 
     def get_federated_user(self, idp_id, protocol_id, unique_id):
-        user_ref = self._get_federated_user(idp_id, protocol_id, unique_id)
-        return identity_base.filter_user(user_ref.to_dict())
+        # NOTE(notmorgan): Open a session here to ensure .to_dict is called
+        # within an active session context. This will prevent lazy-load
+        # relationship failure edge-cases
+        # FIXME(notmorgan): Eventually this should not call `to_dict` here and
+        # rely on something already in the session context to perform the
+        # `to_dict` call.
+        with sql.session_for_read():
+            user_ref = self._get_federated_user(idp_id, protocol_id, unique_id)
+            return identity_base.filter_user(user_ref.to_dict())
 
     def _get_federated_user(self, idp_id, protocol_id, unique_id):
         """Return the found user for the federated identity.

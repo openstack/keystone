@@ -31,6 +31,12 @@ class RevokeController(controller.V3Controller):
             except ValueError:
                 raise exception.ValidationError(
                     message=_('invalid date format %s') % since)
+        # FIXME(notmorgan): The revocation events cannot have resource options
+        # added to them or lazy-loaded relationships as long as to_dict
+        # is called outside of an active session context. This API is unused
+        # and should be deprecated in the near future. Fix this before adding
+        # resource_options or any lazy-loaded relationships to the revocation
+        # events themselves.
         events = self.revoke_api.list_events(last_fetch=last_fetch)
         # Build the links by hand as the standard controller calls require ids
         response = {'events': [event.to_dict() for event in events],

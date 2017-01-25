@@ -81,6 +81,14 @@ class Endpoint(sql.ModelBase, sql.DictBase):
                          server_default=sqlalchemy.sql.expression.true())
     extra = sql.Column(sql.JsonBlob())
 
+    @classmethod
+    def from_dict(cls, endpoint_dict):
+        """Override from_dict to set enabled if missing."""
+        new_dict = endpoint_dict.copy()
+        if new_dict.get('enabled') is None:
+            new_dict['enabled'] = True
+        return super(Endpoint, cls).from_dict(new_dict)
+
 
 @dependency.requires('catalog_api')
 class Catalog(base.CatalogDriverBase):
@@ -213,11 +221,11 @@ class Catalog(base.CatalogDriverBase):
             return ref.to_dict()
 
     # Endpoints
-    def create_endpoint(self, endpoint_id, endpoint_ref):
-        new_endpoint = Endpoint.from_dict(endpoint_ref)
+    def create_endpoint(self, endpoint_id, endpoint):
         with sql.session_for_write() as session:
-            session.add(new_endpoint)
-        return new_endpoint.to_dict()
+            endpoint_ref = Endpoint.from_dict(endpoint)
+            session.add(endpoint_ref)
+            return endpoint_ref.to_dict()
 
     def delete_endpoint(self, endpoint_id):
         with sql.session_for_write() as session:

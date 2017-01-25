@@ -57,6 +57,7 @@ class Identity(base.IdentityDriverBase):
         with sql.session_for_read() as session:
             try:
                 user_ref = self._get_user(session, user_id)
+                user_dict = base.filter_user(user_ref.to_dict())
             except exception.UserNotFound:
                 raise AssertionError(_('Invalid user / password'))
         if self._is_account_locked(user_id, user_ref):
@@ -71,7 +72,7 @@ class Identity(base.IdentityDriverBase):
         # successful auth, reset failed count if present
         if user_ref.local_user.failed_auth_count:
             self._reset_failed_auth(user_id)
-        return base.filter_user(user_ref.to_dict())
+        return user_dict
 
     def _is_account_locked(self, user_id, user_ref):
         """Check if the user account is locked.
