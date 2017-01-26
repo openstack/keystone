@@ -641,7 +641,7 @@ class RuleProcessor(object):
                 try:
                     group_names_list = ast.literal_eval(
                         identity_value['groups'])
-                except ValueError:
+                except (ValueError, SyntaxError):
                     group_names_list = [identity_value['groups']]
                 domain = identity_value['domain']
                 group_dicts = [{'name': name, 'domain': domain} for name in
