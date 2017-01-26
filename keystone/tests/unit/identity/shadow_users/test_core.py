@@ -24,7 +24,7 @@ class ShadowUsersCoreTests(object):
         self.assertEqual(5, len(user.keys()))
         self.assertIsNotNone(user['name'])
         self.assertIsNone(user['password_expires_at'])
-        self.assertIsNone(user['domain_id'])
+        self.assertIsNotNone(user['domain_id'])
         # NOTE(breton): below, attribute `enabled` is explicitly tested to be
         # equal True. assertTrue should not be used, because it converts
         # the passed value to bool().

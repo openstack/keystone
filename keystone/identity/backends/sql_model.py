@@ -31,7 +31,7 @@ class User(sql.ModelBase, sql.DictBase):
                   'default_project_id', 'password_expires_at']
     readonly_attributes = ['id', 'password_expires_at']
     id = sql.Column(sql.String(64), primary_key=True)
-    domain_id = sql.Column(sql.String(64), nullable=True)
+    domain_id = sql.Column(sql.String(64), nullable=False)
     _enabled = sql.Column('enabled', sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
     default_project_id = sql.Column(sql.String(64))

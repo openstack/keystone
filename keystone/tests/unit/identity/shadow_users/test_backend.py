@@ -66,16 +66,22 @@ class ShadowUsersBackendTests(object):
 
     def test_create_federated_user_unique_constraint(self):
         user_dict = self.shadow_users_api.create_federated_user(
-            self.federated_user)
+            self.domain_id, self.federated_user)
         user_dict = self.shadow_users_api.get_user(user_dict["id"])
         self.assertIsNotNone(user_dict["id"])
         self.assertRaises(exception.Conflict,
                           self.shadow_users_api.create_federated_user,
+                          self.domain_id,
                           self.federated_user)
+
+    def test_create_federated_user_domain(self):
+        user = self.shadow_users_api.create_federated_user(
+            self.domain_id, self.federated_user)
+        self.assertEqual(user['domain_id'], self.domain_id)
 
     def test_get_federated_user(self):
         user_dict_create = self.shadow_users_api.create_federated_user(
-            self.federated_user)
+            self.domain_id, self.federated_user)
         user_dict_get = self.shadow_users_api.get_federated_user(
             self.federated_user["idp_id"],
             self.federated_user["protocol_id"],
@@ -85,7 +91,7 @@ class ShadowUsersBackendTests(object):
 
     def test_update_federated_user_display_name(self):
         user_dict_create = self.shadow_users_api.create_federated_user(
-            self.federated_user)
+            self.domain_id, self.federated_user)
         new_display_name = uuid.uuid4().hex
         self.shadow_users_api.update_federated_user_display_name(
             self.federated_user["idp_id"],

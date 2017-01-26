@@ -443,6 +443,7 @@ class IdentityTests(object):
         return hints
 
     def _test_list_users_with_attribute(self, filters, fed_dict):
+        domain = self._get_domain_fixture()
         # Call list_users while no match exists for the federated user
         hints = driver_hints.Hints()
         hints = self._build_hints(hints, filters, fed_dict)
@@ -451,7 +452,7 @@ class IdentityTests(object):
 
         # list_users with a new relational user and federated user
         hints = self._build_hints(hints, filters, fed_dict)
-        self.shadow_users_api.create_federated_user(fed_dict)
+        self.shadow_users_api.create_federated_user(domain['id'], fed_dict)
         users = self.identity_api.list_users(hints=hints)
         self.assertEqual(1, len(users))
 
@@ -461,7 +462,7 @@ class IdentityTests(object):
         fed_dict2 = unit.new_federated_user_ref()
         fed_dict2['idp_id'] = 'myidp'
         fed_dict2['protocol_id'] = 'mapped'
-        self.shadow_users_api.create_federated_user(fed_dict2)
+        self.shadow_users_api.create_federated_user(domain['id'], fed_dict2)
         users = self.identity_api.list_users(hints=hints)
         self.assertEqual(1, len(users))
 
@@ -479,7 +480,8 @@ class IdentityTests(object):
                     fed_dict3['idp_id'] = fed_dict['idp_id']
                 elif filters_['name'] == 'protocol_id':
                     fed_dict3['protocol_id'] = fed_dict['protocol_id']
-            self.shadow_users_api.create_federated_user(fed_dict3)
+            self.shadow_users_api.create_federated_user(domain['id'],
+                                                        fed_dict3)
             users = self.identity_api.list_users(hints=hints)
             self.assertEqual(2, len(users))
 

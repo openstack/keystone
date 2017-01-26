@@ -1,0 +1,16 @@
+---
+upgrade:
+  - |
+    The abstract base class for the shadow users backend has changed. We've
+    added a ``domain_id`` parameter to the ``create_federated_user`` method.
+    This is so that the domain ID of the Identity Provider gets set for the
+    federated user. If you have a custom implementation for the shadow users
+    backend, you will need to add the new parameter to your method
+    implementation.
+fixes:
+  - |
+    [`bug 1642687 <https://bugs.launchpad.net/keystone/+bug/1642687>`_]
+    Prior to this release federated users did not belong to a real domain. Now
+    when federated users are created, as part of shadowing users, federated
+    users will belong to the domain Id of the Identity Provider.
+
