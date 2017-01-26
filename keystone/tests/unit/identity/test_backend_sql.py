@@ -806,3 +806,97 @@ class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
             for password_ref in user_ref.local_user.passwords:
                 password_ref.created_at = password_create_at - slightly_less
             latest_password.created_at = password_create_at
+
+
+class ChangePasswordRequiredAfterFirstUse(test_backend_sql.SqlTests):
+    def _create_user(self, password, change_password_upon_first_use):
+        self.config_fixture.config(
+            group='security_compliance',
+            change_password_upon_first_use=change_password_upon_first_use)
+        user_dict = {
+            'name': uuid.uuid4().hex,
+            'domain_id': CONF.identity.default_domain_id,
+            'enabled': True,
+            'password': password
+        }
+        return self.identity_api.create_user(user_dict)
+
+    def assertPasswordIsExpired(self, user_id, password):
+        self.assertRaises(exception.PasswordExpired,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=user_id,
+                          password=password)
+
+    def assertPasswordIsNotExpired(self, user_id, password):
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user_id,
+                                       password=password)
+
+    def test_password_expired_after_create(self):
+        # create user, password expired
+        initial_password = uuid.uuid4().hex
+        user = self._create_user(initial_password, True)
+        self.assertPasswordIsExpired(user['id'], initial_password)
+        # change password (self-service), password not expired
+        new_password = uuid.uuid4().hex
+        self.identity_api.change_password(self.make_request(),
+                                          user['id'],
+                                          initial_password,
+                                          new_password)
+        self.assertPasswordIsNotExpired(user['id'], new_password)
+
+    def test_password_expired_after_reset(self):
+        # create user with feature disabled, password not expired
+        initial_password = uuid.uuid4().hex
+        user = self._create_user(initial_password, False)
+        self.assertPasswordIsNotExpired(user['id'], initial_password)
+        # enable change_password_upon_first_use
+        self.config_fixture.config(
+            group='security_compliance',
+            change_password_upon_first_use=True)
+        # admin reset, password expired
+        admin_password = uuid.uuid4().hex
+        user['password'] = admin_password
+        self.identity_api.update_user(user['id'], user)
+        self.assertPasswordIsExpired(user['id'], admin_password)
+        # change password (self-service), password not expired
+        new_password = uuid.uuid4().hex
+        self.identity_api.change_password(self.make_request(),
+                                          user['id'],
+                                          admin_password,
+                                          new_password)
+        self.assertPasswordIsNotExpired(user['id'], new_password)
+
+    def test_password_not_expired_when_feature_disabled(self):
+        # create user with feature disabled
+        initial_password = uuid.uuid4().hex
+        user = self._create_user(initial_password, False)
+        self.assertPasswordIsNotExpired(user['id'], initial_password)
+        # admin reset
+        admin_password = uuid.uuid4().hex
+        user['password'] = admin_password
+        self.identity_api.update_user(user['id'], user)
+        self.assertPasswordIsNotExpired(user['id'], admin_password)
+
+    def test_password_not_expired_for_ignore_user(self):
+        # create user with feature disabled, password not expired
+        initial_password = uuid.uuid4().hex
+        user = self._create_user(initial_password, False)
+        self.assertPasswordIsNotExpired(user['id'], initial_password)
+        # enable change_password_upon_first_use
+        self.config_fixture.config(
+            group='security_compliance',
+            change_password_upon_first_use=True)
+        # ignore user and reset password, password not expired
+        user['options'][iro.IGNORE_CHANGE_PASSWORD_OPT.option_name] = True
+        admin_password = uuid.uuid4().hex
+        user['password'] = admin_password
+        self.identity_api.update_user(user['id'], user)
+        self.assertPasswordIsNotExpired(user['id'], admin_password)
+        # set ignore user to false and reset password, password is expired
+        user['options'][iro.IGNORE_CHANGE_PASSWORD_OPT.option_name] = False
+        admin_password = uuid.uuid4().hex
+        user['password'] = admin_password
+        self.identity_api.update_user(user['id'], user)
+        self.assertPasswordIsExpired(user['id'], admin_password)
