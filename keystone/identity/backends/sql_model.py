@@ -31,6 +31,7 @@ class User(sql.ModelBase, sql.DictBase):
                   'default_project_id', 'password_expires_at']
     readonly_attributes = ['id', 'password_expires_at']
     id = sql.Column(sql.String(64), primary_key=True)
+    domain_id = sql.Column(sql.String(64), nullable=True)
     _enabled = sql.Column('enabled', sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
     default_project_id = sql.Column(sql.String(64))
@@ -50,6 +51,8 @@ class User(sql.ModelBase, sql.DictBase):
                                      backref='user')
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
+    # unique constraint needed here to support composite fk constraints
+    __table_args__ = (sql.UniqueConstraint('id', 'domain_id'), {})
 
     # NOTE(stevemar): we use a hybrid property here because we leverage the
     # expression method, see `@name.expression` and `LocalUser.name` below.
@@ -146,29 +149,6 @@ class User(sql.ModelBase, sql.DictBase):
         return Password.password
 
     # NOTE(stevemar): we use a hybrid property here because we leverage the
-    # expression method, see `@domain_id.expression` and `LocalUser.domain_id`
-    # below.
-    @hybrid_property
-    def domain_id(self):
-        """Return user's domain id."""
-        if self.local_user:
-            return self.local_user.domain_id
-        elif self.nonlocal_user:
-            return self.nonlocal_user.domain_id
-        else:
-            return None
-
-    @domain_id.setter
-    def domain_id(self, value):
-        if not self.local_user:
-            self.local_user = LocalUser()
-        self.local_user.domain_id = value
-
-    @domain_id.expression
-    def domain_id(cls):
-        return LocalUser.domain_id
-
-    # NOTE(stevemar): we use a hybrid property here because we leverage the
     # expression method, see `@enabled.expression` and `User._enabled` below.
     @hybrid_property
     def enabled(self):
@@ -229,8 +209,7 @@ class LocalUser(sql.ModelBase, sql.DictBase):
     __tablename__ = 'local_user'
     attributes = ['id', 'user_id', 'domain_id', 'name']
     id = sql.Column(sql.Integer, primary_key=True)
-    user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
-                         ondelete='CASCADE'), unique=True)
+    user_id = sql.Column(sql.String(64))
     domain_id = sql.Column(sql.String(64), nullable=False)
     name = sql.Column(sql.String(255), nullable=False)
     passwords = orm.relationship('Password',
@@ -241,7 +220,13 @@ class LocalUser(sql.ModelBase, sql.DictBase):
                                  order_by='Password.created_at')
     failed_auth_count = sql.Column(sql.Integer, nullable=True)
     failed_auth_at = sql.Column(sql.DateTime, nullable=True)
-    __table_args__ = (sql.UniqueConstraint('domain_id', 'name'), {})
+    __table_args__ = (
+        sql.UniqueConstraint('user_id'),
+        sql.UniqueConstraint('domain_id', 'name'),
+        sqlalchemy.ForeignKeyConstraint(['user_id', 'domain_id'],
+                                        ['user.id', 'user.domain_id'],
+                                        onupdate='CASCADE', ondelete='CASCADE')
+    )
 
 
 class Password(sql.ModelBase, sql.DictBase):
@@ -287,8 +272,12 @@ class NonLocalUser(sql.ModelBase, sql.ModelDictMixin):
     attributes = ['domain_id', 'name', 'user_id']
     domain_id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), primary_key=True)
-    user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
-                         ondelete='CASCADE'), unique=True)
+    user_id = sql.Column(sql.String(64))
+    __table_args__ = (
+        sql.UniqueConstraint('user_id'),
+        sqlalchemy.ForeignKeyConstraint(
+            ['user_id', 'domain_id'], ['user.id', 'user.domain_id'],
+            onupdate='CASCADE', ondelete='CASCADE'),)
 
 
 class Group(sql.ModelBase, sql.DictBase):

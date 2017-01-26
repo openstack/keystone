@@ -1993,6 +1993,118 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
             protocol_id=federated_user['protocol_id']).all()
         self.assertThat(federated_users, matchers.HasLength(0))
 
+    def test_migration_014_add_domain_id_to_user_table(self):
+        def create_domain():
+            table = sqlalchemy.Table('project', self.metadata, autoload=True)
+            domain_id = uuid.uuid4().hex
+            domain = {
+                'id': domain_id,
+                'name': domain_id,
+                'enabled': True,
+                'description': uuid.uuid4().hex,
+                'domain_id': resource_base.NULL_DOMAIN_ID,
+                'is_domain': True,
+                'parent_id': None,
+                'extra': '{}'
+            }
+            table.insert().values(domain).execute()
+            return domain_id
+
+        def create_user(table):
+            user_id = uuid.uuid4().hex
+            user = {'id': user_id, 'enabled': True}
+            table.insert().values(user).execute()
+            return user_id
+
+        # insert local_user or nonlocal_user
+        def create_child_user(table, user_id, domain_id):
+            child_user = {
+                'user_id': user_id,
+                'domain_id': domain_id,
+                'name': uuid.uuid4().hex
+            }
+            table.insert().values(child_user).execute()
+
+        # update local_user or nonlocal_user
+        def update_child_user(table, user_id, new_domain_id):
+            table.update().where(table.c.user_id == user_id).values(
+                domain_id=new_domain_id).execute()
+
+        def assertUserDomain(user_id, domain_id):
+            user = sqlalchemy.Table('user', self.metadata, autoload=True)
+            cols = [user.c.domain_id]
+            filter = user.c.id == user_id
+            sel = sqlalchemy.select(cols).where(filter)
+            domains = sel.execute().fetchone()
+            self.assertEqual(domain_id, domains[0])
+
+        user_table_name = 'user'
+        self.expand(13)
+        self.migrate(13)
+        self.contract(13)
+        self.assertTableColumns(
+            user_table_name, ['id', 'extra', 'enabled', 'default_project_id',
+                              'created_at', 'last_active_at'])
+        self.expand(14)
+        self.assertTableColumns(
+            user_table_name, ['id', 'extra', 'enabled', 'default_project_id',
+                              'created_at', 'last_active_at', 'domain_id'])
+        user_table = sqlalchemy.Table(user_table_name, self.metadata,
+                                      autoload=True)
+        local_user_table = sqlalchemy.Table('local_user', self.metadata,
+                                            autoload=True)
+        nonlocal_user_table = sqlalchemy.Table('nonlocal_user', self.metadata,
+                                               autoload=True)
+
+        # add users before migrate to test that the user.domain_id gets updated
+        # after migrate
+        user_ids = []
+        expected_domain_id = create_domain()
+        user_id = create_user(user_table)
+        create_child_user(local_user_table, user_id, expected_domain_id)
+        user_ids.append(user_id)
+        user_id = create_user(user_table)
+        create_child_user(nonlocal_user_table, user_id, expected_domain_id)
+        user_ids.append(user_id)
+
+        self.migrate(14)
+        # test local_user insert trigger updates user.domain_id
+        user_id = create_user(user_table)
+        domain_id = create_domain()
+        create_child_user(local_user_table, user_id, domain_id)
+        assertUserDomain(user_id, domain_id)
+
+        # test local_user update trigger updates user.domain_id
+        new_domain_id = create_domain()
+        update_child_user(local_user_table, user_id, new_domain_id)
+        assertUserDomain(user_id, new_domain_id)
+
+        # test nonlocal_user insert trigger updates user.domain_id
+        user_id = create_user(user_table)
+        create_child_user(nonlocal_user_table, user_id, domain_id)
+        assertUserDomain(user_id, domain_id)
+
+        # test nonlocal_user update trigger updates user.domain_id
+        update_child_user(nonlocal_user_table, user_id, new_domain_id)
+        assertUserDomain(user_id, new_domain_id)
+
+        self.contract(14)
+        # test migrate updated the user.domain_id
+        for user_id in user_ids:
+            assertUserDomain(user_id, expected_domain_id)
+
+        # test unique and fk constraints
+        if self.engine.name == 'mysql':
+            self.assertTrue(
+                self.does_index_exist('user', 'ixu_user_id_domain_id'))
+        else:
+            self.assertTrue(
+                self.does_constraint_exist('user', 'ixu_user_id_domain_id'))
+        self.assertTrue(self.does_fk_exist('local_user', 'user_id'))
+        self.assertTrue(self.does_fk_exist('local_user', 'domain_id'))
+        self.assertTrue(self.does_fk_exist('nonlocal_user', 'user_id'))
+        self.assertTrue(self.does_fk_exist('nonlocal_user', 'domain_id'))
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture

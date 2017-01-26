@@ -129,13 +129,12 @@ class ShadowUsers(base.ShadowUsersDriverBase):
     def create_nonlocal_user(self, user_dict):
         new_user_dict = copy.deepcopy(user_dict)
         # remove local_user attributes from new_user_dict
-        keys_to_delete = ['domain_id', 'name', 'password']
+        keys_to_delete = ['name', 'password']
         for key in keys_to_delete:
             if key in new_user_dict:
                 del new_user_dict[key]
         # create nonlocal_user dict
         new_nonlocal_user_dict = {
-            'domain_id': user_dict['domain_id'],
             'name': user_dict['name']
         }
         with sql.session_for_write() as session:
