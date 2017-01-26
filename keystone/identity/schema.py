@@ -73,10 +73,15 @@ _user_properties = {
     }
 }
 
+# TODO(notmorgan): Provide a mechanism for options to supply real jsonschema
+# validation based upon the option object and the option validator(s)
 user_create = {
     'type': 'object',
     'properties': _user_properties,
     'required': ['name'],
+    'options': {
+        'type': 'object'
+    },
     'additionalProperties': True
 }
 
@@ -84,6 +89,9 @@ user_update = {
     'type': 'object',
     'properties': _user_properties,
     'minProperties': 1,
+    'options': {
+        'type': 'object'
+    },
     'additionalProperties': True
 }
 
