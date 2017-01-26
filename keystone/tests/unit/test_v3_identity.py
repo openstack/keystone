@@ -959,6 +959,9 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         self.change_password(password=new_password,
                              original_password=password,
                              expected_status=http_client.NO_CONTENT)
+        # new password works
+        self.get_request_token(new_password,
+                               expected_status=http_client.CREATED)
 
     def test_changing_expired_password_with_disabled_user_fails(self):
         self.config_fixture.config(group='security_compliance',
