@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    [`bug 1641645 <https://bugs.launchpad.net/keystone/+bug/1641645>`_]
+    RBAC protection was removed from the `Self-service change user password` API
+    (``/v3/user/$user_id/password``), meaning, a user can now change their password
+    without a token specified in the ``X-Auth-Token`` header. This change will
+    allow a user, with an expired password, to update their password without the
+    need of an administrator.

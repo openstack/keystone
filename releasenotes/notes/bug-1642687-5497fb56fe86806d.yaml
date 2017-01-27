@@ -1,0 +1,18 @@
+---
+fixes:
+ - >
+    [`bug 1642687 <https://bugs.launchpad.net/keystone/+bug/1642687>`_]
+    When registering an ``identity provider`` via the OS-FEDERATION API, it is
+    now recommended to include a ``domain_id`` to associate with the
+    ``identity provider`` in the request. Federated users that authenticate with
+    the ``identity provider`` will now be associated with the ``domain_id``
+    specified. If no ``domain_id`` is specified, then a domain will be automatically
+    created.
+upgrade:
+  - >
+    [`bug 1642687 <https://bugs.launchpad.net/keystone/+bug/1642687>`_]
+    Upon a successful upgrade, all existing ``identity providers`` will now
+    be associated with a automatically created domain. Each ``identity provider``
+    that existed prior to the `Ocata` release will now have a ``domain_id`` field.
+    The new domain will have an ``id`` (random UUID), a ``name`` (that will match
+    the ``identity provider`` ID , and be ``enabled`` by default.

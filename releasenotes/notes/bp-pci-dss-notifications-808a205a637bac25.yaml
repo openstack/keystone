@@ -18,5 +18,5 @@ features:
      * If a user attempts to change their password too often. See
        ``[security_compliance] minimum_password_age``.
 
-   See http://docs.openstack.org/developer/keystone/event_notifications.html for
-   additional details.
+   For additional details see:
+   `event notifications <See http://docs.openstack.org/developer/keystone/event_notifications.html>`_

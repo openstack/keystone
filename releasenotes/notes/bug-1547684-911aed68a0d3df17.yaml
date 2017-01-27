@@ -4,8 +4,8 @@ fixes:
     [`bug 1651989 <https://bugs.launchpad.net/keystone/+bug/1651989>`_]
     Due to ``bug 1547684``, when using the ``policy.v3cloudsample.json``
     sample file, a domain admin token was being treated as a cloud admin.
-    Since the ``is_admin_project`` functionality only supports project-
-    scoped tokens, we automatically set any domain scoped token to have
+    Since the ``is_admin_project`` functionality only supports
+    project-scoped tokens, we automatically set any domain scoped token to have
     the property ``is_admin_project`` to ``False``.
 
     [`bug 1547684 <https://bugs.launchpad.net/keystone/+bug/1547684>`_]

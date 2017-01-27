@@ -1,8 +1,9 @@
 ---
 other:
   - >
-    The signature on the ``authenticate`` method of
-    ``keystone.auth.plugins.base.AuthMethodHandler`` has been updated.
+    [`bug 1659730 <https://bugs.launchpad.net/keystone/+bug/1659730>`_]
+    The signature on the ``authenticate`` method of ``keystone.auth.plugins.base.AuthMethodHandler``
+    has been updated.
 
     Third-party extensions that extend the abstract class
     (``AuthMethodHandler``) should update their code according to the new

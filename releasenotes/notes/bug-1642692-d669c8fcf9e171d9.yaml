@@ -2,5 +2,5 @@
 fixes:
   - |
     [`bug 1642692 <https://bugs.launchpad.net/keystone/+bug/1642692>`_]
-    All federated_user entries will be deleted if the ``protocol`` it used
-    to first authenticate is deleted.
+    When a `federation protocol` is deleted, all users that authenticated with
+    the `federation protocol` will also be deleted.

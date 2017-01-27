@@ -1,7 +1,0 @@
----
-features:
-  - >
-    The healthcheck middleware from Oslo has been added to the keystone
-    application pipelines in the example ``keystone-paste.ini`` file. This
-    middleware provides a common method to check the health of a particular
-    application provided by keystone.

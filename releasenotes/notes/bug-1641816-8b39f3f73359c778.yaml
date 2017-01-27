@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1641816 <https://bugs.launchpad.net/keystone/+bug/1641816>`_]
+    The ``[token] cache_on_issue`` option is now enabled by default. This option
+    has no effect unless global caching and token caching are enabled.

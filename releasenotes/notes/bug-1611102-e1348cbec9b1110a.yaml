@@ -1,0 +1,8 @@
+
+---
+other:
+  - >
+    [`bug 1611102 <https://bugs.launchpad.net/keystone/+bug/1611102>`_]
+    The methods ``list_endpoints_for_policy()`` and ``get_policy_for_endpoint()``
+    have been removed from the ``keystone.endpoint_policy.backends.base.EndpointPolicyDriverBase``
+    abstract class, they were unused.
