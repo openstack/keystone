@@ -15,16 +15,7 @@
 
 from oslo_config import cfg
 
-
-identity_group = cfg.OptGroup(name='identity',
-                              title="Keystone Configuration Options")
-
-IdentityGroup = []
-
-identity_feature_group = cfg.OptGroup(name='identity-feature-enabled',
-                                      title='Enabled Identity Features')
-
-IdentityFeatureGroup = [
+identity_feature_option = [
     cfg.BoolOpt('federation',
                 default=False,
                 help='Does the environment support the Federated Identity '

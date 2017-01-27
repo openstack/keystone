@@ -31,17 +31,13 @@ class KeystoneTempestPlugin(plugins.TempestPlugin):
         return full_test_dir, base_path
 
     def register_opts(self, conf):
-        config.register_opt_group(conf, project_config.identity_group,
-                                  project_config.IdentityGroup)
-        config.register_opt_group(conf, project_config.identity_feature_group,
-                                  project_config.IdentityFeatureGroup)
+        config.register_opt_group(conf, config.identity_feature_group,
+                                  project_config.identity_feature_option)
         config.register_opt_group(conf, project_config.fed_scenario_group,
                                   project_config.FedScenarioGroup)
 
     def get_opt_lists(self):
-        return [(project_config.identity_group.name,
-                 project_config.IdentityGroup),
-                (project_config.identity_feature_group.name,
-                 project_config.IdentityFeatureGroup),
+        return [(config.identity_feature_group.name,
+                 project_config.identity_feature_option),
                 (project_config.fed_scenario_group.name,
                  project_config.FedScenarioGroup)]
