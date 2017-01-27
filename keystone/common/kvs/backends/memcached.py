@@ -20,6 +20,7 @@ import time
 from dogpile.cache import api
 from dogpile.cache.backends import memcached
 from oslo_cache.backends import memcache_pool
+from oslo_log import versionutils
 from six.moves import range
 
 import keystone.conf
@@ -72,6 +73,10 @@ class MemcachedLock(object):
         client.delete(self.key)
 
 
+@versionutils.deprecated(
+    versionutils.deprecated.OCATA,
+    what='keystone.common.kvs.backends.MemcachedBackend',
+    remove_in=+1)
 class MemcachedBackend(object):
     """Pivot point to leverage the various dogpile.cache memcached backends.
 

@@ -7,3 +7,13 @@ deprecations:
     It's recommended to replace the ``endpoint_filter.sql`` catalog backend
     with the ``sql`` backend. The ``endpoint_filter.sql`` backend will be
     removed in the `Pike` release.
+  - >
+    [`blueprint deprecated-as-of-ocata <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-ocata>`_]
+    Various KVS backends and config options have been deprecated and will be
+    removed in the `Pike` release. This includes:
+
+      * ``keystone.common.kvs.backends.inmemdb.MemoryBackend``
+      * ``keystone.common.kvs.backends.memcached.MemcachedBackend``
+      * ``keystone.token.persistence.backends.kvs.Token``
+      * all config options under ``[kvs]`` in `keystone.conf`
+      * the config option ``[memcached] servers`` in `keystone.conf`

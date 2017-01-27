@@ -11,13 +11,23 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
+
+
+_DEPRECATE_KVS_MSG = utils.fmt("""
+This option has been deprecated in the O release and will be removed in the P
+release. Use oslo.cache instead.
+""")
 
 
 servers = cfg.ListOpt(
     'servers',
     default=['localhost:11211'],
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_KVS_MSG,
+    deprecated_since=versionutils.deprecated.OCATA,
     help=utils.fmt("""
 Comma-separated list of memcached servers in the format of
 `host:port,host:port` that keystone should use for the `memcache` token

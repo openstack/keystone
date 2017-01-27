@@ -17,11 +17,16 @@
 import copy
 
 from dogpile.cache import api
+from oslo_log import versionutils
 
 
 NO_VALUE = api.NO_VALUE
 
 
+@versionutils.deprecated(
+    versionutils.deprecated.OCATA,
+    what='keystone.common.kvs.backends.MemoryBackend',
+    remove_in=+1)
 class MemoryBackend(api.CacheBackend):
     """A backend that uses a plain dictionary.
 

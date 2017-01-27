@@ -18,6 +18,7 @@ import copy
 import threading
 
 from oslo_log import log
+from oslo_log import versionutils
 from oslo_utils import timeutils
 import six
 
@@ -36,6 +37,10 @@ LOG = log.getLogger(__name__)
 STORE_CONF_LOCK = threading.Lock()
 
 
+@versionutils.deprecated(
+    versionutils.deprecated.OCATA,
+    what='keystone.token.persistence.backends.kvs.Token',
+    remove_in=+1)
 class Token(token.persistence.TokenDriverBase):
     """KeyValueStore backend for tokens.
 

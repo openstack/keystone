@@ -11,13 +11,23 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
+
+
+_DEPRECATE_KVS_MSG = utils.fmt("""
+This option has been deprecated in the O release and will be removed in the P
+release. Use SQL backends instead.
+""")
 
 
 backends = cfg.ListOpt(
     'backends',
     default=[],
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_KVS_MSG,
+    deprecated_since=versionutils.deprecated.OCATA,
     help=utils.fmt("""
 Extra `dogpile.cache` backend modules to register with the `dogpile.cache`
 library. It is not necessary to set this value unless you are providing a
@@ -27,6 +37,9 @@ custom KVS backend beyond what `dogpile.cache` already supports.
 config_prefix = cfg.StrOpt(
     'config_prefix',
     default='keystone.kvs',
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_KVS_MSG,
+    deprecated_since=versionutils.deprecated.OCATA,
     help=utils.fmt("""
 Prefix for building the configuration dictionary for the KVS region. This
 should not need to be changed unless there is another `dogpile.cache` region
@@ -36,6 +49,9 @@ with the same configuration name.
 enable_key_mangler = cfg.BoolOpt(
     'enable_key_mangler',
     default=True,
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_KVS_MSG,
+    deprecated_since=versionutils.deprecated.OCATA,
     help=utils.fmt("""
 Set to false to disable using a key-mangling function, which ensures
 fixed-length keys are used in the KVS store. This is configurable for debugging
@@ -47,6 +63,9 @@ default_lock_timeout = cfg.IntOpt(
     'default_lock_timeout',
     default=5,
     min=0,
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_KVS_MSG,
+    deprecated_since=versionutils.deprecated.OCATA,
     help=utils.fmt("""
 Number of seconds after acquiring a distributed lock that the backend should
 consider the lock to be expired. This option should be tuned relative to the
