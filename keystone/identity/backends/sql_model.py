@@ -191,6 +191,11 @@ class User(sql.ModelBase, sql.DictBase):
     def enabled(cls):
         return User._enabled
 
+    def get_resource_option(self, option_id):
+        if option_id in self._resource_option_mapper.keys():
+            return self._resource_option_mapper[option_id]
+        return None
+
     def to_dict(self, include_extra_dict=False):
         d = super(User, self).to_dict(include_extra_dict=include_extra_dict)
         if 'default_project_id' in d and d['default_project_id'] is None:
