@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    [`bug 1659995 <https://bugs.launchpad.net/keystone/+bug/1659995>`_]
+    A new option has been made available via the user create and update API
+    (``POST/PATCH /v3/users) call, the option will allow an admin to
+    mark users as exempt from the PCI password expiry policy via an API.
+    This can be done like so: ``user['options']['ignore_password_expiry']``.
+deprecations:
+  - |
+    [`bug 1659995 <https://bugs.launchpad.net/keystone/+bug/1659995>`_]
+    The config option ``[security_compliance] ignore_password_expires_user_ids``
+    has been deprecated in favor of using the option value set, available via
+    the user create and update API call

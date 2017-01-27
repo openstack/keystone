@@ -695,6 +695,33 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
                                        user_id=user['id'],
                                        password=self.password)
 
+    def test_authenticate_with_expired_password_for_ignore_user_option(self):
+        # set user to have the 'ignore_password_expiry' option set to False
+        self.user_dict.setdefault('options', {})[
+            iro.IGNORE_PASSWORD_EXPIRY_OPT.option_name] = False
+        # set password created_at so that the password will expire
+        password_created_at = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(
+                days=CONF.security_compliance.password_expires_days + 1)
+        )
+        user = self._create_user(self.user_dict, password_created_at)
+        self.assertRaises(exception.PasswordExpired,
+                          self.identity_api.authenticate,
+                          self.make_request(),
+                          user_id=user['id'],
+                          password=self.password)
+
+        # update user to explicitly have the expiry option to True
+        user['options'][
+            iro.IGNORE_PASSWORD_EXPIRY_OPT.option_name] = True
+        user = self.identity_api.update_user(user['id'],
+                                             user)
+        # test password is not expired due to ignore option
+        self.identity_api.authenticate(self.make_request(),
+                                       user_id=user['id'],
+                                       password=self.password)
+
     def _get_test_user_dict(self, password):
         test_user_dict = {
             'id': uuid.uuid4().hex,
@@ -706,13 +733,15 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
         return test_user_dict
 
     def _create_user(self, user_dict, password_created_at):
-        user_dict = utils.hash_user_password(user_dict)
+        # Bypass business logic and go straight for the identity driver
+        # (SQL in this case)
+        driver = self.identity_api.driver
+        driver.create_user(user_dict['id'], user_dict)
         with sql.session_for_write() as session:
-            user_ref = model.User.from_dict(user_dict)
+            user_ref = session.query(model.User).get(user_dict['id'])
             user_ref.password_ref.created_at = password_created_at
             user_ref.password_ref.expires_at = (
                 user_ref._get_password_expires_at(password_created_at))
-            session.add(user_ref)
             return base.filter_user(user_ref.to_dict())
 
 
