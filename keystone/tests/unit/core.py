@@ -730,7 +730,7 @@ class TestCase(BaseTestCase):
                     rv = self.role_api.create_role(role['id'], role)
                 except exception.Conflict:
                     rv = self.role_api.get_role(role['id'])
-                attrname = 'role_%s' % role['id']
+                attrname = 'role_%s' % role['name']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
 
@@ -738,7 +738,9 @@ class TestCase(BaseTestCase):
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
                 try:
-                    existing_user = getattr(self, 'user_%s' % user['id'], None)
+                    existing_user = getattr(self,
+                                            'user_%s' % user['name'],
+                                            None)
                     if existing_user is not None:
                         self.identity_api.delete_user(existing_user['id'])
                 except exception.UserNotFound:
@@ -760,7 +762,7 @@ class TestCase(BaseTestCase):
                 # Use the ID from the fixture as the attribute name, so
                 # that our tests can easily reference each user dict, while
                 # the ID in the dict will be the real public ID.
-                attrname = 'user_%s' % user['id']
+                attrname = 'user_%s' % user['name']
                 setattr(self, attrname, user_copy)
                 fixtures_to_cleanup.append(attrname)
 
