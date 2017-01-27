@@ -64,7 +64,7 @@ class IdentityTests(object):
         #               not be returned by the api
         self.user_sna.pop('password')
         self.user_sna['enabled'] = True
-        self.assertDictEqual(self.user_sna, user_ref)
+        self.assertUserDictEqual(self.user_sna, user_ref)
 
     def test_authenticate_and_get_roles_no_metadata(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)

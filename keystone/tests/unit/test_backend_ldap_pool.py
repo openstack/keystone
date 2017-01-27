@@ -181,7 +181,7 @@ class LdapPoolCommonTestMixin(object):
 
         self.user_sna.pop('password')
         self.user_sna['enabled'] = True
-        self.assertDictEqual(self.user_sna, user_ref)
+        self.assertUserDictEqual(self.user_sna, user_ref)
 
         new_password = 'new_password'
         user_ref['password'] = new_password
@@ -195,7 +195,7 @@ class LdapPoolCommonTestMixin(object):
             password=new_password)
 
         user_ref.pop('password')
-        self.assertDictEqual(user_ref, user_ref2)
+        self.assertUserDictEqual(user_ref, user_ref2)
 
         # Authentication with old password would not work here as there
         # is only one connection in pool which get bind again with updated

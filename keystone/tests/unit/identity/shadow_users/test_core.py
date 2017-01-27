@@ -21,7 +21,7 @@ class ShadowUsersCoreTests(object):
             self.federated_user['unique_id'],
             self.federated_user['display_name'])
         self.assertIsNotNone(user['id'])
-        self.assertEqual(5, len(user.keys()))
+        self.assertEqual(6, len(user.keys()))
         self.assertIsNotNone(user['name'])
         self.assertIsNone(user['password_expires_at'])
         self.assertIsNotNone(user['domain_id'])

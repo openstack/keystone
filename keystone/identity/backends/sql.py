@@ -18,6 +18,7 @@ from oslo_db import api as oslo_db_api
 import sqlalchemy
 
 from keystone.common import driver_hints
+from keystone.common import resource_options
 from keystone.common import sql
 from keystone.common import utils
 import keystone.conf
@@ -125,6 +126,9 @@ class Identity(base.IdentityDriverBase):
             user_ref = model.User.from_dict(user)
             user_ref.created_at = datetime.datetime.utcnow()
             session.add(user_ref)
+            # Set resource options passed on creation
+            resource_options.resource_options_ref_to_mapper(
+                user_ref, model.UserOption)
             return base.filter_user(user_ref.to_dict())
 
     def _create_password_expires_query(self, session, query, hints):
@@ -188,6 +192,16 @@ class Identity(base.IdentityDriverBase):
             for attr in model.User.attributes:
                 if attr not in model.User.readonly_attributes:
                     setattr(user_ref, attr, getattr(new_user, attr))
+            # Move the "_resource_options" attribute over to the real user_ref
+            # so that resource_options.resource_options_ref_to_mapper can
+            # handle the work.
+            setattr(user_ref, '_resource_options',
+                    getattr(new_user, '_resource_options', {}))
+
+            # Move options into the proper attribute mapper construct
+            resource_options.resource_options_ref_to_mapper(
+                user_ref, model.UserOption)
+
             user_ref.extra = new_user.extra
             return base.filter_user(
                 user_ref.to_dict(include_extra_dict=True))
