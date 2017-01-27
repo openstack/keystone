@@ -11,15 +11,22 @@
 # under the License.
 
 from keystone.common import resource_options
+from keystone.common.validation import parameter_types
 
 
 USER_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('USER')
 IGNORE_CHANGE_PASSWORD_OPT = (
-    resource_options.ResourceOption('1000',
-                                    'ignore_change_password_upon_first_use'))
+    resource_options.ResourceOption(
+        option_id='1000',
+        option_name='ignore_change_password_upon_first_use',
+        validator=resource_options.boolean_validator,
+        json_schema_validation=parameter_types.boolean))
 IGNORE_PASSWORD_EXPIRY_OPT = (
-    resource_options.ResourceOption('1001',
-                                    'ignore_password_expiry'))
+    resource_options.ResourceOption(
+        option_id='1001',
+        option_name='ignore_password_expiry',
+        validator=resource_options.boolean_validator,
+        json_schema_validation=parameter_types.boolean))
 
 
 # NOTE(notmorgan): wrap this in a function for testing purposes.

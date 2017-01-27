@@ -63,14 +63,6 @@ user_update_v2 = {
 
 # Schema for Identity v3 API
 
-_user_options = {
-    'type': 'object',
-    'properties': {
-        ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: parameter_types.boolean,
-    },
-    'additionalProperties': False
-}
-
 _user_properties = {
     'default_project_id': validation.nullable(parameter_types.id_string),
     'description': validation.nullable(parameter_types.description),
@@ -80,7 +72,7 @@ _user_properties = {
     'password': {
         'type': ['string', 'null']
     },
-    'options': _user_options
+    'options': ro.USER_OPTIONS_REGISTRY.json_schema
 }
 
 # TODO(notmorgan): Provide a mechanism for options to supply real jsonschema

@@ -246,7 +246,9 @@ class User(sql.ModelBase, sql.DictBase):
         for opt in cls.resource_options_registry.options:
             if opt.option_name in options:
                 opt_value = options[opt.option_name]
-                opt.validator(opt_value)
+                # NOTE(notmorgan): None is always a valid type
+                if opt_value is not None:
+                    opt.validator(opt_value)
                 resource_options[opt.option_id] = opt_value
         user_obj = super(User, cls).from_dict(new_dict)
         setattr(user_obj, '_resource_options', resource_options)

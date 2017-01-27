@@ -14,11 +14,17 @@
 
 import six
 
+from keystone.common import validation
 from keystone.i18n import _
 
 
 def _validator(value):
     return
+
+
+def boolean_validator(value):
+    if value not in (True, False):
+        raise TypeError(_('Expected boolean value, got %r') % type(value))
 
 
 def ref_mapper_to_dict_options(ref):
@@ -123,6 +129,22 @@ class ResourceOptionRegistry(object):
                 return option
         return None
 
+    @property
+    def json_schema(self):
+        schema = {'type': 'object',
+                  'properties': {},
+                  'additionalProperties': False}
+        for opt in self.options:
+            if opt.json_schema is not None:
+                schema['properties'][opt.option_name] = validation.nullable(
+                    opt.json_schema)
+            else:
+                # NOTE(notmorgan): without 'type' being specified, this
+                # can be of any-type. We are simply specifying no interesting
+                # values beyond that the property may exist here.
+                schema['properties'][opt.option_name] = {}
+        return schema
+
     def register_option(self, option):
         if option in self.options:
             # Re-registering the exact same option does nothing.
@@ -143,7 +165,8 @@ class ResourceOptionRegistry(object):
 
 class ResourceOption(object):
 
-    def __init__(self, option_id, option_name, validator=_validator):
+    def __init__(self, option_id, option_name, validator=_validator,
+                 json_schema_validation=None):
         """The base object to define the option(s) to be stored in the DB.
 
         :param option_id: The ID of the option. This will be used to lookup
@@ -164,6 +187,11 @@ class ResourceOption(object):
                           value to be persisted will be passed to it. No return
                           value is expected.
         :type validator: callable
+        :param json_schema_validation: Dictionary defining the JSON schema
+                                       validation for the option itself. This
+                                       is used to generate the JSON Schema
+                                       validator(s) used at the API layer
+        :type json_schema_validation: dict
         """
         if not isinstance(option_id, six.string_types) and len(option_id) == 4:
             raise TypeError(_('`option_id` must be a string, got %r')
@@ -179,6 +207,11 @@ class ResourceOption(object):
         self._option_id = option_id
         self._option_name = option_name
         self.validator = validator
+        self._json_schema_validation = json_schema_validation
+
+    @property
+    def json_schema(self):
+        return self._json_schema_validation or None
 
     @property
     def option_name(self):
