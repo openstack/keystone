@@ -1,0 +1,23 @@
+---
+other:
+  - |
+    [`bug 1642687 <https://bugs.launchpad.net/keystone/+bug/1642687>`_]
+    The signature on the ``create_federated_user`` method of
+    ``keystone.identity.shadow_backends.base.ShadowUsersDriverBase`` has been
+    updated.
+
+    Third-party extensions that extend the abstract class (``ShadowUsersDriverBase``)
+    should be updated according to the new parameter names.
+
+    The method signature has changed from::
+
+      create_federated_user(self, federated_dict)
+
+    to::
+
+      create_federated_user(self, domain_id, federated_dict)
+fixes:
+  - |
+    [`bug 1642687 <https://bugs.launchpad.net/keystone/+bug/1642687>`_]
+    Users that authenticate with an ``identity provider`` will now have a
+    ``domain_id`` attribute, that is associated with the ``identity provider``.

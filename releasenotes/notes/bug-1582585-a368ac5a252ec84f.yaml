@@ -1,0 +1,15 @@
+---
+other:
+  - >
+    [`bug 1582585 <https://bugs.launchpad.net/keystone/+bug/1582585>`_]
+    A new method ``get_domain_mapping_list`` was added to
+    ``keystone.identity.mapping_backends.base.MappingDriverBase``.
+
+    Third-party extensions that extend the abstract class (``MappingDriverBase``)
+    should implement this new method.
+
+    The method has the following signature::
+
+      get_domain_mapping_list(self, domain_id)
+
+    and will return a list of mappings for a given domain ID.

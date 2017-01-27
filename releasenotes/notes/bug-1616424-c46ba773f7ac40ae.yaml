@@ -2,7 +2,6 @@
 fixes:
   - >
     [`bug 1616424 <https://bugs.launchpad.net/keystone/+bug/1616424>`_]
-    Python build-in exception was raised if create request token or access token
-    request from client with invalid request parameters, invalid signature for example.
-    The implementation is hardened by showing proper exception and displaying the
-    failure reasons if existent.
+    Provide better exception messages when creating OAuth request tokens and
+    OAuth access tokens via the ``/v3/OS-OAUTH1/request_token`` and
+    ``/v3/OS-OAUTH1/access_token`` APIs, respectively.

@@ -1,16 +1,15 @@
 ---
-features:
+fixes:
   - >
     [`bug 1656076 <https://bugs.launchpad.net/keystone/+bug/1656076>`_]
-    ``AuthContext`` Object now required in ``keystone.controllers.Auth.authenticate``
+    The various plugins under ``keystone.controllers.Auth.authenticate`` now
+    require ``AuthContext`` objects to be returned.
 security:
   - >
     [`bug 1650676 <https://bugs.launchpad.net/keystone/+bug/1656076>`_]
-    A bug is fixed that could allow an authenticate call to not use the
-    ``AuthContext`` object which has added security features to ensure things
-    such as the ``user_id`` does not change between auth methods being processed
-    in the Keystone server. The ``keystone.controllers.Auth.authenticate``
+    Authentication plugins now required ``AuthContext`` objects to be used. This
+    has added security features to ensure information such as the ``user_id``
+    does not change between authentication methods being processed
+    by the server. The ``keystone.controllers.Auth.authenticate``
     method now requires the argument ``auth_context`` to be an actual
-    ``AuthContext`` object. The scope of the fix is only tests, and this
-    will prevent security regressions in the future. This is a
-    hardening patch and not an exploitable security flaw.
+    ``AuthContext`` object.

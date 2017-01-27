@@ -1,0 +1,19 @@
+---
+other:
+  - >
+    [`bug 1017606 <https://bugs.launchpad.net/keystone/+bug/1017606>`_]
+    The signature on the ``get_catalog`` and ``get_v3_catalog`` methods of
+    ``keystone.catalog.backends.base.CatalogDriverBase`` have been updated.
+
+    Third-party extensions that extend the abstract class (``CatalogDriverBase``)
+    should be updated according to the new parameter names.
+
+    The method signatures have changed from::
+
+      get_catalog(self, user_id, tenant_id)
+      get_v3_catalog(self, user_id, tenant_id)
+
+    to::
+
+      get_catalog(self, user_id, project_id)
+      get_v3_catalog(self, user_id, project_id)

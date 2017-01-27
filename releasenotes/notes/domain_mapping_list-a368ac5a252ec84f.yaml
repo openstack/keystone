@@ -1,6 +1,0 @@
----
-upgrade:
-  - ID Mapping driver interface has changed. A new method
-    ``get_domain_mapping_list`` was added for fetching mapping list
-    for a domain. If you have a custom implementation for the identity
-    driver, you will need to implement this new method.

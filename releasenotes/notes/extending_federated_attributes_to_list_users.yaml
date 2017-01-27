@@ -1,4 +1,0 @@
----
-upgrade:
- - Added new filters (``idp_id``, ``protocol_id``, and ``unique_id``) for the
-   list user API (``GET /v3/users``).

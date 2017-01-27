@@ -40,6 +40,22 @@ other:
       * ``keystone/common/cache/backends/memcache_pool``
       * ``keystone/common/cache/backends/noop``
   - >
+    Several token validation methods from the abstract class ``keystone.token.providers.base.Provider``
+    were removed (see below) in favor of a single method to validate tokens (``validate_token``),
+    that has the signature ``validate_token(self, token_ref)``. If using a custom token
+    provider, update the custom provider accordingly.
+
+      * ``validate_v2_token``
+      * ``validate_v3_token``
+      * ``validate_non_persistent_token``
+  - >
+    Several token issuance methods from the abstract class ``keystone.token.providers.base.Provider``
+    were removed (see below) in favor of a single method to issue tokens (``issue_token``).
+    If using a custom token provider, updated the custom provider accordingly.
+
+      * ``issue_v2_token``
+      * ``issue_v3_token``
+  - >
     The ``[DEFAULT] domain_id_immutable`` configuration option has been removed
     in favor of strictly immutable domain IDs.
   - >
@@ -64,22 +80,22 @@ other:
     ``build_auth_context`` in the paste pipelines, otherwise remove the
     ``admin_token_auth`` middleware from ``keystone-paste.ini`` entirely.
   - >
-    The ``CONF [assignment] driver`` now defaults to ``sql``. Logic to
+    The ``[assignment] driver`` now defaults to ``sql``. Logic to
     determine the default assignment driver if one wasn't supplied through
     configuration has been removed. Keystone only supports one assignment
     driver and it shouldn't be changed unless you're deploying a custom
     assignment driver.
   - >
-    The ``CONF [resource] driver`` now defaults to ``sql``. Logic to
+    The ``[resource] driver`` now defaults to ``sql``. Logic to
     determine the default resource driver if one wasn't supplied through
     configuration has been removed. Keystone only supports one resource
     driver and it shouldn't be changed unless you're deploying a custom
     resource driver.
   - >
-    Removed the config option ``[os_inherit] enabled`` as the OS-INHERIT
+    The ``[os_inherit] enabled`` config option has been removed, the `OS-INHERIT`
     extension is now always enabled.
   - >
-    The ``CONF [DEFAULT] domain_id_immutable`` option has been removed.
+    The ``[DEFAULT] domain_id_immutable`` option has been removed.
     This removes the ability to change the ``domain_id`` attribute of
     users, groups, and projects. The behavior was introduced to allow
     deployers to migrate entities from one domain to another by updating

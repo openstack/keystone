@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1642348 <https://bugs.launchpad.net/keystone/+bug/1642348>`_]
+    Added new option ``[security_compliance] lockout_ignored_user_ids`` to allow
+    deployers to specify users that are exempt from PCI lockout rules.

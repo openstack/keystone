@@ -1,0 +1,21 @@
+---
+features:
+  - >
+    [`bug 1641654 <https://bugs.launchpad.net/keystone/+bug/1641654>`_]
+    The ``healthcheck`` middleware from `oslo.middleware` has been added to the
+    keystone application pipelines by default. This middleware provides a common
+    method to check the health of keystone. Refer to the example paste provided
+    in ``keystone-paste.ini`` to see how to include the ``healthcheck`` middleware.
+upgrade:
+  - |
+    [`bug 1641654 <https://bugs.launchpad.net/keystone/+bug/1641654>`_]
+    The ``healthcheck`` middleware from `oslo.middleware` has been added to the
+    keystone application pipelines by default. The following section has been
+    added to ``keystone-paste.ini``::
+
+      [filter:healthcheck]
+      use = egg:oslo.middleware#healthcheck
+
+    It is recommended to have the ``healthcheck`` middleware first in the pipeline::
+
+      pipeline = healthcheck cors sizelimit http_proxy_to_wsgi osprofiler ...

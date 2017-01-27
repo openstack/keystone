@@ -1,7 +1,0 @@
----
-features:
-  - >
-    [`bug 1642348 <https://bugs.launchpad.net/keystone/+bug/1642348>`_]
-    Added a way to ignore the lockout validation for specific users, such as
-    service users, by setting the `lockout_ignored_user_ids` option in the
-    `[security_compliance]` section of `keystone.conf`.

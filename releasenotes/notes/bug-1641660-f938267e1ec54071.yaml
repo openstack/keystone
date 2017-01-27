@@ -1,0 +1,13 @@
+---
+upgrade:
+  - >
+    [`bug 1641660 <https://bugs.launchpad.net/keystone/+bug/1641660>`_]
+    The default value for ``[DEFAULT] notification_format`` has been changed
+    from ``basic`` to ``cadf``. The CADF notifications have more information
+    about the user that initiated the request.
+  - >
+    [`bug 1641660 <https://bugs.launchpad.net/keystone/+bug/1641660>`_]
+    The default value for ``[DEFAULT] notification_opt_out`` has been changed
+    to include: ``identity.authenticate.success``, ``identity.authenticate.pending``
+    and ``identity.authenticate.failed``. If a deployment relies on these
+    notifications, then override the default setting.

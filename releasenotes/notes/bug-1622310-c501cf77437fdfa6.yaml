@@ -2,9 +2,17 @@
 fixes:
   - >
     [`bug 1622310 <https://bugs.launchpad.net/keystone/+bug/1622310>`_]
-    Keystone trust will be invalidated if the project to which the trust
+    Trusts will now be invalidated if: the project to which the trust
     is scoped, or the user (trustor or trustee) for which the delegation
-    is assigned, have been deleted.
+    is assigned, has been deleted.
 other:
-  - Abstract method ``delete_trusts_for_project`` should be implemented by
-    custom drivers.
+  - >
+    [`bug 1622310 <https://bugs.launchpad.net/keystone/+bug/1622310>`_]
+    A new method ``delete_trusts_for_project`` has been added to ``keystone.trust.backends.base.TrustDriverBase``.
+
+    Third-party extensions that extend the abstract class (``TrustDriverBase``)
+    should be updated according to the new parameter names.
+
+    The signature for the new method is::
+
+      delete_trusts_for_project(self, project_id)
