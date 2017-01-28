@@ -1,0 +1,8 @@
+---
+features:
+  - >
+    [`Bug 1645487 <https://bugs.launchpad.net/keystone/+bug/1645487>`_]
+    Added a new PCI-DSS feature that will require users to immediately change
+    their password upon first use for new users and after an administrative
+    password reset. The new feature can be enabled by setting
+    [security_compliance] ``change_password_upon_first_use`` to ``True``.

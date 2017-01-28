@@ -23,6 +23,7 @@ from keystone.common.validation import validators
 from keystone.credential import schema as credential_schema
 from keystone import exception
 from keystone.federation import schema as federation_schema
+from keystone.identity.backends import resource_options as ro
 from keystone.identity import schema as identity_schema
 from keystone.oauth1 import schema as oauth1_schema
 from keystone.policy import schema as policy_schema
@@ -1780,6 +1781,63 @@ class UserValidationTestCase(unit.BaseTestCase):
             self.assertRaises(exception.SchemaValidationError,
                               self.update_user_validator.validate,
                               request_to_validate)
+
+    def test_user_create_succeeds_with_empty_options(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {}
+        }
+        self.create_user_validator.validate(request_to_validate)
+
+    def test_user_create_options_fails_invalid_option(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                'whatever': True
+            }
+        }
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_user_validator.validate,
+                          request_to_validate)
+
+    def test_user_create_with_options_change_password_required(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: True
+            }
+        }
+        self.create_user_validator.validate(request_to_validate)
+
+    def test_user_create_options_change_password_required_wrong_type(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: 'whatever'
+            }
+        }
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_user_validator.validate,
+                          request_to_validate)
+
+    def test_user_create_options_change_password_required_none(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: None
+            }
+        }
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_user_validator.validate,
+                          request_to_validate)
+
+    def test_user_update_with_options_change_password_required(self):
+        request_to_validate = {
+            'options': {
+                ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: False
+            }
+        }
+        self.update_user_validator.validate(request_to_validate)
 
 
 class GroupValidationTestCase(unit.BaseTestCase):

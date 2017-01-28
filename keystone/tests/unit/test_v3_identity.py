@@ -29,6 +29,7 @@ import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.identity.backends import base as identity_base
+from keystone.identity.backends import resource_options as options
 from keystone.identity.backends import sql_model as model
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
@@ -977,6 +978,64 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         self.change_password(password=new_password,
                              original_password=password,
                              expected_status=http_client.UNAUTHORIZED)
+
+    def test_change_password_required_upon_first_use_for_create(self):
+        self.config_fixture.config(group='security_compliance',
+                                   change_password_upon_first_use=True)
+
+        # create user
+        self.user_ref = unit.create_user(self.identity_api,
+                                         domain_id=self.domain['id'])
+
+        # attempt to authenticate with create user password
+        self.get_request_token(self.user_ref['password'],
+                               expected_status=http_client.UNAUTHORIZED)
+
+        # self-service change password
+        new_password = uuid.uuid4().hex
+        self.change_password(password=new_password,
+                             original_password=self.user_ref['password'],
+                             expected_status=http_client.NO_CONTENT)
+
+        # authenticate with the new password
+        self.token = self.get_request_token(new_password, http_client.CREATED)
+
+    def test_change_password_required_upon_first_use_for_admin_reset(self):
+        self.config_fixture.config(group='security_compliance',
+                                   change_password_upon_first_use=True)
+
+        # admin reset
+        reset_password = uuid.uuid4().hex
+        user_password = {'password': reset_password}
+        self.identity_api.update_user(self.user_ref['id'], user_password)
+
+        # attempt to authenticate with admin reset password
+        self.get_request_token(reset_password,
+                               expected_status=http_client.UNAUTHORIZED)
+
+        # self-service change password
+        new_password = uuid.uuid4().hex
+        self.change_password(password=new_password,
+                             original_password=reset_password,
+                             expected_status=http_client.NO_CONTENT)
+
+        # authenticate with the new password
+        self.token = self.get_request_token(new_password, http_client.CREATED)
+
+    def test_change_password_required_upon_first_use_ignore_user(self):
+        self.config_fixture.config(group='security_compliance',
+                                   change_password_upon_first_use=True)
+
+        # ignore user and reset password
+        reset_password = uuid.uuid4().hex
+        self.user_ref['password'] = reset_password
+        ignore_opt_name = options.IGNORE_CHANGE_PASSWORD_OPT.option_name
+        self.user_ref['options'][ignore_opt_name] = True
+        self.identity_api.update_user(self.user_ref['id'], self.user_ref)
+
+        # authenticate with the reset password
+        self.token = self.get_request_token(reset_password,
+                                            http_client.CREATED)
 
 
 class PasswordValidationTestCase(ChangePasswordTestCase):

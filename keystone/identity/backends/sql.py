@@ -25,6 +25,7 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import base
+from keystone.identity.backends import resource_options as options
 from keystone.identity.backends import sql_model as model
 
 
@@ -124,12 +125,21 @@ class Identity(base.IdentityDriverBase):
         user = utils.hash_user_password(user)
         with sql.session_for_write() as session:
             user_ref = model.User.from_dict(user)
+            if self._change_password_required(user_ref):
+                user_ref.password_ref.expires_at = datetime.datetime.utcnow()
             user_ref.created_at = datetime.datetime.utcnow()
             session.add(user_ref)
             # Set resource options passed on creation
             resource_options.resource_options_ref_to_mapper(
                 user_ref, model.UserOption)
             return base.filter_user(user_ref.to_dict())
+
+    def _change_password_required(self, user):
+        if not CONF.security_compliance.change_password_upon_first_use:
+            return False
+        ignore_option = user.get_resource_option(
+            options.IGNORE_CHANGE_PASSWORD_OPT.option_id)
+        return not (ignore_option and ignore_option.option_value is True)
 
     def _create_password_expires_query(self, session, query, hints):
         for filter_ in hints.filters:
@@ -201,6 +211,9 @@ class Identity(base.IdentityDriverBase):
             # Move options into the proper attribute mapper construct
             resource_options.resource_options_ref_to_mapper(
                 user_ref, model.UserOption)
+
+            if 'password' in user and self._change_password_required(user_ref):
+                user_ref.password_ref.expires_at = datetime.datetime.utcnow()
 
             user_ref.extra = new_user.extra
             return base.filter_user(
