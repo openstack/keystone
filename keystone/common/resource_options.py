@@ -136,6 +136,8 @@ class ResourceOptionRegistry(object):
                   'additionalProperties': False}
         for opt in self.options:
             if opt.json_schema is not None:
+                # NOTE(notmorgan): All options are nullable. Null indicates
+                # the option should be reset and removed from the DB store.
                 schema['properties'][opt.option_name] = validation.nullable(
                     opt.json_schema)
             else:
