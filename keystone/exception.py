@@ -253,6 +253,15 @@ class Unauthorized(SecurityError):
     title = 'Unauthorized'
 
 
+class InsufficientAuthMethods(Error):
+    # NOTE(notmorgan): This is not a security error, this is meant to
+    # communicate real information back to the user.
+    message_format = _("Insufficient auth methods received for %(user_id)s. "
+                       "Auth Methods Provided: %(methods)s.")
+    code = 401
+    title = 'Unauthorized'
+
+
 class PasswordExpired(Unauthorized):
     message_format = _("The password is expired and needs to be changed for "
                        "user: %(user_id)s.")

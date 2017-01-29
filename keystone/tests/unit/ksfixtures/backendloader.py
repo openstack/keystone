@@ -51,5 +51,5 @@ class BackendLoader(fixtures.Fixture):
         del self._testcase  # break circular reference
 
     def clear_auth_plugin_registry(self):
-        auth.controllers.AUTH_METHODS.clear()
-        auth.controllers.AUTH_PLUGINS_LOADED = False
+        auth.core.AUTH_METHODS.clear()
+        auth.core.AUTH_PLUGINS_LOADED = False

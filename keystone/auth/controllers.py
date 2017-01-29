@@ -16,12 +16,10 @@ import sys
 
 from keystoneclient.common import cms
 from oslo_log import log
-from oslo_log import versionutils
 from oslo_serialization import jsonutils
-from oslo_utils import importutils
 import six
-import stevedore
 
+from keystone.auth import core
 from keystone.auth import schema
 from keystone.common import controller
 from keystone.common import dependency
@@ -39,54 +37,15 @@ LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF
 
-# registry of authentication methods
-AUTH_METHODS = {}
-AUTH_PLUGINS_LOADED = False
+# TODO(notmorgan): Update all references to the following functions to
+# reference auth.core instead of auth.controllers
+get_auth_method = core.get_auth_method
+load_auth_method = core.load_auth_method
+load_auth_methods = core.load_auth_methods
 
-
-def load_auth_method(method):
-    plugin_name = CONF.auth.get(method) or 'default'
-    namespace = 'keystone.auth.%s' % method
-    try:
-        driver_manager = stevedore.DriverManager(namespace, plugin_name,
-                                                 invoke_on_load=True)
-        return driver_manager.driver
-    except RuntimeError:
-        LOG.debug('Failed to load the %s driver (%s) using stevedore, will '
-                  'attempt to load using import_object instead.',
-                  method, plugin_name)
-
-    driver = importutils.import_object(plugin_name)
-
-    msg = (_(
-        'Direct import of auth plugin %(name)r is deprecated as of Liberty in '
-        'favor of its entrypoint from %(namespace)r and may be removed in '
-        'N.') %
-        {'name': plugin_name, 'namespace': namespace})
-    versionutils.report_deprecated_feature(LOG, msg)
-
-    return driver
-
-
-def load_auth_methods():
-    global AUTH_PLUGINS_LOADED
-
-    if AUTH_PLUGINS_LOADED:
-        # Only try and load methods a single time.
-        return
-    # config.setup_authentication should be idempotent, call it to ensure we
-    # have setup all the appropriate configuration options we may need.
-    keystone.conf.auth.setup_authentication()
-    for plugin in set(CONF.auth.methods):
-        AUTH_METHODS[plugin] = load_auth_method(plugin)
-    AUTH_PLUGINS_LOADED = True
-
-
-def get_auth_method(method_name):
-    global AUTH_METHODS
-    if method_name not in AUTH_METHODS:
-        raise exception.AuthMethodNotSupported()
-    return AUTH_METHODS[method_name]
+# TODO(notmorgan): Move Common Auth Code (AuthContext and AuthInfo)
+# loading into keystone.auth.core (and update all references to the new
+# locations)
 
 
 class AuthContext(dict):
@@ -279,7 +238,7 @@ class AuthInfo(object):
 
         # make sure auth method is supported
         for method_name in self.get_method_names():
-            if method_name not in AUTH_METHODS:
+            if method_name not in core.AUTH_METHODS:
                 raise exception.AuthMethodNotSupported()
 
     def _validate_and_normalize_auth_data(self, scope_only=False):
@@ -427,6 +386,7 @@ class Auth(controller.V3Controller):
     def __init__(self, *args, **kw):
         super(Auth, self).__init__(*args, **kw)
         keystone.conf.auth.setup_authentication()
+        self._mfa_rules_validator = core.UserMFARulesValidator()
 
     def authenticate_for_token(self, request, auth=None):
         """Authenticate user and issue a token."""
@@ -447,10 +407,18 @@ class Auth(controller.V3Controller):
 
             # NOTE(notmorgan): only methods that actually run and succeed will
             # be in the auth_context['method_names'] list. Do not blindly take
-            # the values from auth_info, look at the authoritative values.
-            method_names = auth_context.get('method_names', [])
-            # make sure the list is unique
-            method_names = list(set(method_names))
+            # the values from auth_info, look at the authoritative values. Make
+            # sure the set is unique.
+            method_names_set = set(auth_context.get('method_names', []))
+            method_names = list(method_names_set)
+
+            # Do MFA Rule Validation for the user
+            if not self._mfa_rules_validator.check_auth_methods_against_rules(
+                    auth_context['user_id'], method_names_set):
+                raise exception.InsufficientAuthMethods(
+                    user_id=auth_context['user_id'],
+                    methods='[%s]' % ','.join(auth_info.get_method_names()))
+
             expires_at = auth_context.get('expires_at')
             token_audit_id = auth_context.get('audit_id')
 
