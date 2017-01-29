@@ -10,8 +10,42 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from keystone.common import resource_options
 from keystone.common.validation import parameter_types
+from keystone.i18n import _
+
+
+def _mfa_rules_validator_list_of_lists_of_strings_no_duplicates(value):
+    # NOTE(notmorgan): This should possibly validate that the auth-types
+    # are enabled? For now it simply validates the following:
+    #
+    # Must be a list of lists, each sub list must be a list of strings
+    # e.g. [['str1', 'str2'], ['str3', 'str4']]
+    # No sub-list may be empty. Duplication of sub-lists and duplication of
+    # string elements are not permitted.
+    msg = _('Invalid data type, must be a list of lists comprised of strings. '
+            'Sub-lists may not be duplicated. Strings in sub-lists may not be '
+            'duplicated.')
+    if not isinstance(value, list):
+        raise TypeError(msg)
+    sublist_set = set()
+    for item in value:
+        string_set = set()
+        if not isinstance(item, list):
+            raise TypeError(msg)
+        if not item:
+            raise ValueError(msg)
+        if item in sublist_set:
+            raise ValueError(msg)
+        sublist_set.add(sublist_set)
+        for element in item:
+            if not isinstance(element, six.string_types):
+                raise TypeError(msg)
+            if element in string_set:
+                raise ValueError(msg)
+            sublist_set.add(element)
 
 
 USER_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('USER')
@@ -33,6 +67,33 @@ IGNORE_LOCKOUT_ATTEMPT_OPT = (
         option_name='ignore_lockout_failure_attempts',
         validator=resource_options.boolean_validator,
         json_schema_validation=parameter_types.boolean))
+MFA_RULES_OPT = (
+    resource_options.ResourceOption(
+        option_id='MFAR',
+        option_name='multi_factor_auth_rules',
+        validator=_mfa_rules_validator_list_of_lists_of_strings_no_duplicates,
+        json_schema_validation={
+            # List
+            'type': 'array',
+            'items': {
+                # Of Lists
+                'type': 'array',
+                'items': {
+                    # Of Strings, each string must be unique, minimum 1
+                    # element
+                    'type': 'string',
+                },
+                'minItems': 1,
+                'uniqueItems': True
+            },
+            'uniqueItems': True
+        }))
+MFA_ENABLED_OPT = (
+    resource_options.ResourceOption(
+        option_id='MFAE',
+        option_name='multi_factor_auth_enabled',
+        validator=resource_options.boolean_validator,
+        json_schema_validation=parameter_types.boolean))
 
 
 # NOTE(notmorgan): wrap this in a function for testing purposes.
@@ -41,7 +102,9 @@ def register_user_options():
     for opt in [
         IGNORE_CHANGE_PASSWORD_OPT,
         IGNORE_PASSWORD_EXPIRY_OPT,
-        IGNORE_LOCKOUT_ATTEMPT_OPT
+        IGNORE_LOCKOUT_ATTEMPT_OPT,
+        MFA_RULES_OPT,
+        MFA_ENABLED_OPT,
     ]:
         USER_OPTIONS_REGISTRY.register_option(opt)
 
