@@ -216,14 +216,14 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data['abc'] = {'test': 'test'}
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.AuthMethodNotSupported,
-                          auth.controllers.AuthInfo.create,
+                          auth.core.AuthInfo.create,
                           auth_data)
 
     def test_missing_auth_method_data(self):
         auth_data = {'methods': ['password']}
         auth_data = {'identity': auth_data}
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo.create,
+                          auth.core.AuthInfo.create,
                           auth_data)
 
     def test_project_name_no_domain(self):
@@ -232,7 +232,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
             password='test',
             project_name='abc')['auth']
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo.create,
+                          auth.core.AuthInfo.create,
                           auth_data)
 
     def test_both_project_and_domain_in_scope(self):
@@ -242,7 +242,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
             project_name='test',
             domain_name='test')['auth']
         self.assertRaises(exception.ValidationError,
-                          auth.controllers.AuthInfo.create,
+                          auth.core.AuthInfo.create,
                           auth_data)
 
     def test_get_method_names_duplicates(self):
@@ -252,7 +252,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
             password='test')['auth']
         auth_data['identity']['methods'] = ['password', 'token',
                                             'password', 'password']
-        auth_info = auth.controllers.AuthInfo.create(auth_data)
+        auth_info = auth.core.AuthInfo.create(auth_data)
         self.assertEqual(['password', 'token'],
                          auth_info.get_method_names())
 
@@ -260,7 +260,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         auth_data = self.build_authentication_request(
             user_id='test',
             password='test')['auth']
-        auth_info = auth.controllers.AuthInfo.create(auth_data)
+        auth_info = auth.core.AuthInfo.create(auth_data)
 
         method_name = uuid.uuid4().hex
         self.assertRaises(exception.ValidationError,
@@ -2291,8 +2291,8 @@ class TokenAPITests(object):
         auth_data['identity']['methods'] = ["password", "external"]
         auth_data['identity']['external'] = {}
         api = auth.controllers.Auth()
-        auth_info = auth.controllers.AuthInfo(auth_data)
-        auth_context = auth.controllers.AuthContext(extras={}, methods=[])
+        auth_info = auth.core.AuthInfo(auth_data)
+        auth_context = auth.core.AuthContext(extras={}, methods=[])
         self.assertRaises(exception.Unauthorized,
                           api.authenticate,
                           self.make_request(),
@@ -4948,7 +4948,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
 class TestAuthContext(unit.TestCase):
     def setUp(self):
         super(TestAuthContext, self).setUp()
-        self.auth_context = auth.controllers.AuthContext()
+        self.auth_context = auth.core.AuthContext()
 
     def test_pick_lowest_expires_at(self):
         expires_at_1 = utils.isotime(timeutils.utcnow())
@@ -4960,7 +4960,7 @@ class TestAuthContext(unit.TestCase):
         self.assertEqual(expires_at_1, self.auth_context['expires_at'])
 
     def test_identity_attribute_conflict(self):
-        for identity_attr in auth.controllers.AuthContext.IDENTITY_ATTRIBUTES:
+        for identity_attr in auth.core.AuthContext.IDENTITY_ATTRIBUTES:
             self.auth_context[identity_attr] = uuid.uuid4().hex
             if identity_attr == 'expires_at':
                 # 'expires_at' is a special case. Will test it in a separate
@@ -4973,7 +4973,7 @@ class TestAuthContext(unit.TestCase):
                               uuid.uuid4().hex)
 
     def test_identity_attribute_conflict_with_none_value(self):
-        for identity_attr in auth.controllers.AuthContext.IDENTITY_ATTRIBUTES:
+        for identity_attr in auth.core.AuthContext.IDENTITY_ATTRIBUTES:
             self.auth_context[identity_attr] = None
 
             if identity_attr == 'expires_at':
