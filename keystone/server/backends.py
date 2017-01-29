@@ -68,6 +68,6 @@ def load_backends():
         trust_api=trust.Manager(),
         token_provider_api=token.provider.Manager())
 
-    auth.controllers.load_auth_methods()
+    auth.core.load_auth_methods()
 
     return DRIVERS

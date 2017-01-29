@@ -37,11 +37,6 @@ LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF
 
-# TODO(notmorgan): Update all references to the following functions to
-# reference auth.core instead of auth.controllers
-get_auth_method = core.get_auth_method
-load_auth_method = core.load_auth_method
-load_auth_methods = core.load_auth_methods
 
 # TODO(notmorgan): Move Common Auth Code (AuthContext and AuthInfo)
 # loading into keystone.auth.core (and update all references to the new
@@ -524,7 +519,7 @@ class Auth(controller.V3Controller):
         # dropping it, so this must be filtered out
         if request.remote_user:
             try:
-                external = get_auth_method('external')
+                external = core.get_auth_method('external')
                 resp = external.authenticate(request,
                                              auth_info)
                 if resp and resp.status:
@@ -553,7 +548,7 @@ class Auth(controller.V3Controller):
         # are specified
         auth_response = {'methods': []}
         for method_name in auth_info.get_method_names():
-            method = get_auth_method(method_name)
+            method = core.get_auth_method(method_name)
             resp = method.authenticate(request,
                                        auth_info.get_method_data(method_name))
             if resp:
