@@ -29,22 +29,31 @@ def _mfa_rules_validator_list_of_lists_of_strings_no_duplicates(value):
             'Sub-lists may not be duplicated. Strings in sub-lists may not be '
             'duplicated.')
     if not isinstance(value, list):
+        # Value is not a List, TypeError
         raise TypeError(msg)
     sublists = []
-    for item in value:
+    for sublist in value:
+        # Sublist element tracker is reset for each sublist.
         string_set = set()
-        if not isinstance(item, list):
+        if not isinstance(sublist, list):
+            # Sublist is not a List, TypeError
             raise TypeError(msg)
-        if not item:
+        if not sublist:
+            # Sublist is Empty, ValueError
             raise ValueError(msg)
-        if item in sublists:
+        if sublist in sublists:
+            # Sublist is duplicated, ValueError
             raise ValueError(msg)
-        sublists.append(sublists)
-        for element in item:
+        # Add the sublist to the tracker
+        sublists.append(sublist)
+        for element in sublist:
             if not isinstance(element, six.string_types):
+                # Element of sublist is not a string, TypeError
                 raise TypeError(msg)
             if element in string_set:
+                # Element of sublist is duplicated, ValueError
                 raise ValueError(msg)
+            # add element to the sublist element tracker
             string_set.add(element)
 
 

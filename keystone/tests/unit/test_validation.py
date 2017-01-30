@@ -1911,30 +1911,38 @@ class UserValidationTestCase(unit.BaseTestCase):
         }
         self.update_user_validator.validate(request_to_validate)
 
-    def test_user_update_with_invalid_mfa_rules_fails(self):
+    def test_user_option_validation_with_invalid_mfa_rules_fails(self):
+        # Test both json schema validation and the validator method in
+        # keystone.identity.backends.resource_options
         test_cases = [
             # Main Element Not an Array
-            True,
+            (True, TypeError),
             # Sub-Element Not an Array
-            [True, False],
+            ([True, False], TypeError),
             # Sub-element Element not string
-            [[True], [True, False]],
+            ([[True], [True, False]], TypeError),
             # Duplicate sub-array
-            [['duplicate_array'] for x in range(0, 2)],
+            ([['duplicate_array'] for x in range(0, 2)], ValueError),
             # Empty Sub element
-            [[uuid.uuid4().hex], []],
+            ([[uuid.uuid4().hex], []], ValueError),
             # Duplicate strings in sub-element
-            [['duplicate' for x in range(0, 2)]],
+            ([['duplicate' for x in range(0, 2)]], ValueError),
         ]
-        for ruleset in test_cases:
+        for ruleset, exception_class in test_cases:
             request_to_validate = {
                 'options': {
                     ro.MFA_RULES_OPT.option_name: ruleset
                 }
             }
+            # JSON Schema Validation
             self.assertRaises(exception.SchemaValidationError,
                               self.update_user_validator.validate,
                               request_to_validate)
+            # Data Store Validation
+            self.assertRaises(
+                exception_class,
+                ro._mfa_rules_validator_list_of_lists_of_strings_no_duplicates,
+                ruleset)
 
 
 class GroupValidationTestCase(unit.BaseTestCase):
