@@ -56,12 +56,9 @@ If the ``lockout_duration`` is not set, then users may be locked out
 indefinitely until the user is explicitly enabled via the API.
 
 Finally, you can set it so that some users, such as service users, are never
-locked out by adding their user ID to the ``lockout_ignored_user_ids`` list:
-
-.. code-block:: ini
-
-    [security_compliance]
-    lockout_ignored_user_ids = 3a54353c9dcc44f690975ea768512f6a,14b78ed1421a47d0b741ba218e1a49a1
+locked out by setting the user options attribute
+``ignore_lockout_failure_attempts`` to ``True`` via a user update API
+(``PATCH /v3/users``) call.
 
 Disabling Inactive Users
 ------------------------
@@ -78,6 +75,38 @@ within 90 days.  You can achieve this by setting the
 This above example means that users that have not authenticated (inactive) for
 the past 90 days will be automatically disabled. Users can be re-enabled by
 explicitly setting the enable user attribute via the API.
+
+Force users to immediately change their password upon first use
+---------------------------------------------------------------
+
+PCI-DSS 8.2.6 requires users to change their password for first time use and
+upon an administrative password reset. Within the identity `user API`_,
+`create user` and `update user` are considered administrative password
+changes. Whereas, `change password for user` is a self-service password
+change. Once this feature is enabled, new users, and users that have had their
+password reset, will be required to change their password at the next
+authentication (first use), before being able to access any services.
+
+Prior to enabling this feature, you will want to exempt any users, especially
+service account users, that you do not wish to be required to change their
+password. You can mark a user as exempt by setting the user options attribute
+``ignore_change_password_upon_first_use`` to ``True`` via a user update API
+(``PATCH /v3/users``) call.
+
+.. WARNING::
+
+    Failure to mark service users as exempt from this requirement will result
+    in your service account passwords becoming expired after being reset.
+
+When ready, you can configure it so that users are forced to change their
+password upon first use by setting ``change_password_after_first_use``:
+
+.. code-block:: ini
+
+    [security_compliance]
+    change_password_after_first_use = True
+
+.. _`user API`: http://developer.openstack.org/api-ref/identity/v3/index.html#users
 
 Password Expiration
 -------------------
@@ -97,15 +126,8 @@ expiration date, you would need to run a SQL script against the password table
 in the database to update the expires_at column.
 
 In addition, you can set it so that passwords never expire for some users by
-adding their user ID to ``password_expires_ignore_user_ids`` list:
-
-.. code-block:: ini
-
-    [security_compliance]
-    password_expires_ignore_user_ids = 3a54353c9dcc44f690975ea768512f6a,ed84c3b95b814ff2827967e531f09247
-
-In this example, the password for user IDs ``3a54353c9dcc44f690975ea768512f6a``
-and ``ed84c3b95b814ff2827967e531f09247`` would never expire.
+setting the user options attribute ``ignore_password_expiry`` to ``True`` via
+a user update API (``PATCH /v3/users``) call.
 
 Password Strength Requirements
 ------------------------------
@@ -155,8 +177,8 @@ by setting the ``unique_last_password_count``:
     [security_compliance]
     unique_last_password_count= 5
 
-The above example will not allow a user to create a new password that is the same
-as any of their last 4 previous passwords.
+The above example will not allow a user to create a new password that is the
+same as any of their last 4 previous passwords.
 
 Similarly, you can set the number of days that a password must be used before
 the user can change it by setting the ``minimum_password_age``:
