@@ -48,19 +48,38 @@ from keystone.tests.unit import test_v3
 CONF = keystone.conf.CONF
 
 
-class TestMFARules(test_v3.RestfulTestCase, testcase.TestCase):
-    def setUp(self):
-        super(TestMFARules, self).setUp()
-        auth.core.load_auth_methods()
-        self.controller = auth.controllers.Auth()
-        self.addCleanup(self.cleanup)
+class TestMFARules(test_v3.RestfulTestCase):
+    def config_overrides(self):
+        super(TestMFARules, self).config_overrides()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys
+            )
+        )
 
-    def cleanup(self):
-        totp_creds = self.credential_api.list_credentials_for_user(
-            self.user['id'], type='totp')
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS
+            )
+        )
 
-        for cred in totp_creds:
-            self.credential_api.delete_credential(cred['id'])
+    def _create_totp_cred(self):
+        totp_cred = unit.new_totp_credential(self.user_id, self.project_id)
+        self.credential_api.create_credential(uuid.uuid4().hex, totp_cred)
+
+        def cleanup(testcase):
+            totp_creds = testcase.credential_api.list_credentials_for_user(
+                testcase.user['id'], type='totp')
+
+            for cred in totp_creds:
+                testcase.credential_api.delete_credential(cred['id'])
+
+        self.addCleanup(cleanup, testcase=self)
+        return totp_cred
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
         methods = ['totp', 'token', 'password']
@@ -95,8 +114,7 @@ class TestMFARules(test_v3.RestfulTestCase, testcase.TestCase):
         # validate that multiple auth-methods function if all are specified
         # and the rules requires it
         rule_list = [['password', 'totp']]
-        totp_cred = unit.new_totp_credential(self.user_id, self.project_id)
-        self.credential_api.create_credential(uuid.uuid4().hex, totp_cred)
+        totp_cred = self._create_totp_cred()
         self._update_user_with_MFA_rules(rule_list=rule_list)
         # NOTE(notmorgan): Step forward in time to ensure we're not causing
         # issues with revocation events that occur at the same time as the
@@ -204,6 +222,27 @@ class TestMFARules(test_v3.RestfulTestCase, testcase.TestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id))
+
+    def test_MFA_rules_rescope_works_without_token_method_in_rules(self):
+        rule_list = [['password', 'totp']]
+        totp_cred = self._create_totp_cred()
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            auth_data = self.build_authentication_request(
+                user_id=self.user_id,
+                password=self.user['password'],
+                user_domain_id=self.domain_id,
+                passcode=totp._generate_totp_passcode(totp_cred['blob']))
+            r = self.v3_create_token(auth_data)
+            auth_data = self.build_authentication_request(
+                token=r.headers.get('X-Subject-Token'),
+                project_id=self.project_id)
+            self.v3_create_token(auth_data)
 
 
 class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
