@@ -34,7 +34,7 @@ Before you begin
 Plan your upgrade:
 
 * Read and ensure you understand the `release notes
-  <http://docs.openstack.org/releasenotes/keystone/>`_ for the next release.
+  <https://docs.openstack.org/releasenotes/keystone/>`_ for the next release.
 
 * Resolve any outstanding deprecation warnings in your logs. Some deprecation
   cycles are as short as a single release, so it's possible to break a

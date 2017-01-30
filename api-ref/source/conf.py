@@ -82,7 +82,7 @@ release = keystone_version.release_string()
 
 # Config logABug feature
 giturl = (
-    u'http://git.openstack.org/cgit/openstack/keystone/tree/api-ref/source')
+    u'https://git.openstack.org/cgit/openstack/keystone/tree/api-ref/source')
 # source tree
 # html_context allows us to pass arbitrary values into the html template
 html_context = {"bug_tag": "api-ref",

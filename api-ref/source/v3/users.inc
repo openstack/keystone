@@ -13,7 +13,7 @@ the password for users.
 
 You can also list groups, projects, and role assignments for a specified
 user.
-To list user roles, see `Roles <http://developer.openstack.org/api-ref/
+To list user roles, see `Roles <https://developer.openstack.org/api-ref/
 identity/v3/index.html#roles>`_.
 
 
@@ -22,7 +22,7 @@ List users
 
 .. rest_method::  GET /v3/users
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/users``
 
 Lists users.
 
@@ -79,7 +79,7 @@ Create user
 
 .. rest_method::  POST /v3/users
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/users``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/users``
 
 Creates a user.
 
@@ -135,7 +135,7 @@ Show user details
 
 .. rest_method::  GET /v3/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
 
 Shows details for a user.
 
@@ -186,7 +186,7 @@ Update user
 
 .. rest_method::  PATCH /v3/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
 
 Updates a user's password, or whether they are enabled or disabled.
 
@@ -254,7 +254,7 @@ Delete user
 
 .. rest_method::  DELETE /v3/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
 
 Deletes a user.
 
@@ -285,7 +285,7 @@ List groups to which a user belongs
 
 .. rest_method::  GET /v3/users/{user_id}/groups
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_groups``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_groups``
 
 Lists groups to which a user belongs.
 
@@ -322,7 +322,7 @@ List projects for user
 
 .. rest_method::  GET /v3/users/{user_id}/projects
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_projects``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_projects``
 
 List projects for a user.
 
@@ -359,7 +359,7 @@ Change password for user
 
 .. rest_method::  POST /v3/users/{user_id}/password
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/user_change_password``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_change_password``
 
 Changes the password for a user.
 

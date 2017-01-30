@@ -18,7 +18,7 @@ Security Compliance & PCI-DSS
 As of the Newton release, keystone added security compliance features,
 specifically to satisfy Payment Card Industry - Data Security Standard
 (PCI-DSS) v3.1 requirements.  See `Security Hardening: PCI-DSS
-<http://specs.openstack.org/openstack/keystone-specs/specs/keystone/newton/
+<https://specs.openstack.org/openstack/keystone-specs/specs/keystone/newton/
 pci-dss.html>`_ for more information on PCI-DSS.
 
 Security compliance features are disabled by default and most of the features

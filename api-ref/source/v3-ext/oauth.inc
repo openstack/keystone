@@ -63,7 +63,7 @@ Create consumer
 
 Enables a user to create a consumer.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
 
 Normal response codes: 201
 
@@ -106,7 +106,7 @@ Deletes a consumer.
 When you delete a consumer, any associated request tokens, access
 tokens, and Identity API tokens are also revoked.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
 Normal response codes: 204
 
@@ -127,7 +127,7 @@ List consumers
 
 Lists consumers.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
 
 Normal response codes: 200
 
@@ -147,7 +147,7 @@ Show consumer details
 
 Shows details for a consumer.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
 Normal response codes: 200
 
@@ -177,7 +177,7 @@ Updates the description for a consumer.
 If you try to update any attribute other than ``description``, an HTTP
 400 Bad Request error is returned.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
 Normal response codes: 200
 
@@ -215,7 +215,7 @@ The consumer must provide all required OAuth parameters in the
 request. See `Consumer Obtains a Request Token
 <http://oauth.net/core/1.0a/#auth_step1>`_.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/request_tokens``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/request_tokens``
 
 Normal response codes: 200
 
@@ -253,7 +253,7 @@ To authorize the Request Token, the authorizing user must have access to the
 requested project. Upon successful authorization, an OAuth Verifier code is
 returned. The Consumer receives the OAuth Verifier from the User out-of-band.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/authorize_request_token``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/authorize_request_token``
 
 Normal response codes: 200
 
@@ -287,7 +287,7 @@ The consumer must provide all required OAuth parameters in the
 request. See `Consumer Requests an Access Token
 <http://oauth.net/core/1.0a/#auth_step3>`_.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/access_tokens``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/access_tokens``
 
 Normal response codes: 200
 
@@ -316,7 +316,7 @@ Get access token
 
 Gets an access token.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
 Normal response codes: 200
 
@@ -346,7 +346,7 @@ Enables a user to revoke an access token, which prevents the consumer from
 requesting new Identity Service API tokens. Also, revokes any Identity Service
 API tokens that were issued to the consumer through that access token.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
 Normal response codes: 204
 
@@ -368,7 +368,7 @@ List access tokens
 
 Lists authorized access tokens.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_tokens``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_tokens``
 
 Normal response codes: 200
 
@@ -395,7 +395,7 @@ List roles for an access token
 
 Lists associated roles for an access token.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_roles``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_roles``
 
 Normal response codes: 200
 
@@ -417,7 +417,7 @@ Show role details for an access token
 
 Shows details for a role for an access token.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_role``
 
 Normal response codes: 200
 
@@ -461,7 +461,7 @@ Example OAuth-specific object in a token:
        "access_token_id": "cce0b8be7"
    }
 
-Relationship: ``http://docs.openstack.org/identity/rel/v3/auth_tokens``
+Relationship: ``https://docs.openstack.org/identity/rel/v3/auth_tokens``
 
 Normal response codes: 200
 

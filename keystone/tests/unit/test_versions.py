@@ -43,7 +43,7 @@ v2_MEDIA_TYPES = [
 v2_HTML_DESCRIPTION = {
     "rel": "describedby",
     "type": "text/html",
-    "href": "http://docs.openstack.org/"
+    "href": "https://docs.openstack.org/"
 }
 
 
@@ -243,8 +243,8 @@ V3_JSON_HOME_RESOURCES = {
             'user_id': json_home.Parameters.USER_ID, }},
     REVOCATIONS_RELATION: {
         'href': '/auth/tokens/OS-PKI/revoked'},
-    'http://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel/'
-    'events': {
+    'https://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel'
+    '/events': {
         'href': '/OS-REVOKE/events'},
     _build_simple_cert_relation(resource_name='ca_certificate'): {
         'href': '/OS-SIMPLE-CERT/ca'},
@@ -264,7 +264,7 @@ V3_JSON_HOME_RESOURCES = {
         'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
     _build_trust_relation(resource_name='trusts'): {
         'href': '/OS-TRUST/trusts'},
-    'http://docs.openstack.org/api/openstack-identity/3/ext/s3tokens/1.0/rel/'
+    'https://docs.openstack.org/api/openstack-identity/3/ext/s3tokens/1.0/rel/'
     's3tokens': {
         'href': '/s3tokens'},
     json_home.build_v3_resource_relation('group'): {

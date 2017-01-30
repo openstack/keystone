@@ -28,7 +28,7 @@ List domains
 
 .. rest_method::  GET /v3/domains
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domains``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
 
 Lists all domains.
 
@@ -68,7 +68,7 @@ Create domain
 
 .. rest_method::  POST /v3/domains
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domains``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
 
 Creates a domain.
 
@@ -110,7 +110,7 @@ Show domain details
 
 .. rest_method::  GET /v3/domains/{domain_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domains``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
 
 Shows details for a domain.
 
@@ -149,7 +149,7 @@ Update domain
 
 .. rest_method::  PATCH /v3/domains/{domain_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain``
 
 Updates a domain.
 
@@ -198,7 +198,7 @@ Delete domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain``
 
 Deletes a domain.
 

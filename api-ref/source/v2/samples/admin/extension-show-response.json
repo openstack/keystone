@@ -9,7 +9,7 @@
                 "rel": "describedby"
             }
         ],
-        "namespace": "http://docs.openstack.org/identity/api/ext/OS-OAUTH1/v1.0",
+        "namespace": "https://docs.openstack.org/identity/api/ext/OS-OAUTH1/v1.0",
         "alias": "OS-OAUTH1",
         "description": "OpenStack OAuth 1.0a Delegated Auth Mechanism."
     }

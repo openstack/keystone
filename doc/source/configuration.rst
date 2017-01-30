@@ -1054,7 +1054,7 @@ For example:
     [endpoint_filter]
     return_all_endpoints_if_no_filter = False
 
-See `API Specification for Endpoint Filtering <http://developer.openstack.org/
+See `API Specification for Endpoint Filtering <https://developer.openstack.org/
 api-ref/identity/v3-ext/#os-ep-filter-api>`_ for the details of API definition.
 
 Endpoint Policy
@@ -1072,7 +1072,7 @@ section. For example:
     [endpoint_policy]
     driver = sql
 
-See `API Specification for Endpoint Policy <http://specs.openstack.org/
+See `API Specification for Endpoint Policy <https://specs.openstack.org/
 openstack/keystone-specs/api/v3/identity-api-v3-os-endpoint-policy.html>`_
 for the details of API definition.
 
@@ -1132,7 +1132,7 @@ To enable OAuth1:
 
     WSGIPassAuthorization On
 
-See `API Specification for OAuth 1.0a <http://specs.openstack.org/openstack/
+See `API Specification for OAuth 1.0a <https://specs.openstack.org/openstack/
 keystone-specs/api/v3/identity-api-v3-os-oauth1-ext.html>`_ for the details of
 API definition.
 
@@ -1277,7 +1277,7 @@ It's important that the healthcheck go to the front of the pipeline for the
 most efficient checks.
 
 For more information and configuration options for the middleware see
-`oslo.middleware <http://docs.openstack.org/developer/oslo.middleware/api.html#oslo_middleware.Healthcheck>`_.
+`oslo.middleware <https://docs.openstack.org/developer/oslo.middleware/api.html#oslo_middleware.Healthcheck>`_.
 
 .. _`API protection with RBAC`:
 
@@ -1489,8 +1489,8 @@ There are two supported clients, `python-keystoneclient`_ project provides
 python bindings and `python-openstackclient`_ provides a command line
 interface.
 
-.. _`python-openstackclient`: http://docs.openstack.org/developer/python-openstackclient/
-.. _`python-keystoneclient`: http://docs.openstack.org/developer/python-keystoneclient/
+.. _`python-openstackclient`: https://docs.openstack.org/developer/python-openstackclient/
+.. _`python-keystoneclient`: https://docs.openstack.org/developer/python-keystoneclient/
 
 
 Authenticating with a Password via CLI

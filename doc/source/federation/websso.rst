@@ -170,7 +170,7 @@ Alternatively, a generic option may be set at the `[federation]` level.
   remote_id_attribute = HTTP_OIDC_ISS
 
 4. Copy the `sso_callback_template.html
-<http://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html>`__
+<https://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html>`__
 template into the location specified by `[federation]/sso_callback_template`.
 
 ---------------

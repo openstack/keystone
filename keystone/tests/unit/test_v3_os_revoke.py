@@ -35,8 +35,8 @@ def _future_time_string():
 class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
 
     JSON_HOME_DATA = {
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/'
-        'rel/events': {
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0'
+        '/rel/events': {
             'href': '/OS-REVOKE/events',
         },
     }

@@ -20,7 +20,7 @@ policy file that stores these rules.
 
 For information about Identity API protection, see
 `Identity API protection with role-based access control (RBAC)
-<http://docs.openstack.org/admin-guide/identity_service_api_protection.html>`_
+<https://docs.openstack.org/admin-guide/identity_service_api_protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
 What's New in Version 3.8

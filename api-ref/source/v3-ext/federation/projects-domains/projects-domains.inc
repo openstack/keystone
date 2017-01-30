@@ -8,7 +8,7 @@ List projects a federated user can access
 
 .. rest_method::  GET /v3/OS-FEDERATION/projects
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/projects``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/projects``
 
 Normal response codes: 200
 
@@ -40,7 +40,7 @@ List domains a federated user can access
 
 .. rest_method::  GET /v3/OS-FEDERATION/domains
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/domains``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/domains``
 
 Normal response codes: 200
 

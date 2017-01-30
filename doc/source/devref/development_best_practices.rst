@@ -158,13 +158,13 @@ found in ``config-generator/keystone.conf``.
 Release Notes
 =============
 
-The Keystone team uses `reno <http://docs.openstack.org/developer/reno/usage.html>`_
+The Keystone team uses `reno <https://docs.openstack.org/developer/reno/usage.html>`_
 to generate release notes. These are important user-facing documents that must
 be included when a user-facing change is performed. A release note should be
 included in the same patch the work is being performed.
 
 For more information on how and when to create release notes, see the
-`project-team-guide <http://docs.openstack.org/project-team-guide/release-management.html#how-to-add-new-release-notes>`_.
+`project-team-guide <https://docs.openstack.org/project-team-guide/release-management.html#how-to-add-new-release-notes>`_.
 
 Testing Keystone
 ================
@@ -330,8 +330,8 @@ You may also be interested in either the
 `OpenStack Continuous Integration Infrastructure`_ or the
 `OpenStack Integration Testing Project`_.
 
-.. _devstack: http://docs.openstack.org/developer/devstack/
-.. _OpenStack Continuous Integration Infrastructure: http://docs.openstack.org/infra/system-config
+.. _devstack: https://docs.openstack.org/developer/devstack/
+.. _OpenStack Continuous Integration Infrastructure: https://docs.openstack.org/infra/system-config
 .. _OpenStack Integration Testing Project: https://git.openstack.org/cgit/openstack/tempest
 
 

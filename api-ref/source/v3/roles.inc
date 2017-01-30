@@ -92,7 +92,7 @@ List roles
 
 .. rest_method::  GET /v3/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/roles``
 
 Lists roles.
 
@@ -141,7 +141,7 @@ Create role
 
 .. rest_method::  POST /v3/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/roles``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/roles``
 
 Creates a role.
 
@@ -197,7 +197,7 @@ Show role details
 
 .. rest_method::  GET /v3/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Shows details for a role.
 
@@ -245,7 +245,7 @@ Update role
 
 .. rest_method::  PATCH /v3/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Updates a role.
 
@@ -302,7 +302,7 @@ Delete role
 
 .. rest_method::  DELETE /v3/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
 
 Deletes a role.
 
@@ -333,7 +333,7 @@ List role assignments for group on domain
 
 .. rest_method::  GET /v3/domains/{domain_id}/groups/{group_id}/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
 
 Lists role assignments for a group on a domain.
 
@@ -375,7 +375,7 @@ Assign role to group on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
 
 Assigns a role to a group on a domain.
 
@@ -409,7 +409,7 @@ Check whether group has role assignment on domain
 
 .. rest_method::  HEAD /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
 
 Validates that a group has a role assignment on a domain.
 
@@ -442,7 +442,7 @@ Unassign role from group on domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
 
 Unassigns a role from a group on a domain.
 
@@ -475,7 +475,7 @@ List role assignments for user on domain
 
 .. rest_method::  GET /v3/domains/{domain_id}/users/{user_id}/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_user_roles``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_roles``
 
 Lists role assignments for a user on a domain.
 
@@ -527,7 +527,7 @@ Assign role to user on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://developer.openstack.org/api-ref/identity/v3/index.html#assign-role-to-user-on-domain``
+Relationship: ``https://developer.openstack.org/api-ref/identity/v3/index.html#assign-role-to-user-on-domain``
 
 Assigns a role to a user on a domain.
 
@@ -561,7 +561,7 @@ Check whether user has role assignment on domain
 
 .. rest_method::  HEAD /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
 
 Validates that a user has a role assignment on a domain.
 
@@ -594,7 +594,7 @@ Unassigns role from user on domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
 
 Unassigns a role from a user on a domain.
 
@@ -628,7 +628,7 @@ List role assignments for group on project
 
 .. rest_method::  GET /v3/projects/{project_id}/groups/{group_id}/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Lists role assignments for a group on a project.
 
@@ -670,7 +670,7 @@ Assign role to group on project
 
 .. rest_method::  PUT /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
 
 Assigns a role to a group on a project.
 
@@ -704,7 +704,7 @@ Check whether group has role assignment on project
 
 .. rest_method::  HEAD /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
 
 Validates that a group has a role assignment on a project.
 
@@ -737,7 +737,7 @@ Unassign role from group on project
 
 .. rest_method::  DELETE /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
 
 Unassigns a role from a group on a project.
 
@@ -770,7 +770,7 @@ List role assignments for user on project
 
 .. rest_method::  GET /v3/projects/{project_id}/users/{user_id}/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Lists role assignments for a user on a project.
 
@@ -807,7 +807,7 @@ Assign role to user on project
 
 .. rest_method::  PUT /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Assigns a role to a user on a project.
 
@@ -841,7 +841,7 @@ Check whether user has role assignment on project
 
 .. rest_method::  HEAD /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Validates that a user has a role on a project.
 
@@ -874,7 +874,7 @@ Unassign role from user on project
 
 .. rest_method::  DELETE /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
 
 Unassigns a role from a user on a project.
 
@@ -910,7 +910,7 @@ List implied (inference) roles for role
 Lists implied (inference) roles for a role.
 
 Relationship:
-``http://developer.openstack.org/api-ref/identity/v3/#list-implied-roles-for-role``
+``https://developer.openstack.org/api-ref/identity/v3/#list-implied-roles-for-role``
 
 Response Codes
 --------------
@@ -958,7 +958,7 @@ Create role inference rule
 Creates a role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref/identity/v3/#create-role-inference-rule``
+``https://developer.openstack.org/api-ref/identity/v3/#create-role-inference-rule``
 
 Response Codes
 --------------
@@ -1007,7 +1007,7 @@ Get role inference rule
 Gets a role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref/identity/v3/#get-role-inference-rule``
+``https://developer.openstack.org/api-ref/identity/v3/#get-role-inference-rule``
 
 Response Codes
 --------------
@@ -1056,7 +1056,7 @@ Confirm role inference rule
 Checks a role role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref/identity/v3/#confirm-role-inference-rule``
+``https://developer.openstack.org/api-ref/identity/v3/#confirm-role-inference-rule``
 
 Response Codes
 --------------
@@ -1092,7 +1092,7 @@ Delete role inference rule
 Deletes a role inference rule.
 
 Relationship:
-``http://developer.openstack.org/api-ref/identity/v3/#delete-role-inference-rule``
+``https://developer.openstack.org/api-ref/identity/v3/#delete-role-inference-rule``
 
 Response Codes
 --------------
@@ -1125,7 +1125,7 @@ List role assignments
 
 .. rest_method::  GET /v3/role_assignments
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/role_assignments``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role_assignments``
 
 Lists role assignments.
 
@@ -1178,7 +1178,7 @@ List all role inference rules
 Lists all role inference rules.
 
 Relationship:
-``http://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules``
+``https://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules``
 
 Response Codes
 --------------

@@ -774,7 +774,7 @@ and supported media types:
                             "rel": "self"
                         },
                         {
-                            "href": "http://docs.openstack.org/",
+                            "href": "https://docs.openstack.org/",
                             "rel": "describedby",
                             "type": "text/html"
                         }
@@ -809,7 +809,7 @@ Returns:
                     "rel": "self"
                 },
                 {
-                    "href": "http://docs.openstack.org/",
+                    "href": "https://docs.openstack.org/",
                     "rel": "describedby",
                     "type": "text/html"
                 }

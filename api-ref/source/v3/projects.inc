@@ -43,7 +43,7 @@ List projects
 
 .. rest_method::  GET /v3/projects
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
 Lists projects.
 
@@ -99,7 +99,7 @@ Create project
 
 .. rest_method::  POST /v3/projects
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/projects``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
 Creates a project, where the project may act as a domain.
 
@@ -163,7 +163,7 @@ Show project details
 
 .. rest_method::  GET /v3/projects/{project_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Shows details for a project.
 
@@ -231,7 +231,7 @@ Update project
 
 .. rest_method::  PATCH /v3/projects/{project_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Updates a project.
 
@@ -296,7 +296,7 @@ Delete project
 
 .. rest_method::  DELETE /v3/projects/{project_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
 
 Deletes a project.
 

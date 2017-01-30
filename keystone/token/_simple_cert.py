@@ -28,7 +28,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 EXTENSION_DATA = {
     'name': 'OpenStack Simple Certificate API',
-    'namespace': 'http://docs.openstack.org/identity/api/ext/'
+    'namespace': 'https://docs.openstack.org/identity/api/ext/'
                  'OS-SIMPLE-CERT/v1.0',
     'alias': 'OS-SIMPLE-CERT',
     'updated': '2014-01-20T12:00:0-00:00',
@@ -37,7 +37,7 @@ EXTENSION_DATA = {
         {
             'rel': 'describedby',
             'type': 'text/html',
-            'href': 'http://developer.openstack.org/'
+            'href': 'https://developer.openstack.org/'
                     'api-ref-identity-v2-ext.html',
         }
     ]}

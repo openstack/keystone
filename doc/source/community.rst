@@ -32,7 +32,7 @@ through Launchpad_, the wiki_, or blogs. We welcome all types of contributions,
 from blueprint designs to documentation to testing to deployment scripts.
 
 .. _Launchpad: https://launchpad.net/keystone
-.. _wiki: http://wiki.openstack.org/
+.. _wiki: https://wiki.openstack.org/
 
 #openstack-keystone on Freenode IRC Network
 -------------------------------------------
@@ -55,9 +55,9 @@ has collections of links and other sources of information. Typically the pages
 are a good place to write drafts for specs or documentation, describe a
 blueprint, or collaborate with others.
 
-`OpenStack Wiki <http://wiki.openstack.org/>`_
+`OpenStack Wiki <https://wiki.openstack.org/>`_
 
-* `useful Keystone project links <http://wiki.openstack.org/Keystone>`_
+* `useful Keystone project links <https://wiki.openstack.org/Keystone>`_
 
 Keystone on Launchpad
 ---------------------
@@ -66,7 +66,7 @@ Launchpad is a code hosting that OpenStack is using to track bugs, feature
 work, and releases of OpenStack. Like other OpenStack projects, Keystone source
 code is hosted on git.openstack.org
 
-* `Keystone Project Page on Launchpad <http://launchpad.net/keystone>`_
+* `Keystone Project Page on Launchpad <https://launchpad.net/keystone>`_
 * `Keystone Source Repository <https://git.openstack.org/cgit/openstack/keystone>`_
 
 Within launchpad, we use
@@ -83,12 +83,12 @@ The OpenStack blog includes a weekly newsletter that aggregates OpenStack news
 from around the internet, as well as providing inside information on upcoming
 events and posts from OpenStack contributors.
 
-`OpenStack Blog <http://openstack.org/blog>`_
+`OpenStack Blog <https://openstack.org/blog>`_
 
 See also: `Planet OpenStack <http://planet.openstack.org/>`_, an aggregation of
 blogs about OpenStack from around the internet, combined into a web site and
 RSS feed. If you'd like to contribute with your blog posts, there are
-instructions for `adding your blog <http://wiki.openstack.org/AddingYourBlog>`_.
+instructions for `adding your blog <https://wiki.openstack.org/AddingYourBlog>`_.
 
 
 Twitter
