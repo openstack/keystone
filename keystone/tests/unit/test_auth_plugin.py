@@ -34,13 +34,18 @@ DEMO_USER_ID = uuid.uuid4().hex
 
 
 class SimpleChallengeResponse(base.AuthMethodHandler):
-    def authenticate(self, context, auth_payload, user_context):
+    def authenticate(self, context, auth_payload, auth_context):
         if 'response' in auth_payload:
             if auth_payload['response'] != EXPECTED_RESPONSE:
                 raise exception.Unauthorized('Wrong answer')
-            user_context['user_id'] = DEMO_USER_ID
+
+            auth_context['user_id'] = DEMO_USER_ID
+            return base.AuthHandlerResponse(status=True, response_body=None)
         else:
-            return {"challenge": "What's the name of your high school?"}
+            return base.AuthHandlerResponse(
+                status=False,
+                response_body={
+                    "challenge": "What's the name of your high school?"})
 
 
 class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
