@@ -312,7 +312,16 @@
 
 # Use ROUTER remote proxy. (boolean value)
 # Deprecated group/name - [DEFAULT]/use_router_proxy
-#use_router_proxy = true
+#use_router_proxy = false
+
+# This option makes direct connections dynamic or static. It makes sense only
+# with use_router_proxy=False which means to use direct connections for direct
+# message types (ignored otherwise). (boolean value)
+#use_dynamic_connections = false
+
+# How many additional connections to a host will be made for failover reasons.
+# This option is actual only in dynamic connections mode. (integer value)
+#zmq_failover_connections = 2
 
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
@@ -445,7 +454,11 @@
 # From keystone
 #
 
-# Allowed authentication methods. (list value)
+# Allowed authentication methods. Note: You should disable the `external` auth
+# method if you are currently using federation. External auth and federation
+# both use the REMOTE_USER variable. Since both the mapped and external plugin
+# are being invoked to validate attributes in the request environment, it can
+# cause conflicts. (list value)
 #methods = external,password,token,oauth1,mapped
 
 # Entry point for the password auth plugin module in the
@@ -1107,31 +1120,48 @@
 # From keystone
 #
 
-# Extra `dogpile.cache` backend modules to register with the `dogpile.cache`
-# library. It is not necessary to set this value unless you are providing a
-# custom KVS backend beyond what `dogpile.cache` already supports. (list value)
+# DEPRECATED: Extra `dogpile.cache` backend modules to register with the
+# `dogpile.cache` library. It is not necessary to set this value unless you are
+# providing a custom KVS backend beyond what `dogpile.cache` already supports.
+# (list value)
+# This option is deprecated for removal since O.
+# Its value may be silently ignored in the future.
+# Reason: This option has been deprecated in the O release and will be removed
+# in the P release. Use SQL backends instead.
 #backends =
 
-# Prefix for building the configuration dictionary for the KVS region. This
-# should not need to be changed unless there is another `dogpile.cache` region
-# with the same configuration name. (string value)
+# DEPRECATED: Prefix for building the configuration dictionary for the KVS
+# region. This should not need to be changed unless there is another
+# `dogpile.cache` region with the same configuration name. (string value)
+# This option is deprecated for removal since O.
+# Its value may be silently ignored in the future.
+# Reason: This option has been deprecated in the O release and will be removed
+# in the P release. Use SQL backends instead.
 #config_prefix = keystone.kvs
 
-# Set to false to disable using a key-mangling function, which ensures fixed-
-# length keys are used in the KVS store. This is configurable for debugging
-# purposes, and it is therefore highly recommended to always leave this set to
-# true. (boolean value)
+# DEPRECATED: Set to false to disable using a key-mangling function, which
+# ensures fixed-length keys are used in the KVS store. This is configurable for
+# debugging purposes, and it is therefore highly recommended to always leave
+# this set to true. (boolean value)
+# This option is deprecated for removal since O.
+# Its value may be silently ignored in the future.
+# Reason: This option has been deprecated in the O release and will be removed
+# in the P release. Use SQL backends instead.
 #enable_key_mangler = true
 
-# Number of seconds after acquiring a distributed lock that the backend should
-# consider the lock to be expired. This option should be tuned relative to the
-# longest amount of time that it takes to perform a successful operation. If
-# this value is set too low, then a cluster will end up performing work
-# redundantly. If this value is set too high, then a cluster will not be able
-# to efficiently recover and retry after a failed operation. A non-zero value
-# is recommended if the backend supports lock timeouts, as zero prevents locks
-# from expiring altogether. (integer value)
+# DEPRECATED: Number of seconds after acquiring a distributed lock that the
+# backend should consider the lock to be expired. This option should be tuned
+# relative to the longest amount of time that it takes to perform a successful
+# operation. If this value is set too low, then a cluster will end up
+# performing work redundantly. If this value is set too high, then a cluster
+# will not be able to efficiently recover and retry after a failed operation. A
+# non-zero value is recommended if the backend supports lock timeouts, as zero
+# prevents locks from expiring altogether. (integer value)
 # Minimum value: 0
+# This option is deprecated for removal since O.
+# Its value may be silently ignored in the future.
+# Reason: This option has been deprecated in the O release and will be removed
+# in the P release. Use SQL backends instead.
 #default_lock_timeout = 5
 
 
@@ -1157,33 +1187,6 @@
 # The default LDAP server suffix to use, if a DN is not defined via either
 # `[ldap] user_tree_dn` or `[ldap] group_tree_dn`. (string value)
 #suffix = cn=example,cn=com
-
-# DEPRECATED: If true, keystone will add a dummy member based on the `[ldap]
-# dumb_member` option when creating new groups. This is required if the object
-# class for groups requires the `member` attribute. This option is only used
-# for write operations. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#use_dumb_member = false
-
-# DEPRECATED: DN of the "dummy member" to use when `[ldap] use_dumb_member` is
-# enabled. This option is only used for write operations. (string value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#dumb_member = cn=dumb,dc=nonexistent
-
-# DEPRECATED: Delete subtrees using the subtree delete control. Only enable
-# this option if your LDAP server supports subtree deletion. This option is
-# only used for write operations. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#allow_subtree_delete = false
 
 # The search scope which defines how deep to search within the search base. A
 # value of `one` (representing `oneLevel` or `singleLevel`) indicates a search
@@ -1287,30 +1290,6 @@
 # most commonly used when keystone has write access to LDAP. (string value)
 #user_default_project_id_attribute = <None>
 
-# DEPRECATED: If enabled, keystone is allowed to create users in the LDAP
-# server. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#user_allow_create = true
-
-# DEPRECATED: If enabled, keystone is allowed to update users in the LDAP
-# server. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#user_allow_update = true
-
-# DEPRECATED: If enabled, keystone is allowed to delete users in the LDAP
-# server. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#user_allow_delete = true
-
 # If enabled, keystone uses an alternative method to determine if a user is
 # enabled or not by checking if they are a member of the group defined by the
 # `[ldap] user_enabled_emulation_dn` option. Enabling this option causes
@@ -1373,30 +1352,6 @@
 # specific group attribute should be filtered for list or show group. (list
 # value)
 #group_attribute_ignore =
-
-# DEPRECATED: If enabled, keystone is allowed to create groups in the LDAP
-# server. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#group_allow_create = true
-
-# DEPRECATED: If enabled, keystone is allowed to update groups in the LDAP
-# server. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#group_allow_update = true
-
-# DEPRECATED: If enabled, keystone is allowed to delete groups in the LDAP
-# server. (boolean value)
-# This option is deprecated for removal since M.
-# Its value may be silently ignored in the future.
-# Reason: Write support for the LDAP identity backend has been deprecated in
-# the Mitaka release and will be removed in the Ocata release.
-#group_allow_delete = true
 
 # A list of LDAP attribute to keystone group attribute pairs used for mapping
 # additional attributes to groups in keystone. The expected format is
@@ -1541,7 +1496,7 @@
 # From keystone
 #
 
-# Comma-separated list of memcached servers in the format of
+# DEPRECATED: Comma-separated list of memcached servers in the format of
 # `host:port,host:port` that keystone should use for the `memcache` token
 # persistence provider and other memcache-backed KVS drivers. This
 # configuration value is NOT used for intermediary caching between keystone and
@@ -1549,6 +1504,10 @@
 # Multiple keystone servers in the same deployment should use the same set of
 # memcached servers to ensure that data (such as UUID tokens) created by one
 # node is available to the others. (list value)
+# This option is deprecated for removal since O.
+# Its value may be silently ignored in the future.
+# Reason: This option has been deprecated in the O release and will be removed
+# in the P release. Use oslo.cache instead.
 #servers = localhost:11211
 
 # Number of seconds memcached server is considered dead before it is tried
@@ -1617,15 +1576,18 @@
 # Deprecated group/name - [amqp1]/trace
 #trace = false
 
-# CA certificate PEM file to verify server certificate (string value)
+# CA certificate PEM file used to verify the server's certificate (string
+# value)
 # Deprecated group/name - [amqp1]/ssl_ca_file
 #ssl_ca_file =
 
-# Identifying certificate PEM file to present to clients (string value)
+# Self-identifying certificate PEM file for client authentication (string
+# value)
 # Deprecated group/name - [amqp1]/ssl_cert_file
 #ssl_cert_file =
 
-# Private key PEM file used to sign cert_file certificate (string value)
+# Private key PEM file used to sign ssl_cert_file certificate (optional)
+# (string value)
 # Deprecated group/name - [amqp1]/ssl_key_file
 #ssl_key_file =
 
@@ -1633,8 +1595,11 @@
 # Deprecated group/name - [amqp1]/ssl_key_password
 #ssl_key_password = <None>
 
-# Accept clients using either SSL or plain TCP (boolean value)
+# DEPRECATED: Accept clients using either SSL or plain TCP (boolean value)
 # Deprecated group/name - [amqp1]/allow_insecure_clients
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Not applicable - not a SSL server
 #allow_insecure_clients = false
 
 # Space separated list of acceptable SASL mechanisms (string value)
@@ -1676,8 +1641,12 @@
 # Minimum value: 1
 #link_retry_delay = 10
 
-# The deadline for an rpc reply message delivery. Only used when caller does
-# not provide a timeout expiry. (integer value)
+# The maximum number of attempts to re-send a reply message which failed due to
+# a recoverable error. (integer value)
+# Minimum value: -1
+#default_reply_retry = 0
+
+# The deadline for an rpc reply message delivery. (integer value)
 # Minimum value: 5
 #default_reply_timeout = 30
 
@@ -1776,6 +1745,53 @@
 #  (multi valued)
 #pre_settled = rpc-cast
 #pre_settled = rpc-reply
+
+
+[oslo_messaging_kafka]
+
+#
+# From oslo.messaging
+#
+
+# DEPRECATED: Default Kafka broker Host (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
+#kafka_default_host = localhost
+
+# DEPRECATED: Default Kafka broker Port (port value)
+# Minimum value: 0
+# Maximum value: 65535
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Replaced by [DEFAULT]/transport_url
+#kafka_default_port = 9092
+
+# Max fetch bytes of Kafka consumer (integer value)
+#kafka_max_fetch_bytes = 1048576
+
+# Default timeout(s) for Kafka consumers (integer value)
+#kafka_consumer_timeout = 1.0
+
+# Pool Size for Kafka Consumers (integer value)
+#pool_size = 10
+
+# The pool size limit for connections expiration policy (integer value)
+#conn_pool_min_size = 2
+
+# The time-to-live in sec of idle connections in the pool (integer value)
+#conn_pool_ttl = 1200
+
+# Group id for Kafka consumer. Consumers in one group will coordinate message
+# consumption (string value)
+#consumer_group = oslo_messaging_consumer
+
+# Upper bound on the delay for KafkaProducer batching in seconds (floating
+# point value)
+#producer_batch_timeout = 0.0
+
+# Size of batch for the producer async send (integer value)
+#producer_batch_size = 16384
 
 
 [oslo_messaging_notifications]
@@ -2131,7 +2147,16 @@
 
 # Use ROUTER remote proxy. (boolean value)
 # Deprecated group/name - [DEFAULT]/use_router_proxy
-#use_router_proxy = true
+#use_router_proxy = false
+
+# This option makes direct connections dynamic or static. It makes sense only
+# with use_router_proxy=False which means to use direct connections for direct
+# message types (ignored otherwise). (boolean value)
+#use_dynamic_connections = false
+
+# How many additional connections to a host will be made for failover reasons.
+# This option is actual only in dynamic connections mode. (integer value)
+#zmq_failover_connections = 2
 
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
@@ -2354,8 +2379,43 @@
 # Examples of possible values:
 #
 # * messaging://: use oslo_messaging driver for sending notifications.
+# * mongodb://127.0.0.1:27017 : use mongodb driver for sending notifications.
+# * elasticsearch://127.0.0.1:9200 : use elasticsearch driver for sending
+# notifications.
 #  (string value)
 #connection_string = messaging://
+
+#
+# Document type for notification indexing in elasticsearch.
+#  (string value)
+#es_doc_type = notification
+
+#
+# This parameter is a time value parameter (for example: es_scroll_time=2m),
+# indicating for how long the nodes that participate in the search will
+# maintain
+# relevant resources in order to continue and support it.
+#  (string value)
+#es_scroll_time = 2m
+
+#
+# Elasticsearch splits large requests in batches. This parameter defines
+# maximum size of each batch (for example: es_scroll_size=10000).
+#  (integer value)
+#es_scroll_size = 10000
+
+#
+# Redissentinel provides a timeout option on the connections.
+# This parameter defines that timeout (for example: socket_timeout=0.1).
+#  (floating point value)
+#socket_timeout = 0.1
+
+#
+# Redissentinel uses a service name to identify a master redis service.
+# This parameter defines the name (for example:
+# sentinal_service_name=mymaster).
+#  (string value)
+#sentinel_service_name = mymaster
 
 
 [resource]
@@ -2593,13 +2653,6 @@
 # Minimum value: 1
 #lockout_duration = 1800
 
-# Comma separated list of user IDs to be ignored when checking if a user should
-# be locked out based on failed authentication attempts. Thus, users in this
-# list can fail to authenticate for an unlimited amount of times and will never
-# be locked out. This feature will only be enabled if `[security_compliance]
-# lockout_failure_attempts` is set. (list value)
-#lockout_ignored_user_ids =
-
 # The number of days for which a password will be considered valid before
 # requiring it to be changed. This feature is disabled by default. If enabled,
 # new password changes will have an expiration date, however existing passwords
@@ -2608,10 +2661,18 @@
 # Minimum value: 1
 #password_expires_days = <None>
 
-# Comma separated list of user IDs to be ignored when checking if a password is
-# expired. Passwords for users in this list will not expire. This feature will
-# only be enabled if `[security_compliance] password_expires_days` is set.
-# (list value)
+# DEPRECATED: Comma separated list of user IDs to be ignored when checking if a
+# password is expired. Passwords for users in this list will not expire. This
+# feature will only be enabled if `[security_compliance] password_expires_days`
+# is set. (list value)
+# This option is deprecated for removal since O.
+# Its value may be silently ignored in the future.
+# Reason: Functionality added as a per-user option "ignore_password_expiry" in
+# Ocata. Each user that should ignore password expiry should have the value set
+# to "true" in the user's `options` attribute (e.g.
+# `user['options']['ignore_password_expiry'] = True`) with an "update_user"
+# call. This avoids the need to restart keystone to adjust the users that
+# ignore password expiry. This option will be removed in the Pike release.
 #password_expires_ignore_user_ids =
 
 # This controls the number of previous user password iterations to keep in
@@ -2645,6 +2706,16 @@
 # configuration variable will be returned to users to explain why their
 # requested password was insufficient. (string value)
 #password_regex_description = <None>
+
+# Enabling this option requires users to change their password when the user is
+# created, or upon administrative reset. Before accessing any services,
+# affected users will have to change their password. To ignore this requirement
+# for specific users, such as service users, set the `options` attribute
+# `ignore_change_password_upon_first_use` to `True` for the desired user via
+# the update user API. This feature is disabled by default. This feature is
+# only applicable with the `sql` backend for the `[identity] driver`. (boolean
+# value)
+#change_password_upon_first_use = false
 
 
 [shadow_users]
