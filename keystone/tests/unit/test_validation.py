@@ -1839,6 +1839,42 @@ class UserValidationTestCase(unit.BaseTestCase):
         }
         self.update_user_validator.validate(request_to_validate)
 
+    def test_user_create_with_options_lockout_password(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                ro.IGNORE_LOCKOUT_ATTEMPT_OPT.option_name: True
+            }
+        }
+        self.create_user_validator.validate(request_to_validate)
+
+    def test_user_update_with_options_lockout_password(self):
+        request_to_validate = {
+            'options': {
+                ro.IGNORE_LOCKOUT_ATTEMPT_OPT.option_name: False
+            }
+        }
+        self.update_user_validator.validate(request_to_validate)
+
+    def test_user_update_with_two_options(self):
+        request_to_validate = {
+            'options': {
+                ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: True,
+                ro.IGNORE_LOCKOUT_ATTEMPT_OPT.option_name: True
+            }
+        }
+        self.update_user_validator.validate(request_to_validate)
+
+    def test_user_create_with_two_options(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: False,
+                ro.IGNORE_LOCKOUT_ATTEMPT_OPT.option_name: True
+            }
+        }
+        self.create_user_validator.validate(request_to_validate)
+
 
 class GroupValidationTestCase(unit.BaseTestCase):
     """Test for V3 Group API validation."""

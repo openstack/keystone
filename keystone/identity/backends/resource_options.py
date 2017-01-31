@@ -27,6 +27,12 @@ IGNORE_PASSWORD_EXPIRY_OPT = (
         option_name='ignore_password_expiry',
         validator=resource_options.boolean_validator,
         json_schema_validation=parameter_types.boolean))
+IGNORE_LOCKOUT_ATTEMPT_OPT = (
+    resource_options.ResourceOption(
+        option_id='1002',
+        option_name='ignore_lockout_failure_attempts',
+        validator=resource_options.boolean_validator,
+        json_schema_validation=parameter_types.boolean))
 
 
 # NOTE(notmorgan): wrap this in a function for testing purposes.
@@ -35,6 +41,7 @@ def register_user_options():
     for opt in [
         IGNORE_CHANGE_PASSWORD_OPT,
         IGNORE_PASSWORD_EXPIRY_OPT,
+        IGNORE_LOCKOUT_ATTEMPT_OPT
     ]:
         USER_OPTIONS_REGISTRY.register_option(opt)
 
