@@ -261,7 +261,8 @@ class FernetUtilsTestCase(unit.BaseTestCase):
         logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
         fernet_utilities = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
         fernet_utilities.load_keys()
         expected_debug_message = (
@@ -283,11 +284,12 @@ class FernetUtilsTestCase(unit.BaseTestCase):
         logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
         fernet_utilities = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
-            credential_fernet.MAX_ACTIVE_KEYS
+            credential_fernet.MAX_ACTIVE_KEYS,
+            'credential'
         )
         fernet_utilities.load_keys()
         debug_message = (
-            'Loaded 2 Fernet keys from %(dir)s, but `[fernet_tokens] '
+            'Loaded 2 Fernet keys from %(dir)s, but `[credential] '
             'max_active_keys = %(max)d`; perhaps there have not been enough '
             'key rotations to reach `max_active_keys` yet?') % {
                 'dir': CONF.credential.key_repository,

@@ -43,7 +43,8 @@ MAX_ACTIVE_KEYS = 3
 
 def get_multi_fernet_keys():
     key_utils = fernet_utils.FernetUtils(
-        CONF.credential.key_repository, MAX_ACTIVE_KEYS)
+        CONF.credential.key_repository, MAX_ACTIVE_KEYS,
+        'credential')
     keys = key_utils.load_keys(use_null_key=True)
 
     fernet_keys = [fernet.Fernet(key) for key in keys]
