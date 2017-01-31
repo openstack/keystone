@@ -34,18 +34,21 @@ DEMO_USER_ID = uuid.uuid4().hex
 
 
 class SimpleChallengeResponse(base.AuthMethodHandler):
-    def authenticate(self, context, auth_payload, auth_context):
+    def authenticate(self, context, auth_payload):
+        response_data = {}
         if 'response' in auth_payload:
             if auth_payload['response'] != EXPECTED_RESPONSE:
                 raise exception.Unauthorized('Wrong answer')
 
-            auth_context['user_id'] = DEMO_USER_ID
-            return base.AuthHandlerResponse(status=True, response_body=None)
+            response_data['user_id'] = DEMO_USER_ID
+            return base.AuthHandlerResponse(status=True, response_body=None,
+                                            response_data=response_data)
         else:
             return base.AuthHandlerResponse(
                 status=False,
                 response_body={
-                    "challenge": "What's the name of your high school?"})
+                    "challenge": "What's the name of your high school?"},
+                response_data=None)
 
 
 class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
@@ -156,7 +159,7 @@ class TestMapped(unit.TestCase):
                 user_id=uuid.uuid4().hex)
             self.api.authenticate(request, auth_info, auth_context)
             # make sure Mapped plugin got invoked with the correct payload
-            ((context, auth_payload, auth_context),
+            ((context, auth_payload),
              kwargs) = authenticate.call_args
             self.assertEqual(method_name, auth_payload['protocol'])
 
@@ -182,7 +185,7 @@ class TestMapped(unit.TestCase):
             request = self.make_request(environ={'REMOTE_USER': 'foo@idp.com'})
             self.api.authenticate(request, auth_info, auth_context)
             # make sure Mapped plugin got invoked with the correct payload
-            ((context, auth_payload, auth_context),
+            ((context, auth_payload),
              kwargs) = authenticate.call_args
             self.assertEqual(method_name, auth_payload['protocol'])
 

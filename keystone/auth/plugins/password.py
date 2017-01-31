@@ -25,8 +25,9 @@ METHOD_NAME = 'password'
 @dependency.requires('identity_api')
 class Password(base.AuthMethodHandler):
 
-    def authenticate(self, request, auth_payload, auth_context):
+    def authenticate(self, request, auth_payload):
         """Try to authenticate against the identity backend."""
+        response_data = {}
         user_info = auth_plugins.UserAuthInfo.create(auth_payload, METHOD_NAME)
 
         try:
@@ -39,6 +40,7 @@ class Password(base.AuthMethodHandler):
             msg = _('Invalid username or password')
             raise exception.Unauthorized(msg)
 
-        auth_context['user_id'] = user_info.user_id
+        response_data['user_id'] = user_info.user_id
 
-        return base.AuthHandlerResponse(status=True, response_body=None)
+        return base.AuthHandlerResponse(status=True, response_body=None,
+                                        response_data=response_data)
