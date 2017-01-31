@@ -1875,6 +1875,67 @@ class UserValidationTestCase(unit.BaseTestCase):
         }
         self.create_user_validator.validate(request_to_validate)
 
+    def test_user_create_with_mfa_rules(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {
+                ro.MFA_RULES_OPT.option_name: [
+                    [uuid.uuid4().hex, uuid.uuid4().hex],
+                    [uuid.uuid4().hex],
+                ]
+            }
+        }
+        self.create_user_validator.validate(request_to_validate)
+
+    def test_user_update_with_mfa_rules(self):
+        request_to_validate = {
+            'options': {
+                ro.MFA_RULES_OPT.option_name: [
+                    [uuid.uuid4().hex, uuid.uuid4().hex],
+                    [uuid.uuid4().hex],
+                ]
+            }
+        }
+        self.update_user_validator.validate(request_to_validate)
+
+    def test_user_create_with_mfa_rules_enabled(self):
+        request_to_validate = {
+            'name': self.user_name,
+            'options': {ro.MFA_ENABLED_OPT.option_name: True}
+        }
+        self.create_user_validator.validate(request_to_validate)
+
+    def test_user_update_mfa_rules_enabled(self):
+        request_to_validate = {
+            'options': {ro.MFA_ENABLED_OPT.option_name: False}
+        }
+        self.update_user_validator.validate(request_to_validate)
+
+    def test_user_update_with_invalid_mfa_rules_fails(self):
+        test_cases = [
+            # Main Element Not an Array
+            True,
+            # Sub-Element Not an Array
+            [True, False],
+            # Sub-element Element not string
+            [[True], [True, False]],
+            # Duplicate sub-array
+            [['duplicate_array'] for x in range(0, 2)],
+            # Empty Sub element
+            [[uuid.uuid4().hex], []],
+            # Duplicate strings in sub-element
+            [['duplicate' for x in range(0, 2)]],
+        ]
+        for ruleset in test_cases:
+            request_to_validate = {
+                'options': {
+                    ro.MFA_RULES_OPT.option_name: ruleset
+                }
+            }
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_user_validator.validate,
+                              request_to_validate)
+
 
 class GroupValidationTestCase(unit.BaseTestCase):
     """Test for V3 Group API validation."""
