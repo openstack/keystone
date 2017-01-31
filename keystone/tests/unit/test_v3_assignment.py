@@ -2892,6 +2892,44 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
                           user_id=user['id'],
                           project_id=projectB['id'])
 
+    def test_cross_domain_implied_roles_authentication(self):
+        # Enable implied roles inference
+        self.config_fixture.config(group='token', infer_roles=True)
+
+        # Create a user in domainB
+        user = unit.create_user(self.identity_api,
+                                domain_id=self.domainB['id'])
+
+        # Create project in domainA
+        projectA = unit.new_project_ref(domain_id=self.domainA['id'])
+        self.resource_api.create_project(projectA['id'], projectA)
+
+        # Now we create an implied rule from a role in domainA to a
+        # role in domainB
+        self.put('/roles/%s/implies/%s' %
+                 (self.domainA_role1['id'], self.domainB_role['id']),
+                 expected_status=http_client.CREATED)
+
+        # A role in domainA can be assigned to a user from domainB
+        # only for a project from domainA
+        self.assignment_api.create_grant(self.domainA_role1['id'],
+                                         user_id=user['id'],
+                                         project_id=projectA['id'])
+
+        # The role assignments should return an empty list since domain roles
+        # can only be used to imply another roles
+        assignments = self.assignment_api.list_role_assignments(
+            user_id=user['id'], effective=True)
+        self.assertEqual([], assignments)
+
+        # This also means we can't authenticate using the existing assignment
+        auth_body = self.build_authentication_request(
+            user_id=user['id'],
+            password=user['password'],
+            project_id=projectA['id'])
+        self.post('/auth/tokens', body=auth_body,
+                  expected_status=http_client.UNAUTHORIZED)
+
 
 class ListUserProjectsTestCase(test_v3.RestfulTestCase):
     """Test for /users/<user>/projects."""
