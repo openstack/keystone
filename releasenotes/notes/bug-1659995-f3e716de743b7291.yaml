@@ -2,10 +2,22 @@
 fixes:
   - |
     [`bug 1659995 <https://bugs.launchpad.net/keystone/+bug/1659995>`_]
-    A new option has been made available via the user create and update API
-    (``POST/PATCH /v3/users) call, the option will allow an admin to
-    mark users as exempt from the PCI password expiry policy via an API.
-    This can be done like so: ``user['options']['ignore_password_expiry']``.
+    New options have been made available via the user create and update API
+    (``POST/PATCH /v3/users``) call, the options will allow an admin to
+    mark users as exempt from certain PCI requirements via an API.
+
+    Set the following user attributes to ``True`` or ``False`` in an API request.
+    To mark a user as exempt from the PCI password lockout policy::
+
+      user['options']['ignore_lockout_failure_attempts']
+
+    To mark a user as exempt from the PCI password expiry policy::
+
+      user['options']['ignore_password_expiry']
+
+    To mark a user as exempt from the PCI reset policy::
+
+      user['options']['ignore_change_password_upon_first_use']
 deprecations:
   - |
     [`bug 1659995 <https://bugs.launchpad.net/keystone/+bug/1659995>`_]
