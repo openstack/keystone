@@ -18,8 +18,8 @@
 Keystone Architecture
 =====================
 
-Much of the design is precipitated from the expectation that the auth backends
-for most deployments will actually be shims in front of existing user systems.
+Much of the design assumes that in most deployments auth backends will be shims
+in front of existing user systems.
 
 
 Services
@@ -27,7 +27,7 @@ Services
 
 Keystone is organized as a group of internal services exposed on one or many
 endpoints. Many of these services are used in a combined fashion by the
-frontend, for example an authenticate call will validate user/project
+frontend. For example, an authenticate call will validate user/project
 credentials with the Identity service and, upon success, create and return a
 token with the Token service.
 
@@ -36,14 +36,12 @@ Identity
 --------
 
 The Identity service provides auth credential validation and data about `users`
-and `groups`.
-
-In the basic case all this data is managed by the service, allowing the service
-to manage all the CRUD associated with the data.
-
-In other cases, data is managed from an authoritative backend service. An
-example of this would be when backending on LDAP. The LDAP backend utilizes
-the LDAP server as the source for user and group data.
+and `groups`. In the basic case, this data is managed by the Identity service,
+allowing it to also handle all CRUD operations associated with this data. In
+more complex cases, the data is instead managed by an authoritative backend
+service. An example of this would be when the Identity service acts as a
+frontend for LDAP. In that case the LDAP server is the source of truth and the
+role of the Identity service is to relay that information accurately.
 
 Users
 ^^^^^
@@ -69,18 +67,17 @@ Projects (Tenants)
 
 ``Projects`` (known as ``Tenants`` in v2.0) represent the base unit of
 ``ownership`` in OpenStack, in that all resources in OpenStack should be owned
-by a specific project.
-A project itself must be owned by a specific domain, and hence all project
-names are **not** globally unique, but unique to their domain.
-If the domain for a project is not specified, then it is added to the default
-domain.
+by a specific project. A project itself must be owned by a specific domain, and
+hence all project names are **not** globally unique, but unique to their
+domain. If the domain for a project is not specified, then it is added to the
+default domain.
 
 Domains
 ^^^^^^^
 
 ``Domains`` are a high-level container for projects, users and groups. Each is
 owned by exactly one domain. Each domain defines a namespace where an
-API-visible name attribute exists. keystone provides a default domain, aptly
+API-visible name attribute exists. Keystone provides a default domain, aptly
 named 'Default'.
 
 In the Identity v3 API, the uniqueness of attributes is as follows:
@@ -109,8 +106,8 @@ Roles
 ^^^^^
 
 ``Roles`` dictate the level of authorization the end user can obtain. Roles
-can be granted at either the domain or project level. Role can be assigned to
-the individual user or at the group level. Role names are globally unique.
+can be granted at either the domain or project level. A role can be assigned at
+the individual user or group level. Role names are globally unique.
 
 Role Assignments
 ^^^^^^^^^^^^^^^^
@@ -260,8 +257,8 @@ Templated Backend
 -----------------
 
 Largely designed for a common use case around service catalogs in the keystone
-project, a catalog backend that simply expands pre-configured templates to
-provide catalog data.
+project, a templated backend is a catalog backend that simply expands
+pre-configured templates to provide catalog data.
 
 Example paste.deploy config (uses $ instead of % to avoid ConfigParser's
 interpolation)
@@ -279,8 +276,8 @@ Data Model
 ==========
 
 Keystone was designed from the ground up to be amenable to multiple styles of
-backends and as such many of the methods and data types will happily accept
-more data than they know what to do with and pass them on to a backend.
+backends. As such, many of the methods and data types will happily accept more
+data than they know what to do with and pass them on to a backend.
 
 There are a few main data types:
 
@@ -466,7 +463,7 @@ command line, it would be:
     $ export OS_PASSWORD=secretsecret
     $ export OS_PROJECT_NAME=project-x
 
-Note that the project the user it attempting to access must be in the same
+Note that the project the user is attempting to access must be in the same
 domain as the user.
 
 What is Scope?
