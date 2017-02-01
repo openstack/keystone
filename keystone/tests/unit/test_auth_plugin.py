@@ -115,7 +115,7 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
             auth_plugins.ConfigAuthPlugins(self.config_fixture,
                                            ['external', 'external']))
         auth.controllers.load_auth_methods()
-        self.assertIn('external', auth.controllers.AUTH_METHODS)
+        self.assertIn('external', auth.core.AUTH_METHODS)
 
 
 class TestAuthPluginDynamicOptions(TestAuthPlugin):

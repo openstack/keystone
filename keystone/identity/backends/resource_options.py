@@ -30,22 +30,22 @@ def _mfa_rules_validator_list_of_lists_of_strings_no_duplicates(value):
             'duplicated.')
     if not isinstance(value, list):
         raise TypeError(msg)
-    sublist_set = set()
+    sublists = []
     for item in value:
         string_set = set()
         if not isinstance(item, list):
             raise TypeError(msg)
         if not item:
             raise ValueError(msg)
-        if item in sublist_set:
+        if item in sublists:
             raise ValueError(msg)
-        sublist_set.add(sublist_set)
+        sublists.append(sublists)
         for element in item:
             if not isinstance(element, six.string_types):
                 raise TypeError(msg)
             if element in string_set:
                 raise ValueError(msg)
-            sublist_set.add(element)
+            string_set.add(element)
 
 
 USER_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('USER')

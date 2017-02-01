@@ -37,6 +37,7 @@ from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
+from keystone.identity.backends import resource_options as ro
 from keystone.policy.backends import rules
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
@@ -45,6 +46,164 @@ from keystone.tests.unit import test_v3
 
 
 CONF = keystone.conf.CONF
+
+
+class TestMFARules(test_v3.RestfulTestCase, testcase.TestCase):
+    def setUp(self):
+        super(TestMFARules, self).setUp()
+        auth.core.load_auth_methods()
+        self.controller = auth.controllers.Auth()
+        self.addCleanup(self.cleanup)
+
+    def cleanup(self):
+        totp_creds = self.credential_api.list_credentials_for_user(
+            self.user['id'], type='totp')
+
+        for cred in totp_creds:
+            self.credential_api.delete_credential(cred['id'])
+
+    def auth_plugin_config_override(self, methods=None, **method_classes):
+        methods = ['totp', 'token', 'password']
+        super(TestMFARules, self).auth_plugin_config_override(methods)
+
+    def _update_user_with_MFA_rules(self, rule_list, rules_enabled=True):
+        user = self.user.copy()
+        # Do not update password
+        user.pop('password')
+        user['options'][ro.MFA_RULES_OPT.option_name] = rule_list
+        user['options'][ro.MFA_ENABLED_OPT.option_name] = rules_enabled
+        self.identity_api.update_user(user['id'], user)
+
+    def test_MFA_single_method_rules_requirements_met_succeeds(self):
+        # ensure that a simple password works if a password-only rules exists
+        rule_list = [['password'], ['password', 'totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id))
+
+    def test_MFA_multi_method_rules_requirements_met_succeeds(self):
+        # validate that multiple auth-methods function if all are specified
+        # and the rules requires it
+        rule_list = [['password', 'totp']]
+        totp_cred = unit.new_totp_credential(self.user_id, self.project_id)
+        self.credential_api.create_credential(uuid.uuid4().hex, totp_cred)
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            auth_req = self.build_authentication_request(
+                user_id=self.user_id,
+                password=self.user['password'],
+                user_domain_id=self.domain_id,
+                passcode=totp._generate_totp_passcode(totp_cred['blob']))
+            self.v3_create_token(auth_req)
+
+    def test_MFA_single_method_rules_requirements_not_met_fails(self):
+        # if a rule matching a single auth type is specified and is not matched
+        # the result should be unauthorized
+        rule_list = [['totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id),
+                expected_status=http_client.UNAUTHORIZED)
+
+    def test_MFA_multi_method_rules_requirements_not_met_fails(self):
+        # if multiple rules are specified and only one is passed,
+        # unauthorized is expected
+        rule_list = [['password', 'totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id),
+                expected_status=http_client.UNAUTHORIZED)
+
+    def test_MFA_rules_bogus_non_existing_auth_method_succeeds(self):
+        # Bogus auth methods are thrown out from rules.
+        rule_list = [['password'], ['BoGusAuThMeTh0dHandl3r']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id))
+
+    def test_MFA_rules_disabled_MFA_succeeeds(self):
+        # ensure that if MFA is "disableD" authentication succeeds, even if
+        # not enough auth methods are specified
+        rule_list = [['password', 'totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list,
+                                         rules_enabled=False)
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        with freezegun.freeze_time(time):
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id))
+
+    def test_MFA_rules_all_bogus_rules_results_in_default_behavior(self):
+        # if all the rules are bogus, the result is the same as the default
+        # behavior, any single password method is sufficient
+        rule_list = [[uuid.uuid4().hex, uuid.uuid4().hex],
+                     ['BoGus'],
+                     ['NonExistantMethod']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            self.v3_create_token(
+                self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id))
 
 
 class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
