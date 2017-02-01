@@ -433,17 +433,21 @@ class UserMFARulesValidator(object):
         # any exceptions, but just produce a usable set of data for rules
         # processing.
         rule_set = []
-        found_rules = set()
         if not isinstance(rules, list):
             LOG.error(_LE('Corrupt rule data structure for user %(user_id)s, '
                           'no rules loaded.'),
                       {'user_id': user_id})
+            # Corrupt Data means no rules. Auth success > MFA rules in this
+            # case.
             return rule_set
         elif not rules:
+            # Exit early, nothing to do here.
             return rule_set
 
         for r_list in rules:
             if not isinstance(r_list, list):
+                # Rule was not a list, it is invalid, drop the rule from
+                # being considered.
                 LOG.info(_LI('Ignoring Rule %(rule)r; rule must be a list of '
                              'strings.'),
                          {'type': type(r_list)})
@@ -459,13 +463,21 @@ class UserMFARulesValidator(object):
                         LOG.info(_LI('Ignoring Rule %(rule)r; rule contains '
                                      'non-string values.'),
                                  {'rule': r_list})
+                        # Rule is known to be bad, drop it from consideration.
                         _ok_rule = False
                         break
+                # NOTE(notmorgan): No FOR/ELSE used here! Though it could be
+                # done and avoid the use of _ok_rule. This is a note for
+                # future developers to avoid using for/else and as an example
+                # of how to implement it that is readable and maintainable.
                 if _ok_rule:
-                    # De-dupe rule and add to the return value
-                    rule_string = ';'.join(sorted(r_list))
-                    if rule_string not in found_rules:
-                        found_rules.add(rule_string)
+                    # Unique the r_list and cast back to a list and then append
+                    # as we know the rule is ok (matches our requirements).
+                    # This is outside the for loop, as the for loop is
+                    # only used to validate the elements in the list. The
+                    # This de-dupe should never be needed, but we are being
+                    # extra careful at all levels of validation for the MFA
+                    # rules.
                     r_list = list(set(r_list))
                     rule_set.append(r_list)
 
