@@ -199,9 +199,10 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
 
 class JsonHomeTests(test_v3.JsonHomeTestMixin):
-    EXTENSION_LOCATION = ('http://docs.openstack.org/api/openstack-identity/3/'
-                          'ext/OS-ENDPOINT-POLICY/1.0/rel')
-    PARAM_LOCATION = 'http://docs.openstack.org/api/openstack-identity/3/param'
+    EXTENSION_LOCATION = ('https://docs.openstack.org/api/openstack-identity/3'
+                          '/ext/OS-ENDPOINT-POLICY/1.0/rel')
+    PARAM_LOCATION = ('https://docs.openstack.org/api/openstack-identity/3/'
+                      'param')
 
     JSON_HOME_DATA = {
         EXTENSION_LOCATION + '/endpoint_policy': {

@@ -195,7 +195,7 @@ Use OpenStack CLI not keystone CLI
 ----------------------------------
 
 The keystone CLI is deprecated and will be removed soon. The `OpenStack CLI
-<http://docs.openstack.org/developer/python-openstackclient/>`_ has all the
+<https://docs.openstack.org/developer/python-openstackclient/>`_ has all the
 keystone CLI commands and even supports v3.
 
 

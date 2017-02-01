@@ -50,7 +50,7 @@ Create Endpoint Group
 Create a new endpoint group filter that represents a dynamic collection of
 service endpoints having the same characteristics
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_groups``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_groups``
 
 Normal response codes: 201
 
@@ -83,7 +83,7 @@ Get Endpoint Group
 
 Show details of an endpoint group.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 200
 
@@ -111,7 +111,7 @@ Check Endpoint Group
 
 Determine if an endpoint group exists.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 200
 
@@ -136,7 +136,7 @@ Update Endpoint Group
 
 Modify attributes of an endpoint group.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 200
 
@@ -170,7 +170,7 @@ Delete Endpoint Group
 
 Delete an endpoint group.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group``
 
 Normal response codes: 204
 
@@ -195,7 +195,7 @@ List Endpoint Groups
 
 List all available endpoint groups.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_groups``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_groups``
 
 Normal response codes: 200
 
@@ -223,7 +223,7 @@ Create Association
 
 Creates a direct association between ``project_id`` and ``endpoint_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
 Normal response codes: 204
 
@@ -249,7 +249,7 @@ Check Association
 
 Verifies the existence of an association between ``project_id`` and ``endpoint_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
 Normal response codes: 204
 
@@ -275,7 +275,7 @@ Delete Association
 
 Removes a direct association between ``project_id`` and ``endpoint_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint``
 
 Normal response codes: 204
 
@@ -301,7 +301,7 @@ List Associations by Project
 
 Returns all endpoints that are currently associated with ``project_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoints``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoints``
 
 Normal response codes: 200
 
@@ -329,7 +329,7 @@ List Associations by Endpoint
 
 Returns all projects that are currently associated with ``endpoint_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_projects``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_projects``
 
 Normal response codes: 200
 
@@ -365,7 +365,7 @@ Create Endpoint Group to Project Association
 
 Creates an association between ``endpoint_group_id`` and ``project_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 204
 
@@ -391,7 +391,7 @@ Get Endpoint Group to Project Association
 
 Verifies the existence of an association between ``project_id`` and ``endpoint_group_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 200
 
@@ -420,7 +420,7 @@ Check Endpoint Group to Project Association
 
 Verifies the existence of an association between ``project_id`` and ``endpoint_group_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 200
 
@@ -446,7 +446,7 @@ Delete Endpoint Group to Project Association
 
 Removes the association between ``project_id`` and ``endpoint_group_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_project``
 
 Normal response codes: 204
 
@@ -472,7 +472,7 @@ List Projects Associated with Endpoint Group
 
 Returns all projects that are currently associated with ``endpoint_group_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_projects``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_projects``
 
 Normal response codes: 200
 
@@ -500,7 +500,7 @@ List Endpoints Associated with Endpoint Group
 
 Returns all the endpoints that are currently associated with ``endpoint_group_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_endpoints``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/endpoint_group_endpoints``
 
 Normal response codes: 200
 
@@ -528,7 +528,7 @@ List Endpoint Groups Associated with Project
 
 Returns all the endpoint groups that are currently associated with ``project_id``.
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint_groups``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/1.0/rel/project_endpoint_groups``
 
 Normal response codes: 200
 

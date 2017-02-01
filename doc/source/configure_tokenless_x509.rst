@@ -28,7 +28,7 @@ Definitions
   without having to issue a token. For details, please refer to the specs
   `Tokenless Authorization with X.509 Client SSL Certificate`_
 
-.. _`Tokenless Authorization with X.509 Client SSL Certificate`: http://specs.openstack.org/openstack/keystone-specs/specs/liberty/keystone-tokenless-authz-with-x509-ssl-client-cert.html
+.. _`Tokenless Authorization with X.509 Client SSL Certificate`: https://specs.openstack.org/openstack/keystone-specs/specs/liberty/keystone-tokenless-authz-with-x509-ssl-client-cert.html
 
 Prerequisites
 -------------
@@ -38,7 +38,7 @@ been done with Apache/2.4.7 running on Ubuntu 14.04 . Please refer to
 `running-keystone-in-httpd`_ and `apache-certificate-and-key-installation`_
 as references for this setup.
 
-.. _`running-keystone-in-httpd`: http://docs.openstack.org/developer/keystone/apache-httpd.html
+.. _`running-keystone-in-httpd`: https://docs.openstack.org/developer/keystone/apache-httpd.html
 .. _`apache-certificate-and-key-installation`: https://www.digitalocean.com/community/tutorials/how-to-create-a-ssl-certificate-on-apache-for-ubuntu-14-04
 
 --------------------

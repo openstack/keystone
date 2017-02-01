@@ -24,8 +24,8 @@ and setting the environment up for development purposes.
 To install keystone from packaging, refer instead to OpenStack's `User
 Documentation`_.
 
-.. _`Git Repository`: http://git.openstack.org/cgit/openstack/keystone
-.. _`User Documentation`: http://docs.openstack.org/
+.. _`Git Repository`: https://git.openstack.org/cgit/openstack/keystone
+.. _`User Documentation`: https://docs.openstack.org/
 
 Prerequisites
 =============
@@ -63,7 +63,7 @@ That documentation will guide you to configure your development environment
 and run keystone tests using `tox`, which uses virtualenv_ to isolate the Python
 environment. After running it, notice the existence of a `.tox` directory.
 
-.. _`Project Team Guide: Python Project Guide`: http://docs.openstack.org/project-team-guide/project-setup/python.html
+.. _`Project Team Guide: Python Project Guide`: https://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _virtualenv: http://www.virtualenv.org/
 
 Verifying keystone is set up

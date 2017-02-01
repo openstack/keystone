@@ -2,8 +2,8 @@
 Team and repository tags
 ========================
 
-.. image:: http://governance.openstack.org/badges/keystone.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
+.. image:: https://governance.openstack.org/badges/keystone.svg
+    :target: https://governance.openstack.org/reference/tags/index.html
 
 .. Change things from this point on
 
@@ -19,11 +19,11 @@ such as LDAP.
 Developer documentation, the source of which is in ``doc/source/``, is
 published at:
 
-    http://docs.openstack.org/developer/keystone/
+    https://docs.openstack.org/developer/keystone/
 
 The API specification and documentation are available at:
 
-    http://specs.openstack.org/openstack/keystone-specs/
+    https://specs.openstack.org/openstack/keystone-specs/
 
 The canonical client library is available at:
 
@@ -31,7 +31,7 @@ The canonical client library is available at:
 
 Documentation for cloud administrators is available at:
 
-    http://docs.openstack.org/
+    https://docs.openstack.org/
 
 The source of documentation for cloud administrators is available at:
 
@@ -47,7 +47,7 @@ Bugs and feature requests are tracked on Launchpad at:
 
 Future design work is tracked at:
 
-    http://specs.openstack.org/openstack/keystone-specs/#identity-program-specifications
+    https://specs.openstack.org/openstack/keystone-specs/#identity-program-specifications
 
 Contributors are encouraged to join IRC (``#openstack-keystone`` on freenode):
 

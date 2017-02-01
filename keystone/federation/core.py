@@ -30,7 +30,7 @@ MEMOIZE = cache.get_memoization_decorator(group='federation')
 CONF = keystone.conf.CONF
 EXTENSION_DATA = {
     'name': 'OpenStack Federation APIs',
-    'namespace': 'http://docs.openstack.org/identity/api/ext/'
+    'namespace': 'https://docs.openstack.org/identity/api/ext/'
                  'OS-FEDERATION/v1.0',
     'alias': 'OS-FEDERATION',
     'updated': '2013-12-17T12:00:0-00:00',
@@ -38,7 +38,7 @@ EXTENSION_DATA = {
     'links': [{
         'rel': 'describedby',
         'type': 'text/html',
-        'href': 'http://developer.openstack.org/api-ref-identity-v3-ext.html',
+        'href': 'https://developer.openstack.org/api-ref-identity-v3-ext.html',
     }]}
 extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)

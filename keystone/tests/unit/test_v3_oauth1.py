@@ -1046,8 +1046,8 @@ class OAuthCADFNotificationTests(OAuthNotificationTests):
 
 class JsonHomeTests(OAuth1Tests, test_v3.JsonHomeTestMixin):
     JSON_HOME_DATA = {
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/'
-        'rel/consumers': {
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0'
+        '/rel/consumers': {
             'href': '/OS-OAUTH1/consumers',
         },
     }

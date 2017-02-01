@@ -128,7 +128,7 @@ class Version(wsgi.Application):
                     }, {
                         'rel': 'describedby',
                         'type': 'text/html',
-                        'href': 'http://docs.openstack.org/'
+                        'href': 'https://docs.openstack.org/'
                     }
                 ],
                 'media-types': [

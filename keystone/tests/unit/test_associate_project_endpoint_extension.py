@@ -601,69 +601,69 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
 
 class JsonHomeTests(EndpointFilterTestCase, test_v3.JsonHomeTestMixin):
     JSON_HOME_DATA = {
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoint_projects': {
             'href-template': '/OS-EP-FILTER/endpoints/{endpoint_id}/projects',
             'href-vars': {
                 'endpoint_id':
-                'http://docs.openstack.org/api/openstack-identity/3/param/'
+                'https://docs.openstack.org/api/openstack-identity/3/param/'
                 'endpoint_id',
             },
         },
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoint_groups': {
             'href': '/OS-EP-FILTER/endpoint_groups',
         },
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoint_group': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
             '{endpoint_group_id}',
             'href-vars': {
                 'endpoint_group_id':
-                'http://docs.openstack.org/api/openstack-identity/3/'
+                'https://docs.openstack.org/api/openstack-identity/3/'
                 'ext/OS-EP-FILTER/1.0/param/endpoint_group_id',
             },
         },
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoint_group_to_project_association': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
             '{endpoint_group_id}/projects/{project_id}',
             'href-vars': {
                 'project_id':
-                'http://docs.openstack.org/api/openstack-identity/3/param/'
+                'https://docs.openstack.org/api/openstack-identity/3/param/'
                 'project_id',
                 'endpoint_group_id':
-                'http://docs.openstack.org/api/openstack-identity/3/'
+                'https://docs.openstack.org/api/openstack-identity/3/'
                 'ext/OS-EP-FILTER/1.0/param/endpoint_group_id',
             },
         },
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/projects_associated_with_endpoint_group': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
             '{endpoint_group_id}/projects',
             'href-vars': {
                 'endpoint_group_id':
-                'http://docs.openstack.org/api/openstack-identity/3/'
+                'https://docs.openstack.org/api/openstack-identity/3/'
                 'ext/OS-EP-FILTER/1.0/param/endpoint_group_id',
             },
         },
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/endpoints_in_endpoint_group': {
             'href-template': '/OS-EP-FILTER/endpoint_groups/'
             '{endpoint_group_id}/endpoints',
             'href-vars': {
                 'endpoint_group_id':
-                'http://docs.openstack.org/api/openstack-identity/3/'
+                'https://docs.openstack.org/api/openstack-identity/3/'
                 'ext/OS-EP-FILTER/1.0/param/endpoint_group_id',
             },
         },
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-EP-FILTER/'
         '1.0/rel/project_endpoint_groups': {
             'href-template': '/OS-EP-FILTER/projects/{project_id}/'
             'endpoint_groups',
             'href-vars': {
                 'project_id':
-                'http://docs.openstack.org/api/openstack-identity/3/param/'
+                'https://docs.openstack.org/api/openstack-identity/3/param/'
                 'project_id',
             },
         },

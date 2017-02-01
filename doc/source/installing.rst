@@ -89,7 +89,7 @@ An excellent reference implementation of setting up Keystone is DEVSTACK_,
 most commonly used for development and testing setup of not only Keystone,
 but all of the core OpenStack projects.
 
-.. _DEVSTACK: http://docs.openstack.org/developer/devstack/
+.. _DEVSTACK: https://docs.openstack.org/developer/devstack/
 
 The script with the latest examples of initializing data in Keystone is a
 bash script called `lib/keystone`_
@@ -128,4 +128,4 @@ To install the packages:
 Once installed, you still need to initialize data in Keystone, which you can
 find described in :doc:`configuration`.
 
-.. _`OpenStack Install Guide`: http://docs.openstack.org/liberty/install-guide-rdo/keystone-install.html
+.. _`OpenStack Install Guide`: https://docs.openstack.org/liberty/install-guide-rdo/keystone-install.html

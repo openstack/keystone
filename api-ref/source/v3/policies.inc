@@ -27,7 +27,7 @@ Create policy
 
 .. rest_method::  POST /v3/policies
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policies``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/policies``
 
 Creates a policy.
 
@@ -67,7 +67,7 @@ List policies
 
 .. rest_method::  GET /v3/policies
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policies``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/policies``
 
 Lists policies.
 
@@ -105,7 +105,7 @@ Show policy details
 
 .. rest_method::  GET /v3/policies/{policy_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/policy``
 
 Shows details for a policy.
 
@@ -143,7 +143,7 @@ Update policy
 
 .. rest_method::  PATCH /v3/policies/{policy_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/policy``
 
 Updates a policy.
 
@@ -190,7 +190,7 @@ Delete policy
 
 .. rest_method::  DELETE /v3/policies/{policy_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/policy``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/policy``
 
 Deletes a policy.
 

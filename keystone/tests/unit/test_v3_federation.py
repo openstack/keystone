@@ -3322,12 +3322,12 @@ class ShadowMappingTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
 class JsonHomeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     JSON_HOME_DATA = {
-        'http://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/'
-        '1.0/rel/identity_provider': {
+        'https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION'
+        '/1.0/rel/identity_provider': {
             'href-template': '/OS-FEDERATION/identity_providers/{idp_id}',
             'href-vars': {
-                'idp_id': 'http://docs.openstack.org/api/openstack-identity/3/'
-                'ext/OS-FEDERATION/1.0/param/idp_id'
+                'idp_id': 'https://docs.openstack.org/api/openstack-identity/3'
+                '/ext/OS-FEDERATION/1.0/param/idp_id'
             },
         },
     }

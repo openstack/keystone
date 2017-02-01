@@ -26,7 +26,7 @@ List groups
 
 .. rest_method::  GET /v3/groups
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/groups``
 
 Lists groups.
 
@@ -76,7 +76,7 @@ Create group
 
 .. rest_method::  POST /v3/groups
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/groups``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/groups``
 
 Creates a group.
 
@@ -134,7 +134,7 @@ Show group details
 
 .. rest_method::  GET /v3/groups/{group_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
 
 Shows details for a group.
 
@@ -183,7 +183,7 @@ Update group
 
 .. rest_method::  PATCH /v3/groups/{group_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
 
 Updates a group.
 
@@ -247,7 +247,7 @@ Delete group
 
 .. rest_method::  DELETE /v3/groups/{group_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
 
 Deletes a group.
 
@@ -278,7 +278,7 @@ List users in group
 
 .. rest_method::  GET /v3/groups/{group_id}/users
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_users``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_users``
 
 Lists the users that belong to a group.
 
@@ -316,7 +316,7 @@ Add user to group
 
 .. rest_method::  PUT /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
 
 Adds a user to a group.
 
@@ -348,7 +348,7 @@ Check whether user belongs to group
 
 .. rest_method::  HEAD /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
 
 Validates that a user belongs to a group.
 
@@ -380,7 +380,7 @@ Remove user from group
 
 .. rest_method::  DELETE /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
 
 Removes a user from a group.
 

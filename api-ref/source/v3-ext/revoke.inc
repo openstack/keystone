@@ -34,7 +34,7 @@ List revocation events
 
 .. rest_method::  GET /v3/OS-REVOKE/events
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel/events``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel/events``
 
 List revocation events.
 

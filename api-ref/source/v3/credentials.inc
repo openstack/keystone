@@ -18,7 +18,7 @@ Create credential
 
 .. rest_method::  POST /v3/credentials
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentials``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credentials``
 
 Creates a credential.
 
@@ -75,7 +75,7 @@ List credentials
 
 .. rest_method::  GET /v3/credentials
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credentials``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credentials``
 
 Lists all credentials.
 
@@ -118,7 +118,7 @@ Show credential details
 
 .. rest_method::  GET /v3/credentials/{credential_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credential``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Shows details for a credential.
 
@@ -158,7 +158,7 @@ Update credential
 
 .. rest_method::  PATCH /v3/credentials/{credential_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credential``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Updates a credential.
 
@@ -209,7 +209,7 @@ Delete credential
 
 .. rest_method::  DELETE /v3/credentials/{credential_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/rel/credential``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Deletes a credential.
 

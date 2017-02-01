@@ -116,9 +116,9 @@ correspond to the Identity Provider's groups; additionally, these groups should
 be assigned roles on one or more projects or domains.
 
 You may be interested in more information on `group management
-<http://developer.openstack.org/api-ref/identity/v3/#create-group>`_
+<https://developer.openstack.org/api-ref/identity/v3/#create-group>`_
 and `role assignments
-<http://developer.openstack.org/api-ref/identity/v3/#assign-role-to-group-on-project>`_,
+<https://developer.openstack.org/api-ref/identity/v3/#assign-role-to-group-on-project>`_,
 both of which are exposed to the CLI via `python-openstackclient
 <https://pypi.python.org/pypi/python-openstackclient/>`_.
 
@@ -155,7 +155,7 @@ To utilize federation the following must be created in the Identity Service:
 * `Protocol`_
 
 Read more about `federation in keystone
-<http://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api>`__.
+<https://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api>`__.
 
 ~~~~~~~~~~~~~~~~~
 Identity Provider
@@ -204,7 +204,7 @@ This removes the need to configure N identity providers in keystone.
     to list all the identity providers that are trusted by keystone.
 
 Read more about `identity providers
-<http://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers>`__.
+<https://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers>`__.
 
 ~~~~~~~
 Mapping
@@ -285,7 +285,7 @@ As another example, if Shibboleth is your IdP, the remote section should use REM
     $ openstack mapping create --rules rules.json myidp_mapping
 
 Read more about `mapping
-<http://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
+<https://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
 
 ~~~~~~~~
 Protocol
@@ -305,7 +305,7 @@ you gave in the ``[auth]/methods`` config option. When authenticating it will be
 referred to as the ``protocol_id``.
 
 Read more about `federation protocols
-<http://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__
+<https://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__
 
 Performing federated authentication
 -----------------------------------
@@ -340,7 +340,7 @@ In the returned unscoped token, a list of Identity Service groups the user
 belongs to will be included.
 
 Read more about `getting an unscoped token
-<http://developer.openstack.org/api-ref/identity/v3-ext/#request-an-unscoped-os-federation-token>`__.
+<https://developer.openstack.org/api-ref/identity/v3-ext/#request-an-unscoped-os-federation-token>`__.
 
 ~~~~~~~~~~~~
 Example cURL
@@ -365,7 +365,7 @@ projects and domains that are accessible.
 * List domains a federated user can access: ``GET /OS-FEDERATION/domains``
 
 Read more about `listing resources
-<http://developer.openstack.org/api-ref/identity/v3-ext/#list-projects-a-federated-user-can-access>`__.
+<https://developer.openstack.org/api-ref/identity/v3-ext/#list-projects-a-federated-user-can-access>`__.
 
 ~~~~~~~~~~~~
 Example cURL
@@ -389,7 +389,7 @@ project or domain may be specified by either ``id`` or ``name``. An ``id`` is
 sufficient to uniquely identify a project or domain.
 
 Read more about `getting a scoped token
-<http://developer.openstack.org/api-ref/identity/v3-ext/#request-a-scoped-os-federation-token>`__.
+<https://developer.openstack.org/api-ref/identity/v3-ext/#request-a-scoped-os-federation-token>`__.
 
 ~~~~~~~~~~~~
 Example cURL

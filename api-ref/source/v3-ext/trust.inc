@@ -45,7 +45,7 @@ invalid and any tokens generated based on the trust are immediately revoked.
 Trusts can also be chained, meaning, a trust can be created by using a trust scoped
 token.
 
-For more information, see `Use trusts <http://docs.openstack.org
+For more information, see `Use trusts <https://docs.openstack.org
 /admin-guide/keystone_use_trusts.html>`_.
 
 Consuming a trust
@@ -95,11 +95,11 @@ Create trust
 
 .. rest_method::  POST /v3/OS-TRUST/trusts
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts``
 
 Creates a trust.
 
-Relationship: http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts
+Relationship: https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts
 
 Normal response codes: 201
 
@@ -163,7 +163,7 @@ List trusts
 
 .. rest_method:: GET /v3/OS-TRUST/trusts
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trusts``
 
 Lists all trusts.
 
@@ -226,7 +226,7 @@ Get trust
 
 .. rest_method:: GET /v3/OS-TRUST/trusts/{trust_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust``
 
 Gets the trust information for ``{trust_id}``.
 
@@ -275,7 +275,7 @@ Delete trust
 
 .. rest_method:: DELETE /v3/OS-TRUST/trusts/{trust_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust``
 
 Deletes a trust with ``{trust_id}``.
 
@@ -301,7 +301,7 @@ List roles delegated by a trust
 
 .. rest_method:: GET /v3/OS-TRUST/trusts/{trust_id}/roles
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_roles``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_roles``
 
 Lists roles delegated by a trust with ``{trust_id}``.
 
@@ -330,7 +330,7 @@ Check if a role is delegated by a trust
 
 .. rest_method:: HEAD /v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role``
 
 Checks if a role is delegated by a trust.
 
@@ -357,7 +357,7 @@ Get role delegated by a trust
 
 .. rest_method:: GET /v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}
 
-Relationship: ``http://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role``
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-TRUST/1.0/rel/trust_role``
 
 Gets a role with delegated by a trust.
 
