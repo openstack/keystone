@@ -6,3 +6,13 @@ other:
     The removed code included ``keystone.common.kvs`` configuration options for the KVS code,
     unit tests, and the KVS token persistence driver ``keystone.token.persistence.backends.kvs``.
     All associated documentation has been removed.
+  - >
+    [`blueprint removed-as-of-pike <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-pike>`_]
+    The ``admin_token_auth`` filter has been removed from all sample pipelines,
+    specifically, the following section has been removed from ``keystone-paste.ini``::
+
+      [filter:admin_token_auth]
+      use = egg:keystone#admin_token_auth
+
+    The functionality of the ``ADMIN_TOKEN`` remains, but has been incorporated
+    into the main auth middleware (``keystone.middleware.auth.AuthContextMiddleware``).

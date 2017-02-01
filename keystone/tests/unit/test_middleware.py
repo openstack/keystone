@@ -111,26 +111,6 @@ class TokenAuthMiddlewareTest(MiddlewareRequestTestBase):
         self.assertEqual('MAGIC', context['token_id'])
 
 
-class AdminTokenAuthMiddlewareTest(MiddlewareRequestTestBase):
-
-    MIDDLEWARE_CLASS = middleware.AdminTokenAuthMiddleware
-
-    def config_overrides(self):
-        super(AdminTokenAuthMiddlewareTest, self).config_overrides()
-        self.config_fixture.config(
-            admin_token='ADMIN')
-
-    def test_request_admin(self):
-        headers = {middleware.AUTH_TOKEN_HEADER: 'ADMIN'}
-        req = self._do_middleware_request(headers=headers)
-        self.assertTrue(req.environ[middleware.CONTEXT_ENV]['is_admin'])
-
-    def test_request_non_admin(self):
-        headers = {middleware.AUTH_TOKEN_HEADER: 'NOT-ADMIN'}
-        req = self._do_middleware_request(headers=headers)
-        self.assertFalse(req.environ[middleware.CONTEXT_ENV]['is_admin'])
-
-
 class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
 
     MIDDLEWARE_CLASS = middleware.JsonBodyMiddleware
@@ -768,6 +748,14 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         self.config_fixture.config(admin_token='ADMIN')
         log_fix = self.useFixture(fixtures.FakeLogger())
         headers = {middleware.AUTH_TOKEN_HEADER: 'ADMIN'}
-        environ = {middleware.core.CONTEXT_ENV: {'is_admin': True}}
-        self._do_middleware_request(headers=headers, extra_environ=environ)
+        req = self._do_middleware_request(headers=headers)
+        self.assertTrue(req.environ[middleware.CONTEXT_ENV]['is_admin'])
         self.assertNotIn('Invalid user token', log_fix.output)
+
+    def test_request_non_admin(self):
+        self.config_fixture.config(
+            admin_token='ADMIN')
+        log_fix = self.useFixture(fixtures.FakeLogger())
+        headers = {middleware.AUTH_TOKEN_HEADER: 'NOT-ADMIN'}
+        self._do_middleware_request(headers=headers)
+        self.assertIn('Invalid user token', log_fix.output)

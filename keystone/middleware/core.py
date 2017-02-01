@@ -13,12 +13,13 @@
 # under the License.
 
 from oslo_log import log
+from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LW
+from keystone.i18n import _LE
 
 
 CONF = keystone.conf.CONF
@@ -51,26 +52,26 @@ class TokenAuthMiddleware(wsgi.Middleware):
 
 
 class AdminTokenAuthMiddleware(wsgi.Middleware):
-    """A trivial filter that checks for a pre-defined admin token.
+    # NOTE(notmorgan): DEPRECATED FOR REMOVAL does nothing but warn to remove
+    # from pipeline
 
-    Sets 'is_admin' to true in the context, expected to be checked by
-    methods that are admin-only.
-
-    """
-
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.PIKE,
+        what='AdminTokenAuthMiddleware in the paste-ini pipeline.',
+        remove_in=+1)
     def __init__(self, application):
         super(AdminTokenAuthMiddleware, self).__init__(application)
-        LOG.warning(_LW("The admin_token_auth middleware presents a security "
-                        "risk and should be removed from the "
-                        "[pipeline:api_v3], [pipeline:admin_api], and "
-                        "[pipeline:public_api] sections of your paste ini "
-                        "file."))
-
-    def process_request(self, request):
-        token = request.headers.get(AUTH_TOKEN_HEADER)
-        context = request.environ.get(CONTEXT_ENV, {})
-        context['is_admin'] = CONF.admin_token and (token == CONF.admin_token)
-        request.environ[CONTEXT_ENV] = context
+        # NOTE(notmorgan): This is deprecated and emits a significant error
+        # message to make sure deployers update their deployments so in the
+        # future release upgrade the deployment does not break.
+        LOG.error(_LE('The admin_token_auth middleware functionality has been '
+                      'merged into the main auth middleware '
+                      '(keystone.middleware.auth.AuthContextMiddleware). '
+                      '`admin_token_auth` must be removed from the '
+                      '[pipeline:api_v3], [pipeline:admin_api], and '
+                      '[pipeline:public_api] sections of your paste ini '
+                      'file. The [filter:admin_token_auth] block will also '
+                      'need to be removed from your paste ini file. '))
 
 
 class JsonBodyMiddleware(wsgi.Middleware):
