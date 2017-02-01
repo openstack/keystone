@@ -77,3 +77,9 @@ Once set up, you should be able to invoke Python and import the libraries:
 
 If you can import keystone without a traceback, you should be ready to move on
 to :doc:`../developing`.
+
+Database setup
+==============
+
+The script ``tools/test-setup.sh`` sets up databases as used by the
+unit tests.
