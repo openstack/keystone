@@ -33,7 +33,8 @@ class KeyRepository(fixtures.Fixture):
 
         fernet_utils = utils.FernetUtils(
             directory,
-            self.max_active_keys
+            self.max_active_keys,
+            self.key_group
         )
         fernet_utils.create_key_directory()
         fernet_utils.initialize_key_repository()

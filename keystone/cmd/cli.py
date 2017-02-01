@@ -576,7 +576,8 @@ class FernetSetup(BasePermissionsSetup):
     def main(cls):
         futils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
@@ -610,7 +611,8 @@ class FernetRotate(BasePermissionsSetup):
     def main(cls):
         futils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
@@ -633,7 +635,8 @@ class CredentialSetup(BasePermissionsSetup):
     def main(cls):
         futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
-            credential_fernet.MAX_ACTIVE_KEYS
+            credential_fernet.MAX_ACTIVE_KEYS,
+            'credential'
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
@@ -704,7 +707,8 @@ class CredentialRotate(BasePermissionsSetup):
     def main(cls):
         futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
-            credential_fernet.MAX_ACTIVE_KEYS
+            credential_fernet.MAX_ACTIVE_KEYS,
+            'credential'
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
@@ -763,7 +767,8 @@ class CredentialMigrate(BasePermissionsSetup):
         # Check to make sure we have a repository that works...
         futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
-            credential_fernet.MAX_ACTIVE_KEYS
+            credential_fernet.MAX_ACTIVE_KEYS,
+            'credential'
         )
         futils.validate_key_repository(requires_write=True)
         klass = cls()

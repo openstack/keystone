@@ -535,7 +535,8 @@ class TestFernetKeyRotation(unit.TestCase):
         # Load the keys into a list, keys is list of six.text_type.
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
         keys = key_utils.load_keys()
 
@@ -602,7 +603,8 @@ class TestFernetKeyRotation(unit.TestCase):
             # repository.
             key_utils = fernet_utils.FernetUtils(
                 CONF.fernet_tokens.key_repository,
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
+                'fernet_tokens'
             )
             for rotation in range(max_active_keys - min_active_keys):
                 key_utils.rotate_keys()
@@ -619,7 +621,8 @@ class TestFernetKeyRotation(unit.TestCase):
             # the desired number of active keys.
             key_utils = fernet_utils.FernetUtils(
                 CONF.fernet_tokens.key_repository,
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
+                'fernet_tokens'
             )
             for rotation in range(10):
                 key_utils.rotate_keys()
@@ -645,7 +648,8 @@ class TestFernetKeyRotation(unit.TestCase):
 
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
 
         # Simulate the disk full situation
@@ -672,7 +676,8 @@ class TestFernetKeyRotation(unit.TestCase):
             pass
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
         key_utils.rotate_keys()
         self.assertTrue(os.path.isfile(evil_file))
@@ -703,7 +708,8 @@ class TestLoadKeys(unit.TestCase):
             pass
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))

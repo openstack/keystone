@@ -36,9 +36,11 @@ NULL_KEY = base64.urlsafe_b64encode(b'\x00' * 32)
 
 class FernetUtils(object):
 
-    def __init__(self, key_repository=None, max_active_keys=None):
+    def __init__(self, key_repository=None, max_active_keys=None,
+                 config_group=None):
         self.key_repository = key_repository
         self.max_active_keys = max_active_keys
+        self.config_group = config_group
 
     def validate_key_repository(self, requires_write=False):
         """Validate permissions on the key repository directory."""
@@ -54,9 +56,11 @@ class FernetUtils(object):
 
         if not is_valid:
             LOG.error(
-                _LE('Either [fernet_tokens] key_repository does not exist or '
-                    'Keystone does not have sufficient permission to access '
-                    'it: %s'), self.key_repository)
+                _LE('Either [%(config_group)s] key_repository does not exist '
+                    'or Keystone does not have sufficient permission to '
+                    'access it: %(key_repo)s'),
+                {'key_repo': self.key_repository,
+                 'config_group': self.config_group})
         else:
             # ensure the key repository isn't world-readable
             stat_info = os.stat(self.key_repository)

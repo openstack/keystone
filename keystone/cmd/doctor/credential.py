@@ -49,7 +49,8 @@ def symptom_usability_of_credential_fernet_key_repository():
     """
     fernet_utils = utils.FernetUtils(
         CONF.credential.key_repository,
-        credential_fernet.MAX_ACTIVE_KEYS
+        credential_fernet.MAX_ACTIVE_KEYS,
+        'credential'
     )
     return (
         'fernet' in CONF.credential.provider
@@ -66,7 +67,8 @@ def symptom_keys_in_credential_fernet_key_repository():
     """
     fernet_utils = utils.FernetUtils(
         CONF.credential.key_repository,
-        credential_fernet.MAX_ACTIVE_KEYS
+        credential_fernet.MAX_ACTIVE_KEYS,
+        'credential'
     )
     return (
         'fernet' in CONF.credential.provider
