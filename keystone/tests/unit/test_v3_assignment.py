@@ -2893,9 +2893,6 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
                           project_id=projectB['id'])
 
     def test_cross_domain_implied_roles_authentication(self):
-        # Enable implied roles inference
-        self.config_fixture.config(group='token', infer_roles=True)
-
         # Create a user in domainB
         user = unit.create_user(self.identity_api,
                                 domain_id=self.domainB['id'])
