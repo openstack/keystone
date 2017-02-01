@@ -146,7 +146,7 @@ class TestValidate(unit.TestCase):
             federation_constants.IDENTITY_PROVIDER: identity_provider,
             federation_constants.PROTOCOL: protocol,
         }
-        auth_context = auth.controllers.AuthContext(**auth_context_params)
+        auth_context = auth.core.AuthContext(**auth_context_params)
         token_id, token_data_ = self.token_provider_api.issue_token(
             user_ref['id'], method_names, auth_context=auth_context)
 
