@@ -173,3 +173,9 @@ You should then be able to `import keystone` using Python without issue:
 
 If you can import Keystone without a traceback, you should be ready to move on
 to :doc:`../developing`.
+
+Database setup
+==============
+
+The script ``tools/test-setup.sh`` sets up databases as used by the
+unit tests.
