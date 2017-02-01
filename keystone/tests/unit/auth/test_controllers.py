@@ -22,7 +22,7 @@ from oslo_utils import importutils
 import stevedore
 from stevedore import extension
 
-from keystone.auth import controllers
+from keystone.auth import core
 from keystone.tests import unit
 
 
@@ -48,7 +48,7 @@ class TestLoadAuthMethod(unit.BaseTestCase):
         driver_manager_mock = self.useFixture(fixtures.MockPatchObject(
             stevedore, 'DriverManager', return_value=fake_driver_manager)).mock
 
-        driver = controllers.load_auth_method(method)
+        driver = core.load_auth_method(method)
 
         self.assertEqual(auth_plugin_namespace, fake_driver_manager.namespace)
         driver_manager_mock.assert_called_once_with(
@@ -72,7 +72,7 @@ class TestLoadAuthMethod(unit.BaseTestCase):
         self.useFixture(fixtures.MockPatchObject(
             importutils, 'import_object', return_value=mock.sentinel.driver))
 
-        driver = controllers.load_auth_method(method)
+        driver = core.load_auth_method(method)
         self.assertIs(mock.sentinel.driver, driver)
 
     def test_entrypoint_fails_import_fails(self):
@@ -95,4 +95,4 @@ class TestLoadAuthMethod(unit.BaseTestCase):
         self.useFixture(fixtures.MockPatchObject(
             importutils, 'import_object', side_effect=TestException))
 
-        self.assertRaises(TestException, controllers.load_auth_method, method)
+        self.assertRaises(TestException, core.load_auth_method, method)
