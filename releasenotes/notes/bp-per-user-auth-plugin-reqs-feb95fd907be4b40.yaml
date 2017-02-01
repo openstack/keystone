@@ -1,0 +1,64 @@
+---
+features:
+  - |
+    [`blueprint per-user-auth-plugin-reqs <https://blueprints.launchpad.net/keystone/+spec/per-user-auth-plugin-reqs>`_]
+    Per-user Multi-Factor-Auth rules (MFA Rules) have been implemented. These
+    rules define which auth methods can be used (e.g. Password, TOTP) and
+    provides the ability to require multiple auth forms to successfully get
+    a token.
+
+    The MFA rules are set via the user create and update API
+    (``POST/PATCH /v3/users``) call; the options allow an admin to force a user
+    to use specific forms of authentication or combinations of forms of
+    authentication to get a token. The rules are specified as follows::
+
+      user["options"]["multi_factor_auth_rules"] = [["password", "totp"], ["password", "custom-auth-method"]]
+
+    The rules are specified as a list of lists. The elements of the sub-lists
+    must be strings and are intended to mirror the required authentication
+    method names (e.g. ``password``, ``totp``, etc) as defined in the
+    ``keystone.conf`` file in the ``[auth] methods`` option.
+
+    Each list of methods specifies a rule. If the auth methods provided by a
+    user match (or exceed) the auth methods in the list, that rule is used.
+    The first rule found (rules will not be processed in a specific order)
+    that matches will be used. If a user has the ruleset defined as
+    ``[["password", "totp"]]`` the user must provide both password and totp
+    auth methods (and both methods must succeed) to receive a token. However,
+    if a user has a ruleset defined as ``[["password"], ["password", "totp"]]``
+    the user may use the ``password`` method on it's own but would be required
+    to use both ``password`` and ``totp`` if ``totp`` is specified at all.
+
+    Any auth methods that are not defined in ``keystone.conf`` in the
+    ``[auth] methods`` option are ignored when the rules are processed. Empty
+    rules are not allowed. If a rule is empty due to no-valid auth methods
+    existing within it, the rule is discarded at authentication time. If there
+    are no rules or no valid rules for the user, authentication occurs in the
+    default manner: any single configured auth method is sufficient to receive
+    a token.
+
+    In the case a user should be exempt from MFA Rules, regardless if they are
+    set, the User-Option ``multi_factor_auth_enabled`` may  be set to
+    ``False`` for that user via the user create and update API
+    (``POST/PATCH /v3/users``) call. If this option is set to ``False`` the
+    MFA rules will be ignored for the user. Any other value except ``False``
+    will result in the MFA Rules being processed; the option can only be
+    a boolean (``True`` or ``False``) or "None" (which will result in the
+    default behavior (same as ``True``) but the option will no longer be shown
+    in the ``user["options"]`` dictionary.
+
+    To mark a user exempt from the MFA Rules::
+
+      user["options"]["multi_factor_auth_enabled"] = False
+
+    The ``token`` auth method typically should not be specified in any MFA
+    Rules. The ``token`` auth method will include all previous auth methods
+    for the original auth request and will match the appropriate ruleset. This
+    is intentional, as the ``token`` method is used for rescoping/changing
+    active projects.
+
+    SECURITY INFO: The MFA rules are only processed when authentication happens
+    through the V3 authentication APIs. If V2 Auth is enabled it is possible to
+    circumvent the MFA rules if the user can authenticate via V2 Auth API.
+    It is recommended to disable V2 authentication for full enforcement of
+    the MFA rules.
