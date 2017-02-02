@@ -31,7 +31,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-class TokenModel(sql.ModelBase, sql.DictBase):
+class TokenModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'token'
     attributes = ['id', 'expires', 'user_id', 'trust_id']
     id = sql.Column(sql.String(64), primary_key=True)

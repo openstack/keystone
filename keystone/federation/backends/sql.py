@@ -26,7 +26,7 @@ from keystone.i18n import _
 LOG = log.getLogger(__name__)
 
 
-class FederationProtocolModel(sql.ModelBase, sql.DictBase):
+class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'federation_protocol'
     attributes = ['id', 'idp_id', 'mapping_id']
     mutable_attributes = frozenset(['mapping_id'])
@@ -49,7 +49,7 @@ class FederationProtocolModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class IdentityProviderModel(sql.ModelBase, sql.DictBase):
+class IdentityProviderModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'identity_provider'
     attributes = ['id', 'domain_id', 'enabled', 'description', 'remote_ids']
     mutable_attributes = frozenset(['description', 'enabled', 'remote_ids'])
@@ -89,7 +89,7 @@ class IdentityProviderModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class IdPRemoteIdsModel(sql.ModelBase, sql.DictBase):
+class IdPRemoteIdsModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'idp_remote_ids'
     attributes = ['idp_id', 'remote_id']
     mutable_attributes = frozenset(['idp_id', 'remote_id'])
@@ -113,7 +113,7 @@ class IdPRemoteIdsModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class MappingModel(sql.ModelBase, sql.DictBase):
+class MappingModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'mapping'
     attributes = ['id', 'rules']
 
@@ -135,7 +135,7 @@ class MappingModel(sql.ModelBase, sql.DictBase):
         return d
 
 
-class ServiceProviderModel(sql.ModelBase, sql.DictBase):
+class ServiceProviderModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'service_provider'
     attributes = ['auth_url', 'id', 'enabled', 'description',
                   'relay_state_prefix', 'sp_url']

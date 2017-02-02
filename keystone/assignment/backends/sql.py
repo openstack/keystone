@@ -288,7 +288,7 @@ class Assignment(base.AssignmentDriverBase):
             q.delete(False)
 
 
-class RoleAssignment(sql.ModelBase, sql.DictBase):
+class RoleAssignment(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'assignment'
     attributes = ['type', 'actor_id', 'target_id', 'role_id', 'inherited']
     # NOTE(henry-nash): Postgres requires a name to be defined for an Enum

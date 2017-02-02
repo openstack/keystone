@@ -145,7 +145,7 @@ class Role(base.RoleDriverBase):
             return ref.to_dict()
 
 
-class ImpliedRoleTable(sql.ModelBase, sql.DictBase):
+class ImpliedRoleTable(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'implied_role'
     attributes = ['prior_role_id', 'implied_role_id']
     prior_role_id = sql.Column(
@@ -174,7 +174,7 @@ class ImpliedRoleTable(sql.ModelBase, sql.DictBase):
         return d
 
 
-class RoleTable(sql.ModelBase, sql.DictBase):
+class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
     def to_dict(self, include_extra_dict=False):
         d = super(RoleTable, self).to_dict(

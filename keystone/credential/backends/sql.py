@@ -18,7 +18,7 @@ from keystone.credential.backends import base
 from keystone import exception
 
 
-class CredentialModel(sql.ModelBase, sql.DictBase):
+class CredentialModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'credential'
     attributes = [
         'id', 'user_id', 'project_id', 'encrypted_blob', 'type', 'key_hash'

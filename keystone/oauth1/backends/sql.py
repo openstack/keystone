@@ -29,7 +29,7 @@ from keystone.oauth1.backends import base
 random = _random.SystemRandom()
 
 
-class Consumer(sql.ModelBase, sql.DictBase):
+class Consumer(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'consumer'
     attributes = ['id', 'description', 'secret']
     id = sql.Column(sql.String(64), primary_key=True, nullable=False)
@@ -38,7 +38,7 @@ class Consumer(sql.ModelBase, sql.DictBase):
     extra = sql.Column(sql.JsonBlob(), nullable=False)
 
 
-class RequestToken(sql.ModelBase, sql.DictBase):
+class RequestToken(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'request_token'
     attributes = ['id', 'request_secret',
                   'verifier', 'authorizing_user_id', 'requested_project_id',
@@ -61,7 +61,7 @@ class RequestToken(sql.ModelBase, sql.DictBase):
         return dict(self.items())
 
 
-class AccessToken(sql.ModelBase, sql.DictBase):
+class AccessToken(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'access_token'
     attributes = ['id', 'access_secret', 'authorizing_user_id',
                   'project_id', 'role_ids', 'consumer_id',

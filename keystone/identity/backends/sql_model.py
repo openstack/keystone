@@ -29,7 +29,7 @@ from keystone.identity.backends import resource_options as iro
 CONF = keystone.conf.CONF
 
 
-class User(sql.ModelBase, sql.DictBase):
+class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'user'
     attributes = ['id', 'name', 'domain_id', 'password', 'enabled',
                   'default_project_id', 'password_expires_at']
@@ -255,7 +255,7 @@ class User(sql.ModelBase, sql.DictBase):
         return user_obj
 
 
-class LocalUser(sql.ModelBase, sql.DictBase):
+class LocalUser(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'local_user'
     attributes = ['id', 'user_id', 'domain_id', 'name']
     id = sql.Column(sql.Integer, primary_key=True)
@@ -279,7 +279,7 @@ class LocalUser(sql.ModelBase, sql.DictBase):
     )
 
 
-class Password(sql.ModelBase, sql.DictBase):
+class Password(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'password'
     attributes = ['id', 'local_user_id', 'password', 'created_at',
                   'expires_at']
@@ -330,7 +330,7 @@ class NonLocalUser(sql.ModelBase, sql.ModelDictMixin):
             onupdate='CASCADE', ondelete='CASCADE'),)
 
 
-class Group(sql.ModelBase, sql.DictBase):
+class Group(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'group'
     attributes = ['id', 'name', 'domain_id', 'description']
     id = sql.Column(sql.String(64), primary_key=True)
@@ -343,7 +343,7 @@ class Group(sql.ModelBase, sql.DictBase):
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'),)
 
 
-class UserGroupMembership(sql.ModelBase, sql.DictBase):
+class UserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
     """Group membership join table."""
 
     __tablename__ = 'user_group_membership'

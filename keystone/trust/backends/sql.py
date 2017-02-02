@@ -25,7 +25,7 @@ from keystone.trust.backends import base
 MAXIMUM_CONSUME_ATTEMPTS = 10
 
 
-class TrustModel(sql.ModelBase, sql.DictBase):
+class TrustModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'trust'
     attributes = ['id', 'trustor_user_id', 'trustee_user_id',
                   'project_id', 'impersonation', 'expires_at',
