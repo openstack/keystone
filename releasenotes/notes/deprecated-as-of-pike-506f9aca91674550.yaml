@@ -1,0 +1,11 @@
+---
+deprecations:
+  - |
+    * UUID token provider ``[token] provider=uuid`` has been deprecated in
+      favor of Fernet tokens ``[token] provider=fernet``. With Fernet tokens
+      becoming the default UUID tokens can be slated for removal in the R
+      release. This also deprecates token-bind support as it was never
+      implemented for fernet.
+
+    * Token persistence driver/code (SQL) is deprecated with this patch since
+      it is only used by the UUID token provider..

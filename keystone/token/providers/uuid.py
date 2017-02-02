@@ -16,12 +16,22 @@
 
 from __future__ import absolute_import
 
+from oslo_log import versionutils
+
 import uuid
 
 from keystone.token.providers import common
 
 
 class Provider(common.BaseProvider):
+
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.PIKE,
+        what='UUID Token Provider "[token] provider=uuid"',
+        in_favor_of='Fernet token Provider "[token] provider=fernet"',
+        remove_in=+2)
+    def __init__(self, *args, **kwargs):
+        super(Provider, self).__init__(*args, **kwargs)
 
     def _get_token_id(self, token_data):
         return uuid.uuid4().hex
