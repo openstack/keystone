@@ -253,10 +253,10 @@ def offline_sync_database_to_version(version=None):
         contract_schema()
 
 
-def get_db_version():
+def get_db_version(repo=LEGACY_REPO):
     with sql.session_for_read() as session:
         return migration.db_version(
-            session.get_bind(), find_repo(LEGACY_REPO), get_init_version())
+            session.get_bind(), find_repo(repo), get_init_version())
 
 
 def expand_schema():
