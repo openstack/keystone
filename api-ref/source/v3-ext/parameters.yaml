@@ -157,6 +157,12 @@ endpoints_links:
   in: body
   required: true
   type: object
+group_name:
+  description: |
+    The name of the group.
+  in: body
+  required: true
+  type: string
 id:
   description: |
     [WIP]
@@ -190,18 +196,6 @@ links:
   in: body
   required: true
   type: object
-name_1:
-  description: |
-    The role name.
-  in: body
-  required: true
-  type: string
-name_2:
-  description: |
-    The name of the group.
-  in: body
-  required: true
-  type: string
 next:
   description: |
     The ``next`` relative link for the ``endpoints``
@@ -444,6 +438,12 @@ revoke_trust_id:
 revoke_user_id:
   description: |
     Revoke tokens expressing the identity of a particular user.
+  in: body
+  required: true
+  type: string
+role_name:
+  description: |
+    The role name.
   in: body
   required: true
   type: string

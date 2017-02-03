@@ -164,7 +164,7 @@ effective_query:
   in: query
   required: false
   type: key-only (no value required)
-enabled_6:
+enabled_domain_query:
   description: |
     Filters the response by either enabled (``true``)
     or disabled (``false``) domains.  Users can authorize against an
@@ -175,11 +175,11 @@ enabled_6:
     cannot authenticate or receive additional authorization. All
     tokens that are authorized for a disabled domain or its projects
     become no longer valid. If you reenable the domain, these tokens
-    are not re- enabled.
+    are not re-enabled.
   in: query
   required: false
   type: string
-enabled_9:
+enabled_project_query:
   description: |
     Filters the response by either enabled (``true``)
     or disabled (``false``) projects.
@@ -266,7 +266,7 @@ parent_id_query:
   required: false
   type: string
   min_version: 3.4
-parent_region_id_query:
+parent_region_id_query_not_required:
   description: |
     Filters the response by a parent region, by ID.
   in: query
@@ -521,7 +521,7 @@ credential_blob:
   in: body
   required: true
   type: string
-credential_blob_notRequired:
+credential_blob_not_required:
   description: |
     The credential itself, as a serialized blob.
   in: body
@@ -546,7 +546,7 @@ credential_type:
   in: body
   required: true
   type: string
-credential_type_notRequired:
+credential_type_not_required:
   description: |
     The credential type, such as ``ec2`` or ``cert``.
     The implementation determines the list of supported types.
@@ -559,7 +559,7 @@ credential_user_id:
   in: body
   required: true
   type: string
-credential_user_id_notRequired:
+credential_user_id_not_required:
   description: |
     The ID of the user who owns the credential.
   in: body
@@ -651,7 +651,7 @@ domain_driver:
   in: body
   required: true
   type: string
-domain_driver_notRequired:
+domain_driver_not_required:
   description: |
     The Identity backend driver.
   in: body
@@ -739,7 +739,7 @@ domain_url:
   in: body
   required: true
   type: string
-domain_url_notRequired:
+domain_url_not_required:
   description: |
     The LDAP URL.
   in: body
@@ -753,7 +753,7 @@ domain_user_tree_dn:
   in: body
   required: true
   type: string
-domain_user_tree_dn_notRequired:
+domain_user_tree_dn_not_required:
   description: |
     The base distinguished name (DN) of LDAP, from
     where all users can be reached. For example,
@@ -779,13 +779,13 @@ email:
   in: body
   required: true
   type: string
-email_notRequired:
+email_not_required:
   description: |
     The email address for the user.
   in: body
   required: false
   type: string
-enabled:
+enabled_domain_request:
   description: |
     Enables or disables the domain.  Users can
     authorize against an enabled domain and any of its projects. Users
@@ -801,7 +801,7 @@ enabled:
   in: body
   required: false
   type: boolean
-enabled_2:
+enabled_project_request:
   description: |
     Enables or disables the project.  Users can
     authorize against an enabled project.  Users cannot authorize
@@ -854,7 +854,7 @@ endpoint_enabled:
   in: body
   required: true
   type: boolean
-endpoint_enabled_notRequired:
+endpoint_enabled_not_required:
   description: |
     Defines whether the endpoint appears in the
     service catalog:  - ``false``. The endpoint does not appear in the
@@ -899,7 +899,7 @@ endpoint_region:
   in: body
   required: true
   type: string
-endpoint_region_notRequired:
+endpoint_region_not_required:
   description: |
     (Deprecated in v3.2) The geographic location of
     the service endpoint.  Use the ``region_id`` parameter instead.
@@ -1151,7 +1151,7 @@ original_password:
   in: body
   required: true
   type: string
-parent_id:
+parent_id_not_required:
   description: |
     (Since v3.4) The ID of the parent project.  If
     you omit the parent project ID, the project is a top-level
@@ -1159,14 +1159,14 @@ parent_id:
   in: body
   required: false
   type: string
-parent_id_1:
+parent_id_required:
   description: |
     (Since v3.4) The ID of the parent project. If
     ``null``, the project is a top-level project.
   in: body
   required: true
   type: string
-parent_region_id_2:
+parent_region_id_query_required:
   description: |
     If the region is a child of another region, the
     ID for the parent region. Otherwise, this value is ``null``.
@@ -1273,7 +1273,7 @@ policy_user_id:
   in: body
   required: true
   type: string
-policy_user_id_notRequired:
+policy_user_id_not_required:
   description: |
     The ID of the user who owns the policy.
   in: body
@@ -1431,28 +1431,19 @@ projects:
   in: body
   required: true
   type: array
-region_id:
+region_id_not_required:
+  description: |
+    (Since v3.2) The ID of the region that contains
+    the service endpoint.
+  in: body
+  required: false
+  type: string
+region_id_required:
   description: |
     (Since v3.2) The ID of the region that contains
     the service endpoint.
   in: body
   required: true
-  type: string
-region_id_1:
-  description: |
-    (Since v3.2) The ID of the region that contains
-    the service endpoint.
-  in: body
-  required: false
-  type: string
-region_id_notRequired:
-  description: |
-    A user-defined region ID.  If you include
-    characters in the region ID that are not allowed in a URI, you
-    must URL-encode the ID. If you omit an ID, the API assigns an ID
-    to the region.
-  in: body
-  required: false
   type: string
 region_object:
   description: |
@@ -1533,22 +1524,7 @@ roles_links:
   in: body
   required: true
   type: object
-scope:
-  description: |
-    The authorization scope.  (Since v3.4) Specify
-    ``unscoped`` to make an explicit unscoped token request, which
-    returns an unscoped response without any authorization. This
-    request behaves the same as a token request with no scope where
-    the user has no default project defined.  If you do not make an
-    explicit ``unscoped`` token request and your role has a default
-    project, the response might return a project- scoped token. If a
-    default project is not defined, a token is issued without an
-    explicit scope of authorization, which is the same as asking for
-    an explicit unscoped token.
-  in: body
-  required: false
-  type: string
-scope_1:
+scope_object:
   description: |
     The authorization scope.  - Specify ``project``
     to scope to a project, by ID or name. If you   specify the project
@@ -1573,6 +1549,21 @@ scope_1:
   in: body
   required: false
   type: object
+scope_string:
+  description: |
+    The authorization scope.  (Since v3.4) Specify
+    ``unscoped`` to make an explicit unscoped token request, which
+    returns an unscoped response without any authorization. This
+    request behaves the same as a token request with no scope where
+    the user has no default project defined.  If you do not make an
+    explicit ``unscoped`` token request and your role has a default
+    project, the response might return a project- scoped token. If a
+    default project is not defined, a token is issued without an
+    explicit scope of authorization, which is the same as asking for
+    an explicit unscoped token.
+  in: body
+  required: false
+  type: string
 service:
   description: |
     A ``service`` object.
@@ -1585,7 +1576,7 @@ service_description:
   in: body
   required: true
   type: string
-service_description_notRequired:
+service_description_not_required:
   description: |
     The service description.
   in: body
@@ -1600,7 +1591,7 @@ service_enabled:
   in: body
   required: true
   type: boolean
-service_enabled_notRequired:
+service_enabled_not_required:
   description: |
     Defines whether the service and its endpoints
     appear in the service catalog:  - ``false``. The service and its

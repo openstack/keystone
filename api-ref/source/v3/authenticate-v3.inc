@@ -182,7 +182,7 @@ Request
    - name: user_name
    - auth: auth
    - user: user
-   - scope: scope
+   - scope: scope_string
    - password: password
    - id: user_id
    - identity: identity
@@ -201,7 +201,7 @@ Response Parameters
 
    - X-Subject-Token: X-Subject-Token
    - domain: domain
-   - region_id: region_id
+   - region_id: region_id_required
    - methods: auth_methods_passwd
    - roles: roles
    - url: endpoint_url
@@ -247,7 +247,7 @@ Request
    - name: user_name
    - auth: auth
    - user: user
-   - scope: scope
+   - scope: scope_string
    - password: password
    - id: user_id
    - identity: identity
@@ -346,7 +346,7 @@ Request
    - auth: auth
    - token: auth_token
    - audit_ids: audit_ids
-   - scope: scope
+   - scope: scope_string
    - id: auth_token_id
    - identity: identity
 

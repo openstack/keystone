@@ -174,9 +174,9 @@ Request
    - credential_id: credential_id_path
    - credential: credential
    - project_id: project_id
-   - type: credential_type_notRequired
-   - blob: credential_blob_notRequired
-   - user_id: credential_user_id_notRequired
+   - type: credential_type_not_required
+   - blob: credential_blob_not_required
+   - user_id: credential_user_id_not_required
 
 Request Example
 ---------------

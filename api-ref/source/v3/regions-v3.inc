@@ -151,7 +151,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-   - parent_region_id: parent_region_id_query
+   - parent_region_id: parent_region_id_query_not_required
 
 Response Parameters
 -------------------

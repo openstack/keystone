@@ -203,8 +203,8 @@ Request Parameters
 .. rest_parameters:: parameters.yaml
 
    - type: service_type
-   - enabled: service_enabled_notRequired
-   - description: service_description_notRequired
+   - enabled: service_enabled_not_required
+   - description: service_description_not_required
    - service: service
    - name: service_name
    - service_id: service_id_path
@@ -304,7 +304,7 @@ Response Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - region_id: region_id
+   - region_id: region_id_required
    - links: endpoints_links
    - url: endpoint_url
    - region: endpoint_region
@@ -351,10 +351,10 @@ Request Parameters
 
    - endpoint: endpoint
    - url: endpoint_url
-   - enabled: endpoint_enabled_notRequired
+   - enabled: endpoint_enabled_not_required
    - interface: endpoint_interface
    - service_id: service_id
-   - region_id: region_id_1
+   - region_id: region_id_not_required
 
 Request Example
 ---------------
@@ -375,7 +375,7 @@ Response Parameters
    - interface: endpoint_interface
    - service_id: service_id
    - id: endpoint_id
-   - region_id: region_id
+   - region_id: region_id_required
 
 
 Show endpoint details
