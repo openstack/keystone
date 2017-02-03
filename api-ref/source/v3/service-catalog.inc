@@ -354,7 +354,7 @@ Request Parameters
    - enabled: endpoint_enabled_notRequired
    - interface: endpoint_interface
    - service_id: service_id
-   - region_id: region_id
+   - region_id: region_id_1
 
 Request Example
 ---------------
