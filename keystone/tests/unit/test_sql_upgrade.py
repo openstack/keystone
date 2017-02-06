@@ -39,6 +39,7 @@ WARNING::
 """
 
 import json
+import os
 import uuid
 
 import migrate
@@ -1646,6 +1647,40 @@ class VersionTests(SqlMigrateBase):
         self.assertEqual(
             self.repos[DATA_MIGRATION_REPO].max_version,
             self.repos[CONTRACT_REPO].max_version)
+
+    def test_migrate_repos_file_names_have_prefix(self):
+        """Migration files should be unique to avoid caching errors.
+
+        This test enforces migration files to include a prefix (expand,
+        migrate, contract) in order to keep them unique. Here is the required
+        format: [version]_[prefix]_[description]. For example:
+        001_expand_add_created_column.py
+
+        """
+        versions_path = '/versions'
+        # test for expand prefix, e.g. 001_expand_new_fk_constraint.py
+        expand_list = os.listdir(
+            self.repos[EXPAND_REPO].repo_path + versions_path)
+        self.assertRepoFileNamePrefix(expand_list, 'expand')
+        # test for migrate prefix, e.g. 001_migrate_new_fk_constraint.py
+        migrate_list = os.listdir(
+            self.repos[DATA_MIGRATION_REPO].repo_path + versions_path)
+        self.assertRepoFileNamePrefix(migrate_list, 'migrate')
+        # test for contract prefix, e.g. 001_contract_new_fk_constraint.py
+        contract_list = os.listdir(
+            self.repos[CONTRACT_REPO].repo_path + versions_path)
+        self.assertRepoFileNamePrefix(contract_list, 'contract')
+
+    def assertRepoFileNamePrefix(self, repo_list, prefix):
+        if len(repo_list) > 1:
+            # grab the file name for the max version
+            file_name = sorted(repo_list)[-2]
+            # pattern for the prefix standard, ignoring placeholder, init files
+            pattern = (
+                '^[0-9]{3,}_PREFIX_|^[0-9]{3,}_placeholder.py|^__init__.py')
+            pattern = pattern.replace('PREFIX', prefix)
+            msg = 'Missing required prefix %s in $file_name' % prefix
+            self.assertRegexpMatches(file_name, pattern, msg)
 
 
 class FullMigration(SqlMigrateBase, unit.TestCase):
