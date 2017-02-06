@@ -12,7 +12,7 @@ upgrade:
     expired tokens via the ``allow_expired`` flag. The length of time a token is
     retrievable for beyond its traditional expiry is managed by the
     ``[token] allow_expired_window`` option and so the data must be retrievable
-    for this about of time. When using fernet tokens this means that the key
-    rotation period must exceed this time so that older tokens are still
-    decrytable. Ensure that you do not rotate fernet keys faster than
+    for this amount of time. When using fernet tokens this means the key
+    rotation period must exceed this time so older tokens are still
+    decryptable. Ensure you do not rotate fernet keys faster than
     ``[token] expiration`` + ``[token] allow_expired_window`` seconds.
