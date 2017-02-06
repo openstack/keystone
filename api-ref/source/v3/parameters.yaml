@@ -14,31 +14,11 @@ X-Subject-Token:
   in: header
   required: true
   type: string
-X-Subject-Token_1:
-  description: |
-    The authentication token for which you want to
-    perform the operation.
-  in: header
-  required: true
-  type: string
 
 # variables in path
-access_token_id:
-  description: |
-    The ID of the access token.
-  in: path
-  required: true
-  type: string
 credential_id_path:
   description: |
     The UUID for the credential.
-  in: path
-  required: true
-  type: string
-domain_group_template:
-  description: |
-    The group name, which is ``ldap`` or
-    ``identity``.
   in: path
   required: true
   type: string
@@ -164,28 +144,6 @@ effective_query:
   in: query
   required: false
   type: key-only (no value required)
-enabled_domain_query:
-  description: |
-    Filters the response by either enabled (``true``)
-    or disabled (``false``) domains.  Users can authorize against an
-    enabled domain and any of its projects. Users that are owned by an
-    enabled domain can authenticate and receive additional
-    authorization.  Users cannot authorize against a disabled domain
-    or any of its projects. Users that are owned by a disabled domain
-    cannot authenticate or receive additional authorization. All
-    tokens that are authorized for a disabled domain or its projects
-    become no longer valid. If you reenable the domain, these tokens
-    are not re-enabled.
-  in: query
-  required: false
-  type: string
-enabled_project_query:
-  description: |
-    Filters the response by either enabled (``true``)
-    or disabled (``false``) projects.
-  in: query
-  required: false
-  type: string
 enabled_user_query:
   description: |
     Filters the response by either enabled (``true``)
@@ -451,13 +409,6 @@ auth_domain:
   in: body
   required: false
   type: object
-auth_domain_id:
-  description: |
-    The ID of the domain.  If you specify a user
-    name, you must specify either a domain ID or domain name.
-  in: body
-  required: false
-  type: string
 auth_methods:
   description: |
     The authentication method, which is ``password``,
@@ -651,12 +602,6 @@ domain_driver:
   in: body
   required: true
   type: string
-domain_driver_not_required:
-  description: |
-    The Identity backend driver.
-  in: body
-  required: false
-  type: string
 domain_enabled_request_body:
   description: |
     If set to ``true``, domain is created enabled. If set to
@@ -689,13 +634,6 @@ domain_enabled_update_request_body:
   in: body
   required: false
   type: string
-domain_group_identity:
-  description: |
-    An ``identity`` object. Required to set the
-    identity group configuration options.
-  in: body
-  required: true
-  type: object
 domain_id_response_body:
   description: |
     The ID of the domain.
@@ -739,12 +677,6 @@ domain_url:
   in: body
   required: true
   type: string
-domain_url_not_required:
-  description: |
-    The LDAP URL.
-  in: body
-  required: false
-  type: string
 domain_user_tree_dn:
   description: |
     The base distinguished name (DN) of LDAP, from
@@ -753,66 +685,18 @@ domain_user_tree_dn:
   in: body
   required: true
   type: string
-domain_user_tree_dn_not_required:
-  description: |
-    The base distinguished name (DN) of LDAP, from
-    where all users can be reached. For example,
-    ``ou=Users,dc=root,dc=org``.
-  in: body
-  required: false
-  type: string
 domains:
   description: |
     A list of ``domain`` objects, each containing:
   in: body
   required: true
   type: array
-domains_links:
-  description: |
-    The links for the ``domains`` resource.
-  in: body
-  required: true
-  type: object
 email:
   description: |
     The email address for the user.
   in: body
   required: true
   type: string
-email_not_required:
-  description: |
-    The email address for the user.
-  in: body
-  required: false
-  type: string
-enabled_domain_request:
-  description: |
-    Enables or disables the domain.  Users can
-    authorize against an enabled domain and any of its projects. Users
-    that are owned by an enabled domain can authenticate and receive
-    additional authorization.  Users cannot authorize against a
-    disabled domain or any of its projects. Users that are owned by a
-    disabled domain cannot authenticate or receive additional
-    authorization. All tokens that are authorized for a disabled
-    domain or its projects become no longer valid. If you reenable the
-    domain, these tokens are not re- enabled.  To enable the domain,
-    set to ``true``. To disable the domain, set to ``false``. Default
-    is ``true``.
-  in: body
-  required: false
-  type: boolean
-enabled_project_request:
-  description: |
-    Enables or disables the project.  Users can
-    authorize against an enabled project.  Users cannot authorize
-    against a disabled project. All tokens that are authorized for a
-    disabled project become no longer valid. If you reenable the
-    project, these tokens are not re-enabled.  To enable the project,
-    set to ``true``. To disable the project, set to ``false``. Default
-    is ``true``.
-  in: body
-  required: false
-  type: boolean
 enabled_user_request_body:
   description: |
     If the user is enabled, this value is ``true``.
@@ -898,13 +782,6 @@ endpoint_region:
     the service endpoint.
   in: body
   required: true
-  type: string
-endpoint_region_not_required:
-  description: |
-    (Deprecated in v3.2) The geographic location of
-    the service endpoint.  Use the ``region_id`` parameter instead.
-  in: body
-  required: false
   type: string
 endpoint_type:
   description: |
@@ -1011,12 +888,6 @@ group_id_response_body:
   in: body
   required: true
   type: string
-group_links:
-  description: |
-    The links for the ``group`` resource.
-  in: body
-  required: true
-  type: object
 group_name_request_body:
   description: |
     The name of the group.
@@ -1151,28 +1022,6 @@ original_password:
   in: body
   required: true
   type: string
-parent_id_not_required:
-  description: |
-    (Since v3.4) The ID of the parent project.  If
-    you omit the parent project ID, the project is a top-level
-    project.
-  in: body
-  required: false
-  type: string
-parent_id_required:
-  description: |
-    (Since v3.4) The ID of the parent project. If
-    ``null``, the project is a top-level project.
-  in: body
-  required: true
-  type: string
-parent_region_id_query_required:
-  description: |
-    If the region is a child of another region, the
-    ID for the parent region. Otherwise, this value is ``null``.
-  in: body
-  required: true
-  type: string
 parent_region_id_request_body:
   description: |
     To make this region a child of another region,
@@ -1193,20 +1042,6 @@ password:
   in: body
   required: true
   type: object
-password_auth_domain:
-  description: |
-    A ``domain`` object. Required if you specify a
-    user name.
-  in: body
-  required: false
-  type: object
-password_auth_domain_name:
-  description: |
-    The name of the domain.  If you specify a user
-    name, you must specify either a domain ID or domain name.
-  in: body
-  required: false
-  type: string
 password_expires_at:
   description: |
     The date and time when the password expires. The time zone
@@ -1266,18 +1101,6 @@ policy_type:
     blob.
   in: body
   required: true
-  type: string
-policy_user_id:
-  description: |
-    The ID of the user who owns the policy.
-  in: body
-  required: true
-  type: string
-policy_user_id_not_required:
-  description: |
-    The ID of the user who owns the policy.
-  in: body
-  required: false
   type: string
 prior_role_body:
   description: |
@@ -1342,17 +1165,6 @@ project_domain_id_update_request_body:
   in: body
   required: false
   type: string
-project_enabled_cascade_request_body:
-  description: |
-    Enables or disables the project and its subtree.
-    Users can authorize against an enabled project, but not against a disabled
-    project. All tokens that are authorized for all projects in the affected
-    hierarchy become no longer valid. If you reenable the projects, these tokens
-    are not re-enabled.  To enable the project and its subtree, set to ``true``.
-    To disable the project and its subtree, set to ``false``.
-  in: body
-  required: true
-  type: boolean
 project_enabled_request_body:
   description: |
     If set to ``true``, project is enabled. If set to
@@ -1488,12 +1300,6 @@ role_inference_body:
   in: body
   required: true
   type: object
-role_links:
-  description: |
-    The links for the ``role`` resource.
-  in: body
-  required: true
-  type: object
 role_name_create_body:
   description: |
     The role name.
@@ -1518,37 +1324,6 @@ roles:
   in: body
   required: true
   type: array
-roles_links:
-  description: |
-    The links for the ``roles`` resource.
-  in: body
-  required: true
-  type: object
-scope_object:
-  description: |
-    The authorization scope.  - Specify ``project``
-    to scope to a project, by ID or name. If you   specify the project
-    by name, you must also specify the project   domain to uniquely
-    identify the project. Because a project can   have the same name
-    as its owning domain, the scope is determined,   as follows:    -
-    If the project name is truly unique, the token is scoped to the
-    project.    - If a name clash exists between a project acting as a
-    domain and a     regular project within that domain, the token is
-    scoped to the     regular project.    - In a name-clash situation,
-    if the user wants the token scoped to     the project acting as
-    the domain, you must either specify use     the project ID to
-    specify the scope or rename either the     project acting as a
-    domain or the regular project.    Alternatively, you can use a
-    domain name to uniquely identify the   project.  - Specify
-    ``domain`` to scope to a domain, by ID or name with   equivalent
-    results to project scoping. The catalog returned from   a domain-
-    scoped request contains all endpoints of a project-   scoped
-    catalog, excluding ones that require a project ID as part   of
-    their URL.  You cannot simultaneously scope a token to a project
-    and domain.
-  in: body
-  required: false
-  type: object
 scope_string:
   description: |
     The authorization scope.  (Since v3.4) Specify
@@ -1653,12 +1428,6 @@ user:
   in: body
   required: true
   type: object
-user_description:
-  description: |
-    The user description.
-  in: body
-  required: true
-  type: string
 user_domain_id:
   description: |
     The ID of the domain for the user.

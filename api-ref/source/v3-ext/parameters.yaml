@@ -151,18 +151,6 @@ endpoints:
   in: body
   required: true
   type: array
-endpoints_links:
-  description: |
-    The links for the ``endpoints`` resource.
-  in: body
-  required: true
-  type: object
-group_name:
-  description: |
-    The name of the group.
-  in: body
-  required: true
-  type: string
 id:
   description: |
     [WIP]
@@ -438,12 +426,6 @@ revoke_trust_id:
 revoke_user_id:
   description: |
     Revoke tokens expressing the identity of a particular user.
-  in: body
-  required: true
-  type: string
-role_name:
-  description: |
-    The role name.
   in: body
   required: true
   type: string
