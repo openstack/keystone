@@ -76,11 +76,10 @@ driver = cfg.StrOpt(
     default='sql',
     help=utils.fmt("""
 Entry point for the token persistence backend driver in the
-`keystone.token.persistence` namespace. Keystone provides `kvs` and `sql`
-drivers. The `kvs` backend depends on the configuration in the `[kvs]` section.
-The `sql` option (default) depends on the options in your `[database]` section.
-If you're using the `fernet` `[token] provider`, this backend will not be
-utilized to persist tokens at all.
+`keystone.token.persistence` namespace. Keystone provides the `sql`
+driver.  The `sql` option (default) depends on the options in your
+`[database]` section. If you're using the `fernet` `[token] provider`, this
+backend will not be utilized to persist tokens at all.
 """))
 
 caching = cfg.BoolOpt(

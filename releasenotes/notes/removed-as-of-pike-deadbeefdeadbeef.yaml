@@ -1,0 +1,8 @@
+---
+other:
+  - >
+    [`blueprint removed-as-of-pike <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-pike>`_]
+    All key-value-store code, options, and documentation has been removed as of the Pike release.
+    The removed code included ``keystone.common.kvs`` configuration options for the KVS code,
+    unit tests, and the KVS token persistence driver ``keystone.token.persistence.backends.kvs``.
+    All associated documentation has been removed.
