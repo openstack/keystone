@@ -81,12 +81,6 @@ endpoint_adminurl_request:
   in: body
   required: false
   type: string
-endpoint_adminurl_response:
-  description: |
-    Admin URL
-  in: body
-  required: true
-  type: string
 endpoint_id:
   description: |
     Endpoint ID
@@ -102,12 +96,6 @@ endpoint_internalurl_request:
 endpoint_internalurl_response:
   description: |
     Internal URL
-  in: body
-  required: true
-  type: string
-endpoint_name:
-  description: |
-    Endpoint name.
   in: body
   required: true
   type: string
@@ -132,12 +120,6 @@ endpoint_region_request:
 endpoint_region_response:
   description: |
     Region of the endpoint
-  in: body
-  required: true
-  type: string
-endpoint_type:
-  description: |
-    Endpoint type.
   in: body
   required: true
   type: string
@@ -166,18 +148,6 @@ metadata:
   in: body
   required: true
   type: string
-metadata_is_admin:
-  description: |
-    Indicates whether the metadata is admin or not.
-  in: body
-  required: true
-  type: boolean
-metadata_roles:
-  description: |
-    List of roles ID related to the metadata.
-  in: body
-  required: true
-  type: array
 role_description:
   description: |
     The role description.
@@ -325,30 +295,6 @@ trust:
     A ``trust`` object.
   in: body
   required: false
-  type: string
-trust_id:
-  description: |
-    The ID of the trust.
-  in: body
-  required: true
-  type: string
-trust_impersonation:
-  description: |
-    The impersonation flag.
-  in: body
-  required: false
-  type: string
-trust_trustee_user_id:
-  description: |
-    The trustee user ID.
-  in: body
-  required: true
-  type: string
-trust_trustor_user_id:
-  description: |
-    The trustor user ID.
-  in: body
-  required: true
   type: string
 user:
   description: |

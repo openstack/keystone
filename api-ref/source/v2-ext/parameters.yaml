@@ -112,19 +112,6 @@ tenant:
   in: body
   required: true
   type: object
-tenant_description:
-  description: |
-    Description about the tenant.
-  in: body
-  required: true
-  type: string
-tenant_enabled:
-  description: |
-    Indicates whether the tenant is enabled or
-    disabled. Default is ``true``.
-  in: body
-  required: true
-  type: boolean
 tenant_id_request:
   description: |
     The tenant ID.
@@ -134,12 +121,6 @@ tenant_id_request:
 tenant_id_response:
   description: |
     The tenant ID.
-  in: body
-  required: true
-  type: string
-tenant_name:
-  description: |
-    The tenant name.
   in: body
   required: true
   type: string
@@ -168,12 +149,6 @@ user_id_response:
   in: body
   required: true
   type: string
-user_links:
-  description: |
-    The links of ``users`` object.
-  in: body
-  required: true
-  type: array
 user_name:
   description: |
     The user in-real-life name.
