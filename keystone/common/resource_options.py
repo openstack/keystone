@@ -54,7 +54,7 @@ def resource_options_ref_to_mapper(ref, option_class):
     ``_resource_option_mapper`` attribute.
 
     The model must have the resource option registry located in the
-    ``resource_options_registry` attribute.
+    ``resource_options_registry`` attribute.
 
     The option dict with key(opt_id), value(opt_value) will be pulled from
     ``ref._resource_options``.
