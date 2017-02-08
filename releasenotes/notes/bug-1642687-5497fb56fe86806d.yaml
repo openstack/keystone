@@ -12,7 +12,7 @@ upgrade:
   - >
     [`bug 1642687 <https://bugs.launchpad.net/keystone/+bug/1642687>`_]
     Upon a successful upgrade, all existing ``identity providers`` will now
-    be associated with a automatically created domain. Each ``identity provider``
+    be associated with an automatically created domain. Each ``identity provider``
     that existed prior to the `Ocata` release will now have a ``domain_id`` field.
     The new domain will have an ``id`` (random UUID), a ``name`` (that will match
     the ``identity provider`` ID , and be ``enabled`` by default.
