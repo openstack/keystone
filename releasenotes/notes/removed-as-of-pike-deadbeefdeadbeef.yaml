@@ -31,3 +31,8 @@ other:
     The ``keystone.common.ldap`` module was removed from the code tree. It was
     deprecated in the Newton release in favor of using
     ``keystone.identity.backends.ldap.common`` which has the same functionality.
+  - >
+    [`blueprint removed-as-of-pike <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-pike>`_]
+    The ``keystone-manage pki_setup`` was added to aid developer setup by hiding the sometimes cryptic
+    openssl commands. This is no longer needed since keystone no longer supports PKI tokens and can no
+    longer serve SSL. This was deprecated in the Mitaka release.

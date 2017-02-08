@@ -949,29 +949,6 @@ If your certificate directory path is different from the default
 section of the configuration file.
 
 
-Generating a Signing Certificate using ``pki_setup``
-----------------------------------------------------
-
-``keystone-manage pki_setup`` is a development tool. We recommend that you do
-not use ``keystone-manage pki_setup`` in a production environment. In
-production, an external CA should be used instead. This is because the CA
-secret key should generally be kept apart from the token signing secret keys so
-that a compromise of a node does not lead to an attacker being able to generate
-valid signed keystone tokens. This is a low probability attack vector, as
-compromise of a keystone service machine's filesystem security almost certainly
-means the attacker will be able to gain direct access to the token backend.
-
-When using the ``keystone-manage pki_setup`` to generate the certificates, the
-following configuration options in the ``[signing]`` section are used:
-
-* ``ca_key`` - Default is ``/etc/keystone/ssl/private/cakey.pem``
-* ``key_size`` - Default is ``2048``
-* ``valid_days`` - Default is ``3650``
-
-If ``keystone-manage pki_setup`` is not used then these options don't need to
-be set.
-
-
 Service Catalog
 ===============
 
