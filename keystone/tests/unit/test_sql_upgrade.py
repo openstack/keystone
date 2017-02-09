@@ -1656,6 +1656,21 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         # Upgrade the legacy repository
         self.upgrade()
 
+    def test_that_running_upgrades_out_of_order_passes(self):
+        # Currently, an operator can run db_sync operations out of order
+        # without an error or exception being raised. If this gets fixed in
+        # the future to force expand, migrate, contract to be run in order,
+        # then you may change this test to reflect that.
+        self.contract(2)
+        self.expand(1)
+        self.migrate(1)
+        expand = upgrades.get_db_version('expand_repo')
+        migrate = upgrades.get_db_version('data_migration_repo')
+        contract = upgrades.get_db_version('contract_repo')
+        self.assertTrue(2, contract)
+        self.assertTrue(1, expand)
+        self.assertTrue(1, migrate)
+
     def test_migration_002_password_created_at_not_nullable(self):
         # upgrade each repository to 001
         self.expand(1)
