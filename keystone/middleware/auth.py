@@ -137,6 +137,21 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
     @wsgi.middleware_exceptions
     def process_request(self, request):
         context_env = request.environ.get(core.CONTEXT_ENV, {})
+
+        # NOTE(notmorgan): This code is merged over from the admin token
+        # middleware and now emits the security warning when the
+        # conf.admin_token value is set.
+        token = request.headers.get(core.AUTH_TOKEN_HEADER)
+        if CONF.admin_token and (token == CONF.admin_token):
+            context_env['is_admin'] = True
+            LOG.warning(
+                _LW("The use of the '[DEFAULT] admin_token' configuration"
+                    "option presents a significant security risk and should "
+                    "not be set. This option is deprecated in favor of using "
+                    "'keystone-manage bootstrap' and will be removed in a "
+                    "future release."))
+            request.environ[core.CONTEXT_ENV] = context_env
+
         if not context_env.get('is_admin', False):
             resp = super(AuthContextMiddleware, self).process_request(request)
 
