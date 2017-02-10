@@ -124,7 +124,7 @@ class EggLoader(loadwsgi.EggLoader):
         return egg_ep
 
 
-# NOTE(dstanek): class paths were remove from the keystone-paste.ini in
+# NOTE(dstanek): class paths were removed from the keystone-paste.ini in
 # favor of using entry points. This caused tests to slow to a crawl
 # since we reload the application object for each RESTful test. This
 # monkey-patching adds caching to paste deploy's egg lookup.

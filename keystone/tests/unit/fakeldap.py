@@ -169,9 +169,9 @@ def _match(key, value, attrs):
     if value == '*':
         return True
     if key == 'serviceId':
-        # for serviceId, the backend is returning a list of numbers
-        # make sure we convert them to strings first before comparing
-        # them
+        # For serviceId, the backend is returning a list of numbers.
+        # Make sure we convert them to strings first before comparing
+        # them.
         str_sids = [six.text_type(x) for x in attrs[key]]
         return six.text_type(value) in str_sids
     if key != 'objectclass':
@@ -179,7 +179,7 @@ def _match(key, value, attrs):
         norm_values = list(
             _internal_attr(key, x)[0].lower() for x in attrs[key])
         return match_with_wildcards(check_value, norm_values)
-    # it is an objectclass check, so check subclasses
+    # It is an objectclass check, so check subclasses
     values = _subs(value)
     for v in values:
         if v in attrs[key]:
@@ -470,9 +470,9 @@ class FakeLdap(common.LDAPHandler):
             results = [(base, item_dict)]
         elif scope == ldap.SCOPE_SUBTREE:
             # FIXME - LDAP search with SUBTREE scope must return the base
-            # entry, but the code below does _not_.  Unfortunately, there are
+            # entry, but the code below does _not_. Unfortunately, there are
             # several tests that depend on this broken behavior, and fail
-            # when the base entry is returned in the search results.  The
+            # when the base entry is returned in the search results. The
             # fix is easy here, just initialize results as above for
             # the SCOPE_BASE case.
             # https://bugs.launchpad.net/keystone/+bug/1368772
