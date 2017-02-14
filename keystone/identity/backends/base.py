@@ -223,7 +223,7 @@ class IdentityDriverBase(object):
 
     @abc.abstractmethod
     def unset_default_project_id(self, project_id):
-        """Unset a users default project given a specific project ID.
+        """Unset a user's default project given a specific project ID.
 
         :param str project_id: project ID
 

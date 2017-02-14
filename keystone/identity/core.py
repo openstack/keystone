@@ -491,7 +491,7 @@ class Manager(manager.Manager):
         self.event_callbacks = {
             notifications.ACTIONS.deleted: {
                 'domain': [self._domain_deleted],
-                'project': [self._set_default_project_to_none],
+                'project': [self._unset_default_project],
             },
         }
 
@@ -522,15 +522,13 @@ class Manager(manager.Manager):
                            'cleanup.'),
                           {'userid': user['id'], 'domainid': domain_id})
 
-    def _set_default_project_to_none(self, service, resource_type, operation,
-                                     payload):
+    def _unset_default_project(self, service, resource_type, operation,
+                               payload):
         """Callback, clears user default_project_id after project deletion.
 
-        Notification approach was used instead of using a FK constraint.
-        Reason being, operators are allowed to have separate backends for
-        various keystone subsystems. This doesn't guarantee that projects and
-        users will be stored in the same backend, meaning we can't rely on FK
-        constraints to do this work for us.
+        Notifications are used to unset a user's default project because
+        there is no foreign key to the project. Projects can be in a non-SQL
+        backend, making FKs impossible.
 
         """
         project_id = payload['resource_info']
