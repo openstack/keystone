@@ -281,14 +281,7 @@ class TestKeystoneDataMigrations(
         # timestamp to datetime and updates the initial value in the contract
         # phase. Adding an exception here to pass data migrations banned tests,
         # otherwise fails.
-        4,
-        # Migration 013 updates a foreign key constraint at the federated_user
-        # table. It is a composite key pointing to the procotol.id and
-        # protocol.idp_id columns. Since we can't create a new foreign key
-        # before dropping the old one and the operations happens in the same
-        # upgrade phase, adding an exception here to pass the data migration
-        # banned tests.
-        13
+        4
     ]
 
     def setUp(self):
