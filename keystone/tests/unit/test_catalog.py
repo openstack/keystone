@@ -23,7 +23,7 @@ from keystone.tests.unit import rest
 
 
 BASE_URL = 'http://127.0.0.1:35357/v2'
-SERVICE_FIXTURE = object()
+SERVICE_ID = uuid.uuid4().hex
 
 
 class V2CatalogTestCase(rest.RestfulTestCase):
@@ -51,12 +51,12 @@ class V2CatalogTestCase(rest.RestfulTestCase):
         return r.result['access']['token']['id']
 
     def _endpoint_create(self, expected_status=http_client.OK,
-                         service_id=SERVICE_FIXTURE,
+                         service_id=SERVICE_ID,
                          publicurl='http://localhost:8080',
                          internalurl='http://localhost:8080',
                          adminurl='http://localhost:8080',
-                         region='RegionOne'):
-        if service_id is SERVICE_FIXTURE:
+                         region=uuid.uuid4().hex):
+        if service_id is SERVICE_ID:
             service_id = self.service_id
 
         path = '/v2.0/endpoints'

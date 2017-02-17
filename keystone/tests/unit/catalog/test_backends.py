@@ -30,7 +30,7 @@ class CatalogTests(object):
 
     def test_region_crud(self):
         # create
-        region_id = '0' * 255
+        region_id = 'default'
         new_region = unit.new_region_ref(id=region_id)
         res = self.catalog_api.create_region(new_region)
 
@@ -158,7 +158,7 @@ class CatalogTests(object):
                           uuid.uuid4().hex)
 
     def test_create_region_invalid_parent_region_returns_not_found(self):
-        new_region = unit.new_region_ref(parent_region_id='nonexisting')
+        new_region = unit.new_region_ref(parent_region_id=uuid.uuid4().hex)
         self.assertRaises(exception.RegionNotFound,
                           self.catalog_api.create_region,
                           new_region)

@@ -56,13 +56,14 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_create_region_with_duplicate_id(self):
         """Call ``PUT /regions/{region_id}``."""
-        ref = dict(description="my region")
+        ref = unit.new_region_ref()
+        region_id = ref['id']
         self.put(
-            '/regions/myregion',
+            '/regions/%s' % region_id,
             body={'region': ref}, expected_status=http_client.CREATED)
         # Create region again with duplicate id
         self.put(
-            '/regions/myregion',
+            '/regions/%s' % region_id,
             body={'region': ref}, expected_status=http_client.CONFLICT)
 
     def test_create_region(self):

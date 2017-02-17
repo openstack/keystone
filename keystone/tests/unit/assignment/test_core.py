@@ -28,23 +28,27 @@ class RoleTests(object):
                           uuid.uuid4().hex)
 
     def test_create_duplicate_role_name_fails(self):
-        role = unit.new_role_ref(id='fake1', name='fake1name')
-        self.role_api.create_role('fake1', role)
-        role['id'] = 'fake2'
+        role_id = uuid.uuid4().hex
+        role = unit.new_role_ref(id=role_id, name='fake1name')
+        self.role_api.create_role(role_id, role)
+        new_role_id = uuid.uuid4().hex
+        role['id'] = new_role_id
         self.assertRaises(exception.Conflict,
                           self.role_api.create_role,
-                          'fake2',
+                          new_role_id,
                           role)
 
     def test_rename_duplicate_role_name_fails(self):
-        role1 = unit.new_role_ref(id='fake1', name='fake1name')
-        role2 = unit.new_role_ref(id='fake2', name='fake2name')
-        self.role_api.create_role('fake1', role1)
-        self.role_api.create_role('fake2', role2)
+        role_id1 = uuid.uuid4().hex
+        role_id2 = uuid.uuid4().hex
+        role1 = unit.new_role_ref(id=role_id1, name='fake1name')
+        role2 = unit.new_role_ref(id=role_id2, name='fake2name')
+        self.role_api.create_role(role_id1, role1)
+        self.role_api.create_role(role_id2, role2)
         role1['name'] = 'fake2name'
         self.assertRaises(exception.Conflict,
                           self.role_api.update_role,
-                          'fake1',
+                          role_id1,
                           role1)
 
     def test_role_crud(self):

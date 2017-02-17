@@ -21,6 +21,9 @@ BAZ_TENANT_ID = uuid.uuid4().hex
 MTU_TENANT_ID = uuid.uuid4().hex
 SERVICE_TENANT_ID = uuid.uuid4().hex
 DEFAULT_DOMAIN_ID = 'default'
+ADMIN_ROLE_ID = uuid.uuid4().hex
+MEMBER_ROLE_ID = uuid.uuid4().hex
+OTHER_ROLE_ID = uuid.uuid4().hex
 
 TENANTS = [
     {
@@ -62,24 +65,24 @@ TENANTS = [
 USERS = [
     # NOTE(morganfainberg): Admin user for replacing admin_token_auth
     {
-        'id': 'reqadmin',
-        'name': 'REQ_ADMIN',
+        'id': uuid.uuid4().hex,
+        'name': 'req_admin',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'password',
         'tenants': [],
         'enabled': True
     },
     {
-        'id': 'foo',
-        'name': 'FOO',
+        'id': uuid.uuid4().hex,
+        'name': 'foo',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'foo2',
         'tenants': [BAR_TENANT_ID],
         'enabled': True,
         'email': 'foo@bar.com',
     }, {
-        'id': 'two',
-        'name': 'TWO',
+        'id': uuid.uuid4().hex,
+        'name': 'two',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'two2',
         'enabled': True,
@@ -87,8 +90,8 @@ USERS = [
         'tenants': [BAZ_TENANT_ID],
         'email': 'two@three.com',
     }, {
-        'id': 'badguy',
-        'name': 'BadGuy',
+        'id': uuid.uuid4().hex,
+        'name': 'badguy',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'bad',
         'enabled': False,
@@ -96,8 +99,8 @@ USERS = [
         'tenants': [BAZ_TENANT_ID],
         'email': 'bad@guy.com',
     }, {
-        'id': 'sna',
-        'name': 'SNA',
+        'id': uuid.uuid4().hex,
+        'name': 'sna',
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'snafu',
         'enabled': True,
@@ -108,32 +111,32 @@ USERS = [
 
 ROLES = [
     {
-        'id': 'admin',
+        'id': ADMIN_ROLE_ID,
         'name': 'admin',
         'domain_id': None,
     }, {
-        'id': 'member',
-        'name': 'Member',
+        'id': MEMBER_ROLE_ID,
+        'name': 'member',
         'domain_id': None,
     }, {
         'id': '9fe2ff9ee4384b1894a90878d3e92bab',
         'name': '_member_',
         'domain_id': None,
     }, {
-        'id': 'other',
-        'name': 'Other',
+        'id': OTHER_ROLE_ID,
+        'name': 'other',
         'domain_id': None,
     }, {
-        'id': 'browser',
-        'name': 'Browser',
+        'id': uuid.uuid4().hex,
+        'name': 'browser',
         'domain_id': None,
     }, {
-        'id': 'writer',
-        'name': 'Writer',
+        'id': uuid.uuid4().hex,
+        'name': 'writer',
         'domain_id': None,
     }, {
-        'id': 'service',
-        'name': 'Service',
+        'id': uuid.uuid4().hex,
+        'name': 'service',
         'domain_id': None,
     }
 ]
@@ -141,9 +144,9 @@ ROLES = [
 # NOTE(morganfainberg): Admin assignment for replacing admin_token_auth
 ROLE_ASSIGNMENTS = [
     {
-        'user': 'reqadmin',
+        'user': 'req_admin',
         'tenant_id': SERVICE_TENANT_ID,
-        'role_id': 'admin'
+        'role_id': ADMIN_ROLE_ID
     },
 ]
 

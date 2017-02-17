@@ -429,7 +429,7 @@ class IdentityTests(object):
                 CONF.identity.default_domain_id))
         self.assertEqual(len(default_fixtures.USERS), len(users))
         user_ids = set(user['id'] for user in users)
-        expected_user_ids = set(getattr(self, 'user_%s' % user['id'])['id']
+        expected_user_ids = set(getattr(self, 'user_%s' % user['name'])['id']
                                 for user in default_fixtures.USERS)
         for user_ref in users:
             self.assertNotIn('password', user_ref)

@@ -94,7 +94,7 @@ class FilterTests(object):
             # The manager layer creates the ID for users and groups
             new_entity = self._create_entity(entity_type)(new_entity)
         else:
-            new_entity['id'] = '0000' + uuid.uuid4().hex
+            new_entity['id'] = uuid.uuid4().hex
             self._create_entity(entity_type)(new_entity['id'], new_entity)
         return new_entity
 
