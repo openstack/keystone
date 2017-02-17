@@ -50,7 +50,9 @@ Get a token with default scope (may be unscoped):
     }' \
       http://localhost:5000/v3/auth/tokens ; echo
 
-Example response::
+Example response:
+
+.. code-block:: bash
 
   HTTP/1.1 201 Created
   X-Subject-Token: MIIFvgY...
@@ -59,21 +61,59 @@ Example response::
   Content-Length: 1025
   Date: Tue, 10 Jun 2014 20:55:16 GMT
 
-  {"token": {"methods": ["password"], "roles": [{"id":
-  "9fe2ff9ee4384b1894a90878d3e92bab", "name": "_member_"}, {"id":
-  "c703057be878458588961ce9a0ce686b", "name": "admin"}], "expires_at":
-  "2014-06-10T2:55:16.806001Z", "project": {"domain": {"id": "default", "name":
-  "Default"}, "id": "8538a3f13f9541b28c2620eb19065e45", "name": "admin"},
-  "catalog": [{"endpoints": [{"url": "http://localhost:3537/v2.0", "region":
-  "RegionOne", "interface": "admin", "id": "29beb2f1567642eb810b042b6719ea88"},
-  {"url": "http://localhost:5000/v2.0", "region": "RegionOne", "interface":
-  "internal", "id": "8707e3735d4415c97ae231b4841eb1c"}, {"url":
-  "http://localhost:5000/v2.0", "region": "RegionOne", "interface": "public",
-  "id": "ef303187fc8d41668f25199c298396a5"}], "type": "identity", "id":
-  "bd73972c0e14fb69bae8ff76e112a90", "name": "keystone"}], "extras": {},
-  "user": {"domain": {"id": "default", "name": "Default"}, "id":
-  "3ec3164f750146be97f21559ee4d9c51", "name": "admin"}, "audit_ids":
-  ["yRt0UrxJSs6-WYJgwEMMmg"], "issued_at": "201406-10T20:55:16.806027Z"}}
+  {
+    "token": {
+      "methods": ["password"],
+      "roles": [{
+        "id": "9fe2ff9ee4384b1894a90878d3e92bab",
+        "name": "_member_"
+      }, {
+        "id": "c703057be878458588961ce9a0ce686b",
+        "name": "admin"
+      }],
+      "expires_at": "2014-06-10T2:55:16.806001Z",
+      "project": {
+        "domain": {
+          "id": "default",
+          "name": "Default"
+        },
+        "id": "8538a3f13f9541b28c2620eb19065e45",
+        "name": "admin"
+      },
+      "catalog": [{
+        "endpoints": [{
+          "url": "http://localhost:3537/v2.0",
+          "region": "RegionOne",
+          "interface": "admin",
+          "id": "29beb2f1567642eb810b042b6719ea88"
+        }, {
+          "url": "http://localhost:5000/v2.0",
+          "region": "RegionOne",
+          "interface": "internal",
+          "id": "8707e3735d4415c97ae231b4841eb1c"
+        }, {
+          "url": "http://localhost:5000/v2.0",
+          "region": "RegionOne",
+          "interface": "public",
+          "id": "ef303187fc8d41668f25199c298396a5"
+        }],
+        "type": "identity",
+        "id": "bd73972c0e14fb69bae8ff76e112a90",
+        "name": "keystone"
+      }],
+      "extras": {},
+      "user": {
+        "domain": {
+          "id": "default",
+          "name": "Default"
+        },
+        "id": "3ec3164f750146be97f21559ee4d9c51",
+        "name": "admin"
+      },
+      "audit_ids": ["yRt0UrxJSs6-WYJgwEMMmg"],
+      "issued_at": "201406-10T20:55:16.806027Z"
+    }
+  }
 
 
 Project-scoped
@@ -107,7 +147,9 @@ Get a project-scoped token:
     }' \
       http://localhost:5000/v3/auth/tokens ; echo
 
-Example response::
+Example response:
+
+.. code-block:: bash
 
   HTTP/1.1 201 Created
   X-Subject-Token: MIIFfQ...
@@ -116,21 +158,56 @@ Example response::
   Content-Length: 960
   Date: Tue, 10 Jun 2014 20:40:14 GMT
 
-  {"token": {"audit_ids": ["ECwrVNWbSCqmEgPnu0YCRw"], "methods": ["password"],
-   "roles": [{"id": "c703057be878458588961ce9a0ce686b", "name": "admin"}],
-   "expires_at": "2014-06-10T21:40:14.360795Z", "project": {"domain": {"id":
-   "default", "name": "Default"}, "id": "3d4c2c82bd5948f0bcab0cf3a7c9b48c",
-   "name": "demo"}, "catalog": [{"endpoints": [{"url":
-   "http://localhost:35357/v2.0", "region": "RegionOne", "interface": "admin",
-   "id": "29beb2f1567642eb810b042b6719ea88"}, {"url":
-   "http://localhost:5000/v2.0", "region": "RegionOne", "interface":
-   "internal", "id": "87057e3735d4415c97ae231b4841eb1c"}, {"url":
-   "http://localhost:5000/v2.0", "region": "RegionOne", "interface": "public",
-   "id": "ef303187fc8d41668f25199c298396a5"}], "type": "identity", "id":
-   "bd7397d2c0e14fb69bae8ff76e112a90", "name": "keystone"}], "extras": {},
-   "user": {"domain": {"id": "default", "name": "Default"}, "id":
-   "3ec3164f750146be97f21559ee4d9c51", "name": "admin"}, "issued_at":
-   "2014-06-10T20:40:14.360822Z"}}
+  {
+    "token": {
+      "audit_ids": ["ECwrVNWbSCqmEgPnu0YCRw"],
+      "methods": ["password"],
+      "roles": [{
+        "id": "c703057be878458588961ce9a0ce686b",
+        "name": "admin"
+      }],
+      "expires_at": "2014-06-10T21:40:14.360795Z",
+      "project": {
+        "domain": {
+          "id": "default",
+          "name": "Default"
+        },
+        "id": "3d4c2c82bd5948f0bcab0cf3a7c9b48c",
+        "name": "demo"
+      },
+      "catalog": [{
+        "endpoints": [{
+          "url": "http://localhost:35357/v2.0",
+          "region": "RegionOne",
+          "interface": "admin",
+          "id": "29beb2f1567642eb810b042b6719ea88"
+        }, {
+          "url": "http://localhost:5000/v2.0",
+          "region": "RegionOne",
+          "interface": "internal",
+          "id": "87057e3735d4415c97ae231b4841eb1c"
+        }, {
+          "url": "http://localhost:5000/v2.0",
+          "region": "RegionOne",
+          "interface": "public",
+          "id": "ef303187fc8d41668f25199c298396a5"
+        }],
+        "type": "identity",
+        "id": "bd7397d2c0e14fb69bae8ff76e112a90",
+        "name": "keystone"
+      }],
+      "extras": {},
+      "user": {
+        "domain": {
+          "id": "default",
+          "name": "Default"
+        },
+        "id": "3ec3164f750146be97f21559ee4d9c51",
+        "name": "admin"
+      },
+      "issued_at": "2014-06-10T20:40:14.360822Z"
+    }
+  }
 
 
 Domain-Scoped
@@ -164,7 +241,9 @@ the domain first!):
     }' \
       http://localhost:5000/v3/auth/tokens ; echo
 
-Example response::
+Example response:
+
+.. code-block:: bash
 
   HTTP/1.1 201 Created
   X-Subject-Token: MIIFNg...
@@ -173,20 +252,52 @@ Example response::
   Content-Length: 889
   Date: Tue, 10 Jun 2014 20:52:59 GMT
 
-  {"token": {"domain": {"id": "default", "name": "Default"}, "methods":
-  ["password"], "roles": [{"id": "c703057be878458588961ce9a0ce686b", "name":
-  "admin"}], "expires_at": "2014-06-10T21:52:58.852167Z", "catalog":
-  [{"endpoints": [{"url": "http://localhost:35357/v2.0", "region": "RegionOne",
-  "interface": "admin", "id": "29beb2f1567642eb810b042b6719ea88"}, {"url":
-  "http://localhost:5000/v2.0", "region": "RegionOne", "interface": "internal",
-  "id": "87057e3735d4415c97ae231b4841eb1c"}, {"url":
-  "http://localhost:5000/v2.0", "region": "RegionOne", "interface": "public",
-  "id": "ef303187fc8d41668f25199c298396a5"}], "type": "identity", "id":
-  "bd7397d2c0e14fb69bae8ff76e112a90", "name": "keystone"}], "extras": {},
-  "user": {"domain": {"id": "default", "name": "Default"}, "id":
-  "3ec3164f750146be97f21559ee4d9c51", "name": "admin"},
-  "audit_ids": ["Xpa6Uyn-T9S6mTREudUH3w"], "issued_at":
-  "2014-06-10T20:52:58.852194Z"}}
+  {
+    "token": {
+      "domain": {
+        "id": "default",
+        "name": "Default"
+      },
+      "methods": ["password"],
+      "roles": [{
+        "id": "c703057be878458588961ce9a0ce686b",
+        "name": "admin"
+      }],
+      "expires_at": "2014-06-10T21:52:58.852167Z",
+      "catalog": [{
+        "endpoints": [{
+          "url": "http://localhost:35357/v2.0",
+          "region": "RegionOne",
+          "interface": "admin",
+          "id": "29beb2f1567642eb810b042b6719ea88"
+        }, {
+          "url": "http://localhost:5000/v2.0",
+          "region": "RegionOne",
+          "interface": "internal",
+          "id": "87057e3735d4415c97ae231b4841eb1c"
+        }, {
+          "url": "http://localhost:5000/v2.0",
+          "region": "RegionOne",
+          "interface": "public",
+          "id": "ef303187fc8d41668f25199c298396a5"
+        }],
+        "type": "identity",
+        "id": "bd7397d2c0e14fb69bae8ff76e112a90",
+        "name": "keystone"
+      }],
+      "extras": {},
+      "user": {
+        "domain": {
+          "id": "default",
+          "name": "Default"
+        },
+        "id": "3ec3164f750146be97f21559ee4d9c51",
+        "name": "admin"
+      },
+      "audit_ids": ["Xpa6Uyn-T9S6mTREudUH3w"],
+      "issued_at": "2014-06-10T20:52:58.852194Z"
+    }
+  }
 
 
 Getting a token from a token
@@ -211,7 +322,9 @@ Get a token from a token:
       http://localhost:5000/v3/auth/tokens ; echo
 
 
-Example response::
+Example response:
+
+.. code-block:: bash
 
   HTTP/1.1 201 Created
   X-Subject-Token: MIIFxw...
@@ -220,11 +333,25 @@ Example response::
   Content-Length: 1034
   Date: Tue, 10 Jun 2014 21:00:05 GMT
 
-  {"token": {"methods": ["token", "password"], "expires_at":
-  "2015-05-28T07:43:44.808209Z", "extras": {}, "user": {"domain": {"id":
-  "default", "name": "Default"}, "id": "753867c25c3340ffad1abc22d488c31a",
-  "name": "admin"}, "audit_ids": ["ZE0OPSuzTmCXHo0eIOYltw",
-  "xxIQCkHOQOywL0oY6CTppQ"], "issued_at": "2015-05-28T07:19:23.763532Z"}}
+  {
+    "token": {
+      "methods": ["token", "password"],
+      "expires_at": "2015-05-28T07:43:44.808209Z",
+      "extras": {},
+      "user": {
+        "domain": {
+          "id": "default",
+          "name": "Default"
+        },
+        "id": "753867c25c3340ffad1abc22d488c31a",
+        "name": "admin"
+      },
+      "audit_ids": ["ZE0OPSuzTmCXHo0eIOYltw",
+        "xxIQCkHOQOywL0oY6CTppQ"
+      ],
+      "issued_at": "2015-05-28T07:19:23.763532Z"
+    }
+  }
 
 .. note::
 
