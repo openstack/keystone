@@ -14,7 +14,6 @@
 
 import abc
 
-from oslo_log import log
 import six
 
 import keystone.conf
@@ -22,7 +21,6 @@ from keystone import exception
 
 
 CONF = keystone.conf.CONF
-LOG = log.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
