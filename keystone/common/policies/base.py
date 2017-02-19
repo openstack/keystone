@@ -25,6 +25,7 @@ RULE_ADMIN_OR_TARGET_PROJECT = ('rule:admin_required or '
 RULE_ADMIN_OR_TOKEN_SUBJECT = 'rule:admin_or_token_subject'
 RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT = 'rule:service_admin_or_token_subject'
 RULE_SERVICE_OR_ADMIN = 'rule:service_or_admin'
+RULE_TRUST_OWNER = 'user_id:%(trust.trustor_user_id)s'
 
 
 rules = [
