@@ -22,7 +22,7 @@ lxml!=3.7.0,>=2.3 # BSD
 mock>=2.0 # BSD
 oslotest>=1.10.0 # Apache-2.0
 # required to build documentation
-sphinx!=1.3b1,<1.4,>=1.2.1 # BSD
+sphinx>=1.5.1 # BSD
 os-api-ref>=1.0.0 # Apache-2.0
 # test wsgi apps without starting an http server
 WebTest>=2.0 # MIT
@@ -35,7 +35,7 @@ testtools>=1.4.0 # MIT
 oslosphinx>=4.7.0 # Apache-2.0
 reno>=1.8.0 # Apache-2.0
 
-tempest>=12.1.0 # Apache-2.0
+tempest>=14.0.0 # Apache-2.0
 
 # Functional tests.
-requests!=2.12.2,>=2.10.0 # Apache-2.0
+requests!=2.12.2,!=2.13.0,>=2.10.0 # Apache-2.0
