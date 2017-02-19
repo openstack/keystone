@@ -1,43 +1,4 @@
 {
-
-    "identity:get_role": "rule:admin_required",
-    "identity:list_roles": "rule:admin_required",
-    "identity:create_role": "rule:admin_required",
-    "identity:update_role": "rule:admin_required",
-    "identity:delete_role": "rule:admin_required",
-    "identity:get_domain_role": "rule:admin_required",
-    "identity:list_domain_roles": "rule:admin_required",
-    "identity:create_domain_role": "rule:admin_required",
-    "identity:update_domain_role": "rule:admin_required",
-    "identity:delete_domain_role": "rule:admin_required",
-
-    "identity:get_implied_role": "rule:admin_required ",
-    "identity:list_implied_roles": "rule:admin_required",
-    "identity:create_implied_role": "rule:admin_required",
-    "identity:delete_implied_role": "rule:admin_required",
-    "identity:list_role_inference_rules": "rule:admin_required",
-    "identity:check_implied_role": "rule:admin_required",
-
-    "identity:check_grant": "rule:admin_required",
-    "identity:list_grants": "rule:admin_required",
-    "identity:create_grant": "rule:admin_required",
-    "identity:revoke_grant": "rule:admin_required",
-
-    "identity:list_role_assignments": "rule:admin_required",
-    "identity:list_role_assignments_for_tree": "rule:admin_required",
-
-    "identity:get_policy": "rule:admin_required",
-    "identity:list_policies": "rule:admin_required",
-    "identity:create_policy": "rule:admin_required",
-    "identity:update_policy": "rule:admin_required",
-    "identity:delete_policy": "rule:admin_required",
-
-    "identity:check_token": "rule:admin_or_token_subject",
-    "identity:validate_token": "rule:service_admin_or_token_subject",
-    "identity:validate_token_head": "rule:service_or_admin",
-    "identity:revocation_list": "rule:service_or_admin",
-    "identity:revoke_token": "rule:admin_or_token_subject",
-
     "identity:create_trust": "user_id:%(trust.trustor_user_id)s",
     "identity:list_trusts": "",
     "identity:list_roles_for_trust": "",

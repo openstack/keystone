@@ -22,6 +22,9 @@ RULE_ADMIN_OR_TARGET_DOMAIN = ('rule:admin_required or '
                                'token.project.domain.id:%(target.domain.id)s')
 RULE_ADMIN_OR_TARGET_PROJECT = ('rule:admin_required or '
                                 'project_id:%(target.project.id)s')
+RULE_ADMIN_OR_TOKEN_SUBJECT = 'rule:admin_or_token_subject'
+RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT = 'rule:service_admin_or_token_subject'
+RULE_SERVICE_OR_ADMIN = 'rule:service_or_admin'
 
 
 rules = [
