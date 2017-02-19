@@ -15,6 +15,13 @@ from oslo_policy import policy
 IDENTITY = 'identity:%s'
 RULE_ADMIN_REQUIRED = 'rule:admin_required'
 RULE_ADMIN_OR_OWNER = 'rule:admin_or_owner'
+RULE_ADMIN_OR_CREDENTIAL_OWNER = (
+    'rule:admin_required or '
+    '(rule:owner and user_id:%(target.credential.user_id)s)')
+RULE_ADMIN_OR_TARGET_DOMAIN = ('rule:admin_required or '
+                               'token.project.domain.id:%(target.domain.id)s')
+RULE_ADMIN_OR_TARGET_PROJECT = ('rule:admin_required or '
+                                'project_id:%(target.project.id)s')
 
 
 rules = [
