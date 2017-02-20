@@ -490,7 +490,7 @@ Public ID Generators
 
 Keystone supports a customizable public ID generator and it is specified in the
 ``[identity_mapping]`` section of the configuration file. Keystone provides a
-sha256 generator as default, which produces regeneratable public IDs. The
+sha256 generator as default, which produces regenerable public IDs. The
 generator algorithm for public IDs is a balance between key size (i.e. the
 length of the public ID), the probability of collision and, in some
 circumstances, the security of the public ID. The maximum length of public ID
@@ -1222,7 +1222,7 @@ hierarchy via a URL style of naming from the root of the hierarchy (for example
 specifying 'projectA/projectB/projectC' as the project name in an
 authentication request). In order to prepare for this, keystone supports the
 optional ability to ensure both projects and domains are named without
-including any of the reserverd characters specified in section 2.2 of
+including any of the reserved characters specified in section 2.2 of
 `rfc3986 <http://tools.ietf.org/html/rfc3986>`_.
 
 The safety of the names of projects and domains can be controlled via two
