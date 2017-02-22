@@ -253,6 +253,20 @@ class Ec2ControllerCommon(object):
                 message=_('EC2 access key not found.'))
         return self._convert_v3_to_ec2_credential(cred)
 
+    def render_token_data_response(self, token_id, token_data):
+        """Render token data HTTP response.
+
+        Stash token ID into the X-Subject-Token header.
+
+        """
+        status = (http_client.OK,
+                  http_client.responses[http_client.OK])
+        headers = [('X-Subject-Token', token_id)]
+
+        return wsgi.render_response(body=token_data,
+                                    status=status,
+                                    headers=headers)
+
 
 @dependency.requires('policy_api', 'token_provider_api')
 class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
@@ -378,7 +392,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
 
         token_id, token_data = self.token_provider_api.issue_token(
             user_ref['id'], method_names, project_id=project_ref['id'])
-        return render_token_data_response(token_id, token_data)
+        return self.render_token_data_response(token_id, token_data)
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
     def ec2_get_credential(self, request, user_id, credential_id):
@@ -413,17 +427,3 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
             'credential_id': ref['access']}
         ref.setdefault('links', {})
         ref['links']['self'] = url
-
-
-def render_token_data_response(token_id, token_data):
-    """Render token data HTTP response.
-
-    Stash token ID into the X-Subject-Token header.
-
-    """
-    headers = [('X-Subject-Token', token_id)]
-
-    return wsgi.render_response(body=token_data,
-                                status=(http_client.OK,
-                                        http_client.responses[http_client.OK]),
-                                headers=headers)

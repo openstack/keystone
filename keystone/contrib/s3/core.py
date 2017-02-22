@@ -26,6 +26,7 @@ import hashlib
 import hmac
 
 import six
+from six.moves import http_client
 
 from keystone.common import extension
 from keystone.common import json_home
@@ -66,7 +67,7 @@ class S3Extension(wsgi.V3ExtensionRouter):
                 's3tokens', '1.0', 's3tokens'))
 
 
-class S3Controller(controllers.Ec2Controller):
+class S3Controller(controllers.Ec2ControllerV3):
     def check_signature(self, creds_ref, credentials):
         string_to_sign = base64.urlsafe_b64decode(str(credentials['token']))
 
@@ -123,3 +124,12 @@ class S3Controller(controllers.Ec2Controller):
 
         signature = hmac.new(signed, string_to_sign, hashlib.sha256)
         return signature.hexdigest()
+
+    def render_token_data_response(self, token_id, token_data):
+        """Render token data HTTP response.
+
+        Note: We neither want nor need to send back the token id.
+        """
+        status = (http_client.OK,
+                  http_client.responses[http_client.OK])
+        return wsgi.render_response(body=token_data, status=status)
