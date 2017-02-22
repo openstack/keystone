@@ -168,13 +168,13 @@ Provider we will use to authenticate end users:
 
     $ openstack identity provider create --remote-id https://myidp.example.com/v3/OS-FEDERATION/saml2/idp myidp
 
-The value for the ``remote-id`` option is the Entity ID provided by the IdP. It
-is the same value that you set for the SSO entityID in /etc/shibboleth/shibboleth2.xml.
-If the IdP is a Keystone IdP, it is the value set in that Keystone's
-``[saml]/idp_entity_id`` option. It will usually appear as a URI but there
-is no requirement for it to resolve to anything and may be arbitrarily decided
-by the administrator of the IdP. The local name, here called 'myidp', is
-decided by you and will be used by the mapping and protocol, and later for
+The value for the ``remote-id`` option is the Entity ID provided by the IdP,
+which can be found as the EntityDescriptor entityID in the IdP's provided
+metadata. If the IdP is a keystone IdP, it is the value set in that keystone's
+``[saml]/idp_entity_id`` option. It will usually appear as a URI but there is
+no requirement for it to resolve to anything and may be arbitrarily decided by
+the administrator of the IdP. The local name, here called 'myidp', is decided
+by you and will be used by the mapping and protocol, and later for
 authentication.
 
 A keystone identity provider may have multiple `remote_ids` specified, this
