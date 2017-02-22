@@ -12,20 +12,71 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import base64
+import hashlib
+import hmac
 import uuid
+
+from six.moves import http_client
 
 from keystone.contrib import s3
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import test_v3
 
 
-class S3ContribCore(unit.TestCase):
+class S3ContribCore(test_v3.RestfulTestCase):
     def setUp(self):
         super(S3ContribCore, self).setUp()
 
         self.load_backends()
 
+        self.cred_blob, self.credential = unit.new_ec2_credential(
+            self.user['id'], self.project_id)
+        self.credential_api.create_credential(
+            self.credential['id'], self.credential)
+
         self.controller = s3.S3Controller()
+
+    def test_good_response(self):
+        sts = 'string to sign'  # opaque string from swift3
+        sig = hmac.new(self.cred_blob['secret'].encode('ascii'),
+                       sts.encode('ascii'), hashlib.sha1).digest()
+        resp = self.post(
+            '/s3tokens',
+            body={'credentials': {
+                'access': self.cred_blob['access'],
+                'signature': base64.b64encode(sig).strip(),
+                'token': base64.b64encode(sts.encode('ascii')).strip(),
+            }},
+            expected_status=http_client.OK)
+        self.assertValidProjectScopedTokenResponse(resp, self.user,
+                                                   forbid_token_id=True)
+
+    def test_bad_request(self):
+        self.post(
+            '/s3tokens',
+            body={},
+            expected_status=http_client.BAD_REQUEST)
+
+        self.post(
+            '/s3tokens',
+            body="not json",
+            expected_status=http_client.BAD_REQUEST)
+
+        self.post(
+            '/s3tokens',
+            expected_status=http_client.BAD_REQUEST)
+
+    def test_bad_response(self):
+        self.post(
+            '/s3tokens',
+            body={'credentials': {
+                'access': self.cred_blob['access'],
+                'signature': base64.b64encode(b'totally not the sig').strip(),
+                'token': base64.b64encode(b'string to sign').strip(),
+            }},
+            expected_status=http_client.UNAUTHORIZED)
 
     def test_good_signature_v1(self):
         creds_ref = {'secret':

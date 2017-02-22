@@ -637,8 +637,11 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             msg = '%s is not a valid ISO 8601 extended format date time.' % dt
             raise AssertionError(msg)
 
-    def assertValidTokenResponse(self, r, user=None):
-        self.assertTrue(r.headers.get('X-Subject-Token'))
+    def assertValidTokenResponse(self, r, user=None, forbid_token_id=False):
+        if forbid_token_id:
+            self.assertNotIn('X-Subject-Token', r.headers)
+        else:
+            self.assertTrue(r.headers.get('X-Subject-Token'))
         token = r.result['token']
 
         self.assertIsNotNone(token.get('expires_at'))
