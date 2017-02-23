@@ -1,0 +1,7 @@
+---
+deprecations:
+  - >
+    [`blueprint deprecated-as-of-pike <https://blueprints.launchpad.net/keystone/+spec/deprecated-as-of-pike>`_]
+    The v2.0 ``auth`` and ``ec2`` APIs were already maked as deprecated in the Mitaka release,
+    although no removal release had yet been identified. These APIs will now be removed in the 'T' release.
+    The v3 APIs should be used instead.
