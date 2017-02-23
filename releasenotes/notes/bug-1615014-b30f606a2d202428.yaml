@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1615014 <https://bugs.launchpad.net/keystone/+bug/1615014>`_]
+    Migration order is now strictly enforced. The ensure upgrade process is
+    done in the order it is officially documented and support, starting with
+    `expand`, then `migrate`, and finishing with `contract`.
