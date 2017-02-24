@@ -34,12 +34,19 @@ class RoleValidationTestCase(unit.BaseTestCase):
     def setUp(self):
         super(RoleValidationTestCase, self).setUp()
 
-        schema_role_create = assignment_schema.role_create
+        schema_role_create = assignment_schema.role_create_v2
         self.create_validator = validators.SchemaValidator(schema_role_create)
 
     def test_validate_role_create_succeeds(self):
         request = {
             'name': uuid.uuid4().hex
+        }
+        self.create_validator.validate(request)
+
+    def test_validate_role_create_succeeds_with_spaces_in_description(self):
+        request = {
+            'name': uuid.uuid4().hex,
+            'description': 'Description with spaces'
         }
         self.create_validator.validate(request)
 
