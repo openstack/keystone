@@ -70,7 +70,8 @@ USERS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'password',
         'tenants': [],
-        'enabled': True
+        'enabled': True,
+        'options': {},
     },
     {
         'id': uuid.uuid4().hex,
@@ -80,6 +81,7 @@ USERS = [
         'tenants': [BAR_TENANT_ID],
         'enabled': True,
         'email': 'foo@bar.com',
+        'options': {},
     }, {
         'id': uuid.uuid4().hex,
         'name': 'two',
@@ -89,6 +91,7 @@ USERS = [
         'default_project_id': BAZ_TENANT_ID,
         'tenants': [BAZ_TENANT_ID],
         'email': 'two@three.com',
+        'options': {},
     }, {
         'id': uuid.uuid4().hex,
         'name': 'badguy',
@@ -98,6 +101,7 @@ USERS = [
         'default_project_id': BAZ_TENANT_ID,
         'tenants': [BAZ_TENANT_ID],
         'email': 'bad@guy.com',
+        'options': {},
     }, {
         'id': uuid.uuid4().hex,
         'name': 'sna',
@@ -106,6 +110,7 @@ USERS = [
         'enabled': True,
         'tenants': [BAR_TENANT_ID],
         'email': 'sna@snl.coom',
+        'options': {},
     }
 ]
 
