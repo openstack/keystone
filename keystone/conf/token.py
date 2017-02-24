@@ -13,6 +13,7 @@
 import sys
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -30,6 +31,8 @@ enforce_token_bind = cfg.StrOpt(
     'enforce_token_bind',
     default='permissive',
     choices=['disabled', 'permissive', 'strict', 'required'],
+    deprecated_since=versionutils.deprecated.PIKE,
+    deprecated_for_removal=True,
     help=utils.fmt("""
 This controls the token binding enforcement policy on tokens presented to
 keystone with token binding metadata (as specified by the `[token] bind`
@@ -74,6 +77,8 @@ command).
 driver = cfg.StrOpt(
     'driver',
     default='sql',
+    deprecated_since=versionutils.deprecated.PIKE,
+    deprecated_for_removal=True,
     help=utils.fmt("""
 Entry point for the token persistence backend driver in the
 `keystone.token.persistence` namespace. Keystone provides the `sql`
