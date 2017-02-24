@@ -4,7 +4,7 @@ features:
     allows to trace various requests through all OpenStack
     services that support it. To initiate OpenStack
     request tracing `--profile <HMAC_KEY>` option needs to be added to
-    the CLI command. Configuration and usage details can be foung in
+    the CLI command. Configuration and usage details can be found in
     [`OSProfiler documentation <https://docs.openstack.org/developer/osprofiler/api.html>`_]
 upgrade:
   - OSprofiler support was introduced. To allow its usage the
