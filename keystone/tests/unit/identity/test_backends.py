@@ -115,6 +115,10 @@ class IdentityTests(object):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_foo.pop('password')
+        # NOTE(edmondsw): check that options is set, even if it's just an
+        # empty dict, because otherwise auth will blow up for whatever
+        # case misses this.
+        self.assertIn('options', user_ref)
         self.assertDictEqual(self.user_foo, user_ref)
 
     def test_get_user_returns_required_attributes(self):

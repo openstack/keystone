@@ -313,6 +313,8 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         del values['enabled_nomask']
 
     def create(self, values):
+        if 'options' in values:
+            values.pop('options')  # can't specify options
         if self.enabled_mask:
             orig_enabled = values['enabled']
             self.mask_enabled_attribute(values)
@@ -326,11 +328,24 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         if self.enabled_mask or (self.enabled_invert and
                                  not self.enabled_emulation):
             values['enabled'] = orig_enabled
+        values['options'] = {}  # options always empty
         return values
+
+    def get(self, user_id, ldap_filter=None):
+        obj = super(UserApi, self).get(user_id, ldap_filter=ldap_filter)
+        obj['options'] = {}  # options always empty
+        return obj
 
     def get_filtered(self, user_id):
         user = self.get(user_id)
         return self.filter_attributes(user)
+
+    def get_all(self, ldap_filter=None, hints=None):
+        objs = super(UserApi, self).get_all(ldap_filter=ldap_filter,
+                                            hints=hints)
+        for obj in objs:
+            obj['options'] = {}  # options always empty
+        return objs
 
     def get_all_filtered(self, hints):
         query = self.filter_query(hints, self.ldap_filter)
@@ -348,6 +363,18 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         # really expensive considering how this is used.
 
         return common_ldap.dn_startswith(dn, self.tree_dn)
+
+    def update(self, user_id, values, old_obj=None):
+        if old_obj is None:
+            old_obj = self.get(user_id)
+        # don't support updating options
+        if 'options' in old_obj:
+            old_obj.pop('options')
+        if 'options' in values:
+            values.pop('options')
+        values = super(UserApi, self).update(user_id, values, old_obj)
+        values['options'] = {}  # options always empty
+        return values
 
 
 class GroupApi(common_ldap.BaseLdap):
