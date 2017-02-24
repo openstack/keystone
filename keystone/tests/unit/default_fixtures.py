@@ -67,7 +67,8 @@ USERS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'password': 'password',
         'tenants': [],
-        'enabled': True
+        'enabled': True,
+        'options': {},
     },
     {
         'id': 'foo',
@@ -77,6 +78,7 @@ USERS = [
         'tenants': [BAR_TENANT_ID],
         'enabled': True,
         'email': 'foo@bar.com',
+        'options': {},
     }, {
         'id': 'two',
         'name': 'TWO',
@@ -86,6 +88,7 @@ USERS = [
         'default_project_id': BAZ_TENANT_ID,
         'tenants': [BAZ_TENANT_ID],
         'email': 'two@three.com',
+        'options': {},
     }, {
         'id': 'badguy',
         'name': 'BadGuy',
@@ -95,6 +98,7 @@ USERS = [
         'default_project_id': BAZ_TENANT_ID,
         'tenants': [BAZ_TENANT_ID],
         'email': 'bad@guy.com',
+        'options': {},
     }, {
         'id': 'sna',
         'name': 'SNA',
@@ -103,6 +107,7 @@ USERS = [
         'enabled': True,
         'tenants': [BAR_TENANT_ID],
         'email': 'sna@snl.coom',
+        'options': {},
     }
 ]
 
