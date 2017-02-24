@@ -74,17 +74,17 @@ If `mod_auth_openidc` is used, then use the following as an example:
 
   <VirtualHost *:5000>
 
-      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/websso/redirect
-      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/identity_providers/myidp/protocol/oidc/websso/redirect
+      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/websso
+      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso
 
       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/oidc">
+      <Location ~ "/v3/auth/OS-FEDERATION/websso/openid">
         AuthType openid-connect
         Require valid-user
         ...
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/oidc/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso">
         AuthType openid-connect
         Require valid-user
         ...
@@ -159,7 +159,7 @@ It is recommended that this option be set on a per-protocol basis.
 
   [mapped]
   remote_id_attribute = Shib-Identity-Provider
-  [oidc]
+  [openid]
   remote_id_attribute = HTTP_OIDC_ISS
 
 Alternatively, a generic option may be set at the `[federation]` level.
@@ -207,9 +207,9 @@ identity backend.
 
   WEBSSO_CHOICES = (
         ("credentials", _("Keystone Credentials")),
-        ("oidc", _("OpenID Connect")),
+        ("openid", _("OpenID Connect")),
         ("mapped", _("Security Assertion Markup Language")),
-        ("myidp_oidc", "Acme Corporation - OpenID Connect"),
+        ("myidp_openid", "Acme Corporation - OpenID Connect"),
         ("myidp_mapped", "Acme Corporation - SAML2")
       )
 
@@ -226,7 +226,7 @@ protocol endpoint.
 .. code-block:: python
 
   WEBSSO_IDP_MAPPING = {
-        "myidp_oidc": ("myidp", "oidc"),
+        "myidp_openid": ("myidp", "openid"),
         "myidp_mapped": ("myidp", "mapped")
       }
 
