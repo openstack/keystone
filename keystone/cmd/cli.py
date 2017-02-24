@@ -21,6 +21,7 @@ import uuid
 
 import migrate
 from oslo_config import cfg
+from oslo_db.sqlalchemy import migration
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
@@ -457,10 +458,17 @@ class DbSync(BaseApp):
     @classmethod
     def check_db_sync_status(self):
         status = 0
-        expand_version = upgrades.get_db_version(repo='expand_repo')
-        migrate_version = upgrades.get_db_version(
-            repo='data_migration_repo')
-        contract_version = upgrades.get_db_version(repo='contract_repo')
+        try:
+            expand_version = upgrades.get_db_version(repo='expand_repo')
+            migrate_version = upgrades.get_db_version(
+                repo='data_migration_repo')
+            contract_version = upgrades.get_db_version(repo='contract_repo')
+        except migration.exception.DbMigrationError:
+            LOG.info(_LI('Your database is not currently under version '
+                         'control or the database is already controlled. Your '
+                         'first step is to run `keystone-manage db_sync '
+                         '--expand`.'))
+            return 2
 
         repo = migrate.versioning.repository.Repository(
             upgrades.find_repo('expand_repo'))

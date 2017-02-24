@@ -225,7 +225,7 @@ authenticate requests normally.
    the previous release.
 
 Using db_sync check
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 In order to check the current state of your rolling upgrades, you may run the
 command ``keystone-manage db_sync --check``. This will inform you of any
@@ -239,8 +239,9 @@ can make from your current version. Here are a list of possible return codes.
   database and operator intervention will be required.
 
 * A return code of ``2`` means that an upgrade from your current database
-  version is available and your first step is to run ``keystone-manage
-  db_sync --expand``.
+  version is available, your database is not currently under version control,
+  or the database is already under control. Your first step is to run
+  ``keystone-manage db_sync --expand``.
 
 * A return code of ``3`` means that the expansion stage is complete, and the
   next step is to run ``keystone-manage db_sync --migrate``.
