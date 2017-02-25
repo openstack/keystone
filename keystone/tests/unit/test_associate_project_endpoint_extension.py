@@ -24,11 +24,6 @@ from keystone.tests.unit import test_v3
 
 class EndpointFilterTestCase(test_v3.RestfulTestCase):
 
-    def config_overrides(self):
-        super(EndpointFilterTestCase, self).config_overrides()
-        self.config_fixture.config(
-            group='catalog', driver='endpoint_filter.sql')
-
     def setUp(self):
         super(EndpointFilterTestCase, self).setUp()
         self.default_request_url = (

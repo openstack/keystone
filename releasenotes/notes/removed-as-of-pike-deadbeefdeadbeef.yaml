@@ -16,3 +16,7 @@ other:
 
     The functionality of the ``ADMIN_TOKEN`` remains, but has been incorporated
     into the main auth middleware (``keystone.middleware.auth.AuthContextMiddleware``).
+  - >
+    The catalog backend ``endpoint_filter.sql`` has been removed. It has been
+    consolidated with the ``sql`` backend, therefore replace the
+    ``endpoint_filter.sql`` catalog backend with the ``sql`` backend.
