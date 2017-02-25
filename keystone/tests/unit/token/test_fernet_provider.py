@@ -17,10 +17,8 @@ import mock
 import os
 import uuid
 
-import msgpack
 from oslo_utils import timeutils
 import six
-from six.moves import urllib
 
 from keystone import auth
 from keystone.common import fernet_utils
@@ -256,46 +254,6 @@ class TestTokenFormatter(unit.TestCase):
                     encoded_str_without_padding)
             )
             self.assertEqual(encoded_string, encoded_str_with_padding_restored)
-
-    def test_legacy_padding_validation(self):
-        first_value = uuid.uuid4().hex
-        second_value = uuid.uuid4().hex
-        payload = (first_value, second_value)
-        msgpack_payload = msgpack.packb(payload)
-        # msgpack_payload is six.binary_type.
-
-        tf = token_formatters.TokenFormatter()
-
-        # NOTE(lbragstad): This method preserves the way that keystone used to
-        # percent encode the tokens, prior to bug #1491926.
-        def legacy_pack(payload):
-            # payload is six.binary_type.
-            encrypted_payload = tf.crypto.encrypt(payload)
-            # encrypted_payload is six.binary_type.
-
-            # the encrypted_payload is returned with padding appended
-            self.assertTrue(encrypted_payload.endswith(b'='))
-
-            # using urllib.parse.quote will percent encode the padding, like
-            # keystone did in Kilo.
-            percent_encoded_payload = urllib.parse.quote(encrypted_payload)
-            # percent_encoded_payload is six.text_type.
-
-            # ensure that the padding was actually percent encoded
-            self.assertTrue(percent_encoded_payload.endswith('%3D'))
-            return percent_encoded_payload
-
-        token_with_legacy_padding = legacy_pack(msgpack_payload)
-        # token_with_legacy_padding is six.text_type.
-
-        # demonstrate the we can validate a payload that has been percent
-        # encoded with the Fernet logic that existed in Kilo
-        serialized_payload = tf.unpack(token_with_legacy_padding)
-        # serialized_payload is six.binary_type.
-        returned_payload = msgpack.unpackb(serialized_payload)
-        # returned_payload contains six.binary_type.
-        self.assertEqual(first_value, returned_payload[0].decode('utf-8'))
-        self.assertEqual(second_value, returned_payload[1].decode('utf-8'))
 
 
 class TestPayloads(unit.TestCase):

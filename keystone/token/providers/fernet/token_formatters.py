@@ -21,7 +21,6 @@ from oslo_log import log
 from oslo_utils import timeutils
 import six
 from six.moves import map
-from six.moves import urllib
 
 from keystone.auth import plugins as auth_plugins
 from keystone.common import fernet_utils as utils
@@ -86,19 +85,7 @@ class TokenFormatter(object):
         :rtype: six.binary_type
 
         """
-        # TODO(lbragstad): Restore padding on token before decoding it.
-        # Initially in Kilo, Fernet tokens were returned to the user with
-        # padding appended to the token. Later in Liberty this padding was
-        # removed and restored in the Fernet provider. The following if
-        # statement ensures that we can validate tokens with and without token
-        # padding, in the event of an upgrade and the tokens that are issued
-        # throughout the upgrade. Remove this if statement when Mitaka opens
-        # for development and exclusively use the restore_padding() class
-        # method.
-        if token.endswith('%3D'):
-            token = urllib.parse.unquote(token)
-        else:
-            token = TokenFormatter.restore_padding(token)
+        token = TokenFormatter.restore_padding(token)
 
         try:
             return self.crypto.decrypt(token.encode('utf-8'))
