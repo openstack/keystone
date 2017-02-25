@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -63,25 +62,6 @@ before requiring it to be changed. This feature is disabled by default. If
 enabled, new password changes will have an expiration date, however existing
 passwords would not be impacted. This feature depends on the `sql` backend for
 the `[identity] driver`.
-"""))
-
-password_expires_ignore_user_ids = cfg.ListOpt(
-    'password_expires_ignore_user_ids',
-    deprecated_for_removal=True,
-    deprecated_reason=utils.fmt("""
-Functionality added as a per-user option "ignore_password_expiry" in Ocata.
-Each user that should ignore password expiry should have the value set to
-"true" in the user's `options` attribute (e.g.
-`user['options']['ignore_password_expiry'] = True`) with an "update_user" call.
-This avoids the need to restart keystone to adjust the users that ignore
-password expiry. This option will be removed in the Pike release.
-"""),
-    deprecated_since=versionutils.deprecated.OCATA,
-    default=[],
-    help=utils.fmt("""
-Comma separated list of user IDs to be ignored when checking if a password
-is expired. Passwords for users in this list will not expire. This feature
-will only be enabled if `[security_compliance] password_expires_days` is set.
 """))
 
 unique_last_password_count = cfg.IntOpt(
@@ -150,7 +130,6 @@ ALL_OPTS = [
     lockout_failure_attempts,
     lockout_duration,
     password_expires_days,
-    password_expires_ignore_user_ids,
     unique_last_password_count,
     minimum_password_age,
     password_regex,

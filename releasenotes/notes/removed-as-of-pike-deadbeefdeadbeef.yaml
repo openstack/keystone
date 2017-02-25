@@ -20,3 +20,9 @@ other:
     The catalog backend ``endpoint_filter.sql`` has been removed. It has been
     consolidated with the ``sql`` backend, therefore replace the
     ``endpoint_filter.sql`` catalog backend with the ``sql`` backend.
+  - >
+    The ``[security_compliance] password_expires_ignore_user_ids`` option has
+    been removed. Each user that should ignore password expiry should have the
+    value set to "true" in the user's ``options`` attribute (e.g.
+    ``user['options']['ignore_password_expiry'] = True``) with a user update
+    call.
