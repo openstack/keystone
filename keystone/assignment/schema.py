@@ -17,7 +17,7 @@ from keystone.common.validation import parameter_types
 _role_properties_v2 = {
     'name': parameter_types.name,
     'id': parameter_types.id_string,
-    'description': parameter_types.id_string
+    'description': parameter_types.description
 }
 
 role_create_v2 = {
