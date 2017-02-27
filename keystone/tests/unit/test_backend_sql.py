@@ -154,6 +154,7 @@ class SqlModels(SqlTests):
         cols = (('id', sql.Integer, None),
                 ('local_user_id', sql.Integer, None),
                 ('password', sql.String, 128),
+                ('password_hash', sql.String, 255),
                 ('created_at', sql.DateTime, None),
                 ('expires_at', sql.DateTime, None),
                 ('self_service', sql.Boolean, False))

@@ -1,0 +1,43 @@
+---
+features:
+  - |
+    * [`bug 1543048 <https://bugs.launchpad.net/keystone/+bug/1543048>`_]
+      [`bug 1668503 <https://bugs.launchpad.net/keystone/+bug/1668503>`_]
+      Keystone now supports multiple forms of password hashing. Notably bcrypt,
+      scrypt, and pbkdf2_sha512. The options are now located in the
+      `[identity]` section of the configuration file. To set the algorithm
+      use `[identity] password_hash_algorithm`. To set the number of rounds
+      (time-complexity, and memory-use in the case of scrypt) use
+      `[identity] password_hash_rounds`. `scrypt` and `pbkdf2_sha512` have
+      further tuning options available. Keystone now defaults to using
+      `bcrypt` as the hashing algorithm. All passwords will continue to
+      function with the old sha512_crypt hash, but new password hashes
+      will be bcrypt.
+upgrade:
+  - |
+    * If performing rolling upgrades, set
+      `[identity] rolling_upgrade_password_hash_compat` to `True`. This will
+      instruct keystone to continue to hash passwords in a manner that older
+      (pre Pike release) keystones can still verify passwords. Once all
+      upgrades are complete, ensure this option is set back to `False`.
+deprecations:
+  - |
+    * `[DEFAULT] crypt_strength` is deprecated in favor of
+      `[identity] password_hash_rounds`. Note that `[DEFAULT] crypt_strength`
+      is still used when `[identity] rolling_upgrade_password_hash_compat` is
+      set to `True`.
+security:
+  - |
+    * The use of `sha512_crypt` is considered inadequate for password hashing
+      in an application like Keystone. The use of bcrypt or scrypt is
+      recommended to ensure protection against password cracking utilities if
+      the hashes are exposed. This is due to Time-Complexity requirements for
+      computing the hashes in light of modern hardware (CPU, GPU, ASIC, FPGA,
+      etc). Keystone has moved to bcrypt as a default and no longer hashes
+      new passwords (and password changes) with sha512_crypt. It is
+      recommended passwords be changed after upgrade to Pike. The risk of
+      password hash exposure is limited, but for the best possible
+      protection against cracking the hash it is recommended passwords be
+      changed after upgrade. The password change will then result in a more
+      secure hash (bcrypt by default) being used to store the password in the
+      DB.
