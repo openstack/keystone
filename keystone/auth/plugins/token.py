@@ -51,6 +51,12 @@ class Token(base.AuthMethodHandler):
             response_data = token_authenticate(request,
                                                token_ref)
 
+        # NOTE(notmorgan): The Token auth method is *very* special and sets the
+        # previous values to the method_names. This is because it can be used
+        # for re-scoping and we want to maintain the values. Most
+        # AuthMethodHandlers do no such thing and this is not required.
+        response_data.setdefault('method_names', []).extend(token_ref.methods)
+
         return base.AuthHandlerResponse(status=True, response_body=None,
                                         response_data=response_data)
 
@@ -103,11 +109,6 @@ def token_authenticate(request, token_ref):
         # from the response_data
         response_data.setdefault('extras', {}).update(
             token_ref.get('extras', {}))
-        # NOTE(notmorgan): The Token auth method is *very* special and sets the
-        # previous values to the method_names. This is because it can be used
-        # for re-scoping and we want to maintain the values. Most
-        # AuthMethodHandlers do no such thing and this is not required.
-        response_data.setdefault('method_names', []).extend(token_ref.methods)
 
         return response_data
 
