@@ -168,14 +168,14 @@ Provider we will use to authenticate end users:
 
     $ openstack identity provider create --remote-id https://myidp.example.com/v3/OS-FEDERATION/saml2/idp myidp
 
-The value for the ``remote-id`` option is the Entity ID provided by the IdP,
-which can be found as the EntityDescriptor entityID in the IdP's provided
-metadata. If the IdP is a keystone IdP, it is the value set in that keystone's
-``[saml]/idp_entity_id`` option. It will usually appear as a URI but there is
-no requirement for it to resolve to anything and may be arbitrarily decided by
-the administrator of the IdP. The local name, here called 'myidp', is decided
-by you and will be used by the mapping and protocol, and later for
-authentication.
+The value for the ``remote-id`` option is the unique identifier provided by the
+IdP. For a SAML IdP it can found as the EntityDescriptor entityID in the IdP's
+provided metadata. If the IdP is a keystone IdP, it is the value set in that
+keystone's ``[saml]/idp_entity_id`` option. For an OpenID Connect IdP, it is
+the IdP's Issuer Identifier. It will usually appear as a URI but there is no
+requirement for it to resolve to anything and may be arbitrarily decided by the
+administrator of the IdP. The local name, here called 'myidp', is decided by
+you and will be used by the mapping and protocol, and later for authentication.
 
 A keystone identity provider may have multiple `remote_ids` specified, this
 allows the same *keystone* identity provider resource to be used with multiple
@@ -193,10 +193,10 @@ This removes the need to configure N identity providers in keystone.
     `remote_id_attribute` key.
 
     For example, if our identity provider is ``google``, the mapping used is
-    ``google_mapping`` and the protocol is ``oidc``. The identity provider's
-    remote IDs  would be: [``accounts.google.com``].
+    ``google_mapping`` and the protocol is ``openid``. The identity provider's
+    remote IDs  would be: [``https://accounts.google.com``].
     The `remote_id_attribute` value may be set to ``HTTP_OIDC_ISS``, since
-    this value will always be ``accounts.google.com``.
+    this value will always be ``https://accounts.google.com``.
 
     The motivation for this approach is that there will always be some data
     sent by the identity provider (in the assertion or claim) that uniquely

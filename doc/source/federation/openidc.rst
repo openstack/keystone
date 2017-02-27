@@ -28,19 +28,18 @@ To install `mod_auth_openidc` on Ubuntu, perform the following:
 
 .. code-block:: bash
 
-  sudo apt-get install libapache2-mod-auth-openidc
+  $ sudo apt-get install libapache2-mod-auth-openidc
 
 This module is available for other distributions (Fedora/CentOS/Red Hat) from:
 https://github.com/pingidentity/mod_auth_openidc/releases
 
-In the keystone Apache site file, add the following as a top level option, to
-load the `mod_auth_openidc` module:
+Enable the auth_openidc module:
 
-.. code-block:: xml
+.. code-block:: bash
 
-  LoadModule auth_openidc_module /usr/lib/apache2/modules/mod_auth_openidc.so
+   $ sudo a2enmod auth_openidc
 
-Also within the same file, locate the virtual host entry and add the following
+In the keystone vhost file, locate the virtual host entry and add the following
 entries for OpenID Connect:
 
 .. code-block:: xml
@@ -56,9 +55,9 @@ entries for OpenID Connect:
       OIDCClientID <openid_client_id>
       OIDCClientSecret <openid_client_secret>
       OIDCCryptoPassphrase openstack
-      OIDCRedirectURI http://localhost:5000/v3/OS-FEDERATION/identity_providers/<idp_id>/protocols/oidc/auth/redirect
+      OIDCRedirectURI http://localhost:5000/v3/OS-FEDERATION/identity_providers/<idp_id>/protocols/openid/auth
 
-      <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/oidc/auth>
+      <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/openid/auth>
         AuthType openid-connect
         Require valid-user
         LogLevel debug
@@ -80,17 +79,18 @@ Once you are done, restart your Apache daemon:
 
 .. code-block:: bash
 
-    $ service apache2 restart
+    $ sudo service apache2 restart
 
 ----
 Tips
 ----
 
-1. When creating a mapping, note that the 'remote' attributes will be prefixed,
+1. When creating a `mapping`_, note that the 'remote' attributes will be prefixed,
    with `HTTP_`, so for instance, if you set OIDCClaimPrefix to `OIDC-`, then a
    typical remote value to check for is: `HTTP_OIDC_ISS`.
 
-2. Don't forget to add oidc as an [auth] plugin in keystone.conf, see
+2. Don't forget to add openid as an [auth] plugin in keystone.conf, see
    `Configure authentication drivers in keystone.conf`_
 
 .. _`Configure authentication drivers in keystone.conf`: federated_identity.html#configure-authentication-drivers-in-keystone-conf
+.. _`mapping`: configure_federation.html#mapping
