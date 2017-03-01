@@ -244,3 +244,9 @@ automatically set that choice to be highlighted by default.
 .. code-block:: python
 
   WEBSSO_INITIAL_CHOICE = "credentials"
+
+7. Restart your web server:
+
+.. code-block:: bash
+
+   $ sudo service apache2 restart
