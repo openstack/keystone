@@ -43,7 +43,7 @@ Definitions
 
 A mapping looks as follows:
 
-.. code-block:: javascript
+.. code-block:: none
 
     {
         "rules": [
@@ -114,7 +114,7 @@ After the rule is found using the rule's conditions and a list of direct mapping
 stored, keystone begins processing the rule's `local` property. Each object in
 the `local` property is collapsed into a single JSON object. For example:
 
-.. code-block:: javascript
+.. code-block:: none
 
     {
         "local": [
@@ -129,7 +129,7 @@ the `local` property is collapsed into a single JSON object. For example:
 
 becomes:
 
-.. code-block:: javascript
+.. code-block:: none
 
     {
         "local": {
@@ -140,7 +140,7 @@ becomes:
 
 when the same property exists in the local multiple times the first occurrence wins:
 
-.. code-block:: javascript
+.. code-block:: none
 
     {
         "local": [
@@ -158,7 +158,7 @@ when the same property exists in the local multiple times the first occurrence w
 
 becomes:
 
-.. code-block:: javascript
+.. code-block:: none
 
     {
         "local": {
@@ -230,7 +230,7 @@ The following are all examples of mapping rule types.
 empty condition
 ~~~~~~~~~~~~~~~
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -288,7 +288,7 @@ other conditions
 In ``<other_condition>`` shown below, please supply one of the following:
 ``any_one_of``, or ``not_any_of``.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -321,7 +321,7 @@ In ``<other_condition>`` shown below, please supply one of the following:
 In ``<other_condition>`` shown below, please supply one of the following:
 ``blacklist``, or ``whitelist``.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -362,7 +362,7 @@ In ``<other_condition>`` shown below, please supply one of the following:
 
 Group ids and names can be provided in the local section:
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "local": [
@@ -374,7 +374,7 @@ Group ids and names can be provided in the local section:
         ]
     }
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "local": [
@@ -389,7 +389,7 @@ Group ids and names can be provided in the local section:
         ]
     }
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "local": [
@@ -410,7 +410,7 @@ Output
 
 If a mapping is valid you will receive the following output:
 
-.. code-block:: javascript
+.. code-block:: none
 
     {
         "group_ids": "[<group-ids>]",
@@ -473,7 +473,7 @@ Regular Expressions
 Regular expressions can be used in a mapping by specifying the ``regex`` key, and
 setting it to ``true``.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -517,7 +517,7 @@ but cannot be repeated within the same condition. ``any_one_of`` and
 ``not_any_of`` are mutually exclusive within a condition's scope. So are
 ``whitelist`` and ``blacklist``.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -560,7 +560,7 @@ As before group names and users can also be provided in the local section.
 This allows any user with the following claim information to be mapped to
 group with id 0cd5e9.
 
-.. code-block:: javascript
+.. code-block:: json
 
      {"UserName":"<any_name>@yeah.com"}
      {"cn=IBM_USA_Lab":"<any_name>@yeah.com"}
@@ -577,7 +577,7 @@ Multiple Rules
 
 Multiple rules can also be utilized in a mapping.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -657,67 +657,54 @@ user and another rule for just groups. Below is rules example repeated but with
 global username mapping.
 
 
-.. code-block:: javascript
+.. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    "user": {
-                        "id": "{0}"
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserType"
-                    }
-                ]
-            },
-            {
-                "local": [
-                    {
-                        "group": {
-                            "name": "non-contractors",
-                            "domain": {
-                                "id": "abc1234"
-                            }
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "orgPersonType",
-                        "not_any_of": [
-                            "Contractor",
-                            "SubContractor"
-                        ]
-                    }
-                ]
-            },
-            {
-                "local": [
-                    {
-                        "group": {
-                            "name": "contractors",
-                            "domain": {
-                                "id": "abc1234"
-                            }
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "orgPersonType",
-                        "any_one_of": [
-                            "Contractor",
-                            "SubContractor"
-                        ]
-                    }
-                ]
-            }
-        ]
+   {
+       "rules": [{
+           "local": [{
+               "user": {
+                   "id": "{0}"
+               }
+           }],
+           "remote": [{
+               "type": "UserType"
+           }]
+       },
+       {
+           "local": [{
+               "group": {
+                   "name": "non-contractors",
+                   "domain": {
+                       "id": "abc1234"
+                   }
+               }
+           }],
+           "remote": [{
+               "type": "orgPersonType",
+               "not_any_of": [
+                   "Contractor",
+                   "SubContractor"
+               ]
+           }]
+       },
+       {
+           "local": [{
+               "group": {
+                   "name": "contractors",
+                   "domain": {
+                       "id": "abc1234"
+                   }
+               }
+           }],
+           "remote": [{
+               "type": "orgPersonType",
+               "any_one_of": [
+                   "Contractor",
+                   "SubContractor"
+               ]
+           }]
+       }]
     }
-
 
 Auto-Provisioning
 -----------------
@@ -729,7 +716,7 @@ ultimately make decisions on.
 
 For example, consider the following mapping:
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -818,7 +805,7 @@ user having direct role assignments on the projects in the ``projects`` list.
 The following example contains ``local`` rules comprised of both ``projects``
 and ``groups``, which allow for direct role assignments and group memberships.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [
@@ -895,7 +882,7 @@ names we have in the Identity Provider. It will map any user with the name
 ``user1`` or ``admin`` in the ``openstack_user`` attribute and
 ``openstack_domain`` attribute ``default`` to a group with id ``abc1234``.
 
-.. code-block:: javascript
+.. code-block:: json
 
     {
         "rules": [

@@ -49,7 +49,7 @@ is configured in keystone.
 
 If `mod_shib` is used, then use the following as an example:
 
-.. code-block:: xml
+.. code-block:: none
 
   <VirtualHost *:5000>
 
@@ -70,7 +70,7 @@ If `mod_shib` is used, then use the following as an example:
 
 If `mod_auth_openidc` is used, then use the following as an example:
 
-.. code-block:: xml
+.. code-block:: none
 
   <VirtualHost *:5000>
 
@@ -93,7 +93,7 @@ If `mod_auth_openidc` is used, then use the following as an example:
 
 If `mod_auth_kerb` is used, then use the following as an example:
 
-.. code-block:: xml
+.. code-block:: none
 
   <VirtualHost *:5000>
 
@@ -119,7 +119,7 @@ If `mod_auth_kerb` is used, then use the following as an example:
 
 If `mod_auth_mellon` is used, then use the following as an example:
 
-.. code-block:: xml
+.. code-block:: none
 
   <VirtualHost *:5000>
 
