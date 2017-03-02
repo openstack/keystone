@@ -109,17 +109,17 @@ class BootStrap(BaseApp):
                             metavar='OS_BOOTSTRAP_ADMIN_URL',
                             help=('The initial identity admin url created '
                                   'during the keystone bootstrap process. '
-                                  'e.g. http://127.0.0.1:35357/v2.0'))
+                                  'e.g. http://127.0.0.1:35357/v3'))
         parser.add_argument('--bootstrap-public-url',
                             metavar='OS_BOOTSTRAP_PUBLIC_URL',
                             help=('The initial identity public url created '
                                   'during the keystone bootstrap process. '
-                                  'e.g. http://127.0.0.1:5000/v2.0'))
+                                  'e.g. http://127.0.0.1:5000/v3'))
         parser.add_argument('--bootstrap-internal-url',
                             metavar='OS_BOOTSTRAP_INTERNAL_URL',
                             help=('The initial identity internal url created '
                                   'during the keystone bootstrap process. '
-                                  'e.g. http://127.0.0.1:5000/v2.0'))
+                                  'e.g. http://127.0.0.1:5000/v3'))
         parser.add_argument('--bootstrap-region-id',
                             metavar='OS_BOOTSTRAP_REGION_ID',
                             help=('The initial region_id endpoints will be '
