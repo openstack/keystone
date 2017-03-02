@@ -329,14 +329,12 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.head(member_url, expected_status=http_client.NOT_FOUND)
 
     def test_token_revoked_once_group_role_grant_revoked(self):
-        """Test token is revoked when group role grant is revoked.
+        """Test token invalid when direct & indirect role on user is revoked.
 
         When a role granted to a group is revoked for a given scope,
-        all tokens related to this scope and belonging to one of the members
-        of this group should be revoked.
+        and user direct role is revoked, then tokens created
+        by user will be invalid.
 
-        The revocation should be independently to the presence
-        of the revoke API.
         """
         time = datetime.datetime.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
@@ -367,12 +365,15 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             self.assignment_api.delete_grant(role_id=self.role['id'],
                                              project_id=self.project['id'],
                                              group_id=self.group['id'])
+            # revokes the direct role form user on project
+            self.assignment_api.delete_grant(role_id=self.role['id'],
+                                             project_id=self.project['id'],
+                                             user_id=self.user['id'])
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
             # validates the same token again; it should not longer be valid.
-            self.head('/auth/tokens',
-                      headers={'x-subject-token': token},
-                      expected_status=http_client.NOT_FOUND)
+            self.head('/auth/tokens', token=token,
+                      expected_status=http_client.UNAUTHORIZED)
 
     @unit.skip_if_cache_disabled('assignment')
     def test_delete_grant_from_user_and_project_invalidate_cache(self):
