@@ -37,18 +37,10 @@ def load_backends():
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
     cache.configure_invalidation_region()
 
-    # Ensure that the identity driver is created before the assignment manager
-    # and that the assignment driver is created before the resource manager.
-    # The default resource driver depends on assignment, which in turn
-    # depends on identity - hence we need to ensure the chain is available.
-    # TODO(morganfainberg): In "O" release move _IDENTITY_API to be directly
-    # instantiated in the DRIVERS dict once assignment driver being selected
-    # based upon [identity]/driver is removed.
-    _IDENTITY_API = identity.Manager()
-    _ASSIGNMENT_API = assignment.Manager()
-
+    # NOTE(knikolla): The assignment manager must be instantiated before the
+    # resource manager. The current dictionary ordering ensures that.
     DRIVERS = dict(
-        assignment_api=_ASSIGNMENT_API,
+        assignment_api=assignment.Manager(),
         catalog_api=catalog.Manager(),
         credential_api=credential.Manager(),
         credential_provider_api=credential.provider.Manager(),
@@ -57,7 +49,7 @@ def load_backends():
         federation_api=federation.Manager(),
         id_generator_api=identity.generator.Manager(),
         id_mapping_api=identity.MappingManager(),
-        identity_api=_IDENTITY_API,
+        identity_api=identity.Manager(),
         shadow_users_api=identity.ShadowUsersManager(),
         oauth_api=oauth1.Manager(),
         policy_api=policy.Manager(),
