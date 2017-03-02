@@ -3033,15 +3033,15 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         Test Plan:
 
-        - Get a token for user1, scoped to ProjectA
-        - Delete the grant user1 has on ProjectA
+        - Get a token for user, scoped to Project
+        - Delete the grant user has on Project
         - Check token is no longer valid
 
         """
         auth_data = self.build_authentication_request(
-            user_id=self.user1['id'],
-            password=self.user1['password'],
-            project_id=self.projectA['id'])
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'])
         token = self.get_requested_token(auth_data)
         # Confirm token is valid
         self.head('/auth/tokens',
@@ -3051,13 +3051,12 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         grant_url = (
             '/projects/%(project_id)s/users/%(user_id)s/'
             'roles/%(role_id)s' % {
-                'project_id': self.projectA['id'],
-                'user_id': self.user1['id'],
-                'role_id': self.role1['id']})
+                'project_id': self.project['id'],
+                'user_id': self.user['id'],
+                'role_id': self.role['id']})
         self.delete(grant_url)
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': token},
-                  expected_status=http_client.NOT_FOUND)
+        self.head('/auth/tokens', token=token,
+                  expected_status=http_client.UNAUTHORIZED)
 
     def role_data_fixtures(self):
         self.projectC = unit.new_project_ref(domain_id=self.domainA['id'])
@@ -3311,17 +3310,21 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                 'group_id': self.group1['id'],
                 'role_id': self.role1['id']})
         self.delete(grant_url)
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': token1},
-                  expected_status=http_client.NOT_FOUND)
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': token2},
-                  expected_status=http_client.NOT_FOUND)
+        self.assignment_api.delete_grant(role_id=self.role1['id'],
+                                         project_id=self.projectA['id'],
+                                         user_id=self.user1['id'])
+        self.assignment_api.delete_grant(role_id=self.role1['id'],
+                                         project_id=self.projectA['id'],
+                                         user_id=self.user2['id'])
+        self.head('/auth/tokens', token=token1,
+                  expected_status=http_client.UNAUTHORIZED)
+        self.head('/auth/tokens', token=token2,
+                  expected_status=http_client.UNAUTHORIZED)
         # But user3's token should be invalid too as revocation is done for
         # scope role & project
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token3},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http_client.OK)
 
     def test_domain_group_role_assignment_maintains_token(self):
         """Test domain-group role assignment maintains existing token.
