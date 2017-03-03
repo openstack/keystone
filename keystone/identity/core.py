@@ -122,7 +122,8 @@ class DomainConfigs(dict):
         domain_config['cfg'] = cfg.ConfigOpts()
         keystone.conf.configure(conf=domain_config['cfg'])
         domain_config['cfg'](args=[], project='keystone',
-                             default_config_files=file_list)
+                             default_config_files=file_list,
+                             default_config_dirs=[])
         domain_config['driver'] = self._load_driver(domain_config)
         _assert_no_more_than_one_sql_driver(domain_config, file_list)
         self[domain_ref['id']] = domain_config
