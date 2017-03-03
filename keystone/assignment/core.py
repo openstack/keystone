@@ -349,25 +349,17 @@ class Manager(manager.Manager):
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
         if group_id is None:
-            self.revoke_api.revoke_by_grant(user_id=user_id,
-                                            role_id=role_id,
-                                            domain_id=domain_id,
-                                            project_id=project_id)
+            # check if role exists on the user before revoke
+            self.check_grant_role_id(role_id, user_id, None, domain_id,
+                                     project_id, inherited_to_projects)
             self._emit_revoke_user_grant(
                 role_id, user_id, domain_id, project_id,
                 inherited_to_projects, context)
         else:
             try:
-                # Group may contain a lot of users so revocation will be
-                # by role & domain/project
-                if domain_id is None:
-                    self.revoke_api.revoke_by_project_role_assignment(
-                        project_id, role_id
-                    )
-                else:
-                    self.revoke_api.revoke_by_domain_role_assignment(
-                        domain_id, role_id
-                    )
+                # check if role exists on the group before revoke
+                self.check_grant_role_id(role_id, None, group_id, domain_id,
+                                         project_id, inherited_to_projects)
                 if CONF.token.revoke_by_id:
                     # NOTE(morganfainberg): The user ids are the important part
                     # for invalidating tokens below, so extract them here.
@@ -379,7 +371,6 @@ class Manager(manager.Manager):
             except exception.GroupNotFound:
                 LOG.debug('Group %s not found, no tokens to invalidate.',
                           group_id)
-
         # TODO(henry-nash): While having the call to get_role here mimics the
         # previous behavior (when it was buried inside the driver delete call),
         # this seems an odd place to have this check, given what we have
