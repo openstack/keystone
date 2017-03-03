@@ -134,6 +134,19 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         else:
             self.fail("Create duplicate mapping did not raise a conflict")
 
+    def test_mapping_duplicate_conflict_with_id_in_id(self):
+        self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        self.mapping['id'] = 'mapping_with_id_in_the_id'
+        self.federation_api.create_mapping(self.mapping['id'],
+                                           self.mapping)
+        try:
+            self.federation_api.create_mapping(self.mapping['id'],
+                                               self.mapping)
+        except exception.Conflict as e:
+            self.assertIn("Duplicate entry found with ID %s"
+                          % self.mapping['id'], repr(e))
+        # Any other exception will cause the test to fail
+
     def test_region_duplicate_conflict_gives_name(self):
         region_ref = unit.new_region_ref()
         self.catalog_api.create_region(region_ref)
@@ -171,6 +184,60 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                           % protocol_ret['id'], repr(e))
         else:
             self.fail("Create duplicate region did not raise a conflict")
+
+    def test_federation_protocol_duplicate_conflict_with_id_in_id(self):
+        self.idp = {
+            'id': uuid.uuid4().hex,
+            'enabled': True,
+            'description': uuid.uuid4().hex
+        }
+        self.federation_api.create_idp(self.idp['id'], self.idp)
+        self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        self.mapping['id'] = uuid.uuid4().hex
+        self.federation_api.create_mapping(self.mapping['id'],
+                                           self.mapping)
+        protocol = {
+            'id': 'federation_protocol_with_id_in_the_id',
+            'mapping_id': self.mapping['id']
+        }
+        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
+                                                           protocol['id'],
+                                                           protocol)
+        try:
+            self.federation_api.create_protocol(self.idp['id'],
+                                                protocol['id'],
+                                                protocol)
+        except exception.Conflict as e:
+            self.assertIn("Duplicate entry found with ID %s"
+                          % protocol_ret['id'], repr(e))
+        # Any other exception will fail the test
+
+    def test_federation_protocol_duplicate_conflict_with_id_in_idp_id(self):
+        self.idp = {
+            'id': 'myidp',
+            'enabled': True,
+            'description': uuid.uuid4().hex
+        }
+        self.federation_api.create_idp(self.idp['id'], self.idp)
+        self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
+        self.mapping['id'] = uuid.uuid4().hex
+        self.federation_api.create_mapping(self.mapping['id'],
+                                           self.mapping)
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': self.mapping['id']
+        }
+        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
+                                                           protocol['id'],
+                                                           protocol)
+        try:
+            self.federation_api.create_protocol(self.idp['id'],
+                                                protocol['id'],
+                                                protocol)
+        except exception.Conflict as e:
+            self.assertIn("Duplicate entry found with ID %s"
+                          % protocol_ret['id'], repr(e))
+        # Any other exception will fail the test
 
     def test_sp_duplicate_conflict_gives_name(self):
         sp = {

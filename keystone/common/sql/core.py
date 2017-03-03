@@ -449,14 +449,15 @@ def handle_conflicts(conflict_type='object'):
                 # We want to store the duplicate objects name in the error
                 # message for the user. If name is not available we use the id.
                 for arg in params:
-                    if 'name' in arg:
-                        field = 'name'
-                        name = arg['name']
-                    elif 'id' in arg:
-                        field = 'ID'
-                        name = arg['id']
-                    if 'domain_id' in arg:
-                        domain_id = arg['domain_id']
+                    if isinstance(arg, dict):
+                        if 'name' in arg:
+                            field = 'name'
+                            name = arg['name']
+                        elif 'id' in arg:
+                            field = 'ID'
+                            name = arg['id']
+                        if 'domain_id' in arg:
+                            domain_id = arg['domain_id']
                 msg = _('Duplicate entry')
                 if name and domain_id:
                     msg = _('Duplicate entry found with %(field)s %(name)s '
