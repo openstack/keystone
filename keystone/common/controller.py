@@ -54,7 +54,7 @@ def v2_ec2_deprecated(f):
             what=f.__name__ + ' of the v2 EC2 APIs',
             as_of=versionutils.deprecated.MITAKA,
             in_favor_of=('a similar function in the v3 Credential APIs'),
-            remove_in=0)
+            remove_in=+7)
         return deprecated(f)
     return wrapper()
 
@@ -66,7 +66,7 @@ def v2_auth_deprecated(f):
             what=f.__name__ + ' of the v2 Authentication APIs',
             as_of=versionutils.deprecated.MITAKA,
             in_favor_of=('a similar function in the v3 Authentication APIs'),
-            remove_in=0)
+            remove_in=+7)
         return deprecated(f)
     return wrapper()
 
