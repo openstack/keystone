@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    The ``keystone-manage bootstrap`` command can now be used to update
+    existing endpoints idempotently, which is useful in conjunction with
+    configuration management tools that use this command for both
+    initialization and lifecycle management of keystone.
+upgrade:
+  - |
+    The ``keystone-manage bootstrap`` command will now update existing
+    endpoints rather than skipping them if they already exist but are different
+    from the values provided to the command. This is useful in conjunction with
+    configuration management tools that use this command for both
+    initialization and lifecycle management of keystone.

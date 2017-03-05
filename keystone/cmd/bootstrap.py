@@ -317,9 +317,10 @@ class Bootstrapper(object):
                     LOG.info('Created %(interface)s endpoint %(url)s',
                              {'interface': interface, 'url': url})
                 else:
-                    # NOTE(jamielennox): electing not to update existing
-                    # endpoints here. There may be call to do so in future.
-                    LOG.info('Skipping %s endpoint as already created',
-                             interface)
+                    endpoint_ref['url'] = url
+                    PROVIDERS.catalog_api.update_endpoint(
+                        endpoint_id=endpoint_ref['id'],
+                        endpoint_ref=endpoint_ref)
+                    LOG.info('%s endpoint updated', interface)
 
                 self.endpoints[interface] = endpoint_ref['id']
