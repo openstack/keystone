@@ -1,0 +1,7 @@
+---
+fixes:
+  - >
+    [`bug 1670382 <https://bugs.launchpad.net/keystone/+bug/1670382>`_]
+    The ldap config group_members_are_ids has been added to the whitelisted
+    options allowing it to now be used in the domain config API and
+    `keystone-manage domain_config_upload`
