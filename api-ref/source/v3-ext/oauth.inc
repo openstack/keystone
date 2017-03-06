@@ -455,7 +455,7 @@ token has an OAuth-specific object.
 
 Example OAuth-specific object in a token:
 
-.. code-block:: json
+.. code-block:: javascript
 
    "OS-OAUTH1": {
        "access_token_id": "cce0b8be7"
