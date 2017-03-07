@@ -21,6 +21,6 @@ fixes:
 deprecations:
   - |
     [`bug 1659995 <https://bugs.launchpad.net/keystone/+bug/1659995>`_]
-    The config option ``[security_compliance] ignore_password_expires_user_ids``
+    The config option ``[security_compliance] password_expires_ignore_user_ids``
     has been deprecated in favor of using the option value set, available via
     the user create and update API call
