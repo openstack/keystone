@@ -496,7 +496,7 @@ if it was generated using ?nocatalog).
 
 The structure of the catalog object is identical to that contained in a token.
 
-Normal response codes: 204
+Normal response codes: 200
 
 Error response codes: 413,415,405,404,403,401,400,503,409
 
