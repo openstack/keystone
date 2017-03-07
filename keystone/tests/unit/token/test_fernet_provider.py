@@ -621,6 +621,20 @@ class TestFernetKeyRotation(unit.TestCase):
         # Assert that the key repository is unchanged
         self.assertEqual(self.key_repository_size, 2)
 
+        with mock.patch('keystone.common.fernet_utils.open', mock_open):
+            self.assertRaises(IOError, key_utils.rotate_keys)
+
+        # Assert that the key repository is still unchanged, even after
+        # repeated rotation attempts.
+        self.assertEqual(self.key_repository_size, 2)
+
+        # Rotate the keys normally, without any mocking, to show that the
+        # system can recover.
+        key_utils.rotate_keys()
+
+        # Assert that the key repository is now expanded.
+        self.assertEqual(self.key_repository_size, 3)
+
     def test_non_numeric_files(self):
         self.useFixture(
             ksfixtures.KeyRepository(
