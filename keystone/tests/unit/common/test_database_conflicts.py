@@ -23,6 +23,15 @@ CONF = keystone.conf.CONF
 
 
 class DuplicateTestCase(test_v3.RestfulTestCase):
+    # TODO(lbragstad): This class relies heavily on the usage of try/excepts
+    # within the tests. We could achieve the same functionality with better
+    # readability using a context manager from `assertRaises()`. The reason why
+    # we aren't is because we are using the testtools library, which
+    # reimplemented the functionality of `assertRaises` but didn't include
+    # support for using it to generate a context manager. If that ever changes,
+    # or if we move away from testtools, we should fix this to be more
+    # test-like and not rely on try/except/else patterns in tests.
+
     def test_domain_duplicate_conflict_gives_name(self):
         domain = unit.new_domain_ref()
         self.resource_api.create_domain(domain['id'], domain)
