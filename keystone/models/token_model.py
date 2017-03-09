@@ -197,11 +197,7 @@ class KeystoneToken(dict):
         if self.domain_scoped:
             # Currently, domain scoped tokens cannot act as is_admin_project
             return False
-
-        # True gets returned by default for compatibility with older versions
-        # TODO(henry-nash): This seems inherently dangerous, and we should
-        # investigate how we can default this to False.
-        return self.get('is_admin_project', True)
+        return self.get('is_admin_project', False)
 
     @property
     def trust_id(self):

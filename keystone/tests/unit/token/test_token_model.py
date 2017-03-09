@@ -87,8 +87,8 @@ class TestKeystoneTokenModel(core.TestCase):
         self.assertTrue(token_data.scoped)
         self.assertTrue(token_data.trust_scoped)
 
-        # by default admin project is True for project scoped tokens
-        self.assertTrue(token_data.is_admin_project)
+        # by default admin project is False for project scoped tokens
+        self.assertFalse(token_data.is_admin_project)
 
         self.assertEqual(
             [r['id'] for r in self.v3_sample_token['token']['roles']],
