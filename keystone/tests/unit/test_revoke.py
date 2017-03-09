@@ -342,7 +342,7 @@ class RevokeTests(object):
         first_token['user_id'] = uuid.uuid4().hex
         first_token['project_id'] = uuid.uuid4().hex
         first_token['audit_id'] = common.random_urlsafe_str()
-        # revoke event and then verify that that there is only one revocation
+        # revoke event and then verify that there is only one revocation
         # and verify the only revoked event is the token
         add_event(events, revoke_model.RevokeEvent(
             user_id=first_token['user_id'],
