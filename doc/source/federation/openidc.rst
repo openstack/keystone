@@ -42,7 +42,7 @@ Enable the auth_openidc module:
 In the keystone vhost file, locate the virtual host entry and add the following
 entries for OpenID Connect:
 
-.. code-block:: xml
+.. code-block:: none
 
   <VirtualHost *:5000>
 
