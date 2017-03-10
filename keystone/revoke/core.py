@@ -82,11 +82,6 @@ class Manager(manager.Manager):
                        payload):
         self.revoke_by_user(payload['resource_info'])
 
-    def _role_callback(self, service, resource_type, operation,
-                       payload):
-        self.revoke(
-            revoke_model.RevokeEvent(role_id=payload['resource_info']))
-
     def _project_callback(self, service, resource_type, operation,
                           payload):
         self.revoke(
@@ -119,7 +114,6 @@ class Manager(manager.Manager):
             notifications.ACTIONS.deleted: [
                 ['OS-TRUST:trust', self._trust_callback],
                 ['OS-OAUTH1:consumer', self._consumer_callback],
-                ['role', self._role_callback],
                 ['user', self._user_callback],
                 ['project', self._project_callback],
                 ['role_assignment', self._role_assignment_callback]
