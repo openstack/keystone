@@ -13,7 +13,7 @@
     a link to check the progress of the request.
 204:
   default: |
-    The server has fulfilled the request by deleting the resource.
+    The server has fulfilled the request.
 300:
   default: |
     There are multiple choices for resources. The request has to be more
