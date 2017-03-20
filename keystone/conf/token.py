@@ -119,7 +119,7 @@ allow_rescope_scoped_token = cfg.BoolOpt(
     'allow_rescope_scoped_token',
     default=True,
     help=utils.fmt("""
-This toggles whether scoped tokens may be be re-scoped to a new project or
+This toggles whether scoped tokens may be re-scoped to a new project or
 domain, thereby preventing users from exchanging a scoped token (including
 those with a default project scope) for any other token. This forces users to
 either authenticate for unscoped tokens (and later exchange that unscoped token
