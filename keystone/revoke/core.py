@@ -102,13 +102,6 @@ class Manager(manager.Manager):
         self.revoke(
             revoke_model.RevokeEvent(consumer_id=payload['resource_info']))
 
-    def _role_assignment_callback(self, service, resource_type, operation,
-                                  payload):
-        info = payload['resource_info']
-        self.revoke_by_grant(role_id=info['role_id'], user_id=info['user_id'],
-                             domain_id=info.get('domain_id'),
-                             project_id=info.get('project_id'))
-
     def _register_listeners(self):
         callbacks = {
             notifications.ACTIONS.deleted: [
@@ -116,7 +109,6 @@ class Manager(manager.Manager):
                 ['OS-OAUTH1:consumer', self._consumer_callback],
                 ['user', self._user_callback],
                 ['project', self._project_callback],
-                ['role_assignment', self._role_assignment_callback]
             ],
             notifications.ACTIONS.disabled: [
                 ['user', self._user_callback],
