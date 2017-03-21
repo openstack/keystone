@@ -22,7 +22,7 @@ from keystone.common import dependency
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LI, _LE
+from keystone.i18n import _
 from keystone.identity.backends import resource_options as ro
 
 
@@ -102,9 +102,9 @@ class AuthContext(dict):
                 # special treatment for 'expires_at', we are going to take
                 # the earliest expiration instead.
                 if existing_val != val:
-                    LOG.info(_LI('"expires_at" has conflicting values '
-                                 '%(existing)s and %(new)s.  Will use the '
-                                 'earliest value.'),
+                    LOG.info('"expires_at" has conflicting values '
+                             '%(existing)s and %(new)s.  Will use the '
+                             'earliest value.',
                              {'existing': existing_val, 'new': val})
                 if existing_val is None or val is None:
                     val = existing_val or val
@@ -434,8 +434,8 @@ class UserMFARulesValidator(object):
         # processing.
         rule_set = []
         if not isinstance(rules, list):
-            LOG.error(_LE('Corrupt rule data structure for user %(user_id)s, '
-                          'no rules loaded.'),
+            LOG.error('Corrupt rule data structure for user %(user_id)s, '
+                      'no rules loaded.',
                       {'user_id': user_id})
             # Corrupt Data means no rules. Auth success > MFA rules in this
             # case.
@@ -448,8 +448,8 @@ class UserMFARulesValidator(object):
             if not isinstance(r_list, list):
                 # Rule was not a list, it is invalid, drop the rule from
                 # being considered.
-                LOG.info(_LI('Ignoring Rule %(rule)r; rule must be a list of '
-                             'strings.'),
+                LOG.info('Ignoring Rule %(rule)r; rule must be a list of '
+                         'strings.',
                          {'type': type(r_list)})
                 continue
 
@@ -460,8 +460,8 @@ class UserMFARulesValidator(object):
                     if not isinstance(item, six.string_types):
                         # Rules may only contain strings for method names
                         # Reject a rule with non-string values
-                        LOG.info(_LI('Ignoring Rule %(rule)r; rule contains '
-                                     'non-string values.'),
+                        LOG.info('Ignoring Rule %(rule)r; rule contains '
+                                 'non-string values.',
                                  {'rule': r_list})
                         # Rule is known to be bad, drop it from consideration.
                         _ok_rule = False

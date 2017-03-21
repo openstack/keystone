@@ -20,7 +20,6 @@ from oslo_log import log
 
 from keystone.common import utils
 import keystone.conf
-from keystone.i18n import _LI, _LE, _LW
 
 LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
@@ -71,13 +70,13 @@ class BaseCertificateConfigure(object):
             if b'OpenSSL 0.' in openssl_ver:
                 self.ssl_dictionary['default_md'] = 'sha1'
         except subprocess.CalledProcessError:
-            LOG.warning(_LW('Failed to invoke ``openssl version``, '
-                            'assuming is v1.0 or newer'))
+            LOG.warning('Failed to invoke ``openssl version``, '
+                        'assuming is v1.0 or newer')
         self.ssl_dictionary.update(kwargs)
 
     def exec_command(self, command):
         to_exec = [part % self.ssl_dictionary for part in command]
-        LOG.info(_LI('Running command - %s'), ' '.join(to_exec))
+        LOG.info('Running command - %s', ' '.join(to_exec))
         try:
             # NOTE(shaleh): use check_output instead of the simpler
             # `check_call()` in order to log any output from an error.
@@ -87,8 +86,8 @@ class BaseCertificateConfigure(object):
                 to_exec,
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            msg = _LE("Command %(to_exec)s exited with %(retcode)s - "
-                      "%(output)s)")
+            msg = ("Command %(to_exec)s exited with %(retcode)s - "
+                   "%(output)s)")
             LOG.error(msg,
                       {'to_exec': to_exec,
                        'retcode': e.returncode,
@@ -112,8 +111,8 @@ class BaseCertificateConfigure(object):
                     try:
                         os.remove(file_path)
                     except OSError as exc:
-                        msg = _LE("Failed to remove file %(file_path)r: "
-                                  "%(error)s")
+                        msg = ("Failed to remove file %(file_path)r: "
+                               "%(error)s")
                         LOG.error(msg,
                                   {'file_path': file_path,
                                    'error': exc.strerror})

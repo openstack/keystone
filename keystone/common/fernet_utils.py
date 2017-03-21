@@ -18,7 +18,6 @@ from cryptography import fernet
 from oslo_log import log
 
 import keystone.conf
-from keystone.i18n import _LE, _LW, _LI
 
 
 LOG = log.getLogger(__name__)
@@ -56,9 +55,9 @@ class FernetUtils(object):
 
         if not is_valid:
             LOG.error(
-                _LE('Either [%(config_group)s] key_repository does not exist '
-                    'or Keystone does not have sufficient permission to '
-                    'access it: %(key_repo)s'),
+                'Either [%(config_group)s] key_repository does not exist '
+                'or Keystone does not have sufficient permission to '
+                'access it: %(key_repo)s',
                 {'key_repo': self.key_repository,
                  'config_group': self.config_group})
         else:
@@ -66,8 +65,8 @@ class FernetUtils(object):
             stat_info = os.stat(self.key_repository)
             if(stat_info.st_mode & stat.S_IROTH or
                stat_info.st_mode & stat.S_IXOTH):
-                LOG.warning(_LW(
-                    'key_repository is world readable: %s'),
+                LOG.warning(
+                    'key_repository is world readable: %s',
                     self.key_repository)
 
         return is_valid
@@ -76,17 +75,17 @@ class FernetUtils(object):
                              keystone_group_id=None):
         """Attempt to create the key directory if it doesn't exist."""
         if not os.access(self.key_repository, os.F_OK):
-            LOG.info(_LI(
+            LOG.info(
                 'key_repository does not appear to exist; attempting to '
-                'create it'))
+                'create it')
 
             try:
                 os.makedirs(self.key_repository, 0o700)
             except OSError:
-                LOG.error(_LE(
+                LOG.error(
                     'Failed to create key_repository: either it already '
                     'exists or you don\'t have sufficient permissions to '
-                    'create it'))
+                    'create it')
 
             if keystone_user_id and keystone_group_id:
                 os.chown(
@@ -94,10 +93,10 @@ class FernetUtils(object):
                     keystone_user_id,
                     keystone_group_id)
             elif keystone_user_id or keystone_group_id:
-                LOG.warning(_LW(
+                LOG.warning(
                     'Unable to change the ownership of key_repository without '
                     'a keystone user ID and keystone group ID both being '
-                    'provided: %s') % self.key_repository)
+                    'provided: %s' % self.key_repository)
 
     def _create_new_key(self, keystone_user_id, keystone_group_id):
         """Securely create a new encryption key.
@@ -126,10 +125,10 @@ class FernetUtils(object):
             os.setegid(keystone_group_id)
             os.seteuid(keystone_user_id)
         elif keystone_user_id or keystone_group_id:
-            LOG.warning(_LW(
+            LOG.warning(
                 'Unable to change the ownership of the new key without a '
                 'keystone user ID and keystone group ID both being provided: '
-                '%s') %
+                '%s' %
                 self.key_repository)
         # Determine the file name of the new key
         key_file = os.path.join(self.key_repository, '0.tmp')
@@ -141,7 +140,7 @@ class FernetUtils(object):
                 f.flush()
                 create_success = True
         except IOError:
-            LOG.error(_LE('Failed to create new temporary key: %s'), key_file)
+            LOG.error('Failed to create new temporary key: %s', key_file)
             raise
         finally:
             # After writing the key, set the umask back to it's original value.
@@ -155,7 +154,7 @@ class FernetUtils(object):
             if not create_success and os.access(key_file, os.F_OK):
                 os.remove(key_file)
 
-        LOG.info(_LI('Created a new temporary key: %s'), key_file)
+        LOG.info('Created a new temporary key: %s', key_file)
 
     def _become_valid_new_key(self):
         """Make the tmp new key a valid new key.
@@ -167,7 +166,7 @@ class FernetUtils(object):
 
         os.rename(tmp_key_file, valid_key_file)
 
-        LOG.info(_LI('Become a valid new key: %s'), valid_key_file)
+        LOG.info('Become a valid new key: %s', valid_key_file)
 
     def initialize_key_repository(self, keystone_user_id=None,
                                   keystone_group_id=None):
@@ -180,7 +179,7 @@ class FernetUtils(object):
         # make sure we have work to do before proceeding
         if os.access(os.path.join(self.key_repository, '0'),
                      os.F_OK):
-            LOG.info(_LI('Key repository is already initialized; aborting.'))
+            LOG.info('Key repository is already initialized; aborting.')
             return
 
         # bootstrap an existing key
@@ -221,19 +220,19 @@ class FernetUtils(object):
                 else:
                     key_files[key_id] = path
 
-        LOG.info(_LI('Starting key rotation with %(count)s key files: '
-                     '%(list)s'), {
-            'count': len(key_files),
-            'list': list(key_files.values())})
+        LOG.info('Starting key rotation with %(count)s key files: '
+                 '%(list)s', {
+                     'count': len(key_files),
+                     'list': list(key_files.values())})
 
         # add a tmp new key to the rotation, which will be the *next* primary
         self._create_tmp_new_key(keystone_user_id, keystone_group_id)
 
         # determine the number of the new primary key
         current_primary_key = max(key_files.keys())
-        LOG.info(_LI('Current primary key is: %s'), current_primary_key)
+        LOG.info('Current primary key is: %s', current_primary_key)
         new_primary_key = current_primary_key + 1
-        LOG.info(_LI('Next primary key will be: %s'), new_primary_key)
+        LOG.info('Next primary key will be: %s', new_primary_key)
 
         # promote the next primary key to be the primary
         os.rename(
@@ -244,7 +243,7 @@ class FernetUtils(object):
         key_files[new_primary_key] = os.path.join(
             self.key_repository,
             str(new_primary_key))
-        LOG.info(_LI('Promoted key 0 to be the primary: %s'), new_primary_key)
+        LOG.info('Promoted key 0 to be the primary: %s', new_primary_key)
 
         # rename the tmp key to the real staged key
         self._become_valid_new_key()
@@ -259,7 +258,7 @@ class FernetUtils(object):
         while len(keys) > (max_active_keys - 1):
             index_to_purge = keys.pop()
             key_to_purge = key_files[index_to_purge]
-            LOG.info(_LI('Excess key to purge: %s'), key_to_purge)
+            LOG.info('Excess key to purge: %s', key_to_purge)
             os.remove(key_to_purge)
 
     def load_keys(self, use_null_key=False):

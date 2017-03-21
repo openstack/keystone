@@ -19,7 +19,6 @@ from oslo_serialization import jsonutils
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LE
 
 
 CONF = keystone.conf.CONF
@@ -64,14 +63,14 @@ class AdminTokenAuthMiddleware(wsgi.Middleware):
         # NOTE(notmorgan): This is deprecated and emits a significant error
         # message to make sure deployers update their deployments so in the
         # future release upgrade the deployment does not break.
-        LOG.error(_LE('The admin_token_auth middleware functionality has been '
-                      'merged into the main auth middleware '
-                      '(keystone.middleware.auth.AuthContextMiddleware). '
-                      '`admin_token_auth` must be removed from the '
-                      '[pipeline:api_v3], [pipeline:admin_api], and '
-                      '[pipeline:public_api] sections of your paste ini '
-                      'file. The [filter:admin_token_auth] block will also '
-                      'need to be removed from your paste ini file. '))
+        LOG.error('The admin_token_auth middleware functionality has been '
+                  'merged into the main auth middleware '
+                  '(keystone.middleware.auth.AuthContextMiddleware). '
+                  '`admin_token_auth` must be removed from the '
+                  '[pipeline:api_v3], [pipeline:admin_api], and '
+                  '[pipeline:public_api] sections of your paste ini '
+                  'file. The [filter:admin_token_auth] block will also '
+                  'need to be removed from your paste ini file. ')
 
 
 class JsonBodyMiddleware(wsgi.Middleware):

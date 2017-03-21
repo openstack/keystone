@@ -34,7 +34,7 @@ if not xmldsig:
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LE
+from keystone.i18n import _
 
 
 LOG = log.getLogger(__name__)
@@ -405,9 +405,9 @@ def _sign_assertion(assertion):
     # explode like a thousand fiery supernovas made entirely of unsigned SAML.
     for option in ('keyfile', 'certfile'):
         if ',' in getattr(CONF.saml, option, ''):
-            raise exception.UnexpectedError(_LE(
+            raise exception.UnexpectedError(
                 'The configuration value in `keystone.conf [saml] %s` cannot '
-                'contain a comma (`,`). Please fix your configuration.') %
+                'contain a comma (`,`). Please fix your configuration.' %
                 option)
 
     # xmlsec1 --sign --privkey-pem privkey,cert --id-attr:ID <tag> <file>
@@ -443,7 +443,7 @@ def _sign_assertion(assertion):
                                          # parsing.
                                          stderr=subprocess.STDOUT)
     except Exception as e:
-        msg = _LE('Error when signing assertion, reason: %(reason)s%(output)s')
+        msg = ('Error when signing assertion, reason: %(reason)s%(output)s')
         LOG.error(msg,
                   {'reason': e,
                    'output': ' ' + e.output if hasattr(e, 'output') else ''})

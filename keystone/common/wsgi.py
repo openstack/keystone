@@ -41,7 +41,7 @@ from keystone.common import request as request_mod
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LI, _LW
+from keystone.i18n import _
 from keystone.models import token_model
 
 
@@ -104,7 +104,7 @@ def validate_token_bind(context, token_ref):
                 LOG.info(msg)
                 raise exception.Unauthorized(msg)
 
-            LOG.info(_LI('Kerberos bind authentication successful'))
+            LOG.info('Kerberos bind authentication successful')
 
         elif bind_mode == 'permissive':
             LOG.debug(("Ignoring unknown bind (due to permissive mode): "
@@ -228,8 +228,8 @@ class Application(BaseApplication):
             result = method(req, **params)
         except exception.Unauthorized as e:
             LOG.warning(
-                _LW("Authorization failed. %(exception)s from "
-                    "%(remote_addr)s"),
+                "Authorization failed. %(exception)s from "
+                "%(remote_addr)s",
                 {'exception': e, 'remote_addr': req.environ['REMOTE_ADDR']})
             return render_exception(e,
                                     context=req.context_dict,

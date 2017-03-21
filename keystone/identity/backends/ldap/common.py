@@ -30,7 +30,7 @@ from six.moves import map, zip
 
 from keystone.common import driver_hints
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 
 
 LOG = log.getLogger(__name__)
@@ -1037,9 +1037,9 @@ class KeystoneLDAPHandler(LDAPHandler):
                     # Exit condition no more data on server
                     break
             else:
-                LOG.warning(_LW('LDAP Server does not support paging. '
-                                'Disable paging in keystone.conf to '
-                                'avoid this message.'))
+                LOG.warning('LDAP Server does not support paging. '
+                            'Disable paging in keystone.conf to '
+                            'avoid this message.')
                 self._disable_paging()
                 break
         return res
@@ -1222,9 +1222,9 @@ class BaseLdap(object):
             try:
                 ldap_attr, attr_map = item.split(':')
             except ValueError:
-                LOG.warning(_LW(
+                LOG.warning(
                     'Invalid additional attribute mapping: "%s". '
-                    'Format must be <ldap_attribute>:<keystone_attribute>'),
+                    'Format must be <ldap_attribute>:<keystone_attribute>',
                     item)
                 continue
             mapping[ldap_attr] = attr_map
@@ -1334,11 +1334,10 @@ class BaseLdap(object):
             # logic here so it does not potentially break existing
             # deployments. We need to fix our read-write LDAP logic so
             # it does not get the ID from DN.
-            message = _LW('ID attribute %(id_attr)s for LDAP object %(dn)s '
-                          'has multiple values and therefore cannot be used '
-                          'as an ID. Will get the ID from DN instead') % (
-                              {'id_attr': self.id_attr,
-                               'dn': res[0]})
+            message = ('ID attribute %(id_attr)s for LDAP object %(dn)s '
+                       'has multiple values and therefore cannot be used '
+                       'as an ID. Will get the ID from DN instead') % (
+                           {'id_attr': self.id_attr, 'dn': res[0]})
             LOG.warning(message)
             id_val = self._dn_to_id(res[0])
         else:
@@ -1641,9 +1640,9 @@ class BaseLdap(object):
                         not_deleted_nodes.append(node_dn)
 
         if not_deleted_nodes:
-            msg = _LW('When deleting entries for %(search_base)s, '
-                      'could not delete nonexistent entries '
-                      '%(entries)s%(dots)s')
+            msg = ('When deleting entries for %(search_base)s, '
+                   'could not delete nonexistent entries '
+                   '%(entries)s%(dots)s')
             LOG.warning(msg,
                         {'search_base': search_base,
                          'entries': not_deleted_nodes[:3],

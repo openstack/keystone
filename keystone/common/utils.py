@@ -37,7 +37,7 @@ from six import moves
 from keystone.common import authorization
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LE, _LW
+from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
@@ -103,7 +103,7 @@ def verify_length_and_trunc_password(password):
             if CONF.strict_password_check:
                 raise exception.PasswordVerificationError(size=max_length)
             else:
-                msg = _LW("Truncating user password to %d characters.")
+                msg = "Truncating user password to %d characters."
                 LOG.warning(msg, max_length)
                 return password[:max_length]
         else:
@@ -241,10 +241,10 @@ def setup_remote_pydev_debug():
                             stderrToServer=True)
             return True
         except Exception:
-            LOG.exception(_LE(
+            LOG.exception(
                 'Error setting up the debug environment. Verify that the '
                 'option --debug-url has the format <host>:<port> and that a '
-                'debugger processes is listening on that port.'))
+                'debugger processes is listening on that port.')
             raise
 
 
@@ -606,25 +606,24 @@ def format_url(url, substitutions, silent_keyerror_failures=None):
     try:
         result = url.replace('$(', '%(') % substitutions
     except AttributeError:
-        msg = _LE("Malformed endpoint - %(url)r is not a string")
+        msg = "Malformed endpoint - %(url)r is not a string"
         LOG.error(msg, {"url": url})
         raise exception.MalformedEndpoint(endpoint=url)
     except KeyError as e:
         if not e.args or e.args[0] not in allow_keyerror:
-            msg = _LE("Malformed endpoint %(url)s - unknown key "
-                      "%(keyerror)s")
+            msg = "Malformed endpoint %(url)s - unknown key %(keyerror)s"
             LOG.error(msg, {"url": url, "keyerror": e})
             raise exception.MalformedEndpoint(endpoint=url)
         else:
             result = None
     except TypeError as e:
-        msg = _LE("Malformed endpoint '%(url)s'. The following type error "
-                  "occurred during string substitution: %(typeerror)s")
+        msg = ("Malformed endpoint '%(url)s'. The following type error "
+               "occurred during string substitution: %(typeerror)s")
         LOG.error(msg, {"url": url, "typeerror": e})
         raise exception.MalformedEndpoint(endpoint=url)
     except ValueError:
-        msg = _LE("Malformed endpoint %s - incomplete format "
-                  "(are you missing a type notifier ?)")
+        msg = ("Malformed endpoint %s - incomplete format "
+               "(are you missing a type notifier ?)")
         LOG.error(msg, url)
         raise exception.MalformedEndpoint(endpoint=url)
     return result

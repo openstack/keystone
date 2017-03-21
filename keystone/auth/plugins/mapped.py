@@ -23,7 +23,7 @@ from keystone.common import dependency
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
-from keystone.i18n import _, _LE, _LI
+from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
 
@@ -123,9 +123,9 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
                 # be useful.
                 if shadow_role['name'] not in existing_roles:
                     LOG.error(
-                        _LE('Role %s was specified in the mapping but does '
-                            'not exist. All roles specified in a mapping must '
-                            'exist before assignment.'),
+                        'Role %s was specified in the mapping but does '
+                        'not exist. All roles specified in a mapping must '
+                        'exist before assignment.',
                         shadow_role['name']
                     )
                     # NOTE(lbragstad): The RoleNotFound exception usually
@@ -136,8 +136,8 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
                 if (role['domain_id'] is not None and
                         role['domain_id'] != idp_domain_id):
                     LOG.error(
-                        _LE('Role %(role)s is a domain-specific role and '
-                            'cannot be assigned within %(domain)s.'),
+                        'Role %(role)s is a domain-specific role and '
+                        'cannot be assigned within %(domain)s.',
                         {'role': shadow_role['name'], 'domain': idp_domain_id}
                     )
                     raise exception.DomainSpecificRoleNotWithinIdPDomain(
@@ -157,8 +157,8 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
                 )
             except exception.ProjectNotFound:
                 LOG.info(
-                    _LI('Project %(project_name)s does not exist. It will be '
-                        'automatically provisioning for user %(user_id)s.'),
+                    'Project %(project_name)s does not exist. It will be '
+                    'automatically provisioning for user %(user_id)s.',
                     {'project_name': shadow_project['name'],
                      'user_id': user['id']}
                 )

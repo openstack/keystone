@@ -17,7 +17,6 @@ from oslo_log import log
 from keystone.common import dependency
 from keystone.common import sql
 import keystone.conf
-from keystone.i18n import _LW
 from keystone.server import backends
 
 
@@ -38,9 +37,9 @@ def configure(version=None, config_files=None,
     keystone.conf.setup_logging()
 
     if CONF.insecure_debug:
-        LOG.warning(_LW(
+        LOG.warning(
             'insecure_debug is enabled so responses may include sensitive '
-            'information.'))
+            'information.')
 
 
 def setup_backends(load_extra_backends_fn=lambda: {},

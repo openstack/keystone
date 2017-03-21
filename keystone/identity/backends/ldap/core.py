@@ -22,7 +22,7 @@ import six
 from keystone.common import driver_hints
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 from keystone.identity.backends import base
 from keystone.identity.backends.ldap import common as common_ldap
 from keystone.identity.backends.ldap import models
@@ -225,8 +225,8 @@ class Identity(base.IdentityDriverBase):
             try:
                 super(GroupApi, self.group).remove_member(user_dn, group_dn)
             except ldap.NO_SUCH_ATTRIBUTE:
-                msg = _LW('User %(user)s was not removed from group %(group)s '
-                          'because the relationship was not found')
+                msg = ('User %(user)s was not removed from group %(group)s '
+                       'because the relationship was not found')
                 LOG.warning(msg, {'user': user_id, 'group': group['id']})
 
         if hasattr(user, 'tenant_id'):

@@ -22,7 +22,6 @@ from oslo_utils import timeutils
 from keystone.common import sql
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LI
 from keystone import token
 from keystone.token.providers import common
 
@@ -290,4 +289,4 @@ class Token(token.persistence.TokenDriverBase):
                 LOG.debug('Removed %d total expired tokens', total_removed)
 
             session.flush()
-            LOG.info(_LI('Total expired tokens removed: %d'), total_removed)
+            LOG.info('Total expired tokens removed: %d', total_removed)

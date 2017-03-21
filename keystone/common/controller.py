@@ -27,7 +27,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 from keystone.models import token_model
 
 
@@ -99,7 +99,7 @@ def protected(callback=None):
             request.assert_authenticated()
 
             if request.context.is_admin:
-                LOG.warning(_LW('RBAC: Bypassing authorization'))
+                LOG.warning('RBAC: Bypassing authorization')
             elif callback is not None:
                 prep_info = {'f_name': f.__name__,
                              'input_attr': kwargs}
@@ -231,7 +231,7 @@ def filterprotected(*filters, **callback):
 
                     LOG.debug('RBAC: Authorization granted')
             else:
-                LOG.warning(_LW('RBAC: Bypassing authorization'))
+                LOG.warning('RBAC: Bypassing authorization')
             return f(self, request, filters, **kwargs)
         return wrapper
     return _filterprotected
@@ -726,12 +726,12 @@ class V3Controller(wsgi.Application):
         # issue a deprecation warning.
         versionutils.report_deprecated_feature(
             LOG,
-            _LW('Not specifying a domain during a create user, group or '
-                'project call, and relying on falling back to the '
-                'default domain, is deprecated as of Liberty. There is no '
-                'plan to remove this compatibility, however, future API '
-                'versions may remove this, so please specify the domain '
-                'explicitly or use a domain-scoped token.'))
+            'Not specifying a domain during a create user, group or '
+            'project call, and relying on falling back to the '
+            'default domain, is deprecated as of Liberty. There is no '
+            'plan to remove this compatibility, however, future API '
+            'versions may remove this, so please specify the domain '
+            'explicitly or use a domain-scoped token.')
         return CONF.identity.default_domain_id
 
     def _normalize_domain_id(self, request, ref):
@@ -755,7 +755,7 @@ class V3Controller(wsgi.Application):
 
         """
         if request.context.is_admin:
-            LOG.warning(_LW('RBAC: Bypassing authorization'))
+            LOG.warning('RBAC: Bypassing authorization')
         else:
             action = 'identity:%s' % prep_info['f_name']
             # TODO(henry-nash) need to log the target attributes as well

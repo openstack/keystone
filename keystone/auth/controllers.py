@@ -27,7 +27,7 @@ from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.federation import constants
-from keystone.i18n import _, _LW, _LE
+from keystone.i18n import _
 from keystone.resource import controllers as resource_controllers
 
 
@@ -194,26 +194,26 @@ class Auth(controller.V3Controller):
                         user_ref['id'], default_project_id):
                     auth_info.set_scope(project_id=default_project_id)
                 else:
-                    msg = _LW("User %(user_id)s doesn't have access to"
-                              " default project %(project_id)s. The token"
-                              " will be unscoped rather than scoped to the"
-                              " project.")
+                    msg = ("User %(user_id)s doesn't have access to"
+                           " default project %(project_id)s. The token"
+                           " will be unscoped rather than scoped to the"
+                           " project.")
                     LOG.warning(msg,
                                 {'user_id': user_ref['id'],
                                  'project_id': default_project_id})
             else:
-                msg = _LW("User %(user_id)s's default project %(project_id)s"
-                          " is disabled. The token will be unscoped rather"
-                          " than scoped to the project.")
+                msg = ("User %(user_id)s's default project %(project_id)s"
+                       " is disabled. The token will be unscoped rather"
+                       " than scoped to the project.")
                 LOG.warning(msg,
                             {'user_id': user_ref['id'],
                              'project_id': default_project_id})
         except (exception.ProjectNotFound, exception.DomainNotFound):
             # default project or default project domain doesn't exist,
             # will issue unscoped token instead
-            msg = _LW("User %(user_id)s's default project %(project_id)s not"
-                      " found. The token will be unscoped rather than"
-                      " scoped to the project.")
+            msg = ("User %(user_id)s's default project %(project_id)s not"
+                   " found. The token will be unscoped rather than"
+                   " scoped to the project.")
             LOG.warning(msg, {'user_id': user_ref['id'],
                               'project_id': default_project_id})
 
@@ -227,11 +227,11 @@ class Auth(controller.V3Controller):
 
         if not isinstance(auth_context, core.AuthContext):
             LOG.error(
-                _LE('`auth_context` passed to the Auth controller '
-                    '`authenticate` method is not of type '
-                    '`keystone.auth.controllers.AuthContext`. For security '
-                    'purposes this is required. This is likely a programming '
-                    'error. Received object of type `%s`'), type(auth_context))
+                '`auth_context` passed to the Auth controller '
+                '`authenticate` method is not of type '
+                '`keystone.auth.controllers.AuthContext`. For security '
+                'purposes this is required. This is likely a programming '
+                'error. Received object of type `%s`', type(auth_context))
             raise exception.Unauthorized(
                 _('Cannot Authenticate due to internal error.'))
         # The 'external' method allows any 'REMOTE_USER' based authentication

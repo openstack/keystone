@@ -22,7 +22,7 @@ import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
-from keystone.i18n import _, _LI, _LW
+from keystone.i18n import _
 from keystone.middleware import core
 from keystone.models import token_model
 from keystone.token.providers import common
@@ -118,16 +118,16 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
 
         issuer = request.environ.get(CONF.tokenless_auth.issuer_attribute)
         if not issuer:
-            msg = _LI('Cannot find client issuer in env by the '
-                      'issuer attribute - %s.')
+            msg = ('Cannot find client issuer in env by the '
+                   'issuer attribute - %s.')
             LOG.info(msg, CONF.tokenless_auth.issuer_attribute)
             return False
 
         if issuer in CONF.tokenless_auth.trusted_issuer:
             return True
 
-        msg = _LI('The client issuer %(client_issuer)s does not match with '
-                  'the trusted issuer %(trusted_issuer)s')
+        msg = ('The client issuer %(client_issuer)s does not match with '
+               'the trusted issuer %(trusted_issuer)s')
         LOG.info(
             msg, {'client_issuer': issuer,
                   'trusted_issuer': CONF.tokenless_auth.trusted_issuer})
@@ -145,11 +145,11 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         if CONF.admin_token and (token == CONF.admin_token):
             context_env['is_admin'] = True
             LOG.warning(
-                _LW("The use of the '[DEFAULT] admin_token' configuration"
-                    "option presents a significant security risk and should "
-                    "not be set. This option is deprecated in favor of using "
-                    "'keystone-manage bootstrap' and will be removed in a "
-                    "future release."))
+                "The use of the '[DEFAULT] admin_token' configuration"
+                "option presents a significant security risk and should "
+                "not be set. This option is deprecated in favor of using "
+                "'keystone-manage bootstrap' and will be removed in a "
+                "future release.")
             request.environ[core.CONTEXT_ENV] = context_env
 
         if not context_env.get('is_admin', False):
@@ -174,9 +174,9 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         request.environ[context.REQUEST_CONTEXT_ENV] = request_context
 
         if authorization.AUTH_CONTEXT_ENV in request.environ:
-            msg = _LW('Auth context already exists in the request '
-                      'environment; it will be used for authorization '
-                      'instead of creating a new one.')
+            msg = ('Auth context already exists in the request '
+                   'environment; it will be used for authorization '
+                   'instead of creating a new one.')
             LOG.warning(msg)
             return
 

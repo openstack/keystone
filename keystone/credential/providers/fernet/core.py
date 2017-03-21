@@ -20,7 +20,7 @@ from keystone.common import fernet_utils
 import keystone.conf
 from keystone.credential.providers import core
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
@@ -70,11 +70,11 @@ class Provider(core.Provider):
         crypto, keys = get_multi_fernet_keys()
 
         if keys[0] == fernet_utils.NULL_KEY:
-            LOG.warning(_LW(
+            LOG.warning(
                 'Encrypting credentials with the null key. Please properly '
                 'encrypt credentials using `keystone-manage credential_setup`,'
                 ' `keystone-manage credential_migrate`, and `keystone-manage '
-                'credential_rotate`'))
+                'credential_rotate`')
 
         try:
             return (

@@ -18,7 +18,7 @@ import six
 from six.moves import http_client
 
 import keystone.conf
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
@@ -64,7 +64,7 @@ class Error(Exception):
             if _FATAL_EXCEPTION_FORMAT_ERRORS:
                 raise
             else:
-                LOG.warning(_LW('missing exception kwargs (programmer error)'))
+                LOG.warning('missing exception kwargs (programmer error)')
                 message = self.message_format
 
         super(Error, self).__init__(message)

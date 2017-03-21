@@ -25,7 +25,6 @@ from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LW
 
 
 CONF = keystone.conf.CONF
@@ -192,9 +191,9 @@ class Manager(object):
             raise AttributeError()
 
         f = getattr(self.token_provider_api._persistence, item)
-        LOG.warning(_LW('`token_api.%s` is deprecated as of Juno in favor of '
-                        'utilizing methods on `token_provider_api` and may be '
-                        'removed in Kilo.'), item)
+        LOG.warning('`token_api.%s` is deprecated as of Juno in favor of '
+                    'utilizing methods on `token_provider_api` and may be '
+                    'removed in Kilo.', item)
         setattr(self, item, f)
         return f
 
