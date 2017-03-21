@@ -19,7 +19,6 @@ from oslo_log import log
 from oslo_log import versionutils
 import six
 
-from keystone.common import driver_hints
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _, _LW
@@ -116,32 +115,37 @@ class Identity(base.IdentityDriverBase):
     def list_groups(self, hints):
         return self.group.get_all_filtered(hints)
 
-    def list_users_in_group(self, group_id, hints):
-        users = []
-        for user_key in self.group.list_group_users(group_id):
+    def _transform_group_member_ids(self, group_member_list):
+        for user_key in group_member_list:
             if self.conf.ldap.group_members_are_ids:
                 user_id = user_key
             else:
                 user_id = self.user._dn_to_id(user_key)
+            yield user_id
 
+    def list_users_in_group(self, group_id, hints):
+        users = []
+        group_members = self.group.list_group_users(group_id)
+        for user_id in self._transform_group_member_ids(group_members):
             try:
                 users.append(self.user.get_filtered(user_id))
             except exception.UserNotFound:
-                msg = ('Group member `%(user_key)s` not found in'
-                       ' `%(group_id)s`. The user should be removed'
-                       ' from the group. The user will be ignored.')
-                LOG.debug(msg, dict(user_key=user_key, group_id=group_id))
+                msg = ('Group member `%(user_id)s` for group `%(group_id)s`'
+                       ' not found in the directory. The user should be'
+                       ' removed from the group. The user will be ignored.')
+                LOG.debug(msg, dict(user_id=user_id, group_id=group_id))
         return users
 
     def check_user_in_group(self, user_id, group_id):
-        user_refs = self.list_users_in_group(group_id, driver_hints.Hints())
-        for x in user_refs:
-            if x['id'] == user_id:
+        # Before doing anything, check that the user exists. This will raise
+        # a not found error if the user doesn't exist so we avoid doing extra
+        # work.
+        self.get_user(user_id)
+        member_list = self.group.list_group_users(group_id)
+        for group_member_id in self._transform_group_member_ids(member_list):
+            if group_member_id == user_id:
                 break
         else:
-            # Try to fetch the user to see if it even exists.  This
-            # will raise a more accurate exception.
-            self.get_user(user_id)
             raise exception.NotFound(_("User '%(user_id)s' not found in"
                                        " group '%(group_id)s'") %
                                      {'user_id': user_id,
