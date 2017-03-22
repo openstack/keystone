@@ -586,13 +586,6 @@ class RevokeListTests(unit.TestCase):
         self.events.append(event)
         return event
 
-    def _revoke_by_project_role_assignment(self, project_id, role_id):
-        event = add_event(self.revoke_events,
-                          revoke_model.RevokeEvent(project_id=project_id,
-                                                   role_id=role_id))
-        self.events.append(event)
-        return event
-
     def _revoke_by_domain_role_assignment(self, domain_id, role_id):
         event = add_event(self.revoke_events,
                           revoke_model.RevokeEvent(domain_id=domain_id,
@@ -699,9 +692,6 @@ class RevokeListTests(unit.TestCase):
         events = self.events
         self._assertEmpty(self.revoke_events)
         for i in range(0, 10):
-            events.append(
-                self._revoke_by_project_role_assignment(uuid.uuid4().hex,
-                                                        uuid.uuid4().hex))
             events.append(
                 self._revoke_by_domain_role_assignment(uuid.uuid4().hex,
                                                        uuid.uuid4().hex))
