@@ -428,6 +428,23 @@ class ExtensionRouterTest(BaseWSGITest):
         self.assertIn("testkey", app.kwargs)
         self.assertEqual("test", app.kwargs["testkey"])
 
+    def test_resource_not_found_message(self):
+        class FakeRouter(wsgi.ExtensionRouter):
+            def __init__(self, *args, **kwargs):
+                self.kwargs = kwargs
+
+        factory = FakeRouter.factory({}, testkey="test")
+        app = factory(self.app)
+        req = webob.Request.blank('/WHATWHA')
+        # Force the match in the Router to fail so we can verify
+        # that the URL is included in the 404 error message.
+        req.environ['wsgiorg.routing_args'] = [None, None]
+        resp = app._dispatch(req)
+        body = jsonutils.loads(resp.body)
+        self.assertEqual(body['error']['message'],
+                         u'(http://localhost/WHATWHA): The resource could '
+                         'not be found.')
+
 
 class MiddlewareTest(BaseWSGITest):
     def test_middleware_request(self):

@@ -527,7 +527,8 @@ class Router(object):
         """
         match = req.environ['wsgiorg.routing_args'][1]
         if not match:
-            msg = _('The resource could not be found.')
+            msg = (_('(%(url)s): The resource could not be found.') %
+                   {'url': req.url})
             return render_exception(exception.NotFound(msg),
                                     request=req,
                                     user_locale=best_match_language(req))
