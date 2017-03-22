@@ -1125,6 +1125,32 @@ class Manager(manager.Manager):
             if new_ref['domain_id'] != orig_ref['domain_id']:
                 raise exception.ValidationError(_('Cannot change Domain ID'))
 
+    def _update_user_with_federated_objects(self, user, driver, entity_id):
+        # If the user did not pass a federated object along inside the user
+        # object then we simply update the user as normal and add the
+        # currently associated federated objects to user to be added to the
+        # dictionary.
+        if not user.get('federated'):
+            if 'federated' in user:
+                del user['federated']
+            user = driver.update_user(entity_id, user)
+            fed_objects = self.shadow_users_api.get_federated_objects(
+                user['id'])
+            if fed_objects:
+                user['federated'] = fed_objects
+            return user
+        # Otherwise, we validate, remove the previous user's federated objects,
+        # and update the user along with their updated federated objects.
+        else:
+            user_ref = user.copy()
+            self._validate_federated_objects(user_ref['federated'])
+            self.shadow_users_api.delete_federated_object(entity_id)
+            del user['federated']
+            user = driver.update_user(entity_id, user)
+            self._create_federated_objects(user, user_ref['federated'])
+            user['federated'] = user_ref['federated']
+            return user
+
     @domains_configured
     @exception_translated('user')
     def update_user(self, user_id, user_ref, initiator=None):
@@ -1153,7 +1179,7 @@ class Manager(manager.Manager):
         self.get_user_by_name.invalidate(self, old_user_ref['name'],
                                          old_user_ref['domain_id'])
 
-        ref = driver.update_user(entity_id, user)
+        ref = self._update_user_with_federated_objects(user, driver, entity_id)
 
         notifications.Audit.updated(self._USER, user_id, initiator)
 

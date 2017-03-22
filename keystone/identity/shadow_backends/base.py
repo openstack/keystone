@@ -70,6 +70,13 @@ class ShadowUsersDriverBase(object, metaclass=abc.ABCMeta):
         """
         raise exception.NotImplemented()
 
+    def delete_federated_object(self, user_id):
+        """Delete a user's federated objects.
+
+        :param user_id: Unique identifier of the user
+        """
+        raise exception.NotImplemented()
+
     @abc.abstractmethod
     def get_federated_objects(self, user_id):
         """Get all federated objects for a user.
