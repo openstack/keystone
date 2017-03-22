@@ -54,6 +54,19 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             session.add(user_ref)
             return identity_base.filter_user(user_ref.to_dict())
 
+    def get_federated_objects(self, user_id):
+        with sql.session_for_read() as session:
+            query = session.query(model.FederatedUser)
+            query = query.filter(model.FederatedUser.user_id == user_id)
+            fed_ref = []
+            for row in query:
+                m = model.FederatedUser(
+                    idp_id=row.idp_id,
+                    protocol_id=row.protocol_id,
+                    unique_id=row.unique_id)
+                fed_ref.append(m.to_dict())
+            return base.federated_objects_to_list(fed_ref)
+
     def _update_query_with_federated_statements(self, hints, query):
         statements = []
         for filter_ in hints.filters:

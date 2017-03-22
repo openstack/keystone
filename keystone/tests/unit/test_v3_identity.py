@@ -1167,3 +1167,13 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
     def test_list_users_with_all_federated_attributes(self):
         attribute = ['idp_id', 'protocol_id', 'unique_id']
         self._test_list_users_with_federated_parameter(attribute)
+
+    def test_get_user_includes_required_federated_attributes(self):
+        user = self.identity_api.get_user(self.fed_user['id'])
+        self.assertIn('federated', user)
+        self.assertIn('idp_id', user['federated'][0])
+        self.assertIn('protocols', user['federated'][0])
+        self.assertIn('protocol_id', user['federated'][0]['protocols'][0])
+        self.assertIn('unique_id', user['federated'][0]['protocols'][0])
+        r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
+        self.assertValidUserResponse(r, user)
