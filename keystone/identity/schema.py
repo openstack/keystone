@@ -33,6 +33,30 @@ _user_properties = {
     'description': validation.nullable(parameter_types.description),
     'domain_id': parameter_types.id_string,
     'enabled': parameter_types.boolean,
+    'federated': {
+        'type': 'array',
+        'items':
+            {
+                'type': 'object',
+                'properties': {
+                    'idp_id': {'type': 'string'},
+                    'protocols': {
+                        'type': 'array',
+                        'items':
+                            {
+                                'type': 'object',
+                                'properties': {
+                                    'protocol_id': {'type': 'string'},
+                                    'unique_id': {'type': 'string'}
+                                },
+                                'required': ['protocol_id', 'unique_id']
+                            },
+                        'minItems': 1
+                    }
+                },
+                'required': ['idp_id', 'protocols']
+            },
+    },
     'name': _identity_name,
     'password': {
         'type': ['string', 'null']

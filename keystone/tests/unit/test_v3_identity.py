@@ -1177,3 +1177,48 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
         self.assertIn('unique_id', user['federated'][0]['protocols'][0])
         r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
         self.assertValidUserResponse(r, user)
+
+    def test_create_user_with_federated_attributes(self):
+        """Call ``POST /users``."""
+        idp, protocol = self._create_federated_attributes()
+        ref = unit.new_user_ref(domain_id=self.domain_id)
+        ref['federated'] = [
+            {
+                'idp_id': idp['id'],
+                'protocols': [
+                    {
+                        'protocol_id': protocol['id'],
+                        'unique_id': uuid.uuid4().hex
+                    }
+                ]
+            }
+        ]
+        r = self.post(
+            '/users',
+            body={'user': ref})
+        user = r.result['user']
+        self.assertEqual(user['name'], ref['name'])
+        self.assertEqual(user['federated'], ref['federated'])
+        self.assertValidUserResponse(r, ref)
+
+    def test_create_user_fails_when_given_invalid_idp_and_protocols(self):
+        """Call ``POST /users`` with invalid idp and protocol to fail."""
+        idp, protocol = self._create_federated_attributes()
+        ref = unit.new_user_ref(domain_id=self.domain_id)
+        ref['federated'] = [
+            {
+                'idp_id': 'fakeidp',
+                'protocols': [
+                    {
+                        'protocol_id': 'fakeprotocol_id',
+                        'unique_id': uuid.uuid4().hex
+                    }
+                ]
+            }
+        ]
+
+        self.post('/users', body={'user': ref}, token=self.get_admin_token(),
+                  expected_status=http.client.BAD_REQUEST)
+        ref['federated'][0]['idp_id'] = idp['id']
+        self.post('/users', body={'user': ref}, token=self.get_admin_token(),
+                  expected_status=http.client.BAD_REQUEST)

@@ -51,6 +51,14 @@ class ShadowUsersDriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for an Shadow Users driver."""
 
     @abc.abstractmethod
+    def create_federated_object(self, fed_dict):
+        """Create a new federated object.
+
+        :param dict federated_dict: Reference to the federated user
+        """
+        raise exception.NotImplemented()
+
+    @abc.abstractmethod
     def create_federated_user(self, domain_id, federated_dict, email=None):
         """Create a new user with the federated identity.
 

@@ -54,6 +54,12 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             session.add(user_ref)
             return identity_base.filter_user(user_ref.to_dict())
 
+    @sql.handle_conflicts(conflict_type='federated_user')
+    def create_federated_object(self, fed_dict):
+        with sql.session_for_write() as session:
+            fed_ref = model.FederatedUser.from_dict(fed_dict)
+            session.add(fed_ref)
+
     def get_federated_objects(self, user_id):
         with sql.session_for_read() as session:
             query = session.query(model.FederatedUser)
