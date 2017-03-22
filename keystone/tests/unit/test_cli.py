@@ -16,6 +16,7 @@ import logging
 import os
 import uuid
 
+import argparse
 import fixtures
 import mock
 import oslo_config.fixture
@@ -1313,3 +1314,85 @@ class TokenFernetDoctorTests(unit.TestCase):
         mock_utils.FernetUtils().load_keys.return_value = True
         self.assertFalse(
             tokens_fernet.symptom_usability_of_Fernet_key_repository())
+
+
+class TestMappingPurge(unit.SQLDriverOverrides, unit.BaseTestCase):
+
+    class FakeConfCommand(object):
+        def __init__(self, parent):
+            self.extension = False
+            self.all = parent.command_all
+            self.type = parent.command_type
+            self.domain_name = parent.command_domain_name
+            self.local_id = parent.command_local_id
+            self.public_id = parent.command_public_id
+
+    def setUp(self):
+        # Set up preset cli options and a parser
+        super(TestMappingPurge, self).setUp()
+        self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
+        self.config_fixture.register_cli_opt(cli.command_opt)
+        # For unit tests that should not throw any erorrs,
+        # Use the argument parser to test that the combinations work
+        parser_test = argparse.ArgumentParser()
+        subparsers = parser_test.add_subparsers()
+        self.parser = cli.MappingPurge.add_argument_parser(subparsers)
+
+    def test_mapping_purge_with_no_arguments_fails(self):
+        # Make sure the logic in main() actually catches no argument error
+        self.command_type = None
+        self.command_all = False
+        self.command_domain_name = None
+        self.command_local_id = None
+        self.command_public_id = None
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+        self.assertRaises(ValueError, cli.MappingPurge.main)
+
+    def test_mapping_purge_with_all_and_other_argument_fails(self):
+        # Make sure the logic in main() actually catches invalid combinations
+        self.command_type = 'user'
+        self.command_all = True
+        self.command_domain_name = None
+        self.command_local_id = None
+        self.command_public_id = None
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+        self.assertRaises(ValueError, cli.MappingPurge.main)
+
+    def test_mapping_purge_with_only_all_passes(self):
+        args = (['--all'])
+        res = self.parser.parse_args(args)
+        self.assertTrue(vars(res)['all'])
+
+    def test_mapping_purge_with_domain_name_argument_succeeds(self):
+        args = (['--domain-name', uuid.uuid4().hex])
+        self.parser.parse_args(args)
+
+    def test_mapping_purge_with_public_id_argument_succeeds(self):
+        args = (['--public-id', uuid.uuid4().hex])
+        self.parser.parse_args(args)
+
+    def test_mapping_purge_with_local_id_argument_succeeds(self):
+        args = (['--local-id', uuid.uuid4().hex])
+        self.parser.parse_args(args)
+
+    def test_mapping_purge_with_type_argument_succeeds(self):
+        args = (['--type', 'user'])
+        self.parser.parse_args(args)
+        args = (['--type', 'group'])
+        self.parser.parse_args(args)
+
+    def test_mapping_purge_with_invalid_argument_fails(self):
+        args = (['--invalid-option', 'some value'])
+        self.assertRaises(unit.UnexpectedExit, self.parser.parse_args, args)
+
+    def test_mapping_purge_with_all_other_combinations_passes(self):
+        args = (['--type', 'user', '--local-id', uuid.uuid4().hex])
+        self.parser.parse_args(args)
+        args.append('--domain-name')
+        args.append('test')
+        self.parser.parse_args(args)
+        args.append('--public-id')
+        args.append(uuid.uuid4().hex)
+        self.parser.parse_args(args)
