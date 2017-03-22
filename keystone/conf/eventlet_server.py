@@ -23,7 +23,7 @@ for URL substitutions.
 """)
 
 
-public_bind_host = cfg.StrOpt(
+public_bind_host = cfg.HostAddressOpt(
     'public_bind_host',
     default='0.0.0.0',  # nosec : Bind to all interfaces by default for
                         # backwards compatibility.
@@ -50,7 +50,7 @@ public_port = cfg.PortOpt(
 The port number for the public service to listen on.
 """))
 
-admin_bind_host = cfg.StrOpt(
+admin_bind_host = cfg.HostAddressOpt(
     'admin_bind_host',
     default='0.0.0.0',  # nosec : Bind to all interfaces by default for
                         # backwards compatibility.
