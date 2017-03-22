@@ -1,7 +1,7 @@
 ---
 features:
   - >
-    [`blueprint manage-migration <https://blueprints.launchpad.net/keystone/+spec/manage-migration>`_]
+    [`blueprint shadow-mapping <https://blueprints.launchpad.net/keystone/+spec/shadow-mapping>`_]
     The federated identity mapping engine now supports the ability to
     automatically provision ``projects`` for ``federated users``. A role assignment
     will automatically be created for the user on the specified project. If the
