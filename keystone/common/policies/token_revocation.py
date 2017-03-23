@@ -15,21 +15,12 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 token_revocation_policies = [
-    policy.RuleDefault(
-        name=base.IDENTITY % 'check_token',
-        check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT),
-    policy.RuleDefault(
-        name=base.IDENTITY % 'validate_token',
-        check_str=base.RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT),
-    policy.RuleDefault(
-        name=base.IDENTITY % 'validate_token_head',
-        check_str=base.RULE_SERVICE_OR_ADMIN),
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revocation_list',
-        check_str=base.RULE_SERVICE_OR_ADMIN),
-    policy.RuleDefault(
-        name=base.IDENTITY % 'revoke_token',
-        check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT),
+        check_str=base.RULE_SERVICE_OR_ADMIN,
+        description='List revoked PKI tokens.',
+        operations=[{'path': '/v3/auth/tokens/OS-PKI/revoked',
+                     'method': 'GET'}])
 ]
 
 
