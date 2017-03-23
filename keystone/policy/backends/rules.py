@@ -16,8 +16,8 @@
 """Policy engine for keystone."""
 
 from oslo_log import log
-from oslo_policy import policy as common_policy
 
+from keystone.common import policy
 import keystone.conf
 from keystone import exception
 from keystone.policy.backends import base
@@ -27,55 +27,13 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-_ENFORCER = None
-
-
-def reset():
-    global _ENFORCER
-    _ENFORCER = None
-
-
-def init():
-    global _ENFORCER
-    if not _ENFORCER:
-        _ENFORCER = common_policy.Enforcer(CONF)
-
-
-def enforce(credentials, action, target, do_raise=True):
-    """Verify that the action is valid on the target in this context.
-
-    :param credentials: user credentials
-    :param action: string representing the action to be checked, which should
-                   be colon separated for clarity.
-    :param target: dictionary representing the object of the action for object
-                   creation this should be a dictionary representing the
-                   location of the object e.g. {'project_id':
-                   object.project_id}
-    :raises keystone.exception.Forbidden: If verification fails.
-
-    Actions should be colon separated for clarity. For example:
-
-    * identity:list_users
-
-    """
-    init()
-
-    # Add the exception arguments if asked to do a raise
-    extra = {}
-    if do_raise:
-        extra.update(exc=exception.ForbiddenAction, action=action,
-                     do_raise=do_raise)
-
-    return _ENFORCER.enforce(action, target, credentials, **extra)
-
-
 class Policy(base.PolicyDriverBase):
     def enforce(self, credentials, action, target):
         msg = 'enforce %(action)s: %(credentials)s'
         LOG.debug(msg, {
             'action': action,
             'credentials': credentials})
-        enforce(credentials, action, target)
+        policy.enforce(credentials, action, target)
 
     def create_policy(self, policy_id, policy):
         raise exception.NotImplemented()

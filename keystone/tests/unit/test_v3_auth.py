@@ -33,12 +33,12 @@ from testtools import testcase
 
 from keystone import auth
 from keystone.auth.plugins import totp
+from keystone.common import policy
 from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.identity.backends import resource_options as ro
-from keystone.policy.backends import rules
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
@@ -4276,7 +4276,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.chained_trust_ref['roles'] = [{'id': role['id']}]
 
         # Bypass policy enforcement
-        with mock.patch.object(rules, 'enforce', return_value=True):
+        with mock.patch.object(policy, 'enforce', return_value=True):
             self.post('/OS-TRUST/trusts',
                       body={'trust': self.chained_trust_ref},
                       token=trust_token,
@@ -4969,7 +4969,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
         self.identity_api.update_user(disabled['id'], disabled)
 
         # Bypass policy enforcement
-        with mock.patch.object(rules, 'enforce', return_value=True):
+        with mock.patch.object(policy, 'enforce', return_value=True):
             headers = {'X-Subject-Token': self.last_token}
             self.head('/auth/tokens', headers=headers,
                       expected_status=http_client.FORBIDDEN)
@@ -4981,7 +4981,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
         # Bypass policy enforcement
         # Delete trustee will invalidate the trust.
-        with mock.patch.object(rules, 'enforce', return_value=True):
+        with mock.patch.object(policy, 'enforce', return_value=True):
             headers = {'X-Subject-Token': self.last_token}
             self.head('/auth/tokens', headers=headers,
                       expected_status=http_client.NOT_FOUND)

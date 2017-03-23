@@ -37,6 +37,7 @@ import webob.exc
 
 from keystone.common import dependency
 from keystone.common import json_home
+from keystone.common import policy
 from keystone.common import request as request_mod
 from keystone.common import utils
 import keystone.conf
@@ -312,7 +313,7 @@ class Application(BaseApplication):
 
             creds['roles'] = user_token_ref.role_names
             # Accept either is_admin or the admin role
-            self.policy_api.enforce(creds, 'admin_required', {})
+            policy.enforce(creds, 'admin_required', {})
 
     def _attribute_is_empty(self, ref, attribute):
         """Determine if the attribute in ref is empty or None."""

@@ -14,7 +14,7 @@
 import fixtures
 from oslo_policy import opts
 
-from keystone.policy.backends import rules
+from keystone.common import policy
 
 
 class Policy(fixtures.Fixture):
@@ -29,5 +29,5 @@ class Policy(fixtures.Fixture):
         opts.set_defaults(self._config_fixture.conf)
         self._config_fixture.config(group='oslo_policy',
                                     policy_file=self._policy_file)
-        rules.init()
-        self.addCleanup(rules.reset)
+        policy.init()
+        self.addCleanup(policy.reset)
