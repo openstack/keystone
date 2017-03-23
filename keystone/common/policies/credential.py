@@ -15,21 +15,36 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 credential_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_credential',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Show credentials details.',
+        operations=[{'path': '/v3/credentials/{credential_id}',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_credentials',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List credentials.',
+        operations=[{'path': '/v3/credentials',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_credential',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create credential.',
+        operations=[{'path': '/v3/credentials',
+                     'method': 'POST'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_credential',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update credential.',
+        operations=[{'path': '/v3/credentials/{credential_id}',
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_credential',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete credential.',
+        operations=[{'path': '/v3/credentials/{credential_id}',
+                     'method': 'DELETE'}])
 ]
 
 
