@@ -20,10 +20,10 @@ ec2_credential_policies = [
         check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER),
     policy.RuleDefault(
         name=base.IDENTITY % 'ec2_list_credentials',
-        check_str=base.RULE_ADMIN_REQUIRED),
+        check_str=base.RULE_ADMIN_OR_OWNER),
     policy.RuleDefault(
         name=base.IDENTITY % 'ec2_create_credential',
-        check_str=base.RULE_ADMIN_REQUIRED),
+        check_str=base.RULE_ADMIN_OR_OWNER),
     policy.RuleDefault(
         name=base.IDENTITY % 'ec2_delete_credential',
         check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER),
