@@ -15,21 +15,36 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 consumer_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_consumer',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Show OAUTH1 consumer details.',
+        operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_consumers',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List OAUTH1 consumers.',
+        operations=[{'path': '/v3/OS-OAUTH1/consumers',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_consumer',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create OAUTH1 consumer.',
+        operations=[{'path': '/v3/OS-OAUTH1/consumers',
+                     'method': 'POST'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_consumer',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update OAUTH1 consumer.',
+        operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_consumer',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete OAUTH1 consumer.',
+        operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
+                     'method': 'DELETE'}])
 ]
 
 
