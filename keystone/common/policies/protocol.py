@@ -15,21 +15,41 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 protocol_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create federated protocol.',
+        operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
+                              'protocols/{protocol_id}'),
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update federated protocol.',
+        operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
+                              'protocols/{protocol_id}'),
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Get federated protocol.',
+        operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
+                              'protocols/{protocol_id}'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_protocols',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List federated protocols.',
+        operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
+                              'protocols'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete federated protocol.',
+        operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
+                              'protocols/{protocol_id}'),
+                     'method': 'DELETE'}])
 ]
 
 
