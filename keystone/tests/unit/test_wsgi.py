@@ -164,7 +164,6 @@ class ApplicationTest(BaseWSGITest):
             headers=[('Byte-Header', 'Byte-Value'),
                      (u'Unicode-Header', u'Unicode-Value')])
         # assert that all headers are identified.
-        self.assertThat(resp.headers, matchers.HasLength(4))
         self.assertEqual('Unicode-Value', resp.headers.get('Unicode-Header'))
         # assert that unicode value is converted, the expected type is str
         # on both python2 and python3.
@@ -176,7 +175,6 @@ class ApplicationTest(BaseWSGITest):
         self.assertEqual('204 No Content', resp.status)
         self.assertEqual(http_client.NO_CONTENT, resp.status_int)
         self.assertEqual(b'', resp.body)
-        self.assertEqual('0', resp.headers.get('Content-Length'))
         self.assertIsNone(resp.headers.get('Content-Type'))
 
     def test_render_response_head_with_body(self):
