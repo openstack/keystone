@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1674415 <https://bugs.launchpad.net/keystone/+bug/1674415>`_]
+    Fixed issue with translation of keystone error messages which was not
+    happening in case of any error messages from identity API with locale
+    being set.
