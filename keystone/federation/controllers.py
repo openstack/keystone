@@ -353,7 +353,7 @@ class Auth(auth_controllers.Auth):
 
         subs = {'host': host, 'token': token_id}
         body = src.substitute(subs)
-        return webob.Response(body=body, status='200',
+        return webob.Response(body=body, status='200', charset='utf-8',
                               headerlist=headers)
 
     def _create_base_saml_assertion(self, context, auth):
