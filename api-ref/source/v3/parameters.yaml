@@ -824,6 +824,21 @@ expires_at:
   in: body
   required: true
   type: string
+explicit_unscoped_string:
+  description: |
+    The authorization scope (Since v3.4). Specify
+    ``unscoped`` to make an explicit unscoped token request, which
+    returns an unscoped response without any authorization. This
+    request behaves the same as a token request with no scope where
+    the user has no default project defined. If an explicit,
+    ``unscoped`` token request is not made and the role has a default
+    project, then the response will return a project-scoped token.
+    If a default project is not defined, a token is issued without an
+    explicit scope of authorization, which is the same as asking for
+    an explicit unscoped token.
+  in: body
+  required: false
+  type: string
 extras:
   description: |
     A set of metadata key and value pairs, if any.
@@ -1326,16 +1341,16 @@ roles:
   type: array
 scope_string:
   description: |
-    The authorization scope.  (Since v3.4) Specify
-    ``unscoped`` to make an explicit unscoped token request, which
-    returns an unscoped response without any authorization. This
-    request behaves the same as a token request with no scope where
-    the user has no default project defined.  If you do not make an
-    explicit ``unscoped`` token request and your role has a default
-    project, the response might return a project- scoped token. If a
-    default project is not defined, a token is issued without an
-    explicit scope of authorization, which is the same as asking for
-    an explicit unscoped token.
+    The authorization scope, including either a project or
+    a domain (Since v3.4). If both a domain and a project are
+    specified, an HTTP 400 Bad Request will be returned, as a
+    token cannot be simultaneously scoped to both a project
+    and a domain. An ID is sufficient to uniquely identify
+    a project but if a project is specified by name, then
+    the domain of the project must also be specified in order
+    to uniquely identify the project by name. A domain scope may be
+    specified by either the domain's ID or name with
+    equivalent results.
   in: body
   required: false
   type: string

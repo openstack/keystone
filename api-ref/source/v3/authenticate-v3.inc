@@ -247,7 +247,7 @@ Request
    - name: user_name
    - auth: auth
    - user: user
-   - scope: scope_string
+   - scope: explicit_unscoped_string
    - password: password
    - id: user_id
    - identity: identity
@@ -363,6 +363,52 @@ Response Parameters
 
    - X-Subject-Token: X-Subject-Token
    - X-Auth-Token: X-Auth-Token
+
+
+Token authentication with explicit unscoped authorization
+=========================================================
+
+.. rest_method::  POST /v3/auth/tokens
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
+
+Authenticates an identity and generates a token.
+Uses the token authentication method with explicit unscoped authorization.
+
+In the request body, provide the token ID and the
+``unscoped`` authorization scope.
+
+Normal response codes: 201
+
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Request
+-------
+
+.. rest_parameters:: parameters.yaml
+
+   - nocatalog: nocatalog
+   - methods: auth_methods_token
+   - auth: auth
+   - token: auth_token
+   - audit_ids: audit_ids
+   - scope: explicit_unscoped_string
+   - id: auth_token_id
+   - identity: identity
+
+
+Request Example
+---------------
+
+.. literalinclude:: ./samples/admin/auth-token-explicit-unscoped-request.json
+   :language: javascript
+
+Response Parameters
+-------------------
+
+.. rest_parameters:: parameters.yaml
+
+   - X-Subject-Token: X-Subject-Token
 
 
 Validate and show information for token
