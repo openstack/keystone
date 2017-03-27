@@ -18,7 +18,7 @@ from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LE, _LW
+from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
@@ -88,8 +88,8 @@ class Manager(manager.Manager):
             try:
                 return self.catalog_api.get_endpoint(endpoint_id)
             except exception.EndpointNotFound:
-                msg = _LW('Endpoint %(endpoint_id)s referenced in '
-                          'association for policy %(policy_id)s not found.')
+                msg = ('Endpoint %(endpoint_id)s referenced in '
+                       'association for policy %(policy_id)s not found.')
                 LOG.warning(msg, {'policy_id': policy_id,
                                   'endpoint_id': endpoint_id})
                 raise
@@ -125,8 +125,8 @@ class Manager(manager.Manager):
 
                 """
                 if region_id in regions_examined:
-                    msg = _LE('Circular reference or a repeated entry found '
-                              'in region tree - %(region_id)s.')
+                    msg = ('Circular reference or a repeated entry found '
+                           'in region tree - %(region_id)s.')
                     LOG.error(msg, {'region_id': ref.region_id})
                     return
 
@@ -175,9 +175,9 @@ class Manager(manager.Manager):
                         endpoints, regions))
                 continue
 
-            msg = _LW('Unsupported policy association found - '
-                      'Policy %(policy_id)s, Endpoint %(endpoint_id)s, '
-                      'Service %(service_id)s, Region %(region_id)s, ')
+            msg = ('Unsupported policy association found - '
+                   'Policy %(policy_id)s, Endpoint %(endpoint_id)s, '
+                   'Service %(service_id)s, Region %(region_id)s, ')
             LOG.warning(msg, {'policy_id': policy_id,
                               'endpoint_id': ref['endpoint_id'],
                               'service_id': ref['service_id'],
@@ -191,8 +191,8 @@ class Manager(manager.Manager):
             try:
                 return self.policy_api.get_policy(policy_id)
             except exception.PolicyNotFound:
-                msg = _LW('Policy %(policy_id)s referenced in association '
-                          'for endpoint %(endpoint_id)s not found.')
+                msg = ('Policy %(policy_id)s referenced in association '
+                       'for endpoint %(endpoint_id)s not found.')
                 LOG.warning(msg, {'policy_id': policy_id,
                                   'endpoint_id': endpoint_id})
                 raise
@@ -225,8 +225,8 @@ class Manager(manager.Manager):
                 if region.get('parent_region_id') is not None:
                     region_id = region['parent_region_id']
                     if region_id in regions_examined:
-                        msg = _LE('Circular reference or a repeated entry '
-                                  'found in region tree - %(region_id)s.')
+                        msg = ('Circular reference or a repeated entry '
+                               'found in region tree - %(region_id)s.')
                         LOG.error(msg, {'region_id': region_id})
                         break
 

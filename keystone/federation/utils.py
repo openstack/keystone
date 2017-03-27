@@ -23,7 +23,7 @@ import six
 
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
@@ -616,7 +616,7 @@ class RuleProcessor(object):
             if 'user' in identity_value:
                 # if a mapping outputs more than one user name, log it
                 if user:
-                    LOG.warning(_LW('Ignoring user name'))
+                    LOG.warning('Ignoring user name')
                 else:
                     user = identity_value.get('user')
             if 'group' in identity_value:

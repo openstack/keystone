@@ -24,7 +24,7 @@ from keystone.common import manager
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LE, _LW
+from keystone.i18n import _
 from keystone import notifications
 from keystone.resource.backends import base
 from keystone.token import provider as token_provider
@@ -686,9 +686,9 @@ class Manager(manager.Manager):
         result can be returned in response to a domain API call.
         """
         if not project_ref['is_domain']:
-            LOG.error(_LE('Asked to convert a non-domain project into a '
-                          'domain - Domain: %(domain_id)s, Project ID: '
-                          '%(id)s, Project Name: %(project_name)s'),
+            LOG.error('Asked to convert a non-domain project into a '
+                      'domain - Domain: %(domain_id)s, Project ID: '
+                      '%(id)s, Project Name: %(project_name)s',
                       {'domain_id': project_ref['domain_id'],
                        'id': project_ref['id'],
                        'project_name': project_ref['name']})
@@ -780,8 +780,8 @@ class Manager(manager.Manager):
         """
         def _delete_projects(project, projects, examined):
             if project['id'] in examined:
-                msg = _LE('Circular reference or a repeated entry found '
-                          'projects hierarchy - %(project_id)s.')
+                msg = ('Circular reference or a repeated entry found '
+                       'projects hierarchy - %(project_id)s.')
                 LOG.error(msg, {'project_id': project['id']})
                 return
 
@@ -845,15 +845,15 @@ class Manager(manager.Manager):
             }
             self.create_domain(CONF.identity.default_domain_id,
                                default_domain_attrs)
-            LOG.warning(_LW(
+            LOG.warning(
                 'The default domain was created automatically to contain V2 '
                 'resources. This is deprecated in the M release and will not '
                 'be supported in the O release. Create the default domain '
-                'manually or use the keystone-manage bootstrap command.'))
+                'manually or use the keystone-manage bootstrap command.')
         except exception.Conflict:
             LOG.debug('The default domain already exists.')
         except Exception:
-            LOG.error(_LE('Failed to create the default domain.'))
+            LOG.error('Failed to create the default domain.')
             raise
 
     def _require_matching_domain_id(self, new_ref, orig_ref):
@@ -1028,9 +1028,9 @@ class DomainConfigManager(manager.Manager):
             # there is only one option in the answer (and that it's the right
             # one) - if not, something has gone wrong and we raise an error
             if len(the_list) > 1 or the_list[0]['option'] != req_option:
-                LOG.error(_LE('Unexpected results in response for domain '
-                              'config - %(count)s responses, first option is '
-                              '%(option)s, expected option %(expected)s'),
+                LOG.error('Unexpected results in response for domain '
+                          'config - %(count)s responses, first option is '
+                          '%(option)s, expected option %(expected)s',
                           {'count': len(the_list), 'option': list[0]['option'],
                            'expected': req_option})
                 raise exception.UnexpectedError(
@@ -1334,14 +1334,14 @@ class DomainConfigManager(manager.Manager):
                 each_whitelisted['value'] = (
                     each_whitelisted['value'] % sensitive_dict)
             except KeyError:
-                warning_msg = _LW(
+                warning_msg = (
                     'Found what looks like an unmatched config option '
                     'substitution reference - domain: %(domain)s, group: '
                     '%(group)s, option: %(option)s, value: %(value)s. Perhaps '
                     'the config option to which it refers has yet to be '
                     'added?')
             except (ValueError, TypeError):
-                warning_msg = _LW(
+                warning_msg = (
                     'Found what looks like an incorrectly constructed '
                     'config option substitution reference - domain: '
                     '%(domain)s, group: %(group)s, option: %(option)s, '

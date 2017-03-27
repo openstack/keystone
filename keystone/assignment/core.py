@@ -25,7 +25,7 @@ from keystone.common import driver_hints
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LI, _LE
+from keystone.i18n import _
 from keystone import notifications
 
 
@@ -145,16 +145,16 @@ class Manager(manager.Manager):
         try:
             self.role_api.get_role(CONF.member_role_id)
         except exception.RoleNotFound:
-            LOG.info(_LI("Creating the default role %s "
-                         "because it does not exist."),
+            LOG.info("Creating the default role %s "
+                     "because it does not exist.",
                      CONF.member_role_id)
             role = {'id': CONF.member_role_id,
                     'name': CONF.member_role_name}
             try:
                 self.role_api.create_role(CONF.member_role_id, role)
             except exception.Conflict:
-                LOG.info(_LI("Creating the default role %s failed because it "
-                             "was already created"),
+                LOG.info("Creating the default role %s failed because it "
+                         "was already created",
                          CONF.member_role_id)
 
     def add_user_to_project(self, tenant_id, user_id):
@@ -644,14 +644,14 @@ class Manager(manager.Manager):
                         _make_implied_ref_copy(
                             next_ref, implied_role['implied_role_id']))
                     if implied_ref in checked_role_refs:
-                        msg = _LE('Circular reference found '
-                                  'role inference rules - %(prior_role_id)s.')
+                        msg = ('Circular reference found '
+                               'role inference rules - %(prior_role_id)s.')
                         LOG.error(msg, {'prior_role_id': next_ref['role_id']})
                     else:
                         ref_results.append(implied_ref)
                         role_refs_to_check.append(implied_ref)
         except exception.NotImplemented:
-            LOG.error(_LE('Role driver does not support implied roles.'))
+            LOG.error('Role driver does not support implied roles.')
 
         return ref_results
 

@@ -27,7 +27,7 @@ from keystone.common import extension
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LE
+from keystone.i18n import _
 from keystone import notifications
 
 
@@ -96,7 +96,7 @@ def get_oauth_headers(headers):
         parameters.update(dict(params))
         return parameters
     else:
-        msg = _LE('Cannot retrieve Authorization headers')
+        msg = 'Cannot retrieve Authorization headers'
         LOG.error(msg)
         raise exception.OAuthHeadersMissingError()
 

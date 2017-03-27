@@ -26,7 +26,7 @@ from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LE
+from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
 from keystone.token import persistence
@@ -201,8 +201,8 @@ class Manager(manager.Manager):
             expiry += datetime.timedelta(seconds=window_seconds)
 
         except Exception:
-            LOG.exception(_LE('Unexpected error or malformed token '
-                              'determining token expiry: %s'), token)
+            LOG.exception('Unexpected error or malformed token '
+                          'determining token expiry: %s', token)
             raise exception.TokenNotFound(_('Failed to validate token'))
 
         if current_time < expiry:

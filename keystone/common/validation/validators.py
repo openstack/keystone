@@ -19,7 +19,7 @@ from oslo_log import log
 import six
 
 from keystone import exception
-from keystone.i18n import _, _LE
+from keystone.i18n import _
 
 
 CONF = cfg.CONF
@@ -40,8 +40,8 @@ def validate_password(password):
                 raise exception.PasswordRequirementsValidationError(
                     detail=pattern_desc)
         except re.error:
-            msg = _LE("Unable to validate password due to invalid regular "
-                      "expression - password_regex: ")
+            msg = ("Unable to validate password due to invalid regular "
+                   "expression - password_regex: ")
             LOG.error(msg, pattern)
             detail = _("Unable to validate password due to invalid "
                        "configuration")

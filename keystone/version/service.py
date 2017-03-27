@@ -27,7 +27,6 @@ import keystone.conf
 from keystone.credential import routers as credential_routers
 from keystone.endpoint_policy import routers as endpoint_policy_routers
 from keystone.federation import routers as federation_routers
-from keystone.i18n import _LW
 from keystone.identity import routers as identity_routers
 from keystone.oauth1 import routers as oauth1_routers
 from keystone.policy import routers as policy_routers
@@ -74,8 +73,7 @@ def warn_local_conf(f):
     @functools.wraps(f)
     def wrapper(*args, **local_conf):
         if local_conf:
-            LOG.warning(_LW('\'local conf\' from PasteDeploy INI is being '
-                            'ignored.'))
+            LOG.warning("'local conf' from PasteDeploy INI is being ignored.")
         return f(*args, **local_conf)
     return wrapper
 

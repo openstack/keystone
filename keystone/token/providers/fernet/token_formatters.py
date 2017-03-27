@@ -27,7 +27,7 @@ from keystone.common import fernet_utils as utils
 from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LI
+from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
@@ -163,8 +163,8 @@ class TokenFormatter(object):
         # anywhere, we can't say it isn't being stored somewhere else with
         # those kind of backend constraints.
         if len(token) > 255:
-            LOG.info(_LI('Fernet token created with length of %d '
-                         'characters, which exceeds 255 characters'),
+            LOG.info('Fernet token created with length of %d '
+                     'characters, which exceeds 255 characters',
                      len(token))
 
         return token

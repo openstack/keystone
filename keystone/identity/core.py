@@ -33,7 +33,7 @@ from keystone.common import manager
 from keystone.common.validation import validators
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 from keystone.identity.mapping_backends import mapping
 from keystone import notifications
 from oslo_utils import timeutils
@@ -109,7 +109,7 @@ class DomainConfigs(dict):
             domain_ref = resource_api.get_domain_by_name(domain_name)
         except exception.DomainNotFound:
             LOG.warning(
-                _LW('Invalid domain name (%s) found in config file name'),
+                ('Invalid domain name (%s) found in config file name'),
                 domain_name)
             return
 
@@ -146,7 +146,7 @@ class DomainConfigs(dict):
         """
         conf_dir = CONF.identity.domain_config_dir
         if not os.path.exists(conf_dir):
-            LOG.warning(_LW('Unable to locate domain config directory: %s'),
+            LOG.warning('Unable to locate domain config directory: %s',
                         conf_dir)
             return
 
@@ -736,10 +736,10 @@ class Manager(manager.Manager):
         if (not driver.is_domain_aware() and driver == self.driver and
             domain_id != CONF.identity.default_domain_id and
                 domain_id is not None):
-                    LOG.warning(_LW('Found multiple domains being mapped to a '
-                                    'driver that does not support that (e.g. '
-                                    'LDAP) - Domain ID: %(domain)s, '
-                                    'Default Driver: %(driver)s'),
+                    LOG.warning('Found multiple domains being mapped to a '
+                                'driver that does not support that (e.g. '
+                                'LDAP) - Domain ID: %(domain)s, '
+                                'Default Driver: %(driver)s',
                                 {'domain': domain_id,
                                  'driver': (driver == self.driver)})
                     raise exception.DomainNotFound(domain_id=domain_id)

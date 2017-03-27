@@ -146,19 +146,13 @@ class CheckForAssertingNoneEquality(BaseASTChecker):
         super(CheckForAssertingNoneEquality, self).generic_visit(node)
 
 
-class CheckForLoggingIssues(BaseASTChecker):
+class CheckForTranslationIssues(BaseASTChecker):
 
-    DEBUG_CHECK_DESC = 'K005 Using translated string in debug logging'
-    NONDEBUG_CHECK_DESC = 'K006 Not using translating helper for logging'
-    EXCESS_HELPER_CHECK_DESC = 'K007 Using hints when _ is necessary'
+    LOGGING_CHECK_DESC = 'K005 Using translated string in logging'
     USING_DEPRECATED_WARN = 'K009 Using the deprecated Logger.warn'
     LOG_MODULES = ('logging', 'oslo_log.log')
     I18N_MODULES = (
         'keystone.i18n._',
-        'keystone.i18n._LI',
-        'keystone.i18n._LW',
-        'keystone.i18n._LE',
-        'keystone.i18n._LC',
     )
     TRANS_HELPER_MAP = {
         'debug': None,
@@ -170,7 +164,7 @@ class CheckForLoggingIssues(BaseASTChecker):
     }
 
     def __init__(self, tree, filename):
-        super(CheckForLoggingIssues, self).__init__(tree, filename)
+        super(CheckForTranslationIssues, self).__init__(tree, filename)
 
         self.logger_names = []
         self.logger_module_names = []
@@ -202,13 +196,13 @@ class CheckForLoggingIssues(BaseASTChecker):
     def visit_Import(self, node):
         for alias in node.names:
             self._filter_imports(alias.name, alias)
-        return super(CheckForLoggingIssues, self).generic_visit(node)
+        return super(CheckForTranslationIssues, self).generic_visit(node)
 
     def visit_ImportFrom(self, node):
         for alias in node.names:
             full_name = '%s.%s' % (node.module, alias.name)
             self._filter_imports(full_name, alias)
-        return super(CheckForLoggingIssues, self).generic_visit(node)
+        return super(CheckForTranslationIssues, self).generic_visit(node)
 
     def _find_name(self, node):
         """Return the fully qualified name or a Name or Attribute."""
@@ -249,7 +243,7 @@ class CheckForLoggingIssues(BaseASTChecker):
         if (len(node.targets) != 1
                 or not isinstance(node.targets[0], attr_node_types)):
             # say no to: "x, y = ..."
-            return super(CheckForLoggingIssues, self).generic_visit(node)
+            return super(CheckForTranslationIssues, self).generic_visit(node)
 
         target_name = self._find_name(node.targets[0])
 
@@ -265,19 +259,19 @@ class CheckForLoggingIssues(BaseASTChecker):
         if not isinstance(node.value, ast.Call):
             # node.value must be a call to getLogger
             self.assignments.pop(target_name, None)
-            return super(CheckForLoggingIssues, self).generic_visit(node)
+            return super(CheckForTranslationIssues, self).generic_visit(node)
 
         # is this a call to an i18n function?
         if (isinstance(node.value.func, ast.Name)
                 and node.value.func.id in self.i18n_names):
             self.assignments[target_name] = node.value.func.id
-            return super(CheckForLoggingIssues, self).generic_visit(node)
+            return super(CheckForTranslationIssues, self).generic_visit(node)
 
         if (not isinstance(node.value.func, ast.Attribute)
                 or not isinstance(node.value.func.value, attr_node_types)):
             # function must be an attribute on an object like
             # logging.getLogger
-            return super(CheckForLoggingIssues, self).generic_visit(node)
+            return super(CheckForTranslationIssues, self).generic_visit(node)
 
         object_name = self._find_name(node.value.func.value)
         func_name = node.value.func.attr
@@ -286,7 +280,7 @@ class CheckForLoggingIssues(BaseASTChecker):
                 and func_name == 'getLogger'):
             self.logger_names.append(target_name)
 
-        return super(CheckForLoggingIssues, self).generic_visit(node)
+        return super(CheckForTranslationIssues, self).generic_visit(node)
 
     def visit_Call(self, node):
         """Look for the 'LOG.*' calls."""
@@ -299,7 +293,8 @@ class CheckForLoggingIssues(BaseASTChecker):
                 obj_name = self._find_name(node.func.value)
                 method_name = node.func.attr
             else:  # could be Subscript, Call or many more
-                return super(CheckForLoggingIssues, self).generic_visit(node)
+                return (super(CheckForTranslationIssues, self)
+                        .generic_visit(node))
 
             # if dealing with a logger the method can't be "warn"
             if obj_name in self.logger_names and method_name == 'warn':
@@ -309,81 +304,32 @@ class CheckForLoggingIssues(BaseASTChecker):
             # must be a logger instance and one of the support logging methods
             if (obj_name not in self.logger_names
                     or method_name not in self.TRANS_HELPER_MAP):
-                return super(CheckForLoggingIssues, self).generic_visit(node)
+                return (super(CheckForTranslationIssues, self)
+                        .generic_visit(node))
 
             # the call must have arguments
             if not node.args:
-                return super(CheckForLoggingIssues, self).generic_visit(node)
+                return (super(CheckForTranslationIssues, self)
+                        .generic_visit(node))
 
-            if method_name == 'debug':
-                self._process_debug(node)
-            elif method_name in self.TRANS_HELPER_MAP:
-                self._process_non_debug(node, method_name)
+            self._process_log_messages(node)
 
-        return super(CheckForLoggingIssues, self).generic_visit(node)
+        return super(CheckForTranslationIssues, self).generic_visit(node)
 
-    def _process_debug(self, node):
+    def _process_log_messages(self, node):
         msg = node.args[0]  # first arg to a logging method is the msg
 
         # if first arg is a call to a i18n name
         if (isinstance(msg, ast.Call)
                 and isinstance(msg.func, ast.Name)
                 and msg.func.id in self.i18n_names):
-            self.add_error(msg, message=self.DEBUG_CHECK_DESC)
+            self.add_error(msg, message=self.LOGGING_CHECK_DESC)
 
         # if the first arg is a reference to a i18n call
         elif (isinstance(msg, ast.Name)
                 and msg.id in self.assignments
                 and not self._is_raised_later(node, msg.id)):
-            self.add_error(msg, message=self.DEBUG_CHECK_DESC)
-
-    def _process_non_debug(self, node, method_name):
-        msg = node.args[0]  # first arg to a logging method is the msg
-
-        # if first arg is a call to a i18n name
-        if isinstance(msg, ast.Call):
-            try:
-                func_name = msg.func.id
-            except AttributeError:
-                # in the case of logging only an exception, the msg function
-                # will not have an id associated with it, for instance:
-                # LOG.warning(six.text_type(e))
-                return
-
-            # the function name is the correct translation helper
-            # for the logging method
-            if func_name == self.TRANS_HELPER_MAP[method_name]:
-                return
-
-            # the function name is an alias for the correct translation
-            # helper for the loggine method
-            if (self.i18n_names[func_name] ==
-                    self.TRANS_HELPER_MAP[method_name]):
-                return
-
-            self.add_error(msg, message=self.NONDEBUG_CHECK_DESC)
-
-        # if the first arg is not a reference to the correct i18n hint
-        elif isinstance(msg, ast.Name):
-
-            # FIXME(dstanek): to make sure more robust we should be checking
-            # all names passed into a logging method. we can't right now
-            # because:
-            # 1. We have code like this that we'll fix when dealing with the %:
-            #       msg = _('....') % {}
-            #       LOG.warning(msg)
-            # 2. We also do LOG.exception(e) in several places. I'm not sure
-            #    exactly what we should be doing about that.
-            if msg.id not in self.assignments:
-                return
-
-            helper_method_name = self.TRANS_HELPER_MAP[method_name]
-            if (self.assignments[msg.id] != helper_method_name
-                    and not self._is_raised_later(node, msg.id)):
-                self.add_error(msg, message=self.NONDEBUG_CHECK_DESC)
-            elif (self.assignments[msg.id] == helper_method_name
-                    and self._is_raised_later(node, msg.id)):
-                self.add_error(msg, message=self.EXCESS_HELPER_CHECK_DESC)
+            self.add_error(msg, message=self.LOGGING_CHECK_DESC)
 
     def _is_raised_later(self, node, name):
 
@@ -454,5 +400,5 @@ def factory(register):
     register(CheckForMutableDefaultArgs)
     register(block_comments_begin_with_a_space)
     register(CheckForAssertingNoneEquality)
-    register(CheckForLoggingIssues)
+    register(CheckForTranslationIssues)
     register(dict_constructor_with_sequence_copy)

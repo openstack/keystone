@@ -19,7 +19,7 @@
 from oslo_log import log
 
 from keystone import exception
-from keystone.i18n import _, _LW
+from keystone.i18n import _
 from keystone.models import token_model
 
 
@@ -66,7 +66,7 @@ def token_to_auth_context(token):
     try:
         auth_context['user_id'] = token.user_id
     except KeyError:
-        LOG.warning(_LW('RBAC: Invalid user data in token'))
+        LOG.warning('RBAC: Invalid user data in token')
         raise exception.Unauthorized(_('No user_id in token'))
     auth_context['user_domain_id'] = token.user_domain_id
 

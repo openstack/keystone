@@ -15,7 +15,6 @@ from oslo_log import log
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone import exception
-from keystone.i18n import _LE, _LW
 from keystone.resource.backends import base
 
 
@@ -133,9 +132,9 @@ class Resource(base.ResourceDriverBase):
                 children_ids = set()
                 for ref in children:
                     if ref['id'] in examined:
-                        msg = _LE('Circular reference or a repeated '
-                                  'entry found in projects hierarchy - '
-                                  '%(project_id)s.')
+                        msg = ('Circular reference or a repeated '
+                               'entry found in projects hierarchy - '
+                               '%(project_id)s.')
                         LOG.error(msg, {'project_id': ref['id']})
                         return
                     children_ids.add(ref['id'])
@@ -152,9 +151,9 @@ class Resource(base.ResourceDriverBase):
             examined = set()
             while project.get('parent_id') is not None:
                 if project['id'] in examined:
-                    msg = _LE('Circular reference or a repeated '
-                              'entry found in projects hierarchy - '
-                              '%(project_id)s.')
+                    msg = ('Circular reference or a repeated '
+                           'entry found in projects hierarchy - '
+                           '%(project_id)s.')
                     LOG.error(msg, {'project_id': project['id']})
                     return
 
@@ -214,8 +213,8 @@ class Resource(base.ResourceDriverBase):
             for project_id in project_ids:
                 if (project_id not in project_ids_from_bd or
                         project_id == base.NULL_DOMAIN_ID):
-                    LOG.warning(_LW('Project %s does not exist and was not '
-                                    'deleted.') % project_id)
+                    LOG.warning('Project %s does not exist and was not '
+                                'deleted.' % project_id)
             query.delete(synchronize_session=False)
 
 

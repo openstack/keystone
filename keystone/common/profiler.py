@@ -14,7 +14,6 @@ from oslo_log import log
 import osprofiler.initializer
 
 import keystone.conf
-from keystone.i18n import _LI
 
 
 CONF = keystone.conf.CONF
@@ -37,11 +36,11 @@ def setup(name, host='0.0.0.0'):  # nosec
             service=name,
             host=host
         )
-        LOG.info(_LI("OSProfiler is enabled.\n"
-                     "Traces provided from the profiler "
-                     "can only be subscribed to using the same HMAC keys that "
-                     "are configured in Keystone's configuration file "
-                     "under the [profiler] section. \n To disable OSprofiler "
-                     "set in /etc/keystone/keystone.conf:\n"
-                     "[profiler]\n"
-                     "enabled=false"))
+        LOG.info("OSProfiler is enabled.\n"
+                 "Traces provided from the profiler "
+                 "can only be subscribed to using the same HMAC keys that "
+                 "are configured in Keystone's configuration file "
+                 "under the [profiler] section. \n To disable OSprofiler "
+                 "set in /etc/keystone/keystone.conf:\n"
+                 "[profiler]\n"
+                 "enabled=false")

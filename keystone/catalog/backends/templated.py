@@ -21,7 +21,6 @@ from keystone.catalog.backends import base
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
-from keystone.i18n import _LC
 
 
 LOG = log.getLogger(__name__)
@@ -103,7 +102,7 @@ class Catalog(base.CatalogDriverBase):
             with open(template_file) as f:
                 self.templates = parse_templates(f)
         except IOError:
-            LOG.critical(_LC('Unable to open template file %s'), template_file)
+            LOG.critical('Unable to open template file %s', template_file)
             raise
 
     # region crud

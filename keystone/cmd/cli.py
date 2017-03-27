@@ -39,7 +39,7 @@ from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.federation import idp
 from keystone.federation import utils as mapping_engine
-from keystone.i18n import _, _LE, _LI, _LW
+from keystone.i18n import _
 from keystone.server import backends
 from keystone import token
 
@@ -190,10 +190,10 @@ class BootStrap(BaseApp):
             self.resource_manager.create_domain(
                 domain_id=default_domain['id'],
                 domain=default_domain)
-            LOG.info(_LI('Created domain %s'), default_domain['id'])
+            LOG.info('Created domain %s', default_domain['id'])
         except exception.Conflict:
             # NOTE(morganfainberg): Domain already exists, continue on.
-            LOG.info(_LI('Domain %s already exists, skipping creation.'),
+            LOG.info('Domain %s already exists, skipping creation.',
                      default_domain['id'])
 
         try:
@@ -206,9 +206,9 @@ class BootStrap(BaseApp):
                                         'the cloud.',
                          'name': self.project_name}
             )
-            LOG.info(_LI('Created project %s'), self.project_name)
+            LOG.info('Created project %s', self.project_name)
         except exception.Conflict:
-            LOG.info(_LI('Project %s already exists, skipping creation.'),
+            LOG.info('Project %s already exists, skipping creation.',
                      self.project_name)
             project = self.resource_manager.get_project_by_name(
                 self.project_name, default_domain['id'])
@@ -218,7 +218,7 @@ class BootStrap(BaseApp):
         try:
             user = self.identity_manager.get_user_by_name(self.username,
                                                           default_domain['id'])
-            LOG.info(_LI('User %s already exists, skipping creation.'),
+            LOG.info('User %s already exists, skipping creation.',
                      self.username)
 
             # If the user is not enabled, re-enable them. This also helps
@@ -246,12 +246,12 @@ class BootStrap(BaseApp):
             # as a recovery tool, without having to create a new user.
             if update:
                 user = self.identity_manager.update_user(user['id'], update)
-                LOG.info(_LI('Reset password for user %s.'), self.username)
+                LOG.info('Reset password for user %s.', self.username)
                 if not enabled and user['enabled']:
                     # Although we always try to enable the user, this log
                     # message only makes sense if we know that the user was
                     # previously disabled.
-                    LOG.info(_LI('Enabled user %s.'), self.username)
+                    LOG.info('Enabled user %s.', self.username)
         except exception.UserNotFound:
             user = self.identity_manager.create_user(
                 user_ref={'name': self.username,
@@ -260,7 +260,7 @@ class BootStrap(BaseApp):
                           'password': self.password
                           }
             )
-            LOG.info(_LI('Created user %s'), self.username)
+            LOG.info('Created user %s', self.username)
 
         # NOTE(morganfainberg): Do not create the role if it already exists.
         try:
@@ -269,9 +269,9 @@ class BootStrap(BaseApp):
                 role={'name': self.role_name,
                       'id': self.role_id},
             )
-            LOG.info(_LI('Created role %s'), self.role_name)
+            LOG.info('Created role %s', self.role_name)
         except exception.Conflict:
-            LOG.info(_LI('Role %s exists, skipping creation.'), self.role_name)
+            LOG.info('Role %s exists, skipping creation.', self.role_name)
             # NOTE(davechen): There is no backend method to get the role
             # by name, so build the hints to list the roles and filter by
             # name instead.
@@ -288,14 +288,14 @@ class BootStrap(BaseApp):
                 tenant_id=self.project_id,
                 role_id=self.role_id
             )
-            LOG.info(_LI('Granted %(role)s on %(project)s to user'
-                         ' %(username)s.'),
+            LOG.info('Granted %(role)s on %(project)s to user'
+                     ' %(username)s.',
                      {'role': self.role_name,
                       'project': self.project_name,
                       'username': self.username})
         except exception.Conflict:
-            LOG.info(_LI('User %(username)s already has %(role)s on '
-                         '%(project)s.'),
+            LOG.info('User %(username)s already has %(role)s on '
+                     '%(project)s.',
                      {'username': self.username,
                       'role': self.role_name,
                       'project': self.project_name})
@@ -305,9 +305,9 @@ class BootStrap(BaseApp):
                 self.catalog_manager.create_region(
                     region_ref={'id': self.region_id}
                 )
-                LOG.info(_LI('Created region %s'), self.region_id)
+                LOG.info('Created region %s', self.region_id)
             except exception.Conflict:
-                LOG.info(_LI('Region %s exists, skipping creation.'),
+                LOG.info('Region %s exists, skipping creation.',
                          self.region_id)
 
         if self.public_url or self.admin_url or self.internal_url:
@@ -364,12 +364,12 @@ class BootStrap(BaseApp):
                         endpoint_id=endpoint_ref['id'],
                         endpoint_ref=endpoint_ref)
 
-                    LOG.info(_LI('Created %(interface)s endpoint %(url)s'),
+                    LOG.info('Created %(interface)s endpoint %(url)s',
                              {'interface': interface, 'url': url})
                 else:
                     # NOTE(jamielennox): electing not to update existing
                     # endpoints here. There may be call to do so in future.
-                    LOG.info(_LI('Skipping %s endpoint as already created'),
+                    LOG.info('Skipping %s endpoint as already created',
                              interface)
 
                 self.endpoints[interface] = endpoint_ref['id']
@@ -464,10 +464,10 @@ class DbSync(BaseApp):
                 repo='data_migration_repo')
             contract_version = upgrades.get_db_version(repo='contract_repo')
         except migration.exception.DbMigrationError:
-            LOG.info(_LI('Your database is not currently under version '
-                         'control or the database is already controlled. Your '
-                         'first step is to run `keystone-manage db_sync '
-                         '--expand`.'))
+            LOG.info('Your database is not currently under version '
+                     'control or the database is already controlled. Your '
+                     'first step is to run `keystone-manage db_sync '
+                     '--expand`.')
             return 2
 
         repo = migrate.versioning.repository.Repository(
@@ -476,34 +476,33 @@ class DbSync(BaseApp):
 
         if (contract_version > migrate_version or migrate_version >
                 expand_version):
-            LOG.info(_LI('Your database is out of sync. For more information '
-                         'refer to https://docs.openstack.org/developer/'
-                         'keystone/upgrading.html'))
+            LOG.info('Your database is out of sync. For more information '
+                     'refer to https://docs.openstack.org/developer/'
+                     'keystone/upgrading.html')
             status = 1
         elif migration_script_version > expand_version:
-            LOG.info(_LI('Your database is not up to date. Your first step is '
-                         'to run `keystone-manage db_sync --expand`.'))
+            LOG.info('Your database is not up to date. Your first step is '
+                     'to run `keystone-manage db_sync --expand`.')
             status = 2
         elif expand_version > migrate_version:
-            LOG.info(_LI('Expand version is ahead of migrate. Your next step '
-                         'is to run `keystone-manage db_sync --migrate`.'))
+            LOG.info('Expand version is ahead of migrate. Your next step '
+                     'is to run `keystone-manage db_sync --migrate`.')
             status = 3
         elif migrate_version > contract_version:
-            LOG.info(_LI('Migrate version is ahead of contract. Your next '
-                         'step is to run `keystone-manage db_sync --contract`.'
-                         ))
+            LOG.info('Migrate version is ahead of contract. Your next '
+                     'step is to run `keystone-manage db_sync --contract`.')
             status = 4
         elif (migration_script_version == expand_version == migrate_version ==
                 contract_version):
-            LOG.info(_LI('All db_sync commands are upgraded to the same '
-                         'version and up-to-date.'))
-        LOG.info(_LI('The latest installed migration script version is: '
-                     '%(script)d.\nCurrent repository versions:\nExpand: '
-                     '%(expand)d \nMigrate: %(migrate)d\nContract: '
-                     '%(contract)d') % {'script': migration_script_version,
-                                        'expand': expand_version,
-                                        'migrate': migrate_version,
-                                        'contract': contract_version})
+            LOG.info('All db_sync commands are upgraded to the same '
+                     'version and up-to-date.')
+        LOG.info('The latest installed migration script version is: '
+                 '%(script)d.\nCurrent repository versions:\nExpand: '
+                 '%(expand)d \nMigrate: %(migrate)d\nContract: '
+                 '%(contract)d' % {'script': migration_script_version,
+                                   'expand': expand_version,
+                                   'migrate': migrate_version,
+                                   'contract': contract_version})
         return status
 
     @staticmethod
@@ -610,11 +609,11 @@ class PKISetup(BaseCertificateSetup):
     def main(cls):
         versionutils.report_deprecated_feature(
             LOG,
-            _LW("keystone-manage pki_setup is deprecated as of Mitaka in "
-                "favor of not using PKI tokens and may be removed in 'O' "
-                "release."))
-        LOG.warning(_LW('keystone-manage pki_setup is not recommended for '
-                        'production use.'))
+            "keystone-manage pki_setup is deprecated as of Mitaka in "
+            "favor of not using PKI tokens and may be removed in 'O' "
+            "release.")
+        LOG.warning('keystone-manage pki_setup is not recommended for '
+                    'production use.')
         keystone_user_id, keystone_group_id = cls.get_user_group()
         conf_pki = openssl.ConfigurePKI(keystone_user_id, keystone_group_id,
                                         rebuild=CONF.command.rebuild)
@@ -848,8 +847,8 @@ class TokenFlush(BaseApp):
         except exception.NotImplemented:
             # NOTE(ravelar159): Stop NotImplemented from unsupported token
             # driver when using token_flush and print out warning instead
-            LOG.warning(_LW('Token driver %s does not support token_flush. '
-                            'The token_flush command had no effect.'),
+            LOG.warning('Token driver %s does not support token_flush. '
+                        'The token_flush command had no effect.',
                         CONF.token.driver)
 
 
@@ -945,7 +944,7 @@ def _domain_config_finder(conf_dir):
 
     :returns: generator yielding (filename, domain_name) tuples
     """
-    LOG.info(_LI('Scanning %r for domain config files'), conf_dir)
+    LOG.info('Scanning %r for domain config files', conf_dir)
     for r, d, f in os.walk(conf_dir):
         for fname in f:
             if (fname.startswith(DOMAIN_CONF_FHEAD) and
@@ -956,8 +955,8 @@ def _domain_config_finder(conf_dir):
                     yield (os.path.join(r, fname), domain_name)
                     continue
 
-            LOG.warning(_LW('Ignoring file (%s) while scanning '
-                            'domain config directory'), fname)
+            LOG.warning('Ignoring file (%s) while scanning '
+                        'domain config directory', fname)
 
 
 class DomainConfigUploadFiles(object):
@@ -1045,8 +1044,8 @@ class DomainConfigUploadFiles(object):
                                                      sections)
             return True
         except Exception as e:
-            msg = _LE('Error processing config file for domain: '
-                      '%(domain_name)s, file: %(filename)s, error: %(error)s')
+            msg = ('Error processing config file for domain: '
+                   '%(domain_name)s, file: %(filename)s, error: %(error)s')
             LOG.error(msg,
                       {'domain_name': domain_name,
                        'filename': file_name,
@@ -1082,13 +1081,13 @@ class DomainConfigUploadFiles(object):
         for filename, domain_name in self._domain_config_finder(conf_dir):
             if self._upload_config_to_database(filename, domain_name):
                 success_cnt += 1
-                LOG.info(_LI('Successfully uploaded domain config %r'),
+                LOG.info('Successfully uploaded domain config %r',
                          filename)
             else:
                 failure_cnt += 1
 
         if success_cnt == 0:
-            LOG.warning(_LW('No domain configs uploaded from %r'), conf_dir)
+            LOG.warning('No domain configs uploaded from %r', conf_dir)
 
         if failure_cnt:
             return False
@@ -1136,9 +1135,9 @@ class DomainConfigUpload(BaseApp):
     def main():
         versionutils.report_deprecated_feature(
             LOG,
-            _LW("keystone-manage domain_config_upload is deprecated as of "
-                "Newton in favor of setting domain config options via the API "
-                "and may be removed in 'P' release."))
+            "keystone-manage domain_config_upload is deprecated as of "
+            "Newton in favor of setting domain config options via the API "
+            "and may be removed in 'P' release.")
         dcu = DomainConfigUploadFiles()
         status = dcu.run()
         if status is not None:
@@ -1367,6 +1366,6 @@ def main(argv=None, config_files=None):
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
          default_config_files=config_files)
     if not CONF.default_config_files:
-        LOG.warning(_LW('Config file not found, using default configs.'))
+        LOG.warning('Config file not found, using default configs.')
     keystone.conf.setup_logging()
     CONF.command.cmd_class.main()
