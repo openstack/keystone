@@ -701,12 +701,7 @@ class TestCase(BaseTestCase):
             hasattr(self, 'assignment_api') and
                 hasattr(self, 'resource_api')):
             for domain in fixtures.DOMAINS:
-                try:
-                    rv = self.resource_api.create_domain(domain['id'], domain)
-                except exception.Conflict:
-                    rv = self.resource_api.get_domain(domain['id'])
-                except exception.NotImplemented:
-                    rv = domain
+                rv = self.resource_api.create_domain(domain['id'], domain)
                 attrname = 'domain_%s' % domain['id']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
