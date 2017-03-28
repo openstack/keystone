@@ -281,33 +281,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         else:
             self.assertEqual(self.user['id'], context['user_id'])
 
-    def _create_context(self, request, mapping_ref=None,
-                        exception_expected=False):
-        """Build the auth context from the given arguments.
-
-        auth context will be returned from the AuthContextMiddleware based on
-        what is being passed in the given request and what mapping is being
-        setup in the backend DB.
-
-        :param request: HTTP request
-        :param mapping_ref: A mapping in JSON structure will be setup in the
-            backend DB for mapping a user or a group.
-        :param exception_expected: Sets to True when an exception is expected
-            to raised based on the given arguments.
-        :returns: context an auth context contains user and role information
-        :rtype: dict
-        """
-        if mapping_ref:
-            self._load_mapping_rules(mapping_ref)
-
-        if not exception_expected:
-            (middleware.AuthContextMiddleware('Tokenless_auth_test').
-                process_request(request))
-            context = request.environ.get(authorization.AUTH_CONTEXT_ENV)
-        else:
-            context = middleware.AuthContextMiddleware('Tokenless_auth_test')
-        return context
-
     def test_context_already_exists(self):
         stub_value = uuid.uuid4().hex
         env = {authorization.AUTH_CONTEXT_ENV: stub_value}
