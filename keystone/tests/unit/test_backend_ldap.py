@@ -111,15 +111,6 @@ def _assert_backends(testcase, **kwargs):
                              % entrypoint_name)
 
 
-def create_group_container(identity_api):
-    # Create the groups base entry (ou=Groups,cn=example,cn=com)
-    group_api = identity_api.driver.group
-    conn = group_api.get_connection()
-    dn = 'ou=Groups,cn=example,cn=com'
-    conn.add_s(dn, [('objectclass', ['organizationalUnit']),
-                    ('ou', ['Groups'])])
-
-
 class IdentityTests(identity_tests.IdentityTests):
 
     def test_delete_user_with_group_project_domain_links(self):
@@ -1052,11 +1043,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                          identity='ldap',
                          resource='sql')
 
-    def load_fixtures(self, fixtures):
-        # Override super impl since need to create group container.
-        create_group_container(self.identity_api)
-        super(LDAPIdentity, self).load_fixtures(fixtures)
-
     def test_list_domains(self):
         domains = self.resource_api.list_domains()
         default_domain = unit.new_domain_ref(
@@ -1797,7 +1783,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
-        create_group_container(self.identity_api)
         super(LDAPIdentity, self).load_fixtures(fixtures)
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
@@ -2048,11 +2033,6 @@ class LDAPPosixGroupsTest(LDAPTestSetup, unit.TestCase):
 
     def assert_backends(self):
         _assert_backends(self, identity='ldap')
-
-    def load_fixtures(self, fixtures):
-        # Override super impl since need to create group container.
-        create_group_container(self.identity_api)
-        super(LDAPPosixGroupsTest, self).load_fixtures(fixtures)
 
     def config_overrides(self):
         super(LDAPPosixGroupsTest, self).config_overrides()
