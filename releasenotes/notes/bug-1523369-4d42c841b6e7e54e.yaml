@@ -1,13 +1,13 @@
+---
 fixes:
-  - |
+  - >
     [`bug 1523369 <https://bugs.launchpad.net/keystone/+bug/1523369>`_]
     Deleting a project will now cause it to be removed as a default project
     for users. If caching is enabled the changes may not be visible until the
     user's cache entry expires.
-
 upgrade:
-  - |
+  - >
     The identity backend driver interface has changed. A new method,
-    ``unset_default_project_id(project_id)``, was added to unset a user's
+    `unset_default_project_id(project_id)`, was added to unset a user's
     default project ID for a given project ID. Custom backend implementations
     must implement this method.
