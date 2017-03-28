@@ -1093,7 +1093,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                                    user_enabled_default='512')
         self.ldapdb.clear()
         self.load_backends()
-        self.load_fixtures(default_fixtures)
 
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
@@ -1140,7 +1139,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
                                    user_enabled_default=False)
         self.ldapdb.clear()
         self.load_backends()
-        self.load_fixtures(default_fixtures)
 
         user1 = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
@@ -1932,7 +1930,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             group_objectclass='groupOfUniqueNames')
         self.ldapdb.clear()
         self.load_backends()
-        self.load_fixtures(default_fixtures)
 
         # Create a user and ensure they are enabled.
         user1 = unit.new_user_ref(enabled=True,
@@ -1949,7 +1946,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
                                    user_enabled_default=False)
         self.ldapdb.clear()
         self.load_backends()
-        self.load_fixtures(default_fixtures)
 
         user1 = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
