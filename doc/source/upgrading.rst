@@ -155,6 +155,17 @@ downtime if it is required.
 Upgrading without downtime
 --------------------------
 
+.. NOTE:
+
+    Upgrading without downtime is only supported in deployments upgrading
+    *from* Newton or a newer release.
+
+    If upgrading a Mitaka deployment to Newton, the commands described here
+    will be available as described below, but the ``keystone-manage db_sync
+    --expand`` command will incur downtime (similar to running
+    ``keystone-manage db_sync``), as it runs legacy (downtime-incurring)
+    migrations prior to running schema expansions.
+
 This is a high-level description of our upgrade strategy built around
 additional options in ``keystone-manage db_sync``. Although it is much more
 complex than the upgrade process described above, it assumes that you are not
@@ -180,9 +191,10 @@ authenticate requests normally.
    diagnose symptoms of common deployment issues and receive instructions for
    resolving them.
 
-#. Run ``keystone-manage db_sync --expand`` on the first node to expand the
-   database schema to a superset of what both the previous and next release can
-   utilize, and create triggers to facilitate the live migration process.
+#. (*New in Newton*) Run ``keystone-manage db_sync --expand`` on the first node
+   to expand the database schema to a superset of what both the previous and
+   next release can utilize, and create triggers to facilitate the live
+   migration process.
 
    .. warning::
 
@@ -198,10 +210,10 @@ authenticate requests normally.
    triggers will live migrate the data to the new schema so it can be read by
    the next release.
 
-#. Run ``keystone-manage db_sync --migrate`` on the first node to forcefully
-   perform data migrations. This process will migrate all data from the old
-   schema to the new schema while the previous release continues to operate
-   normally.
+#. (*New in Newton*) Run ``keystone-manage db_sync --migrate`` on the first
+   node to forcefully perform data migrations. This process will migrate all
+   data from the old schema to the new schema while the previous release
+   continues to operate normally.
 
    When this process completes, all data will be available in both the new
    schema and the old schema, so both the previous release and the next release
@@ -218,8 +230,8 @@ authenticate requests normally.
    As the next release begins writing to the new schema, database triggers will
    also migrate the data to the old schema, keeping both data schemas in sync.
 
-#. Run ``keystone-manage db_sync --contract`` to remove the old schema and all
-   data migration triggers.
+#. (*New in Newton*) Run ``keystone-manage db_sync --contract`` to remove the
+   old schema and all data migration triggers.
 
    When this process completes, the database will no longer be able to support
    the previous release.
