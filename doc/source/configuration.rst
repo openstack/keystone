@@ -1935,6 +1935,11 @@ ensure all credentials are encrypted. The process is as follows:
    contracted, they won't be able to read credentials since they are looking
    for the ``blob`` column that no longer exists.
 
+.. NOTE::
+
+    You may also use ``keystone-manage db_sync --check`` in order to check the
+    current status of your rolling upgrades.
+
 If performing a rolling upgrade, please note that a limited service outage will
 take affect during this migration. When the migration is in place, credentials
 will become read-only until the database is contracted. After the contract
