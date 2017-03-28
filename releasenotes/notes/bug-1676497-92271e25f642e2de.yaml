@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1676497 <https://bugs.launchpad.net/keystone/+bug/1676497>`_]
+    `bindep` now correctly reports the `openssl-devel` binary dependency for
+    rpm distros instead of `libssl-dev`.
