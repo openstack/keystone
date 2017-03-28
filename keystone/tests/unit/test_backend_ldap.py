@@ -297,24 +297,21 @@ class ResourceTests(resource_tests.ResourceTests):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
 
-class LDAPTestSetup(unit.TestCase):
+class LDAPTestSetup(object):
     """Common setup for LDAP tests."""
 
     def setUp(self):
         super(LDAPTestSetup, self).setUp()
         self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
-        self.load_backends()
-        self.load_fixtures(default_fixtures)
-
-
-class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
-
-    def setUp(self):
-        super(BaseLDAPIdentity, self).setUp()
-        self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
+        self.useFixture(database.Database())
 
         self.load_backends()
         self.load_fixtures(default_fixtures)
+        self.assert_backends()
+
+
+class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
+                       ResourceTests):
 
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""
@@ -1049,12 +1046,7 @@ class BaseLDAPIdentity(IdentityTests, AssignmentTests, ResourceTests):
 
 class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
-    def setUp(self):
-        # NOTE(dstanek): The database must be setup prior to calling the
-        # parent's setUp. The parent's setUp uses services (like
-        # credentials) that require a database.
-        self.useFixture(database.Database())
-        super(LDAPIdentity, self).setUp()
+    def assert_backends(self):
         _assert_backends(self,
                          assignment='sql',
                          identity='ldap',
@@ -2052,11 +2044,9 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
             self.assertEqual(exp_filter, m.call_args[0][2])
 
 
-class LDAPPosixGroupsTest(LDAPTestSetup):
+class LDAPPosixGroupsTest(LDAPTestSetup, unit.TestCase):
 
-    def setUp(self):
-        self.useFixture(database.Database())
-        super(LDAPPosixGroupsTest, self).setUp()
+    def assert_backends(self):
         _assert_backends(self, identity='ldap')
 
     def load_fixtures(self, fixtures):
@@ -2125,11 +2115,10 @@ class LdapIdentityWithMapping(
         return config_files
 
     def setUp(self):
-        self.useFixture(database.Database())
         super(LdapIdentityWithMapping, self).setUp()
-
         cache.configure_cache()
 
+    def assert_backends(self):
         _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
@@ -2290,11 +2279,6 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
     domain.
 
     """
-
-    def setUp(self):
-        self.useFixture(database.Database())
-        super(MultiLDAPandSQLIdentity, self).setUp()
-        self.assert_backends()
 
     def load_fixtures(self, fixtures):
         self.domain_count = 5
@@ -2840,9 +2824,7 @@ class DomainSpecificLDAPandSQLIdentity(
         self.domain_count = self.DOMAIN_COUNT
         self.domain_specific_count = self.DOMAIN_SPECIFIC_COUNT
 
-        self.useFixture(database.Database())
         super(DomainSpecificLDAPandSQLIdentity, self).setUp()
-        self.assert_backends()
 
     def load_fixtures(self, fixtures):
         self.setup_initial_domains()
@@ -3097,11 +3079,10 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
             'domain2')
 
 
-class LdapFilterTests(identity_tests.FilterTests, LDAPTestSetup):
+class LdapFilterTests(identity_tests.FilterTests, LDAPTestSetup,
+                      unit.TestCase):
 
-    def setUp(self):
-        self.useFixture(database.Database())
-        super(LdapFilterTests, self).setUp()
+    def assert_backends(self):
         _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
@@ -3127,12 +3108,10 @@ class LdapFilterTests(identity_tests.FilterTests, LDAPTestSetup):
         super(LdapFilterTests, self).test_list_users_in_group_exact_filtered()
 
 
-class LDAPMatchingRuleInChainTests(LDAPTestSetup):
+class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
 
     def setUp(self):
-        self.useFixture(database.Database())
         super(LDAPMatchingRuleInChainTests, self).setUp()
-        _assert_backends(self, identity='ldap')
 
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         self.group = self.identity_api.create_group(group)
@@ -3142,6 +3121,9 @@ class LDAPMatchingRuleInChainTests(LDAPTestSetup):
 
         self.identity_api.add_user_to_group(self.user['id'],
                                             self.group['id'])
+
+    def assert_backends(self):
+        _assert_backends(self, identity='ldap')
 
     def config_overrides(self):
         super(LDAPMatchingRuleInChainTests, self).config_overrides()
