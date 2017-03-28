@@ -348,6 +348,10 @@ class Manager(manager.Manager):
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
+
+        # check if role exist before any processing
+        self.role_api.get_role(role_id)
+
         if group_id is None:
             # check if role exists on the user before revoke
             self.check_grant_role_id(role_id, user_id, None, domain_id,
@@ -371,11 +375,6 @@ class Manager(manager.Manager):
             except exception.GroupNotFound:
                 LOG.debug('Group %s not found, no tokens to invalidate.',
                           group_id)
-        # TODO(henry-nash): While having the call to get_role here mimics the
-        # previous behavior (when it was buried inside the driver delete call),
-        # this seems an odd place to have this check, given what we have
-        # already done so far in this method. See Bug #1406776.
-        self.role_api.get_role(role_id)
 
         if domain_id:
             self.resource_api.get_domain(domain_id)
