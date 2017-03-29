@@ -82,7 +82,8 @@ class SimpleCert(controller.V3Controller):
         # NOTE(jamielennox): We construct the webob Response ourselves here so
         # that we don't pass through the JSON encoding process.
         headers = [('Content-Type', 'application/x-pem-file')]
-        return webob.Response(body=body, headerlist=headers, status="200 OK")
+        return webob.Response(body=body, headerlist=headers,
+                              status="200 OK", charset='utf-8')
 
     def get_ca_certificate(self, context):
         return self._get_certificate(CONF.signing.ca_certs)
