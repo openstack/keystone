@@ -2179,19 +2179,21 @@ class BaseMultiLDAPandSQLIdentity(object):
         # We also will check that the right number of id mappings get created
         initial_mappings = len(mapping_sql.list_id_mappings())
 
-        self.users['user0'] = unit.create_user(
+        users = {}
+
+        users['user0'] = unit.create_user(
             self.identity_api,
             self.domains['domain_default']['id'])
         self.assignment_api.create_grant(
-            user_id=self.users['user0']['id'],
+            user_id=users['user0']['id'],
             domain_id=self.domains['domain_default']['id'],
             role_id=self.role_member['id'])
         for x in range(1, self.domain_count):
-            self.users['user%s' % x] = unit.create_user(
+            users['user%s' % x] = unit.create_user(
                 self.identity_api,
                 self.domains['domain%s' % x]['id'])
             self.assignment_api.create_grant(
-                user_id=self.users['user%s' % x]['id'],
+                user_id=users['user%s' % x]['id'],
                 domain_id=self.domains['domain%s' % x]['id'],
                 role_id=self.role_member['id'])
 
@@ -2199,6 +2201,8 @@ class BaseMultiLDAPandSQLIdentity(object):
         # user created in a domain that is using the non default driver..
         self.assertEqual(initial_mappings + self.domain_specific_count,
                          len(mapping_sql.list_id_mappings()))
+
+        return users
 
     def check_user(self, user, domain_id, expected_status):
         """Check user is in correct backend.
@@ -2252,12 +2256,14 @@ class BaseMultiLDAPandSQLIdentity(object):
 
     def test_authenticate_to_each_domain(self):
         """Test that a user in each domain can authenticate."""
+        users = self.create_users_across_domains()
+
         for user_num in range(self.domain_count):
             user = 'user%s' % user_num
             self.identity_api.authenticate(
                 self.make_request(),
-                user_id=self.users[user]['id'],
-                password=self.users[user]['password'])
+                user_id=users[user]['id'],
+                password=users[user]['password'])
 
 
 class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
@@ -2284,15 +2290,12 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.domain_count = 5
         self.domain_specific_count = 3
         self.setup_initial_domains()
-        self._setup_initial_users()
 
         # All initial test data setup complete, time to switch on support
         # for separate backends per domain.
         self.enable_multi_domain()
 
         super(MultiLDAPandSQLIdentity, self).load_fixtures(fixtures)
-
-        self.create_users_across_domains()
 
     def assert_backends(self):
         _assert_backends(self,
@@ -2312,20 +2315,6 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.config_fixture.config(group='identity', driver='sql')
         self.config_fixture.config(group='resource', driver='sql')
         self.config_fixture.config(group='assignment', driver='sql')
-
-    def _setup_initial_users(self):
-        # Create some identity entities BEFORE we switch to multi-backend, so
-        # we can test that these are still accessible
-        self.users = {}
-        self.users['userA'] = unit.create_user(
-            self.identity_api,
-            self.domains['domain_default']['id'])
-        self.users['userB'] = unit.create_user(
-            self.identity_api,
-            self.domains['domain1']['id'])
-        self.users['userC'] = unit.create_user(
-            self.identity_api,
-            self.domains['domain3']['id'])
 
     def enable_multi_domain(self):
         """Enable the chosen form of multi domain configuration support.
@@ -2348,6 +2337,8 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         return self.identity_api.domain_configs.get_domain_conf(domain_id)
 
     def test_list_users(self):
+        _users = self.create_users_across_domains()
+
         # Override the standard list users, since we have added an extra user
         # to the default domain, so the number of expected users is one more
         # than in the standard test.
@@ -2358,7 +2349,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         user_ids = set(user['id'] for user in users)
         expected_user_ids = set(getattr(self, 'user_%s' % user['name'])['id']
                                 for user in default_fixtures.USERS)
-        expected_user_ids.add(self.users['user0']['id'])
+        expected_user_ids.add(_users['user0']['id'])
         for user_ref in users:
             self.assertNotIn('password', user_ref)
         self.assertEqual(expected_user_ids, user_ids)
@@ -2404,51 +2395,53 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
           you can get the users via any of its domains
 
         """
+        users = self.create_users_across_domains()
+
         # Check that I can read a user with the appropriate domain-selected
         # driver, but won't find it via any other domain driver
 
         check_user = self.check_user
-        check_user(self.users['user0'],
+        check_user(users['user0'],
                    self.domains['domain_default']['id'], http_client.OK)
         for domain in [self.domains['domain1']['id'],
                        self.domains['domain2']['id'],
                        self.domains['domain3']['id'],
                        self.domains['domain4']['id']]:
-            check_user(self.users['user0'], domain, exception.UserNotFound)
+            check_user(users['user0'], domain, exception.UserNotFound)
 
-        check_user(self.users['user1'], self.domains['domain1']['id'],
+        check_user(users['user1'], self.domains['domain1']['id'],
                    http_client.OK)
         for domain in [self.domains['domain_default']['id'],
                        self.domains['domain2']['id'],
                        self.domains['domain3']['id'],
                        self.domains['domain4']['id']]:
-            check_user(self.users['user1'], domain, exception.UserNotFound)
+            check_user(users['user1'], domain, exception.UserNotFound)
 
-        check_user(self.users['user2'], self.domains['domain2']['id'],
+        check_user(users['user2'], self.domains['domain2']['id'],
                    http_client.OK)
         for domain in [self.domains['domain_default']['id'],
                        self.domains['domain1']['id'],
                        self.domains['domain3']['id'],
                        self.domains['domain4']['id']]:
-            check_user(self.users['user2'], domain, exception.UserNotFound)
+            check_user(users['user2'], domain, exception.UserNotFound)
 
         # domain3 and domain4 share the same backend, so you should be
         # able to see user3 and user4 from either.
 
-        check_user(self.users['user3'], self.domains['domain3']['id'],
+        check_user(users['user3'], self.domains['domain3']['id'],
                    http_client.OK)
-        check_user(self.users['user3'], self.domains['domain4']['id'],
+        check_user(users['user3'], self.domains['domain4']['id'],
                    http_client.OK)
-        check_user(self.users['user4'], self.domains['domain3']['id'],
+        check_user(users['user4'], self.domains['domain3']['id'],
                    http_client.OK)
-        check_user(self.users['user4'], self.domains['domain4']['id'],
+        check_user(users['user4'], self.domains['domain4']['id'],
                    http_client.OK)
 
         for domain in [self.domains['domain_default']['id'],
                        self.domains['domain1']['id'],
                        self.domains['domain2']['id']]:
-            check_user(self.users['user3'], domain, exception.UserNotFound)
-            check_user(self.users['user4'], domain, exception.UserNotFound)
+            check_user(users['user3'], domain, exception.UserNotFound)
+            check_user(users['user4'], domain, exception.UserNotFound)
 
         # Finally, going through the regular manager layer, make sure we
         # only see the right number of users in each of the non-default
@@ -2473,7 +2466,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.assertThat(
             self.identity_api.list_users(
                 domain_scope=self.domains['domain3']['id']),
-            matchers.HasLength(2))
+            matchers.HasLength(1))
 
     def test_existing_uuids_work(self):
         """Test that 'uni-domain' created IDs still work.
@@ -2482,9 +2475,18 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         existing identities to be inaccessible via ID.
 
         """
-        self.identity_api.get_user(self.users['userA']['id'])
-        self.identity_api.get_user(self.users['userB']['id'])
-        self.identity_api.get_user(self.users['userC']['id'])
+        userA = unit.create_user(
+            self.identity_api,
+            self.domains['domain_default']['id'])
+        userB = unit.create_user(
+            self.identity_api,
+            self.domains['domain1']['id'])
+        userC = unit.create_user(
+            self.identity_api,
+            self.domains['domain3']['id'])
+        self.identity_api.get_user(userA['id'])
+        self.identity_api.get_user(userB['id'])
+        self.identity_api.get_user(userC['id'])
 
     def test_scanning_of_config_dir(self):
         """Test the Manager class scans the config directory.
@@ -2828,11 +2830,7 @@ class DomainSpecificLDAPandSQLIdentity(
 
     def load_fixtures(self, fixtures):
         self.setup_initial_domains()
-
         super(DomainSpecificLDAPandSQLIdentity, self).load_fixtures(fixtures)
-
-        self.users = {}
-        self.create_users_across_domains()
 
     def assert_backends(self):
         _assert_backends(
@@ -2878,6 +2876,8 @@ class DomainSpecificLDAPandSQLIdentity(
             super(BaseLDAPIdentity, self).test_delete_domain_with_project_api)
 
     def test_list_users(self):
+        _users = self.create_users_across_domains()
+
         # Override the standard list users, since we have added an extra user
         # to the default domain, so the number of expected users is one more
         # than in the standard test.
@@ -2888,7 +2888,7 @@ class DomainSpecificLDAPandSQLIdentity(
         user_ids = set(user['id'] for user in users)
         expected_user_ids = set(getattr(self, 'user_%s' % user['name'])['id']
                                 for user in default_fixtures.USERS)
-        expected_user_ids.add(self.users['user0']['id'])
+        expected_user_ids.add(_users['user0']['id'])
         for user_ref in users:
             self.assertNotIn('password', user_ref)
         self.assertEqual(expected_user_ids, user_ids)
@@ -2904,17 +2904,19 @@ class DomainSpecificLDAPandSQLIdentity(
           you can get the users via any of its domains
 
         """
+        users = self.create_users_across_domains()
+
         # Check that I can read a user with the appropriate domain-selected
         # driver, but won't find it via any other domain driver
 
-        self.check_user(self.users['user0'],
+        self.check_user(users['user0'],
                         self.domains['domain_default']['id'], http_client.OK)
-        self.check_user(self.users['user0'],
+        self.check_user(users['user0'],
                         self.domains['domain1']['id'], exception.UserNotFound)
 
-        self.check_user(self.users['user1'],
+        self.check_user(users['user1'],
                         self.domains['domain1']['id'], http_client.OK)
-        self.check_user(self.users['user1'],
+        self.check_user(users['user1'],
                         self.domains['domain_default']['id'],
                         exception.UserNotFound)
 
