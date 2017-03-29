@@ -193,10 +193,6 @@ def matches(event, token_values):
             token_values['consumer_id'],):
         return False
 
-    if event.access_token_id is not None and event.access_token_id not in (
-            token_values['access_token_id'],):
-        return False
-
     if event.audit_chain_id is not None and event.audit_chain_id not in (
             token_values['audit_chain_id'],):
         return False
