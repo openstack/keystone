@@ -713,23 +713,13 @@ class TestCase(BaseTestCase):
 
             for tenant in fixtures.TENANTS:
                 tenant_attr_name = 'tenant_%s' % tenant['name'].lower()
-                if hasattr(self, tenant_attr_name):
-                    try:
-                        # This will clear out any roles on the project as well
-                        self.resource_api.delete_project(tenant['id'])
-                    except exception.ProjectNotFound:
-                        pass
                 rv = self.resource_api.create_project(
                     tenant['id'], tenant)
-
                 setattr(self, tenant_attr_name, rv)
                 fixtures_to_cleanup.append(tenant_attr_name)
 
             for role in fixtures.ROLES:
-                try:
-                    rv = self.role_api.create_role(role['id'], role)
-                except exception.Conflict:
-                    rv = self.role_api.get_role(role['id'])
+                rv = self.role_api.create_role(role['id'], role)
                 attrname = 'role_%s' % role['name']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
@@ -737,14 +727,6 @@ class TestCase(BaseTestCase):
             for user in fixtures.USERS:
                 user_copy = user.copy()
                 tenants = user_copy.pop('tenants')
-                try:
-                    existing_user = getattr(self,
-                                            'user_%s' % user['name'],
-                                            None)
-                    if existing_user is not None:
-                        self.identity_api.delete_user(existing_user['id'])
-                except exception.UserNotFound:
-                    pass
 
                 # For users, the manager layer will generate the ID
                 user_copy = self.identity_api.create_user(user_copy)
@@ -754,11 +736,8 @@ class TestCase(BaseTestCase):
                 user_copy['password'] = user['password']
 
                 for tenant_id in tenants:
-                    try:
-                        self.assignment_api.add_user_to_project(
-                            tenant_id, user_copy['id'])
-                    except exception.Conflict:
-                        pass
+                    self.assignment_api.add_user_to_project(
+                        tenant_id, user_copy['id'])
                 # Use the ID from the fixture as the attribute name, so
                 # that our tests can easily reference each user dict, while
                 # the ID in the dict will be the real public ID.
@@ -771,11 +750,8 @@ class TestCase(BaseTestCase):
                 user = role_assignment['user']
                 tenant_id = role_assignment['tenant_id']
                 user_id = getattr(self, 'user_%s' % user)['id']
-                try:
-                    self.assignment_api.add_role_to_user_and_project(
-                        user_id, tenant_id, role_id)
-                except exception.Conflict:
-                    pass
+                self.assignment_api.add_role_to_user_and_project(
+                    user_id, tenant_id, role_id)
 
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 
