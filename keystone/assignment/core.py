@@ -48,7 +48,7 @@ MEMOIZE_COMPUTED_ASSIGNMENTS = cache.get_memoization_decorator(
 @notifications.listener
 @dependency.provider('assignment_api')
 @dependency.requires('credential_api', 'identity_api', 'resource_api',
-                     'revoke_api', 'role_api')
+                     'role_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
@@ -211,9 +211,6 @@ class Manager(manager.Manager):
                 self.driver.remove_role_from_user_and_project(user_id,
                                                               tenant_id,
                                                               role_id)
-                self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
-                                                project_id=tenant_id)
-
             except exception.RoleNotFound:
                 LOG.debug("Removing role %s failed because it does not exist.",
                           role_id)
@@ -271,8 +268,6 @@ class Manager(manager.Manager):
             self._emit_invalidate_grant_token_persistence(user_id, project_id)
         else:
             self.identity_api.emit_invalidate_user_token_persistence(user_id)
-        self.revoke_api.revoke_by_grant(role_id, user_id=user_id,
-                                        project_id=project_id)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         self._remove_role_from_user_and_project_adapter(
