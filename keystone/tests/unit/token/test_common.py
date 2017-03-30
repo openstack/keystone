@@ -17,9 +17,6 @@ from keystone.token.providers import common
 
 
 class TestTokenProvidersCommon(unit.TestCase):
-    def setUp(self):
-        super(TestTokenProvidersCommon, self).setUp()
-
     def test_strings_are_url_safe(self):
         s = common.random_urlsafe_str()
         self.assertEqual(s, urllib.parse.quote_plus(s))

@@ -1374,9 +1374,6 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
             )
         )
 
-    def setUp(self):
-        super(FernetAuthWithTrust, self).setUp()
-
     def test_delete_tokens_for_user_invalidates_tokens_from_trust(self):
         # TODO(lbragstad): Rewrite this test to not rely on the persistence
         # backend. This same test can be exercised through the API.
