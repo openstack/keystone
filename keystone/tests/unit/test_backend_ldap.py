@@ -41,7 +41,6 @@ from keystone.tests.unit import identity_mapping as mapping_sql
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
 from keystone.tests.unit.resource import test_backends as resource_tests
-from keystone.tests.unit.utils import wip
 
 
 CONF = keystone.conf.CONF
@@ -3072,18 +3071,15 @@ class LdapFilterTests(identity_tests.FilterTests, LDAPTestSetup,
         config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
-    @wip('Not supported by LDAP identity driver')
     def test_list_users_in_group_inexact_filtered(self):
         # The LDAP identity driver currently does not support filtering on the
         # listing users for a given group, so will fail this test.
-        super(LdapFilterTests,
-              self).test_list_users_in_group_inexact_filtered()
+        self.skip_test_overrides('Not supported by LDAP identity driver')
 
-    @wip('Not supported by LDAP identity driver')
     def test_list_users_in_group_exact_filtered(self):
         # The LDAP identity driver currently does not support filtering on the
         # listing users for a given group, so will fail this test.
-        super(LdapFilterTests, self).test_list_users_in_group_exact_filtered()
+        self.skip_test_overrides('Not supported by LDAP identity driver')
 
 
 class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
