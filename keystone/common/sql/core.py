@@ -277,7 +277,7 @@ def _filter(model, query, hints):
                   Any filters satisfied here will be removed so that
                   the caller will know if any filters remain.
 
-    :returns query: query, updated with any filters satisfied
+    :returns: query updated with any filters satisfied
 
     """
     def inexact_filter(model, query, filter_, satisfied_filters):
@@ -289,8 +289,7 @@ def _filter(model, query, hints):
         :param list satisfied_filters: filter_ will be added if it is
                                        satisfied.
 
-        :returns query: query updated to add any inexact filters we could
-                        satisfy
+        :returns: query updated to add any inexact filters satisfied
 
         """
         column_attr = getattr(model, filter_['name'])
@@ -329,8 +328,7 @@ def _filter(model, query, hints):
         :param dict filter_: describes this filter
         :param list satisfied_filters: filter_ will be added if it is
                                        satisfied.
-        :returns query: query updated to add any exact filters we could
-                        satisfy
+        :returns: query updated to add any exact filters satisfied
         """
         key = filter_['name']
 
@@ -372,7 +370,7 @@ def _limit(query, hints):
     :param query: query to apply filters to
     :param hints: contains the list of filters and limit details.
 
-    :returns: updated query
+    :returns: query updated with any limits satisfied
 
     """
     # NOTE(henry-nash): If we were to implement pagination, then we
@@ -399,7 +397,7 @@ def filter_limit_query(model, query, hints):
                   satisfied here will be removed so that the caller will
                   know if any filters remain.
 
-    :returns: updated query
+    :returns: query updated with any filters and limits satisfied
 
     """
     if hints is None:
