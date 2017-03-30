@@ -2163,10 +2163,10 @@ class BaseMultiLDAPandSQLIdentity(object):
 
         users['user0'] = unit.create_user(
             self.identity_api,
-            self.domains['domain_default']['id'])
+            self.domain_default['id'])
         self.assignment_api.create_grant(
             user_id=users['user0']['id'],
-            domain_id=self.domains['domain_default']['id'],
+            domain_id=self.domain_default['id'],
             role_id=self.role_member['id'])
         for x in range(1, self.domain_count):
             users['user%s' % x] = unit.create_user(
@@ -2229,10 +2229,6 @@ class BaseMultiLDAPandSQLIdentity(object):
             domain = 'domain%s' % x
             self.domains[domain] = create_domain(
                 {'id': uuid.uuid4().hex, 'name': domain})
-        self.domains['domain_default'] = create_domain(unit.new_domain_ref(
-            description='The default domain',
-            id=CONF.identity.default_domain_id,
-            name='Default'))
 
     def test_authenticate_to_each_domain(self):
         """Test that a user in each domain can authenticate."""
@@ -2282,7 +2278,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
                          assignment='sql',
                          identity={
                              None: 'sql',
-                             self.domains['domain_default']['id']: 'ldap',
+                             self.domain_default['id']: 'ldap',
                              self.domains['domain1']['id']: 'ldap',
                              self.domains['domain2']['id']: 'ldap',
                          },
@@ -2382,7 +2378,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
 
         check_user = self.check_user
         check_user(users['user0'],
-                   self.domains['domain_default']['id'], http_client.OK)
+                   self.domain_default['id'], http_client.OK)
         for domain in [self.domains['domain1']['id'],
                        self.domains['domain2']['id'],
                        self.domains['domain3']['id'],
@@ -2391,7 +2387,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
 
         check_user(users['user1'], self.domains['domain1']['id'],
                    http_client.OK)
-        for domain in [self.domains['domain_default']['id'],
+        for domain in [self.domain_default['id'],
                        self.domains['domain2']['id'],
                        self.domains['domain3']['id'],
                        self.domains['domain4']['id']]:
@@ -2399,7 +2395,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
 
         check_user(users['user2'], self.domains['domain2']['id'],
                    http_client.OK)
-        for domain in [self.domains['domain_default']['id'],
+        for domain in [self.domain_default['id'],
                        self.domains['domain1']['id'],
                        self.domains['domain3']['id'],
                        self.domains['domain4']['id']]:
@@ -2417,7 +2413,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         check_user(users['user4'], self.domains['domain4']['id'],
                    http_client.OK)
 
-        for domain in [self.domains['domain_default']['id'],
+        for domain in [self.domain_default['id'],
                        self.domains['domain1']['id'],
                        self.domains['domain2']['id']]:
             check_user(users['user3'], domain, exception.UserNotFound)
@@ -2457,7 +2453,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         """
         userA = unit.create_user(
             self.identity_api,
-            self.domains['domain_default']['id'])
+            self.domain_default['id'])
         userB = unit.create_user(
             self.identity_api,
             self.domains['domain1']['id'])
@@ -2591,7 +2587,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
                          assignment='sql',
                          identity={
                              None: 'sql',
-                             self.domains['domain_default']['id']: 'ldap',
+                             self.domain_default['id']: 'ldap',
                              self.domains['domain1']['id']: 'ldap',
                              self.domains['domain2']['id']: 'ldap',
                          },
@@ -2890,14 +2886,14 @@ class DomainSpecificLDAPandSQLIdentity(
         # driver, but won't find it via any other domain driver
 
         self.check_user(users['user0'],
-                        self.domains['domain_default']['id'], http_client.OK)
+                        self.domain_default['id'], http_client.OK)
         self.check_user(users['user0'],
                         self.domains['domain1']['id'], exception.UserNotFound)
 
         self.check_user(users['user1'],
                         self.domains['domain1']['id'], http_client.OK)
         self.check_user(users['user1'],
-                        self.domains['domain_default']['id'],
+                        self.domain_default['id'],
                         exception.UserNotFound)
 
         # Finally, going through the regular manager layer, make sure we
