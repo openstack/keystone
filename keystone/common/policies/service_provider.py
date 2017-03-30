@@ -15,21 +15,40 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 service_provider_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_service_provider',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create federated service provider.',
+        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
+                              '{service_provider_id}'),
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_service_providers',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List federated service providers.',
+        operations=[{'path': '/v3/OS-FEDERATION/service_providers',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service_provider',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Get federated service provider.',
+        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
+                              '{service_provider_id}'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service_provider',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update federated service provider.',
+        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
+                              '{service_provider_id}'),
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_service_provider',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete federated service provider.',
+        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
+                              '{service_provider_id}'),
+                     'method': 'DELETE'}])
 ]
 
 
