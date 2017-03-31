@@ -30,7 +30,6 @@ import pbr.version
 from keystone.cmd import doctor
 from keystone.common import driver_hints
 from keystone.common import fernet_utils
-from keystone.common import openssl
 from keystone.common import sql
 from keystone.common.sql import upgrades
 from keystone.common import utils
@@ -580,44 +579,6 @@ class BasePermissionsSetup(BaseApp):
             raise ValueError("Unknown group '%s' in --keystone-group" % a)
 
         return keystone_user_id, keystone_group_id
-
-
-class BaseCertificateSetup(BasePermissionsSetup):
-    """Provides common options for certificate setup."""
-
-    @classmethod
-    def add_argument_parser(cls, subparsers):
-        parser = super(BaseCertificateSetup,
-                       cls).add_argument_parser(subparsers)
-        parser.add_argument('--rebuild', default=False, action='store_true',
-                            help=('Rebuild certificate files: erase previous '
-                                  'files and regenerate them.'))
-        return parser
-
-
-class PKISetup(BaseCertificateSetup):
-    """Setup keys and certificates for signing and verifying revocation lists.
-
-    This is NOT intended for production use, see Keystone Configuration
-    documentation for details. As of the Mitaka release, this command has
-    been DEPRECATED and may be removed in the 'O' release.
-    """
-
-    name = 'pki_setup'
-
-    @classmethod
-    def main(cls):
-        versionutils.report_deprecated_feature(
-            LOG,
-            "keystone-manage pki_setup is deprecated as of Mitaka in "
-            "favor of not using PKI tokens and may be removed in 'O' "
-            "release.")
-        LOG.warning('keystone-manage pki_setup is not recommended for '
-                    'production use.')
-        keystone_user_id, keystone_group_id = cls.get_user_group()
-        conf_pki = openssl.ConfigurePKI(keystone_user_id, keystone_group_id,
-                                        rebuild=CONF.command.rebuild)
-        conf_pki.run()
 
 
 class FernetSetup(BasePermissionsSetup):
@@ -1336,7 +1297,6 @@ CMDS = [
     MappingPopulate,
     MappingPurge,
     MappingEngineTester,
-    PKISetup,
     SamlIdentityProviderMetadata,
     TokenFlush,
 ]
