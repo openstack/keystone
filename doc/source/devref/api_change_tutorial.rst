@@ -87,7 +87,7 @@ Changing the SQL Model and Driver
 First, you need to change the role model to include the description attribute.
 Go to `keystone/assignment/role_backends/sql.py` and update it like::
 
-    class RoleTable(sql.ModelBase, sql.DictBase):
+    class RoleTable(sql.ModelBase, sql.ModelDictMixin):
 
         attributes = ['id', 'name', 'domain_id', 'description']
         description = sql.Column(sql.String(255), nullable=True)

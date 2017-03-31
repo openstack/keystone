@@ -31,7 +31,7 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 
 
-class Region(sql.ModelBase, sql.DictBase):
+class Region(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'region'
     attributes = ['id', 'description', 'parent_region_id']
     id = sql.Column(sql.String(255), primary_key=True)
@@ -50,7 +50,7 @@ class Region(sql.ModelBase, sql.DictBase):
     endpoints = sqlalchemy.orm.relationship("Endpoint", backref="region")
 
 
-class Service(sql.ModelBase, sql.DictBase):
+class Service(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'service'
     attributes = ['id', 'type', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
@@ -61,7 +61,7 @@ class Service(sql.ModelBase, sql.DictBase):
     endpoints = sqlalchemy.orm.relationship("Endpoint", backref="service")
 
 
-class Endpoint(sql.ModelBase, sql.DictBase):
+class Endpoint(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'endpoint'
     attributes = ['id', 'interface', 'region_id', 'service_id', 'url',
                   'legacy_endpoint_id', 'enabled']

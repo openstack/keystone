@@ -218,7 +218,7 @@ class Resource(base.ResourceDriverBase):
             query.delete(synchronize_session=False)
 
 
-class Project(sql.ModelBase, sql.DictBase):
+class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
     # NOTE(henry-nash): From the manager and above perspective, the domain_id
     # is nullable.  However, to ensure uniqueness in multi-process
     # configurations, it is better to still use the sql uniqueness constraint.

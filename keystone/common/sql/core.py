@@ -123,12 +123,30 @@ class JsonBlob(sql_types.TypeDecorator):
         return jsonutils.loads(value)
 
 
-class DictBase(models.ModelBase):
+class ModelDictMixinWithExtras(models.ModelBase):
+    """Mixin making model behave with dict-like interfaces includes extras.
+
+    NOTE: DO NOT USE THIS FOR FUTURE SQL MODELS. "Extra" column is a legacy
+          concept that should not be carried forward with new SQL models
+          as the concept of "arbitrary" properties is not in line with
+          the design philosophy of Keystone.
+    """
+
     attributes = []
+    _msg = ('Programming Error: Model does not have an "extra" column. '
+            'Unless the model already has an "extra" column and has '
+            'existed in a previous released version of keystone with '
+            'the extra column included, the model should use '
+            '"ModelDictMixin" instead.')
 
     @classmethod
     def from_dict(cls, d):
         new_d = d.copy()
+
+        if not hasattr(cls, 'extra'):
+            # NOTE(notmorgan): No translation here, This is an error for
+            # programmers NOT end users.
+            raise AttributeError(cls._msg)  # no qa
 
         new_d['extra'] = {k: new_d.pop(k) for k in d.keys()
                           if k not in cls.attributes and k != 'extra'}
@@ -143,6 +161,11 @@ class DictBase(models.ModelBase):
         with a broken implementation.
 
         """
+        if not hasattr(self, 'extra'):
+            # NOTE(notmorgan): No translation here, This is an error for
+            # programmers NOT end users.
+            raise AttributeError(self._msg)  # no qa
+
         d = self.extra.copy()
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
@@ -159,7 +182,7 @@ class DictBase(models.ModelBase):
         return getattr(self, key)
 
 
-class ModelDictMixin(object):
+class ModelDictMixin(models.ModelBase):
 
     @classmethod
     def from_dict(cls, d):
