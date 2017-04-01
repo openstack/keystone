@@ -15,9 +15,12 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 revoke_event_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_revoke_events',
-        check_str=base.RULE_SERVICE_OR_ADMIN)
+        check_str=base.RULE_SERVICE_OR_ADMIN,
+        description='List revocation events.',
+        operations=[{'path': '/v3/OS-REVOKE/events',
+                     'method': 'GET'}])
 ]
 
 
