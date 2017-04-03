@@ -52,43 +52,6 @@ def _sample_blank_token():
     return token_data
 
 
-def _sample_data():
-    user_ids = []
-    project_ids = []
-    role_ids = []
-    for i in range(0, 3):
-        user_ids.append(uuid.uuid4().hex)
-        project_ids.append(uuid.uuid4().hex)
-        role_ids.append(uuid.uuid4().hex)
-
-    # For testing purposes, create 3 project tokens with a different user_id,
-    # role_id, and project_id which will be used to verify that revoking by
-    # grant on certain user_id, project_id, and role_id pairs leaves these
-    # project_tokens unrevoked if only one of the revoked columns are matched
-    # but not all of them as the expected behavior dictates
-
-    project_tokens = []
-    i = len(project_tokens)
-    project_tokens.append(_sample_blank_token())
-    project_tokens[i]['user_id'] = user_ids[1]
-    project_tokens[i]['project_id'] = project_ids[0]
-    project_tokens[i]['roles'] = [role_ids[0]]
-
-    i = len(project_tokens)
-    project_tokens.append(_sample_blank_token())
-    project_tokens[i]['user_id'] = user_ids[0]
-    project_tokens[i]['project_id'] = project_ids[1]
-    project_tokens[i]['roles'] = [role_ids[0]]
-
-    i = len(project_tokens)
-    project_tokens.append(_sample_blank_token())
-    project_tokens[i]['user_id'] = user_ids[0]
-    project_tokens[i]['project_id'] = project_ids[0]
-    project_tokens[i]['roles'] = [role_ids[1]]
-
-    return user_ids, project_ids, role_ids, project_tokens
-
-
 def _matches(event, token_values):
     """See if the token matches the revocation event.
 
