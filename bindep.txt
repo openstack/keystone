@@ -2,7 +2,6 @@
 # This is used by bindep: sudo [apt-get | yum] install $(bindep -b)
 
 gettext
-libssl-dev
 postgresql
 
 libffi-dev [platform:dpkg]
@@ -10,6 +9,7 @@ libffi-devel [platform:rpm]
 libldap2-dev [platform:dpkg]
 libsasl2-dev [platform:dpkg]
 libsqlite3-dev [platform:dpkg]
+libssl-dev [platform:dpkg]
 libxml2-dev [platform:dpkg]
 libxslt1-dev [platform:dpkg]
 mysql-client [platform:dpkg]
@@ -25,6 +25,7 @@ mariadb [platform:rpm]
 mariadb-devel [platform:rpm]
 mariadb-server [platform:rpm]
 openldap-devel [platform:rpm]
+openssl-devel [platform:rpm]
 postgresql-devel [platform:rpm]
 postgresql-server [platform:rpm]
 python-devel [platform:rpm]
