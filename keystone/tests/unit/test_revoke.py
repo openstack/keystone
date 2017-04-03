@@ -368,6 +368,26 @@ class RevokeTests(object):
     def test_revoke_by_user_matches_trustor(self):
         self._user_field_test('trustor_id')
 
+    def test_by_domain_user(self):
+        revocation_backend = sql.Revoke()
+        # If revoke a domain, then a token for a user in the domain is revoked
+        user_id = uuid.uuid4().hex
+        domain_id = uuid.uuid4().hex
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = user_id
+        token_data['identity_domain_id'] = domain_id
+
+        self._assertTokenNotRevoked(token_data)
+        self.assertEqual(
+            0, len(revocation_backend.list_events(token=token_data)))
+
+        self.revoke_api.revoke(revoke_model.RevokeEvent(domain_id=domain_id))
+
+        self._assertTokenRevoked(token_data)
+        self.assertEqual(
+            1, len(revocation_backend.list_events(token=token_data)))
+
     def test_revoke_by_audit_id(self):
         token = _sample_blank_token()
         # Audit ID and Audit Chain ID are populated with the same value
@@ -590,20 +610,6 @@ class RevokeListTests(unit.TestCase):
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id2
         token_data['project_id'] = project_id
-        self._assertTokenRevoked(token_data)
-
-    def test_by_domain_user(self):
-        # If revoke a domain, then a token for a user in the domain is revoked
-
-        user_id = uuid.uuid4().hex
-        domain_id = uuid.uuid4().hex
-
-        token_data = _sample_blank_token()
-        token_data['user_id'] = user_id
-        token_data['identity_domain_id'] = domain_id
-
-        self._revoke_by_domain(domain_id)
-
         self._assertTokenRevoked(token_data)
 
     def test_by_domain_project(self):
