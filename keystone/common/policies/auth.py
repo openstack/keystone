@@ -15,15 +15,26 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 auth_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_catalog',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description='Get service catalog.',
+        operations=[{'path': '/v3/auth/catalog',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_projects',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description=('List all projects a user has access to via role '
+                     'assignments.'),
+        operations=[{'path': '/v3/auth/projects',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_domains',
-        check_str=''),
+        check_str='',
+        description=('List all domains a user has access to via role '
+                     'assignments.'),
+        operations=[{'path': '/v3/auth/domains',
+                     'method': 'GET'}]),
 ]
 
 
