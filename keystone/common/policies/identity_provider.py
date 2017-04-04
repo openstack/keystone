@@ -15,21 +15,36 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 identity_provider_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_identity_provider',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create identity provider.',
+        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_identity_providers',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List identity providers.',
+        operations=[{'path': '/v3/OS-FEDERATION/identity_providers',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_identity_providers',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Get identity provider.',
+        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_identity_provider',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update identity provider.',
+        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_identity_provider',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete identity provider.',
+        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                     'method': 'DELETE'}])
 ]
 
 
