@@ -15,41 +15,98 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 policy_association_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy_association_for_endpoint',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Associate a policy to a specific endpoint.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'endpoints/{endpoint_id}'),
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_endpoint',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Check policy association for endpoint.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'endpoints/{endpoint_id}'),
+                     'method': 'GET'},
+                    {'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'endpoints/{endpoint_id}'),
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy_association_for_endpoint',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete policy association for endpoint.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'endpoints/{endpoint_id}'),
+                     'method': 'DELETE'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy_association_for_service',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Associate a policy to a specific service.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}'),
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_service',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Check policy association for service.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}'),
+                     'method': 'GET'},
+                    {'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}'),
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy_association_for_service',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete policy association for service.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}'),
+                     'method': 'DELETE'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % (
             'create_policy_association_for_region_and_service'),
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('Associate a policy to a specific region and service '
+                     'combination.'),
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}/regions/{region_id}'),
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_region_and_service',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Check policy association for region and service.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}/regions/{region_id}'),
+                     'method': 'GET'},
+                    {'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}/regions/{region_id}'),
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % (
             'delete_policy_association_for_region_and_service'),
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete policy association for region and service.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'services/{service_id}/regions/{region_id}'),
+                     'method': 'DELETE'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_policy_for_endpoint',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Get policy for endpoint.',
+        operations=[{'path': ('/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/'
+                              'policy'),
+                     'method': 'GET'},
+                    {'path': ('/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/'
+                              'policy'),
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_for_policy',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List endpoints for policy.',
+        operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
+                              'endpoints'),
+                     'method': 'GET'}])
 ]
 
 
