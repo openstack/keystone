@@ -1262,10 +1262,6 @@ class AssignmentTests(AssignmentTestHelperMixin):
             self.assertRaises(exception.RoleNotFound, f,
                               role_id=uuid.uuid4().hex, **kwargs)
 
-        def assert_role_assignment_not_found_exception(f, **kwargs):
-            self.assertRaises(exception.RoleAssignmentNotFound, f,
-                              role_id=uuid.uuid4().hex, **kwargs)
-
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user_resp = self.identity_api.create_user(user)
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
@@ -1291,17 +1287,17 @@ class AssignmentTests(AssignmentTestHelperMixin):
                 group_id=group_resp['id'],
                 domain_id=CONF.identity.default_domain_id)
 
-        assert_role_assignment_not_found_exception(
+        assert_role_not_found_exception(
             self.assignment_api.delete_grant,
             user_id=user_resp['id'], project_id=project_resp['id'])
-        assert_role_assignment_not_found_exception(
+        assert_role_not_found_exception(
             self.assignment_api.delete_grant,
             group_id=group_resp['id'], project_id=project_resp['id'])
-        assert_role_assignment_not_found_exception(
+        assert_role_not_found_exception(
             self.assignment_api.delete_grant,
             user_id=user_resp['id'],
             domain_id=CONF.identity.default_domain_id)
-        assert_role_assignment_not_found_exception(
+        assert_role_not_found_exception(
             self.assignment_api.delete_grant,
             group_id=group_resp['id'],
             domain_id=CONF.identity.default_domain_id)
