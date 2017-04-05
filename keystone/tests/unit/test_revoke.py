@@ -388,6 +388,28 @@ class RevokeTests(object):
         self.assertEqual(
             1, len(revocation_backend.list_events(token=token_data)))
 
+    def test_by_domain_project(self):
+        revocation_backend = sql.Revoke()
+
+        token_data = _sample_blank_token()
+        token_data['user_id'] = uuid.uuid4().hex
+        token_data['identity_domain_id'] = uuid.uuid4().hex
+        token_data['project_id'] = uuid.uuid4().hex
+        token_data['assignment_domain_id'] = uuid.uuid4().hex
+
+        self._assertTokenNotRevoked(token_data)
+        self.assertEqual(
+            0, len(revocation_backend.list_events(token=token_data)))
+
+        # If revoke a domain, then a token scoped to a project in the domain
+        # is revoked.
+        self.revoke_api.revoke(revoke_model.RevokeEvent(
+            domain_id=token_data['assignment_domain_id']))
+
+        self._assertTokenRevoked(token_data)
+        self.assertEqual(
+            1, len(revocation_backend.list_events(token=token_data)))
+
     def test_revoke_by_audit_id(self):
         token = _sample_blank_token()
         # Audit ID and Audit Chain ID are populated with the same value
@@ -610,26 +632,6 @@ class RevokeListTests(unit.TestCase):
         token_data = _sample_blank_token()
         token_data['user_id'] = user_id2
         token_data['project_id'] = project_id
-        self._assertTokenRevoked(token_data)
-
-    def test_by_domain_project(self):
-        # If revoke a domain, then a token scoped to a project in the domain
-        # is revoked.
-
-        user_id = uuid.uuid4().hex
-        user_domain_id = uuid.uuid4().hex
-
-        project_id = uuid.uuid4().hex
-        project_domain_id = uuid.uuid4().hex
-
-        token_data = _sample_blank_token()
-        token_data['user_id'] = user_id
-        token_data['identity_domain_id'] = user_domain_id
-        token_data['project_id'] = project_id
-        token_data['assignment_domain_id'] = project_domain_id
-
-        self._revoke_by_domain(project_domain_id)
-
         self._assertTokenRevoked(token_data)
 
     def test_by_domain_domain(self):
