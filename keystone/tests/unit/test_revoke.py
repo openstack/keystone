@@ -438,6 +438,26 @@ class RevokeTests(object):
         token2['audit_chain_id'] = token2['audit_id']
         self._assertTokenNotRevoked(token2)
 
+    def test_revoke_by_audit_chain_id(self):
+        revocation_backend = sql.Revoke()
+
+        # Create our first token with audit_id
+        audit_id = common.build_audit_info(parent_audit_id=None)[0]
+        token = _sample_blank_token()
+        # Audit ID and Audit Chain ID are populated with the same value
+        # if the token is an original token
+        token['audit_id'] = audit_id
+        token['audit_chain_id'] = audit_id
+        # Check that the token is not revoked
+        self._assertTokenNotRevoked(token)
+        self.assertEqual(0, len(revocation_backend.list_events(token=token)))
+
+        # Revoked token by audit chain id using the audit_id
+        self.revoke_api.revoke_by_audit_chain_id(audit_id)
+        # Check that the token is now revoked
+        self._assertTokenRevoked(token)
+        self.assertEqual(1, len(revocation_backend.list_events(token=token)))
+
     @mock.patch.object(timeutils, 'utcnow')
     def test_expired_events_are_removed(self, mock_utcnow):
         def _sample_token_values():
@@ -606,26 +626,6 @@ class RevokeListTests(unit.TestCase):
                                                    user_id=user_id))
         self.events.append(event)
         return event
-
-    def test_revoke_by_audit_chain_id(self):
-        audit_id = common.build_audit_info(parent_audit_id=None)[0]
-        token_data_1 = _sample_blank_token()
-        # Audit ID and Audit Chain ID are populated with the same value
-        # if the token is an original token
-        token_data_1['audit_id'] = audit_id
-        token_data_1['audit_chain_id'] = audit_id
-        event = self._revoke_by_audit_chain_id(audit_id)
-        self._assertTokenRevoked(token_data_1)
-
-        audit_id_2 = common.build_audit_info(parent_audit_id=audit_id)[0]
-        token_data_2 = _sample_blank_token()
-        token_data_2['audit_id'] = audit_id_2
-        token_data_2['audit_chain_id'] = audit_id
-        self._assertTokenRevoked(token_data_2)
-
-        self.remove_event(event)
-        self._assertTokenNotRevoked(token_data_1)
-        self._assertTokenNotRevoked(token_data_2)
 
     def remove_event(self, event):
         self.events.remove(event)
