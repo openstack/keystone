@@ -276,6 +276,8 @@ class Token(token.persistence.TokenDriverBase):
 
     def flush_expired_tokens(self):
         with sql.session_for_write() as session:
+            # Turn off autocommit, as it doesn't work well with batch delete
+            session.autocommit = False
             dialect = session.bind.dialect.name
             expiry_range_func = self._expiry_range_strategy(dialect)
             query = session.query(TokenModel.expires)
@@ -285,6 +287,10 @@ class Token(token.persistence.TokenDriverBase):
                 delete_query = query.filter(TokenModel.expires <=
                                             expiry_time)
                 row_count = delete_query.delete(synchronize_session=False)
+                # Explicitly commit each batch so as to free up
+                # resources early. We do not actually need
+                # transactional semantics here.
+                session.commit()
                 total_removed += row_count
                 LOG.debug('Removed %d total expired tokens', total_removed)
 
