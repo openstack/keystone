@@ -6,27 +6,23 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
+"Project-Id-Version: keystone 11.0.1.dev15\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-10-14 20:17+0000\n"
+"POT-Creation-Date: 2017-03-28 18:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-18 12:28+0000\n"
-"Last-Translator: Jennifer <cristxu@tw.ibm.com>\n"
+"PO-Revision-Date: 2016-04-07 06:28+0000\n"
+"Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
 "Language: zh-TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
-"X-Generator: Zanata 3.7.3\n"
+"X-Generator: Zanata 3.9.6\n"
 "Language-Team: Chinese (Taiwan)\n"
 
 #, python-format
 msgid "%(detail)s"
 msgstr "%(detail)s"
-
-#, python-format
-msgid "%(driver)s is not supported driver version"
-msgstr "%(driver)s 不是受支援的驅動程式版本"
 
 #, python-format
 msgid ""
@@ -55,10 +51,6 @@ msgstr ""
 "錄。"
 
 #, python-format
-msgid "%(prior_role_id)s does not imply %(implied_role_id)s"
-msgstr "%(prior_role_id)s 不暗示 %(implied_role_id)s"
-
-#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s 不能少於 %(min_length)s 個字元。"
 
@@ -69,10 +61,6 @@ msgstr "%(property_name)s 不是 %(display_expected_type)s"
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr "%(property_name)s 不應超過 %(max_length)s 個字元。"
-
-#, python-format
-msgid "%(role_id)s cannot be an implied roles"
-msgstr "%(role_id)s 不能是隱含角色"
 
 #, python-format
 msgid "%s cannot be empty."
@@ -123,36 +111,17 @@ msgstr "嘗試儲存 %s 時發生非預期的錯誤"
 msgid "An unexpected error prevented the server from fulfilling your request."
 msgstr "發生非預期的錯誤，造成伺服器無法履行要求。"
 
-#, python-format
-msgid ""
-"An unexpected error prevented the server from fulfilling your request: "
-"%(exception)s"
-msgstr "發生非預期的錯誤，造成伺服器無法履行要求：%(exception)s"
-
-msgid "An unhandled exception has occurred: Could not find metadata."
-msgstr "發生無法處理的異常狀況：找不到 meta 資料。"
-
 msgid "At least one option must be provided"
 msgstr "必須提供至少一個選項"
 
 msgid "At least one option must be provided, use either --all or --domain-name"
 msgstr "必須提供至少一個選項，請使用 --all 或 --domain-name"
 
-msgid "At least one role should be specified."
-msgstr "應該至少指定一個角色。"
-
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "已嘗試使用不支援的方法進行鑑別。"
 
 msgid "Authentication plugin error."
 msgstr "鑑別外掛程式錯誤。"
-
-#, python-format
-msgid ""
-"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
-"%(backend_list)s"
-msgstr ""
-"後端 `%(backend)s` 不是有效的 memcached 後端。有效後端為：%(backend_list)s"
 
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr "無法使用透過委派發出之記號授權要求記號。"
@@ -169,14 +138,6 @@ msgstr "無法變更使用者 ID"
 
 msgid "Cannot change user name"
 msgstr "無法變更使用者名稱"
-
-#, python-format
-msgid "Cannot create an endpoint with an invalid URL: %(url)s"
-msgstr "無法建立具有無效 URL %(url)s 的端點"
-
-#, python-format
-msgid "Cannot create project with parent: %(project_id)s"
-msgstr "無法建立具有母項的專案：%(project_id)s"
 
 #, python-format
 msgid ""
@@ -241,9 +202,6 @@ msgid ""
 "self "
 msgstr "屬性 limit 不在 hints 清單時，無法截斷驅動程式呼叫"
 
-msgid "Cannot update domain_id of a project that has children."
-msgstr "無法更新包含子項之專案的 domain_id。"
-
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
 msgstr "無法同時使用 parents_as_list 與 parents_as_ids查詢參數。"
@@ -269,10 +227,6 @@ msgid "Config API entity at /domains/%s/config"
 msgstr "在 /domains/%s/config 處配置 API 實體"
 
 #, python-format
-msgid "Conflict occurred attempting to store %(type)s - %(details)s"
-msgstr "嘗試儲存 %(type)s 時發生衝突 - %(details)s"
-
-#, python-format
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr "指定了相衝突的區域 ID：\"%(url_id)s\" != \"%(ref_id)s\""
 
@@ -281,113 +235,13 @@ msgstr "找不到消費者"
 
 #, python-format
 msgid ""
-"Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
-msgstr "無法變更目標 %(target)s 中固定不變的屬性 '%(attributes)s'"
-
-#, python-format
-msgid ""
 "Could not determine Identity Provider ID. The configuration option "
 "%(issuer_attribute)s was not found in the request environment."
 msgstr ""
 "無法判定身分提供者 ID。在要求環境中，找不到配置選項%(issuer_attribute)s。"
 
-#, python-format
-msgid ""
-"Could not find %(group_or_option)s in domain configuration for domain "
-"%(domain_id)s"
-msgstr "在下列網域的網域配置中找不到 %(group_or_option)s：%(domain_id)s"
-
-#, python-format
-msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
-msgstr "找不到端點群組：%(endpoint_group_id)s"
-
 msgid "Could not find Identity Provider identifier in environment"
 msgstr "在環境中找不到身分提供者 ID"
-
-#, python-format
-msgid "Could not find Identity Provider: %(idp_id)s"
-msgstr "找不到身分提供者：%(idp_id)s"
-
-#, python-format
-msgid "Could not find Service Provider: %(sp_id)s"
-msgstr "找不到服務提供者：%(sp_id)s"
-
-#, python-format
-msgid "Could not find credential: %(credential_id)s"
-msgstr "找不到認證：%(credential_id)s"
-
-#, python-format
-msgid "Could not find domain: %(domain_id)s"
-msgstr "找不到網域：%(domain_id)s"
-
-#, python-format
-msgid "Could not find endpoint: %(endpoint_id)s"
-msgstr "找不到端點：%(endpoint_id)s"
-
-#, python-format
-msgid ""
-"Could not find federated protocol %(protocol_id)s for Identity Provider: "
-"%(idp_id)s"
-msgstr "找不到下列身分提供者的聯合通訊協定 %(protocol_id)s：%(idp_id)s"
-
-#, python-format
-msgid "Could not find group: %(group_id)s"
-msgstr "找不到群組：%(group_id)s"
-
-#, python-format
-msgid "Could not find mapping: %(mapping_id)s"
-msgstr "找不到對映：%(mapping_id)s"
-
-msgid "Could not find policy association"
-msgstr "找不到原則關聯"
-
-#, python-format
-msgid "Could not find policy: %(policy_id)s"
-msgstr "找不到原則：%(policy_id)s"
-
-#, python-format
-msgid "Could not find project: %(project_id)s"
-msgstr "找不到專案：%(project_id)s"
-
-#, python-format
-msgid "Could not find region: %(region_id)s"
-msgstr "找不到區域：%(region_id)s"
-
-#, python-format
-msgid ""
-"Could not find role assignment with role: %(role_id)s, user or group: "
-"%(actor_id)s, project or domain: %(target_id)s"
-msgstr ""
-"找不到具有角色 %(role_id)s、使用者或群組 %(actor_id)s、專案或網域 "
-"%(target_id)s 的角色指派"
-
-#, python-format
-msgid "Could not find role: %(role_id)s"
-msgstr "找不到角色：%(role_id)s"
-
-#, python-format
-msgid "Could not find service: %(service_id)s"
-msgstr "找不到服務：%(service_id)s"
-
-#, python-format
-msgid "Could not find token: %(token_id)s"
-msgstr "找不到記號：%(token_id)s"
-
-#, python-format
-msgid "Could not find trust: %(trust_id)s"
-msgstr "找不到信任：%(trust_id)s"
-
-#, python-format
-msgid "Could not find user: %(user_id)s"
-msgstr "找不到使用者：%(user_id)s"
-
-#, python-format
-msgid "Could not find version: %(version)s"
-msgstr "找不到版本：%(version)s"
-
-#, python-format
-msgid "Could not find: %(target)s"
-msgstr "找不到：%(target)s"
 
 msgid ""
 "Could not map any federated user properties to identity values. Check debug "
@@ -458,9 +312,6 @@ msgid ""
 "%(file)s."
 msgstr "網域 %(domain)s 已定義配置 - 正在忽略檔案 %(file)s。"
 
-msgid "Duplicate Entry"
-msgstr "項目重複"
-
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "重複的 ID，%s。"
@@ -510,16 +361,8 @@ msgid "Error while opening file %(path)s: %(err)s"
 msgstr "開啟檔案 %(path)s 時發生錯誤：%(err)s"
 
 #, python-format
-msgid "Error while parsing line: '%(line)s': %(err)s"
-msgstr "剖析行 '%(line)s' 時發生錯誤：%(err)s"
-
-#, python-format
 msgid "Error while parsing rules %(path)s: %(err)s"
 msgstr "剖析規則 %(path)s 時發生錯誤：%(err)s"
-
-#, python-format
-msgid "Error while reading metadata file, %(reason)s"
-msgstr "讀取 meta 資料檔時發生錯誤，%(reason)s"
 
 #, python-format
 msgid ""
@@ -538,15 +381,6 @@ msgid ""
 "Keystone configuration."
 msgstr "伺服器上無法使用預期的簽署憑證。請檢查 Keystone 配置。"
 
-#, python-format
-msgid ""
-"Expecting to find %(attribute)s in %(target)s - the server could not comply "
-"with the request since it is either malformed or otherwise incorrect. The "
-"client is assumed to be in error."
-msgstr ""
-"預期在 %(target)s 中找到 %(attribute)s - 伺服器無法遵守要求，因為它的格式不正"
-"確。系統會假定用戶端處於錯誤狀態。"
-
 msgid "Failed to validate token"
 msgstr "無法驗證記號"
 
@@ -564,10 +398,6 @@ msgid "Found invalid token: scoped to both project and domain."
 msgstr "找到無效記號：已將範圍限定為專案及網域。"
 
 #, python-format
-msgid "Group  %s not found in config"
-msgstr "在配置中找不到群組 %s"
-
-#, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "網域特定配置不支援群組 %(group)s"
 
@@ -576,14 +406,6 @@ msgid ""
 "Group %(group_id)s returned by mapping %(mapping_id)s was not found in the "
 "backend."
 msgstr "在後端找不到對映 %(mapping_id)s 所傳回的群組 %(group_id)s。"
-
-#, python-format
-msgid ""
-"Group membership across backend boundaries is not allowed, group in question "
-"is %(group_id)s, user is %(user_id)s"
-msgstr ""
-"不容許後端界限之間的群組成員資格，有問題的群組為%(group_id)s，使用者為 "
-"%(user_id)s"
 
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
@@ -634,21 +456,8 @@ msgid ""
 msgstr ""
 "在配置檔名稱 %(file)s 中找到的網域名稱 %(domain)s 無效 - 正在忽略此檔案。"
 
-#, python-format
-msgid "Invalid domain specific configuration: %(reason)s"
-msgstr "網域特定配置無效：%(reason)s"
-
 msgid "Invalid limit value"
 msgstr "無效的限制值"
-
-#, python-format
-msgid ""
-"Invalid mix of entities for policy association - only Endpoint, Service or "
-"Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
-"%(service_id)s, Region: %(region_id)s"
-msgstr ""
-"原則關聯的混合實體無效 - 僅容許「端點」、「服務」或「區域+服務」。要求為 -"
-"「端點」：%(endpoint_id)s，「服務」：%(service_id)s，「區域」：%(region_id)s"
 
 #, python-format
 msgid ""
@@ -668,26 +477,6 @@ msgstr "無效的使用者名稱或 TOTP 密碼"
 msgid "Invalid username or password"
 msgstr "無效的使用者名稱或密碼"
 
-#, python-format
-msgid "KVS region %s is already configured. Cannot reconfigure."
-msgstr "KVS 區域 %s 已配置。無法重新配置。"
-
-#, python-format
-msgid "Key Value Store not configured: %s"
-msgstr "未配置金鑰值儲存庫：%s"
-
-#, python-format
-msgid "LDAP %s create"
-msgstr "LDAP %s 建立"
-
-#, python-format
-msgid "LDAP %s delete"
-msgstr "LDAP %s 刪除"
-
-#, python-format
-msgid "LDAP %s update"
-msgstr "LDAP %s 更新"
-
 msgid ""
 "Length of transformable resource id > 64, which is max allowed characters"
 msgstr "可轉換資源 ID 的長度大於 64（這是所容許的字元數目上限）"
@@ -701,14 +490,6 @@ msgstr ""
 "中的 '{0}'）。"
 
 #, python-format
-msgid "Lock Timeout occurred for key, %(target)s"
-msgstr "金鑰 %(target)s 發生鎖定逾時"
-
-#, python-format
-msgid "Lock key must match target key: %(lock)s != %(target)s"
-msgstr "鎖定金鑰必須與目標金鑰相符：%(lock)s 不等於 %(target)s"
-
-#, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr "端點 URL (%(endpoint)s) 的格式不正確，請參閱錯誤日誌以取得詳細資料。"
 
@@ -718,10 +499,6 @@ msgstr "找不到標記"
 #, python-format
 msgid "Max hierarchy depth reached for %s branch."
 msgstr "已達到 %s 分支的階層深度上限。"
-
-#, python-format
-msgid "Maximum lock attempts on %s occurred."
-msgstr "已達到 %s 的鎖定嘗試次數上限。"
 
 #, python-format
 msgid "Member %(member)s is already a member of group %(group)s"
@@ -742,21 +519,11 @@ msgstr "禁止在重新委派時修改 \"redelegation_count\"。建議省略此�
 msgid "Multiple domains are not supported"
 msgstr "不支援多個網域"
 
-msgid "Must be called within an active lock context."
-msgstr "必須在作用中鎖定環境定義內呼叫。"
-
 msgid "Must specify either domain or project"
 msgstr "必須指定 Domain 或 Project"
 
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "既未提供「專案網域 ID」，也未提供「專案網域名稱」。"
-
-msgid ""
-"No Authorization headers found, cannot proceed with OAuth related calls, if "
-"running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
-msgstr ""
-"找不到授權標頭，無法繼續進行 OAuth 相關呼叫，如果在 HTTPd 或 Apache 下執行，"
-"請確保 WSGIPassAuthorization 設定為 On。"
 
 msgid "No authenticated user"
 msgstr "沒有已鑑別使用者"
@@ -771,10 +538,6 @@ msgstr "未指定選項"
 #, python-format
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr "沒有原則與端點 %(endpoint_id)s 相關聯。"
-
-#, python-format
-msgid "No remaining uses for trust: %(trust_id)s"
-msgstr "沒有信任 %(trust_id)s 的剩餘使用情形"
 
 msgid "No token in the request"
 msgstr "要求中沒有記號"
@@ -800,10 +563,6 @@ msgstr "網域特定配置不支援群組 %(group)s 中的選項 %(option)s"
 #, python-format
 msgid "Project (%s)"
 msgstr "專案 (%s)"
-
-#, python-format
-msgid "Project ID not found: %(t_id)s"
-msgstr "找不到專案 ID：%(t_id)s"
 
 msgid "Project field is required and cannot be empty."
 msgstr "專案欄位是必要的，不能是空的。"
@@ -888,14 +647,6 @@ msgstr "指定網域或專案"
 msgid "Specify one of user or group"
 msgstr "指定使用者或群組"
 
-#, python-format
-msgid ""
-"String length exceeded.The length of string '%(string)s' exceeded the limit "
-"of column %(type)s(CHAR(%(length)d))."
-msgstr ""
-"已超出字串長度。字串 '%(string)s' 的長度已超出直欄 %(type)s 的限制 "
-"(CHAR(%(length)d))。"
-
 msgid "Tenant name cannot contain reserved characters."
 msgstr "租戶名稱不能包含保留字元。"
 
@@ -923,17 +674,6 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "尚未實作所要求的動作。"
-
-msgid "The authenticated user should match the trustor."
-msgstr "已鑑別使用者應該與委託人相符。"
-
-msgid ""
-"The certificates you requested are not available. It is likely that this "
-"server does not use PKI tokens otherwise this is the result of "
-"misconfiguration."
-msgstr ""
-"所要求的憑證無法使用。可能是此伺服器沒有使用 PKI 記號，否則，這是由於配置錯誤"
-"所造成。"
 
 msgid "The configured token provider does not support bind authentication."
 msgstr "所配置的記號提供者不支援連結鑑別。"
@@ -1029,10 +769,6 @@ msgid ""
 msgstr "無法存取 Keystone 資料庫，請檢查它是否已正確配置。"
 
 #, python-format
-msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
-msgstr "無法耗用信任 %(trust_id)s，無法獲得鎖定。"
-
-#, python-format
 msgid ""
 "Unable to delete region %(region_id)s because it or its child regions have "
 "associated endpoints."
@@ -1057,28 +793,8 @@ msgstr ""
 "無法核對身分屬性 %(attribute)s，因為該屬性具有衝突的值 %(new)s 和 %(old)s"
 
 #, python-format
-msgid ""
-"Unable to sign SAML assertion. It is likely that this server does not have "
-"xmlsec1 installed, or this is the result of misconfiguration. Reason "
-"%(reason)s"
-msgstr ""
-"無法簽署 SAML 主張。此伺服器可能未安裝xmlsec1，或者這是配置錯誤的結果。原"
-"因： %(reason)s"
-
-msgid "Unable to sign token."
-msgstr "無法簽署記號。"
-
-#, python-format
 msgid "Unexpected assignment type encountered, %s"
 msgstr "發現非預期的指派類型：%s"
-
-#, python-format
-msgid ""
-"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
-"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
-msgstr ""
-"非預期的授權屬性組合 - 使用者：%(user_id)s，群組：%(group_id)s，專案："
-"%(project_id)s，網域：%(domain_id)s"
 
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
@@ -1090,10 +806,6 @@ msgstr "不明的目標"
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "由 --domain-name 指定的網域 '%(name)s' 不明"
-
-#, python-format
-msgid "Unknown token version %s"
-msgstr "不明的記號版本 %s"
 
 #, python-format
 msgid "Unregistered dependency: %(name)s for %(targets)s"
@@ -1108,18 +820,8 @@ msgstr "不容許更新 `is_domain`。"
 msgid "Update of `parent_id` is not allowed."
 msgstr "不容許更新 'parent_id'。"
 
-msgid "Update of domain_id is only allowed for root projects."
-msgstr "只容許更新根專案的 domain_id。"
-
-msgid "Update of domain_id of projects acting as domains is not allowed."
-msgstr "不容許更新正在充當網域之專案的 domain_id。"
-
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr "嘗試建立 SAML 主張時，使用專案範圍的記號"
-
-#, python-format
-msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
-msgstr "使用者 %(u_id)s 未獲承租人 %(t_id)s 的授權"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -1154,9 +856,6 @@ msgstr "已停用使用者：%s"
 msgid "User is not a trustee."
 msgstr "使用者不是受託人。"
 
-msgid "User not found"
-msgstr "找不到使用者"
-
 msgid "User not valid for tenant."
 msgstr "使用者不是有效的承租人。"
 
@@ -1170,10 +869,6 @@ msgstr "使用者類型 %s 不受支援"
 msgid "You are not authorized to perform the requested action."
 msgstr "您未獲授權來執行所要求的動作。"
 
-#, python-format
-msgid "You are not authorized to perform the requested action: %(action)s"
-msgstr "您未獲授權來執行所要求的動作：%(action)s"
-
 msgid ""
 "You have tried to create a resource using the admin token. As this token is "
 "not within a domain you must explicitly include a domain for this resource "
@@ -1181,12 +876,6 @@ msgid ""
 msgstr ""
 "您已嘗試使用管理者記號建立資源。因為此記號不在網域內，所以您必須明確包含某個"
 "網域，以讓此資源屬於該網域。"
-
-msgid "`key_mangler` functions must be callable."
-msgstr "`key_mangler` 函數必須可呼叫。"
-
-msgid "`key_mangler` option must be a function reference"
-msgstr "`key_mangler` 選項必須是函數參照"
 
 msgid "any options"
 msgstr "任何選項"
@@ -1266,7 +955,3 @@ msgstr "tls_cacertfile %s 找不到，或者不是檔案"
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "記號參照必須是 KeystoneToken 類型，但卻取得：%s"
-
-msgid ""
-"update of domain_id is deprecated as of Mitaka and will be removed in O."
-msgstr "不建議更新 domain_id，因為 Mitaka 將在 O 版本中予以移除。"

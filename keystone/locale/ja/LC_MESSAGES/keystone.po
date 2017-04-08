@@ -7,27 +7,23 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 10.0.0.0rc2.dev181\n"
+"Project-Id-Version: keystone 11.0.1.dev15\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2016-10-14 20:17+0000\n"
+"POT-Creation-Date: 2017-03-28 18:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-04-04 01:18+0000\n"
-"Last-Translator: 笹原 昌美 <ebb0de1@jp.ibm.com>\n"
+"PO-Revision-Date: 2016-04-07 06:27+0000\n"
+"Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
-"X-Generator: Zanata 3.7.3\n"
+"X-Generator: Zanata 3.9.6\n"
 "Language-Team: Japanese\n"
 
 #, python-format
 msgid "%(detail)s"
 msgstr "%(detail)s"
-
-#, python-format
-msgid "%(driver)s is not supported driver version"
-msgstr "%(driver)s はサポートされるドライバーバージョンではありません"
 
 #, python-format
 msgid ""
@@ -59,10 +55,6 @@ msgstr ""
 "ずれかです。"
 
 #, python-format
-msgid "%(prior_role_id)s does not imply %(implied_role_id)s"
-msgstr "%(prior_role_id)s は %(implied_role_id)s を暗黙的に示しません"
-
-#, python-format
 msgid "%(property_name)s cannot be less than %(min_length)s characters."
 msgstr "%(property_name)s は %(min_length)s 文字より短くできません。"
 
@@ -73,10 +65,6 @@ msgstr "%(property_name)s が %(display_expected_type)s ではありません。
 #, python-format
 msgid "%(property_name)s should not be greater than %(max_length)s characters."
 msgstr "%(property_name)s は %(max_length)s 文字より長くできません。"
-
-#, python-format
-msgid "%(role_id)s cannot be an implied roles"
-msgstr "%(role_id)s は暗黙的ロールにできません"
 
 #, python-format
 msgid "%s cannot be empty."
@@ -130,17 +118,6 @@ msgstr "%s の保存中に予期しないエラーが発生しました"
 msgid "An unexpected error prevented the server from fulfilling your request."
 msgstr "予期しないエラーが発生したため、サーバーが要求を完了できませんでした。"
 
-#, python-format
-msgid ""
-"An unexpected error prevented the server from fulfilling your request: "
-"%(exception)s"
-msgstr ""
-"予期しないエラーが発生したため、サーバーが要求を完了できませんでした:  "
-"%(exception)s"
-
-msgid "An unhandled exception has occurred: Could not find metadata."
-msgstr "処理できない例外が発生しました。メタデータが見つかりませんでした。"
-
 msgid "At least one option must be provided"
 msgstr "少なくとも 1 つはオプションを指定する必要があります"
 
@@ -149,22 +126,11 @@ msgstr ""
 "少なくとも 1 つのオプションを指定する必要があります。--all または --domain-"
 "name を使用してください"
 
-msgid "At least one role should be specified."
-msgstr "少なくとも 1 つのロールを指定する必要があります。"
-
 msgid "Attempted to authenticate with an unsupported method."
 msgstr "サポートされていないメソッドを使用して認証を行おうとしました。"
 
 msgid "Authentication plugin error."
 msgstr "認証プラグインエラー。"
-
-#, python-format
-msgid ""
-"Backend `%(backend)s` is not a valid memcached backend. Valid backends: "
-"%(backend_list)s"
-msgstr ""
-"バックエンド `%(backend)s` は有効な memcached バックエンドではありません。有"
-"効なバックエンド: %(backend_list)s"
 
 msgid "Cannot authorize a request token with a token issued via delegation."
 msgstr ""
@@ -183,14 +149,6 @@ msgstr "ユーザー ID を変更できません"
 
 msgid "Cannot change user name"
 msgstr "ユーザー名を変更できません"
-
-#, python-format
-msgid "Cannot create an endpoint with an invalid URL: %(url)s"
-msgstr "以下の無効な URL を持つエンドポイントを作成できません: %(url)s"
-
-#, python-format
-msgid "Cannot create project with parent: %(project_id)s"
-msgstr "親を持つプロジェクト: %(project_id)s を作成できません"
 
 #, python-format
 msgid ""
@@ -270,9 +228,6 @@ msgstr ""
 "セルフの後に最初のパラメーターとしてヒントリストなしでドライバー呼び出しを切"
 "り捨てることはできません"
 
-msgid "Cannot update domain_id of a project that has children."
-msgstr "子を持つプロジェクトの domain_id を更新できません。"
-
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
 msgstr ""
@@ -307,10 +262,6 @@ msgid "Config API entity at /domains/%s/config"
 msgstr "/domains/%s/config の Config API エンティティー"
 
 #, python-format
-msgid "Conflict occurred attempting to store %(type)s - %(details)s"
-msgstr "%(type)s を保存するときに競合が発生しました - %(details)s"
-
-#, python-format
 msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
 msgstr ""
 "矛盾するリージョン ID が指定されました: \"%(url_id)s\" != \"%(ref_id)s\""
@@ -320,120 +271,14 @@ msgstr "コンシューマーが見つかりません"
 
 #, python-format
 msgid ""
-"Could not change immutable attribute(s) '%(attributes)s' in target %(target)s"
-msgstr ""
-"ターゲット %(target)s の変更不可の属性 '%(attributes)s' を変更できませんでし"
-"た"
-
-#, python-format
-msgid ""
 "Could not determine Identity Provider ID. The configuration option "
 "%(issuer_attribute)s was not found in the request environment."
 msgstr ""
 "認証プロバイダー ID を判別できませんでした。設定オプション "
 "%(issuer_attribute)s が要求環境内で見つかりませんでした。"
 
-#, python-format
-msgid ""
-"Could not find %(group_or_option)s in domain configuration for domain "
-"%(domain_id)s"
-msgstr ""
-"%(group_or_option)s がドメイン %(domain_id)s のドメイン設定に見つかりませんで"
-"した"
-
-#, python-format
-msgid "Could not find Endpoint Group: %(endpoint_group_id)s"
-msgstr "エンドポイントグループ %(endpoint_group_id)s が見つかりませんでした"
-
 msgid "Could not find Identity Provider identifier in environment"
 msgstr "Identity Provider ID が環境情報内に見つかりませんでした"
-
-#, python-format
-msgid "Could not find Identity Provider: %(idp_id)s"
-msgstr "ID プロバイダー %(idp_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find Service Provider: %(sp_id)s"
-msgstr "サービスプロバイダー %(sp_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find credential: %(credential_id)s"
-msgstr "クレデンシャルが見つかりませんでした: %(credential_id)s"
-
-#, python-format
-msgid "Could not find domain: %(domain_id)s"
-msgstr "ドメイン %(domain_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find endpoint: %(endpoint_id)s"
-msgstr "エンドポイント %(endpoint_id)sが見つかりませんでした"
-
-#, python-format
-msgid ""
-"Could not find federated protocol %(protocol_id)s for Identity Provider: "
-"%(idp_id)s"
-msgstr ""
-"Identity Provider の連携プロトコル %(protocol_id)s が見つかりませんでした: "
-"%(idp_id)s"
-
-#, python-format
-msgid "Could not find group: %(group_id)s"
-msgstr "グループ %(group_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find mapping: %(mapping_id)s"
-msgstr "マッピング %(mapping_id)s が見つかりませんでした"
-
-msgid "Could not find policy association"
-msgstr "ポリシー関連付けが見つかりませんでした"
-
-#, python-format
-msgid "Could not find policy: %(policy_id)s"
-msgstr "ポリシー %(policy_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find project: %(project_id)s"
-msgstr "プロジェクト %(project_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find region: %(region_id)s"
-msgstr "リージョン %(region_id)s が見つかりませんでした"
-
-#, python-format
-msgid ""
-"Could not find role assignment with role: %(role_id)s, user or group: "
-"%(actor_id)s, project or domain: %(target_id)s"
-msgstr ""
-"ロール %(role_id)s を持つ割り当てが見つかりませんでした。ユーザーまたはグルー"
-"プは %(actor_id)s で、プロジェクトまたはドメインが %(target_id)s です"
-
-#, python-format
-msgid "Could not find role: %(role_id)s"
-msgstr "ロール %(role_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find service: %(service_id)s"
-msgstr "サービス %(service_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find token: %(token_id)s"
-msgstr "トークン %(token_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find trust: %(trust_id)s"
-msgstr "トラスト %(trust_id)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find user: %(user_id)s"
-msgstr "ユーザー %(user_id)s が見つかりませんでした:"
-
-#, python-format
-msgid "Could not find version: %(version)s"
-msgstr "バージョン %(version)s が見つかりませんでした"
-
-#, python-format
-msgid "Could not find: %(target)s"
-msgstr "%(target)s が見つかりませんでした"
 
 msgid ""
 "Could not map any federated user properties to identity values. Check debug "
@@ -510,9 +355,6 @@ msgstr ""
 "ドメイン %(domain)s には既に定義された設定があります。ファイル %(file)s は無"
 "視されます。"
 
-msgid "Duplicate Entry"
-msgstr "重複する項目"
-
 #, python-format
 msgid "Duplicate ID, %s."
 msgstr "重複した ID、%s。"
@@ -567,16 +409,8 @@ msgid "Error while opening file %(path)s: %(err)s"
 msgstr "ファイル %(path)s のオープン中にエラーが発生しました: %(err)s"
 
 #, python-format
-msgid "Error while parsing line: '%(line)s': %(err)s"
-msgstr "行: '%(line)s' の解析中にエラーが発生しました: %(err)s"
-
-#, python-format
 msgid "Error while parsing rules %(path)s: %(err)s"
 msgstr "ルール %(path)s の解析中にエラーが発生しました: %(err)s"
-
-#, python-format
-msgid "Error while reading metadata file, %(reason)s"
-msgstr "メタデータファイルの読み取り中にエラーが発生しました。%(reason)s"
 
 #, python-format
 msgid ""
@@ -598,16 +432,6 @@ msgstr ""
 "想定された署名証明書がサーバーにありません。Keystone の設定を確認してくださ"
 "い。"
 
-#, python-format
-msgid ""
-"Expecting to find %(attribute)s in %(target)s - the server could not comply "
-"with the request since it is either malformed or otherwise incorrect. The "
-"client is assumed to be in error."
-msgstr ""
-"%(target)s に %(attribute)s があることが想定されています。要求の形式が不正も"
-"しくは正しくないため、サーバーは要求に応じることができませんでした。クライア"
-"ントでエラーが発生していると考えられます。"
-
 msgid "Failed to validate token"
 msgstr "トークンの検証に失敗しました"
 
@@ -628,10 +452,6 @@ msgstr ""
 "て設定されています。"
 
 #, python-format
-msgid "Group  %s not found in config"
-msgstr "グループ  %s が設定内に見つかりません"
-
-#, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "ドメイン固有の設定ではグループ %(group)s はサポートされません"
 
@@ -642,14 +462,6 @@ msgid ""
 msgstr ""
 "マッピング %(mapping_id)s が返したグループ %(group_id)s がバックエンドにあり"
 "ませんでした。"
-
-#, python-format
-msgid ""
-"Group membership across backend boundaries is not allowed, group in question "
-"is %(group_id)s, user is %(user_id)s"
-msgstr ""
-"バックエンド境界をまたぐグループメンバーシップは許可されていません。問題と"
-"なっているグループは %(group_id)s、ユーザーは %(user_id)s です"
 
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
@@ -707,23 +519,9 @@ msgstr ""
 "無効なドメイン名 %(domain)s が設定ファイル名 %(file)s に見つかりました。この"
 "ファイルは無視されます。"
 
-#, python-format
-msgid "Invalid domain specific configuration: %(reason)s"
-msgstr "無効なドメイン固有の設定です: %(reason)s"
-
 #, fuzzy
 msgid "Invalid limit value"
 msgstr "制限値が無効です"
-
-#, python-format
-msgid ""
-"Invalid mix of entities for policy association - only Endpoint, Service or "
-"Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
-"%(service_id)s, Region: %(region_id)s"
-msgstr ""
-"ポリシー関連付けのエンティティーの組み合わせが無効です。エンドポイント、サー"
-"ビス、または領域とサービスのみ許可されています。要求 - エンドポイント: "
-"%(endpoint_id)s、サービス: %(service_id)s、領域: %(region_id)s"
 
 #, python-format
 msgid ""
@@ -745,26 +543,6 @@ msgstr "無効なユーザー名または TOTP パスコード"
 msgid "Invalid username or password"
 msgstr "無効なユーザー名かパスワード"
 
-#, python-format
-msgid "KVS region %s is already configured. Cannot reconfigure."
-msgstr "KVS 領域 %s は既に構成されています。再構成はできません。"
-
-#, python-format
-msgid "Key Value Store not configured: %s"
-msgstr "キーバリューストアが設定されていません: %s"
-
-#, python-format
-msgid "LDAP %s create"
-msgstr "LDAP %s の作成"
-
-#, python-format
-msgid "LDAP %s delete"
-msgstr "LDAP %s の削除"
-
-#, python-format
-msgid "LDAP %s update"
-msgstr "LDAP %s の更新"
-
 msgid ""
 "Length of transformable resource id > 64, which is max allowed characters"
 msgstr ""
@@ -780,15 +558,6 @@ msgstr ""
 "致 (例えばローカルセクションの  {0}) を参照します。"
 
 #, python-format
-msgid "Lock Timeout occurred for key, %(target)s"
-msgstr "キー %(target)s についてロックタイムアウトが発生しました"
-
-#, python-format
-msgid "Lock key must match target key: %(lock)s != %(target)s"
-msgstr ""
-"ロックキーはターゲットキーと一致しなければなりません: %(lock)s != %(target)s"
-
-#, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr ""
 "エンドポイント URL (%(endpoint)s) の形式が正しくありません。詳しくはエラーロ"
@@ -800,10 +569,6 @@ msgstr "マーカーが見つかりませんでした"
 #, python-format
 msgid "Max hierarchy depth reached for %s branch."
 msgstr "%s ブランチに到達する最大の階層の深さ。"
-
-#, python-format
-msgid "Maximum lock attempts on %s occurred."
-msgstr "%s に対してロックが最大回数まで試みられました。"
 
 #, python-format
 msgid "Member %(member)s is already a member of group %(group)s"
@@ -826,9 +591,6 @@ msgstr ""
 msgid "Multiple domains are not supported"
 msgstr "複数のドメインはサポートされていません"
 
-msgid "Must be called within an active lock context."
-msgstr "アクティブなロックコンテキスト内で呼び出されなければなりません。"
-
 msgid "Must specify either domain or project"
 msgstr "ドメインまたはプロジェクトのいずれかを指定する必要があります"
 
@@ -836,14 +598,6 @@ msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr ""
 "プロジェクトドメイン ID および プロジェクトドメイン名のいずれも指定されません"
 "でした。"
-
-msgid ""
-"No Authorization headers found, cannot proceed with OAuth related calls, if "
-"running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
-msgstr ""
-"認可に使用するヘッダーが見つからず、OAuth 関連の呼び出しを続行できません。"
-"HTTPd または Apache の下で実行している場合は、WSGIPassAuthorization が On に"
-"設定されていることを確認してください。"
 
 msgid "No authenticated user"
 msgstr "認証されていないユーザー"
@@ -861,10 +615,6 @@ msgstr "オプションが指定されていません"
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr ""
 "エンドポイント %(endpoint_id)s に関連付けられているポリシーはありません。"
-
-#, python-format
-msgid "No remaining uses for trust: %(trust_id)s"
-msgstr "トラストはこれ以上使用できません: %(trust_id)s"
 
 msgid "No token in the request"
 msgstr "要求にトークンがありません"
@@ -894,10 +644,6 @@ msgstr ""
 #, python-format
 msgid "Project (%s)"
 msgstr "プロジェクト (%s)"
-
-#, python-format
-msgid "Project ID not found: %(t_id)s"
-msgstr "プロジェクト ID が見つかりません: %(t_id)s"
 
 msgid "Project field is required and cannot be empty."
 msgstr "プロジェクトフィールドは必須であり、空にできません。"
@@ -989,14 +735,6 @@ msgstr "ドメインまたはプロジェクトのいずれかを指定してく
 msgid "Specify one of user or group"
 msgstr "ユーザーまたはグループのいずれかを指定してください"
 
-#, python-format
-msgid ""
-"String length exceeded.The length of string '%(string)s' exceeded the limit "
-"of column %(type)s(CHAR(%(length)d))."
-msgstr ""
-"文字列が長過ぎます。文字列 %(string)s' の長さが列 %(type)s(CHAR(%(length)d)) "
-"の制限を超えました。"
-
 msgid "Tenant name cannot contain reserved characters."
 msgstr "テナント名に予約済み文字が含まれていてはなりません。"
 
@@ -1026,18 +764,6 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "要求したアクションは実装されていません。"
-
-#, fuzzy
-msgid "The authenticated user should match the trustor."
-msgstr "認証ユーザーは委託者と一致している必要があります。"
-
-msgid ""
-"The certificates you requested are not available. It is likely that this "
-"server does not use PKI tokens otherwise this is the result of "
-"misconfiguration."
-msgstr ""
-"要求された証明書がありません。このサーバーでは PKI トークンが使用されていない"
-"か、そうでない場合は設定が間違っていると考えられます。 "
 
 msgid "The configured token provider does not support bind authentication."
 msgstr "設定済みトークンプロバイダーはバインド認証をサポートしません。"
@@ -1143,10 +869,6 @@ msgstr ""
 "keystone データベースにアクセスできません。このデータベースが正しく設定されて"
 "いるかどうかを確認してください。"
 
-#, fuzzy, python-format
-msgid "Unable to consume trust %(trust_id)s, unable to acquire lock."
-msgstr "トラスト %(trust_id)s を消費できず、ロックを取得できません。"
-
 #, python-format
 msgid ""
 "Unable to delete region %(region_id)s because it or its child regions have "
@@ -1175,28 +897,8 @@ msgstr ""
 "整できません"
 
 #, python-format
-msgid ""
-"Unable to sign SAML assertion. It is likely that this server does not have "
-"xmlsec1 installed, or this is the result of misconfiguration. Reason "
-"%(reason)s"
-msgstr ""
-"SAML アサーションに署名できません。このサーバーに xmlsec1 がインストールされ"
-"ていないか、設定が誤っているためと考えられます。理由: %(reason)s"
-
-msgid "Unable to sign token."
-msgstr "トークンに署名できません。"
-
-#, python-format
 msgid "Unexpected assignment type encountered, %s"
 msgstr "予期しない割り当てタイプが検出されました。%s"
-
-#, python-format
-msgid ""
-"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
-"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s"
-msgstr ""
-"認可属性 の組み合わせ (ユーザー: %(user_id)s、グループ: %(group_id)s、プロ"
-"ジェクト: %(project_id)s、ドメイン: %(domain_id)s) が正しくありません。"
 
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
@@ -1208,10 +910,6 @@ msgstr "不明なターゲット"
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "不明なドメイン '%(name)s' が --domain-name で指定されました"
-
-#, python-format
-msgid "Unknown token version %s"
-msgstr "トークンバージョン %s は不明です"
 
 #, python-format
 msgid "Unregistered dependency: %(name)s for %(targets)s"
@@ -1226,21 +924,10 @@ msgstr "`is_domain` の更新は許可されません。"
 msgid "Update of `parent_id` is not allowed."
 msgstr "\"parent_id\" の更新は許可されていません。"
 
-msgid "Update of domain_id is only allowed for root projects."
-msgstr "domain_id の更新が許可されるのは root プロジェクトのみです。"
-
-msgid "Update of domain_id of projects acting as domains is not allowed."
-msgstr ""
-"ドメインとして動作するプロジェクトの domain_id の更新は許可されません。"
-
 msgid "Use a project scoped token when attempting to create a SAML assertion"
 msgstr ""
 "SAML アサーションの作成を行うときは、プロジェクトにスコープが設定されたトーク"
 "ンを使用してください"
-
-#, python-format
-msgid "User %(u_id)s is unauthorized for tenant %(t_id)s"
-msgstr "ユーザー %(u_id)s はテナント %(t_id)s のアクセス権限がありません。"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -1279,9 +966,6 @@ msgstr "ユーザーが無効になっています: %s"
 msgid "User is not a trustee."
 msgstr "ユーザーは受託者ではありません。"
 
-msgid "User not found"
-msgstr "ユーザーが見つかりません"
-
 msgid "User not valid for tenant."
 msgstr "ユーザーはテナントに対して無効です。"
 
@@ -1295,10 +979,6 @@ msgstr "ユーザータイプ %s はサポートされていません"
 msgid "You are not authorized to perform the requested action."
 msgstr "要求されたアクションを実行する許可がありません。"
 
-#, python-format
-msgid "You are not authorized to perform the requested action: %(action)s"
-msgstr "要求されたアクションを実行する許可がありません: %(action)s"
-
 msgid ""
 "You have tried to create a resource using the admin token. As this token is "
 "not within a domain you must explicitly include a domain for this resource "
@@ -1306,12 +986,6 @@ msgid ""
 msgstr ""
 "管理トークンを使用してリソースを作成しようとしています。このトークンはドメイ"
 "ン内にないため、このリソースが属するドメインを明示的に含める必要があります。"
-
-msgid "`key_mangler` functions must be callable."
-msgstr "`key_mangler` 関数は呼び出し可能でなければなりません。"
-
-msgid "`key_mangler` option must be a function reference"
-msgstr "`key_mangler` オプションは関数参照でなければなりません"
 
 msgid "any options"
 msgstr "任意のオプション"
@@ -1403,8 +1077,3 @@ msgstr "tls_cacertfile %s が見つからない、もしくは、ファイルで
 #, python-format
 msgid "token reference must be a KeystoneToken type, got: %s"
 msgstr "トークン参照は KeystoneToken 型である必要があります。%s を受信しました"
-
-msgid ""
-"update of domain_id is deprecated as of Mitaka and will be removed in O."
-msgstr ""
-"domain_id の更新は Mitaka の時点で提供を終了し、O で削除される予定です。"
