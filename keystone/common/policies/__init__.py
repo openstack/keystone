@@ -22,7 +22,6 @@ from keystone.common.policies import domain_config
 from keystone.common.policies import ec2_credential
 from keystone.common.policies import endpoint
 from keystone.common.policies import endpoint_group
-from keystone.common.policies import for_user
 from keystone.common.policies import grant
 from keystone.common.policies import group
 from keystone.common.policies import identity_provider
@@ -56,7 +55,6 @@ def list_rules():
         ec2_credential.list_rules(),
         endpoint.list_rules(),
         endpoint_group.list_rules(),
-        for_user.list_rules(),
         grant.list_rules(),
         group.list_rules(),
         identity_provider.list_rules(),

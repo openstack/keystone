@@ -1,0 +1,26 @@
+---
+features:
+  - >
+    `[`blueprint policy-in-code <https://blueprints.launchpad.net/keystone/+spec/policy-in-code>`_]
+    Keystone now supports the ability to register default policies in code.
+    This makes policy file maintenance easier by allowing duplicated default
+    policies to be removed from the policy file. The only policies that should
+    exist within a deployments policy file after Pike should be policy
+    overrides. To generate sample policy files from default values, prune
+    default policies from existing policy files, or familiarize yourself with
+    general policy usage, please see the `usage documentation
+    <https://docs.openstack.org/developer/oslo.policy/usage.html>`_
+    provided in oslo.policy.
+
+upgrade:
+  - >
+    `[`blueprint policy-in-code <https://blueprints.launchpad.net/keystone/+spec/policy-in-code>`_]
+    Keystone now supports the ability to register default policies in code.
+    This makes policy file maintenance easier by allowing duplicated default
+    policies to be removed from the policy file. The only policies that should
+    exist within a deployments policy file after Pike should be policy
+    overrides. To generate sample policy files from default values, prune
+    default policies from existing policy files, or familiarize yourself with
+    general policy usage, please see the `usage documentation
+    <https://docs.openstack.org/developer/oslo.policy/usage.html>`_
+    provided in oslo.policy.

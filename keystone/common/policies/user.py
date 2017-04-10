@@ -22,6 +22,12 @@ user_policies = [
         name=base.IDENTITY % 'list_users',
         check_str=base.RULE_ADMIN_REQUIRED),
     policy.RuleDefault(
+        name=base.IDENTITY % 'list_projects_for_user',
+        check_str=''),
+    policy.RuleDefault(
+        name=base.IDENTITY % 'list_domains_for_user',
+        check_str=''),
+    policy.RuleDefault(
         name=base.IDENTITY % 'create_user',
         check_str=base.RULE_ADMIN_REQUIRED),
     policy.RuleDefault(
