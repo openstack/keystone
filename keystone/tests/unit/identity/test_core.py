@@ -143,7 +143,7 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         # Override two config options for our domain
         conf = {'ldap': {'url': uuid.uuid4().hex,
                          'suffix': uuid.uuid4().hex,
-                         'use_tls': 'True'},
+                         'use_tls': True},
                 'identity': {
                     'driver': 'ldap'}}
         self.domain_config_api.create_config(domain['id'], conf)
