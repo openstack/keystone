@@ -15,12 +15,23 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 role_assignment_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_assignments',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List role assignments.',
+        operations=[{'path': '/v3/role_assignments',
+                     'method': 'GET'},
+                    {'path': '/v3/role_assignments',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_assignments_for_tree',
-        check_str=base.RULE_ADMIN_REQUIRED),
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('List all role assignments for a given tree of '
+                     'hierarchical projects.'),
+        operations=[{'path': '/v3/role_assignments?include_subtree',
+                     'method': 'GET'},
+                    {'path': '/v3/role_assignments?include_subtree',
+                     'method': 'HEAD'}])
 ]
 
 
