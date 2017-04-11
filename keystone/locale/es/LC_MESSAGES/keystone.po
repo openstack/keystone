@@ -10,20 +10,21 @@
 # Jose Ramirez Garcia <jose.ramirez.rk@gmail.com>, 2014
 # Pablo Sanchez <furybeat@gmail.com>, 2015
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
+# Ana Santos <aesantos@us.ibm.com>, 2017. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 11.0.1.dev52\n"
+"Project-Id-Version: keystone 12.0.0.dev260\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-02-25 03:35+0000\n"
+"POT-Creation-Date: 2017-04-10 21:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-03-24 10:55+0000\n"
-"Last-Translator: Eugènia Torrella <tester03@es.ibm.com>\n"
+"PO-Revision-Date: 2017-04-10 06:40+0000\n"
+"Last-Translator: Ana Santos <aesantos@us.ibm.com>\n"
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.0\n"
-"X-Generator: Zanata 3.7.3\n"
+"X-Generator: Zanata 3.9.6\n"
 "Language-Team: Spanish\n"
 
 #, python-format
@@ -798,9 +799,6 @@ msgstr ""
 msgid "The request you have made requires authentication."
 msgstr "La solicitud que ha hecho requiere autenticación."
 
-msgid "The resource could not be found."
-msgstr "El recurso no se ha podido encontrar."
-
 msgid ""
 "The revoke call must not have both domain_id and project_id. This is a bug "
 "in the Keystone server. The current request is aborted."
@@ -993,6 +991,10 @@ msgstr "El tipo de usuario %s no está soportado"
 
 msgid "You are not authorized to perform the requested action."
 msgstr "No está autorizado para realizar la acción solicitada."
+
+#, python-format
+msgid "You are not authorized to perform the requested action: %(action)s."
+msgstr "No está autorizado para realizar la acción solicitada: %(action)s."
 
 msgid ""
 "You have tried to create a resource using the admin token. As this token is "
