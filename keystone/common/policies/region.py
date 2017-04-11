@@ -15,21 +15,42 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 region_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_region',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description='Show region details.',
+        operations=[{'path': '/v3/regions/{region_id}',
+                     'method': 'GET'},
+                    {'path': '/v3/regions/{region_id}',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_regions',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description='List regions.',
+        operations=[{'path': '/v3/regions',
+                     'method': 'GET'},
+                    {'path': '/v3/regions',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_region',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create region.',
+        operations=[{'path': '/v3/regions',
+                     'method': 'POST'},
+                    {'path': '/v3/regions/{region_id}',
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_region',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update region.',
+        operations=[{'path': '/v3/regions/{region_id}',
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_region',
-        check_str=base.RULE_ADMIN_REQUIRED),
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete region.',
+        operations=[{'path': '/v3/regions/{region_id}',
+                     'method': 'DELETE'}])
 ]
 
 
