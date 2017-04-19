@@ -20,7 +20,7 @@ from keystone_tempest_plugin.tests.api.identity.v3 import fixtures
 from keystone_tempest_plugin.tests import base
 
 
-class IndentityProvidersTest(base.BaseIdentityTest):
+class IdentityProvidersTest(base.BaseIdentityTest):
 
     def _assert_identity_provider_attributes(self, idp, idp_id, idp_ref=None):
         self.assertIn('id', idp)
