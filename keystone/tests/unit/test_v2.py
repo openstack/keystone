@@ -62,9 +62,9 @@ class CoreApiTests(object):
         self.assertIsNotNone(user.get('id'))
         self.assertIsNotNone(user.get('name'))
 
-    def assertValidRole(self, tenant):
-        self.assertIsNotNone(tenant.get('id'))
-        self.assertIsNotNone(tenant.get('name'))
+    def assertValidRole(self, role):
+        self.assertIsNotNone(role.get('id'))
+        self.assertIsNotNone(role.get('name'))
 
     def test_public_not_found(self):
         r = self.public_request(
