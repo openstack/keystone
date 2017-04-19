@@ -217,7 +217,7 @@ request. See `Consumer Obtains a Request Token
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/request_tokens``
 
-Normal response codes: 200
+Normal response codes: 201
 
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
@@ -247,7 +247,7 @@ Response
 Authorize request token
 =======================
 
-.. rest_method::  POST /v3/OS-OAUTH1/authorize/{request_token_id}
+.. rest_method::  PUT /v3/OS-OAUTH1/authorize/{request_token_id}
 
 To authorize the Request Token, the authorizing user must have access to the
 requested project. Upon successful authorization, an OAuth Verifier code is
@@ -289,7 +289,7 @@ request. See `Consumer Requests an Access Token
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/access_tokens``
 
-Normal response codes: 200
+Normal response codes: 201
 
 Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
 
