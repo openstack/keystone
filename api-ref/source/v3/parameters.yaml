@@ -244,7 +244,9 @@ parents_as_list:
   description: |
     The parent hierarchy will be included as a list in the response.
     This list will contain the projects found by traversing up the
-    hierarchy to the top-level project.
+    hierarchy to the top-level project. The returned list will be
+    filtered against the projects the user has an effective role
+    assignment on.
   in: query
   required: false
   type: key-only, no value expected
@@ -363,7 +365,8 @@ subtree_as_list:
   description: |
     The child hierarchy will be included as a list in the response.
     This list will contain the projects found by traversing down
-    the hierarchy.
+    the hierarchy. The returned list will be filtered against the
+    projects the user has an effective role assignment on.
   in: query
   required: false
   type: key-only, no value expected
