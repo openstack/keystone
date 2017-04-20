@@ -51,12 +51,16 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.viewcode',
               'oslo_config.sphinxconfiggen',
+              'oslo_policy.sphinxpolicygen',
               'oslosphinx',
               'ext.support_matrix',
               ]
 
 config_generator_config_file = '../../config-generator/keystone.conf'
 sample_config_basename = '_static/keystone'
+
+policy_generator_config_file = '../../etc/keystone-policy-generator.conf'
+sample_policy_basename = '_static/keystone'
 
 todo_include_todos = True
 
