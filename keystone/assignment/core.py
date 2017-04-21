@@ -949,19 +949,43 @@ class Manager(manager.Manager):
                     _domain = self.resource_api.get_domain(value)
                     new_assign['domain_name'] = _domain['name']
                 elif key == 'user_id':
-                    _user = self.identity_api.get_user(value)
-                    new_assign['user_name'] = _user['name']
-                    new_assign['user_domain_id'] = _user['domain_id']
-                    new_assign['user_domain_name'] = (
-                        self.resource_api.get_domain(_user['domain_id'])
-                        ['name'])
+                    try:
+                        # Note(knikolla): Try to get the user, otherwise
+                        # if the user wasn't found in the backend
+                        # use empty values.
+                        _user = self.identity_api.get_user(value)
+                    except exception.UserNotFound:
+                        msg = ('User %(user)s not found in the'
+                               ' backend but still has role assignments.')
+                        LOG.warning(msg, {'user': value})
+                        new_assign['user_name'] = ''
+                        new_assign['user_domain_id'] = ''
+                        new_assign['user_domain_name'] = ''
+                    else:
+                        new_assign['user_name'] = _user['name']
+                        new_assign['user_domain_id'] = _user['domain_id']
+                        new_assign['user_domain_name'] = (
+                            self.resource_api.get_domain(_user['domain_id'])
+                            ['name'])
                 elif key == 'group_id':
-                    _group = self.identity_api.get_group(value)
-                    new_assign['group_name'] = _group['name']
-                    new_assign['group_domain_id'] = _group['domain_id']
-                    new_assign['group_domain_name'] = (
-                        self.resource_api.get_domain(_group['domain_id'])
-                        ['name'])
+                    try:
+                        # Note(knikolla): Try to get the group, otherwise
+                        # if the group wasn't found in the backend
+                        # use empty values.
+                        _group = self.identity_api.get_group(value)
+                    except exception.GroupNotFound:
+                        msg = ('Group %(group)s not found in the'
+                               ' backend but still has role assignments.')
+                        LOG.warning(msg, {'group': value})
+                        new_assign['group_name'] = ''
+                        new_assign['group_domain_id'] = ''
+                        new_assign['group_domain_name'] = ''
+                    else:
+                        new_assign['group_name'] = _group['name']
+                        new_assign['group_domain_id'] = _group['domain_id']
+                        new_assign['group_domain_name'] = (
+                            self.resource_api.get_domain(_group['domain_id'])
+                            ['name'])
                 elif key == 'project_id':
                     _project = self.resource_api.get_project(value)
                     new_assign['project_name'] = _project['name']
