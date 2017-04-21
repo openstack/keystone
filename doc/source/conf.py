@@ -59,7 +59,9 @@ extensions = ['sphinx.ext.autodoc',
 config_generator_config_file = '../../config-generator/keystone.conf'
 sample_config_basename = '_static/keystone'
 
-policy_generator_config_file = '../../etc/keystone-policy-generator.conf'
+policy_generator_config_file = (
+    '../../config-generator/keystone-policy-generator.conf'
+)
 sample_policy_basename = '_static/keystone'
 
 todo_include_todos = True
