@@ -48,7 +48,7 @@ Get a token with default scope (may be unscoped):
         }
       }
     }' \
-      http://localhost:5000/v3/auth/tokens ; echo
+      "http://localhost:5000/v3/auth/tokens" ; echo
 
 Example response:
 
@@ -145,7 +145,7 @@ Get a project-scoped token:
         }
       }
     }' \
-      http://localhost:5000/v3/auth/tokens ; echo
+      "http://localhost:5000/v3/auth/tokens" ; echo
 
 Example response:
 
@@ -239,7 +239,7 @@ the domain first!):
         }
       }
     }' \
-      http://localhost:5000/v3/auth/tokens ; echo
+      "http://localhost:5000/v3/auth/tokens" ; echo
 
 Example response:
 
@@ -319,7 +319,7 @@ Get a token from a token:
         }
       }
     }' \
-      http://localhost:5000/v3/auth/tokens ; echo
+      "http://localhost:5000/v3/auth/tokens" ; echo
 
 
 Example response:
@@ -369,7 +369,7 @@ Revoke a token:
     curl -i -X DELETE \
       -H "X-Auth-Token: $OS_TOKEN" \
       -H "X-Subject-Token: $OS_TOKEN" \
-      http://localhost:5000/v3/auth/tokens
+      "http://localhost:5000/v3/auth/tokens"
 
 If there's no error then the response is empty.
 
@@ -386,7 +386,7 @@ List domains:
 
     curl -s \
       -H "X-Auth-Token: $OS_TOKEN" \
-      http://localhost:5000/v3/domains | python -mjson.tool
+      "http://localhost:5000/v3/domains" | python -mjson.tool
 
 Example response:
 
@@ -423,7 +423,7 @@ Create a domain:
       -H "X-Auth-Token: $OS_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{ "domain": { "name": "newdomain"}}' \
-      http://localhost:5000/v3/domains | python -mjson.tool
+      "http://localhost:5000/v3/domains" | python -mjson.tool
 
 Example response:
 
@@ -453,7 +453,7 @@ List projects:
 
     curl -s \
      -H "X-Auth-Token: $OS_TOKEN" \
-     http://localhost:5000/v3/projects | python -mjson.tool
+     "http://localhost:5000/v3/projects" | python -mjson.tool
 
 Example response:
 
@@ -496,7 +496,7 @@ Disable a project:
           "enabled": false
         }
     }'\
-      http://localhost:5000/v3/projects/$PROJECT_ID  | python -mjson.tool
+      "http://localhost:5000/v3/projects/$PROJECT_ID"  | python -mjson.tool
 
 Example response:
 
@@ -526,7 +526,7 @@ List the services:
 
     curl -s \
       -H "X-Auth-Token: $OS_TOKEN" \
-      http://localhost:5000/v3/services | python -mjson.tool
+      "http://localhost:5000/v3/services" | python -mjson.tool
 
 Example response:
 
@@ -563,7 +563,7 @@ List the endpoints:
 
     curl -s \
      -H "X-Auth-Token: $OS_TOKEN" \
-     http://localhost:5000/v3/endpoints | python -mjson.tool
+     "http://localhost:5000/v3/endpoints" | python -mjson.tool
 
 Example response:
 
@@ -603,7 +603,7 @@ List users:
 
     curl -s \
      -H "X-Auth-Token: $OS_TOKEN" \
-     http://localhost:5000/v3/users | python -mjson.tool
+     "http://localhost:5000/v3/users" | python -mjson.tool
 
 POST /v3/users
 --------------
@@ -616,7 +616,7 @@ Create a user:
      -H "X-Auth-Token: $OS_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"user": {"name": "newuser", "password": "changeme"}}' \
-     http://localhost:5000/v3/users | python -mjson.tool
+     "http://localhost:5000/v3/users" | python -mjson.tool
 
 Example response:
 
@@ -645,7 +645,7 @@ Show details for a user:
 
     curl -s \
      -H "X-Auth-Token: $OS_TOKEN" \
-     http://localhost:5000/v3/users/$USER_ID | python -mjson.tool
+     "http://localhost:5000/v3/users/$USER_ID" | python -mjson.tool
 
 Example response:
 
@@ -678,7 +678,7 @@ Change password (using the default policy, this can be done as the user):
      -H "X-Auth-Token: $OS_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{ "user": {"password": "'$NEW_PASS'", "original_password": "'$ORIG_PASS'"} }' \
-     http://localhost:5000/v3/users/$USER_ID/password
+     "http://localhost:5000/v3/users/$USER_ID/password"
 
 .. note::
 
@@ -698,7 +698,7 @@ Reset password (using the default policy, this requires admin):
      -H "X-Auth-Token: $OS_TOKEN" \
      -H "Content-Type: application/json" \
      -d '{ "user": {"password": "'$NEW_PASS'"} }' \
-     http://localhost:5000/v3/users/$USER_ID | python -mjson.tool
+     "http://localhost:5000/v3/users/$USER_ID" | python -mjson.tool
 
 Example response:
 
@@ -731,7 +731,7 @@ Create group role assignment on project:
 
     curl -s -X PUT \
      -H "X-Auth-Token: $OS_TOKEN" \
-     http://localhost:5000/v3/projects/$PROJECT_ID/groups/$GROUP_ID/roles/$ROLE_ID |
+     "http://localhost:5000/v3/projects/$PROJECT_ID/groups/$GROUP_ID/roles/$ROLE_ID" |
        python -mjson.tool
 
 There's no data in the response if the operation is successful.
@@ -758,7 +758,7 @@ Create a trust:
         "trustee_user_id": "'$DEMO_USER_ID'",
         "trustor_user_id": "'$ADMIN_USER_ID'"
     }}'\
-     http://localhost:5000/v3/OS-TRUST/trusts | python -mjson.tool
+     "http://localhost:5000/v3/OS-TRUST/trusts" | python -mjson.tool
 
 Example response:
 
@@ -809,13 +809,13 @@ that it uses port 5000, instead of port 35357, by default:
 
 .. code-block:: bash
 
-    $ curl http://0.0.0.0:5000
+    $ curl "http://0.0.0.0:5000"
 
 or:
 
 .. code-block:: bash
 
-    $ curl http://0.0.0.0:5000/v2.0/
+    $ curl "http://0.0.0.0:5000/v2.0/"
 
 See the `Admin API Examples Using Curl`_ for more info.
 
@@ -836,7 +836,8 @@ List all of the tenants your token can access:
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:887665443383838" http://localhost:5000/v2.0/tenants
+    $ curl -H "X-Auth-Token:887665443383838" \
+       "http://localhost:5000/v2.0/tenants"
 
 Returns:
 
@@ -869,7 +870,7 @@ and supported media types:
 
 .. code-block:: bash
 
-    $ curl http://0.0.0.0:35357
+    $ curl "http://0.0.0.0:35357"
 
 .. code-block:: javascript
 
@@ -921,7 +922,7 @@ and supported media types:
 
 .. code-block:: bash
 
-    $ curl http://0.0.0.0:35357/v2.0/
+    $ curl "http://0.0.0.0:35357/v2.0/"
 
 Returns:
 
@@ -959,7 +960,7 @@ Discover the API extensions enabled at the endpoint:
 
 .. code-block:: bash
 
-    $ curl http://localhost:35357/v2.0/extensions/
+    $ curl "http://localhost:35357/v2.0/extensions/"
 
 Returns:
 
@@ -978,7 +979,17 @@ Authenticate by exchanging credentials for an access token:
 
 .. code-block:: bash
 
-    $ curl -d '{"auth":{"tenantName": "customer-x", "passwordCredentials": {"username": "joeuser", "password": "secret"}}}' -H "Content-type: application/json" http://localhost:35357/v2.0/tokens
+    $ curl -d '
+       {"auth": {
+          "tenantName": "customer-x",
+          "passwordCredentials": {
+            "username": "joeuser",
+            "password": "secret"
+           }
+         }
+       }' \
+       -H "Content-type: application/json" \
+       "http://localhost:35357/v2.0/tokens"
 
 Returns:
 
@@ -1049,7 +1060,8 @@ Validate a token:
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838
+    $ curl -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/tokens/887665443383838"
 
 If the token is valid, returns:
 
@@ -1089,7 +1101,8 @@ by definition, returns no response body:
 
 .. code-block:: bash
 
-    $ curl -I -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838
+    $ curl -I -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/tokens/887665443383838"
 
 ... which returns ``200``, indicating the token is valid::
 
@@ -1105,7 +1118,8 @@ List all endpoints for a token:
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tokens/887665443383838/endpoints
+    $ curl -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/tokens/887665443383838/endpoints"
 
 Returns:
 
@@ -1179,7 +1193,8 @@ List all of the tenants in the system (requires an Admin ``X-Auth-Token``):
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants
+    $ curl -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/tenants"
 
 Returns:
 
@@ -1216,7 +1231,8 @@ Retrieve information about a tenant, by tenant ID:
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/1
+    $ curl -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/tenants/1"
 
 Returns:
 
@@ -1238,7 +1254,8 @@ List the roles a user has been granted on a tenant:
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/tenants/1/users/1/roles
+    $ curl -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/tenants/1/users/1/roles"
 
 Returns:
 
@@ -1261,7 +1278,8 @@ Retrieve information about a user, by user ID:
 
 .. code-block:: bash
 
-    $ curl -H "X-Auth-Token:999888777666" http://localhost:35357/v2.0/users/1
+    $ curl -H "X-Auth-Token:999888777666" \
+       "http://localhost:35357/v2.0/users/1"
 
 Returns:
 
@@ -1284,7 +1302,7 @@ Get the revocation list:
 .. code-block:: bash
 
     curl -s -H "X-Auth-Token: $OS_TOKEN" \
-      http://localhost:35357/v2.0/tokens/revoked |
+      "http://localhost:35357/v2.0/tokens/revoked" |
      jq -r .signed |
      openssl cms -verify \
       -certfile /etc/keystone/ssl/certs/signing_cert.pem \
