@@ -24,13 +24,10 @@ from testtools import matchers as tt_matchers
 import webob
 
 from keystone.common import json_home
-import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import utils
 from keystone.version import controllers
 
-
-CONF = keystone.conf.CONF
 
 v2_MEDIA_TYPES = [
     {

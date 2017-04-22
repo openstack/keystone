@@ -21,10 +21,7 @@ from keystone.assignment import controllers
 from keystone.common import json_home
 from keystone.common import router
 from keystone.common import wsgi
-import keystone.conf
 
-
-CONF = keystone.conf.CONF
 
 build_os_inherit_relation = functools.partial(
     json_home.build_v3_extension_resource_relation,

@@ -24,12 +24,9 @@ import six
 import sqlalchemy
 
 from keystone.common import sql
-import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
-
-CONF = keystone.conf.CONF
 
 USE_TRIGGERS = True
 

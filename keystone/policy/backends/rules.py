@@ -18,12 +18,10 @@
 from oslo_log import log
 
 from keystone.common import policy
-import keystone.conf
 from keystone import exception
 from keystone.policy.backends import base
 
 
-CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
