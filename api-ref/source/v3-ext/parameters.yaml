@@ -1,4 +1,10 @@
 # variables in header
+requested_project_id:
+  description: |
+    The ID of the requested project.
+  in: header
+  required: true
+  type: string
 
 # variables in path
 access_token_id_path:
@@ -321,12 +327,6 @@ remaining_uses:
   in: body
   required: false
   type: boolean
-requested_project_id:
-  description: |
-    The ID of the requested project.
-  in: body
-  required: true
-  type: string
 revoke_audit_chain_id:
   description: |
     Specifies a group of tokens based upon the ``audit_id`` of the

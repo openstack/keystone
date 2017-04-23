@@ -226,7 +226,7 @@ Request
 
 .. rest_parameters:: parameters.yaml
 
-    - requested_project_id: requested_project_id
+    - Requested-Project-Id: requested_project_id
 
 Response Example
 ----------------
