@@ -409,6 +409,12 @@ Request
    - user_id: user_id_path
    - access_token_id: access_token_id_path
 
+Response Example
+----------------
+
+.. literalinclude:: ./samples/OS-OAUTH1/access-token-roles-list-response.json
+   :language: javascript
+
 
 Show role details for an access token
 =====================================
@@ -431,6 +437,12 @@ Request
    - user_id: user_id_path
    - role_id: role_id_path
    - access_token_id: access_token_id_path
+
+Response Example
+----------------
+
+.. literalinclude:: ./samples/OS-OAUTH1/access-token-role-show-response.json
+   :language: javascript
 
 
 Authenticate with Identity API
