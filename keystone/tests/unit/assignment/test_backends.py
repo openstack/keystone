@@ -3121,7 +3121,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         # has been re-implemented then the manual tests above can be
         # refactored.
         test_plan = {
-            # A domain with a project ans sub-project, plus a user.
+            # A domain with a project and sub-project, plus a user.
             # Also, create 2 roles.
             'entities': {
                 'domains': {'id': CONF.identity.default_domain_id, 'users': 1,
@@ -3387,7 +3387,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
             # Set up assignments so that there should end up with four
             # effective assignments on project 1 - one direct, one due to
             # group membership and one user assignment inherited from the
-            # parent and one group assignment inhertied from the parent.
+            # parent and one group assignment inherited from the parent.
             'assignments': [{'user': 0, 'role': 0, 'project': 1},
                             {'group': 0, 'role': 1, 'project': 1},
                             {'user': 2, 'role': 2, 'project': 0,
@@ -3597,7 +3597,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
             'tests': [
                 # List effective roles filtering by one of the implied roles,
                 # showing that the filter was implied post expansion of
-                # implied roles (and that non impled roles are included in
+                # implied roles (and that non implied roles are included in
                 # the filter
                 {'params': {'role': 3, 'effective': True},
                  'results': [{'user': 0, 'role': 3, 'project': 0,
