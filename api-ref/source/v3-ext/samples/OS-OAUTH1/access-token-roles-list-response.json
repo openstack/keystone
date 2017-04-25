@@ -1,0 +1,25 @@
+{
+    "roles": [
+        {
+            "id": "5ad150",
+            "domain_id": "7cf37b",
+            "links": {
+                "self": "http://example.com/identity/v3/roles/5ad150"
+            },
+            "name": "admin"
+        },
+        {
+            "id": "a62eb6",
+            "domain_id": "7cf37b",
+            "links": {
+                "self": "http://example.com/identity/v3/roles/a62eb6"
+            },
+            "name": "Member"
+        }
+    ],
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://example.com/identity/v3/users/ce9e07/OS-OAUTH1/access_tokens/6be26a/roles"
+    }
+}
