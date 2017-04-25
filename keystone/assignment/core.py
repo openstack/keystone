@@ -165,6 +165,11 @@ class Manager(manager.Manager):
 
     def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
         """Get a list of roles for this group on domain and/or project."""
+        # if no group ids were passed, there are no roles. Without this check,
+        # all assignments for the project or domain will be fetched,
+        # which is not what we want.
+        if not group_ids:
+            return []
         if project_id is not None:
             self.resource_api.get_project(project_id)
             assignment_list = self.list_role_assignments(

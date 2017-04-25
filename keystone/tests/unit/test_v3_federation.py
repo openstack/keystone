@@ -1776,6 +1776,34 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         token_groups = token_resp['token']['user']['OS-FEDERATION']['groups']
         self.assertEqual(0, len(token_groups))
 
+    def test_issue_scoped_token_no_groups(self):
+        """Verify that token without groups cannot get scoped to project.
+
+        This test is required because of bug 1677723.
+        """
+        # issue unscoped token with no groups
+        r = self._issue_unscoped_token(assertion='USER_NO_GROUPS_ASSERTION')
+        self.assertIsNotNone(r.headers.get('X-Subject-Token'))
+        token_resp = r.json_body
+        token_groups = token_resp['token']['user']['OS-FEDERATION']['groups']
+        self.assertEqual(0, len(token_groups))
+        unscoped_token = r.headers.get('X-Subject-Token')
+
+        # let admin get roles in a project
+        self.proj_employees
+        admin = unit.new_user_ref(CONF.identity.default_domain_id)
+        self.identity_api.create_user(admin)
+        self.assignment_api.create_grant(self.role_admin['id'],
+                                         user_id=admin['id'],
+                                         project_id=self.proj_employees['id'])
+
+        # try to scope the token. It should fail
+        scope = self._scope_request(
+            unscoped_token, 'project', self.proj_employees['id']
+        )
+        self.v3_create_token(
+            scope, expected_status=http_client.UNAUTHORIZED)
+
     def test_issue_unscoped_token_malformed_environment(self):
         """Test whether non string objects are filtered out.
 
