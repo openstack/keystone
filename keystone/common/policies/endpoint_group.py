@@ -15,39 +15,89 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 group_endpoint_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create endpoint group.',
+        operations=[{'path': '/v3/OS-EP-FILTER/endpoint_groups',
+                     'method': 'POST'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoint_groups',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List endpoint groups.',
+        operations=[{'path': '/v3/OS-EP-FILTER/endpoint_groups',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Get endpoint group.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}'),
+                     'method': 'GET'},
+                    {'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}'),
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Update endpoint group.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}'),
+                     'method': 'PATCH'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Delete endpoint group.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}'),
+                     'method': 'DELETE'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_associated_with_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('List all projects associated with a specific endpoint '
+                     'group.'),
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}/projects'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_associated_with_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List all endpoints associated with an endpoint group.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}/endpoints'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_endpoint_group_in_project',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('Check if an endpoint group is associated with a '
+                     'project.'),
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}/projects/{project_id}'),
+                     'method': 'GET'},
+                    {'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}/projects/{project_id}'),
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoint_groups_for_project',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='List endpoint groups associated with a specific project.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
+                              'endpoint_groups'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_endpoint_group_to_project',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Allow a project to access an endpoint group.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}/projects/{project_id}'),
+                     'method': 'PUT'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_endpoint_group_from_project',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Remove endpoint group from project.',
+        operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
+                              '{endpoint_group_id}/projects/{project_id}'),
+                     'method': 'DELETE'}])
 ]
 
 
