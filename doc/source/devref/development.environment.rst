@@ -33,7 +33,7 @@ Prerequisites
 This document assumes you are using an Ubuntu, Fedora, or openSUSE platform and
 that you have the following tools pre-installed on your system:
 
-- Python_ 2.7 and 3.4, as the programming language;
+- Python_ 2.7 and 3.5, as the programming language;
 - git_, as the version control tool;
 
 **Reminder**: If you are successfully using a different platform, or a
