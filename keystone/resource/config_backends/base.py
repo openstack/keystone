@@ -16,11 +16,7 @@ import abc
 
 import six
 
-import keystone.conf
 from keystone import exception
-
-
-CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)

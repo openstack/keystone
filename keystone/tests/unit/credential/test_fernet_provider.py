@@ -17,13 +17,10 @@ import uuid
 from oslo_log import log
 
 from keystone.common import fernet_utils
-import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
-
-CONF = keystone.conf.CONF
 
 
 class TestFernetCredentialProvider(unit.TestCase):

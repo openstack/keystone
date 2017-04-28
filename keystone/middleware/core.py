@@ -17,11 +17,9 @@ from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
-import keystone.conf
 from keystone import exception
 
 
-CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 # Header used to transmit the auth token

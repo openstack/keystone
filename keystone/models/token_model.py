@@ -16,12 +16,10 @@ from oslo_utils import reflection
 from oslo_utils import timeutils
 import six
 
-import keystone.conf
 from keystone import exception
 from keystone.federation import constants
 from keystone.i18n import _
 
-CONF = keystone.conf.CONF
 # supported token versions
 V2 = 'v2.0'
 V3 = 'v3.0'

@@ -13,9 +13,6 @@
 import fixtures
 
 from keystone.common import fernet_utils as utils
-import keystone.conf
-
-CONF = keystone.conf.CONF
 
 
 class KeyRepository(fixtures.Fixture):

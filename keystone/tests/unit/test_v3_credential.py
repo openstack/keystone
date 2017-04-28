@@ -21,7 +21,6 @@ from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import utils
-import keystone.conf
 from keystone.contrib.ec2 import controllers
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
@@ -30,7 +29,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
 
-CONF = keystone.conf.CONF
 CRED_TYPE_EC2 = controllers.CRED_TYPE_EC2
 
 

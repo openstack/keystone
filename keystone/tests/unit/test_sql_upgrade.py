@@ -57,7 +57,6 @@ from testtools import matchers
 from keystone.cmd import cli
 from keystone.common import sql
 from keystone.common.sql import upgrades
-import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone.resource.backends import base as resource_base
 from keystone.tests import unit
@@ -65,8 +64,6 @@ from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 
-
-CONF = keystone.conf.CONF
 
 # NOTE(morganfainberg): This should be updated when each DB migration collapse
 # is done to mirror the expected structure of the DB in the format of
