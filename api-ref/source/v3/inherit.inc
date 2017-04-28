@@ -215,6 +215,8 @@ Relationship:
 The inherited role assignment is anchored to a project and applied to its
 subtree in the projects hierarchy (both existing and future projects).
 
+* Note: The inherited role is not applied to the project itself, and only
+  applied to its subtree projects.
 * Note: It is possible for a user to have both a regular (non-inherited) and an
   inherited role assignment on the same project.
 * Note: The request doesn't require a body, which will be ignored if provided.
@@ -242,6 +244,8 @@ Relationship:
 The inherited role assignment is anchored to a project and applied to its
 subtree in the projects hierarchy (both existing and future projects).
 
+* Note: The inherited role is not applied to the project itself, and only
+  applied to its subtree projects.
 * Note: It is possible for a group to have both a regular (non-inherited) and
   an inherited role assignment on the same project.
 * Note: The request doesn't require a body, which will be ignored if provided.
