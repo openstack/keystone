@@ -17,7 +17,6 @@ import sys
 
 from keystone.common import utils
 from keystoneclient.common import cms
-from oslo_log import log
 from oslo_serialization import jsonutils
 import six
 
@@ -32,7 +31,6 @@ from keystone.token.providers import common
 
 
 CONF = keystone.conf.CONF
-LOG = log.getLogger(__name__)
 
 
 def authentication_method_generator(request, auth):
