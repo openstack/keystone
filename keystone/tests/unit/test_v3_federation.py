@@ -3999,13 +3999,6 @@ class IdPMetadataGenerationTests(test_v3.RestfulTestCase):
         self.assertIsNotNone(idpsso_descriptor.organization)
         self.assertEqual([], idpsso_descriptor.contact_person)
 
-    def test_metadata_invalid_contact_type(self):
-        self.config_fixture.config(
-            group='saml',
-            idp_contact_type="invalid")
-        self.assertRaises(exception.ValidationError,
-                          self.generator.generate_metadata)
-
     def test_metadata_invalid_idp_sso_endpoint(self):
         self.config_fixture.config(
             group='saml',
