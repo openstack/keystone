@@ -383,7 +383,7 @@ assignments involving the specified project.
 
 It is also possible to list all role assignments within
 a tree of projects:
-``GET /v3/role_assignments?scope.project.id={project_id}?include_subtree=true``
+``GET /v3/role_assignments?scope.project.id={project_id}&include_subtree=true``
 would list all role assignments involving the specified project and all
 sub-projects. ``include_subtree=true`` can only be specified in conjunction
 with ``scope.project.id``, specifiying it without this will result in an
