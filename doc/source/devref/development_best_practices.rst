@@ -309,8 +309,8 @@ For example, to discard logging data during a test run:
 
     $ OS_LOG_CAPTURE=0 tox -e py27
 
-Test Structure
---------------
+Tests Structure
+---------------
 
 Not all of the tests in the ``keystone/tests/unit`` directory are strictly unit
 tests. Keystone intentionally includes tests that run the service locally and
@@ -322,7 +322,21 @@ database is used to keep the tests fast.
 Within the tests directory, the general structure of the backend tests is a
 basic set of tests represented under a test class, and then subclasses of those
 tests under other classes with different configurations to drive different
-backends through the APIs.
+backends through the APIs. To add tests covering all drivers, update the base
+test class in ``test_backend.py``.
+
+.. NOTE::
+
+    The structure of backend testing is in transition, migrating from having
+    all classes in a single file (test_backend.py) to one where there is a
+    directory structure to reduce the size of the test files. See:
+
+        - :mod:`keystone.tests.unit.backend.role`
+        - :mod:`keystone.tests.unit.backend.domain_config`
+
+To add new drivers, subclass the base class at ``test_backend.py`` (look
+towards ``test_backend_sql.py`` for examples) and update the configuration of
+the test class in ``setUp()``.
 
 For example, ``test_backend.py`` has a sequence of tests under the class
 :class:`~keystone.tests.unit.test_backend.IdentityTests` that will work with
@@ -360,42 +374,6 @@ This command references to a SQLite database (test.db) to be used. Depending on
 the migration, this command alone does not make assertions as to the integrity
 of your data during migration.
 
-
-Writing Tests
--------------
-
-To add tests covering all drivers, update the base test class in
-``test_backend.py``.
-
-.. NOTE::
-
-    The structure of backend testing is in transition, migrating from having
-    all classes in a single file (test_backend.py) to one where there is a
-    directory structure to reduce the size of the test files. See:
-
-        - :mod:`keystone.tests.unit.backend.role`
-        - :mod:`keystone.tests.unit.backend.domain_config`
-
-To add new drivers, subclass the ``test_backend.py`` (look towards
-``test_backend_sql.py`` for examples) and update the
-configuration of the test class in ``setUp()``.
-
-
-Further Testing
----------------
-
-devstack_ is the *best* way to quickly deploy Keystone with the rest of the
-OpenStack universe and should be critical step in your development workflow!
-
-You may also be interested in either the
-`OpenStack Continuous Integration Infrastructure`_ or the
-`OpenStack Integration Testing Project`_.
-
-.. _devstack: https://docs.openstack.org/developer/devstack/
-.. _OpenStack Continuous Integration Infrastructure: https://docs.openstack.org/infra/system-config
-.. _OpenStack Integration Testing Project: https://git.openstack.org/cgit/openstack/tempest
-
-
 LDAP Tests
 ----------
 
@@ -417,7 +395,6 @@ password.
 .. NOTE::
     To run the live tests you need to set the environment variable
     ``ENABLE_LDAP_LIVE_TEST`` to a non-negative value.
-
 
 "Work in progress" Tests
 ------------------------
@@ -461,6 +438,21 @@ require that these messages are descriptive and accurate.
    Another strategy is to not use the wip decorator and instead show how the
    code currently incorrectly works. Which strategy is chosen is up to the
    developer.
+
+Further Testing
+---------------
+
+devstack_ is the *best* way to quickly deploy Keystone with the rest of the
+OpenStack universe and should be critical step in your development workflow!
+
+You may also be interested in either the
+`OpenStack Continuous Integration Infrastructure`_ or the
+`OpenStack Integration Testing Project`_.
+
+.. _devstack: https://docs.openstack.org/developer/devstack/
+.. _OpenStack Continuous Integration Infrastructure: https://docs.openstack.org/infra/system-config
+.. _OpenStack Integration Testing Project: https://git.openstack.org/cgit/openstack/tempest
+
 
 
 Developing ``doctor`` checks
