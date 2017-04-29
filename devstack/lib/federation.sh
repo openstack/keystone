@@ -28,6 +28,28 @@ MAPPING_USER_NAME=${MAPPING_USER_NAME:-"{0}"}
 
 PROTOCOL_ID=${PROTOCOL_ID:-mapped}
 
+function configure_apache {
+    if [[ "$WSGI_MODE" == "uwsgi" ]]; then
+        local keystone_apache_conf=$(apache_site_config_for keystone-wsgi-public)
+
+        echo "ProxyPass /Shibboleth.sso !" | sudo tee -a $keystone_apache_conf
+
+    else
+        local keystone_apache_conf=$(apache_site_config_for keystone)
+
+        # Add WSGIScriptAlias directive to vhost configuration for port 5000
+        sudo sed -i -e "
+            /<VirtualHost \*:5000>/r $KEYSTONE_PLUGIN/files/federation/shib_apache_alias.txt
+        " $keystone_apache_conf
+    fi
+
+    # Append to the keystone.conf vhost file a <Location> directive for the Shibboleth module
+    # and a <Location> directive for the identity provider
+    cat $KEYSTONE_PLUGIN/files/federation/shib_apache_handler.txt | sudo tee -a $keystone_apache_conf
+
+    sudo sed -i -e "s|%IDP_ID%|$IDP_ID|g;" $keystone_apache_conf
+}
+
 function install_federation {
     if is_ubuntu; then
         install_package libapache2-mod-shib2
@@ -58,17 +80,7 @@ function upload_sp_metadata {
 }
 
 function configure_federation {
-    local keystone_apache_conf=$(apache_site_config_for keystone)
-
-    # Add WSGIScriptAlias directive to vhost configuration for port 5000
-    sudo sed -i -e "
-        /<VirtualHost \*:5000>/r $KEYSTONE_PLUGIN/files/federation/shib_apache_alias.txt
-    " $keystone_apache_conf
-
-    # Append to the keystone.conf vhost file a <Location> directive for the Shibboleth module
-    # and a <Location> directive for the identity provider
-    cat $KEYSTONE_PLUGIN/files/federation/shib_apache_handler.txt | sudo tee -a $keystone_apache_conf
-    sudo sed -i -e "s|%IDP_ID%|$IDP_ID|g;" $keystone_apache_conf
+    configure_apache
 
     # Copy a templated /etc/shibboleth/shibboleth2.xml file...
     sudo cp $KEYSTONE_PLUGIN/files/federation/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
