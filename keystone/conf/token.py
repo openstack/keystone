@@ -30,7 +30,6 @@ enforced according to the `[token] enforce_token_bind` option.
 enforce_token_bind = cfg.StrOpt(
     'enforce_token_bind',
     default='permissive',
-    choices=['disabled', 'permissive', 'strict', 'required'],
     deprecated_since=versionutils.deprecated.PIKE,
     deprecated_for_removal=True,
     help=utils.fmt("""
