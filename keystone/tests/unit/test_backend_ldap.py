@@ -1300,21 +1300,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         # is as expected.
         self.assertEqual(level, mocked_fakeldap.call_args[-1]['debug_level'])
 
-    def test_wrong_ldap_scope(self):
-        self.config_fixture.config(group='ldap', query_scope=uuid.uuid4().hex)
-        self.assertRaisesRegexp(
-            ValueError,
-            'Invalid LDAP scope: %s. *' % CONF.ldap.query_scope,
-            identity.backends.ldap.Identity)
-
-    def test_wrong_alias_dereferencing(self):
-        self.config_fixture.config(group='ldap',
-                                   alias_dereferencing=uuid.uuid4().hex)
-        self.assertRaisesRegexp(
-            ValueError,
-            'Invalid LDAP deref option: %s\.' % CONF.ldap.alias_dereferencing,
-            identity.backends.ldap.Identity)
-
     def test_user_extra_attribute_mapping(self):
         self.config_fixture.config(
             group='ldap',
