@@ -13,9 +13,11 @@
 # under the License.
 
 import copy
+import datetime
 import random
 import uuid
 
+import freezegun
 import mock
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
@@ -839,69 +841,78 @@ class MaliciousOAuth1Tests(OAuth1Tests):
                       resp_data['error']['message'])
 
     def test_expired_authorizing_request_token(self):
-        self.config_fixture.config(group='oauth1', request_token_duration=-1)
+        with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            self.config_fixture.config(group='oauth1',
+                                       request_token_duration=1)
 
-        consumer = self._create_single_consumer()
-        consumer_id = consumer['id']
-        consumer_secret = consumer['secret']
-        self.consumer = {'key': consumer_id, 'secret': consumer_secret}
-        self.assertIsNotNone(self.consumer['key'])
+            consumer = self._create_single_consumer()
+            consumer_id = consumer['id']
+            consumer_secret = consumer['secret']
+            self.consumer = {'key': consumer_id, 'secret': consumer_secret}
+            self.assertIsNotNone(self.consumer['key'])
 
-        url, headers = self._create_request_token(self.consumer,
-                                                  self.project_id)
-        content = self.post(
-            url, headers=headers,
-            response_content_type='application/x-www-form-urlencoded')
-        credentials = _urllib_parse_qs_text_keys(content.result)
-        request_key = credentials['oauth_token'][0]
-        request_secret = credentials['oauth_token_secret'][0]
-        self.request_token = oauth1.Token(request_key, request_secret)
-        self.assertIsNotNone(self.request_token.key)
+            url, headers = self._create_request_token(self.consumer,
+                                                      self.project_id)
+            content = self.post(
+                url, headers=headers,
+                response_content_type='application/x-www-form-urlencoded')
+            credentials = _urllib_parse_qs_text_keys(content.result)
+            request_key = credentials['oauth_token'][0]
+            request_secret = credentials['oauth_token_secret'][0]
+            self.request_token = oauth1.Token(request_key, request_secret)
+            self.assertIsNotNone(self.request_token.key)
 
-        url = self._authorize_request_token(request_key)
-        body = {'roles': [{'id': self.role_id}]}
-        self.put(url, body=body, expected_status=http_client.UNAUTHORIZED)
+            url = self._authorize_request_token(request_key)
+            body = {'roles': [{'id': self.role_id}]}
+            frozen_time.tick(delta=datetime.timedelta(
+                seconds=CONF.oauth1.request_token_duration + 1))
+            self.put(url, body=body, expected_status=http_client.UNAUTHORIZED)
 
     def test_expired_creating_keystone_token(self):
-        self.config_fixture.config(group='oauth1', access_token_duration=-1)
-        consumer = self._create_single_consumer()
-        consumer_id = consumer['id']
-        consumer_secret = consumer['secret']
-        self.consumer = {'key': consumer_id, 'secret': consumer_secret}
-        self.assertIsNotNone(self.consumer['key'])
+        with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            self.config_fixture.config(group='oauth1',
+                                       access_token_duration=1)
 
-        url, headers = self._create_request_token(self.consumer,
-                                                  self.project_id)
-        content = self.post(
-            url, headers=headers,
-            response_content_type='application/x-www-form-urlencoded')
-        credentials = _urllib_parse_qs_text_keys(content.result)
-        request_key = credentials['oauth_token'][0]
-        request_secret = credentials['oauth_token_secret'][0]
-        self.request_token = oauth1.Token(request_key, request_secret)
-        self.assertIsNotNone(self.request_token.key)
+            consumer = self._create_single_consumer()
+            consumer_id = consumer['id']
+            consumer_secret = consumer['secret']
+            self.consumer = {'key': consumer_id, 'secret': consumer_secret}
+            self.assertIsNotNone(self.consumer['key'])
 
-        url = self._authorize_request_token(request_key)
-        body = {'roles': [{'id': self.role_id}]}
-        resp = self.put(url, body=body, expected_status=http_client.OK)
-        self.verifier = resp.result['token']['oauth_verifier']
+            url, headers = self._create_request_token(self.consumer,
+                                                      self.project_id)
+            content = self.post(
+                url, headers=headers,
+                response_content_type='application/x-www-form-urlencoded')
+            credentials = _urllib_parse_qs_text_keys(content.result)
+            request_key = credentials['oauth_token'][0]
+            request_secret = credentials['oauth_token_secret'][0]
+            self.request_token = oauth1.Token(request_key, request_secret)
+            self.assertIsNotNone(self.request_token.key)
 
-        self.request_token.set_verifier(self.verifier)
-        url, headers = self._create_access_token(self.consumer,
-                                                 self.request_token)
-        content = self.post(
-            url, headers=headers,
-            response_content_type='application/x-www-form-urlencoded')
-        credentials = _urllib_parse_qs_text_keys(content.result)
-        access_key = credentials['oauth_token'][0]
-        access_secret = credentials['oauth_token_secret'][0]
-        self.access_token = oauth1.Token(access_key, access_secret)
-        self.assertIsNotNone(self.access_token.key)
+            url = self._authorize_request_token(request_key)
+            body = {'roles': [{'id': self.role_id}]}
+            resp = self.put(url, body=body, expected_status=http_client.OK)
+            self.verifier = resp.result['token']['oauth_verifier']
 
-        url, headers, body = self._get_oauth_token(self.consumer,
-                                                   self.access_token)
-        self.post(url, headers=headers, body=body,
-                  expected_status=http_client.UNAUTHORIZED)
+            self.request_token.set_verifier(self.verifier)
+            url, headers = self._create_access_token(self.consumer,
+                                                     self.request_token)
+            content = self.post(
+                url, headers=headers,
+                response_content_type='application/x-www-form-urlencoded')
+            credentials = _urllib_parse_qs_text_keys(content.result)
+            access_key = credentials['oauth_token'][0]
+            access_secret = credentials['oauth_token_secret'][0]
+            self.access_token = oauth1.Token(access_key, access_secret)
+            self.assertIsNotNone(self.access_token.key)
+
+            url, headers, body = self._get_oauth_token(self.consumer,
+                                                       self.access_token)
+            frozen_time.tick(delta=datetime.timedelta(
+                seconds=CONF.oauth1.access_token_duration + 1))
+            self.post(url, headers=headers, body=body,
+                      expected_status=http_client.UNAUTHORIZED)
 
     def test_missing_oauth_headers(self):
         endpoint = '/OS-OAUTH1/request_token'

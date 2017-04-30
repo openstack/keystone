@@ -152,7 +152,7 @@ class OAuth1(base.Oauth1DriverBase):
         request_token_id = uuid.uuid4().hex
         request_token_secret = uuid.uuid4().hex
         expiry_date = None
-        if request_token_duration:
+        if request_token_duration > 0:
             now = timeutils.utcnow()
             future = now + datetime.timedelta(seconds=request_token_duration)
             expiry_date = utils.isotime(future, subsecond=True)
@@ -207,7 +207,7 @@ class OAuth1(base.Oauth1DriverBase):
             token_dict = req_token_ref.to_dict()
 
             expiry_date = None
-            if access_token_duration:
+            if access_token_duration > 0:
                 now = timeutils.utcnow()
                 future = (now +
                           datetime.timedelta(seconds=access_token_duration))
