@@ -62,19 +62,21 @@ class OAuth1Tests(test_v3.RestfulTestCase):
             body={'consumer': ref})
         return resp.result['consumer']
 
-    def _create_request_token(self, consumer, project_id):
+    def _create_request_token(self, consumer, project_id, base_url=None):
         endpoint = '/OS-OAUTH1/request_token'
         client = oauth1.Client(consumer['key'],
                                client_secret=consumer['secret'],
                                signature_method=oauth1.SIG_HMAC,
                                callback_uri="oob")
         headers = {'requested_project_id': project_id}
-        url, headers, body = client.sign(self.base_url + endpoint,
+        if not base_url:
+            base_url = self.base_url
+        url, headers, body = client.sign(base_url + endpoint,
                                          http_method='POST',
                                          headers=headers)
         return endpoint, headers
 
-    def _create_access_token(self, consumer, token):
+    def _create_access_token(self, consumer, token, base_url=None):
         endpoint = '/OS-OAUTH1/access_token'
         client = oauth1.Client(consumer['key'],
                                client_secret=consumer['secret'],
@@ -82,7 +84,9 @@ class OAuth1Tests(test_v3.RestfulTestCase):
                                resource_owner_secret=token.secret,
                                signature_method=oauth1.SIG_HMAC,
                                verifier=token.verifier)
-        url, headers, body = client.sign(self.base_url + endpoint,
+        if not base_url:
+            base_url = self.base_url
+        url, headers, body = client.sign(base_url + endpoint,
                                          http_method='POST')
         headers.update({'Content-Type': 'application/json'})
         return endpoint, headers
@@ -640,6 +644,17 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.post(url, headers=headers,
                   expected_status=http_client.UNAUTHORIZED)
 
+    def test_bad_request_url(self):
+        consumer = self._create_single_consumer()
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+        bad_base_url = 'http://localhost/identity_admin/v3'
+        url, headers = self._create_request_token(consumer, self.project_id,
+                                                  base_url=bad_base_url)
+        self.post(url, headers=headers,
+                  expected_status=http_client.UNAUTHORIZED)
+
     def test_bad_request_token_key(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
@@ -722,7 +737,18 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         verifier = resp.result['token']['oauth_verifier']
         request_token.set_verifier(verifier)
 
-        # 1. Invalid signature.
+        # 1. Invalid base url.
+        # Update the base url, so it will fail to validate the signature.
+        base_url = 'http://localhost/identity_admin/v3'
+        url, headers = self._create_access_token(consumer, request_token,
+                                                 base_url=base_url)
+        resp = self.post(url, headers=headers,
+                         expected_status=http_client.UNAUTHORIZED)
+        resp_data = jsonutils.loads(resp.body)
+        self.assertIn('Invalid signature',
+                      resp_data.get('error', {}).get('message'))
+
+        # 2. Invalid signature.
         # Update the secret, so it will fail to validate the signature.
         consumer.update({'secret': uuid.uuid4().hex})
         url, headers = self._create_access_token(consumer, request_token)
@@ -732,7 +758,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Invalid signature',
                       resp_data.get('error', {}).get('message'))
 
-        # 2. Invalid verifier.
+        # 3. Invalid verifier.
         # Even though the verifier is well formatted, it is not verifier
         # that is stored in the backend, this is different with the testcase
         # above `test_bad_verifier` where it test that `verifier` is not
@@ -747,7 +773,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Provided verifier',
                       resp_data.get('error', {}).get('message'))
 
-        # 3. The provided consumer does not exist.
+        # 4. The provided consumer does not exist.
         consumer.update({'key': uuid.uuid4().hex})
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
@@ -756,7 +782,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Provided consumer does not exist',
                       resp_data.get('error', {}).get('message'))
 
-        # 4. The consumer key provided does not match stored consumer key.
+        # 5. The consumer key provided does not match stored consumer key.
         consumer2 = self._create_single_consumer()
         consumer.update({'key': consumer2['id']})
         url, headers = self._create_access_token(consumer, request_token)
