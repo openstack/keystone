@@ -233,15 +233,13 @@ class OAuthControllerV3(controller.V3Controller):
         self.resource_api.get_project(requested_project_id)
         self.oauth_api.get_consumer(consumer_id)
 
-        url = self.base_url(request.context_dict, request.context_dict['path'])
-
         req_headers = {'Requested-Project-Id': requested_project_id}
         req_headers.update(request.headers)
         request_verifier = oauth1.RequestTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
         h, b, s = request_verifier.create_request_token_response(
-            url,
+            request.url,
             http_method='POST',
             body=request.params,
             headers=req_headers)
@@ -301,14 +299,12 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
-        url = self.base_url(request.context_dict, request.context_dict['path'])
-
         access_verifier = oauth1.AccessTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
         try:
             h, b, s = access_verifier.create_access_token_response(
-                url,
+                request.url,
                 http_method='POST',
                 body=request.params,
                 headers=request.headers)
