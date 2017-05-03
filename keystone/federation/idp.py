@@ -568,18 +568,12 @@ class MetadataGenerator(object):
                   CONF.saml.idp_contact_name,
                   CONF.saml.idp_contact_surname,
                   CONF.saml.idp_contact_email,
-                  CONF.saml.idp_contact_telephone]
+                  CONF.saml.idp_contact_telephone,
+                  CONF.saml.idp_contact_type]
         for value in params:
             if value is None:
                 return False
 
-        # Check if contact type is an invalid value
-        valid_type_values = ['technical', 'other', 'support', 'administrative',
-                             'billing']
-        if CONF.saml.idp_contact_type not in valid_type_values:
-            msg = _('idp_contact_type must be one of: [technical, other, '
-                    'support, administrative or billing.')
-            raise exception.ValidationError(msg)
         return True
 
     def _check_organization_values(self):
