@@ -1175,11 +1175,8 @@ class SecurityComplianceDoctorTests(unit.TestCase):
             symptom_minimum_password_age_greater_than_expires_days())
 
     def test_minimum_password_age_and_password_expires_days_deactivated(self):
-        # No Symptom Detected: Both values are deactivated to 0
-        self.config_fixture.config(group='security_compliance',
-                                   minimum_password_age=0)
-        self.config_fixture.config(group='security_compliance',
-                                   password_expires_days=0)
+        # No Symptom Detected: when minimum_password_age's default value is 0
+        # and password_expires_days' default value is None
         self.assertFalse(
             security_compliance.
             symptom_minimum_password_age_greater_than_expires_days())
