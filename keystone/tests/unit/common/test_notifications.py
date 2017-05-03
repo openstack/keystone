@@ -165,7 +165,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         # called. This is because we are opting out notifications for the
         # passed resource_type and operation.
         conf = self.useFixture(config_fixture.Config(CONF))
-        conf.config(notification_opt_out=event_type)
+        conf.config(notification_opt_out=[event_type])
 
         with mock.patch.object(notifications._get_notifier(),
                                '_notify') as mocked:
@@ -189,7 +189,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         event_type = 'identity.%s.created' % resource_type
 
         conf = self.useFixture(config_fixture.Config(CONF))
-        conf.config(notification_opt_out=event_type)
+        conf.config(notification_opt_out=[event_type])
 
         with mock.patch.object(notifications._get_notifier(),
                                '_notify') as mocked:
@@ -213,7 +213,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         meter_name = '%s.%s' % (event_type, outcome)
 
         conf = self.useFixture(config_fixture.Config(CONF))
-        conf.config(notification_opt_out=meter_name)
+        conf.config(notification_opt_out=[meter_name])
 
         with mock.patch.object(notifications._get_notifier(),
                                '_notify') as mocked:
