@@ -261,7 +261,7 @@ class OAuthControllerV3(controller.V3Controller):
                   % {'key': token_ref['id'],
                      'secret': token_ref['request_secret']})
 
-        if CONF.oauth1.request_token_duration:
+        if CONF.oauth1.request_token_duration > 0:
             expiry_bit = '&oauth_expires_at=%s' % token_ref['expires_at']
             result += expiry_bit
 
@@ -353,7 +353,7 @@ class OAuthControllerV3(controller.V3Controller):
                   % {'key': token_ref['id'],
                      'secret': token_ref['access_secret']})
 
-        if CONF.oauth1.access_token_duration:
+        if CONF.oauth1.access_token_duration > 0:
             expiry_bit = '&oauth_expires_at=%s' % (token_ref['expires_at'])
             result += expiry_bit
 
