@@ -21,7 +21,6 @@ import mock
 import oslo_config.fixture
 from oslo_db.sqlalchemy import migration
 from oslo_log import log
-from oslotest import mockpatch
 from six.moves import configparser
 from six.moves import range
 from testtools import matchers
@@ -69,7 +68,7 @@ class CliNoConfigTestCase(unit.BaseTestCase):
     def setUp(self):
         self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
-        self.useFixture(mockpatch.Patch(
+        self.useFixture(fixtures.MockPatch(
             'oslo_config.cfg.find_config_files', return_value=[]))
         super(CliNoConfigTestCase, self).setUp()
 
@@ -78,7 +77,7 @@ class CliNoConfigTestCase(unit.BaseTestCase):
         class FakeConfCommand(object):
             def __init__(self):
                 self.cmd_class = mock.Mock()
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', FakeConfCommand()))
 
         self.logging = self.useFixture(fixtures.FakeLogger(level=log.WARN))
@@ -654,7 +653,7 @@ class CliDBSyncTestCase(unit.BaseTestCase):
                 self.assertFalse(func.called)
 
     def test_db_sync(self):
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(
@@ -662,21 +661,21 @@ class CliDBSyncTestCase(unit.BaseTestCase):
 
     def test_db_sync_expand(self):
         self.command_expand = True
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(upgrades.expand_schema)
 
     def test_db_sync_migrate(self):
         self.command_migrate = True
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(upgrades.migrate_data)
 
     def test_db_sync_contract(self):
         self.command_contract = True
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(upgrades.contract_schema)
@@ -774,7 +773,7 @@ class CliDomainConfigUploadNothing(unit.BaseTestCase):
         # setup a test database.
         def fake_load_backends(self):
             self.resource_manager = mock.Mock()
-        self.useFixture(mockpatch.PatchObject(
+        self.useFixture(fixtures.MockPatchObject(
             cli.DomainConfigUploadFiles, 'load_backends', fake_load_backends))
 
         tempdir = self.useFixture(fixtures.TempDir())
