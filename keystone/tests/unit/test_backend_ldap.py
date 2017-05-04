@@ -1113,7 +1113,7 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
 
     def test_user_enabled_invert(self):
         self.config_fixture.config(group='ldap', user_enabled_invert=True,
-                                   user_enabled_default=False)
+                                   user_enabled_default='False')
         self.ldapdb.clear()
         self.load_backends()
 
@@ -1164,27 +1164,6 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         self.assertEqual([False], enabled_vals)
         user_ref = self.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
-
-    @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
-    def test_user_enabled_invert_no_enabled_value(self, mock_ldap_get):
-        self.config_fixture.config(group='ldap', user_enabled_invert=True,
-                                   user_enabled_default=False)
-        # Mock the search results to return an entry with
-        # no enabled value.
-        mock_ldap_get.return_value = (
-            'cn=junk,dc=example,dc=com',
-            {
-                'sn': [uuid.uuid4().hex],
-                'email': [uuid.uuid4().hex],
-                'cn': ['junk']
-            }
-        )
-
-        user_api = identity.backends.ldap.UserApi(CONF)
-        user_ref = user_api.get('junk')
-        # Ensure that the model enabled attribute is inverted
-        # from the resource default.
-        self.assertIs(not CONF.ldap.user_enabled_default, user_ref['enabled'])
 
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
     def test_user_enabled_invert_default_str_value(self, mock_ldap_get):
@@ -1904,7 +1883,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
 
     def test_user_enabled_invert(self):
         self.config_fixture.config(group='ldap', user_enabled_invert=True,
-                                   user_enabled_default=False)
+                                   user_enabled_default='False')
         self.ldapdb.clear()
         self.load_backends()
 
@@ -1951,10 +1930,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity):
         self.assertIsNone(self.get_user_enabled_vals(user_ref))
         user_ref = self.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
-
-    def test_user_enabled_invert_no_enabled_value(self):
-        self.skip_test_overrides(
-            "N/A: Covered by test_user_enabled_invert")
 
     def test_user_enabled_invert_default_str_value(self):
         self.skip_test_overrides(
