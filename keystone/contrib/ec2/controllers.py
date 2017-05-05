@@ -41,6 +41,7 @@ from oslo_serialization import jsonutils
 import six
 from six.moves import http_client
 
+from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
@@ -327,7 +328,7 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
         :raises keystone.exception.Forbidden: when token is invalid
 
         """
-        token_ref = utils.get_token_ref(context)
+        token_ref = authorization.get_token_ref(context)
 
         if token_ref.user_id != user_id:
             raise exception.Forbidden(_('Token belongs to another user'))

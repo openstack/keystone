@@ -17,19 +17,16 @@ import uuid
 
 from oslo_log import log
 from oslo_log import versionutils
-from oslo_utils import strutils
 import six
 
 from keystone.common import authorization
 from keystone.common import dependency
 from keystone.common import driver_hints
-from keystone.common import policy
 from keystone.common import utils
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
-from keystone.models import token_model
 
 
 LOG = log.getLogger(__name__)
@@ -72,15 +69,6 @@ def v2_auth_deprecated(f):
     return wrapper()
 
 
-def _build_policy_check_credentials(self, action, context, kwargs):
-    kwargs_str = ', '.join(['%s=%s' % (k, kwargs[k]) for k in kwargs])
-    kwargs_str = strutils.mask_password(kwargs_str)
-    msg = 'RBAC: Authorizing %(action)s(%(kwargs)s)'
-    LOG.debug(msg, {'action': action, 'kwargs': kwargs_str})
-
-    return context['environment'].get(authorization.AUTH_CONTEXT_ENV, {})
-
-
 def protected(callback=None):
     """Wrap API calls with role based access controls (RBAC).
 
@@ -97,69 +85,12 @@ def protected(callback=None):
     def wrapper(f):
         @functools.wraps(f)
         def inner(self, request, *args, **kwargs):
-            request.assert_authenticated()
+            check_function = authorization.check_protection
+            if callback is not None:
+                check_function = callback
 
-            if request.context.is_admin:
-                LOG.warning('RBAC: Bypassing authorization')
-            elif callback is not None:
-                prep_info = {'f_name': f.__name__,
-                             'input_attr': kwargs}
-                callback(self,
-                         request,
-                         prep_info,
-                         *args,
-                         **kwargs)
-            else:
-                action = 'identity:%s' % f.__name__
-                creds = _build_policy_check_credentials(self,
-                                                        action,
-                                                        request.context_dict,
-                                                        kwargs)
-
-                policy_dict = {}
-
-                # Check to see if we need to include the target entity in our
-                # policy checks.  We deduce this by seeing if the class has
-                # specified a get_member() method and that kwargs contains the
-                # appropriate entity id.
-                if (hasattr(self, 'get_member_from_driver') and
-                        self.get_member_from_driver is not None):
-                    key = '%s_id' % self.member_name
-                    if key in kwargs:
-                        ref = self.get_member_from_driver(kwargs[key])
-                        policy_dict['target'] = {self.member_name: ref}
-
-                # TODO(henry-nash): Move this entire code to a member
-                # method inside v3 Auth
-                if request.context_dict.get('subject_token_id') is not None:
-                    window_seconds = self._token_validation_window(request)
-                    token_ref = token_model.KeystoneToken(
-                        token_id=request.context_dict['subject_token_id'],
-                        token_data=self.token_provider_api.validate_token(
-                            request.context_dict['subject_token_id'],
-                            window_seconds=window_seconds))
-                    policy_dict.setdefault('target', {})
-                    policy_dict['target'].setdefault(self.member_name, {})
-                    policy_dict['target'][self.member_name]['user_id'] = (
-                        token_ref.user_id)
-                    try:
-                        user_domain_id = token_ref.user_domain_id
-                    except exception.UnexpectedError:
-                        user_domain_id = None
-                    if user_domain_id:
-                        policy_dict['target'][self.member_name].setdefault(
-                            'user', {})
-                        policy_dict['target'][self.member_name][
-                            'user'].setdefault('domain', {})
-                        policy_dict['target'][self.member_name]['user'][
-                            'domain']['id'] = (
-                                user_domain_id)
-
-                # Add in the kwargs, which means that any entity provided as a
-                # parameter for calls like create and update will be included.
-                policy_dict.update(kwargs)
-                policy.enforce(creds, action, utils.flatten_dict(policy_dict))
-                LOG.debug('RBAC: Authorization granted')
+            protected_wrapper(
+                self, f, check_function, request, None, *args, **kwargs)
             return f(self, request, *args, **kwargs)
         return inner
     return wrapper
@@ -178,60 +109,53 @@ def filterprotected(*filters, **callback):
     entities needed and then call check_protection() in the V3Controller class.
 
     """
+    def _handle_filters(filters, request):
+        target = dict()
+        if filters:
+            for item in filters:
+                if item in request.params:
+                    target[item] = request.params[item]
+
+        LOG.debug('RBAC: Adding query filter params (%s)', (
+            ', '.join(['%s=%s' % (item, target[item])
+                       for item in target])))
+        return target
+
     def _filterprotected(f):
         @functools.wraps(f)
         def wrapper(self, request, **kwargs):
-            request.assert_authenticated()
+            filter_attr = _handle_filters(filters, request)
+            check_function = authorization.check_protection
+            if 'callback' in callback and callback['callback'] is not None:
+                # A callback has been specified to load additional target
+                # data, so pass it the formal url params as well as the
+                # list of filters, so it can augment these and then call
+                # the check_protection() method.
+                check_function = callback['callback']
 
-            if not request.context.is_admin:
-                # The target dict for the policy check will include:
-                #
-                # - Any query filter parameters
-                # - Data from the main url (which will be in the kwargs
-                #   parameter), which although most of our APIs do not utilize,
-                #   in theory you could have.
-                #
-
-                # First build the dict of filter parameters
-                target = dict()
-                if filters:
-                    for item in filters:
-                        if item in request.params:
-                            target[item] = request.params[item]
-
-                    LOG.debug('RBAC: Adding query filter params (%s)', (
-                        ', '.join(['%s=%s' % (item, target[item])
-                                  for item in target])))
-
-                if 'callback' in callback and callback['callback'] is not None:
-                    # A callback has been specified to load additional target
-                    # data, so pass it the formal url params as well as the
-                    # list of filters, so it can augment these and then call
-                    # the check_protection() method.
-                    prep_info = {'f_name': f.__name__,
-                                 'input_attr': kwargs,
-                                 'filter_attr': target}
-                    callback['callback'](self,
-                                         request,
-                                         prep_info,
-                                         **kwargs)
-                else:
-                    # No callback, so we are going to check the protection here
-                    action = 'identity:%s' % f.__name__
-                    creds = _build_policy_check_credentials(
-                        self, action, request.context_dict, kwargs)
-                    # Add in any formal url parameters
-                    for key in kwargs:
-                        target[key] = kwargs[key]
-
-                    policy.enforce(creds, action, utils.flatten_dict(target))
-
-                    LOG.debug('RBAC: Authorization granted')
-            else:
-                LOG.warning('RBAC: Bypassing authorization')
+            protected_wrapper(
+                self, f, check_function, request, filter_attr, **kwargs)
             return f(self, request, filters, **kwargs)
         return wrapper
     return _filterprotected
+
+
+# Unified calls for the decorators above.
+# TODO(ayoung):  Continue the refactoring.  Always call check_protection
+# explicitly, by removing the calls to check protection from the callbacks.
+# Instead,  have a call to the callbacks inserted prior to the call to
+# `check_protection`.
+def protected_wrapper(self, f, check_function, request, filter_attr,
+                      *args, **kwargs):
+    request.assert_authenticated()
+    if request.context.is_admin:
+        LOG.warning('RBAC: Bypassing authorization')
+        return
+    prep_info = {'f_name': f.__name__,
+                 'input_attr': kwargs}
+    if (filter_attr):
+        prep_info['filter_attr'] = filter_attr
+    check_function(self, request, prep_info, *args, **kwargs)
 
 
 class V2Controller(wsgi.Application):
@@ -682,7 +606,7 @@ class V3Controller(wsgi.Application):
         if domain_id:
             return domain_id
 
-        token_ref = utils.get_token_ref(request.context_dict)
+        token_ref = authorization.get_token_ref(request.context_dict)
 
         if token_ref.domain_scoped:
             return token_ref.domain_id
@@ -751,26 +675,7 @@ class V3Controller(wsgi.Application):
         they can be referenced by policy rules.
 
         """
-        if request.context.is_admin:
-            LOG.warning('RBAC: Bypassing authorization')
-        else:
-            action = 'identity:%s' % prep_info['f_name']
-            # TODO(henry-nash) need to log the target attributes as well
-            creds = _build_policy_check_credentials(self, action,
-                                                    request.context_dict,
-                                                    prep_info['input_attr'])
-            # Build the dict the policy engine will check against from both the
-            # parameters passed into the call we are protecting (which was
-            # stored in the prep_info by protected()), plus the target
-            # attributes provided.
-            policy_dict = {}
-            if target_attr:
-                policy_dict = {'target': target_attr}
-            policy_dict.update(prep_info['input_attr'])
-            if 'filter_attr' in prep_info:
-                policy_dict.update(prep_info['filter_attr'])
-            policy.enforce(creds, action, utils.flatten_dict(policy_dict))
-            LOG.debug('RBAC: Authorization granted')
+        authorization.check_protection(self, request, prep_info, target_attr)
 
     @classmethod
     def filter_params(cls, ref):
@@ -787,11 +692,3 @@ class V3Controller(wsgi.Application):
         for blocked_param in blocked_keys:
             del ref[blocked_param]
         return ref
-
-    def _token_validation_window(self, request):
-        # NOTE(jamielennox): it's dumb that i have to put this here. We should
-        # only validate subject token in one place.
-        allow_expired = request.params.get('allow_expired')
-        allow_expired = strutils.bool_from_string(allow_expired, default=False)
-
-        return CONF.token.allow_expired_window if allow_expired else 0
