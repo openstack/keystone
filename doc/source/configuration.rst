@@ -1045,8 +1045,8 @@ section. For example:
     [endpoint_policy]
     driver = sql
 
-See `API Specification for Endpoint Policy <https://specs.openstack.org/
-openstack/keystone-specs/api/v3/identity-api-v3-os-endpoint-policy.html>`_
+See `API Specification for Endpoint Policy <https://developer.openstack.org/
+api-ref/identity/v3-ext/index.html#os-endpoint-policy-api>`_
 for the details of API definition.
 
 Logging
@@ -1105,8 +1105,8 @@ To enable OAuth1:
 
     WSGIPassAuthorization On
 
-See `API Specification for OAuth 1.0a <https://specs.openstack.org/openstack/
-keystone-specs/api/v3/identity-api-v3-os-oauth1-ext.html>`_ for the details of
+See `API Specification for OAuth 1.0a <https://developer.openstack.org/
+api-ref/identity/v3-ext/index.html#os-oauth1-api>`_ for the details of
 API definition.
 
 
@@ -1125,8 +1125,8 @@ Add the revoke backend driver to the ``[revoke]`` section in
     [revoke]
     driver = sql
 
-See `API Specification for Revocation Events <https://specs.openstack.org/
-openstack/keystone-specs/api/v3/identity-api-v3-os-revoke-ext.html>`_ for
+See `API Specification for Revocation Events <https://developer.openstack.org/
+api-ref/identity/v3-ext/index.html#os-revoke-api>`_ for
 the details of API definition.
 
 
