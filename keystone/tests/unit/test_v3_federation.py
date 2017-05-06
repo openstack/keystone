@@ -912,6 +912,29 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         attr = self._fetch_attribute_from_response(resp, 'identity_provider')
         self.assertIdpDomainCreated(attr['id'], attr['domain_id'])
 
+    @utils.wip('This will fail because of bug #1688188')
+    def test_conflicting_idp_results_in_unhandled_domain_cleanup(self):
+        # NOTE(lbragstad): Create an identity provider, save its ID, and count
+        # the number of domains.
+        resp = self._create_default_idp()
+        idp_id = resp.json_body['identity_provider']['id']
+        domains = self.resource_api.list_domains()
+        number_of_domains = len(domains)
+
+        # Create an identity provider with the same ID to intentionally cause a
+        # conflict, this is going to result in a domain getting created for the
+        # new identity provider. The domain for the new identity provider is
+        # going to be created before the conflict is raised from the database
+        # layer. The resulting domain is never cleaned up but it should be
+        # since the identity provider was never created.
+        resp = self.put(
+            self.base_url(suffix=idp_id),
+            body={'identity_provider': self.default_body.copy()},
+            expected_status=http_client.CONFLICT
+        )
+        domains = self.resource_api.list_domains()
+        self.assertEqual(number_of_domains, len(domains))
+
     def test_create_idp_domain_id_unique_constraint(self):
         # create domain and add domain_id to keys to check
         domain = unit.new_domain_ref()
