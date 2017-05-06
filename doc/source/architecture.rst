@@ -107,7 +107,8 @@ Roles
 
 ``Roles`` dictate the level of authorization the end user can obtain. Roles
 can be granted at either the domain or project level. A role can be assigned at
-the individual user or group level. Role names are globally unique.
+the individual user or group level. Role names are unique within the
+owning domain.
 
 Role Assignments
 ^^^^^^^^^^^^^^^^

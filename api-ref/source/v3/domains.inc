@@ -14,7 +14,7 @@ the uniqueness of these attributes is as follows:
 
 - *Domain name*. Globally unique across all domains.
 
-- *Role name*. Globally unique across all domains.
+- *Role name*. Unique within the owning domain.
 
 - *User name*. Unique within the owning domain.
 
