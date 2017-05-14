@@ -192,10 +192,15 @@ class KeystoneToken(dict):
 
     @property
     def is_admin_project(self):
+        # Prevent domain scoped tokens from acting as is_admin_project
         if self.domain_scoped:
-            # Currently, domain scoped tokens cannot act as is_admin_project
             return False
-        return self.get('is_admin_project', False)
+        # TODO(ayoung/edmondsw): Having is_admin_project default to True is
+        # essential for fixing bug #968696. If an admin project is not
+        # configured, we can add checks for is_admin_project:True and not
+        # block anyone that hasn't configured an admin_project. Do not change
+        # this until we can assume admin_project is actually set
+        return self.get('is_admin_project', True)
 
     @property
     def trust_id(self):
