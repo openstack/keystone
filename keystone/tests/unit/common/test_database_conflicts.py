@@ -192,7 +192,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             self.assertIn("Duplicate entry found with ID %s"
                           % protocol_ret['id'], repr(e))
         else:
-            self.fail("Create duplicate region did not raise a conflict")
+            self.fail("Create duplicate federation_protocol did not raise "
+                      "a conflict")
 
     def test_federation_protocol_duplicate_conflict_with_id_in_id(self):
         self.idp = {
@@ -263,4 +264,4 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             self.assertIn("Duplicate entry found with ID %s"
                           % service_ref['id'], repr(e))
         else:
-            self.fail("Create duplicate region did not raise a conflict")
+            self.fail("Create duplicate sp did not raise a conflict")
