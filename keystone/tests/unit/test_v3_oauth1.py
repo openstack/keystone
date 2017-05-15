@@ -22,6 +22,7 @@ from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
 from six.moves import http_client
 from six.moves import urllib
+from six.moves.urllib import parse as urlparse
 
 import keystone.conf
 from keystone.contrib.oauth1 import routers
@@ -646,6 +647,13 @@ class UUIDAuthTokenTests(AuthTokenTests, OAuthFlowTests):
 
 class MaliciousOAuth1Tests(OAuth1Tests):
 
+    def _switch_baseurl_scheme(self):
+        """Switch the base url scheme."""
+        base_url_list = list(urlparse.urlparse(self.base_url))
+        base_url_list[0] = 'https' if base_url_list[0] == 'http' else 'http'
+        bad_url = urlparse.urlunparse(base_url_list)
+        return bad_url
+
     def test_bad_consumer_secret(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
@@ -662,6 +670,17 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         bad_base_url = 'http://localhost/identity_admin/v3'
         url, headers = self._create_request_token(consumer, self.project_id,
                                                   base_url=bad_base_url)
+        self.post(url, headers=headers,
+                  expected_status=http_client.UNAUTHORIZED)
+
+    def test_bad_request_url_scheme(self):
+        consumer = self._create_single_consumer()
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+        bad_url_scheme = self._switch_baseurl_scheme()
+        url, headers = self._create_request_token(consumer, self.project_id,
+                                                  base_url=bad_url_scheme)
         self.post(url, headers=headers,
                   expected_status=http_client.UNAUTHORIZED)
 
@@ -758,7 +777,18 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Invalid signature',
                       resp_data.get('error', {}).get('message'))
 
-        # 2. Invalid signature.
+        # 2. Invalid base url scheme.
+        # Update the base url scheme, so it will fail to validate signature.
+        bad_url_scheme = self._switch_baseurl_scheme()
+        url, headers = self._create_access_token(consumer, request_token,
+                                                 base_url=bad_url_scheme)
+        resp = self.post(url, headers=headers,
+                         expected_status=http_client.UNAUTHORIZED)
+        resp_data = jsonutils.loads(resp.body)
+        self.assertIn('Invalid signature',
+                      resp_data.get('error', {}).get('message'))
+
+        # 3. Invalid signature.
         # Update the secret, so it will fail to validate the signature.
         consumer.update({'secret': uuid.uuid4().hex})
         url, headers = self._create_access_token(consumer, request_token)
@@ -768,7 +798,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Invalid signature',
                       resp_data.get('error', {}).get('message'))
 
-        # 3. Invalid verifier.
+        # 4. Invalid verifier.
         # Even though the verifier is well formatted, it is not verifier
         # that is stored in the backend, this is different with the testcase
         # above `test_bad_verifier` where it test that `verifier` is not
@@ -783,7 +813,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Provided verifier',
                       resp_data.get('error', {}).get('message'))
 
-        # 4. The provided consumer does not exist.
+        # 5. The provided consumer does not exist.
         consumer.update({'key': uuid.uuid4().hex})
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
@@ -792,7 +822,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Provided consumer does not exist',
                       resp_data.get('error', {}).get('message'))
 
-        # 5. The consumer key provided does not match stored consumer key.
+        # 6. The consumer key provided does not match stored consumer key.
         consumer2 = self._create_single_consumer()
         consumer.update({'key': consumer2['id']})
         url, headers = self._create_access_token(consumer, request_token)

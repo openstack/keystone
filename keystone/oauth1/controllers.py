@@ -18,6 +18,7 @@ from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 from six.moves import http_client
+from six.moves.urllib import parse as urlparse
 
 from keystone.common import controller
 from keystone.common import dependency
@@ -214,6 +215,15 @@ class OAuthControllerV3(controller.V3Controller):
     collection_name = 'not_used'
     member_name = 'not_used'
 
+    def _update_url_scheme(self, request):
+        """Update request url scheme with base url scheme."""
+        url = self.base_url(request.context_dict, request.context_dict['path'])
+        url_scheme = list(urlparse.urlparse(url))[0]
+        req_url_list = list(urlparse.urlparse(request.url))
+        req_url_list[0] = url_scheme
+        req_url = urlparse.urlunparse(req_url_list)
+        return req_url
+
     def create_request_token(self, request):
         oauth_headers = oauth1.get_oauth_headers(request.headers)
         consumer_id = oauth_headers.get('oauth_consumer_key')
@@ -230,13 +240,14 @@ class OAuthControllerV3(controller.V3Controller):
         self.resource_api.get_project(requested_project_id)
         self.oauth_api.get_consumer(consumer_id)
 
+        url = self._update_url_scheme(request)
         req_headers = {'Requested-Project-Id': requested_project_id}
         req_headers.update(request.headers)
         request_verifier = oauth1.RequestTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
         h, b, s = request_verifier.create_request_token_response(
-            request.url,
+            url,
             http_method='POST',
             body=request.params,
             headers=req_headers)
@@ -296,12 +307,13 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
+        url = self._update_url_scheme(request)
         access_verifier = oauth1.AccessTokenEndpoint(
             request_validator=validator.OAuthValidator(),
             token_generator=oauth1.token_generator)
         try:
             h, b, s = access_verifier.create_access_token_response(
-                request.url,
+                url,
                 http_method='POST',
                 body=request.params,
                 headers=request.headers)
