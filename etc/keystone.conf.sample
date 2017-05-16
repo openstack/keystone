@@ -140,12 +140,6 @@
 # Note: This option can be changed without restarting.
 #debug = false
 
-# DEPRECATED: If set to false, the logging level will be set to WARNING instead
-# of the default INFO level. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-#verbose = true
-
 # The name of a logging configuration file. This file is appended to any
 # existing logging configuration files. For details about logging configuration
 # files, see the Python logging module documentation. Note that when logging
@@ -184,6 +178,12 @@
 # is set. (boolean value)
 #use_syslog = false
 
+# Enable journald for logging. If running in a systemd environment you may wish
+# to enable journal support. Doing so will use the journal native protocol
+# which includes structured metadata in addition to log messages.This option is
+# ignored if log_config_append is set. (boolean value)
+#use_journal = false
+
 # Syslog facility to receive log lines. This option is ignored if
 # log_config_append is set. (string value)
 #syslog_log_facility = LOG_USER
@@ -212,7 +212,7 @@
 
 # List of package logging levels in logger=LEVEL pairs. This option is ignored
 # if log_config_append is set. (list value)
-#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN,oslo.cache=INFO,dogpile.core.dogpile=INFO
+#default_log_levels = amqp=WARN,amqplib=WARN,boto=WARN,qpid=WARN,sqlalchemy=WARN,suds=INFO,oslo.messaging=INFO,oslo_messaging=INFO,iso8601=WARN,requests.packages.urllib3.connectionpool=WARN,urllib3.connectionpool=WARN,websocket=WARN,requests.packages.urllib3.util.retry=WARN,urllib3.util.retry=WARN,keystonemiddleware=WARN,routes.middleware=WARN,stevedore=WARN,taskflow=WARN,keystoneauth=WARN,oslo.cache=INFO,dogpile.core.dogpile=INFO
 
 # Enables or disables publication of error events. (boolean value)
 #publish_errors = false
@@ -245,7 +245,6 @@
 #
 
 # Size of RPC connection pool. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_conn_pool_size
 #rpc_conn_pool_size = 30
 
 # The pool size limit for connections expiration policy (integer value)
@@ -256,30 +255,24 @@
 
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
 # The "host" option should point or resolve to this address. (string value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_address
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
 # Allowed values: redis, sentinel, dummy
-# Deprecated group/name - [DEFAULT]/rpc_zmq_matchmaker
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_contexts
 #rpc_zmq_contexts = 1
 
 # Maximum number of ingress messages to locally buffer per topic. Default is
 # unlimited. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_topic_backlog
 #rpc_zmq_topic_backlog = <None>
 
 # Directory for holding IPC sockets. (string value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_ipc_dir
 #rpc_zmq_ipc_dir = /var/run/openstack
 
 # Name of this node. Must be a valid hostname, FQDN, or IP address. Must match
 # "host" option, if running Nova. (string value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_host
 #rpc_zmq_host = localhost
 
 # Number of seconds to wait before all pending messages will be sent after
@@ -292,26 +285,21 @@
 
 # The default number of seconds that poll should wait. Poll raises timeout
 # exception when timeout expired. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_poll_timeout
 #rpc_poll_timeout = 1
 
 # Expiration timeout in seconds of a name service record about existing target
 # ( < 0 means no timeout). (integer value)
-# Deprecated group/name - [DEFAULT]/zmq_target_expire
 #zmq_target_expire = 300
 
 # Update period in seconds of a name service record about existing target.
 # (integer value)
-# Deprecated group/name - [DEFAULT]/zmq_target_update
 #zmq_target_update = 180
 
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
-# Deprecated group/name - [DEFAULT]/use_pub_sub
 #use_pub_sub = false
 
 # Use ROUTER remote proxy. (boolean value)
-# Deprecated group/name - [DEFAULT]/use_router_proxy
 #use_router_proxy = false
 
 # This option makes direct connections dynamic or static. It makes sense only
@@ -326,24 +314,20 @@
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
 # Maximum value: 65535
-# Deprecated group/name - [DEFAULT]/rpc_zmq_min_port
 #rpc_zmq_min_port = 49153
 
 # Maximal port number for random ports range. (integer value)
 # Minimum value: 1
 # Maximum value: 65536
-# Deprecated group/name - [DEFAULT]/rpc_zmq_max_port
 #rpc_zmq_max_port = 65536
 
 # Number of retries to find free port number before fail with ZMQBindError.
 # (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_port_retries
 #rpc_zmq_bind_port_retries = 100
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
 # Allowed values: json, msgpack
-# Deprecated group/name - [DEFAULT]/rpc_zmq_serialization
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -408,7 +392,8 @@
 # value)
 #subscribe_on =
 
-# Size of executor thread pool. (integer value)
+# Size of executor thread pool when executor is threading or eventlet. (integer
+# value)
 # Deprecated group/name - [DEFAULT]/rpc_thread_pool_size
 #executor_thread_pool_size = 64
 
@@ -689,16 +674,7 @@
 # From oslo.db
 #
 
-# DEPRECATED: The file name to use with SQLite. (string value)
-# Deprecated group/name - [DEFAULT]/sqlite_db
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-# Reason: Should use config option connection or slave_connection to connect
-# the database.
-#sqlite_db = oslo.sqlite
-
 # If True, SQLite uses synchronous mode. (boolean value)
-# Deprecated group/name - [DEFAULT]/sqlite_synchronous
 #sqlite_synchronous = true
 
 # The back end to use for the database. (string value)
@@ -851,7 +827,7 @@
 #
 
 # DEPRECATED: The IP address of the network interface for the public service to
-# listen on. (string value)
+# listen on. (unknown value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/public_bind_host
 # This option is deprecated for removal since K.
@@ -873,7 +849,7 @@
 #public_port = 5000
 
 # DEPRECATED: The IP address of the network interface for the admin service to
-# listen on. (string value)
+# listen on. (unknown value)
 # Deprecated group/name - [DEFAULT]/bind_host
 # Deprecated group/name - [DEFAULT]/admin_bind_host
 # This option is deprecated for removal since K.
@@ -1112,57 +1088,6 @@
 # false is when configuring a fresh installation, although that is the
 # recommended value. (boolean value)
 #backward_compatible_ids = true
-
-
-[kvs]
-
-#
-# From keystone
-#
-
-# DEPRECATED: Extra `dogpile.cache` backend modules to register with the
-# `dogpile.cache` library. It is not necessary to set this value unless you are
-# providing a custom KVS backend beyond what `dogpile.cache` already supports.
-# (list value)
-# This option is deprecated for removal since O.
-# Its value may be silently ignored in the future.
-# Reason: This option has been deprecated in the O release and will be removed
-# in the P release. Use SQL backends instead.
-#backends =
-
-# DEPRECATED: Prefix for building the configuration dictionary for the KVS
-# region. This should not need to be changed unless there is another
-# `dogpile.cache` region with the same configuration name. (string value)
-# This option is deprecated for removal since O.
-# Its value may be silently ignored in the future.
-# Reason: This option has been deprecated in the O release and will be removed
-# in the P release. Use SQL backends instead.
-#config_prefix = keystone.kvs
-
-# DEPRECATED: Set to false to disable using a key-mangling function, which
-# ensures fixed-length keys are used in the KVS store. This is configurable for
-# debugging purposes, and it is therefore highly recommended to always leave
-# this set to true. (boolean value)
-# This option is deprecated for removal since O.
-# Its value may be silently ignored in the future.
-# Reason: This option has been deprecated in the O release and will be removed
-# in the P release. Use SQL backends instead.
-#enable_key_mangler = true
-
-# DEPRECATED: Number of seconds after acquiring a distributed lock that the
-# backend should consider the lock to be expired. This option should be tuned
-# relative to the longest amount of time that it takes to perform a successful
-# operation. If this value is set too low, then a cluster will end up
-# performing work redundantly. If this value is set too high, then a cluster
-# will not be able to efficiently recover and retry after a failed operation. A
-# non-zero value is recommended if the backend supports lock timeouts, as zero
-# prevents locks from expiring altogether. (integer value)
-# Minimum value: 0
-# This option is deprecated for removal since O.
-# Its value may be silently ignored in the future.
-# Reason: This option has been deprecated in the O release and will be removed
-# in the P release. Use SQL backends instead.
-#default_lock_timeout = 5
 
 
 [ldap]
@@ -1496,20 +1421,6 @@
 # From keystone
 #
 
-# DEPRECATED: Comma-separated list of memcached servers in the format of
-# `host:port,host:port` that keystone should use for the `memcache` token
-# persistence provider and other memcache-backed KVS drivers. This
-# configuration value is NOT used for intermediary caching between keystone and
-# other backends, such as SQL and LDAP (for that, see the `[cache]` section).
-# Multiple keystone servers in the same deployment should use the same set of
-# memcached servers to ensure that data (such as UUID tokens) created by one
-# node is available to the others. (list value)
-# This option is deprecated for removal since O.
-# Its value may be silently ignored in the future.
-# Reason: This option has been deprecated in the O release and will be removed
-# in the P release. Use oslo.cache instead.
-#servers = localhost:11211
-
 # Number of seconds memcached server is considered dead before it is tried
 # again. This is used by the key value store system. (integer value)
 #dead_retry = 300
@@ -1565,61 +1476,64 @@
 
 # Name for the AMQP container. must be globally unique. Defaults to a generated
 # UUID (string value)
-# Deprecated group/name - [amqp1]/container_name
 #container_name = <None>
 
 # Timeout for inactive connections (in seconds) (integer value)
-# Deprecated group/name - [amqp1]/idle_timeout
 #idle_timeout = 0
 
 # Debug: dump AMQP frames to stdout (boolean value)
-# Deprecated group/name - [amqp1]/trace
 #trace = false
+
+# Attempt to connect via SSL. If no other ssl-related parameters are given, it
+# will use the system's CA-bundle to verify the server's certificate. (boolean
+# value)
+#ssl = false
 
 # CA certificate PEM file used to verify the server's certificate (string
 # value)
-# Deprecated group/name - [amqp1]/ssl_ca_file
 #ssl_ca_file =
 
 # Self-identifying certificate PEM file for client authentication (string
 # value)
-# Deprecated group/name - [amqp1]/ssl_cert_file
 #ssl_cert_file =
 
 # Private key PEM file used to sign ssl_cert_file certificate (optional)
 # (string value)
-# Deprecated group/name - [amqp1]/ssl_key_file
 #ssl_key_file =
 
 # Password for decrypting ssl_key_file (if encrypted) (string value)
-# Deprecated group/name - [amqp1]/ssl_key_password
 #ssl_key_password = <None>
 
 # DEPRECATED: Accept clients using either SSL or plain TCP (boolean value)
-# Deprecated group/name - [amqp1]/allow_insecure_clients
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Not applicable - not a SSL server
 #allow_insecure_clients = false
 
 # Space separated list of acceptable SASL mechanisms (string value)
-# Deprecated group/name - [amqp1]/sasl_mechanisms
 #sasl_mechanisms =
 
 # Path to directory that contains the SASL configuration (string value)
-# Deprecated group/name - [amqp1]/sasl_config_dir
 #sasl_config_dir =
 
 # Name of configuration file (without .conf suffix) (string value)
-# Deprecated group/name - [amqp1]/sasl_config_name
 #sasl_config_name =
 
-# User name for message broker authentication (string value)
-# Deprecated group/name - [amqp1]/username
+# SASL realm to use if no realm present in username (string value)
+#sasl_default_realm =
+
+# DEPRECATED: User name for message broker authentication (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Should use configuration option transport_url to provide the
+# username.
 #username =
 
-# Password for message broker authentication (string value)
-# Deprecated group/name - [amqp1]/password
+# DEPRECATED: Password for message broker authentication (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: Should use configuration option transport_url to provide the
+# password.
 #password =
 
 # Seconds to pause before attempting to re-connect. (integer value)
@@ -1674,15 +1588,12 @@
 #addressing_mode = dynamic
 
 # address prefix used when sending to a specific server (string value)
-# Deprecated group/name - [amqp1]/server_request_prefix
 #server_request_prefix = exclusive
 
 # address prefix used when broadcasting to all servers (string value)
-# Deprecated group/name - [amqp1]/broadcast_prefix
 #broadcast_prefix = broadcast
 
 # address prefix when sending to any server in group (string value)
-# Deprecated group/name - [amqp1]/group_request_prefix
 #group_request_prefix = unicast
 
 # Address prefix for all generated RPC addresses (string value)
@@ -1770,7 +1681,7 @@
 # Max fetch bytes of Kafka consumer (integer value)
 #kafka_max_fetch_bytes = 1048576
 
-# Default timeout(s) for Kafka consumers (integer value)
+# Default timeout(s) for Kafka consumers (floating point value)
 #kafka_consumer_timeout = 1.0
 
 # Pool Size for Kafka Consumers (integer value)
@@ -1815,6 +1726,11 @@
 # Deprecated group/name - [DEFAULT]/notification_topics
 #topics = notifications
 
+# The maximum number of attempts to re-send a notification message which failed
+# to be delivered due to a recoverable error. 0 - No retry, -1 - indefinite
+# (integer value)
+#retry = -1
+
 
 [oslo_messaging_rabbit]
 
@@ -1828,30 +1744,31 @@
 #amqp_durable_queues = false
 
 # Auto-delete queues in AMQP. (boolean value)
-# Deprecated group/name - [DEFAULT]/amqp_auto_delete
 #amqp_auto_delete = false
+
+# Enable SSL (boolean value)
+#ssl = <None>
 
 # SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
 # SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
 # distributions. (string value)
-# Deprecated group/name - [DEFAULT]/kombu_ssl_version
-#kombu_ssl_version =
+# Deprecated group/name - [oslo_messaging_rabbit]/kombu_ssl_version
+#ssl_version =
 
 # SSL key file (valid only if SSL enabled). (string value)
-# Deprecated group/name - [DEFAULT]/kombu_ssl_keyfile
-#kombu_ssl_keyfile =
+# Deprecated group/name - [oslo_messaging_rabbit]/kombu_ssl_keyfile
+#ssl_key_file =
 
 # SSL cert file (valid only if SSL enabled). (string value)
-# Deprecated group/name - [DEFAULT]/kombu_ssl_certfile
-#kombu_ssl_certfile =
+# Deprecated group/name - [oslo_messaging_rabbit]/kombu_ssl_certfile
+#ssl_cert_file =
 
 # SSL certification authority file (valid only if SSL enabled). (string value)
-# Deprecated group/name - [DEFAULT]/kombu_ssl_ca_certs
-#kombu_ssl_ca_certs =
+# Deprecated group/name - [oslo_messaging_rabbit]/kombu_ssl_ca_certs
+#ssl_ca_file =
 
 # How long to wait before reconnecting in response to an AMQP consumer cancel
 # notification. (floating point value)
-# Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
 #kombu_reconnect_delay = 1.0
 
 # EXPERIMENTAL: Possible values are: gzip, bz2. If not set compression will not
@@ -1871,7 +1788,6 @@
 
 # DEPRECATED: The RabbitMQ broker address where a single node is used. (string
 # value)
-# Deprecated group/name - [DEFAULT]/rabbit_host
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Replaced by [DEFAULT]/transport_url
@@ -1881,32 +1797,24 @@
 # value)
 # Minimum value: 0
 # Maximum value: 65535
-# Deprecated group/name - [DEFAULT]/rabbit_port
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_port = 5672
 
 # DEPRECATED: RabbitMQ HA cluster host:port pairs. (list value)
-# Deprecated group/name - [DEFAULT]/rabbit_hosts
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_hosts = $rabbit_host:$rabbit_port
 
-# Connect over SSL for RabbitMQ. (boolean value)
-# Deprecated group/name - [DEFAULT]/rabbit_use_ssl
-#rabbit_use_ssl = false
-
 # DEPRECATED: The RabbitMQ userid. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_userid
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Replaced by [DEFAULT]/transport_url
 #rabbit_userid = guest
 
 # DEPRECATED: The RabbitMQ password. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_password
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Replaced by [DEFAULT]/transport_url
@@ -1914,11 +1822,9 @@
 
 # The RabbitMQ login method. (string value)
 # Allowed values: PLAIN, AMQPLAIN, RABBIT-CR-DEMO
-# Deprecated group/name - [DEFAULT]/rabbit_login_method
 #rabbit_login_method = AMQPLAIN
 
 # DEPRECATED: The RabbitMQ virtual host. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_virtual_host
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 # Reason: Replaced by [DEFAULT]/transport_url
@@ -1929,7 +1835,6 @@
 
 # How long to backoff for between retries when connecting to RabbitMQ. (integer
 # value)
-# Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
 #rabbit_retry_backoff = 2
 
 # Maximum interval of RabbitMQ connection retries. Default is 30 seconds.
@@ -1938,7 +1843,6 @@
 
 # DEPRECATED: Maximum number of RabbitMQ connection retries. Default is 0
 # (infinite retry count). (integer value)
-# Deprecated group/name - [DEFAULT]/rabbit_max_retries
 # This option is deprecated for removal.
 # Its value may be silently ignored in the future.
 #rabbit_max_retries = 0
@@ -1949,7 +1853,6 @@
 # If you just want to make sure that all queues (except those with auto-
 # generated names) are mirrored across all nodes, run: "rabbitmqctl set_policy
 # HA '^(?!amq\.).*' '{"ha-mode": "all"}' " (boolean value)
-# Deprecated group/name - [DEFAULT]/rabbit_ha_queues
 #rabbit_ha_queues = false
 
 # Positive integer representing duration in seconds for queue TTL (x-expires).
@@ -1972,7 +1875,6 @@
 #heartbeat_rate = 2
 
 # Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
-# Deprecated group/name - [DEFAULT]/fake_rabbit
 #fake_rabbit = false
 
 # Maximum number of channels to allow (integer value)
@@ -1983,9 +1885,6 @@
 
 # How often to send heartbeats for consumer's connections (integer value)
 #heartbeat_interval = 3
-
-# Enable SSL (boolean value)
-#ssl = <None>
 
 # Arguments passed to ssl.wrap_socket (dict value)
 #ssl_options = <None>
@@ -2091,30 +1990,24 @@
 
 # ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP.
 # The "host" option should point or resolve to this address. (string value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_address
 #rpc_zmq_bind_address = *
 
 # MatchMaker driver. (string value)
 # Allowed values: redis, sentinel, dummy
-# Deprecated group/name - [DEFAULT]/rpc_zmq_matchmaker
 #rpc_zmq_matchmaker = redis
 
 # Number of ZeroMQ contexts, defaults to 1. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_contexts
 #rpc_zmq_contexts = 1
 
 # Maximum number of ingress messages to locally buffer per topic. Default is
 # unlimited. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_topic_backlog
 #rpc_zmq_topic_backlog = <None>
 
 # Directory for holding IPC sockets. (string value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_ipc_dir
 #rpc_zmq_ipc_dir = /var/run/openstack
 
 # Name of this node. Must be a valid hostname, FQDN, or IP address. Must match
 # "host" option, if running Nova. (string value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_host
 #rpc_zmq_host = localhost
 
 # Number of seconds to wait before all pending messages will be sent after
@@ -2127,26 +2020,21 @@
 
 # The default number of seconds that poll should wait. Poll raises timeout
 # exception when timeout expired. (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_poll_timeout
 #rpc_poll_timeout = 1
 
 # Expiration timeout in seconds of a name service record about existing target
 # ( < 0 means no timeout). (integer value)
-# Deprecated group/name - [DEFAULT]/zmq_target_expire
 #zmq_target_expire = 300
 
 # Update period in seconds of a name service record about existing target.
 # (integer value)
-# Deprecated group/name - [DEFAULT]/zmq_target_update
 #zmq_target_update = 180
 
 # Use PUB/SUB pattern for fanout methods. PUB/SUB always uses proxy. (boolean
 # value)
-# Deprecated group/name - [DEFAULT]/use_pub_sub
 #use_pub_sub = false
 
 # Use ROUTER remote proxy. (boolean value)
-# Deprecated group/name - [DEFAULT]/use_router_proxy
 #use_router_proxy = false
 
 # This option makes direct connections dynamic or static. It makes sense only
@@ -2161,24 +2049,20 @@
 # Minimal port number for random ports range. (port value)
 # Minimum value: 0
 # Maximum value: 65535
-# Deprecated group/name - [DEFAULT]/rpc_zmq_min_port
 #rpc_zmq_min_port = 49153
 
 # Maximal port number for random ports range. (integer value)
 # Minimum value: 1
 # Maximum value: 65536
-# Deprecated group/name - [DEFAULT]/rpc_zmq_max_port
 #rpc_zmq_max_port = 65536
 
 # Number of retries to find free port number before fail with ZMQBindError.
 # (integer value)
-# Deprecated group/name - [DEFAULT]/rpc_zmq_bind_port_retries
 #rpc_zmq_bind_port_retries = 100
 
 # Default serialization mechanism for serializing/deserializing
 # outgoing/incoming messages (string value)
 # Allowed values: json, msgpack
-# Deprecated group/name - [DEFAULT]/rpc_zmq_serialization
 #rpc_zmq_serialization = json
 
 # This option configures round-robin mode in zmq socket. True means not keeping
@@ -2274,11 +2158,9 @@
 #
 
 # The file that defines policies. (string value)
-# Deprecated group/name - [DEFAULT]/policy_file
 #policy_file = policy.json
 
 # Default rule. Enforced when a requested rule is not found. (string value)
-# Deprecated group/name - [DEFAULT]/policy_default_rule
 #policy_default_rule = default
 
 # Directories where policy configuration files are stored. They can be relative
@@ -2286,7 +2168,6 @@
 # absolute paths. The file defined by policy_file must exist for these
 # directories to be searched.  Missing or empty directories are ignored. (multi
 # valued)
-# Deprecated group/name - [DEFAULT]/policy_dirs
 #policy_dirs = policy.d
 
 
@@ -2661,20 +2542,6 @@
 # Minimum value: 1
 #password_expires_days = <None>
 
-# DEPRECATED: Comma separated list of user IDs to be ignored when checking if a
-# password is expired. Passwords for users in this list will not expire. This
-# feature will only be enabled if `[security_compliance] password_expires_days`
-# is set. (list value)
-# This option is deprecated for removal since O.
-# Its value may be silently ignored in the future.
-# Reason: Functionality added as a per-user option "ignore_password_expiry" in
-# Ocata. Each user that should ignore password expiry should have the value set
-# to "true" in the user's `options` attribute (e.g.
-# `user['options']['ignore_password_expiry'] = True`) with an "update_user"
-# call. This avoids the need to restart keystone to adjust the users that
-# ignore password expiry. This option will be removed in the Pike release.
-#password_expires_ignore_user_ids =
-
 # This controls the number of previous user password iterations to keep in
 # history, in order to enforce that newly created passwords are unique. Setting
 # the value to one (the default) disables this feature. Thus, to enable this
@@ -2739,51 +2606,82 @@
 # From keystone
 #
 
-# Absolute path to the public certificate file to use for signing responses to
-# revocation lists requests. Set this together with `[signing] keyfile`. For
-# non-production environments, you may be interested in using `keystone-manage
-# pki_setup` to generate self-signed certificates. (string value)
+# DEPRECATED: Absolute path to the public certificate file to use for signing
+# responses to revocation lists requests. Set this together with `[signing]
+# keyfile`. For non-production environments, you may be interested in using
+# `keystone-manage pki_setup` to generate self-signed certificates. (string
+# value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
 #certfile = /etc/keystone/ssl/certs/signing_cert.pem
 
-# Absolute path to the private key file to use for signing responses to
-# revocation lists requests. Set this together with `[signing] certfile`.
-# (string value)
+# DEPRECATED: Absolute path to the private key file to use for signing
+# responses to revocation lists requests. Set this together with `[signing]
+# certfile`. (string value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
 #keyfile = /etc/keystone/ssl/private/signing_key.pem
 
-# Absolute path to the public certificate authority (CA) file to use when
-# creating self-signed certificates with `keystone-manage pki_setup`. Set this
-# together with `[signing] ca_key`. There is no reason to set this option
-# unless you are requesting revocation lists in a non-production environment.
-# Use a `[signing] certfile` issued from a trusted certificate authority
-# instead. (string value)
+# DEPRECATED: Absolute path to the public certificate authority (CA) file to
+# use when creating self-signed certificates with `keystone-manage pki_setup`.
+# Set this together with `[signing] ca_key`. There is no reason to set this
+# option unless you are requesting revocation lists in a non-production
+# environment. Use a `[signing] certfile` issued from a trusted certificate
+# authority instead. (string value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
 #ca_certs = /etc/keystone/ssl/certs/ca.pem
 
-# Absolute path to the private certificate authority (CA) key file to use when
-# creating self-signed certificates with `keystone-manage pki_setup`. Set this
-# together with `[signing] ca_certs`. There is no reason to set this option
-# unless you are requesting revocation lists in a non-production environment.
-# Use a `[signing] certfile` issued from a trusted certificate authority
-# instead. (string value)
+# DEPRECATED: Absolute path to the private certificate authority (CA) key file
+# to use when creating self-signed certificates with `keystone-manage
+# pki_setup`. Set this together with `[signing] ca_certs`. There is no reason
+# to set this option unless you are requesting revocation lists in a non-
+# production environment. Use a `[signing] certfile` issued from a trusted
+# certificate authority instead. (string value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
 #ca_key = /etc/keystone/ssl/private/cakey.pem
 
-# Key size (in bits) to use when generating a self-signed token signing
-# certificate. There is no reason to set this option unless you are requesting
-# revocation lists in a non-production environment. Use a `[signing] certfile`
-# issued from a trusted certificate authority instead. (integer value)
-# Minimum value: 1024
-#key_size = 2048
-
-# The validity period (in days) to use when generating a self-signed token
+# DEPRECATED: Key size (in bits) to use when generating a self-signed token
 # signing certificate. There is no reason to set this option unless you are
 # requesting revocation lists in a non-production environment. Use a `[signing]
 # certfile` issued from a trusted certificate authority instead. (integer
 # value)
+# Minimum value: 1024
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
+#key_size = 2048
+
+# DEPRECATED: The validity period (in days) to use when generating a self-
+# signed token signing certificate. There is no reason to set this option
+# unless you are requesting revocation lists in a non-production environment.
+# Use a `[signing] certfile` issued from a trusted certificate authority
+# instead. (integer value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
 #valid_days = 3650
 
-# The certificate subject to use when generating a self-signed token signing
-# certificate. There is no reason to set this option unless you are requesting
-# revocation lists in a non-production environment. Use a `[signing] certfile`
-# issued from a trusted certificate authority instead. (string value)
+# DEPRECATED: The certificate subject to use when generating a self-signed
+# token signing certificate. There is no reason to set this option unless you
+# are requesting revocation lists in a non-production environment. Use a
+# `[signing] certfile` issued from a trusted certificate authority instead.
+# (string value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: `keystone-manage pki_setup` was deprecated in Mitaka and removed in
+# Pike. These options remain for backwards compatibility.
 #cert_subject = /C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com
 
 
@@ -2798,16 +2696,18 @@
 # enforced according to the `[token] enforce_token_bind` option. (list value)
 #bind =
 
-# This controls the token binding enforcement policy on tokens presented to
-# keystone with token binding metadata (as specified by the `[token] bind`
-# option). `disabled` completely bypasses token binding validation.
-# `permissive` and `strict` do not require tokens to have binding metadata (but
-# will validate it if present), whereas `required` will always demand tokens to
-# having binding metadata. `permissive` will allow unsupported binding metadata
-# to pass through without validation (usually to be validated at another time
-# by another component), whereas `strict` and `required` will demand that the
-# included binding metadata be supported by keystone. (string value)
-# Allowed values: disabled, permissive, strict, required
+# DEPRECATED: This controls the token binding enforcement policy on tokens
+# presented to keystone with token binding metadata (as specified by the
+# `[token] bind` option). `disabled` completely bypasses token binding
+# validation. `permissive` and `strict` do not require tokens to have binding
+# metadata (but will validate it if present), whereas `required` will always
+# demand tokens to having binding metadata. `permissive` will allow unsupported
+# binding metadata to pass through without validation (usually to be validated
+# at another time by another component), whereas `strict` and `required` will
+# demand that the included binding metadata be supported by keystone. (string
+# value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
 #enforce_token_bind = permissive
 
 # The amount of time that a token should remain valid (in seconds). Drastically
@@ -2831,12 +2731,13 @@
 # fernet_rotate` command). (string value)
 #provider = fernet
 
-# Entry point for the token persistence backend driver in the
-# `keystone.token.persistence` namespace. Keystone provides `kvs` and `sql`
-# drivers. The `kvs` backend depends on the configuration in the `[kvs]`
-# section. The `sql` option (default) depends on the options in your
-# `[database]` section. If you're using the `fernet` `[token] provider`, this
-# backend will not be utilized to persist tokens at all. (string value)
+# DEPRECATED: Entry point for the token persistence backend driver in the
+# `keystone.token.persistence` namespace. Keystone provides the `sql` driver.
+# The `sql` option (default) depends on the options in your `[database]`
+# section. If you're using the `fernet` `[token] provider`, this backend will
+# not be utilized to persist tokens at all. (string value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
 #driver = sql
 
 # Toggle for caching token creation and validation data. This has no effect
@@ -2857,7 +2758,7 @@
 # `kvs` `[revoke] driver`. (boolean value)
 #revoke_by_id = true
 
-# This toggles whether scoped tokens may be be re-scoped to a new project or
+# This toggles whether scoped tokens may be re-scoped to a new project or
 # domain, thereby preventing users from exchanging a scoped token (including
 # those with a default project scope) for any other token. This forces users to
 # either authenticate for unscoped tokens (and later exchange that unscoped
