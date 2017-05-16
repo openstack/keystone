@@ -579,6 +579,52 @@ class AssignmentTests(AssignmentTestHelperMixin):
             role_id=uuid.uuid4().hex)
         self.assertEqual([], assignment_list)
 
+    def test_list_role_assignments_user_not_found(self):
+        def _user_not_found(value):
+            raise exception.UserNotFound(user_id=value)
+
+        # Note(knikolla): Patch get_user to return UserNotFound
+        # this simulates the possibility of a user being deleted
+        # directly in the backend and still having lingering role
+        # assignments.
+        with mock.patch.object(self.identity_api, 'get_user',
+                               _user_not_found):
+            assignment_list = self.assignment_api.list_role_assignments(
+                include_names=True
+            )
+
+        self.assertNotEqual([], assignment_list)
+        for assignment in assignment_list:
+            if 'user_name' in assignment:
+                # Note(knikolla): In the case of a not found user we
+                # populate the values with empty strings.
+                self.assertEqual('', assignment['user_name'])
+                self.assertEqual('', assignment['user_domain_id'])
+                self.assertEqual('', assignment['user_domain_name'])
+
+    def test_list_role_assignments_group_not_found(self):
+        def _group_not_found(value):
+            raise exception.GroupNotFound(group_id=value)
+
+        # Note(knikolla): Patch get_group to return GroupNotFound
+        # this simulates the case of a group being deleted
+        # directly in the backend and still having lingering role
+        # assignments.
+        with mock.patch.object(self.identity_api, 'get_group',
+                               _group_not_found):
+            assignment_list = self.assignment_api.list_role_assignments(
+                include_names=True
+            )
+
+        self.assertNotEqual([], assignment_list)
+        for assignment in assignment_list:
+            if 'group_name' in assignment:
+                # Note(knikolla): In the case of a not found group we
+                # populate the values with empty strings.
+                self.assertEqual('', assignment['group_name'])
+                self.assertEqual('', assignment['group_domain_id'])
+                self.assertEqual('', assignment['group_domain_name'])
+
     def test_add_duplicate_role_grant(self):
         roles_ref = self.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
