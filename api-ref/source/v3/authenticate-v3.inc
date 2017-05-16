@@ -317,7 +317,6 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
-   - X-Auth-Token: X-Auth-Token
 
 
 Token authentication with scoped authorization
@@ -362,7 +361,6 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
-   - X-Auth-Token: X-Auth-Token
 
 
 Token authentication with explicit unscoped authorization
@@ -445,7 +443,6 @@ Response Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
-   - X-Auth-Token: X-Auth-Token
    - domain: domain
    - methods: auth_methods
    - links: domain_link_response_body
