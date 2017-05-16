@@ -84,7 +84,7 @@ In the Identity v3 API, the uniqueness of attributes is as follows:
 
 - Domain Name. Globally unique across all domains.
 
-- Role Name. Globally unique across all domains.
+- Role Name. Unique within the owning domain.
 
 - User Name. Unique within the owning domain.
 
