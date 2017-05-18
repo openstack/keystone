@@ -29,6 +29,8 @@ import subprocess
 import sys
 import warnings
 
+import openstackdocstheme
+
 # NOTE(dstanek): adds _ to the builtins so keystone modules can be imported
 __builtins__['_'] = str
 
@@ -135,8 +137,8 @@ man_pages = [
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-# html_theme_path = ["."]
-# html_theme = '_theme'
+html_theme_path = [openstackdocstheme.get_html_theme_path()]
+html_theme = 'openstackdocs'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
