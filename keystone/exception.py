@@ -594,8 +594,6 @@ class CredentialEncryptionError(Exception):
                        "from accessing encrypted credentials.")
 
 
-class LDAPServerConnectionError(Error):
-    message_format = _('Timed out waiting to establish a '
-                       'connection to the LDAP Server (%(url)s).')
-    code = 504
-    title = 'Gateway Timeout'
+class LDAPServerConnectionError(UnexpectedError):
+    debug_message_format = _('Unable to establish a connection to '
+                             'LDAP Server (%(url)s).')
