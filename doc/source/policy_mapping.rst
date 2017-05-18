@@ -226,6 +226,6 @@ identity:get_domain_config_default                         - GET /v3/domains/con
 - /v3/projects/{project_id}/users/{user_id}/roles
 - /v3/projects/{project_id}/groups/{group_id}/roles
 - /v3/domains/{domain_id}/users/{user_id}/roles
-- /v3/domains/{domain_id}/groups/{group_id}/role
+- /v3/domains/{domain_id}/groups/{group_id}/roles
 - /v3/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/inherited_to_projects
 - /v3/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/inherited_to_projects
