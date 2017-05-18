@@ -762,7 +762,7 @@ class TestTokenProvider(unit.TestCase):
 
     def test_unsupported_token_provider(self):
         self.config_fixture.config(group='token',
-                                   provider='my.package.MyProvider')
+                                   provider='MyProvider')
         self.assertRaises(ImportError,
                           token.provider.Manager)
 

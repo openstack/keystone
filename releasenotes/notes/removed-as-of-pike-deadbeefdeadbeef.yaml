@@ -36,3 +36,10 @@ other:
     The ``keystone-manage pki_setup`` was added to aid developer setup by hiding the sometimes cryptic
     openssl commands. This is no longer needed since keystone no longer supports PKI tokens and can no
     longer serve SSL. This was deprecated in the Mitaka release.
+  - >
+    [`blueprint removed-as-of-pike <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-pike>`_]
+    Direct import of drivers outside of their `keystone` namespace has been
+    removed. Ex. identity drivers are loaded from the `keystone.identity`
+    namespace and assignment drivers from the `keystone.assignment` namespace.
+    Loading drivers outside of their keystone namespaces was deprecated in the
+    Liberty release.
