@@ -15,7 +15,6 @@
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from keystone_tempest_plugin.tests.api.identity.v3 import fixtures
 from keystone_tempest_plugin.tests import base
@@ -48,7 +47,7 @@ class MappingRulesTest(base.BaseIdentityTest):
         self._assert_mapping_rules_attributes(
             mapping, mapping_id, self._MAPPING_REF)
 
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @decorators.idempotent_id('341dac45-ce1f-4f15-afdc-1f9a7d7d7c40')
     def test_mapping_rules_create_without_mandatory_attributes_fails(self):
         mapping_id = data_utils.rand_uuid_hex()

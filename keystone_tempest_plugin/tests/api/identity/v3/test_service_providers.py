@@ -15,7 +15,6 @@
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from keystone_tempest_plugin.tests.api.identity.v3 import fixtures
 from keystone_tempest_plugin.tests import base
@@ -73,7 +72,7 @@ class ServiceProvidersTest(base.BaseIdentityTest):
 
         self._assert_service_provider_attributes(sp, sp_id, sp_ref)
 
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @decorators.idempotent_id('d9d7454c-50b7-4966-aedb-b9d520a41409')
     def test_service_provider_create_without_mandatory_attributes(self):
         sp_id = data_utils.rand_uuid_hex()
@@ -82,7 +81,7 @@ class ServiceProvidersTest(base.BaseIdentityTest):
             self.sps_client.create_service_provider,
             sp_id)
 
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @decorators.idempotent_id('f77ed1c0-c428-44a7-9364-e8e4362c360a')
     def test_service_provider_create_with_bad_attributes(self):
         sp_id = data_utils.rand_uuid_hex()
@@ -165,7 +164,7 @@ class ServiceProvidersTest(base.BaseIdentityTest):
             'service_provider']
         self.assertFalse(sp_get['enabled'])
 
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @decorators.idempotent_id('91ce1183-1a15-4598-ae5f-85cfa98a1c77')
     def test_service_provider_update_with_bad_attributes_fails(self):
         sp_id = data_utils.rand_uuid_hex()
