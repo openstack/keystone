@@ -471,10 +471,15 @@ MAPPING_DIRECT_MAPPING_THROUGH_KEYWORD = {
         {
             "local": [
                 {
-                    "user": "{0}"
+                    "user": {
+                        "name": "{0}",
+                    }
+
                 },
                 {
-                    "group": TESTER_GROUP_ID
+                    "group": {
+                        "id": TESTER_GROUP_ID
+                    }
                 }
             ],
             "remote": [
