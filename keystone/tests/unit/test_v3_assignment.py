@@ -2512,9 +2512,31 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         for implied in role_inference['implies']:
             self.assertIsNotNone(implied['links']['self'])
 
+    def _assert_expected_role_inference_rule_response(
+            self, expected_prior_id, expected_implied_id):
+        url = '/roles/%s/implies/%s' % (expected_prior_id, expected_implied_id)
+        response = self.get(url).json
+        self.assertThat(response['links']['self'],
+                        matchers.EndsWith('/v3%s' % url))
+        role_inference = response['role_inference']
+        prior_role = role_inference['prior_role']
+        self.assertEqual(expected_prior_id, prior_role['id'])
+        self.assertIsNotNone(prior_role['name'])
+        self.assertThat(prior_role['links']['self'],
+                        matchers.EndsWith('/v3/roles/%s' % expected_prior_id))
+        implied_role = role_inference['implies']
+        self.assertEqual(expected_implied_id, implied_role['id'])
+        self.assertIsNotNone(implied_role['name'])
+        self.assertThat(implied_role['links']['self'], matchers.EndsWith(
+            '/v3/roles/%s' % expected_implied_id))
+
     def _assert_two_roles_implied(self):
         self._assert_expected_implied_role_response(
             self.prior['id'], [self.implied1['id'], self.implied2['id']])
+        self._assert_expected_role_inference_rule_response(
+            self.prior['id'], self.implied1['id'])
+        self._assert_expected_role_inference_rule_response(
+            self.prior['id'], self.implied2['id'])
 
     def _assert_one_role_implied(self):
         self._assert_expected_implied_role_response(
