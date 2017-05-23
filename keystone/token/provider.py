@@ -220,16 +220,16 @@ class Manager(manager.Manager):
             user_id, method_names, expires_at, project_id, domain_id,
             auth_context, trust, include_catalog, parent_audit_id)
 
-        data = dict(key=token_id,
-                    id=token_id,
-                    expires=token_data['token']['expires_at'],
-                    user=token_data['token']['user'],
-                    tenant=token_data['token'].get('project'),
-                    is_domain=is_domain,
-                    token_data=token_data,
-                    trust_id=trust['id'] if trust else None,
-                    token_version=self.V3)
         if self._needs_persistence:
+            data = dict(key=token_id,
+                        id=token_id,
+                        expires=token_data['token']['expires_at'],
+                        user=token_data['token']['user'],
+                        tenant=token_data['token'].get('project'),
+                        is_domain=is_domain,
+                        token_data=token_data,
+                        trust_id=trust['id'] if trust else None,
+                        token_version=self.V3)
             self._create_token(token_id, data)
 
         if CONF.token.cache_on_issue:
