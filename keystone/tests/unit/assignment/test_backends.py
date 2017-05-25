@@ -19,6 +19,7 @@ from testtools import matchers
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 
 
 CONF = keystone.conf.CONF
@@ -605,24 +606,73 @@ class AssignmentTests(AssignmentTestHelperMixin):
         def _group_not_found(value):
             raise exception.GroupNotFound(group_id=value)
 
-        # Note(knikolla): Patch get_group to return GroupNotFound
-        # this simulates the case of a group being deleted
-        # directly in the backend and still having lingering role
-        # assignments.
+        # Setup
+        # 1) Remove any pre-existing assignments so we control what's there
+        for a in self.assignment_api.list_role_assignments():
+            self.assignment_api.delete_grant(**a)
+        # 2) create a group and 2 users in that group
+        domain_id = CONF.identity.default_domain_id
+        group = self.identity_api.create_group(
+            unit.new_group_ref(domain_id=domain_id))
+        user1 = self.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain_id))
+        user2 = self.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain_id))
+        self.identity_api.add_user_to_group(user1['id'], group['id'])
+        self.identity_api.add_user_to_group(user2['id'], group['id'])
+        # 3) create a role assignment for the group
+        self.assignment_api.create_grant(
+            group_id=group['id'],
+            domain_id=domain_id,
+            role_id=default_fixtures.MEMBER_ROLE_ID)
+
+        num_assignments = len(self.assignment_api.list_role_assignments())
+        self.assertEqual(1, num_assignments)
+
+        # Patch get_group to return GroupNotFound, allowing us to confirm
+        # that the exception is handled properly when include_names processing
+        # attempts to lookup a group that has been deleted in the backend
         with mock.patch.object(self.identity_api, 'get_group',
                                _group_not_found):
             assignment_list = self.assignment_api.list_role_assignments(
                 include_names=True
             )
 
-        self.assertNotEqual([], assignment_list)
+        self.assertEqual(num_assignments, len(assignment_list))
         for assignment in assignment_list:
+            includes_group_assignments = False
             if 'group_name' in assignment:
-                # Note(knikolla): In the case of a not found group we
+                includes_group_assignments = True
+                # Note(knikolla): In the case of a not-found group we
                 # populate the values with empty strings.
                 self.assertEqual('', assignment['group_name'])
                 self.assertEqual('', assignment['group_domain_id'])
                 self.assertEqual('', assignment['group_domain_name'])
+        self.assertTrue(includes_group_assignments)
+
+        num_effective = len(self.assignment_api.list_role_assignments(
+            effective=True))
+        self.assertGreater(num_effective, len(assignment_list))
+
+        # Patch list_users_in_group to return GroupNotFound allowing us to
+        # confirm that the exception is handled properly when effective
+        # processing attempts to lookup users for a group that has been deleted
+        # in the backend
+        with mock.patch.object(self.identity_api, 'list_users_in_group',
+                               _group_not_found):
+            assignment_list = self.assignment_api.list_role_assignments(
+                effective=True
+            )
+
+        self.assertGreater(num_effective, len(assignment_list))
+
+        # cleanup
+        self.assignment_api.delete_grant(
+            group_id=group['id'],
+            domain_id=domain_id,
+            role_id=default_fixtures.MEMBER_ROLE_ID)
+        # TODO(edmondsw) should cleanup users/groups as well, but that raises
+        # LDAP read-only issues
 
     def test_add_duplicate_role_grant(self):
         roles_ref = self.assignment_api.get_roles_for_user_and_project(

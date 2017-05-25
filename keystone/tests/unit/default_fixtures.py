@@ -20,6 +20,7 @@ BAR_TENANT_ID = uuid.uuid4().hex
 BAZ_TENANT_ID = uuid.uuid4().hex
 MTU_TENANT_ID = uuid.uuid4().hex
 SERVICE_TENANT_ID = uuid.uuid4().hex
+MEMBER_ROLE_ID = uuid.uuid4().hex
 DEFAULT_DOMAIN_ID = 'default'
 
 TENANTS = [
@@ -139,6 +140,10 @@ ROLES = [
     }, {
         'id': 'service',
         'name': 'Service',
+        'domain_id': None,
+    }, {
+        'id': MEMBER_ROLE_ID,
+        'name': 'member',
         'domain_id': None,
     }
 ]
