@@ -439,20 +439,40 @@ require that these messages are descriptive and accurate.
    code currently incorrectly works. Which strategy is chosen is up to the
    developer.
 
-Further Testing
----------------
+API & Scenario Tests
+--------------------
 
-devstack_ is the *best* way to quickly deploy Keystone with the rest of the
-OpenStack universe and should be critical step in your development workflow!
+Keystone provides API and scenario tests via a `tempest plugin`_ located at
+:func:`~keystone.keystone_tempest_plugin`. This tempest plugin is mainly
+intended for specific scenarios that require a special deployment, such as
+the tests for the ``Federated Identity`` feature. For the deployment of these
+scenarios, keystone also provides a `devstack plugin`_.
 
-You may also be interested in either the
-`OpenStack Continuous Integration Infrastructure`_ or the
-`OpenStack Integration Testing Project`_.
+For example, to setup a working federated environment, add the following lines
+in your `devstack` `local.conf`` file:
 
-.. _devstack: https://docs.openstack.org/developer/devstack/
-.. _OpenStack Continuous Integration Infrastructure: https://docs.openstack.org/infra/system-config
-.. _OpenStack Integration Testing Project: https://git.openstack.org/cgit/openstack/tempest
+.. code-block:: bash
 
+    [[local|localrc]]
+    enable_plugin keystone git://git.openstack.org/openstack/keystone
+    enable_service keystone-saml2-federation
+
+Finally, to run keystone's API and scenario tests, deploy `tempest`_ with
+`devstack`_ (using the configuration above) and then run the following command
+from the tempest directory:
+
+.. code-block:: bash
+
+    tox -e all-plugin -- keystone_tempest_plugin
+
+.. NOTE::
+   Most of keystone's API tests are implemented in `tempest`_ and it is usually
+   the correct place to add new tests.
+
+.. _devstack: https://git.openstack.org/cgit/openstack-dev/devstack
+.. _devstack plugin: https://docs.openstack.org/developer/devstack/plugins.html
+.. _tempest: https://git.openstack.org/cgit/openstack/tempest
+.. _tempest plugin: https://docs.openstack.org/developer/tempest/plugin.html
 
 
 Developing ``doctor`` checks
