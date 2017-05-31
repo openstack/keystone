@@ -4403,7 +4403,8 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust = r.result.get('trust')
         self.assertIsNotNone(trust)
         self.assertEqual(1, trust['remaining_uses'])
-        # FIXME(lbragstad): Assert the role that is returned is the right role.
+        self.assertEqual(self.role['name'], trust['roles'][0]['name'])
+        self.assertEqual(self.role['id'], trust['roles'][0]['id'])
 
     def test_create_one_time_use_trust(self):
         trust = self._initialize_test_consume_trust(1)
