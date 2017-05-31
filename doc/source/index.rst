@@ -85,6 +85,14 @@ the keystone service.
     advanced-topics/index.rst
     sample_files/index.rst
 
+Administrator Guides
+~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+    :maxdepth: 2
+
+    admin/identity-management.rst
+
 API Documentation
 ~~~~~~~~~~~~~~~~~
 An end user can find the specific API documentation here, `OpenStack's Identity API`_.
