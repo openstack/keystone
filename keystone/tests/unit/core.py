@@ -620,6 +620,14 @@ class TestCase(BaseTestCase):
                 'keystone.notifications=INFO',
                 'keystone.identity.backends.ldap.common=INFO',
             ])
+        # NOTE(notmorgan): Set password rounds low here to ensure speedy
+        # tests. This is explicitly set because the tests here are not testing
+        # the integrity of the password hashing, just that the correct form
+        # of hashing has been used. Note that 4 is the lowest for bcrypt
+        # allowed in the `[identity] password_hash_rounds` setting
+        self.config_fixture.config(group='identity', password_hash_rounds=4)
+        self.config_fixture.config(crypt_strength=1000)
+
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,

@@ -14,11 +14,12 @@ import datetime
 import uuid
 
 import freezegun
+import passlib.hash
 
 from keystone.common import controller
+from keystone.common import password_hashing
 from keystone.common import resource_options
 from keystone.common import sql
-from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.identity.backends import base
@@ -28,6 +29,71 @@ from keystone.tests.unit import test_backend_sql
 
 
 CONF = keystone.conf.CONF
+
+
+class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
+    def config_overrides(self):
+        super(UserPasswordHashingTestsNoCompat, self).config_overrides()
+        self.config_fixture.config(group='identity',
+                                   password_hash_algorithm='scrypt')
+
+    def test_password_hashing_compat_not_set_used(self):
+        with sql.session_for_read() as session:
+            user_ref = self.identity_api._get_user(session,
+                                                   self.user_foo['id'])
+        self.assertIsNone(user_ref.password_ref.password)
+        self.assertIsNotNone(user_ref.password_ref.password_hash)
+        self.assertEqual(user_ref.password,
+                         user_ref.password_ref.password_hash)
+        self.assertTrue(password_hashing.check_password(
+            self.user_foo['password'], user_ref.password))
+
+    def test_configured_algorithm_used(self):
+        with sql.session_for_read() as session:
+            user_ref = self.identity_api._get_user(session,
+                                                   self.user_foo['id'])
+        self.assertEqual(
+            passlib.hash.scrypt,
+            password_hashing._get_hasher_from_ident(user_ref.password))
+
+
+class UserPasswordHashingTestsWithCompat(test_backend_sql.SqlTests):
+    def config_overrides(self):
+        super(UserPasswordHashingTestsWithCompat, self).config_overrides()
+        self.config_fixture.config(
+            group='identity',
+            rolling_upgrade_password_hash_compat=True)
+
+    def test_compat_password_hashing(self):
+        with sql.session_for_read() as session:
+            user_ref = self.identity_api._get_user(session,
+                                                   self.user_foo['id'])
+        self.assertIsNotNone(user_ref.password_ref.password)
+        self.assertIsNotNone(user_ref.password_ref.password_hash)
+        self.assertEqual(user_ref.password,
+                         user_ref.password_ref.password_hash)
+        self.assertNotEqual(user_ref.password,
+                            user_ref.password_ref.password)
+        self.assertTrue(password_hashing.check_password(
+            self.user_foo['password'], user_ref.password))
+        self.assertTrue(password_hashing.check_password(
+            self.user_foo['password'], user_ref.password_ref.password))
+
+    def test_user_with_compat_password_hash_only(self):
+        with sql.session_for_write() as session:
+            user_ref = self.identity_api._get_user(session,
+                                                   self.user_foo['id'])
+            user_ref.password_ref.password_hash = None
+
+        with sql.session_for_read() as session:
+            user_ref = self.identity_api._get_user(session,
+                                                   self.user_foo['id'])
+
+        self.assertIsNone(user_ref.password_ref.password_hash)
+        self.assertIsNotNone(user_ref.password)
+        self.assertEqual(user_ref.password, user_ref.password_ref.password)
+        self.assertTrue(password_hashing.check_password(
+            self.user_foo['password'], user_ref.password))
 
 
 class UserResourceOptionTests(test_backend_sql.SqlTests):
@@ -188,7 +254,6 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
 
     def _create_user(self, user_dict):
         user_dict['id'] = uuid.uuid4().hex
-        user_dict = utils.hash_user_password(user_dict)
         with sql.session_for_write() as session:
             user_ref = model.User.from_dict(user_dict)
             session.add(user_ref)
@@ -316,7 +381,6 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
 
     def _create_user(self, user_dict, last_active_at):
         user_dict['id'] = uuid.uuid4().hex
-        user_dict = utils.hash_user_password(user_dict)
         with sql.session_for_write() as session:
             user_ref = model.User.from_dict(user_dict)
             user_ref.last_active_at = last_active_at

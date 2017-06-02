@@ -30,10 +30,10 @@ from oslo_serialization import jsonutils
 from oslo_utils import reflection
 from oslo_utils import strutils
 from oslo_utils import timeutils
-import passlib.hash
 import six
 from six import moves
 
+from keystone.common import password_hashing
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -52,6 +52,12 @@ WHITELISTED_PROPERTIES = [
 # all of keystone to preserve its value as a URN namespace, which is
 # used for ID transformation.
 RESOURCE_ID_NAMESPACE = uuid.UUID('4332ecab-770b-4288-a680-b9aca3b1b153')
+
+# Compatibilty for password hashing functions.
+verify_length_and_trunc_password = password_hashing.verify_length_and_trunc_password  # noqa
+hash_password = password_hashing.hash_password
+hash_user_password = password_hashing.hash_user_password
+check_password = password_hashing.check_password
 
 
 def resource_uuid(value):
@@ -94,58 +100,12 @@ class SmarterEncoder(jsonutils.json.JSONEncoder):
         return super(SmarterEncoder, self).default(obj)
 
 
-def verify_length_and_trunc_password(password):
-    """Verify and truncate the provided password to the max_password_length."""
-    max_length = CONF.identity.max_password_length
-    try:
-        if len(password) > max_length:
-            if CONF.strict_password_check:
-                raise exception.PasswordVerificationError(size=max_length)
-            else:
-                msg = "Truncating user password to %d characters."
-                LOG.warning(msg, max_length)
-                return password[:max_length]
-        else:
-            return password
-    except TypeError:
-        raise exception.ValidationError(attribute='string', target='password')
-
-
 def hash_access_key(access):
     hash_ = hashlib.sha256()
     if not isinstance(access, six.binary_type):
         access = access.encode('utf-8')
     hash_.update(access)
     return hash_.hexdigest()
-
-
-def hash_user_password(user):
-    """Hash a user dict's password without modifying the passed-in dict."""
-    password = user.get('password')
-    if password is None:
-        return user
-
-    return dict(user, password=hash_password(password))
-
-
-def hash_password(password):
-    """Hash a password. Hard."""
-    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
-    return passlib.hash.sha512_crypt.hash(
-        password_utf8, rounds=CONF.crypt_strength)
-
-
-def check_password(password, hashed):
-    """Check that a plaintext password matches hashed.
-
-    hashpw returns the salt value concatenated with the actual hash value.
-    It extracts the actual salt if this value is then passed as the salt.
-
-    """
-    if password is None or hashed is None:
-        return False
-    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
-    return passlib.hash.sha512_crypt.verify(password_utf8, hashed)
 
 
 def attr_as_boolean(val_attr):

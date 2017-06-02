@@ -121,6 +121,13 @@ crypt_strength = cfg.IntOpt(
     default=10000,
     min=1000,
     max=100000,
+    deprecated_since=versionutils.deprecated.PIKE,
+    deprecated_reason=utils.fmt("""
+sha512_crypt is insufficient for password hashes, use of bcrypt, pbkfd2_sha512
+and scrypt are now supported. Options are located in the [identity] config
+block. This option is still used for rolling upgrade compatibility password
+hashing.
+"""),
     help=utils.fmt("""
 The value passed as the keyword "rounds" to passlib's encrypt method. This
 option represents a trade off between security and performance. Higher values
