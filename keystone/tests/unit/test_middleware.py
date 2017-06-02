@@ -713,9 +713,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
                         'request environment.' %
                         CONF.tokenless_auth.issuer_attribute)
         # Check the content of the exception message as well
-        self.assertRaisesRegexp(exception.TokenlessAuthConfigError,
-                                expected_msg,
-                                auth._build_idp_id)
+        self.assertRaisesRegex(exception.TokenlessAuthConfigError,
+                               expected_msg,
+                               auth._build_idp_id)
 
     def test_admin_token_context(self):
         self.config_fixture.config(admin_token='ADMIN')
