@@ -17,7 +17,7 @@ CONF = keystone.conf.CONF
 
 
 def symptom_caching_disabled():
-    """`keystone.conf [caching] enabled` is not enabled.
+    """`keystone.conf [cache] enabled` is not enabled.
 
     Caching greatly improves the performance of keystone, and it is highly
     recommended that you enable it.
