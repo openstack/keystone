@@ -102,9 +102,8 @@ class Manager(manager.Manager):
                 notifications.register_event_callback(event, resource_type,
                                                       callback_fns)
 
-    @property
-    def _needs_persistence(self):
-        return self.driver.needs_persistence()
+    def _needs_persistence(self, token=None):
+        return self.driver.needs_persistence(token=token)
 
     @property
     def _persistence(self):
@@ -165,7 +164,7 @@ class Manager(manager.Manager):
             # to fetch from the backend (the driver persists the token).
             # Otherwise the information about the token must be in the token
             # id.
-            if self._needs_persistence:
+            if self._needs_persistence():
                 token_ref = self._persistence.get_token(token_id)
                 # Overload the token_id variable to be a token reference
                 # instead.
@@ -220,7 +219,7 @@ class Manager(manager.Manager):
             user_id, method_names, expires_at, project_id, domain_id,
             auth_context, trust, include_catalog, parent_audit_id)
 
-        if self._needs_persistence:
+        if self._needs_persistence():
             data = dict(key=token_id,
                         id=token_id,
                         expires=token_data['token']['expires_at'],
@@ -267,7 +266,7 @@ class Manager(manager.Manager):
         else:
             self.revoke_api.revoke_by_audit_id(token_ref.audit_id)
 
-        if CONF.token.revoke_by_id and self._needs_persistence:
+        if CONF.token.revoke_by_id and self._needs_persistence():
             self._persistence.delete_token(token_id=token_id)
 
         # FIXME(morganfainberg): Does this cache actually need to be

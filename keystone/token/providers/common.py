@@ -532,7 +532,8 @@ class BaseProvider(base.Provider):
         access_token = None  # dictionary containing OAUTH1 information
         trust_ref = None  # dictionary containing trust scope
         token_dict = None  # existing token information
-        if self.needs_persistence():
+        print token_id
+        if self.needs_persistence(token=token_id):
             token_ref = token_id
             token_data = token_ref.get('token_data')
             user_id = token_ref['user_id']
