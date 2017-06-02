@@ -514,9 +514,9 @@ class MetadataFileError(UnexpectedError):
 
 
 class DirectMappingError(UnexpectedError):
-    message_format = _("Local section in mapping %(mapping_id)s refers to a "
-                       "remote match that doesn't exist "
-                       "(e.g. {0} in a local section).")
+    debug_message_format = _("Local section in mapping %(mapping_id)s refers "
+                             "to a remote match that doesn't exist "
+                             "(e.g. {0} in a local section).")
 
 
 class AssignmentTypeCalculationError(UnexpectedError):
