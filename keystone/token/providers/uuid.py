@@ -44,6 +44,6 @@ class Provider(common.BaseProvider):
         """
         return True
 
-    def needs_persistence(self):
+    def needs_persistence(self, token=None):
         """Should the token be written to a backend."""
         return True
