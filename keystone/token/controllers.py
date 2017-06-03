@@ -65,9 +65,8 @@ class ExternalAuthNotApplicable(Exception):
     pass
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'identity_api',
-                     'resource_api', 'role_api', 'token_provider_api',
-                     'trust_api')
+@dependency.requires('catalog_api', 'identity_api', 'resource_api',
+                     'token_provider_api', 'trust_api')
 class Auth(controller.V2Controller):
 
     @controller.v2_deprecated
@@ -517,7 +516,7 @@ class ExternalAuthenticationMethod(BaseAuthenticationMethod):
         return (user_ref, tenant_id, expiry, bind, audit_id)
 
 
-@dependency.requires('catalog_api', 'resource_api', 'assignment_api',
+@dependency.requires('catalog_api', 'resource_api',
                      'trust_api', 'identity_api')
 class V2TokenDataHelper(object):
     """Create V2 token data."""
