@@ -16,15 +16,11 @@ import uuid
 from oslo_utils import timeutils
 from six.moves import range
 
-import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.models import token_model
 from keystone.tests.unit import core
 from keystone.tests.unit import test_token_provider
-
-
-CONF = keystone.conf.CONF
 
 
 class TestKeystoneTokenModel(core.TestCase):

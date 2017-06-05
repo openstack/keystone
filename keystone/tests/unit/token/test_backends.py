@@ -19,13 +19,11 @@ from oslo_utils import timeutils
 import six
 from six.moves import range
 
-import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.token import provider
 
 
-CONF = keystone.conf.CONF
 NULL_OBJECT = object()
 
 
