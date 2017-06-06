@@ -79,8 +79,8 @@ Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credenti
 
 Lists all credentials.
 
-Optionally, you can include the ``user_id`` query parameter in the
-URI to filter the response by a user.
+Optionally, you can include the ``user_id`` or ``type`` query parameter in the
+URI to filter the response by a user or credential type.
 
 Normal response codes: 200
 
@@ -92,6 +92,7 @@ Request
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_query
+   - type: credential_type_not_required
 
 Response Parameters
 -------------------
