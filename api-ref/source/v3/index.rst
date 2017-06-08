@@ -27,6 +27,13 @@ For information about Identity API protection, see
 in the OpenStack Cloud Administrator Guide.
 
 =========================
+What's New in Version 3.9
+=========================
+
+- Addition of ``tags`` attribute to project.
+- New APIs to interact with the ``tags`` attribute.
+
+=========================
 What's New in Version 3.8
 =========================
 
@@ -177,6 +184,7 @@ This page lists the Identity API operations in the following order:
 * `Groups`_
 * `Policies`_
 * `Projects`_
+* `Project Tags`_
 * `Regions`_
 * `Roles`_
 * `Service catalog and endpoints`_
@@ -195,6 +203,7 @@ This page lists the Identity API operations in the following order:
 .. include:: os-pki.inc
 .. include:: policies.inc
 .. include:: projects.inc
+.. include:: project-tags.inc
 .. include:: regions-v3.inc
 .. include:: roles.inc
 .. include:: service-catalog.inc

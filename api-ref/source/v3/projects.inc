@@ -86,6 +86,7 @@ Response Parameters
    - links: link_response_body
    - name: project_name_response_body
    - parent_id: project_parent_id_response_body
+   - tags: response_body_project_tags_required
 
 Response Example
 ----------------
