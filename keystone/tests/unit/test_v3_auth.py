@@ -3733,9 +3733,13 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             events_response,
             audit_id=response['audit_ids'][0])
 
-    def test_revoke_by_id_false_returns_gone(self):
+    def test_get_revoke_by_id_false_returns_gone(self):
         self.get('/auth/tokens/OS-PKI/revoked',
                  expected_status=http_client.GONE)
+
+    def test_head_revoke_by_id_false_returns_gone(self):
+        self.head('/auth/tokens/OS-PKI/revoked',
+                  expected_status=http_client.GONE)
 
     def test_list_delete_project_shows_in_event_list(self):
         self.role_data_fixtures()
@@ -5043,12 +5047,16 @@ class TestAuthContext(unit.TestCase):
 
 class TestAuthSpecificData(test_v3.RestfulTestCase):
 
-    def test_get_catalog_project_scoped_token(self):
+    def test_get_catalog_with_project_scoped_token(self):
         """Call ``GET /auth/catalog`` with a project-scoped token."""
-        r = self.get('/auth/catalog')
+        r = self.get('/auth/catalog', expected_status=http_client.OK)
         self.assertValidCatalogResponse(r)
 
-    def test_get_catalog_domain_scoped_token(self):
+    def test_head_catalog_with_project_scoped_token(self):
+        """Call ``HEAD /auth/catalog`` with a project-scoped token."""
+        self.head('/auth/catalog', expected_status=http_client.OK)
+
+    def test_get_catalog_with_domain_scoped_token(self):
         """Call ``GET /auth/catalog`` with a domain-scoped token."""
         # grant a domain role to a user
         self.put(path='/domains/%s/users/%s/roles/%s' % (
@@ -5062,7 +5070,21 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
                 domain_id=self.domain['id']),
             expected_status=http_client.FORBIDDEN)
 
-    def test_get_catalog_unscoped_token(self):
+    def test_head_catalog_with_domain_scoped_token(self):
+        """Call ``HEAD /auth/catalog`` with a domain-scoped token."""
+        # grant a domain role to a user
+        self.put(path='/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id']))
+
+        self.head(
+            '/auth/catalog',
+            auth=self.build_authentication_request(
+                user_id=self.user['id'],
+                password=self.user['password'],
+                domain_id=self.domain['id']),
+            expected_status=http_client.FORBIDDEN)
+
+    def test_get_catalog_with_unscoped_token(self):
         """Call ``GET /auth/catalog`` with an unscoped token."""
         self.get(
             '/auth/catalog',
@@ -5071,25 +5093,50 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
                 password=self.default_domain_user['password']),
             expected_status=http_client.FORBIDDEN)
 
-    def test_get_catalog_no_token(self):
-        """Call ``GET /auth/catalog`` without a token."""
+    def test_head_catalog_with_unscoped_token(self):
+        """Call ``HEAD /auth/catalog`` with an unscoped token."""
+        self.head(
+            '/auth/catalog',
+            auth=self.build_authentication_request(
+                user_id=self.default_domain_user['id'],
+                password=self.default_domain_user['password']),
+            expected_status=http_client.FORBIDDEN)
+
+    def test_get_head_catalog_no_token(self):
+        """Call ``GET & HEAD /auth/catalog`` without a token."""
         self.get(
             '/auth/catalog',
             noauth=True,
-            expected_status=http_client.UNAUTHORIZED)
+            expected_status=http_client.UNAUTHORIZED
+        )
 
-    def test_get_projects_project_scoped_token(self):
-        r = self.get('/auth/projects')
+        self.head(
+            '/auth/catalog',
+            noauth=True,
+            expected_status=http_client.UNAUTHORIZED
+        )
+
+    def test_get_projects_with_project_scoped_token(self):
+        r = self.get('/auth/projects', expected_status=http_client.OK)
         self.assertThat(r.json['projects'], matchers.HasLength(1))
         self.assertValidProjectListResponse(r)
 
-    def test_get_domains_project_scoped_token(self):
+    def test_head_projects_with_project_scoped_token(self):
+        self.head('/auth/projects', expected_status=http_client.OK)
+
+    def test_get_domains_with_project_scoped_token(self):
         self.put(path='/domains/%s/users/%s/roles/%s' % (
             self.domain['id'], self.user['id'], self.role['id']))
 
-        r = self.get('/auth/domains')
+        r = self.get('/auth/domains', expected_status=http_client.OK)
         self.assertThat(r.json['domains'], matchers.HasLength(1))
         self.assertValidDomainListResponse(r)
+
+    def test_head_domains_with_project_scoped_token(self):
+        self.put(path='/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id']))
+
+        self.head('/auth/domains', expected_status=http_client.OK)
 
 
 class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
@@ -5299,7 +5346,7 @@ class TestFetchRevocationList(object):
         super(TestFetchRevocationList, self).config_overrides()
         self.config_fixture.config(group='token', revoke_by_id=True)
 
-    def test_ids_no_tokens(self):
+    def test_get_ids_no_tokens(self):
         # When there's no revoked tokens the response is an empty list, and
         # the response is signed.
         res = self.get('/auth/tokens/OS-PKI/revoked')
@@ -5308,6 +5355,12 @@ class TestFetchRevocationList(object):
                                CONF.signing.ca_certs)
         payload = json.loads(clear)
         self.assertEqual({'revoked': []}, payload)
+
+    def test_head_ids_no_tokens(self):
+        self.head(
+            '/auth/tokens/OS-PKI/revoked',
+            expected_status=http_client.OK
+        )
 
     def test_ids_token(self):
         # When there's a revoked token, it's in the response, and the response
