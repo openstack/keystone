@@ -38,7 +38,9 @@ class Routers(wsgi.RoutersBase):
 
         PUT /OS-FEDERATION/identity_providers/{idp_id}
         GET /OS-FEDERATION/identity_providers
+        HEAD /OS-FEDERATION/identity_providers
         GET /OS-FEDERATION/identity_providers/{idp_id}
+        HEAD /OS-FEDERATION/identity_providers/{idp_id}
         DELETE /OS-FEDERATION/identity_providers/{idp_id}
         PATCH /OS-FEDERATION/identity_providers/{idp_id}
 
@@ -46,7 +48,11 @@ class Routers(wsgi.RoutersBase):
             {idp_id}/protocols/{protocol_id}
         GET /OS-FEDERATION/identity_providers/
             {idp_id}/protocols
+        HEAD /OS-FEDERATION/identity_providers/
+            {idp_id}/protocols
         GET /OS-FEDERATION/identity_providers/
+            {idp_id}/protocols/{protocol_id}
+        HEAD /OS-FEDERATION/identity_providers/
             {idp_id}/protocols/{protocol_id}
         PATCH /OS-FEDERATION/identity_providers/
             {idp_id}/protocols/{protocol_id}
@@ -55,16 +61,22 @@ class Routers(wsgi.RoutersBase):
 
         PUT /OS-FEDERATION/mappings
         GET /OS-FEDERATION/mappings
+        HEAD /OS-FEDERATION/mappings
         PATCH /OS-FEDERATION/mappings/{mapping_id}
         GET /OS-FEDERATION/mappings/{mapping_id}
+        HEAD /OS-FEDERATION/mappings/{mapping_id}
         DELETE /OS-FEDERATION/mappings/{mapping_id}
 
         GET /OS-FEDERATION/projects
+        HEAD /OS-FEDERATION/projects
         GET /OS-FEDERATION/domains
+        HEAD /OS-FEDERATION/domains
 
         PUT /OS-FEDERATION/service_providers/{sp_id}
         GET /OS-FEDERATION/service_providers
+        HEAD /OS-FEDERATION/service_providers
         GET /OS-FEDERATION/service_providers/{sp_id}
+        HEAD /OS-FEDERATION/service_providers/{sp_id}
         DELETE /OS-FEDERATION/service_providers/{sp_id}
         PATCH /OS-FEDERATION/service_providers/{sp_id}
 
@@ -83,6 +95,7 @@ class Routers(wsgi.RoutersBase):
         POST /auth/OS-FEDERATION/saml2
         POST /auth/OS-FEDERATION/saml2/ecp
         GET /OS-FEDERATION/saml2/metadata
+        HEAD /OS-FEDERATION/saml2/metadata
 
         GET /auth/OS-FEDERATION/websso/{protocol_id}
             ?origin=https%3A//horizon.example.com
@@ -110,7 +123,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, idp_controller,
             path=self._construct_url('identity_providers/{idp_id}'),
-            get_action='get_identity_provider',
+            get_head_action='get_identity_provider',
             put_action='create_identity_provider',
             patch_action='update_identity_provider',
             delete_action='delete_identity_provider',
@@ -121,7 +134,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, idp_controller,
             path=self._construct_url('identity_providers'),
-            get_action='list_identity_providers',
+            get_head_action='list_identity_providers',
             rel=build_resource_relation(resource_name='identity_providers'))
 
         # Protocol CRUD operations
@@ -130,7 +143,7 @@ class Routers(wsgi.RoutersBase):
             mapper, protocol_controller,
             path=self._construct_url('identity_providers/{idp_id}/protocols/'
                                      '{protocol_id}'),
-            get_action='get_protocol',
+            get_head_action='get_protocol',
             put_action='create_protocol',
             patch_action='update_protocol',
             delete_action='delete_protocol',
@@ -143,7 +156,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, protocol_controller,
             path=self._construct_url('identity_providers/{idp_id}/protocols'),
-            get_action='list_protocols',
+            get_head_action='list_protocols',
             rel=build_resource_relation(
                 resource_name='identity_provider_protocols'),
             path_vars={
@@ -155,7 +168,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, mapping_controller,
             path=self._construct_url('mappings/{mapping_id}'),
-            get_action='get_mapping',
+            get_head_action='get_mapping',
             put_action='create_mapping',
             patch_action='update_mapping',
             delete_action='delete_mapping',
@@ -167,7 +180,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, mapping_controller,
             path=self._construct_url('mappings'),
-            get_action='list_mappings',
+            get_head_action='list_mappings',
             rel=build_resource_relation(resource_name='mappings'))
 
         # Service Providers CRUD operations
@@ -175,7 +188,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, sp_controller,
             path=self._construct_url('service_providers/{sp_id}'),
-            get_action='get_service_provider',
+            get_head_action='get_service_provider',
             put_action='create_service_provider',
             patch_action='update_service_provider',
             delete_action='delete_service_provider',
@@ -187,20 +200,20 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, sp_controller,
             path=self._construct_url('service_providers'),
-            get_action='list_service_providers',
+            get_head_action='list_service_providers',
             rel=build_resource_relation(resource_name='service_providers'))
 
         self._add_resource(
             mapper, domain_controller,
             path=self._construct_url('domains'),
             new_path='/auth/domains',
-            get_action='list_domains_for_user',
+            get_head_action='list_domains_for_user',
             rel=build_resource_relation(resource_name='domains'))
         self._add_resource(
             mapper, project_controller,
             path=self._construct_url('projects'),
             new_path='/auth/projects',
-            get_action='list_projects_for_user',
+            get_head_action='list_projects_for_user',
             rel=build_resource_relation(resource_name='projects'))
 
         # Auth operations
@@ -248,5 +261,5 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, saml_metadata_controller,
             path=self._construct_url('saml2/metadata'),
-            get_action='get_metadata',
+            get_head_action='get_metadata',
             rel=build_resource_relation(resource_name='metadata'))

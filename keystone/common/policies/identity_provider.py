@@ -25,14 +25,32 @@ identity_provider_policies = [
         name=base.IDENTITY % 'list_identity_providers',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='List identity providers.',
-        operations=[{'path': '/v3/OS-FEDERATION/identity_providers',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_identity_providers',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='Get identity provider.',
-        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,

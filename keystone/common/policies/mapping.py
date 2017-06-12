@@ -26,14 +26,32 @@ mapping_policies = [
         name=base.IDENTITY % 'get_mapping',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='Get a federated mapping.',
-        operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_mappings',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='List federated mappings.',
-        operations=[{'path': '/v3/OS-FEDERATION/mappings',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/mappings',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/OS-FEDERATION/mappings',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_mapping',
         check_str=base.RULE_ADMIN_REQUIRED,
