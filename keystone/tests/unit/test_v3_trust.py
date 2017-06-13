@@ -112,28 +112,44 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             self.assertValidTrustResponse(r, ref)
 
         # list all trusts
-        r = self.get('/OS-TRUST/trusts')
+        list_url = '/OS-TRUST/trusts'
+        r = self.get(list_url)
+        self.head(list_url, expected_status=http_client.OK)
         trusts = r.result['trusts']
         self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
 
         # list all trusts for the trustor
-        r = self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
-                     self.user_id)
+        list_for_trustor_url = (
+            '/OS-TRUST/trusts?trustor_user_id=%s' % self.user_id
+        )
+        r = self.get(list_for_trustor_url)
+        self.head(list_for_trustor_url, expected_status=http_client.OK)
         trusts = r.result['trusts']
         self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
 
         # list all trusts as the trustor as the trustee.
-        r = self.get('/OS-TRUST/trusts?trustee_user_id=%s' %
-                     self.user_id)
+        list_as_trustor_url = (
+            '/OS-TRUST/trusts?trustee_user_id=%s' % self.user_id
+        )
+        r = self.get(list_as_trustor_url)
+        self.head(list_as_trustor_url, expected_status=http_client.OK)
         trusts = r.result['trusts']
         self.assertEqual(0, len(trusts))
 
         # list all trusts as the trustee is forbidden
-        r = self.get('/OS-TRUST/trusts?trustee_user_id=%s' %
-                     self.trustee_user_id,
-                     expected_status=http_client.FORBIDDEN)
+        list_all_as_trustee_url = (
+            '/OS-TRUST/trusts?trustee_user_id=%s' % self.trustee_user_id
+        )
+        r = self.get(
+            list_all_as_trustee_url,
+            expected_status=http_client.FORBIDDEN
+        )
+        self.head(
+            list_all_as_trustee_url,
+            expected_status=http_client.FORBIDDEN
+        )
 
     def test_delete_trust(self):
         # create a trust
