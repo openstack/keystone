@@ -99,7 +99,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, endpoint_filter_controller,
             path=self.PATH_PREFIX + '/endpoints/{endpoint_id}/projects',
-            get_action='list_projects_for_endpoint',
+            get_head_action='list_projects_for_endpoint',
             rel=build_resource_relation(resource_name='endpoint_projects'),
             path_vars={
                 'endpoint_id': json_home.Parameters.ENDPOINT_ID,
@@ -118,7 +118,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, endpoint_filter_controller,
             path=self.PATH_PREFIX + '/projects/{project_id}/endpoints',
-            get_action='list_endpoints_for_project',
+            get_head_action='list_endpoints_for_project',
             rel=build_resource_relation(resource_name='project_endpoints'),
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
@@ -126,7 +126,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, endpoint_group_controller,
             path=self.PATH_PREFIX + '/projects/{project_id}/endpoint_groups',
-            get_action='list_endpoint_groups_for_project',
+            get_head_action='list_endpoint_groups_for_project',
             rel=build_resource_relation(
                 resource_name='project_endpoint_groups'),
             path_vars={
@@ -135,7 +135,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, endpoint_group_controller,
             path=self.PATH_PREFIX + '/endpoint_groups',
-            get_action='list_endpoint_groups',
+            get_head_action='list_endpoint_groups',
             post_action='create_endpoint_group',
             rel=build_resource_relation(resource_name='endpoint_groups'))
         self._add_resource(
@@ -164,7 +164,7 @@ class Routers(wsgi.RoutersBase):
             mapper, endpoint_group_controller,
             path=self.PATH_PREFIX + self.PATH_ENDPOINT_GROUPS + (
                 '/projects'),
-            get_action='list_projects_associated_with_endpoint_group',
+            get_head_action='list_projects_associated_with_endpoint_group',
             rel=build_resource_relation(
                 resource_name='projects_associated_with_endpoint_group'),
             path_vars={
@@ -174,7 +174,7 @@ class Routers(wsgi.RoutersBase):
             mapper, endpoint_group_controller,
             path=self.PATH_PREFIX + self.PATH_ENDPOINT_GROUPS + (
                 '/endpoints'),
-            get_action='list_endpoints_associated_with_endpoint_group',
+            get_head_action='list_endpoints_associated_with_endpoint_group',
             rel=build_resource_relation(
                 resource_name='endpoints_in_endpoint_group'),
             path_vars={
