@@ -72,7 +72,7 @@ class Ec2ExtensionV3(wsgi.V3ExtensionRouter):
         self._add_resource(
             mapper, ec2_controller,
             path='/users/{user_id}/credentials/OS-EC2',
-            get_action='ec2_list_credentials',
+            get_head_action='ec2_list_credentials',
             post_action='ec2_create_credential',
             rel=build_resource_relation(resource_name='user_credentials'),
             path_vars={
@@ -81,7 +81,7 @@ class Ec2ExtensionV3(wsgi.V3ExtensionRouter):
         self._add_resource(
             mapper, ec2_controller,
             path='/users/{user_id}/credentials/OS-EC2/{credential_id}',
-            get_action='ec2_get_credential',
+            get_head_action='ec2_get_credential',
             delete_action='ec2_delete_credential',
             rel=build_resource_relation(resource_name='user_credential'),
             path_vars={
