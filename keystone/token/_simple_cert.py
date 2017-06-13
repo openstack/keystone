@@ -60,12 +60,12 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, controller,
             path=self._construct_url('ca'),
-            get_action='get_ca_certificate',
+            get_head_action='get_ca_certificate',
             rel=build_resource_relation(resource_name='ca_certificate'))
         self._add_resource(
             mapper, controller,
             path=self._construct_url('certificates'),
-            get_action='list_certificates',
+            get_head_action='list_certificates',
             rel=build_resource_relation(resource_name='certificates'))
 
 
