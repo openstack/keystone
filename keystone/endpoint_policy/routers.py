@@ -40,7 +40,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, endpoint_policy_controller,
             path='/policies/{policy_id}' + self.PATH_PREFIX + '/endpoints',
-            get_action='list_endpoints_for_policy',
+            get_head_action='list_endpoints_for_policy',
             rel=build_resource_relation(resource_name='policy_endpoints'),
             path_vars={'policy_id': json_home.Parameters.POLICY_ID})
         self._add_resource(
