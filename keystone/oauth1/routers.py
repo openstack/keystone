@@ -73,13 +73,13 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, consumer_controller,
             path='/OS-OAUTH1/consumers',
-            get_action='list_consumers',
+            get_head_action='list_consumers',
             post_action='create_consumer',
             rel=build_resource_relation(resource_name='consumers'))
         self._add_resource(
             mapper, consumer_controller,
             path='/OS-OAUTH1/consumers/{consumer_id}',
-            get_action='get_consumer',
+            get_head_action='get_consumer',
             patch_action='update_consumer',
             delete_action='delete_consumer',
             rel=build_resource_relation(resource_name='consumer'),
@@ -92,7 +92,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, access_token_controller,
             path='/users/{user_id}/OS-OAUTH1/access_tokens',
-            get_action='list_access_tokens',
+            get_head_action='list_access_tokens',
             rel=build_resource_relation(resource_name='user_access_tokens'),
             path_vars={
                 'user_id': json_home.Parameters.USER_ID,
@@ -100,7 +100,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, access_token_controller,
             path='/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}',
-            get_action='get_access_token',
+            get_head_action='get_access_token',
             delete_action='delete_access_token',
             rel=build_resource_relation(resource_name='user_access_token'),
             path_vars={
@@ -111,7 +111,7 @@ class Routers(wsgi.RoutersBase):
             mapper, access_token_roles_controller,
             path='/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/'
             'roles',
-            get_action='list_access_token_roles',
+            get_head_action='list_access_token_roles',
             rel=build_resource_relation(
                 resource_name='user_access_token_roles'),
             path_vars={
@@ -122,7 +122,7 @@ class Routers(wsgi.RoutersBase):
             mapper, access_token_roles_controller,
             path='/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/'
             'roles/{role_id}',
-            get_action='get_access_token_role',
+            get_head_action='get_access_token_role',
             rel=build_resource_relation(
                 resource_name='user_access_token_role'),
             path_vars={

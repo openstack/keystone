@@ -157,15 +157,18 @@ class ConsumerCRUDTests(OAuth1Tests):
         resp = self.delete(self.CONSUMER_URL + '/%s' % consumer_id)
         self.assertResponseStatus(resp, http_client.NO_CONTENT)
 
-    def test_consumer_get(self):
+    def test_consumer_get_head(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
-        resp = self.get(self.CONSUMER_URL + '/%s' % consumer_id)
+        url = self.CONSUMER_URL + '/%s' % consumer_id
+        resp = self.get(url)
         self_url = ['http://localhost/v3', self.CONSUMER_URL,
                     '/', consumer_id]
         self_url = ''.join(self_url)
         self.assertEqual(self_url, resp.result['consumer']['links']['self'])
         self.assertEqual(consumer_id, resp.result['consumer']['id'])
+
+        self.head(url, expected_status=http_client.OK)
 
     def test_consumer_list(self):
         self._consumer_create()
@@ -176,6 +179,8 @@ class ConsumerCRUDTests(OAuth1Tests):
         self_url = ''.join(self_url)
         self.assertEqual(self_url, resp.result['links']['self'])
         self.assertValidListLinks(resp.result['links'])
+
+        self.head(self.CONSUMER_URL, expected_status=http_client.OK)
 
     def test_consumer_update(self):
         consumer = self._create_single_consumer()
@@ -250,9 +255,12 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertIsNotNone(consumer['secret'])
 
     def test_consumer_get_bad_id(self):
-        self.get(self.CONSUMER_URL + '/%(consumer_id)s'
-                 % {'consumer_id': uuid.uuid4().hex},
-                 expected_status=http_client.NOT_FOUND)
+        url = (
+            self.CONSUMER_URL + '/%(consumer_id)s' %
+            {'consumer_id': uuid.uuid4().hex}
+        )
+        self.get(url, expected_status=http_client.NOT_FOUND)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
 
 class OAuthFlowTests(OAuth1Tests):
@@ -310,11 +318,16 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                     expected_status=http_client.NOT_FOUND)
 
     def test_list_no_access_tokens(self):
-        resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
-                        % {'user_id': self.user_id})
+        url = (
+            '/users/%(user_id)s/OS-OAUTH1/access_tokens'
+            % {'user_id': self.user_id}
+        )
+        resp = self.get(url)
         entities = resp.result['access_tokens']
         self.assertEqual([], entities)
         self.assertValidListLinks(resp.result['links'])
+
+        self.head(url, expected_status=http_client.OK)
 
     def test_get_single_access_token(self):
         self.test_oauth_flow()
@@ -330,20 +343,30 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertEqual(self.consumer['key'], entity['consumer_id'])
         self.assertEqual('http://localhost/v3' + url, entity['links']['self'])
 
+        self.head(url, expected_status=http_client.OK)
+
     def test_get_access_token_dne(self):
-        self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
-                 % {'user_id': self.user_id,
-                    'key': uuid.uuid4().hex},
-                 expected_status=http_client.NOT_FOUND)
+        url = (
+            '/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s'
+            % {'user_id': self.user_id,
+               'key': uuid.uuid4().hex}
+        )
+        self.get(url, expected_status=http_client.NOT_FOUND)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_list_all_roles_in_access_token(self):
         self.test_oauth_flow()
-        resp = self.get('/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles'
-                        % {'id': self.user_id,
-                           'key': self.access_token.key.decode()})
+        url = (
+            '/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles'
+            % {'id': self.user_id,
+               'key': self.access_token.key.decode()}
+        )
+        resp = self.get(url)
         entities = resp.result['roles']
         self.assertTrue(entities)
         self.assertValidListLinks(resp.result['links'])
+
+        self.head(url, expected_status=http_client.OK)
 
     def test_get_role_in_access_token(self):
         self.test_oauth_flow()
@@ -356,6 +379,8 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         entity = resp.result['role']
         self.assertEqual(self.role_id, entity['id'])
 
+        self.head(url, expected_status=http_client.OK)
+
     def test_get_role_in_access_token_dne(self):
         self.test_oauth_flow()
 
@@ -364,12 +389,17 @@ class AccessTokenCRUDTests(OAuthFlowTests):
                % {'id': self.user_id, 'key': access_token_key,
                   'role': uuid.uuid4().hex})
         self.get(url, expected_status=http_client.NOT_FOUND)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
     def test_list_and_delete_access_tokens(self):
         self.test_oauth_flow()
         # List access_tokens should be > 0
-        resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
-                        % {'user_id': self.user_id})
+        url = (
+            '/users/%(user_id)s/OS-OAUTH1/access_tokens'
+            % {'user_id': self.user_id}
+        )
+        resp = self.get(url)
+        self.head(url, expected_status=http_client.OK)
         entities = resp.result['access_tokens']
         self.assertTrue(entities)
         self.assertValidListLinks(resp.result['links'])
@@ -382,8 +412,8 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertResponseStatus(resp, http_client.NO_CONTENT)
 
         # List access_token should be 0
-        resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
-                        % {'user_id': self.user_id})
+        resp = self.get(url)
+        self.head(url, expected_status=http_client.OK)
         entities = resp.result['access_tokens']
         self.assertEqual([], entities)
         self.assertValidListLinks(resp.result['links'])
