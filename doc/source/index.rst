@@ -47,6 +47,13 @@ client library`_.
 .. _`Authentication library`: https://docs.openstack.org/developer/keystoneauth/
 .. _`Python client library`: https://docs.openstack.org/developer/python-keystoneclient/
 
+Installation Guides
+~~~~~~~~~~~~~~~~~~~
+.. toctree::
+    :maxdepth: 2
+
+    install/index.rst
+
 General Information
 ~~~~~~~~~~~~~~~~~~~
 
