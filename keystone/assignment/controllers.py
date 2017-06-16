@@ -500,6 +500,10 @@ class ImpliedRolesV3(controller.V3Controller):
         implied_role = self.role_api.get_role(implied_id)
         stanza = self._implied_role_stanza(endpoint, implied_role)
         response["role_inference"]['implies'] = stanza
+        response["links"] = {
+            "self": (endpoint + "/v3/roles/" + prior_id
+                     + "/implies/" + implied_id)
+        }
         return response
 
     @controller.protected(callback=_check_implies_role)
