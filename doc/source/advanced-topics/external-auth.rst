@@ -4,10 +4,10 @@ Using external authentication with Keystone
 .. _external-auth:
 
 When Keystone is executed in a web server like :doc:`Apache HTTPD
-<apache-httpd>`, it is possible to have the web server also handle
-authentication. This enables support for additional methods of authentication
-that are not provided by the identity store backend and the authentication
-plugins that Keystone supports.
+<../getting-started/apache-httpd>`, it is possible to have the web server
+also handle authentication. This enables support for additional methods of
+authentication that are not provided by the identity store backend and
+the authentication plugins that Keystone supports.
 
 Having the web server handle authentication is not exclusive, and both
 Keystone and the web server can provide different methods of authentication at
@@ -72,7 +72,8 @@ server, that will pass down the authenticated user to Keystone using the
 ``REMOTE_USER`` environment variable. This user must exist in advance in the
 identity backend to get a token from the controller.
 
-To use this method, Keystone should be running on :doc:`HTTPD <apache-httpd>`.
+To use this method, Keystone should be running on
+:doc:`HTTPD <../getting-started/apache-httpd>`.
 
 X.509 example
 -------------

@@ -237,7 +237,8 @@ class PolicyJsonTestCase(unit.TestCase):
             # targets.
 
             doc_path = os.path.join(
-                unit.ROOTDIR, 'doc', 'source', 'policy_mapping.rst')
+                unit.ROOTDIR, 'doc', 'source', 'getting-started',
+                'policy_mapping.rst')
             with open(doc_path) as doc_file:
                 for line in doc_file:
                     if line.startswith('Target'):

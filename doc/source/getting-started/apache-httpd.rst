@@ -1,4 +1,3 @@
-
 ..
       Copyright 2011-2012 OpenStack Foundation
       All Rights Reserved.
@@ -105,7 +104,7 @@ Update the file to match your system configuration. Note the following:
 
 Keystone's primary configuration file (``etc/keystone.conf``) and the
 PasteDeploy configuration file (``etc/keystone-paste.ini``) must be readable to
-HTTPD in one of the default locations described in :doc:`configuration`.
+HTTPD in one of the default locations described in :doc:`../configuration`.
 
 Configuration file location can be customized using the ``OS_KEYSTONE_CONFIG_DIR``
 environment variable: if this is set, the ``keystone.conf`` file will be searched

@@ -22,7 +22,8 @@ Prerequisites
 -------------
 
 In order to follow this tutorial, it is assumed that you have read our
-:doc:`development_best_practices` and :doc:`../architecture` documents.
+:doc:`development_best_practices` and :doc:`../getting-started/architecture`
+documents.
 
 Proposing a change
 ------------------
@@ -73,8 +74,9 @@ code to implement such change.
 Architectural Recapitulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As you saw in the :doc:`../architecture` document, there are four logical levels of
-code at which a successful request calls: router, controller, manager and
+As you saw in the :doc:`../getting-started/architecture` document, there are
+four logical levels of code at which a successful request calls: router,
+controller, manager and
 driver.
 
 For the role backend, they can be found in the directory `keystone/assignment`,

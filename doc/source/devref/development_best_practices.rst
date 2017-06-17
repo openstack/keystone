@@ -22,7 +22,7 @@ Setting up Keystone
 ===================
 
 Get your development environment set up according to
-:doc:`development.environment`. It is recommended that you install
+:doc:`development_environment`. It is recommended that you install
 Keystone into a virtualenv.
 
 
@@ -235,7 +235,7 @@ Running Tests
 
 Before running tests, you should have ``tox`` installed and available in your
 environment (in addition to the other external dependencies in
-:doc:`development.environment`):
+:doc:`development_environment`):
 
 .. code-block:: bash
 
