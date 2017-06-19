@@ -1710,6 +1710,13 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         checker = cli.DbSync()
         latest_version = self.repos[EXPAND_REPO].max_version
 
+        # If the expand repository doesn't exist yet, then we need to make sure
+        # we advertise that `--expand` must be run first.
+        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
+        status = checker.check_db_sync_status()
+        self.assertIn("keystone-manage db_sync --expand", log_info.output)
+        self.assertEqual(status, 2)
+
         # Assert the correct message is printed when expand is the first step
         # that needs to run
         self.expand(1)
