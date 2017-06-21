@@ -99,12 +99,12 @@ password. You can mark a user as exempt by setting the user options attribute
     in your service account passwords becoming expired after being reset.
 
 When ready, you can configure it so that users are forced to change their
-password upon first use by setting ``change_password_after_first_use``:
+password upon first use by setting ``change_password_upon_first_use``:
 
 .. code-block:: ini
 
     [security_compliance]
-    change_password_after_first_use = True
+    change_password_upon_first_use = True
 
 .. _`user API`: http://developer.openstack.org/api-ref/identity/v3/index.html#users
 
