@@ -14,16 +14,12 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-==========================
-Building the Documentation
-==========================
+===================
+External Developers
+===================
 
-The documentation is generated with Sphinx using the tox command. To create HTML
-docs and man pages:
+.. toctree::
+   :maxdepth: 1
 
-.. code-block:: bash
-
-    $ tox -e docs
-
-The results are in the ``doc/build/html`` and ``doc/build/man`` directories
-respectively.
+   services.rst
+   developing-drivers.rst
