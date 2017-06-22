@@ -582,7 +582,7 @@ to based on the X-Auth-Token provided in the request.
 The structure of the response is exactly the same as listing projects
 for a user.
 
-Normal response codes: 204
+Normal response codes: 200
 
 Error response codes: 413,415,405,404,403,401,400,503,409
 
@@ -625,7 +625,7 @@ to based on the X-Auth-Token provided in the request.
 
 The structure is the same as listing domains.
 
-Normal response codes: 204
+Normal response codes: 200
 
 Error response codes: 413,415,405,404,403,401,400,503,409
 

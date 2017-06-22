@@ -34,24 +34,24 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, auth_controller,
             path='/auth/tokens/OS-PKI/revoked',
-            get_action='revocation_list',
+            get_head_action='revocation_list',
             rel=json_home.build_v3_extension_resource_relation(
                 'OS-PKI', '1.0', 'revocations'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/catalog',
-            get_action='get_auth_catalog',
+            get_head_action='get_auth_catalog',
             rel=json_home.build_v3_resource_relation('auth_catalog'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/projects',
-            get_action='get_auth_projects',
+            get_head_action='get_auth_projects',
             rel=json_home.build_v3_resource_relation('auth_projects'))
 
         self._add_resource(
             mapper, auth_controller,
             path='/auth/domains',
-            get_action='get_auth_domains',
+            get_head_action='get_auth_domains',
             rel=json_home.build_v3_resource_relation('auth_domains'))

@@ -19,22 +19,49 @@ auth_policies = [
         name=base.IDENTITY % 'get_auth_catalog',
         check_str='',
         description='Get service catalog.',
-        operations=[{'path': '/v3/auth/catalog',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/auth/catalog',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/auth/catalog',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_projects',
         check_str='',
         description=('List all projects a user has access to via role '
                      'assignments.'),
-        operations=[{'path': '/v3/auth/projects',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/auth/projects',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/auth/projects',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_domains',
         check_str='',
         description=('List all domains a user has access to via role '
                      'assignments.'),
-        operations=[{'path': '/v3/auth/domains',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/auth/domains',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/auth/domains',
+                'method': 'HEAD'
+            }
+        ]
+    )
 ]
 
 
