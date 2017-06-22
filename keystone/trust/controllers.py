@@ -87,11 +87,15 @@ class TrustV3(controller.V3Controller):
                 hints = driver_hints.Hints()
                 hints.add_filter("name", name, case_sensitive=True)
                 found_roles = self.role_api.list_roles(hints)
-                if len(found_roles) == 1:
+                if not found_roles:
+                    raise exception.RoleNotFound(
+                        _("Role %s is not defined") % name
+                    )
+                elif len(found_roles) == 1:
                     roles.append({'id': found_roles[0]['id']})
                 else:
-                    raise exception.RoleNotFound(_("role %s is not defined") %
-                                                 name)
+                    raise exception.AmbiguityError(resource='role',
+                                                   name=name)
         return roles
 
     def _find_redelegated_trust(self, request):

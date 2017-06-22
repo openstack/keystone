@@ -244,6 +244,21 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts', body={'trust': ref},
                   expected_status=http_client.NOT_FOUND)
 
+    def test_create_trust_with_role_name_ambiguous_returns_bad_request(self):
+        # Create second role with the same name
+        role_ref = unit.new_role_ref(name=self.role['name'],
+                                     domain_id=uuid.uuid4().hex)
+        self.post('/roles', body={'role': role_ref})
+
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_names=[self.role['name']]
+        )
+        self.post('/OS-TRUST/trusts', body={'trust': ref},
+                  expected_status=http_client.BAD_REQUEST)
+
     def test_validate_trust_scoped_token_against_v2(self):
         # get a project-scoped token
         auth_data = self.build_authentication_request(
