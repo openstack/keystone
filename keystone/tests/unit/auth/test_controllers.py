@@ -72,7 +72,14 @@ class TestLoadAuthMethod(unit.BaseTestCase):
         self.useFixture(fixtures.MockPatchObject(
             importutils, 'import_object', return_value=mock.sentinel.driver))
 
+        log_fixture = self.useFixture(fixtures.FakeLogger())
+
         driver = core.load_auth_method(method)
+
+        # Loading entrypoint fails
+        self.assertIn('Direct import of auth plugin', log_fixture.output)
+
+        # Import works
         self.assertIs(mock.sentinel.driver, driver)
 
     def test_entrypoint_fails_import_fails(self):
