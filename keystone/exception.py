@@ -165,6 +165,12 @@ class ValidationSizeError(Error):
     title = http_client.responses[http_client.BAD_REQUEST]
 
 
+class AmbiguityError(ValidationError):
+    message_format = _("There are multiple %(resource)s entities named"
+                       " '%(name)s'. Please use ID instead of names to"
+                       " resolve the ambiguity.")
+
+
 class CircularRegionHierarchyError(Error):
     message_format = _("The specified parent region %(parent_region_id)s "
                        "would create a circular region hierarchy.")
