@@ -14,8 +14,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-Release Notes
-=============
+==========================
+Working with Release Notes
+==========================
 
 The Keystone team uses `reno
 <https://docs.openstack.org/developer/reno/usage.html>`_ to generate release

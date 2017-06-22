@@ -11,9 +11,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-===================
-API Change Tutorial
-===================
+====================
+Making an API Change
+====================
 
 This document will guide you through the process of proposing and submitting
 an API change to keystone.

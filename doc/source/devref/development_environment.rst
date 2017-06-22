@@ -14,9 +14,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-====================================
-Setting up a Development Environment
-====================================
+==========================
+Setting up the Environment
+==========================
 
 This document describes getting the source from keystone's `Git Repository`_
 and setting the environment up for development purposes.
