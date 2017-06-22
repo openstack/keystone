@@ -229,6 +229,8 @@ class Routers(wsgi.RoutersBase):
             mapper, grant_controller,
             path='/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/'
             'inherited_to_projects',
+            # TODO(samueldmq): Change the below to get_head_action for
+            # consistency with all the rest of APIs. See bug 1696574
             get_action='list_grants',
             rel=build_os_inherit_relation(
                 resource_name='domain_group_roles_inherited_to_projects'),
@@ -240,6 +242,8 @@ class Routers(wsgi.RoutersBase):
             mapper, grant_controller,
             path='/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'
             'inherited_to_projects',
+            # TODO(samueldmq): Change the below to get_head_action for
+            # consistency with all the rest of APIs. See bug 1696574
             get_action='list_grants',
             rel=build_os_inherit_relation(
                 resource_name='domain_user_roles_inherited_to_projects'),
