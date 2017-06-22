@@ -14,30 +14,15 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-=========================
-Contributor Documentation
-=========================
+Building the Documentation
+==========================
 
-.. toctree::
-   :maxdepth: 1
+The documentation is generated with Sphinx using the tox command. To create HTML
+docs and man pages:
 
-   setup.rst
-   conf.rst
-   run-keystone.rst
-   initialise.rst
-   interact.rst
-   build-docs.rst
-   release-notes.rst
-   testing-keystone.rst
-   doctor-checks.rst
-   database-migrations.rst
-   filtering-responsibilities.rst
-   list-truncation.rst
-   id-manage.rst
-   translated-responses.rst
-   caching-layer.rst
-   development_environment.rst
-   developing_drivers.rst
-   api_change_tutorial.rst
-   http-api.rst
-   services.rst
+.. code-block:: bash
+
+    $ tox -e docs
+
+The results are in the ``doc/build/html`` and ``doc/build/man`` directories
+respectively.

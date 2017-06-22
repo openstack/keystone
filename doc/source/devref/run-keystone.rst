@@ -14,30 +14,15 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-=========================
-Contributor Documentation
-=========================
+Running Keystone
+================
 
-.. toctree::
-   :maxdepth: 1
+To run the Keystone Admin and API server instances, use:
 
-   setup.rst
-   conf.rst
-   run-keystone.rst
-   initialise.rst
-   interact.rst
-   build-docs.rst
-   release-notes.rst
-   testing-keystone.rst
-   doctor-checks.rst
-   database-migrations.rst
-   filtering-responsibilities.rst
-   list-truncation.rst
-   id-manage.rst
-   translated-responses.rst
-   caching-layer.rst
-   development_environment.rst
-   developing_drivers.rst
-   api_change_tutorial.rst
-   http-api.rst
-   services.rst
+.. code-block:: bash
+
+    $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
+
+This runs Keystone with the configuration the etc/ directory of the project.
+See :doc:`../configuration` for details on how Keystone is configured. By default,
+Keystone is configured with SQL backends.
