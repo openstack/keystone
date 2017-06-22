@@ -215,6 +215,26 @@ Note a few key differences when compared to the v2.0 API:
   instead of as part of the request body. You should still authenticate
   yourself to other services using the ``X-Auth-Token`` header.
 
+Why do I see deployments with Keystone running on two ports?
+============================================================
+
+During development of the v2.0 API, operational functionality was isolated into
+different applications within the project. One application was dedicated to
+end-user functionality and its sole purpose was to authenticate and validate
+user identities. The second application consisted of more features and allowed
+operators the ability to manage their deployment by adding or deleting users,
+creating projects, etc. These applications were referred to as the ``public``
+and ``admin`` APIs, respectively. This deployment model was required by the
+architecture of the v2.0 API. In a way, authorization was limited to the
+application you had access to.
+
+Once development began on the v3 API, the code paths for both applications were
+merged into one. Instead of isolating functionality into separate applications,
+all functionality was consolidated into a single application. Each v3 endpoint
+or API is protected by policy instead. This makes deployment and management of
+Keystone's infrastructure easier for operators to deploy and for users to
+consume. As a result, Keystone deployments interested in only the v3 API are
+not required to deploy separate ``admin`` and ``public`` endpoints.
 
 HTTP/1.1 Chunked Encoding
 =========================
