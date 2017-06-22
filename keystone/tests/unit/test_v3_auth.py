@@ -5102,14 +5102,16 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
                 password=self.default_domain_user['password']),
             expected_status=http_client.FORBIDDEN)
 
-    def test_get_head_catalog_no_token(self):
-        """Call ``GET & HEAD /auth/catalog`` without a token."""
+    def test_get_catalog_no_token(self):
+        """Call ``GET /auth/catalog`` without a token."""
         self.get(
             '/auth/catalog',
             noauth=True,
             expected_status=http_client.UNAUTHORIZED
         )
 
+    def test_head_catalog_no_token(self):
+        """Call ``HEAD /auth/catalog`` without a token."""
         self.head(
             '/auth/catalog',
             noauth=True,
