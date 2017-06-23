@@ -36,6 +36,17 @@ community.
 
 .. _`source tree`: https://git.openstack.org/cgit/openstack/keystone/tree/doc/source
 
+Related Projects
+~~~~~~~~~~~~~~~~
+
+In addition to creating OpenStack's Identity Service, the Keystone team also
+provides a `WSGI middleware`_, an `Authentication library`_ and a `Python
+client library`_.
+
+.. _`WSGI middleware`: https://docs.openstack.org/developer/keystonemiddleware/
+.. _`Authentication library`: https://docs.openstack.org/developer/keystoneauth/
+.. _`Python client library`: https://docs.openstack.org/developer/python-keystoneclient/
+
 General Information
 ~~~~~~~~~~~~~~~~~~~
 
@@ -46,7 +57,6 @@ please see the subsequent sections.
 .. toctree::
     :maxdepth: 2
 
-    related_projects.rst
     getting-started/index.rst
     man/index.rst
     code_documentation.rst
