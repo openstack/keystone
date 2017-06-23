@@ -26,15 +26,34 @@ service_provider_policies = [
         name=base.IDENTITY % 'list_service_providers',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='List federated service providers.',
-        operations=[{'path': '/v3/OS-FEDERATION/service_providers',
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/service_providers',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/OS-FEDERATION/service_providers',
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='Get federated service provider.',
-        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
-                              '{service_provider_id}'),
-                     'method': 'GET'}]),
+        operations=[
+            {
+                'path': ('/v3/OS-FEDERATION/service_providers/'
+                         '{service_provider_id}'),
+                'method': 'GET'
+            },
+            {
+                'path': ('/v3/OS-FEDERATION/service_providers/'
+                         '{service_provider_id}'),
+                'method': 'HEAD'
+            }
+        ]
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service_provider',
         check_str=base.RULE_ADMIN_REQUIRED,

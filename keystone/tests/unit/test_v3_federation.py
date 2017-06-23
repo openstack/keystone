@@ -1137,7 +1137,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         self.assertIn('Duplicate remote ID',
                       resp_data['error']['message'])
 
-    def test_list_idps(self, iterations=5):
+    def test_list_head_idps(self, iterations=5):
         """List all available IdentityProviders.
 
         This test collects ids of created IdPs and
@@ -1170,7 +1170,9 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         ids_intersection = entities_ids.intersection(ids)
         self.assertEqual(ids_intersection, ids)
 
-    def test_filter_list_idp_by_id(self):
+        self.head(url, expected_status=http_client.OK)
+
+    def test_filter_list_head_idp_by_id(self):
         def get_id(resp):
             r = self._fetch_attribute_from_response(resp,
                                                     'identity_provider')
@@ -1194,7 +1196,9 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         self.assertThat(filtered_service_list, matchers.HasLength(1))
         self.assertEqual(idp1_id, filtered_service_list[0].get('id'))
 
-    def test_filter_list_idp_by_enabled(self):
+        self.head(url, expected_status=http_client.OK)
+
+    def test_filter_list_head_idp_by_enabled(self):
         def get_id(resp):
             r = self._fetch_attribute_from_response(resp,
                                                     'identity_provider')
@@ -1221,6 +1225,8 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         self.assertThat(filtered_service_list, matchers.HasLength(1))
         self.assertEqual(idp1_id, filtered_service_list[0].get('id'))
 
+        self.head(url, expected_status=http_client.OK)
+
     def test_check_idp_uniqueness(self):
         """Add same IdP twice.
 
@@ -1241,7 +1247,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         self.assertIn('Duplicate entry',
                       resp_data.get('error', {}).get('message'))
 
-    def test_get_idp(self):
+    def test_get_head_idp(self):
         """Create and later fetch IdP."""
         body = self._http_idp_input()
         domain = unit.new_domain_ref()
@@ -1259,6 +1265,8 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         self.assertValidResponse(resp, 'identity_provider',
                                  dummy_validator, keys_to_check=body_keys,
                                  ref=body)
+
+        self.head(url, expected_status=http_client.OK)
 
     def test_get_nonexisting_idp(self):
         """Fetch nonexisting IdP entity.
@@ -1446,7 +1454,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                      validate=False,
                                      **kwargs)
 
-    def test_get_protocol(self):
+    def test_get_head_protocol(self):
         """Create and later fetch protocol tied to IdP."""
         resp, idp_id, proto = self._assign_protocol_to_idp(
             expected_status=http_client.CREATED)
@@ -1465,7 +1473,9 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                  keys_to_check=reference_keys,
                                  ref=reference)
 
-    def test_list_protocols(self):
+        self.head(url, expected_status=http_client.OK)
+
+    def test_list_head_protocols(self):
         """Create set of protocols and later list them.
 
         Compare input and output id sets.
@@ -1493,6 +1503,8 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         entities = set([entity['id'] for entity in entities])
         protocols_intersection = entities.intersection(protocol_ids)
         self.assertEqual(protocols_intersection, set(protocol_ids))
+
+        self.head(url, expected_status=http_client.OK)
 
     def test_update_protocols_attribute(self):
         """Update protocol's attribute."""
@@ -1573,7 +1585,7 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
         resp = self._create_default_mapping_entry()
         self.assertValidMappingResponse(resp, mapping_fixtures.MAPPING_LARGE)
 
-    def test_mapping_list(self):
+    def test_mapping_list_head(self):
         url = self.MAPPING_URL
         self._create_default_mapping_entry()
         resp = self.get(url)
@@ -1582,6 +1594,7 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
         self.assertResponseStatus(resp, http_client.OK)
         self.assertValidListLinks(resp.result.get('links'))
         self.assertEqual(1, len(entities))
+        self.head(url, expected_status=http_client.OK)
 
     def test_mapping_delete(self):
         url = self.MAPPING_URL + '%(mapping_id)s'
@@ -1592,13 +1605,14 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
         self.assertResponseStatus(resp, http_client.NO_CONTENT)
         self.get(url, expected_status=http_client.NOT_FOUND)
 
-    def test_mapping_get(self):
+    def test_mapping_get_head(self):
         url = self.MAPPING_URL + '%(mapping_id)s'
         resp = self._create_default_mapping_entry()
         mapping_id = self._get_id_from_response(resp)
         url = url % {'mapping_id': mapping_id}
         resp = self.get(url)
         self.assertValidMappingResponse(resp, mapping_fixtures.MAPPING_LARGE)
+        self.head(url, expected_status=http_client.OK)
 
     def test_mapping_update(self):
         url = self.MAPPING_URL + '%(mapping_id)s'
@@ -3052,7 +3066,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         # compare
         self.assertItemsEqual(auth_domains, fed_domains)
 
-    def test_list_domains_for_user_duplicates(self):
+    def test_list_head_domains_for_user_duplicates(self):
         # create role
         role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
@@ -3064,6 +3078,12 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         r = self.get('/OS-FEDERATION/domains', token=unscoped_token)
         group_domains = r.result['domains']
         domain_from_group = group_domains[0]
+
+        self.head(
+            '/OS-FEDERATION/domains',
+            token=unscoped_token,
+            expected_status=http_client.OK
+        )
 
         # assign group domain and role to user, this should create a
         # duplicate domain
@@ -3079,7 +3099,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             self.assertNotIn(domain['id'], user_domain_ids)
             user_domain_ids.append(domain['id'])
 
-    def test_list_projects_for_user_duplicates(self):
+    def test_list_head_projects_for_user_duplicates(self):
         # create role
         role_ref = unit.new_role_ref()
         self.role_api.create_role(role_ref['id'], role_ref)
@@ -3091,6 +3111,12 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         r = self.get('/OS-FEDERATION/projects', token=unscoped_token)
         group_projects = r.result['projects']
         project_from_group = group_projects[0]
+
+        self.head(
+            '/OS-FEDERATION/projects',
+            token=unscoped_token,
+            expected_status=http_client.OK
+        )
 
         # assign group project and role to user, this should create a
         # duplicate project
@@ -4040,9 +4066,10 @@ class IdPMetadataGenerationTests(test_v3.RestfulTestCase):
         self.get(self.METADATA_URL,
                  expected_status=http_client.INTERNAL_SERVER_ERROR)
 
-    def test_get_metadata(self):
+    def test_get_head_metadata(self):
         self.config_fixture.config(
             group='saml', idp_metadata_path=XMLDIR + '/idp_saml2_metadata.xml')
+        self.head(self.METADATA_URL, expected_status=http_client.OK)
         r = self.get(self.METADATA_URL, response_content_type='text/xml')
         self.assertEqual('text/xml', r.headers.get('Content-Type'))
 
@@ -4096,11 +4123,12 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
                         expected_status=http_client.CREATED)
         return resp
 
-    def test_get_service_provider(self):
+    def test_get_head_service_provider(self):
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         resp = self.get(url)
         self.assertValidEntity(resp.result['service_provider'],
                                keys_to_check=self.SP_KEYS)
+        resp = self.head(url, expected_status=http_client.OK)
 
     def test_get_service_provider_fail(self):
         url = self.base_url(suffix=uuid.uuid4().hex)
@@ -4244,7 +4272,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
         self.put(url, body={'service_provider': sp},
                  expected_status=http_client.BAD_REQUEST)
 
-    def test_list_service_providers(self):
+    def test_list_head_service_providers(self):
         """Test listing of service provider objects.
 
         Add two new service providers. List all available service providers.
@@ -4276,6 +4304,8 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
             self.assertValidEntity(
                 service_provider, ref=ref_service_providers[id],
                 keys_to_check=self.SP_KEYS)
+
+        self.head(url, expected_status=http_client.OK)
 
     def test_update_service_provider(self):
         """Update existing service provider.
