@@ -36,6 +36,12 @@ class TestSimpleCert(BaseTestCase):
         self.assertEqual(content_type, response.content_type.lower())
         self.assertIn(b'---BEGIN', response.body)
 
+        # Test the same path with HEAD
+        self.request(
+            app=self.public_app, method='HEAD', path=path,
+            headers={'Accept': content_type}, expected_status=http_client.OK
+        )
+
         return response
 
     def test_ca_cert(self):
