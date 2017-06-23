@@ -14,25 +14,150 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+
 domain_config_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain_config',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description='Create domain configuration.',
+        operations=[
+            {
+                'path': '/v3/domains/{domain_id}/config',
+                'method': 'PUT'
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('Get the entire domain configuration for a domain, an '
+                     'option group within a domain, or a specific '
+                     'configuration option within a group for a domain.'),
+        operations=[
+            {
+                'path': '/v3/domains/{domain_id}/config',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config',
+                'method': 'HEAD'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}',
+                'method': 'HEAD'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}/{option}',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}/{option}',
+                'method': 'HEAD'
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_security_compliance_domain_config',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description=('Get security compliance domain configuration for '
+                     'either a domain or a specific option in a domain.'),
+        operations=[
+            {
+                'path': '/v3/domains/{domain_id}/config/security_compliance',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/security_compliance',
+                'method': 'HEAD'
+            },
+            {
+                'path': ('v3/domains/{domain_id}/config/'
+                         'security_compliance/{option}'),
+                'method': 'GET'
+            },
+            {
+                'path': ('v3/domains/{domain_id}/config/'
+                         'security_compliance/{option}'),
+                'method': 'HEAD'
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain_config',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('Update domain configuration for either a domain, '
+                     'specific group or a specific option in a group.'),
+        operations=[
+            {
+                'path': '/v3/domains/{domain_id}/config',
+                'method': 'PATCH'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}',
+                'method': 'PATCH'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}/{option}',
+                'method': 'PATCH'
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain_config',
-        check_str=base.RULE_ADMIN_REQUIRED),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('Delete domain configuration for either a domain, '
+                     'specific group or a specific option in a group.'),
+        operations=[
+            {
+                'path': '/v3/domains/{domain_id}/config',
+                'method': 'DELETE'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}',
+                'method': 'DELETE'
+            },
+            {
+                'path': '/v3/domains/{domain_id}/config/{group}/{option}',
+                'method': 'DELETE'
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config_default',
-        check_str=base.RULE_ADMIN_REQUIRED)
+        check_str=base.RULE_ADMIN_REQUIRED,
+        description=('Get domain configuration default for either a domain, '
+                     'specific group or a specific option in a group.'),
+        operations=[
+            {
+                'path': '/v3/domains/config/default',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/config/default',
+                'method': 'HEAD'
+            },
+            {
+                'path': '/v3/domains/config/{group}/default',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/config/{group}/default',
+                'method': 'HEAD'
+            },
+            {
+                'path': '/v3/domains/config/{group}/{option}/default',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/domains/config/{group}/{option}/default',
+                'method': 'HEAD'
+            }
+        ]
+    )
 ]
 
 
