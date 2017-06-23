@@ -88,13 +88,13 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, config_controller,
             path='/domains/config/default',
-            get_action='get_domain_config_default',
+            get_head_action='get_domain_config_default',
             rel=json_home.build_v3_resource_relation('domain_config_default'))
 
         self._add_resource(
             mapper, config_controller,
             path='/domains/config/{group}/default',
-            get_action='get_domain_config_default',
+            get_head_action='get_domain_config_default',
             rel=json_home.build_v3_resource_relation(
                 'domain_config_default_group'),
             path_vars={
@@ -104,7 +104,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, config_controller,
             path='/domains/config/{group}/{option}/default',
-            get_action='get_domain_config_default',
+            get_head_action='get_domain_config_default',
             rel=json_home.build_v3_resource_relation(
                 'domain_config_default_option'),
             path_vars={

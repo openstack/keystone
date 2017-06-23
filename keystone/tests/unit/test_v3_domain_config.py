@@ -122,7 +122,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertEqual(self.config, r.result['config'])
         self.head(url, expected_status=http_client.OK)
 
-    def test_get_config_by_group(self):
+    def test_get_head_config_by_group(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}``."""
         self.domain_config_api.create_config(self.domain['id'], self.config)
         url = '/domains/%(domain_id)s/config/ldap' % {
@@ -131,7 +131,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.assertEqual({'ldap': self.config['ldap']}, r.result['config'])
         self.head(url, expected_status=http_client.OK)
 
-    def test_get_config_by_group_invalid_domain(self):
+    def test_get_head_config_by_group_invalid_domain(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}``.
 
         While retrieving Identity API-based domain config by group with an
@@ -140,11 +140,13 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """
         self.domain_config_api.create_config(self.domain['id'], self.config)
         invalid_domain_id = uuid.uuid4().hex
-        self.get('/domains/%(domain_id)s/config/ldap' % {
-            'domain_id': invalid_domain_id},
-            expected_status=exception.DomainNotFound.code)
+        url = ('/domains/%(domain_id)s/config/ldap' % {
+            'domain_id': invalid_domain_id}
+        )
+        self.get(url, expected_status=exception.DomainNotFound.code)
+        self.head(url, expected_status=exception.DomainNotFound.code)
 
-    def test_get_config_by_option(self):
+    def test_get_head_config_by_option(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}/{option}``."""
         self.domain_config_api.create_config(self.domain['id'], self.config)
         url = '/domains/%(domain_id)s/config/ldap/url' % {
@@ -154,7 +156,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
                          r.result['config'])
         self.head(url, expected_status=http_client.OK)
 
-    def test_get_config_by_option_invalid_domain(self):
+    def test_get_head_config_by_option_invalid_domain(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}/{option}``.
 
         While retrieving Identity API-based domain config by option with an
@@ -163,38 +165,46 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """
         self.domain_config_api.create_config(self.domain['id'], self.config)
         invalid_domain_id = uuid.uuid4().hex
-        self.get('/domains/%(domain_id)s/config/ldap/url' % {
-            'domain_id': invalid_domain_id},
-            expected_status=exception.DomainNotFound.code)
+        url = ('/domains/%(domain_id)s/config/ldap/url' % {
+            'domain_id': invalid_domain_id}
+        )
+        self.get(url, expected_status=exception.DomainNotFound.code)
+        self.head(url, expected_status=exception.DomainNotFound.code)
 
-    def test_get_non_existant_config(self):
+    def test_get_head_non_existant_config(self):
         """Call ``GET /domains{domain_id}/config when no config defined``."""
-        self.get('/domains/%(domain_id)s/config' % {
-            'domain_id': self.domain['id']},
-            expected_status=http_client.NOT_FOUND)
+        url = ('/domains/%(domain_id)s/config' % {
+            'domain_id': self.domain['id']}
+        )
+        self.get(url, expected_status=http_client.NOT_FOUND)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
-    def test_get_non_existant_config_invalid_domain(self):
-        """Call ``GET /domains{domain_id}/config when no config defined``.
+    def test_get_head_non_existant_config_invalid_domain(self):
+        """Call ``GET & HEAD /domains/{domain_id}/config with invalid domain``.
 
         While retrieving non-existent Identity API-based domain config with an
         invalid domain id provided, the request shall be rejected with a
         response 404 domain not found.
         """
         invalid_domain_id = uuid.uuid4().hex
-        self.get('/domains/%(domain_id)s/config' % {
-            'domain_id': invalid_domain_id},
-            expected_status=exception.DomainNotFound.code)
+        url = ('/domains/%(domain_id)s/config' % {
+            'domain_id': invalid_domain_id}
+        )
+        self.get(url, expected_status=exception.DomainNotFound.code)
+        self.head(url, expected_status=exception.DomainNotFound.code)
 
-    def test_get_non_existant_config_group(self):
-        """Call ``GET /domains{domain_id}/config/{group_not_exist}``."""
+    def test_get_head_non_existant_config_group(self):
+        """Call ``GET /domains/{domain_id}/config/{group_not_exist}``."""
         config = {'ldap': {'url': uuid.uuid4().hex}}
         self.domain_config_api.create_config(self.domain['id'], config)
-        self.get('/domains/%(domain_id)s/config/identity' % {
-            'domain_id': self.domain['id']},
-            expected_status=http_client.NOT_FOUND)
+        url = ('/domains/%(domain_id)s/config/identity' % {
+            'domain_id': self.domain['id']}
+        )
+        self.get(url, expected_status=http_client.NOT_FOUND)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
-    def test_get_non_existant_config_group_invalid_domain(self):
-        """Call ``GET /domains{domain_id}/config/{group_not_exist}``.
+    def test_get_head_non_existant_config_group_invalid_domain(self):
+        """Call ``GET & HEAD /domains/{domain_id}/config/{group}``.
 
         While retrieving non-existent Identity API-based domain config group
         with an invalid domain id provided, the request shall be rejected with
@@ -203,20 +213,31 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         self.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
-        self.get('/domains/%(domain_id)s/config/identity' % {
-            'domain_id': invalid_domain_id},
-            expected_status=exception.DomainNotFound.code)
+        url = ('/domains/%(domain_id)s/config/identity' % {
+            'domain_id': invalid_domain_id}
+        )
+        self.get(url, expected_status=exception.DomainNotFound.code)
+        self.head(url, expected_status=exception.DomainNotFound.code)
 
-    def test_get_non_existant_config_option(self):
-        """Call ``GET /domains{domain_id}/config/group/{option_not_exist}``."""
+    def test_get_head_non_existant_config_option(self):
+        """Test that Not Found is returned when option doesn't exist.
+
+        Call ``GET & HEAD /domains/{domain_id}/config/{group}/{opt_not_exist}``
+        and ensure a Not Found is returned because the option isn't defined
+        within the group.
+        """
         config = {'ldap': {'url': uuid.uuid4().hex}}
         self.domain_config_api.create_config(self.domain['id'], config)
-        self.get('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
-            'domain_id': self.domain['id']},
-            expected_status=http_client.NOT_FOUND)
+        url = ('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
+            'domain_id': self.domain['id']}
+        )
+        self.get(url, expected_status=http_client.NOT_FOUND)
+        self.head(url, expected_status=http_client.NOT_FOUND)
 
-    def test_get_non_existant_config_option_invalid_domain(self):
-        """Call ``GET /domains{domain_id}/config/group/{option_not_exist}``.
+    def test_get_head_non_existant_config_option_with_invalid_domain(self):
+        """Test that Domain Not Found is returned with invalid domain.
+
+        Call ``GET & HEAD /domains/{domain_id}/config/{group}/{opt_not_exist}``
 
         While retrieving non-existent Identity API-based domain config option
         with an invalid domain id provided, the request shall be rejected with
@@ -225,9 +246,11 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         self.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
-        self.get('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
-            'domain_id': invalid_domain_id},
-            expected_status=exception.DomainNotFound.code)
+        url = ('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
+            'domain_id': invalid_domain_id}
+        )
+        self.get(url, expected_status=exception.DomainNotFound.code)
+        self.head(url, expected_status=exception.DomainNotFound.code)
 
     def test_update_config(self):
         """Call ``PATCH /domains/{domain_id}/config``."""
@@ -402,8 +425,8 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code)
 
-    def test_get_config_default(self):
-        """Call ``GET /domains/config/default``."""
+    def test_get_head_config_default(self):
+        """Call ``GET & HEAD /domains/config/default``."""
         # Create a config that overrides a few of the options so that we can
         # check that only the defaults are returned.
         self.domain_config_api.create_config(self.domain['id'], self.config)
@@ -414,9 +437,10 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             for option in default_config[group]:
                 self.assertEqual(getattr(getattr(CONF, group), option),
                                  default_config[group][option])
+        self.head(url, expected_status=http_client.OK)
 
-    def test_get_config_default_by_group(self):
-        """Call ``GET /domains/config/{group}/default``."""
+    def test_get_head_config_default_by_group(self):
+        """Call ``GET & HEAD /domains/config/{group}/default``."""
         # Create a config that overrides a few of the options so that we can
         # check that only the defaults are returned.
         self.domain_config_api.create_config(self.domain['id'], self.config)
@@ -426,9 +450,10 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         for option in default_config['ldap']:
             self.assertEqual(getattr(CONF.ldap, option),
                              default_config['ldap'][option])
+        self.head(url, expected_status=http_client.OK)
 
-    def test_get_config_default_by_option(self):
-        """Call ``GET /domains/config/{group}/{option}/default``."""
+    def test_get_head_config_default_by_option(self):
+        """Call ``GET & HEAD /domains/config/{group}/{option}/default``."""
         # Create a config that overrides a few of the options so that we can
         # check that only the defaults are returned.
         self.domain_config_api.create_config(self.domain['id'], self.config)
@@ -436,27 +461,36 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         r = self.get(url)
         default_config = r.result['config']
         self.assertEqual(CONF.ldap.url, default_config['url'])
+        self.head(url, expected_status=http_client.OK)
 
-    def test_get_config_default_by_invalid_group(self):
-        """Call ``GET for /domains/config/{bad-group}/default``."""
+    def test_get_head_config_default_by_invalid_group(self):
+        """Call ``GET & HEAD for /domains/config/{bad-group}/default``."""
         # First try a valid group, but one we don't support for domain config
-        self.get('/domains/config/resouce/default',
+        self.get('/domains/config/resource/default',
                  expected_status=http_client.FORBIDDEN)
+        self.head('/domains/config/resource/default',
+                  expected_status=http_client.FORBIDDEN)
 
         # Now try a totally invalid group
         url = '/domains/config/%s/default' % uuid.uuid4().hex
         self.get(url, expected_status=http_client.FORBIDDEN)
+        self.head(url, expected_status=http_client.FORBIDDEN)
 
-    def test_get_config_default_by_invalid_option(self):
-        """Call ``GET for /domains/config/{group}/{bad-option}/default``."""
-        # First try a valid option, but one we don't support for domain config,
-        # i.e. one that is in the sensitive options list
+    def test_get_head_config_default_for_unsupported_group(self):
+        # It should not be possible to expose configuration information for
+        # groups that the domain configuration API backlists explicitly. Doing
+        # so would be a security vulnerability because it would leak sensitive
+        # information over the API.
         self.get('/domains/config/ldap/password/default',
                  expected_status=http_client.FORBIDDEN)
+        self.head('/domains/config/ldap/password/default',
+                  expected_status=http_client.FORBIDDEN)
 
-        # Now try a totally invalid option
+    def test_get_head_config_default_for_invalid_option(self):
+        """Returning invalid configuration options is invalid."""
         url = '/domains/config/ldap/%s/default' % uuid.uuid4().hex
         self.get(url, expected_status=http_client.FORBIDDEN)
+        self.head(url, expected_status=http_client.FORBIDDEN)
 
 
 class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
@@ -518,7 +552,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         )
         return self.get_requested_token(non_admin_auth_data)
 
-    def test_get_security_compliance_config_for_default_domain(self):
+    def test_get_head_security_compliance_config_for_default_domain(self):
         """Ask for all security compliance configuration options.
 
         Support for enforcing security compliance per domain currently doesn't
@@ -556,6 +590,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.assertEqual(regular_response.result['config'], expected_response)
         admin_response = self.get(url, token=self._get_admin_token())
         self.assertEqual(admin_response.result['config'], expected_response)
+
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            token=self._get_non_admin_token(),
+            expected_status=http_client.OK
+        )
+        self.head(
+            url,
+            token=self._get_admin_token(),
+            expected_status=http_client.OK
+        )
 
     def test_get_security_compliance_config_for_non_default_domain_fails(self):
         """Getting security compliance opts for other domains should fail.
@@ -600,6 +646,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             token=self._get_admin_token()
         )
 
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            expected_status=http_client.FORBIDDEN,
+            token=self._get_non_admin_token()
+        )
+        self.head(
+            url,
+            expected_status=http_client.FORBIDDEN,
+            token=self._get_admin_token()
+        )
+
     def test_get_non_whitelisted_security_compliance_opt_fails(self):
         """We only support exposing a subset of security compliance options.
 
@@ -629,6 +687,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             token=self._get_non_admin_token()
         )
         self.get(
+            url,
+            expected_status=http_client.FORBIDDEN,
+            token=self._get_admin_token()
+        )
+
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            expected_status=http_client.FORBIDDEN,
+            token=self._get_non_admin_token()
+        )
+        self.head(
             url,
             expected_status=http_client.FORBIDDEN,
             token=self._get_admin_token()
@@ -665,6 +735,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             password_regex
         )
 
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            token=self._get_non_admin_token(),
+            expected_status=http_client.OK
+        )
+        self.head(
+            url,
+            token=self._get_admin_token(),
+            expected_status=http_client.OK
+        )
+
     def test_get_security_compliance_password_regex_description(self):
         """Ask for the security compliance password regex description."""
         password_regex_description = uuid.uuid4().hex
@@ -696,6 +778,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             password_regex_description
         )
 
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            token=self._get_non_admin_token(),
+            expected_status=http_client.OK
+        )
+        self.head(
+            url,
+            token=self._get_admin_token(),
+            expected_status=http_client.OK
+        )
+
     def test_get_security_compliance_password_regex_returns_none(self):
         """When an option isn't set, we should explicitly return None."""
         group = 'security_compliance'
@@ -717,6 +811,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         admin_response = self.get(url, token=self._get_admin_token())
         self.assertIsNone(admin_response.result['config'][option])
 
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            token=self._get_non_admin_token(),
+            expected_status=http_client.OK
+        )
+        self.head(
+            url,
+            token=self._get_admin_token(),
+            expected_status=http_client.OK
+        )
+
     def test_get_security_compliance_password_regex_desc_returns_none(self):
         """When an option isn't set, we should explicitly return None."""
         group = 'security_compliance'
@@ -737,6 +843,18 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.assertIsNone(regular_response.result['config'][option])
         admin_response = self.get(url, token=self._get_admin_token())
         self.assertIsNone(admin_response.result['config'][option])
+
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            token=self._get_non_admin_token(),
+            expected_status=http_client.OK
+        )
+        self.head(
+            url,
+            token=self._get_admin_token(),
+            expected_status=http_client.OK
+        )
 
     def test_get_security_compliance_config_with_user_from_other_domain(self):
         """Make sure users from other domains can access password requirements.
@@ -805,6 +923,13 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.assertEqual(
             response.result['config'][group]['password_regex_description'],
             password_regex_description
+        )
+
+        # Ensure HEAD requests behave the same way
+        self.head(
+            url,
+            token=user_token,
+            expected_status=http_client.OK
         )
 
     def test_update_security_compliance_config_group_fails(self):
