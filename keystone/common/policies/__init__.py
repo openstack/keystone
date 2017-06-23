@@ -38,6 +38,7 @@ from keystone.common.policies import role
 from keystone.common.policies import role_assignment
 from keystone.common.policies import service
 from keystone.common.policies import service_provider
+from keystone.common.policies import token
 from keystone.common.policies import token_revocation
 from keystone.common.policies import trust
 from keystone.common.policies import user
@@ -72,6 +73,7 @@ def list_rules():
         service.list_rules(),
         service_provider.list_rules(),
         token_revocation.list_rules(),
+        token.list_rules(),
         trust.list_rules(),
         user.list_rules(),
     )
