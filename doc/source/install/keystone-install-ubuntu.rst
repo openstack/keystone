@@ -12,8 +12,6 @@ Prerequisites
 Before you install and configure the Identity service, you must
 create a database.
 
-
-
 #. Use the database access client to connect to the database
    server as the ``root`` user:
 
@@ -22,8 +20,6 @@ create a database.
       # mysql
 
    .. end
-
-
 
 2. Create the ``keystone`` database:
 
@@ -55,9 +51,6 @@ Install and configure components
 
 .. include:: shared/note_configuration_vary_by_distribution.rst
 
-
-
-
 .. note::
 
    This guide uses the Apache HTTP server with ``mod_wsgi`` to serve
@@ -73,10 +66,6 @@ Install and configure components
       # apt install keystone
 
    .. end
-
-
-
-
 
 2. Edit the ``/etc/keystone/keystone.conf`` file and complete the following
    actions:
@@ -144,8 +133,6 @@ Install and configure components
 Configure the Apache HTTP server
 --------------------------------
 
-
-
 #. Edit the ``/etc/apache2/apache2.conf`` file and configure the
    ``ServerName`` option to reference the controller node:
 
@@ -156,13 +143,8 @@ Configure the Apache HTTP server
 
    .. end
 
-
-
-
-
 Finalize the installation
 -------------------------
-
 
 #. Restart the Apache service:
 
@@ -171,9 +153,6 @@ Finalize the installation
       # service apache2 restart
 
    .. end
-
-
-
 
 2. Configure the administrative account
 

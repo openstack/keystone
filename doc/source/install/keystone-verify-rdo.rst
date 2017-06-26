@@ -8,8 +8,6 @@ services.
 
    Perform these commands on the controller node.
 
-
-
 #. For security reasons, disable the temporary authentication
    token mechanism:
 
@@ -17,7 +15,6 @@ services.
    file and remove ``admin_token_auth`` from the
    ``[pipeline:public_api]``, ``[pipeline:admin_api]``,
    and ``[pipeline:api_v3]`` sections.
-
 
 2. Unset the temporary ``OS_AUTH_URL`` and ``OS_PASSWORD``
    environment variable:

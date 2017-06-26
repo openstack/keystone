@@ -12,9 +12,6 @@ Prerequisites
 Before you install and configure the Identity service, you must
 create a database.
 
-
-
-
 #. Use the database access client to connect to the database
    server as the ``root`` user:
 
@@ -23,7 +20,6 @@ create a database.
       $ mysql -u root -p
 
    .. end
-
 
 2. Create the ``keystone`` database:
 
@@ -55,18 +51,12 @@ Install and configure components
 
 .. include:: shared/note_configuration_vary_by_distribution.rst
 
-
 .. note::
 
    This guide uses the Apache HTTP server with ``mod_wsgi`` to serve
    Identity service requests on ports 5000 and 35357. By default, the
    keystone service still listens on these ports. Therefore, this guide
    manually disables the keystone service.
-
-
-
-
-
 
 #. Run the following command to install the packages:
 
@@ -75,8 +65,6 @@ Install and configure components
       # yum install openstack-keystone httpd mod_wsgi
 
    .. end
-
-
 
 2. Edit the ``/etc/keystone/keystone.conf`` file and complete the following
    actions:
@@ -144,7 +132,6 @@ Install and configure components
 Configure the Apache HTTP server
 --------------------------------
 
-
 #. Edit the ``/etc/httpd/conf/httpd.conf`` file and configure the
    ``ServerName`` option to reference the controller node:
 
@@ -163,15 +150,8 @@ Configure the Apache HTTP server
 
    .. end
 
-
-
-
-
-
 Finalize the installation
 -------------------------
-
-
 
 #. Start the Apache HTTP service and configure it to start when the system
    boots:
@@ -182,8 +162,6 @@ Finalize the installation
       # systemctl start httpd.service
 
    .. end
-
-
 
 2. Configure the administrative account
 
