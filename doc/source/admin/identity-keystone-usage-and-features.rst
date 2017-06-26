@@ -76,8 +76,3 @@ Each user can then change their own password with a HTTP PATCH.
 
 In addition to changing their password, all current tokens for the user
 are invalidated.
-
-.. note::
-
-    Only use a KVS back end for tokens when testing.
-
