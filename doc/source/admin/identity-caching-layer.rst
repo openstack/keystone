@@ -3,14 +3,16 @@
 Caching layer
 ~~~~~~~~~~~~~
 
-OpenStack Identity supports a caching layer that is above the
-configurable subsystems (for example, token). OpenStack Identity uses the
-`oslo.cache <https://docs.openstack.org/developer/oslo.cache/>`__
-library which allows flexible cache back ends. The majority of the
-caching configuration options are set in the ``[cache]`` section of the
-``/etc/keystone/keystone.conf`` file. However, each section that has
-the capability to be cached usually has a caching boolean value that
-toggles caching.
+OpenStack Identity supports a caching layer that is above the configurable
+subsystems (for example, token). This gives you the flexibility to setup
+caching for all or some subsystems. OpenStack Identity uses the `oslo.cache
+<https://docs.openstack.org/developer/oslo.cache/>`__ library which allows
+flexible cache back ends. The majority of the caching configuration options are
+set in the ``[cache]`` section of the ``/etc/keystone/keystone.conf`` file. The
+``enabled`` option of the ``[cache]`` section must be set to ``True`` in order
+for any subsystem to cache responses. Each section that has the capability to
+be cached will have a caching boolean value that toggles caching behavior of
+that particular subsystem.
 
 So to enable only the token back end caching, set the values as follows:
 
@@ -42,14 +44,15 @@ So to enable only the token back end caching, set the values as follows:
 
 .. note::
 
-   Since the Newton release, the default setting is enabled for subsystem
-   caching and the global toggle. As a result, all subsystems that support
-   caching are doing this by default.
+   Each subsystem is configured to cache by default. However, the global
+   toggle for caching defaults to ``False``. A subsystem is only able to cache
+   responses if the global toggle is enabled.
 
 Caching for tokens and tokens validation
 ----------------------------------------
 
-All types of tokens benefit from caching, including Fernet tokens. Although
+The token subsystem is OpenStack Identity's most heavily used API. As a result,
+all types of tokens benefit from caching, including Fernet tokens. Although
 Fernet tokens do not need to be persisted, they should still be cached for
 optimal token validation performance.
 
@@ -110,6 +113,26 @@ options), see:
 - `dogpile.cache.redis <https://dogpilecache.readthedocs.io/en/latest/api.html#redis-backends>`__
 
 - `dogpile.cache.dbm <https://dogpilecache.readthedocs.io/en/latest/api.html#file-backends>`__
+
+Cache invalidation
+------------------
+
+A common concern with caching is relaying inaccurate information after updating
+or deleting a resource. Most subsystems within OpenStack Identity invalidate
+specific cache entries once they have changed. In cases where a specific cache
+entry cannot be invalidated from the cache, the cache region will be
+invalidated instead. This invalidates all entries within the cache to prevent
+returning stale or misleading data. A subsequent request for the resource will
+be fully processed and cached.
+
+.. WARNING::
+    Be aware that if a read-only back end is in use for a particular subsystem,
+    the cache will not immediately reflect changes performed through the back
+    end. Any given change may take up to the ``cache_time`` (if set in the
+    subsystem section of the configuration) or the global ``expiration_time``
+    (set in the ``[cache]`` section of the configuration) before it is
+    reflected. If this type of delay is an issue, we recommend disabling
+    caching for that particular subsystem.
 
 Configure the Memcached back end example
 ----------------------------------------
