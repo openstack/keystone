@@ -1438,24 +1438,6 @@ with the HTTP API, such data import/export and database migrations.
 
 .. include:: man/commands.rst
 
-Removing Expired Tokens
-=======================
-
-In the SQL backend expired UUID tokens are not automatically removed. These
-tokens can be removed with:
-
-.. code-block:: bash
-
-    $ keystone-manage token_flush
-
-It is recommended to run this command periodically with ``cron`` if using UUID
-tokens.
-
-.. NOTE::
-
-   It it not required to run this command at all if using Fernet tokens. Fernet
-   tokens are not persisted.
-
 Supported clients
 =================
 

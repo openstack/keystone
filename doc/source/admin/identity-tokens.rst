@@ -78,6 +78,23 @@ provider. UUID tokens are 32 bytes in length and must be persisted in a back
 end. Clients must pass their UUID token to the Identity service in order to
 validate it.
 
+As mentioned above, UUID tokens must be persisted. By default, keystone
+persists UUID tokens using a SQL backend. An unfortunate side-effect is that
+the size of the database will grow over time regardless of the token's
+expiration time. Expired UUID tokens can be pruned from the backend using
+keystone's command line utility:
+
+.. code-block:: bash
+
+    $ keystone-manage token_flush
+
+We recommend invoking this command periodically using ``cron``.
+
+.. NOTE::
+
+   It is not required to run this command at all if using Fernet tokens. Fernet
+   tokens are not persisted and do not contribute to database bloat.
+
 Fernet tokens
 ~~~~~~~~~~~~~
 
