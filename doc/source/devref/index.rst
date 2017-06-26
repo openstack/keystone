@@ -1,15 +1,11 @@
-========================
-Developers Documentation
-========================
-
-.. toctree::
-   :maxdepth: 2
-
-   development_best_practices.rst
+=========================
+Contributor Documentation
+=========================
 
 .. toctree::
    :maxdepth: 1
 
+   development_best_practices.rst
    development_environment.rst
    developing_drivers.rst
    api_curl_examples.rst
