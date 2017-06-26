@@ -62,8 +62,8 @@ please see the subsequent sections.
     code_documentation.rst
     indices-tables.rst
 
-Developers Documentation
-~~~~~~~~~~~~~~~~~~~~~~~~
+Contributor Documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section contains the documentation needed for developing keystone.
 
