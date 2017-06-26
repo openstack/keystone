@@ -67,8 +67,8 @@ Token providers
 ---------------
 
 The token type issued by keystone is configurable through the
-``/etc/keystone/keystone.conf`` file. Currently, there are four supported
-token types and they include ``UUID``, ``fernet``, ``PKI``, and ``PKIZ``.
+``/etc/keystone/keystone.conf`` file. Currently, there are two supported
+token types, ``UUID`` and ``fernet``.
 
 UUID tokens
 ~~~~~~~~~~~
@@ -90,19 +90,4 @@ to encrypt and decrypt fernet tokens. Like UUID tokens, fernet tokens must be
 passed back to the Identity service in order to validate them. For more
 information on the fernet token type, see the :doc:`identity-fernet-token-faq`.
 
-PKI and PKIZ tokens
-~~~~~~~~~~~~~~~~~~~
-
-PKI tokens are signed documents that contain the authentication context, as
-well as the service catalog. Depending on the size of the OpenStack deployment,
-these tokens can be very long. The Identity service uses public/private key
-pairs and certificates in order to create and validate PKI tokens.
-
-The same concepts from PKI tokens apply to PKIZ tokens. The only difference
-between the two is PKIZ tokens are compressed to help mitigate the size issues
-of PKI. For more information on the certificate setup for PKI and PKIZ tokens,
-see the :doc:`identity-certificates-for-pki`.
-
-.. note::
-
-   PKI and PKIZ tokens are deprecated and not supported in Ocata.
+.. support_matrix:: token-support-matrix.ini
