@@ -15,18 +15,32 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 ec2_credential_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_get_credential',
-        check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER,
+        description='Show ec2 credential details.',
+        operations=[{'path': ('/v3/users/{user_id}/credentials/OS-EC2/'
+                              '{credential_id}'),
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_list_credentials',
-        check_str=base.RULE_ADMIN_OR_OWNER),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_OR_OWNER,
+        description='List ec2 credentials.',
+        operations=[{'path': '/v3/users/{user_id}/credentials/OS-EC2',
+                     'method': 'GET'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_create_credential',
-        check_str=base.RULE_ADMIN_OR_OWNER),
-    policy.RuleDefault(
+        check_str=base.RULE_ADMIN_OR_OWNER,
+        description='Create ec2 credential.',
+        operations=[{'path': '/v3/users/{user_id}/credentials/OS-EC2',
+                     'method': 'POST'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_delete_credential',
-        check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER),
+        check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER,
+        description='Delete ec2 credential.',
+        operations=[{'path': ('/v3/users/{user_id}/credentials/OS-EC2/'
+                              '{credential_id}'),
+                     'method': 'DELETE'}])
 ]
 
 
