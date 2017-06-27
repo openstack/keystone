@@ -670,7 +670,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, ud_entity)
 
     def test_check_effective_values_for_role_assignments(self):
-        """Call ``GET /role_assignments?effective=value``.
+        """Call ``GET & HEAD /role_assignments?effective=value``.
 
         Check the various ways of specifying the 'effective'
         query parameter.  If the 'effective' query parameter
@@ -704,7 +704,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.identity_api.add_user_to_group(user2['id'], self.group['id'])
 
         collection_url = '/role_assignments'
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    resource_url=collection_url)
         existing_assignments = len(r.result.get('role_assignments'))
@@ -713,7 +714,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                                       group_id=self.group_id,
                                                       role_id=self.role_id)
         self.put(gd_entity['links']['assignment'])
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
@@ -725,7 +727,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # should mean the group assignment is translated into the two
         # member user assignments
         collection_url = '/role_assignments?effective'
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
@@ -733,7 +736,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Now set 'effective' to false explicitly - should get
         # back the regular roles
         collection_url = '/role_assignments?effective=0'
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
@@ -743,14 +747,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # parameter to false by design. Hence we should get back
         # effective roles.
         collection_url = '/role_assignments?effective=False'
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
             resource_url=collection_url)
         # Now set 'effective' to True explicitly
         collection_url = '/role_assignments?effective=True'
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
@@ -821,7 +827,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         collection_url = ('/role_assignments?scope.project.id=%s' %
                           project1['id'])
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -830,7 +837,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         collection_url = ('/role_assignments?scope.domain.id=%s' %
                           self.domain['id'])
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -838,7 +846,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, gd_entity)
 
         collection_url = '/role_assignments?user.id=%s' % user1['id']
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -846,7 +855,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, ud_entity)
 
         collection_url = '/role_assignments?group.id=%s' % group1['id']
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -854,7 +864,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, gp_entity)
 
         collection_url = '/role_assignments?role.id=%s' % self.role1['id']
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -868,7 +879,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             '&scope.project.id=%(project_id)s' % {
                 'user_id': user1['id'],
                 'project_id': project1['id']})
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=1,
                                                    resource_url=collection_url)
@@ -880,7 +892,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         collection_url = ('/role_assignments?effective&user.id=%s' %
                           user1['id'])
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=4,
                                                    resource_url=collection_url)
@@ -914,7 +927,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             '&scope.project.id=%(project_id)s' % {
                 'user_id': user1['id'],
                 'project_id': project1['id']})
-        r = self.get(collection_url)
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -2476,6 +2490,7 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         self.prior = self._create_role()
         url = '/roles/%s/implies' % (self.prior['id'])
         response = self.get(url).json["role_inference"]
+        self.head(url, expected_status=http_client.OK)
         self.assertEqual(self.prior['id'], response['prior_role']['id'])
         self.assertEqual(0, len(response['implies']))
 

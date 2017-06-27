@@ -75,7 +75,7 @@ class Routers(wsgi.RoutersBase):
             mapper, implied_roles_controller,
             path='/roles/{prior_role_id}/implies',
             rel=json_home.build_v3_resource_relation('implied_roles'),
-            get_action='list_implied_roles',
+            get_head_action='list_implied_roles',
             status=json_home.Status.EXPERIMENTAL,
             path_vars={
                 'prior_role_id': json_home.Parameters.ROLE_ID,
@@ -99,7 +99,7 @@ class Routers(wsgi.RoutersBase):
         self._add_resource(
             mapper, implied_roles_controller,
             path='/role_inferences',
-            get_action='list_role_inference_rules',
+            get_head_action='list_role_inference_rules',
             rel=json_home.build_v3_resource_relation('role_inferences'),
             status=json_home.Status.EXPERIMENTAL,
             path_vars={}
@@ -229,9 +229,7 @@ class Routers(wsgi.RoutersBase):
             mapper, grant_controller,
             path='/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles/'
             'inherited_to_projects',
-            # TODO(samueldmq): Change the below to get_head_action for
-            # consistency with all the rest of APIs. See bug 1696574
-            get_action='list_grants',
+            get_head_action='list_grants',
             rel=build_os_inherit_relation(
                 resource_name='domain_group_roles_inherited_to_projects'),
             path_vars={
@@ -242,9 +240,7 @@ class Routers(wsgi.RoutersBase):
             mapper, grant_controller,
             path='/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'
             'inherited_to_projects',
-            # TODO(samueldmq): Change the below to get_head_action for
-            # consistency with all the rest of APIs. See bug 1696574
-            get_action='list_grants',
+            get_head_action='list_grants',
             rel=build_os_inherit_relation(
                 resource_name='domain_user_roles_inherited_to_projects'),
             path_vars={
