@@ -1111,26 +1111,6 @@ api-ref/identity/v3-ext/index.html#os-oauth1-api>`_ for the details of
 API definition.
 
 
-Revocation Events
-=================
-
-The Revocation Events feature provides a list of token revocations. Each event
-expresses a set of criteria which describes a set of tokens that are
-no longer valid.
-
-Add the revoke backend driver to the ``[revoke]`` section in
-``keystone.conf``. For example:
-
-.. code-block:: ini
-
-    [revoke]
-    driver = sql
-
-See `API Specification for Revocation Events <https://developer.openstack.org/
-api-ref/identity/v3-ext/index.html#os-revoke-api>`_ for
-the details of API definition.
-
-
 Token Binding
 =============
 
