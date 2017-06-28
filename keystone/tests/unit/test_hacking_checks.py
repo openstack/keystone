@@ -80,17 +80,6 @@ class TestBlockCommentsBeginWithASpace(BaseStyleCheck):
         self.assert_has_errors(code, expected_errors=errors)
 
 
-class TestAssertingNoneEquality(BaseStyleCheck):
-
-    def get_checker(self):
-        return checks.CheckForAssertingNoneEquality
-
-    def test(self):
-        code = self.code_ex.asserting_none_equality['code']
-        errors = self.code_ex.asserting_none_equality['expected_errors']
-        self.assert_has_errors(code, expected_errors=errors)
-
-
 class TestTranslationChecks(BaseStyleCheck):
 
     def get_checker(self):
