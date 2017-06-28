@@ -229,7 +229,7 @@ class Manager(manager.Manager):
         # Use set() to process the list to remove any duplicates
         project_ids = list(set([x['project_id'] for x in assignment_list
                                 if x.get('project_id')]))
-        return self.resource_api.list_projects_from_ids(list(project_ids))
+        return self.resource_api.list_projects_from_ids(project_ids)
 
     # TODO(henry-nash): We might want to consider list limiting this at some
     # point in the future.
