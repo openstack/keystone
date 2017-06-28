@@ -1,0 +1,6 @@
+fixes:
+  - |
+    The implementation for checking database state during an upgrade with the
+    use of `keystone-manage db_sync --check` has been corrected. This allows
+    users and automation to determine what step is next in a rolling upgrade
+    based on logging and command status codes.
