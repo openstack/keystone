@@ -18,6 +18,9 @@ policy rules based on a role-based access control (RBAC) approach.
 The Identity service configuration file sets the name and location of a JSON
 policy file that stores these rules.
 
+Note that the V3 API implements HEAD for all GET requests. Each HEAD request
+contains the same headers and HTTP status code as the corresponding GET API.
+
 For information about Identity API protection, see
 `Identity API protection with role-based access control (RBAC)
 <https://docs.openstack.org/admin-guide/identity_service_api_protection.html>`_

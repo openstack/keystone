@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1696574 <https://bugs.launchpad.net/keystone/+bug/1696574>`_]
+    All GET APIs within keystone now have support for HEAD, if not already
+    implemented. All new HEAD APIs have the same response codes and headers as
+    their GET counterparts. This aids in client-side processing, especially
+    caching.
