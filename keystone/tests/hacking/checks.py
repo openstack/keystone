@@ -114,38 +114,6 @@ def block_comments_begin_with_a_space(physical_line, line_number):
             return physical_line.index('#'), MESSAGE
 
 
-class CheckForAssertingNoneEquality(BaseASTChecker):
-    """Ensure that code does not use a None with assert(Not*)Equal."""
-
-    CHECK_DESC_IS = ('K003 Use self.assertIsNone(...) when comparing '
-                     'against None')
-    CHECK_DESC_ISNOT = ('K004 Use assertIsNotNone(...) when comparing '
-                        ' against None')
-
-    def visit_Call(self, node):
-        # NOTE(dstanek): I wrote this in a verbose way to make it easier to
-        # read for those that have little experience with Python's AST.
-
-        def _is_None(node):
-            if six.PY3:
-                return (isinstance(node, ast.NameConstant)
-                        and node.value is None)
-            else:
-                return isinstance(node, ast.Name) and node.id == 'None'
-
-        if isinstance(node.func, ast.Attribute):
-            if node.func.attr == 'assertEqual':
-                for arg in node.args:
-                    if _is_None(arg):
-                        self.add_error(node, message=self.CHECK_DESC_IS)
-            elif node.func.attr == 'assertNotEqual':
-                for arg in node.args:
-                    if _is_None(arg):
-                        self.add_error(node, message=self.CHECK_DESC_ISNOT)
-
-        super(CheckForAssertingNoneEquality, self).generic_visit(node)
-
-
 class CheckForTranslationIssues(BaseASTChecker):
 
     LOGGING_CHECK_DESC = 'K005 Using translated string in logging'
@@ -399,6 +367,5 @@ def dict_constructor_with_sequence_copy(logical_line):
 def factory(register):
     register(CheckForMutableDefaultArgs)
     register(block_comments_begin_with_a_space)
-    register(CheckForAssertingNoneEquality)
     register(CheckForTranslationIssues)
     register(dict_constructor_with_sequence_copy)
