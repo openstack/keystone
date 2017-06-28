@@ -1,6 +1,5 @@
-==========================
-Tempest tests for keystone
-==========================
+=====
+MOVED
+=====
 
-This directory contains Tempest tests to cover the keystone project.
-
+The keystone tempest plugin has moved to http://git.openstack.org/cgit/openstack/keystone-tempest-plugin
