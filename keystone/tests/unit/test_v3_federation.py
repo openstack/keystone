@@ -3091,8 +3091,16 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                                          user_id=user_id,
                                          domain_id=domain_from_group['id'])
 
-        # get user domains and test for duplicates
+        # get user domains via /OS-FEDERATION/domains and test for duplicates
         r = self.get('/OS-FEDERATION/domains', token=unscoped_token)
+        user_domains = r.result['domains']
+        user_domain_ids = []
+        for domain in user_domains:
+            self.assertNotIn(domain['id'], user_domain_ids)
+            user_domain_ids.append(domain['id'])
+
+        # get user domains via /auth/domains and test for duplicates
+        r = self.get('/auth/domains', token=unscoped_token)
         user_domains = r.result['domains']
         user_domain_ids = []
         for domain in user_domains:
@@ -3123,8 +3131,16 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self.assignment_api.add_role_to_user_and_project(
             user_id, project_from_group['id'], role_ref['id'])
 
-        # get user projects and test for duplicates
+        # get user projects via /OS-FEDERATION/projects and test for duplicates
         r = self.get('/OS-FEDERATION/projects', token=unscoped_token)
+        user_projects = r.result['projects']
+        user_project_ids = []
+        for project in user_projects:
+            self.assertNotIn(project['id'], user_project_ids)
+            user_project_ids.append(project['id'])
+
+        # get user projects via /auth/projects and test for duplicates
+        r = self.get('/auth/projects', token=unscoped_token)
         user_projects = r.result['projects']
         user_project_ids = []
         for project in user_projects:
