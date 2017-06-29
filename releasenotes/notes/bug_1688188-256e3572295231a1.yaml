@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1688188 <https://bugs.launchpad.net/keystone/+bug/1688188>`_]
+    When creating an IdP, if a domain was generated for it and a conflict
+    was raised while effectively creating the IdP in the database, the
+    auto-generated domain is now cleaned up.
