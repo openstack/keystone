@@ -25,11 +25,7 @@
 # serve to show the default.
 
 import os
-import subprocess
 import sys
-import warnings
-
-import openstackdocstheme
 
 # NOTE(dstanek): adds _ to the builtins so keystone modules can be imported
 __builtins__['_'] = str
@@ -54,7 +50,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'oslo_config.sphinxconfiggen',
               'oslo_policy.sphinxpolicygen',
-              'oslosphinx',
+              'openstackdocstheme',
               'ext.support_matrix',
               ]
 
@@ -137,7 +133,6 @@ man_pages = [
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme_path = [openstackdocstheme.get_html_theme_path()]
 html_theme = 'openstackdocs'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -172,14 +167,7 @@ html_static_path = ['_static']
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 # html_last_updated_fmt = '%b %d, %Y'
-git_cmd = ["git", "log", "--pretty=format:'%ad, commit %h'", "--date=local",
-           "-n1"]
-try:
-    html_last_updated_fmt = subprocess.check_output(
-        git_cmd).decode('utf-8')
-except Exception:
-    warnings.warn('Cannot get last updated time from git repository. '
-                  'Not setting "html_last_updated_fmt".')
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -287,3 +275,8 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'http://docs.python.org/': None}
+
+# -- Options for openstackdocstheme -------------------------------------------
+repository_name = 'openstack/keystone'
+bug_project = 'keystone'
+bug_tag = 'doc'
