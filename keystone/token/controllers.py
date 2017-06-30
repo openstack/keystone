@@ -15,13 +15,13 @@
 import datetime
 import sys
 
-from keystone.common import utils
 from keystoneclient.common import cms
 from oslo_serialization import jsonutils
 import six
 
 from keystone.common import controller
 from keystone.common import dependency
+from keystone.common import utils
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
