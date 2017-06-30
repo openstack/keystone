@@ -157,7 +157,9 @@ The reason object will contain the following keys:
 * ``reasonType``: Description of the PCI-DSS event
 * ``reasonCode``: HTTP response code for the event
 
-For more information, see :doc:`security_compliance` for configuring PCI-DSS in keystone.
+For more information, see
+:doc:`../admin/identity-security-compliance`
+for configuring PCI-DSS in keystone.
 
 Supported Events
 ----------------
