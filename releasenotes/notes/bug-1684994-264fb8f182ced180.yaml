@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1684994 <https://bugs.launchpad.net/keystone/+bug/1684994>`_]
+    This catches the ldap.INVALID_CREDENTIALS exception thrown when
+    trying to connect to an LDAP backend with an invalid username
+    or password, and emits a message back to the user instead of
+    the default 500 error message.

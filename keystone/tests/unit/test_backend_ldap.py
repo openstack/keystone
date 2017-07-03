@@ -1054,6 +1054,13 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
             name=u'Default')
         self.assertEqual([default_domain], domains)
 
+    def test_authenticate_wrong_credentials(self):
+        self.assertRaises(exception.LDAPInvalidCredentialsError,
+                          self.identity_api.driver.user.get_connection,
+                          user='demo',
+                          password='demo',
+                          end_user_auth=True)
+
     def test_configurable_allowed_project_actions(self):
         domain = self._get_domain_fixture()
         project = unit.new_project_ref(domain_id=domain['id'])

@@ -603,3 +603,8 @@ class CredentialEncryptionError(Exception):
 class LDAPServerConnectionError(UnexpectedError):
     debug_message_format = _('Unable to establish a connection to '
                              'LDAP Server (%(url)s).')
+
+
+class LDAPInvalidCredentialsError(UnexpectedError):
+    message_format = _('Unable to authenticate against Identity backend - '
+                       'Invalid username or password')
