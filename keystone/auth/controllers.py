@@ -199,24 +199,24 @@ class Auth(controller.V3Controller):
                            " default project %(project_id)s. The token"
                            " will be unscoped rather than scoped to the"
                            " project.")
-                    LOG.warning(msg,
-                                {'user_id': user_ref['id'],
-                                 'project_id': default_project_id})
+                    LOG.debug(msg,
+                              {'user_id': user_ref['id'],
+                               'project_id': default_project_id})
             else:
                 msg = ("User %(user_id)s's default project %(project_id)s"
                        " is disabled. The token will be unscoped rather"
                        " than scoped to the project.")
-                LOG.warning(msg,
-                            {'user_id': user_ref['id'],
-                             'project_id': default_project_id})
+                LOG.debug(msg,
+                          {'user_id': user_ref['id'],
+                           'project_id': default_project_id})
         except (exception.ProjectNotFound, exception.DomainNotFound):
             # default project or default project domain doesn't exist,
             # will issue unscoped token instead
             msg = ("User %(user_id)s's default project %(project_id)s not"
                    " found. The token will be unscoped rather than"
                    " scoped to the project.")
-            LOG.warning(msg, {'user_id': user_ref['id'],
-                              'project_id': default_project_id})
+            LOG.debug(msg, {'user_id': user_ref['id'],
+                            'project_id': default_project_id})
 
     def authenticate(self, request, auth_info, auth_context):
         """Authenticate user."""
