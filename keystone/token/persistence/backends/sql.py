@@ -276,9 +276,12 @@ class Token(token.persistence.TokenDriverBase):
         return _expiry_range_all
 
     def flush_expired_tokens(self):
-        with sql.session_for_write() as session:
-            # Turn off autocommit, as it doesn't work well with batch delete
-            session.autocommit = False
+        # The DBAPI itself is in a "never autocommit" mode,
+        # BEGIN is emitted automatically as soon as any work is done,
+        # COMMIT is emitted when SQLAlchemy invokes commit() on the
+        # underlying DBAPI connection. So SQLAlchemy is only simulating
+        # "begin" here in any case, it is in fact automatic by the DBAPI.
+        with sql.session_for_write() as session:  # Calls session.begin()
             dialect = session.bind.dialect.name
             expiry_range_func = self._expiry_range_strategy(dialect)
             query = session.query(TokenModel.expires)
@@ -291,9 +294,14 @@ class Token(token.persistence.TokenDriverBase):
                 # Explicitly commit each batch so as to free up
                 # resources early. We do not actually need
                 # transactional semantics here.
-                session.commit()
+                session.commit()  # Emits connection.commit() on DBAPI
+                # Tells SQLAlchemy to "begin", e.g. hold a new connection
+                # open in a transaction
+                session.begin()
                 total_removed += row_count
                 LOG.debug('Removed %d total expired tokens', total_removed)
 
+            # When the "with: " block ends, the final "session.commit()"
+            # is emitted by enginefacade
             session.flush()
             LOG.info(_LI('Total expired tokens removed: %d'), total_removed)
