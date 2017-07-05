@@ -5,6 +5,25 @@ Fernet - Frequently Asked Questions
 The following questions have been asked periodically since the initial release
 of the fernet token format in Kilo.
 
+What is a fernet token?
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A fernet token is a bearer token that represents user authentication. Fernet
+tokens contain a limited amount of identity and authorization data in a
+`MessagePacked <http://msgpack.org/>`_ payload. The payload is then wrapped as
+a `Fernet <https://github.com/fernet/spec>`_ message for transport, where
+Fernet provides the required web safe characteristics for use in URLs and
+headers. The data inside a fernet token is protected using symmetric encryption
+keys, or fernet keys.
+
+What is a fernet key?
+~~~~~~~~~~~~~~~~~~~~~
+
+A fernet key is used to encrypt and decrypt fernet tokens. Each key is actually
+composed of two smaller keys: a 128-bit AES encryption key and a 128-bit SHA256
+HMAC signing key. The keys are held in a key repository that keystone passes to
+a library that handles the encryption and decryption of tokens.
+
 What are the different types of keys?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -80,12 +99,13 @@ Why should I choose fernet tokens over UUID tokens?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Even though fernet tokens operate very similarly to UUID tokens, they do not
-require persistence. The keystone token database no longer suffers bloat as a
-side effect of authentication. Pruning expired tokens from the token database
-is no longer required when using fernet tokens. Because fernet tokens do not
-require persistence, they do not have to be replicated. As long as each
-keystone node shares the same key repository, fernet tokens can be created and
-validated instantly across nodes.
+require persistence or leverage the configured token persistence driver in any
+way. The keystone token database no longer suffers bloat as a side effect of
+authentication. Pruning expired tokens from the token database is no longer
+required when using fernet tokens. Because fernet tokens do not require
+persistence, they do not have to be replicated. As long as each keystone node
+shares the same key repository, fernet tokens can be created and validated
+instantly across nodes.
 
 Why should I choose fernet tokens over PKI or PKIZ tokens?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
