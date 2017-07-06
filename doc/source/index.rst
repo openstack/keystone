@@ -104,6 +104,12 @@ API Documentation
 ~~~~~~~~~~~~~~~~~
 An end user can find the specific API documentation here, `OpenStack's Identity API`_.
 
+.. note::
+
+   Following are some API examples using curl. Note that these examples are not
+   automatically generated. They can be outdated as things change and are subject
+   to regular updates and changes.
+
 .. toctree::
     :maxdepth: 2
 
