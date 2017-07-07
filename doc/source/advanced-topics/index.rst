@@ -14,4 +14,3 @@ Advanced Topics
    auth-totp.rst
    event_notifications.rst
    external-auth.rst
-   security_compliance.rst
