@@ -19,6 +19,7 @@ command-line client.
    identity-domain-specific-config.rst
    identity-external-authentication.rst
    identity-integrate-with-ldap.rst
+   identity-upgrading.rst
    identity-tokens.rst
    identity-token-binding.rst
    identity-fernet-token-faq.rst
