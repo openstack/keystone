@@ -146,7 +146,7 @@ identity:remove_endpoint_group_from_project                DELETE /v3/OS-EP-FILT
 
 identity:create_identity_provider                          PUT /v3/OS-FEDERATION/identity_providers/{idp_id}
 identity:list_identity_providers                           GET /v3/OS-FEDERATION/identity_providers
-identity:get_identity_providers                            GET /v3/OS-FEDERATION/identity_providers/{idp_id}
+identity:get_identity_provider                             GET /v3/OS-FEDERATION/identity_providers/{idp_id}
 identity:update_identity_provider                          PATCH /v3/OS-FEDERATION/identity_providers/{idp_id}
 identity:delete_identity_provider                          DELETE /v3/OS-FEDERATION/identity_providers/{idp_id}
 
