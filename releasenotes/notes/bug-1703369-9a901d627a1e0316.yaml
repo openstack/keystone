@@ -1,0 +1,11 @@
+---
+security:
+  - |
+    [`bug 1703369 <https://bugs.launchpad.net/keystone/+bug/1703369>`_]
+    There was a typo for the identity:get_identity_provider rule in the
+    default ``policy.json`` file in previous releases. The default value for
+    that rule was the same as the default value for the default rule
+    (restricted to admin) so this typo was not readily apparent. Anyone
+    customizing this rule should review their settings and confirm that
+    they did not copy that typo. Particularly given that the default rule
+    is being removed in Pike with the move of policy into code.
