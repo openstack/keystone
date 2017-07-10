@@ -126,51 +126,6 @@ class PolicyTestCase(unit.TestCase):
         policy.enforce(admin_credentials, uppercase_action, self.target)
 
 
-class DefaultPolicyTestCase(unit.TestCase):
-    def setUp(self):
-        super(DefaultPolicyTestCase, self).setUp()
-
-        self.rules = {
-            "default": [],
-            "example:exist": [["false:false"]]
-        }
-        self._set_rules('default')
-        self.credentials = {}
-
-        # FIXME(gyee): latest Oslo policy Enforcer class reloads the rules in
-        # its enforce() method even though rules has been initialized via
-        # set_rules(). To make it easier to do our tests, we're going to
-        # monkeypatch load_roles() so it does nothing. This seem like a bug in
-        # Oslo policy as we shouldn't have to reload the rules if they have
-        # already been set using set_rules().
-        self._old_load_rules = policy._ENFORCER.load_rules
-        self.addCleanup(setattr, policy._ENFORCER, 'load_rules',
-                        self._old_load_rules)
-        policy._ENFORCER.load_rules = lambda *args, **kwargs: None
-
-    def _set_rules(self, default_rule):
-        these_rules = common_policy.Rules.from_dict(self.rules, default_rule)
-        policy._ENFORCER.set_rules(these_rules)
-
-    def test_policy_called(self):
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          self.credentials, "example:exist", {})
-
-    def test_not_found_policy_calls_default(self):
-        policy.enforce(self.credentials, "example:noexist", {})
-
-    def test_default_not_found(self):
-        new_default_rule = "default_noexist"
-        # FIXME(gyee): need to overwrite the Enforcer's default_rule first
-        # as it is recreating the rules with its own default_rule instead
-        # of the default_rule passed in from set_rules(). I think this is a
-        # bug in Oslo policy.
-        policy._ENFORCER.default_rule = new_default_rule
-        self._set_rules(new_default_rule)
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          self.credentials, "example:noexist", {})
-
-
 class PolicyJsonTestCase(unit.TestCase):
 
     def _get_default_policy_rules(self):
@@ -229,8 +184,8 @@ class PolicyJsonTestCase(unit.TestCase):
         # These keys are in the policy.json but aren't targets.
         policy_rule_keys = [
             'admin_or_owner', 'admin_or_token_subject', 'admin_required',
-            'default', 'owner', 'service_admin_or_token_subject',
-            'service_or_admin', 'service_role', 'token_subject', ]
+            'owner', 'service_admin_or_token_subject', 'service_or_admin',
+            'service_role', 'token_subject', ]
 
         def read_doc_targets():
             # Parse the doc/source/policy_mapping.rst file and return the
