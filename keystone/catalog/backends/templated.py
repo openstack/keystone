@@ -241,6 +241,53 @@ class Catalog(base.CatalogDriverBase):
 
         return catalog
 
+    def get_v3_catalog(self, user_id, project_id):
+        """Retrieve and format the current V3 service catalog.
+
+        This implementation builds the V3 catalog from the V2 catalog.
+
+        :param user_id: The id of the user who has been authenticated for
+            creating service catalog.
+        :param project_id: The id of the project. 'project_id' will be None in
+            the case this being called to create a catalog to go in a domain
+            scoped token. In this case, any endpoint that requires a project_id
+            as part of their URL will be skipped.
+
+        :returns: A list representing the service catalog or an empty list
+
+        """
+        v2_catalog = self.get_catalog(user_id, project_id)
+        v3_catalog = {}
+
+        for region_name, region in v2_catalog.items():
+            for service_type, service in region.items():
+                if service_type not in v3_catalog:
+                    v3_catalog[service_type] = {
+                        'type': service_type,
+                        'endpoints': []
+                    }
+
+                for attr, value in service.items():
+                    # Attributes that end in URL are interfaces. In the V2
+                    # catalog, these are internalURL, publicURL, and adminURL.
+                    # For example, <region_name>.publicURL=<URL> in the V2
+                    # catalog becomes the V3 interface for the service:
+                    # { 'interface': 'public', 'url': '<URL>', 'region':
+                    #   'region: '<region_name>' }
+                    if attr.endswith('URL'):
+                        v3_interface = attr[:-len('URL')]
+                        v3_catalog[service_type]['endpoints'].append({
+                            'interface': v3_interface,
+                            'region': region_name,
+                            'url': value,
+                        })
+                        continue
+
+                    # Other attributes are copied to the service.
+                    v3_catalog[service_type][attr] = value
+
+        return list(v3_catalog.values())
+
     def add_endpoint_to_project(self, endpoint_id, project_id):
         raise exception.NotImplemented()
 
