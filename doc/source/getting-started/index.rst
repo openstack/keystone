@@ -6,7 +6,6 @@ Getting Started
     :maxdepth: 1
 
     installing.rst
-    upgrading.rst
     performance.rst
     architecture.rst
     policy_mapping.rst
