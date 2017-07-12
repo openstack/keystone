@@ -96,6 +96,14 @@ Administrator Guides
 
     admin/identity-management.rst
 
+Configuration Options
+~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+    :maxdepth: 2
+
+    configuration/samples/index.rst
+
 API Documentation
 ~~~~~~~~~~~~~~~~~
 
