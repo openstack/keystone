@@ -1683,6 +1683,50 @@ class VersionTests(SqlMigrateBase):
             self.assertRegexpMatches(file_name, pattern, msg)
 
 
+class MigrationValidation(SqlMigrateBase, unit.TestCase):
+    """Test validation of database between database phases."""
+
+    def setUp(self):
+        super(MigrationValidation, self).setUp()
+
+    def _set_db_sync_command_versions(self):
+        self.expand(1)
+        self.migrate(1)
+        self.contract(1)
+        self.assertEqual(upgrades.get_db_version('expand_repo'), 1)
+        self.assertEqual(upgrades.get_db_version('data_migration_repo'), 1)
+        self.assertEqual(upgrades.get_db_version('contract_repo'), 1)
+
+    def test_running_db_sync_expand_without_up_to_date_legacy_fails(self):
+        # Set Legacy version and then test that running expand fails if Legacy
+        # isn't at the latest version.
+        self.upgrade(67)
+        latest_version = self.repos[EXPAND_REPO].max_version
+        self.assertRaises(
+            db_exception.DBMigrationError,
+            self.expand,
+            latest_version,
+            "You are attempting to upgrade migrate ahead of expand")
+
+    def test_running_db_sync_migrate_ahead_of_expand_fails(self):
+        self.upgrade()
+        self._set_db_sync_command_versions()
+        self.assertRaises(
+            db_exception.DBMigrationError,
+            self.migrate,
+            2,
+            "You are attempting to upgrade migrate ahead of expand")
+
+    def test_running_db_sync_contract_ahead_of_migrate_fails(self):
+        self.upgrade()
+        self._set_db_sync_command_versions()
+        self.assertRaises(
+            db_exception.DBMigrationError,
+            self.contract,
+            2,
+            "You are attempting to upgrade contract ahead of migrate")
+
+
 class FullMigration(SqlMigrateBase, unit.TestCase):
     """Test complete orchestration between all database phases."""
 
@@ -1690,21 +1734,6 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         super(FullMigration, self).setUp()
         # Upgrade the legacy repository
         self.upgrade()
-
-    def test_that_running_upgrades_out_of_order_passes(self):
-        # Currently, an operator can run db_sync operations out of order
-        # without an error or exception being raised. If this gets fixed in
-        # the future to force expand, migrate, contract to be run in order,
-        # then you may change this test to reflect that.
-        self.contract(2)
-        self.expand(1)
-        self.migrate(1)
-        expand = upgrades.get_db_version('expand_repo')
-        migrate = upgrades.get_db_version('data_migration_repo')
-        contract = upgrades.get_db_version('contract_repo')
-        self.assertTrue(2, contract)
-        self.assertTrue(1, expand)
-        self.assertTrue(1, migrate)
 
     def test_db_sync_check(self):
         checker = cli.DbSync()
@@ -1749,16 +1778,13 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.assertIn("All db_sync commands are upgraded", log_info.output)
         self.assertEqual(status, 0)
 
-    def test_db_sync_check_out_of_sync(self):
-        checker = cli.DbSync()
-        # Assert we alert operator upgrades are out of sync
+    def test_out_of_sync_db_migration_fails(self):
+        # We shouldn't allow for operators to accidentally run migration out of
+        # order. This test ensures we fail if we attempt to upgrade the
+        # contract repository ahead of the expand or migrate repositories.
         self.expand(3)
         self.migrate(3)
-        self.contract(4)
-        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
-        status = checker.check_db_sync_status()
-        self.assertIn("Your database is out of sync", log_info.output)
-        self.assertEqual(status, 1)
+        self.assertRaises(db_exception.DBMigrationError, self.contract, 4)
 
     def test_migration_002_password_created_at_not_nullable(self):
         # upgrade each repository to 001
