@@ -1,79 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="383px" height="283px" version="1.1" content="&amp;lt;mxfile userAgent=&amp;quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Safari/537.36&amp;quot; version=&amp;quot;5.5.5.6&amp;quot; editor=&amp;quot;www.draw.io&amp;quot; type=&amp;quot;google&amp;quot;&amp;gt;&amp;lt;diagram&amp;gt;7Vdbbxo9EP01SOlDqmXNJTwSSNKojT4kHto+OnjYtWLWfMbc+uszxuO9cQmKiNqH8IDWZ+yZ8ZmzY2+DDWabB8Pn6ZMWoBpxJDYNNmzEcbfXwn8HbD3QuiEgMVJ4qFkAY/kHCIwIXUoBi8pEq7Wycl4FJzrLYGIrGDdGr6vTplpVo855EiIWwHjC1T76UwqbevSmTek5/BvIJA2RmxFZnvnkJTF6mVG8Rsymu583z3jwRfMXKRd6XYLYHdJqtEbP7mm2GYBy1Aba/Lr7I9Y8bwMZ5XZ6AUybIsKd9Z6hFbXZNTlYcbUkKh4FupJ265IFs5ITaMQdhc5vhVzhY+Ier15gu7A6gy/BiCFLdtqs3QaCdxSBS6KJ5nUqLYznHH2z4RoVhVhqZ4rMc8Vldv3sUvLZgbFAUjuw4x1E230APQNrXPa0gIUikjSbvbYfr4tCN0N50lKRO4Rx0laSuy74xQei+Dy6cWWN7j2mIBN9p2gcTRRfLOSkSg5spP2Fz9HXuE3D32TyvkDsab3GFcbTS7Mj/5gk9uks0RUYLbMVMAOKW7mqZnCIQoow0hJzy6uVVyJUCzdZceEzp1VlodccsdBayBFr1RxZbhKwe452Fc23/a4is0sWuftZ5ONFbv+9IlOgSpF9J0yrte78v3TN/RY7mL3mSiZZg/XdUYblAlPYQ+u8BwEG2dVZqbU6n0c6q/NbFc/CGv0CA620QSTDLo3gVCpVgyiZIWXCbl2flXgo9skwk0K4MAf7tcbZU7WTcIrzABfgCWHwdHapsyHW0EmJEr5sCw/jt1p46wNaeOd44fHF90Uah4MzGhm9wqsN1jm6Go/Kp2Ux+8D5GqAlZlJFlDxLXQqmqPi6tsb9px8u9zxlzMM5vGCI/+aQPeKqaEBXtVORENzf4Rs3iX9J7xfQdszqLeyAtg/14t4HaLt7hrZL98OyuB/FOep+t6xOvxAe+U53UnTidoHDsdUmv74e1bpHRlt6O95+Ocov06e6T6m7FdR8St3dy6gbh8V3lD/hi29VdvcK&amp;lt;/diagram&amp;gt;&amp;lt;/mxfile&amp;gt;" style="background-color: rgb(255, 255, 255);">
-   <defs>
-      <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="mx-gradient-dae8fc-1-7ea6e0-1-s-0">
-         <stop offset="0%" style="stop-color:#DAE8FC" />
-         <stop offset="100%" style="stop-color:#7EA6E0" />
-      </linearGradient>
-   </defs>
-   <g transform="translate(0.5,0.5)">
-      <rect x="121" y="46" width="120" height="60" rx="9" ry="9" fill="url(#mx-gradient-dae8fc-1-7ea6e0-1-s-0)" stroke="#6c8ebf" pointer-events="none" />
-      <g transform="translate(140.5,62.5)">
-         <switch>
-            <foreignObject style="overflow:visible;" pointer-events="all" width="80" height="26" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
-               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 82px; white-space: nowrap; word-wrap: normal; text-align: center;">
-                  <div style="display:inline-block;text-align:inherit;text-decoration:inherit;">
-                     Identity service
-                     <div>(keystone)</div>
-                  </div>
-               </div>
-            </foreignObject>
-            <text x="40" y="19" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
-         </switch>
-      </g>
-      <path d="M 151 106 L 84.91 190.97" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
-      <path d="M 81.69 195.12 L 83.22 187.44 L 84.91 190.97 L 88.75 191.74 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
-      <path d="M 211 106 L 277.09 190.97" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
-      <path d="M 280.31 195.12 L 273.25 191.74 L 277.09 190.97 L 278.78 187.44 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
-      <g transform="translate(134.5,2.5)">
-         <switch>
-            <foreignObject style="overflow:visible;" pointer-events="all" width="93" height="36" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
-               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; overflow: hidden; max-height: 36px; max-width: 116px; width: 93px; white-space: normal; word-wrap: normal; text-align: center;">
-                  <div style="display:inline-block;text-align:inherit;text-decoration:inherit;">
-                     <h2 style="text-align: center">Federation</h2>
-                  </div>
-               </div>
-            </foreignObject>
-            <text x="47" y="24" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
-         </switch>
-      </g>
-      <g transform="translate(4.5,194.5)">
-         <switch>
-            <foreignObject style="overflow:visible;" pointer-events="all" width="143" height="82" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
-               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; overflow: hidden; max-height: 86px; max-width: 146px; width: 143px; white-space: normal; word-wrap: normal; text-align: center;">
-                  <div style="display:inline-block;text-align:inherit;text-decoration:inherit;">
-                     <h3>Service Provider (SP)</h3>
-                     <div>
-                        <ul>
-                           <li style="text-align: left">SAML v2</li>
-                           <li style="text-align: left">OpenID Connect</li>
-                        </ul>
-                     </div>
-                  </div>
-               </div>
-            </foreignObject>
-            <text x="72" y="47" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
-         </switch>
-      </g>
-      <g transform="translate(219.5,192.5)">
-         <switch>
-            <foreignObject style="overflow:visible;" pointer-events="all" width="153" height="86" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
-               <div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; overflow: hidden; max-height: 86px; max-width: 166px; width: 153px; white-space: normal; word-wrap: normal; text-align: center;">
-                  <div style="display:inline-block;text-align:inherit;text-decoration:inherit;">
-                     <h3>Identity Provider (IdP)</h3>
-                     <div style="text-align: left">
-                        <ul>
-                           <li>Keystone 2 KeyStore</li>
-                           <li>PySAML 2</li>
-                           <li>SAML</li>
-                        </ul>
-                     </div>
-                  </div>
-               </div>
-            </foreignObject>
-            <text x="77" y="49" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
-         </switch>
-      </g>
-   </g>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink" width="381px" height="281px" version="1.1" content="&lt;mxfile userAgent=&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36&quot; version=&quot;6.8.14&quot; editor=&quot;www.draw.io&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;87bf4dd8-e57a-6381-5db8-5b1cdc221fab&quot; name=&quot;Page-1&quot;&gt;7VdLj9sgEP41lraHrWwTJ91jNvvoql01kg9tj8RMbLTEpJi8+us7xBDbsfPQNqv2sDlE8A0Mw3wfA/bIaLZ+VHSePUsGwgt9tvbInReGAzLAfwNsSqBH+iWQKs5KKKiAmP8GC/oWXXAGRWOgllJoPm+CicxzSHQDo0rJVXPYVIrmqnOaQguIEyra6HfOdFainyK/wj8DTzO3cuBby4QmL6mSi9yu54Vkuv2V5hl1vuz4IqNMrmoQuffISEmpy9ZsPQJhUuvSVs57OGDdxa0g1+dMgGnAfNzZzQR6fkSurYMlFQubiieGrrjemGBBLXkCXtgX6PyW8SU2U9O8eoFNoWUOH5wRl6zZ7Wb1xiV4myIwQQRoXmVcQzynibGuUFGIZXomrHkuKM+vJyak1vZcwKA0rGuQ3e4jyBloZaK3VuJItNIMbqKyv6qIDhw9WY3kvsWo1Va6c13lFxs2xeelO2ylu5UpyNnQKBp7iaBFwZNmcmDN9Q9s+x/DyHZ/WtPBbBVyoRI4qgBgjRPSTmctXVFHthymQFDNl81z1ZVCu8JYcgx2x9aOCcdWGDVdlFuxs+pC33NEgqYj0ttzpKlKQbccbRndbftVJJNLkjx4J/kwydG/IznqILmshFmT6/6vhSnut1iu9DUVPM09MjRXGfIHqrK70vkADBRmV+a10mp8Hqisxm9TPIVW8gVGUkiFSI5VGsEpF2IPssHc2UjIrSmqHC/FoTXMOGNmmc56LXH0VGwlnOE4yLc3hMLb2YRO7pBDI6XDev2LEu76p0p47w1KeP8w8cSRFLuL0x8rucSnDfLsX8Xj+m1Zje64Xx20EPuI4GepS8BUt7UVD5+/mtjDWhzG4QWX+DaH/Aln+SP7VDu2EoLtHZ54SfxPer+AtkOyX8I6tN1Vi2/eQNuDM7Rdex/Wxf3EzlH3q2V1/ECUyBf7JkUnZhfYjbVUcFLrJTLe2NNx+nDUD9O7uo+pu9c7Q92Dy6gbu9V3VHnDV9+q5P4P&lt;/diagram&gt;&lt;/mxfile&gt;" style="background-color: rgb(255, 255, 255);">
+    <defs>
+        <linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="mx-gradient-dae8fc-1-7ea6e0-1-s-0">
+            <stop offset="0%" style="stop-color:#DAE8FC"/>
+            <stop offset="100%" style="stop-color:#7EA6E0"/>
+        </linearGradient>
+    </defs>
+    <g transform="translate(0.5,0.5)">
+        <rect x="120" y="45" width="120" height="60" rx="9" ry="9" fill="url(#mx-gradient-dae8fc-1-7ea6e0-1-s-0)" stroke="#6c8ebf" pointer-events="none"/>
+        <g transform="translate(139.5,61.5)">
+            <switch>
+                <foreignObject style="overflow:visible;" pointer-events="all" width="80" height="26" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 81px; white-space: nowrap; word-wrap: normal; text-align: center;">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Identity service
+                            <div>(keystone)</div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="40" y="19" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
+            </switch>
+        </g>
+        <path d="M 150.33 105.33 L 83.93 189.99" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 80.69 194.12 L 82.26 186.45 L 83.93 189.99 L 87.76 190.77 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 210.33 105.33 L 276.09 189.97" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <path d="M 279.31 194.12 L 272.26 190.74 L 276.09 189.97 L 277.78 186.44 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/>
+        <g transform="translate(133.5,1.5)">
+            <switch>
+                <foreignObject style="overflow:visible;" pointer-events="all" width="92" height="36" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; overflow: hidden; max-height: 36px; max-width: 116px; width: 93px; white-space: normal; word-wrap: normal; text-align: center;">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">
+                            <h2 style="text-align: center">Federation</h2>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="46" y="24" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
+            </switch>
+        </g>
+        <g transform="translate(3.5,193.5)">
+            <switch>
+                <foreignObject style="overflow:visible;" pointer-events="all" width="142" height="83" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; overflow: hidden; max-height: 86px; max-width: 146px; width: 143px; white-space: normal; word-wrap: normal; text-align: center;">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">
+                            <h3>Service Provider (SP)</h3>
+                            <div>
+                                <ul>
+                                    <li style="text-align: left">SAML v2</li>
+                                    <li style="text-align: left">OpenID Connect</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="71" y="48" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
+            </switch>
+        </g>
+        <g transform="translate(218.5,191.5)">
+            <switch>
+                <foreignObject style="overflow:visible;" pointer-events="all" width="153" height="86" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; overflow: hidden; max-height: 86px; max-width: 166px; width: 154px; white-space: normal; word-wrap: normal; text-align: center;">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">
+                            <h3>Identity Provider (IdP)</h3>
+                            <div style="text-align: left">
+                                <ul>
+                                    <li>Keystone 2 KeyStore</li>
+                                    <li>PySAML 2</li>
+                                    <li>SAML</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="77" y="49" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
+            </switch>
+        </g>
+    </g>
 </svg>
