@@ -49,8 +49,10 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.viewcode',
               'oslo_config.sphinxconfiggen',
+              'oslo_config.sphinxext',
               'oslo_policy.sphinxpolicygen',
               'openstackdocstheme',
+              'oslo_policy.sphinxext',
               'ext.support_matrix',
               ]
 

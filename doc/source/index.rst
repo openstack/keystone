@@ -100,8 +100,10 @@ Configuration Options
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
+    configuration/config-options.rst
+    configuration/policy.rst
     configuration/samples/index.rst
 
 API Documentation
