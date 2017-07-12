@@ -37,7 +37,7 @@ identity_provider_policies = [
         ]
     ),
     policy.DocumentedRuleDefault(
-        name=base.IDENTITY % 'get_identity_providers',
+        name=base.IDENTITY % 'get_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
         description='Get identity provider.',
         operations=[
