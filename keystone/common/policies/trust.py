@@ -15,21 +15,50 @@ from oslo_policy import policy
 from keystone.common.policies import base
 
 trust_policies = [
-    policy.RuleDefault(
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_trust',
-        check_str=base.RULE_TRUST_OWNER),
-    policy.RuleDefault(
+        check_str=base.RULE_TRUST_OWNER,
+        description='Create trust.',
+        operations=[{'path': '/v3/OS-TRUST/trusts',
+                     'method': 'POST'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description='List trusts.',
+        operations=[{'path': '/v3/OS-TRUST/trusts',
+                     'method': 'GET'},
+                    {'path': '/v3/OS-TRUST/trusts',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles_for_trust',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description='List roles delegated by a trust.',
+        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',
+                     'method': 'GET'},
+                    {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role_for_trust',
-        check_str=''),
-    policy.RuleDefault(
+        check_str='',
+        description='Check if trust delegates a particular role.',
+        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
+                     'method': 'GET'},
+                    {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_trust',
-        check_str=''),
+        check_str='',
+        description='Revoke trust.',
+        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
+                     'method': 'DELETE'}]),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'get_trust',
+        check_str='',
+        description='Get trust.',
+        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
+                     'method': 'GET'},
+                    {'path': '/v3/OS-TRUST/trusts/{trust_id}',
+                     'method': 'HEAD'}])
 ]
 
 

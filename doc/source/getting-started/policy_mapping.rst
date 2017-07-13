@@ -112,6 +112,7 @@ identity:list_trusts                                       GET /v3/OS-TRUST/trus
 identity:list_roles_for_trust                              GET /v3/OS-TRUST/trusts/{trust_id}/roles
 identity:get_role_for_trust                                GET /v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}
 identity:delete_trust                                      DELETE /v3/OS-TRUST/trusts/{trust_id}
+identity:get_trust                                         GET /v3/OS-TRUST/trusts/{trust_id}
 
 identity:create_consumer                                   POST /v3/OS-OAUTH1/consumers
 identity:get_consumer                                      GET /v3/OS-OAUTH1/consumers/{consumer_id}
