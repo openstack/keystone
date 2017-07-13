@@ -9,7 +9,7 @@ Welcome to keystone's documentation!
 Contents:
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     v2/index
     v2-admin/index
@@ -17,11 +17,9 @@ Contents:
     v3/index
     v3-ext/index
 
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
