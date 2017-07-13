@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1687593 <https://bugs.launchpad.net/keystone/+bug/1687593>`_]
+    Ensure that the URL used to make the request when creating OAUTH1 request
+    tokens is also the URL that verifies the request token.
