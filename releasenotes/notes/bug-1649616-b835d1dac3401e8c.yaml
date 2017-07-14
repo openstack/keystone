@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1689616 <https://bugs.launchpad.net/keystone/+bug/1649616>`_]
+    Significant improvements have been made when performing a token flush
+    on massive data sets.
