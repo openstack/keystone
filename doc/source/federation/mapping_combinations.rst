@@ -69,6 +69,12 @@ tested with the ``keystone-manage mapping_engine`` command:
 
     $ keystone-manage mapping_engine --rules <file> --input <file>
 
+.. NOTE::
+    Although the rules file is formated as json the input file of assertion
+    data is formatted as individual lines of key: value pairs,
+    see `keystone-manage mapping_engine --help` for details.
+
+
 Mapping Conditions
 ------------------
 
