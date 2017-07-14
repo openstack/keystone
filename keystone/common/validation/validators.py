@@ -84,7 +84,7 @@ class SchemaValidator(object):
                 path = '/'.join(map(six.text_type, ex.path))
                 detail = _("Invalid input for field '%(path)s': "
                            "%(message)s") % {'path': path,
-                                             'message': ex.message}
+                                             'message': six.text_type(ex)}
             else:
-                detail = ex.message
+                detail = six.text_type(ex)
             raise exception.SchemaValidationError(detail=detail)
