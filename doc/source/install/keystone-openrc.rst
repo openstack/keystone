@@ -17,6 +17,14 @@ Create client environment scripts for the ``admin`` and ``demo``
 projects and users. Future portions of this guide reference these
 scripts to load appropriate credentials for client operations.
 
+.. note::
+
+   The paths of the client environment scripts are unrestricted.
+   For convenience, you can place the scripts in any location,
+   however ensure that they are accessible and located in a secure
+   place appropriate for your deployment, as they do contain sensitive
+   credentials.
+
 #. Create and edit the ``admin-openrc`` file and add the following content:
 
    .. note::
