@@ -15,6 +15,7 @@ command-line client.
    :maxdepth: 1
 
    identity-concepts.rst
+   identity-bootstrap.rst
    identity-certificates-for-pki.rst
    identity-domain-specific-config.rst
    identity-external-authentication.rst
