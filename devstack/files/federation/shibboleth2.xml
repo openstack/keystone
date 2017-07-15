@@ -19,9 +19,8 @@ https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfiguration
         <!-- https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPSessions -->
         <Sessions lifetime="28800" timeout="3600" checkAddress="false" relayState="ss:mem" handlerSSL="false">
 
-            <!-- Triggers a login request directly to the TestShib IdP. -->
-            <!-- https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPServiceSSO -->
-            <SSO entityID="%IDP_REMOTE_ID%" ECP="true">
+            <!-- Without a Discovery Protocol this really only supports ECP. -->
+            <SSO ECP="true">
                 SAML2 SAML1
             </SSO>
 
@@ -53,9 +52,9 @@ https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfiguration
         <Errors supportContact="root@localhost" logoLocation="/shibboleth-sp/logo.jpg"
                 styleSheet="/shibboleth-sp/main.css"/>
 
-        <!-- Loads and trusts a metadata file that describes only the Testshib IdP and how to communicate with it. -->
-        <MetadataProvider type="XML" uri="%IDP_METADATA_URL%"
-                          backingFilePath="metadata.xml" reloadInterval="180000" />
+        <!-- Loads and trusts a metadata files that describe the IdPs and how to communicate with them. -->
+        <MetadataProvider type="XML" uri="%IDP_METADATA_URL%" />
+        <MetadataProvider type="XML" uri="%KEYSTONE_METADATA_URL%" />
 
         <!-- Attribute and trust options you shouldn't need to change. -->
         <AttributeExtractor type="XML" validate="true" path="attribute-map.xml"/>
