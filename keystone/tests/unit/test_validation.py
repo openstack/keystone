@@ -381,6 +381,37 @@ class ProjectValidationTestCase(unit.BaseTestCase):
                               self.create_project_validator.validate,
                               request_to_validate)
 
+    def test_validate_project_create_with_tags(self):
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', 'bar']}
+        self.create_project_validator.validate(request_to_validate)
+
+    def test_validate_project_create_with_tags_invalid_char(self):
+        invalid_chars = [',', '/', ',foo', 'foo/bar']
+        for char in invalid_chars:
+            tag = uuid.uuid4().hex + char
+            request_to_validate = {'name': uuid.uuid4().hex,
+                                   'tags': ['foo', tag]}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_project_validator.validate,
+                              request_to_validate)
+
+    def test_validate_project_create_with_tag_name_too_long(self):
+        invalid_name = 'a' * 256
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', invalid_name]}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_project_validator.validate,
+                          request_to_validate)
+
+    def test_validate_project_create_with_too_many_tags(self):
+        tags = [uuid.uuid4().hex for _ in range(81)]
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': tags}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_project_validator.validate,
+                          request_to_validate)
+
     def test_validate_project_request_with_valid_parent_id(self):
         """Test that we validate `parent_id` in create project requests."""
         # parent_id is nullable
@@ -431,6 +462,37 @@ class ProjectValidationTestCase(unit.BaseTestCase):
             self.assertRaises(exception.SchemaValidationError,
                               self.update_project_validator.validate,
                               request_to_validate)
+
+    def test_validate_project_update_with_tags(self):
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', 'bar']}
+        self.update_project_validator.validate(request_to_validate)
+
+    def test_validate_project_update_with_tags_invalid_char(self):
+        invalid_chars = [',', '/']
+        for char in invalid_chars:
+            tag = uuid.uuid4().hex + char
+            request_to_validate = {'name': uuid.uuid4().hex,
+                                   'tags': ['foo', tag]}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_project_validator.validate,
+                              request_to_validate)
+
+    def test_validate_project_update_with_tag_name_too_long(self):
+        invalid_name = 'a' * 256
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', invalid_name]}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_project_validator.validate,
+                          request_to_validate)
+
+    def test_validate_project_update_with_too_many_tags(self):
+        tags = [uuid.uuid4().hex for _ in range(81)]
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': tags}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_project_validator.validate,
+                          request_to_validate)
 
     def test_validate_project_create_request_with_valid_domain_id(self):
         """Test that we validate `domain_id` in create project requests."""
@@ -521,6 +583,37 @@ class DomainValidationTestCase(unit.BaseTestCase):
                               self.create_domain_validator.validate,
                               request_to_validate)
 
+    def test_validate_domain_create_with_tags(self):
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', 'bar']}
+        self.create_domain_validator.validate(request_to_validate)
+
+    def test_validate_domain_create_with_tags_invalid_char(self):
+        invalid_chars = [',', '/']
+        for char in invalid_chars:
+            tag = uuid.uuid4().hex + char
+            request_to_validate = {'name': uuid.uuid4().hex,
+                                   'tags': ['foo', tag]}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.create_domain_validator.validate,
+                              request_to_validate)
+
+    def test_validate_domain_create_with_tag_name_too_long(self):
+        invalid_name = 'a' * 256
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', invalid_name]}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_domain_validator.validate,
+                          request_to_validate)
+
+    def test_validate_domain_create_with_too_many_tags(self):
+        tags = [uuid.uuid4().hex for _ in range(81)]
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': tags}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_domain_validator.validate,
+                          request_to_validate)
+
     def test_validate_domain_update_request(self):
         """Test that we validate a domain update request."""
         request_to_validate = {'domain_id': uuid.uuid4().hex}
@@ -548,6 +641,37 @@ class DomainValidationTestCase(unit.BaseTestCase):
             self.assertRaises(exception.SchemaValidationError,
                               self.update_domain_validator.validate,
                               request_to_validate)
+
+    def test_validate_domain_update_with_tags(self):
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', 'bar']}
+        self.update_domain_validator.validate(request_to_validate)
+
+    def test_validate_domain_update_with_tags_invalid_char(self):
+        invalid_chars = [',', '/']
+        for char in invalid_chars:
+            tag = uuid.uuid4().hex + char
+            request_to_validate = {'name': uuid.uuid4().hex,
+                                   'tags': ['foo', tag]}
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_domain_validator.validate,
+                              request_to_validate)
+
+    def test_validate_domain_update_with_tag_name_too_long(self):
+        invalid_name = 'a' * 256
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': ['foo', invalid_name]}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_domain_validator.validate,
+                          request_to_validate)
+
+    def test_validate_domain_update_with_too_many_tags(self):
+        tags = [uuid.uuid4().hex for _ in range(81)]
+        request_to_validate = {'name': uuid.uuid4().hex,
+                               'tags': tags}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.update_domain_validator.validate,
+                          request_to_validate)
 
 
 class RoleValidationTestCase(unit.BaseTestCase):

@@ -20,6 +20,25 @@ _name_properties = {
     'pattern': '[\S]+'
 }
 
+_project_tag_name_properties = {
+    'type': 'string',
+    'minLength': 1,
+    'maxLength': 255,
+    # NOTE(gagehugo) This pattern is for tags which follows the
+    # guidelines as set by the API-WG, which matches anything that
+    # does not contain a '/' or ','.
+    # https://specs.openstack.org/openstack/api-wg/guidelines/tags.html
+    'pattern': '^[^,/]*$'
+}
+
+_project_tags_list_properties = {
+    'type': 'array',
+    'items': _project_tag_name_properties,
+    'required': [],
+    'maxItems': 80,
+    'uniqueItems': True
+}
+
 _project_properties = {
     'description': validation.nullable(parameter_types.description),
     # NOTE(htruta): domain_id is nullable for projects acting as a domain.
@@ -27,8 +46,15 @@ _project_properties = {
     'enabled': parameter_types.boolean,
     'is_domain': parameter_types.boolean,
     'parent_id': validation.nullable(parameter_types.id_string),
-    'name': _name_properties
+    'name': _name_properties,
+    'tags': _project_tags_list_properties
 }
+
+# This is for updating a single project tag via the URL
+project_tag_create = _project_tag_name_properties
+
+# This is for updaing a project with a list of tags
+project_tags_update = _project_tags_list_properties
 
 project_create = {
     'type': 'object',
@@ -51,7 +77,8 @@ project_update = {
 _domain_properties = {
     'description': validation.nullable(parameter_types.description),
     'enabled': parameter_types.boolean,
-    'name': _name_properties
+    'name': _name_properties,
+    'tags': project_tags_update
 }
 
 domain_create = {
