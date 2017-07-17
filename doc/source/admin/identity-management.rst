@@ -16,6 +16,8 @@ command-line client.
 
    identity-concepts.rst
    identity-bootstrap.rst
+   cli-manage-projects-users-and-roles.rst
+   cli-keystone-manage-services.rst
    identity-certificates-for-pki.rst
    identity-domain-specific-config.rst
    identity-external-authentication.rst
