@@ -534,14 +534,14 @@ credentials_links:
 default_project_id_request_body:
   description: |
     The ID of the default project for the user.
-    Setting this attribute does not grant any actual authorization on
-    the project, and is merely provided for convenience. Therefore,
-    the referenced project does not need to exist within the user
-    domain.  (Since v3.1) If the user does not have authorization to
-    their default project, the default project is ignored at token
-    creation.  (Since v3.1) Additionally, if your default project is
-    not valid, a token is issued without an explicit scope of
-    authorization.
+    A user's default project must not be a domain. Setting this
+    attribute does not grant any actual authorization on the project,
+    and is merely provided for convenience. Therefore, the referenced
+    project does not need to exist within the user domain.  (Since v3.1)
+    If the user does not have authorization to their default project,
+    the default project is ignored at token creation.  (Since v3.1)
+    Additionally, if your default project is not valid, a token is
+    issued without an explicit scope of authorization.
   in: body
   required: false
   type: string
