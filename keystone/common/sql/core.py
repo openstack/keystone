@@ -71,6 +71,7 @@ PrimaryKeyConstraint = sql.PrimaryKeyConstraint
 joinedload = sql.orm.joinedload
 # Suppress flake8's unused import warning for flag_modified:
 flag_modified = flag_modified
+Unicode = sql.Unicode
 
 
 def initialize():

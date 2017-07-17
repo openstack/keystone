@@ -2421,6 +2421,74 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         pw_table = sqlalchemy.Table('password', meta, autoload=True)
         self.assertFalse(pw_table.c.created_at_int.nullable)
 
+    def test_migration_30_expand_add_project_tags_table(self):
+        self.expand(29)
+        self.migrate(29)
+        self.contract(29)
+
+        table_name = 'project_tag'
+        self.assertTableDoesNotExist(table_name)
+
+        self.expand(30)
+        self.migrate(30)
+        self.contract(30)
+
+        self.assertTableExists(table_name)
+        self.assertTableColumns(
+            table_name,
+            ['project_id', 'name'])
+
+    def test_migration_030_project_tags_works_correctly_after_migration(self):
+        if self.engine.name == 'sqlite':
+            self.skipTest('sqlite backend does not support foreign keys')
+
+        self.expand(30)
+        self.migrate(30)
+        self.contract(30)
+
+        project_table = sqlalchemy.Table(
+            'project', self.metadata, autoload=True)
+        tag_table = sqlalchemy.Table(
+            'project_tag', self.metadata, autoload=True)
+
+        session = self.sessionmaker()
+        project_id = uuid.uuid4().hex
+
+        project = {
+            'id': project_id,
+            'name': uuid.uuid4().hex,
+            'enabled': True,
+            'domain_id': resource_base.NULL_DOMAIN_ID,
+            'is_domain': False
+        }
+
+        tag = {
+            'project_id': project_id,
+            'name': uuid.uuid4().hex
+        }
+
+        self.insert_dict(session, 'project', project)
+        self.insert_dict(session, 'project_tag', tag)
+
+        tags_query = session.query(tag_table).filter_by(
+            project_id=project_id).all()
+        self.assertThat(tags_query, matchers.HasLength(1))
+
+        # Adding duplicate tags should cause error.
+        self.assertRaises(db_exception.DBDuplicateEntry,
+                          self.insert_dict,
+                          session, 'project_tag', tag)
+
+        session.execute(
+            project_table.delete().where(project_table.c.id == project_id)
+        )
+
+        tags_query = session.query(tag_table).filter_by(
+            project_id=project_id).all()
+        self.assertThat(tags_query, matchers.HasLength(0))
+
+        session.close()
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
