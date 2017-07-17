@@ -2,8 +2,9 @@
 Sample configuration files
 ==========================
 
-You can find the files described in this section in the
-``/etc/keystone`` directory.
+Configuration files can alter how keystone behaves at runtime and by default
+are located in ``/etc/keystone/``. Links to sample configuration files can be
+found below:
 
 .. toctree::
 
