@@ -504,10 +504,10 @@ class DbSync(BaseApp):
         LOG.info('The latest installed migration script version is: '
                  '%(script)d.\nCurrent repository versions:\nExpand: '
                  '%(expand)d \nMigrate: %(migrate)d\nContract: '
-                 '%(contract)d' % {'script': migration_script_version,
-                                   'expand': expand_version,
-                                   'migrate': migrate_version,
-                                   'contract': contract_version})
+                 '%(contract)d', {'script': migration_script_version,
+                                  'expand': expand_version,
+                                  'migrate': migrate_version,
+                                  'contract': contract_version})
         return status
 
     @staticmethod

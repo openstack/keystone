@@ -214,7 +214,7 @@ class Resource(base.ResourceDriverBase):
                 if (project_id not in project_ids_from_bd or
                         project_id == base.NULL_DOMAIN_ID):
                     LOG.warning('Project %s does not exist and was not '
-                                'deleted.' % project_id)
+                                'deleted.', project_id)
             query.delete(synchronize_session=False)
 
 

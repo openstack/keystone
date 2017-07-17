@@ -347,7 +347,7 @@ class FakeLdap(common.LDAPHandler):
                         id_attr_in_modlist = True
 
         if not id_attr_in_modlist:
-            LOG.debug('id_attribute=%(attr)s missing, attributes=%(attrs)s' %
+            LOG.debug('id_attribute=%(attr)s missing, attributes=%(attrs)s',
                       {'attr': id_attr, 'attrs': modlist})
             raise ldap.NAMING_VIOLATION
         key = self.key(dn)

@@ -96,7 +96,7 @@ class FernetUtils(object):
                 LOG.warning(
                     'Unable to change the ownership of key_repository without '
                     'a keystone user ID and keystone group ID both being '
-                    'provided: %s' % self.key_repository)
+                    'provided: %s', self.key_repository)
 
     def _create_new_key(self, keystone_user_id, keystone_group_id):
         """Securely create a new encryption key.
@@ -128,8 +128,7 @@ class FernetUtils(object):
             LOG.warning(
                 'Unable to change the ownership of the new key without a '
                 'keystone user ID and keystone group ID both being provided: '
-                '%s' %
-                self.key_repository)
+                '%s', self.key_repository)
         # Determine the file name of the new key
         key_file = os.path.join(self.key_repository, '0.tmp')
         create_success = False
