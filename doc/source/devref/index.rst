@@ -33,6 +33,7 @@ Contributor Documentation
    doctor-checks.rst
    http-api.rst
    api_change_tutorial.rst
+   auth-plugins.rst
    database-migrations.rst
    id-manage.rst
    translated-responses.rst
