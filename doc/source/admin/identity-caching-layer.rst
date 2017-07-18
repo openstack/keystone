@@ -11,8 +11,8 @@ flexible cache back ends. The majority of the caching configuration options are
 set in the ``[cache]`` section of the ``/etc/keystone/keystone.conf`` file. The
 ``enabled`` option of the ``[cache]`` section must be set to ``True`` in order
 for any subsystem to cache responses. Each section that has the capability to
-be cached will have a caching boolean value that toggles caching behavior of
-that particular subsystem.
+be cached will have a ``caching`` boolean value that toggles caching behavior
+of that particular subsystem.
 
 So to enable only the token back end caching, set the values as follows:
 
@@ -47,6 +47,32 @@ So to enable only the token back end caching, set the values as follows:
    Each subsystem is configured to cache by default. However, the global
    toggle for caching defaults to ``False``. A subsystem is only able to cache
    responses if the global toggle is enabled.
+
+Current functional back ends are:
+
+``dogpile.cache.memcached``
+   Memcached back end using the standard ``python-memcached`` library.
+
+``dogpile.cache.pylibmc``
+   Memcached back end using the ``pylibmc`` library.
+
+``dogpile.cache.bmemcached``
+   Memcached using the ``python-binary-memcached`` library.
+
+``dogpile.cache.redis``
+   Redis back end.
+
+``dogpile.cache.dbm``
+   Local DBM file back end.
+
+``dogpile.cache.memory``
+   In-memory cache, not suitable for use outside of testing as it does not
+   cleanup its internal cache on cache expiration and does not share cache
+   between processes. This means that caching and cache invalidation will not
+   be consistent or reliable.
+
+``dogpile.cache.mongo``
+    MongoDB as caching back end.
 
 Caching for tokens and tokens validation
 ----------------------------------------

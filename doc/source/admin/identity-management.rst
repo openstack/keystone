@@ -35,4 +35,3 @@ command-line client.
    identity-troubleshoot.rst
    token-provider.rst
    federated-identity.rst
-   caching.rst
