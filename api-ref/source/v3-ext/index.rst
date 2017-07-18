@@ -1,8 +1,8 @@
-:tocdepth: 2
+:tocdepth: 3
 
-======================================
+--------------------------------------
  Identity API v3 extensions (CURRENT)
-======================================
+--------------------------------------
 
 This page describes these Identity API v3 extensions:
 

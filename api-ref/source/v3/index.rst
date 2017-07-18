@@ -1,8 +1,8 @@
-:tocdepth: 2
+:tocdepth: 3
 
-===========================
+---------------------------
  Identity API v3 (CURRENT)
-===========================
+---------------------------
 
 The Identity service generates authentication tokens that permit access to the
 OpenStack services REST APIs. Clients obtain this token and the URL endpoints
@@ -26,6 +26,7 @@ For information about Identity API protection, see
 <https://docs.openstack.org/admin-guide/identity_service_api_protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
+=========================
 What's New in Version 3.8
 =========================
 
@@ -33,12 +34,14 @@ What's New in Version 3.8
 - Add a ``password_expires_at`` query parameter to user list and users in
   group list.
 
+=========================
 What's New in Version 3.7
 =========================
 
 - Addition of the ``password_expires_at`` field to the user response object.
 - Introduce a flag to bypass expiration and revocation checking.
 
+=========================
 What's New in Version 3.6
 =========================
 
@@ -60,6 +63,7 @@ What's New in Version 3.6
 - Support ``enabled`` and ``id`` as optional attributes to filter identity
   providers when listing.
 
+=========================
 What's New in Version 3.5
 =========================
 
@@ -68,6 +72,7 @@ What's New in Version 3.5
 - Addition of ``is_domain`` optional attribute to projects. Setting this
   currently has no effect, it is reserved for future use.
 
+=========================
 What's New in Version 3.4
 =========================
 
@@ -83,6 +88,7 @@ What's New in Version 3.4
 - The JSON Home support now will indicate the status of resource if it is not
   stable and current.
 
+=========================
 What's New in Version 3.3
 =========================
 
@@ -96,6 +102,7 @@ These features are considered stable as of September 4th, 2014.
   targets for a token.
 - Addition of ``url`` optional attribute for ``regions``.
 
+=========================
 What's New in Version 3.2
 =========================
 
@@ -110,6 +117,7 @@ These features are considered stable as of January 23, 2014.
   provided if a particular deployment has limited the number of entries
   a query may return
 
+=========================
 What's New in Version 3.1
 =========================
 
@@ -124,6 +132,7 @@ These features are considered stable as of July 18, 2013.
   creation
 - Added optional bind information to token structure
 
+=========================
 What's New in Version 3.0
 =========================
 
