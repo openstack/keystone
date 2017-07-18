@@ -14,30 +14,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-=========================
-Contributor Documentation
-=========================
+Setting up Keystone
+===================
 
-.. toctree::
-   :maxdepth: 1
-
-   setup.rst
-   conf.rst
-   run-keystone.rst
-   initialise.rst
-   interact.rst
-   build-docs.rst
-   release-notes.rst
-   testing-keystone.rst
-   doctor-checks.rst
-   database-migrations.rst
-   filtering-responsibilities.rst
-   list-truncation.rst
-   id-manage.rst
-   translated-responses.rst
-   caching-layer.rst
-   development_environment.rst
-   developing_drivers.rst
-   api_change_tutorial.rst
-   http-api.rst
-   services.rst
+Get your development environment set up according to
+:doc:`development_environment`. It is recommended that you install
+Keystone into a virtualenv.
