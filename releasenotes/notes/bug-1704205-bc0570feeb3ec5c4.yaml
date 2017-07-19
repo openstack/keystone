@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1704205 <https://bugs.launchpad.net/keystone/+bug/1704205>`_]
+    All users and groups are required to have a name. Prior to this fix,
+    Keystone was not properly enforcing this for LDAP users and groups.
+    Keystone will now ignore users and groups that do not have a value for
+    the LDAP attribute which Keystone has been configured to use for that
+    entity's name.
