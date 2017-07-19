@@ -1415,6 +1415,26 @@ class BaseLdap(object):
             conn.add_s(self._id_to_dn(values['id']), attrs)
         return values
 
+    # NOTE(prashkre): Filter ldap search results on an attribute to ensure
+    # that attribute has a value set on ldap. This keeps keystone away
+    # from entities that don't have attribute value set on ldap.
+    # for e.g. In ldap configuration, if user_name_attribute = personName
+    # then it will ignore ldap users who don't have 'personName' attribute
+    # value set on user.
+    def _filter_ldap_result_by_attr(self, ldap_result, ldap_attr_name):
+        attr = self.attribute_mapping[ldap_attr_name]
+
+        # To ensure that ldap attribute value is not empty in ldap config.
+        if not attr:
+            attr_name = ('%s_%s_attribute' %
+                         (self.options_name,
+                          self.attribute_options_names[ldap_attr_name]))
+            raise ValueError('"%(attr)s" is not a valid value for'
+                             ' "%(attr_name)s"' % {'attr': attr,
+                                                   'attr_name': attr_name})
+        return [obj for obj in ldap_result
+                if obj[1].get(attr) and obj[1].get(attr)[0]]
+
     def _ldap_get(self, object_id, ldap_filter=None):
         query = (u'(&(%(id_attr)s=%(id)s)'
                  u'%(filter)s'
@@ -1435,8 +1455,16 @@ class BaseLdap(object):
                                     attrs)
             except ldap.NO_SUCH_OBJECT:
                 return None
+
+        # TODO(prashkre): add functional testing for missing name attibute
+        # on ldap entities.
+        # NOTE(prashkre): Filter ldap search result to keep keystone away from
+        # entities that don't have names. We can also do the same by appending
+        # a condition '(!(!(self.attribute_mapping.get('name')=*))' to ldap
+        # search query but the repsonse time of the query is pretty slow when
+        # compared to explicit filtering by 'name' through ldap result.
         try:
-            return res[0]
+            return self._filter_ldap_result_by_attr(res[:1], 'name')[0]
         except IndexError:
             return None
 
@@ -1466,19 +1494,28 @@ class BaseLdap(object):
                           list(self.extra_attr_mapping.keys()))))
         if hints.limit:
             sizelimit = hints.limit['limit']
-            return self._ldap_get_limited(self.tree_dn,
-                                          self.LDAP_SCOPE,
-                                          query,
-                                          attrs,
-                                          sizelimit)
-        with self.get_connection() as conn:
-            try:
-                return conn.search_s(self.tree_dn,
-                                     self.LDAP_SCOPE,
-                                     query,
-                                     attrs)
-            except ldap.NO_SUCH_OBJECT:
-                return []
+            res = self._ldap_get_limited(self.tree_dn,
+                                         self.LDAP_SCOPE,
+                                         query,
+                                         attrs,
+                                         sizelimit)
+        else:
+            with self.get_connection() as conn:
+                try:
+                    res = conn.search_s(self.tree_dn,
+                                        self.LDAP_SCOPE,
+                                        query,
+                                        attrs)
+                except ldap.NO_SUCH_OBJECT:
+                    return []
+        # TODO(prashkre): add functional testing for missing name attribute
+        # on ldap entities.
+        # NOTE(prashkre): Filter ldap search result to keep keystone away from
+        # entities that don't have names. We can also do the same by appending
+        # a condition '(!(!(self.attribute_mapping.get('name')=*))' to ldap
+        # search query but the repsonse time of the query is pretty slow when
+        # compared to explicit filtering by 'name' through ldap result.
+        return self._filter_ldap_result_by_attr(res, 'name')
 
     def _ldap_get_list(self, search_base, scope, query_params=None,
                        attrlist=None):
