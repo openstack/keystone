@@ -62,13 +62,7 @@ user_policies = [
         check_str=base.RULE_ADMIN_REQUIRED,
         description='Delete a user.',
         operations=[{'path': '/v3/users/{user_id}',
-                     'method': 'DELETE'}]),
-    policy.DocumentedRuleDefault(
-        name=base.IDENTITY % 'change_password',
-        check_str=base.RULE_ADMIN_OR_OWNER,
-        description='Self-service password change.',
-        operations=[{'path': '/v3/users/{user_id}/password',
-                     'method': 'POST'}])
+                     'method': 'DELETE'}])
 ]
 
 

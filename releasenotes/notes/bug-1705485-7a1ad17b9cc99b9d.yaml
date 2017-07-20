@@ -1,0 +1,19 @@
+---
+upgrade:
+  - |
+    [`bug 1705485 <https://bugs.launchpad.net/keystone/+bug/1705485>`_]
+    The `change_password` protection policy can be removed from file-based
+    policies. This policy is no longer used to protect the self-service
+    password change API since the logic was moved into code. Note that the
+    administrative password reset functionality is still protected via policy
+    on the `update_user` API.
+fixes:
+  - |
+    [`bug 1705485 <https://bugs.launchpad.net/keystone/+bug/1705485>`_]
+    A `previous change <https://review.openstack.org/#/c/404022/>`_ removed
+    policy from the self-service password API. Since a user is required to
+    authenticate to change their password, protection via policy didn't
+    necessarily make sense. This change removes the default policy from code,
+    since it is no longer required or used by the service. Note that
+    administrative password resets for users are still protected via policy
+    through a separate endpoint.
