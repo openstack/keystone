@@ -18,6 +18,7 @@
 from oslo_log import log
 from oslo_utils import strutils
 
+from keystone.common.policies import base as pol_base
 from keystone.common import utils
 from keystone import conf
 from keystone import exception
@@ -198,14 +199,14 @@ def check_protection(controller, request, prep_info, target_attr=None,
 
     """
     check_policy(controller, request,
-                 prep_info['f_name'],
+                 pol_base.IDENTITY % prep_info['f_name'],
                  prep_info.get('filter_attr'),
                  prep_info.get('input_attr'),
                  target_attr,
                  *args, **kwargs)
 
 
-def check_policy(controller, request, f_name,
+def check_policy(controller, request, action,
                  filter_attr=None, input_attr=None, target_attr=None,
                  *args, **kwargs):
     # Makes the arguments from check protection explicit.
@@ -214,7 +215,6 @@ def check_policy(controller, request, f_name,
         LOG.warning('RBAC: Bypassing authorization')
         return
 
-    action = 'identity:%s' % f_name
     # TODO(henry-nash) need to log the target attributes as well
     creds = _build_policy_check_credentials(
         action, request.context_dict, input_attr)
