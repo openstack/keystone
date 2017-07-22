@@ -56,9 +56,6 @@ rules = [
     policy.RuleDefault(
         name='service_admin_or_token_subject',
         check_str='rule:service_or_admin or rule:token_subject'),
-    policy.RuleDefault(
-        name='default',
-        check_str='rule:admin_required')
 ]
 
 

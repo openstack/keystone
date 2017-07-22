@@ -5,10 +5,14 @@ features:
     Keystone now supports the ability to register default policies in code.
     This makes policy file maintenance easier by allowing duplicated default
     policies to be removed from the policy file. The only policies that should
-    exist within a deployments policy file after Pike should be policy
-    overrides. To generate sample policy files from default values, prune
-    default policies from existing policy files, or familiarize yourself with
-    general policy usage, please see the `usage documentation
+    exist within a deployment's policy file after Pike should be policy
+    overrides. Note that there is no longer a default value for the default
+    rule. That rule is only checked when the more specific rule cannot be
+    found, and with policy in code all rules should be found in code even if
+    they are not in the policy file. To generate sample policy files from
+    default values, prune default policies from existing policy files, or
+    familiarize yourself with general policy usage, please see the
+    `usage documentation
     <https://docs.openstack.org/developer/oslo.policy/usage.html>`_
     provided in oslo.policy.
 
@@ -18,9 +22,13 @@ upgrade:
     Keystone now supports the ability to register default policies in code.
     This makes policy file maintenance easier by allowing duplicated default
     policies to be removed from the policy file. The only policies that should
-    exist within a deployments policy file after Pike should be policy
-    overrides. To generate sample policy files from default values, prune
-    default policies from existing policy files, or familiarize yourself with
-    general policy usage, please see the `usage documentation
+    exist within a deployment's policy file after Pike should be policy
+    overrides. Note that there is no longer a default value for the default
+    rule. That rule is only checked when the more specific rule cannot be
+    found, and with policy in code all rules should be found in code even if
+    they are not in the policy file. To generate sample policy files from
+    default values, prune default policies from existing policy files, or
+    familiarize yourself with general policy usage, please see the
+    `usage documentation
     <https://docs.openstack.org/developer/oslo.policy/usage.html>`_
     provided in oslo.policy.
