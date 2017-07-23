@@ -33,24 +33,50 @@ Prerequisites
 This document assumes you are using an Ubuntu, Fedora, or openSUSE platform and
 that you have the following tools pre-installed on your system:
 
-- Python_ 2.7 and 3.5, as the programming language;
+- python_ 2.7 and 3.5, as the programming language;
 - git_, as the version control tool;
 
 **Reminder**: If you are successfully using a different platform, or a
 different version of the above, please document your configuration here!
 
 .. _git: http://git-scm.com/
-.. _Python: http://www.python.org/
 
-Getting the latest code
-=======================
+Installing from source
+======================
 
-Make a clone of the code from our git repository and enter the directory:
+The source install instructions specifically avoid using platform specific
+packages. Instead, we recommend using the source for the code and the Python
+Package Index (PyPi_) for development environment installations..
+
+.. _PyPi: http://pypi.python.org/pypi
+
+It's expected that your system already has python_, pip_, and git_ available.
+
+.. _python: http://www.python.org
+.. _pip: http://www.pip-installer.org/en/latest/installing.html
+.. _git: http://git-scm.com/
+
+Clone the keystone repository:
 
 .. code-block:: bash
 
     $ git clone https://git.openstack.org/openstack/keystone.git
     $ cd keystone
+
+Install the keystone web service:
+
+.. code-block:: bash
+
+    $ pip install -e .
+
+.. NOTE::
+
+    This step is guaranteed to fail if you do not have the proper binary
+    dependencies already installed on your development system. Maintaining a
+    list of platform-specific dependencies is outside the scope of this
+    documentation, but is within scope of DEVSTACK_.
+
+.. _DEVSTACK: https://docs.openstack.org/developer/devstack/
 
 Development environment
 =======================
@@ -59,12 +85,33 @@ For setting up the Python development environment and running `tox` testing
 environments, please refer to the `Project Team Guide: Python Project Guide`_,
 the OpenStack guide on wide standard practices around the use of Python.
 
-That documentation will guide you to configure your development environment
-and run keystone tests using `tox`, which uses virtualenv_ to isolate the Python
+That documentation will help you configure your development environment and run
+keystone tests using `tox`, which uses virtualenv_ to isolate the Python
 environment. After running it, notice the existence of a `.tox` directory.
 
 .. _`Project Team Guide: Python Project Guide`: https://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _virtualenv: http://www.virtualenv.org/
+
+Deploying configuration files
+=============================
+
+You should be able to run keystone after installing via pip. Additional
+configuration files are required, however. The following files are required in
+order to run keystone:
+
+* ``keystone.conf``
+* ``keystone-paste.ini``
+
+You can generate a sample configuration file using ``tox -e genconfig``. You
+can also generate sample policy files using ``tox -e genpolicy``. Please refer
+to :doc:`../configuration` for guidance on specific configuration options or to
+view a sample paste file.
+
+Bootstrapping a test deployment
+===============================
+
+You can use the ``keystone-manage bootstrap`` command to pre-populate the
+database with necessary data.
 
 Verifying keystone is set up
 ============================
@@ -77,6 +124,13 @@ Once set up, you should be able to invoke Python and import the libraries:
 
 If you can import keystone without a traceback, you should be ready to move on
 to the next sections.
+
+You can run keystone using a host of wsgi implementations or web servers. The
+following uses ``uwsgi``:
+
+.. code-block:: bash
+
+    $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
 
 Database setup
 ==============
