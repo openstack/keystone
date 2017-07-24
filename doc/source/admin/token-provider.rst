@@ -15,8 +15,8 @@ You can register your own token provider by configuring the following property:
    token provider.
 
 * ``provider`` - token provider driver.
-  Defaults to ``uuid``.
-  Implemented by :class:`keystone.token.providers.uuid.Provider`. This is the
+  Defaults to ``fernet``.
+  Implemented by :class:`keystone.token.providers.fernet.Provider`. This is the
   entry point for the token provider in the ``keystone.token.provider``
   namespace.
 
