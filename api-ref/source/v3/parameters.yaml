@@ -858,7 +858,7 @@ group_description_request_body:
   description: |
     The description of the group.
   in: body
-  required: true
+  required: false
   type: string
 group_description_response_body:
   description: |
@@ -884,7 +884,7 @@ group_domain_id_request_body:
   description: |
     The ID of the domain of the group.
   in: body
-  required: true
+  required: false
   type: string
 group_domain_id_response_body:
   description: |
@@ -1367,7 +1367,7 @@ service_description:
   description: |
     The service description.
   in: body
-  required: true
+  required: false
   type: string
 service_description_not_required:
   description: |
@@ -1382,7 +1382,7 @@ service_enabled:
     endpoints do not appear in the   service catalog.  - ``true``. The
     service and its endpoints appear in the service   catalog.
   in: body
-  required: true
+  required: false
   type: boolean
 service_enabled_not_required:
   description: |
