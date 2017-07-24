@@ -38,6 +38,15 @@ identity:create_project                                    POST /v3/projects
 identity:update_project                                    PATCH /v3/projects/{project_id}
 identity:delete_project                                    DELETE /v3/projects/{project_id}
 
+identity:get_project_tag                                   GET /v3/projects/{project_id}/tags/{tag_name}
+                                                           HEAD /v3/projects/{project_id}/tags/{tag_name}
+identity:list_project_tags                                 GET /v3/projects/{project_id}/tags
+                                                           HEAD /v3/projects/{project_id}/tags
+identity:create_project_tag                                PUT /v3/projects/{project_id}/tags/{tag_name}
+identity:update_project_tags                               PUT /v3/projects/{project_id}/tags
+identity:delete_project_tag                                DELETE /v3/projects/{project_id}/tags/{tag_name}
+identity:delete_project_tags                               DELETE /v3/projects/{project_id}/tags
+
 identity:get_user                                          GET /v3/users/{user_id}
 identity:list_users                                        GET /v3/users
 identity:create_user                                       POST /v3/users
