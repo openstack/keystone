@@ -1353,7 +1353,7 @@ class DomainConfigManager(manager.Manager):
                     'value: %(value)s.')
 
             if warning_msg:
-                LOG.warning(warning_msg % {
+                LOG.warning(warning_msg, {
                     'domain': domain_id,
                     'group': each_whitelisted['group'],
                     'option': each_whitelisted['option'],
