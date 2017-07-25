@@ -48,6 +48,8 @@ function configure_apache {
     cat $KEYSTONE_PLUGIN/files/federation/shib_apache_handler.txt | sudo tee -a $keystone_apache_conf
 
     sudo sed -i -e "s|%IDP_ID%|$IDP_ID|g;" $keystone_apache_conf
+
+    restart_apache_server
 }
 
 function install_federation {
@@ -94,6 +96,10 @@ function configure_federation {
 
     # Specify the header that contains information about the identity provider
     iniset $KEYSTONE_CONF mapped remote_id_attribute "Shib-Identity-Provider"
+
+    if [[ "$WSGI_MODE" == "uwsgi" ]]; then
+        restart_service "devstack@keystone"
+    fi
 
     # Register the service provider
     upload_sp_metadata
