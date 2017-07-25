@@ -287,7 +287,8 @@ def validate_upgrade_order(repo_name, target_repo_version=None):
         if int(repo.latest) != get_db_version():
             raise db_exception.DBMigrationError(
                 'Your Legacy repo version is not up to date. Please refer to '
-                'https://docs.openstack.org/developer/keystone/upgrading.html '
+                'https://docs.openstack.org/keystone/latest/admin/'
+                'identity-upgrading.html '
                 'to see the proper steps for rolling upgrades.')
         return
 
@@ -304,7 +305,8 @@ def validate_upgrade_order(repo_name, target_repo_version=None):
     if dependency_repo_version < target_repo_version:
         raise db_exception.DBMigrationError(
             'You are attempting to upgrade %s ahead of %s. Please refer to '
-            'https://docs.openstack.org/developer/keystone/upgrading.html '
+            'https://docs.openstack.org/keystone/latest/admin/'
+            'identity-upgrading.html '
             'to see the proper steps for rolling upgrades.' % (
                 repo_name, db_sync_order[repo_name]))
 

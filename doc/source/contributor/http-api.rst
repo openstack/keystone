@@ -126,7 +126,7 @@ With unversioned ``identity`` endpoints in the service catalog, you should be
 able to `authenticate with keystoneclient`_ successfully.
 
 .. _`latest sample configuration`: https://git.openstack.org/cgit/openstack/keystone/tree/etc/keystone-paste.ini
-.. _`authenticate with keystoneclient`: https://docs.openstack.org/developer/python-keystoneclient/using-api-v3.html#authenticating-using-sessions
+.. _`authenticate with keystoneclient`: https://docs.openstack.org/python-keystoneclient/latest/using-api-v3.html#authenticating-using-sessions
 
 I have a Python client
 ----------------------

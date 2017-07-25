@@ -69,7 +69,7 @@ Install the keystone web service:
     list of platform-specific dependencies is outside the scope of this
     documentation, but is within scope of DEVSTACK_.
 
-.. _DEVSTACK: https://docs.openstack.org/developer/devstack/
+.. _DEVSTACK: https://docs.openstack.org/devstack/latest
 
 Development environment
 =======================

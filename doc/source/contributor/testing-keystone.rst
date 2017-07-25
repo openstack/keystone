@@ -271,9 +271,9 @@ from the tempest directory:
    the correct place to add new tests.
 
 .. _devstack: https://git.openstack.org/cgit/openstack-dev/devstack
-.. _devstack plugin: https://docs.openstack.org/developer/devstack/plugins.html
+.. _devstack plugin: https://docs.openstack.org/devstack/latest/plugins.html
 .. _tempest: https://git.openstack.org/cgit/openstack/tempest
-.. _tempest plugin: https://docs.openstack.org/developer/tempest/plugin.html
+.. _tempest plugin: https://docs.openstack.org/tempest/latest/plugin.html
 
 Writing new API & Scenario Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -411,6 +411,6 @@ Notice that the ``test_request_unscoped_token`` test only executes if the the
    tempest plugin are executed in the
    ``gate-keystone-dsvm-functional-v3-only-*`` job.
 
-.. _Tempest Field Guide to Scenario tests: https://docs.openstack.org/developer/tempest/field_guide/scenario.html
-.. _Tempest Field Guide to API tests: https://docs.openstack.org/developer/tempest/field_guide/api.html
-.. _tempest coding guide: https://docs.openstack.org/developer/tempest/HACKING.html
+.. _Tempest Field Guide to Scenario tests: https://docs.openstack.org/tempest/latest/field_guide/scenario.html
+.. _Tempest Field Guide to API tests: https://docs.openstack.org/tempest/latest/field_guide/api.html
+.. _tempest coding guide: https://docs.openstack.org/tempest/latest/HACKING.html

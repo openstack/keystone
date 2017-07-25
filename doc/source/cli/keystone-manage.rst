@@ -103,7 +103,7 @@ None
 SEE ALSO
 ========
 
-* `OpenStack Keystone <https://docs.openstack.org/developer/keystone>`__
+* `OpenStack Keystone <https://docs.openstack.org/keystone/latest>`__
 
 SOURCE
 ======

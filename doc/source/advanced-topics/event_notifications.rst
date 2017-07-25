@@ -66,7 +66,7 @@ capabilities for compliance with security, operational, and business processes
 and supports normalized and categorized event data for federation and
 aggregation.
 
-.. _PyCADF: https://docs.openstack.org/developer/pycadf
+.. _PyCADF: https://docs.openstack.org/pycadf/latest
 .. _CADF: http://www.dmtf.org/standards/cadf
 
 CADF notifications include additional context data around the ``resource``,
@@ -565,4 +565,4 @@ By default, messages for the following authentication events are suppressed
 since they are too noisy: ``identity.authenticate.success``,
 ``identity.authenticate.pending`` and ``identity.authenticate.failed``.
 
-.. _Telemetry Measurements: https://docs.openstack.org/admin-guide/telemetry-measurements.html#openstack-identity
+.. _Telemetry Measurements: https://docs.openstack.org/ceilometer/latest/admin/telemetry-measurements.html#openstack-identity
