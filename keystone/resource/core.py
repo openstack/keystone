@@ -332,6 +332,11 @@ class Manager(manager.Manager):
 
             notifications.Audit.disabled(self._PROJECT, project_id,
                                          public=False)
+            # Drop the computed assignments if the project is being disabled.
+            # This ensures an accurate list of projects is returned when
+            # listing projects/domains for a user based on role assignments.
+            assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+
         if cascade:
             self._only_allow_enabled_to_update_cascade(project,
                                                        original_project)

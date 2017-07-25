@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1700852 <https://bugs.launchpad.net/keystone/+bug/1700852>`_]
+    Keystone now supports caching of the `GET|HEAD
+    /v3/users/{user_id}/projects` API in an effort to improve performance.
