@@ -94,17 +94,15 @@ Administrator Guides
 .. toctree::
     :maxdepth: 2
 
-    admin/identity-management.rst
+    admin/index.rst
 
 Configuration Options
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
-    configuration/config-options.rst
-    configuration/policy.rst
-    configuration/samples/index.rst
+    configuration/index.rst
 
 API Documentation
 ~~~~~~~~~~~~~~~~~
