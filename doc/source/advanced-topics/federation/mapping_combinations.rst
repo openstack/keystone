@@ -208,12 +208,14 @@ is passed as input.
 in the remote attribute type. Condition result is boolean, not the argument that
 is passed as input.
 
-``blacklist``: The rule allows all except a specified set of groups. Condition
-result is the argument(s) passed as input minus what was matched in the
-blacklist.
+``blacklist``: This rule removes all groups matched from the assertion. It is
+not intended to be used as a way to prevent users, or groups of users, from
+accessing the service provider. The output from filtering through a blacklist
+will be all groups from the assertion that were not listed in the blacklist.
 
-``whitelist``: The rules allows a specified set of groups. Condition result is
-the argument(s) passed as input and is/are also present in the whitelist.
+``whitelist``: This rule explicitly states which groups should be carried over
+from the assertion. The result is the groups present in the assertion and in
+the whitelist.
 
 .. NOTE::
 
