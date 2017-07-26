@@ -22,11 +22,17 @@ IDP_USERNAME=${IDP_USERNAME:-myself}
 IDP_PASSWORD=${IDP_PASSWORD:-myself}
 IDP_REMOTE_ID=${IDP_REMOTE_ID:-https://idp.testshib.org/idp/shibboleth}
 IDP_ECP_URL=${IDP_ECP_URL:-https://idp.testshib.org/idp/profile/SAML2/SOAP/ECP}
+IDP_METADATA_URL=${IDP_METADATA_URL:-http://www.testshib.org/metadata/testshib-providers.xml}
 
 MAPPING_REMOTE_TYPE=${MAPPING_REMOTE_TYPE:-eppn}
 MAPPING_USER_NAME=${MAPPING_USER_NAME:-"{0}"}
 
 PROTOCOL_ID=${PROTOCOL_ID:-mapped}
+
+# File paths
+FEDERATION_FILES="$KEYSTONE_PLUGIN/files/federation"
+SHIBBOLETH_XML="/etc/shibboleth/shibboleth2.xml"
+ATTRIBUTE_MAP="/etc/shibboleth/attribute-map.xml"
 
 function configure_apache {
     if [[ "$WSGI_MODE" == "uwsgi" ]]; then
@@ -83,9 +89,15 @@ function configure_federation {
     configure_apache
 
     # Copy a templated /etc/shibboleth/shibboleth2.xml file...
-    sudo cp $KEYSTONE_PLUGIN/files/federation/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
-    # ... and replace the %HOST_IP% placeholder with the host ip
-    sudo sed -i -e "s|%HOST_IP%|$HOST_IP|g;" /etc/shibboleth/shibboleth2.xml
+    sudo cp $FEDERATION_FILES/shibboleth2.xml $SHIBBOLETH_XML
+    # ... and replace the %HOST_IP%, %IDP_REMOTE_ID%,and %IDP_METADATA_URL% placeholders
+    sudo sed -i -e "
+        s|%HOST_IP%|$HOST_IP|g;
+        s|%IDP_REMOTE_ID%|$IDP_REMOTE_ID|g;
+        s|%IDP_METADATA_URL%|$IDP_METADATA_URL|g;
+        " $SHIBBOLETH_XML
+
+    sudo cp "$FEDERATION_FILES/attribute-map.xml" $ATTRIBUTE_MAP
 
     restart_service shibd
 

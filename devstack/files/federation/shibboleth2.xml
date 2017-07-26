@@ -21,7 +21,7 @@ https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfiguration
 
             <!-- Triggers a login request directly to the TestShib IdP. -->
             <!-- https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPServiceSSO -->
-            <SSO entityID="https://idp.testshib.org/idp/shibboleth" ECP="true">
+            <SSO entityID="%IDP_REMOTE_ID%" ECP="true">
                 SAML2 SAML1
             </SSO>
 
@@ -54,8 +54,8 @@ https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfiguration
                 styleSheet="/shibboleth-sp/main.css"/>
 
         <!-- Loads and trusts a metadata file that describes only the Testshib IdP and how to communicate with it. -->
-        <MetadataProvider type="XML" uri="http://www.testshib.org/metadata/testshib-providers.xml"
-             backingFilePath="testshib-two-idp-metadata.xml" reloadInterval="180000" />
+        <MetadataProvider type="XML" uri="%IDP_METADATA_URL%"
+                          backingFilePath="metadata.xml" reloadInterval="180000" />
 
         <!-- Attribute and trust options you shouldn't need to change. -->
         <AttributeExtractor type="XML" validate="true" path="attribute-map.xml"/>
