@@ -14,13 +14,13 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-Interacting with Keystone
-=========================
+===============================
+Learning Architecture Internals
+===============================
 
-You can also interact with keystone through its REST API. There is a Python
-keystone client library `python-keystoneclient`_ which interacts exclusively
-through the REST API, and a command-line interface `python-openstackclient`_
-command-line interface.
+.. toctree::
+   :maxdepth: 1
 
-.. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
-.. _`python-openstackclient`: https://git.openstack.org/cgit/openstack/python-openstackclient
+   caching-layer.rst
+   filtering-responsibilities.rst
+   list-truncation.rst

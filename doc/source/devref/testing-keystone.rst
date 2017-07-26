@@ -23,7 +23,7 @@ Running Tests
 
 Before running tests, you should have ``tox`` installed and available in your
 environment (in addition to the other external dependencies in
-:doc:`development_environment`):
+:ref:`dev-environment`):
 
 .. code-block:: bash
 
@@ -96,6 +96,19 @@ For example, to discard logging data during a test run:
 .. code-block:: bash
 
     $ OS_LOG_CAPTURE=0 tox -e py27
+
+Building the Documentation
+--------------------------
+
+The documentation is generated with Sphinx using the tox command. To create HTML
+docs and man pages:
+
+.. code-block:: bash
+
+    $ tox -e docs
+
+The results are in the ``doc/build/html`` and ``doc/build/man`` directories
+respectively.
 
 Tests Structure
 ---------------
