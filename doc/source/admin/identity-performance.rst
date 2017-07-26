@@ -25,16 +25,22 @@ With that said, there are many opportunities for tuning the performance of
 Keystone, many of which are actually trade-offs between performance and
 security that you need to judge for yourself, and tune accordingly.
 
-``keystone-manage token_flush``
-===============================
+Pruning expired tokens from backend storage
+===========================================
 
-If you're using a token provider that requires persistence (such as UUID, PKI,
-or PKIZ, but not Fernet), then you **MUST** periodically run ``keystone-manage
-token_flush`` to purge the database of expired tokens. If you don't, then your
-SQL server will eventually become bloated and performance will suffer.
+Using a persistent token format will result in an ever-growing backend store.
+Keystone will not remove, or prune, tokens from the backend even after they are
+expired. This can be managed manually using ``keystone-manage token_flush``,
+which will purge expired tokens from the data store in batches. Diligently
+pruning expired tokens will prevent token bloat.
 
-``keystone.conf``
-=================
+.. note::
+
+    This optimization is not necessary for deployments leveraging Fernet
+    tokens, which are non-persistent in nature.
+
+Keystone configuration options that affect performance
+======================================================
 
 These are all of the options in ``keystone.conf`` that have a direct impact on
 performance. See the help descriptions for these options for more specific
@@ -54,19 +60,19 @@ details on how and why you might want to tune these options for yourself.
   need to configure other options in the ``[cache]`` section to actually
   utilize caching.
 
-* ``[token] provider``: All of our token provider options have been primarily
+* ``[token] provider``: All supported token providers have been primarily
   driven by performance considerations. UUID and Fernet both require online
-  validation (cacheable HTTP calls back to keystone to validate tokens),
-  whereas PKI can be validated in a distributed fashion. Fernet has the highest
-  scalability characteristics overall, but requires more work to validate, and
-  therefore enabling caching (``[cache] enable``) is absolutely critical.
+  validation (cacheable HTTP calls back to keystone to validate tokens).
+  Fernet has the highest scalability characteristics overall, but requires more
+  work to validate, and therefore enabling caching (``[cache] enable``) is
+  absolutely critical.
 
 * ``[fernet] max_active_keys``: If you're using Fernet tokens, decrease this
   option to improve performance, increase this option to support more advanced
   key rotation strategies.
 
-``keystonemiddleware.auth_token``
-=================================
+Keystonemiddleware configuration options that affect performance
+================================================================
 
 This configuration actually lives in the Paste pipelines of services consuming
 token validation from keystone (i.e.: nova, cinder, swift, etc.).
@@ -92,11 +98,3 @@ token validation from keystone (i.e.: nova, cinder, swift, etc.).
 
 * ``include_service_catalog``: Disable this option to improve performance, if
   the protected service does not require a service catalog.
-
-* ``check_revocations_for_cached``: Leave this option disabled to improve
-  performance, but enable it if you're using PKI tokens.
-
-* ``hash_algorithms``: If you're using PKI tokens, then use a high performance
-  hash algorithm to improve performance, or choose a more rigorous hash
-  algorithm to improve security. This option is ignored for other token
-  formats.
