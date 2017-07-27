@@ -4,7 +4,7 @@
         "filters": {
             "interface": "admin",
             "service_id": "1b501a"
-        }
+        },
         "name": "endpoint group name"
     }
 }
