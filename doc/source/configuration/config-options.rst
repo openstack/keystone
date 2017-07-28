@@ -9,7 +9,7 @@ The Identity service is configured in the ``/etc/keystone/keystone.conf`` file.
 
 The following tables provide a comprehensive list of the Identity
 service options. For a sample configuration file, refer to
-:doc:`/sample_files/sample_config`.
+:doc:`samples/keystone-conf`.
 
 .. show-options::
    :config-file: config-generator/keystone.conf
