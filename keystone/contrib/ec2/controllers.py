@@ -48,6 +48,7 @@ from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
 from keystone.i18n import _
+from keystone.token import controllers as token_controllers
 
 CRED_TYPE_EC2 = 'ec2'
 
@@ -274,22 +275,17 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
     @controller.v2_ec2_deprecated
     def authenticate(self, request, credentials=None, ec2Credentials=None):
-        (user_ref, tenant_ref, metadata_ref, roles_ref,
-         catalog_ref) = self._authenticate(credentials=credentials,
-                                           ec2credentials=ec2Credentials)
+        (user_ref, project_ref, roles_ref, catalog_ref) = self._authenticate(
+            credentials=credentials, ec2credentials=ec2Credentials
+        )
 
-        # NOTE(morganfainberg): Make sure the data is in correct form since it
-        # might be consumed external to Keystone and this is a v2.0 controller.
-        # The token provider does not explicitly care about user_ref version
-        # in this case, but the data is stored in the token itself and should
-        # match the version
-        user_ref = self.v3_to_v2_user(user_ref)
-        auth_token_data = dict(user=user_ref,
-                               tenant=tenant_ref,
-                               metadata=metadata_ref,
-                               id='placeholder')
-        (token_id, token_data) = self.token_provider_api.issue_v2_token(
-            auth_token_data, roles_ref, catalog_ref)
+        method_names = ['ec2credential']
+
+        token_id, token_data = self.token_provider_api.issue_token(
+            user_ref['id'], method_names, project_id=project_ref['id'])
+
+        v2_helper = token_controllers.V2TokenDataHelper()
+        token_data = v2_helper.v3_to_v2_token(token_data, token_id)
         return token_data
 
     @controller.v2_ec2_deprecated
