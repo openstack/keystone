@@ -73,7 +73,7 @@ This section contains the documentation needed for developing keystone.
 .. toctree::
     :maxdepth: 2
 
-    devref/index.rst
+    contributor/index.rst
 
 Operator Documentation
 ~~~~~~~~~~~~~~~~~~~~~~
