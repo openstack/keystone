@@ -2087,6 +2087,29 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             self._check_project_scoped_token_attributes(token_resp,
                                                         project_id_ref)
 
+    def test_scope_to_project_with_duplicate_roles_returns_single_role(self):
+        r = self.v3_create_token(self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN)
+
+        # Even though the process of obtaining a token shows that there is a
+        # role assignment on a project, we should attempt to create a duplicate
+        # assignment somewhere. Do this by creating a direct role assignment
+        # with each role against the project the token was scoped to.
+        user_id = r.json_body['token']['user']['id']
+        project_id = r.json_body['token']['project']['id']
+        for role in r.json_body['token']['roles']:
+            self.assignment_api.create_grant(
+                role_id=role['id'], user_id=user_id, project_id=project_id
+            )
+
+        # Ensure all roles in the token are unique even though we know there
+        # should be duplicate role assignment from the assertions and the
+        # direct role assignments we just created.
+        r = self.v3_create_token(self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN)
+        known_role_ids = []
+        for role in r.json_body['token']['roles']:
+            self.assertNotIn(role['id'], known_role_ids)
+            known_role_ids.append(role['id'])
+
     def test_scope_to_project_with_only_inherited_roles(self):
         """Try to scope token whose only roles are inherited."""
         r = self.v3_create_token(
