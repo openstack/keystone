@@ -1686,9 +1686,6 @@ class VersionTests(SqlMigrateBase):
 class MigrationValidation(SqlMigrateBase, unit.TestCase):
     """Test validation of database between database phases."""
 
-    def setUp(self):
-        super(MigrationValidation, self).setUp()
-
     def _set_db_sync_command_versions(self):
         self.expand(1)
         self.migrate(1)

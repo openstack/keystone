@@ -1356,9 +1356,6 @@ class UUIDAuthWithTrust(AuthWithTrust, AuthTest):
         super(UUIDAuthWithTrust, self).config_overrides()
         self.config_fixture.config(group='token', provider='uuid')
 
-    def setUp(self):
-        super(UUIDAuthWithTrust, self).setUp()
-
 
 class FernetAuthWithTrust(AuthWithTrust, AuthTest):
 
