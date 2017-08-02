@@ -13,9 +13,9 @@
 # Eric Lei <1165970798@qq.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 12.0.0.dev260\n"
+"Project-Id-Version: keystone 12.0.0.0b4.dev8\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-04-10 21:05+0000\n"
+"POT-Creation-Date: 2017-08-01 22:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -286,14 +286,6 @@ msgid ""
 "of its entrypoint from %(namespace)r and may be removed in N."
 msgstr ""
 "自 Liberty 开始，已不推荐直接导入认证插件 %(name)r（为了支持它在 "
-"%(namespace)r 中的入口点），并且可能在 N 中移除。"
-
-#, python-format
-msgid ""
-"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
-"entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"自 Liberty 开始，已不推荐直接导入驱动程序 %(name)r（为了支持它在 "
 "%(namespace)r 中的入口点），并且可能在 N 中移除。"
 
 msgid ""
@@ -923,13 +915,6 @@ msgstr "无法删除充当域的已启用项目。请先禁用项目 %s。"
 msgid "group %(group)s"
 msgstr "组 %(group)s"
 
-msgid ""
-"idp_contact_type must be one of: [technical, other, support, administrative "
-"or billing."
-msgstr ""
-"idp_contact_type 必须是下列其中一项：technical、other、support、"
-"administrative 或 billing。"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "日期格式 %s 无效"
@@ -961,10 +946,6 @@ msgstr "请求更新组 %(group)s，但所提供配置反而包含组 %(group_ot
 
 msgid "rescope a scoped token"
 msgstr "请重新确定带范围的令牌的范围"
-
-#, python-format
-msgid "role %s is not defined"
-msgstr "未定义角色 %s"
 
 msgid "scope.project.id must be specified if include_subtree is also specified"
 msgstr "如果还指定了 include_subtree，那么必须指定 scope.project.id"
