@@ -88,6 +88,16 @@ the keystone service.
     advanced-topics/index.rst
     sample_files/index.rst
 
+User Documentation
+~~~~~~~~~~~~~~~~~~
+
+This section contains the documentation for end-users of keystone.
+
+.. toctree::
+    :maxdepth: 2
+
+    user/index.rst
+
 Administrator Guides
 ~~~~~~~~~~~~~~~~~~~~
 
