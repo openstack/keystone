@@ -98,6 +98,16 @@ This section contains the documentation for end-users of keystone.
 
     user/index.rst
 
+CLI Documentation
+~~~~~~~~~~~~~~~~~
+
+This section details information related to ``keystone-manage``.
+
+.. toctree::
+    :maxdepth: 2
+
+    cli/index.rst
+
 Administrator Guides
 ~~~~~~~~~~~~~~~~~~~~
 
