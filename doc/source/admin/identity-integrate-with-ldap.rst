@@ -12,7 +12,8 @@ for use with Keystone <https://wiki.openstack.org/wiki/OpenLDAP>`__.
 
 When the OpenStack Identity service is configured to use LDAP back ends,
 you can split authentication (using the *identity* feature) and
-authorization (using the *assignment* feature).
+authorization (using the *assignment* feature). OpenStack Identity only
+supports read-only LDAP integration.
 
 The *identity* feature enables administrators to manage users and groups
 by each domain or the OpenStack Identity service entirely.
@@ -20,6 +21,15 @@ by each domain or the OpenStack Identity service entirely.
 The *assignment* feature enables administrators to manage project role
 authorization using the OpenStack Identity service SQL database, while
 providing user authentication through the LDAP directory.
+
+.. NOTE::
+
+    It is possible to isolate identity related information to LDAP in a
+    deployment and keep resource information in a separate datastore. It is not
+    possible to do the opposite, where resource information is stored in LDAP
+    and identity information is stored in SQL. If the resource or assignment
+    back ends are integrated with LDAP, the identity back end must also be
+    integrated with LDAP.
 
 .. _identity_ldap_server_setup:
 
@@ -47,8 +57,7 @@ examples. Modify these examples as needed.
 
 **To define the destination LDAP server**
 
-#. Define the destination LDAP server in the
-   ``/etc/keystone/keystone.conf`` file:
+Define the destination LDAP server in the ``/etc/keystone/keystone.conf`` file:
 
    .. code-block:: ini
 
@@ -57,6 +66,16 @@ examples. Modify these examples as needed.
       user = dc=Manager,dc=example,dc=org
       password = samplepassword
       suffix = dc=example,dc=org
+
+
+Multiple LDAP servers can be supplied to ``url`` to provide high-availability
+support for a single LDAP backend. To specify multiple LDAP servers, simply
+change the ``url`` option in the ``[ldap]`` section to be a list, separated by
+commas:
+
+   .. code-block:: ini
+
+      url = "ldap://localhost,ldap://backup.localhost"
 
 **Additional LDAP integration settings**
 
@@ -94,14 +113,24 @@ A value of zero means that debugging is not enabled.
 .. code-block:: ini
 
    [ldap]
-   debug_level = 0
+   debug_level = 4095
 
-.. warning::
+This setting sets ``OPT_DEBUG_LEVEL`` in the underlying python library. This
+field is a bit mask (integer), and the possible flags are documented in the
+OpenLDAP manpages. Commonly used values include 255 and 4095, with 4095 being
+more verbose and 0 being disabled. We recommend consulting the documentation
+for your LDAP back end when using this option.
 
-   This value is a bitmask, consult your LDAP documentation for
-   possible values.
+.. WARNING::
+  Enabling ``debug_level`` will negatively impact performance.
 
 **Connection pooling**
+
+Various LDAP back ends use a common LDAP module to interact with LDAP data. By
+default, a new connection is established for each LDAP operation. This is
+expensive when TLS support is enabled, which is a likely configuration in an
+enterprise setup. Reusing connections from a connection pool drastically
+reduces overhead of initiating a new connection for every LDAP operation.
 
 Use ``use_pool`` to enable LDAP connection pooling. Configure the
 connection pool size, maximum retry, reconnect trials, timeout (-1
@@ -119,9 +148,16 @@ indicates indefinite wait) and lifetime in seconds.
 
 **Connection pooling for end user authentication**
 
+LDAP user authentication is performed via an LDAP bind operation. In large
+deployments, user authentication can use up all available connections in a
+connection pool. OpenStack Identity provides a separate connection pool
+specifically for user authentication.
+
 Use ``use_auth_pool`` to enable LDAP connection pooling for end user
-authentication. Configure the connection pool size and lifetime in
-seconds.
+authentication. Configure the connection pool size and lifetime in seconds.
+Both ``use_pool`` and ``use_auth_pool`` must be enabled to pool connections for
+user authentication.
+
 
 .. code-block:: ini
 
@@ -187,21 +223,6 @@ administrators to use users and groups in LDAP.
       .. code-block:: ini
 
          user_objectclass = person
-
-#. A read-only implementation is recommended for LDAP integration. These
-   permissions are applied to object types in the
-   ``/etc/keystone/keystone.conf`` file:
-
-   .. code-block:: ini
-
-      [ldap]
-      user_allow_create = False
-      user_allow_update = False
-      user_allow_delete = False
-
-      group_allow_create = False
-      group_allow_update = False
-      group_allow_delete = False
 
    Restart the OpenStack Identity service.
 
@@ -290,21 +311,6 @@ administrators to use users and groups in LDAP.
 
          user_objectclass = person
 
-#. A read-only implementation is recommended for LDAP integration. These
-   permissions are applied to object types in the
-   ``/etc/keystone/domains/keystone.DOMAIN_NAME.conf`` file:
-
-   .. code-block:: ini
-
-      [ldap]
-      user_allow_create = False
-      user_allow_update = False
-      user_allow_delete = False
-
-      group_allow_create = False
-      group_allow_update = False
-      group_allow_delete = False
-
 #. Restart the OpenStack Identity service.
 
    .. warning::
@@ -359,18 +365,57 @@ Identity attribute mapping
       group_desc_attribute   = description
       group_additional_attribute_mapping =
 
-Enabled emulation
-   An alternative method to determine if a user is enabled or not is by
-   checking if that user is a member of the emulation group.
-
-   Use DN of the group entry to hold enabled user when using enabled
-   emulation.
+   It is possible to model more complex LDAP schemas. For example, in the user
+   object, the objectClass posixAccount from `RFC2307 <https://tools.ietf.org/html/rfc2307>`_
+   is very common. If this is the underlying objectClass, then the ``uid``
+   field should probably be ``uidNumber`` and the ``username`` field should be
+   either ``uid`` or ``cn``. The following illustrates the configuration:
 
    .. code-block:: ini
 
       [ldap]
-      user_enabled_emulation = false
-      user_enabled_emulation_dn = false
+      user_id_attribute = uidNumber
+      user_name_attribute = cn
+
+Enabled emulation
+   OpenStack Identity supports emulation for integrating with LDAP servers that
+   do not provide an ``enabled`` attribute for users. This allows OpenStack
+   Identity to advertise ``enabled`` attributes when the user entity in LDAP
+   does not. The ``user_enabled_emulation`` option must be enabled and the
+   ``user_enabled_emulation_dn`` option must be a valid LDAP group. Users in
+   the group specified by ``user_enabled_emulation_dn`` will be marked as
+   ``enabled``. For example, the following will mark any user who is a member
+   of the ``enabled_users`` group as enabled:
+
+   .. code-block:: ini
+
+      [ldap]
+      user_enabled_emulation = True
+      user_enabled_emulation_dn = cn=enabled_users,cn=groups,dc=openstack,dc=org
+
+   If the directory server has an enabled attribute, but it is not a boolean
+   type, a mask can be used to convert it. This is useful when the enabled
+   attribute is an integer value. The following configuration highlights the
+   usage:
+
+   .. code-block:: ini
+
+      [ldap]
+      user_enabled_attribute = userAccountControl
+      user_enabled_mask = 2
+      user_enabled_default = 512
+
+   In this case, the attribute is an integer and the enabled attribute is
+   listed in bit 1. If the mask configured ``user_enabled_mask`` is different
+   from 0, it retrieves the attribute from ``user_enabled_attribute`` and
+   performs an add operation with the ``user_enabled_mask``. If the sum of the
+   operation matches the mask, then the account is disabled.
+
+   The value of ``user_enabled_attribute`` is also saved before applying the
+   add operation in ``enabled_nomask``. This is done in case the user needs to
+   be enabled or disabled. Lastly, setting ``user_enabled_default`` is needed
+   in order to create a default value on the integer attribute (512 = NORMAL
+   ACCOUNT in Active Directory).
 
 When you have finished configuration, restart the OpenStack Identity
 service.
@@ -383,10 +428,11 @@ service.
 Secure the OpenStack Identity service connection to an LDAP back end
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Identity service supports the use of TLS to encrypt LDAP traffic.
-Before configuring this, you must first verify where your certificate
-authority file is located. For more information, see the
-`OpenStack Security Guide SSL introduction <https://docs.openstack.org/
+We recommend securing all connections between OpenStack Identity and LDAP. The
+Identity service supports the use of TLS to encrypt LDAP traffic. Before
+configuring this, you must first verify where your certificate authority file
+is located. For more information, see the `OpenStack Security Guide SSL
+introduction <https://docs.openstack.org/
 security-guide/secure-communication/introduction-to-ssl-and-tls.html>`_.
 
 Once you verify the location of your certificate authority file:
@@ -430,6 +476,16 @@ Once you verify the location of your certificate authority file:
         certificate will be ignored and the session will proceed as
         normal.
       * ``never`` - A certificate will never be requested.
+
+When you have finished configuration, restart the OpenStack Identity
+service.
+
+.. NOTE::
+
+    If you are unable to connect to LDAP via OpenStack Identity, or observe a
+    *SERVER DOWN* error, set the ``TLS_CACERT`` in ``/etc/ldap/ldap.conf`` to
+    the same value specified in the ``[ldap] tls_certificate`` section of
+    ``keystone.conf``.
 
 On distributions that include openstack-config, you can configure TLS
 encryption on LDAP traffic by running the following commands instead.
