@@ -60,11 +60,27 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.federation.driver)
 
     def create_idp(self, idp_id, idp):
+        auto_created_domain = False
         if not idp.get('domain_id'):
             idp['domain_id'] = self._create_idp_domain(idp_id)
+            auto_created_domain = True
         else:
             self._assert_valid_domain_id(idp['domain_id'])
-        return self.driver.create_idp(idp_id, idp)
+
+        try:
+            return self.driver.create_idp(idp_id, idp)
+        except exception.Conflict:
+            # If there is a conflict storing the Identity Provider in the
+            # backend, then we need to make sure we clean up the domain we just
+            # created for it and raise the Conflict exception afterwards.
+            if auto_created_domain:
+                self._cleanup_idp_domain(idp['domain_id'])
+            raise
+
+    def _cleanup_idp_domain(self, domain_id):
+        domain = {'enabled': False}
+        self.resource_api.update_domain(domain_id, domain)
+        self.resource_api.delete_domain(domain_id)
 
     def _create_idp_domain(self, idp_id):
         domain_id = uuid.uuid4().hex

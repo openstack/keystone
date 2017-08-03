@@ -912,8 +912,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         attr = self._fetch_attribute_from_response(resp, 'identity_provider')
         self.assertIdpDomainCreated(attr['id'], attr['domain_id'])
 
-    @utils.wip('This will fail because of bug #1688188')
-    def test_conflicting_idp_results_in_unhandled_domain_cleanup(self):
+    def test_conflicting_idp_cleans_up_auto_generated_domain(self):
         # NOTE(lbragstad): Create an identity provider, save its ID, and count
         # the number of domains.
         resp = self._create_default_idp()
@@ -925,8 +924,8 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         # conflict, this is going to result in a domain getting created for the
         # new identity provider. The domain for the new identity provider is
         # going to be created before the conflict is raised from the database
-        # layer. The resulting domain is never cleaned up but it should be
-        # since the identity provider was never created.
+        # layer. This makes sure the domain is cleaned up after a Conflict is
+        # detected.
         resp = self.put(
             self.base_url(suffix=idp_id),
             body={'identity_provider': self.default_body.copy()},
@@ -934,6 +933,35 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         )
         domains = self.resource_api.list_domains()
         self.assertEqual(number_of_domains, len(domains))
+
+    def test_conflicting_idp_does_not_delete_existing_domain(self):
+        # Create a new domain
+        domain = unit.new_domain_ref()
+        self.resource_api.create_domain(domain['id'], domain)
+
+        # Create an identity provider and specify the domain
+        body = self.default_body.copy()
+        body['description'] = uuid.uuid4().hex
+        body['domain_id'] = domain['id']
+        resp = self._create_default_idp(body=body)
+        idp = resp.json_body['identity_provider']
+        idp_id = idp['id']
+        self.assertEqual(idp['domain_id'], domain['id'])
+
+        # Create an identity provider with the same domain and ID to ensure a
+        # Conflict is raised and then to verify the existing domain not deleted
+        # below
+        body = self.default_body.copy()
+        body['domain_id'] = domain['id']
+        resp = self.put(
+            self.base_url(suffix=idp_id),
+            body={'identity_provider': body},
+            expected_status=http_client.CONFLICT
+        )
+
+        # Make sure the domain specified in the second request was not deleted,
+        # since it wasn't auto-generated
+        self.assertIsNotNone(self.resource_api.get_domain(domain['id']))
 
     def test_create_idp_domain_id_unique_constraint(self):
         # create domain and add domain_id to keys to check
