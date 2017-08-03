@@ -7,9 +7,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 12.0.0.dev260\n"
+"Project-Id-Version: keystone 12.0.0.0b4.dev8\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-04-10 21:05+0000\n"
+"POT-Creation-Date: 2017-08-01 22:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -313,15 +313,6 @@ msgid ""
 msgstr ""
 "認証プラグイン %(name)r の直接インポートは、Liberty の時点で %(namespace)r の"
 "エンドポイントを選択したため、提供を終了しました。N では削除される予定です。"
-
-#, python-format
-msgid ""
-"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
-"entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"ドライバー %(name)r の直接インポートは、Liberty の時点で %(namespace)r からの"
-"エントリーポイントを選択したため、 提供を終了しました。N では削除される予定で"
-"す。"
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -1011,13 +1002,6 @@ msgstr ""
 msgid "group %(group)s"
 msgstr "グループ %(group)s"
 
-msgid ""
-"idp_contact_type must be one of: [technical, other, support, administrative "
-"or billing."
-msgstr ""
-"idp_contact_type は technical、other、support、administrative、billing のいず"
-"れかでなければなりません。"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "日付形式 %s は無効です"
@@ -1053,10 +1037,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "スコープが設定されたトークンのスコープを設定し直します"
-
-#, python-format
-msgid "role %s is not defined"
-msgstr "ロール %s は定義されていません"
 
 msgid "scope.project.id must be specified if include_subtree is also specified"
 msgstr ""

@@ -6,9 +6,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 12.0.0.dev260\n"
+"Project-Id-Version: keystone 12.0.0.0b4.dev8\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-04-10 21:05+0000\n"
+"POT-Creation-Date: 2017-08-01 22:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -274,14 +274,6 @@ msgid ""
 msgstr ""
 "不建議直接匯入鑑別外掛程式 %(name)r，因為 Liberty 支援它在 %(namespace)r 中的"
 "進入點且可能在 N 中予以移除。"
-
-#, python-format
-msgid ""
-"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
-"entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"不建議直接匯入驅動程式 %(name)r，因為 Liberty 支援它在 %(namespace)r 中的進入"
-"點且可能在 N 中予以移除。"
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -897,11 +889,6 @@ msgstr "無法刪除已啟用且正在充當網域的專案。請先停用專案
 msgid "group %(group)s"
 msgstr "群組 %(group)s"
 
-msgid ""
-"idp_contact_type must be one of: [technical, other, support, administrative "
-"or billing."
-msgstr "idp_contact_type 必須是下列其中一個：技術、其他、支援、管理或計費。"
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "無效的日期格式 %s"
@@ -933,10 +920,6 @@ msgstr "要求更新群組 %(group)s，但提供的配置卻包含群組 %(group
 
 msgid "rescope a scoped token"
 msgstr "重新劃定已限定範圍之記號的範圍"
-
-#, python-format
-msgid "role %s is not defined"
-msgstr "未定義角色 %s"
 
 msgid "scope.project.id must be specified if include_subtree is also specified"
 msgstr "如果也指定了 include_subtree，則必須指定 scope.project.id"

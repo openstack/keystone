@@ -11,9 +11,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 12.0.0.dev260\n"
+"Project-Id-Version: keystone 12.0.0.0b4.dev8\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-04-10 21:05+0000\n"
+"POT-Creation-Date: 2017-08-01 22:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -315,15 +315,6 @@ msgstr ""
 "A importação direta de um plug-in de autoria %(name)r foi descontinuada a "
 "partir do Liberty a favor de seu ponto de entrada de %(namespace)r e pode "
 "ser removida no N."
-
-#, python-format
-msgid ""
-"Direct import of driver %(name)r is deprecated as of Liberty in favor of its "
-"entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"A importação direta de um driver %(name)r foi descontinuada a partir do "
-"Liberty a favor de seu ponto de entrada de %(namespace)r e pode ser removida "
-"no N."
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -1006,13 +997,6 @@ msgstr ""
 msgid "group %(group)s"
 msgstr "grupo %(group)s"
 
-msgid ""
-"idp_contact_type must be one of: [technical, other, support, administrative "
-"or billing."
-msgstr ""
-"idp_contact_type deve ser uma dessas opções: [técnico, outro, suporte, "
-"administrativo ou faturamento."
-
 #, python-format
 msgid "invalid date format %s"
 msgstr "formato de data inválido %s"
@@ -1048,10 +1032,6 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "Defina novamente um escopo de um token com escopo"
-
-#, python-format
-msgid "role %s is not defined"
-msgstr "papel %s não foi definido"
 
 msgid "scope.project.id must be specified if include_subtree is also specified"
 msgstr ""
