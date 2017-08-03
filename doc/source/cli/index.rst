@@ -18,6 +18,4 @@
 CLI Documentation
 =================
 
-This section will eventually consist of documentation migrated from other
-guides. This is a placeholder until content best suited for this guide is
-migrated.
+.. include:: keystone-manage.rst

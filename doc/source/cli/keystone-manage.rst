@@ -1,6 +1,5 @@
-===============
 keystone-manage
-===============
+~~~~~~~~~~~~~~~
 
 ---------------------------
 Keystone Management Utility
