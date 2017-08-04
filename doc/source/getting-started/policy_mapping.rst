@@ -43,7 +43,6 @@ identity:list_users                                        GET /v3/users
 identity:create_user                                       POST /v3/users
 identity:update_user                                       PATCH /v3/users/{user_id}
 identity:delete_user                                       DELETE /v3/users/{user_id}
-identity:change_password                                   POST /v3/users/{user_id}/password
 
 identity:get_group                                         GET /v3/groups/{group_id}
 identity:list_groups                                       GET /v3/groups
