@@ -8,7 +8,7 @@
         "enabled": true,
         "id": "93ebbcc35335488b96ff9cd7d18cbb2e",
         "is_domain": true,
-        "name": "myUpdatedProject"
-        "parent_id": null,
+        "name": "myUpdatedProject",
+        "parent_id": null
     }
 }
