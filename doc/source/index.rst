@@ -78,15 +78,14 @@ This section contains the documentation needed for developing keystone.
 Operator Documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-This section contains the documentation for operating, deploying and configuring
-the keystone service.
+This section contains the documentation for deploying and operating the
+keystone service.
 
 .. toctree::
     :maxdepth: 2
 
     configuration.rst
     advanced-topics/index.rst
-    sample_files/index.rst
 
 User Documentation
 ~~~~~~~~~~~~~~~~~~
