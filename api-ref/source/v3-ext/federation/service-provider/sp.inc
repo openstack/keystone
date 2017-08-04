@@ -1,6 +1,6 @@
 .. -*- rst -*-
 
-Register a Service Provider
+Register a service provider
 ===========================
 
 .. rest_method::  PUT /v3/OS-FEDERATION/service_providers/{id}
@@ -8,8 +8,6 @@ Register a Service Provider
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Normal response codes: 201
-Error response codes: 400 Bad Request when registering a service provider with
-invalid URLs for either `auth_url` or `sp_url`.
 
 Request
 -------
@@ -48,8 +46,8 @@ Response Example
    :language: javascript
 
 
-Listing Service Providers
-=========================
+List service providers
+======================
 
 .. rest_method::  GET /v3/OS-FEDERATION/service_providers
 
@@ -125,7 +123,7 @@ Request
    - id: id_path
 
 
-Update Service Provider
+Update service provider
 =======================
 
 .. rest_method::  PATCH /v3/OS-FEDERATION/service_providers/{id}
@@ -133,8 +131,6 @@ Update Service Provider
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Normal response codes: 200
-Error response codes: 400 Bad Request when updating a service provider with
-invalid URLs for either `auth_url` or `sp_url`.
 
 Request
 -------
