@@ -1299,6 +1299,12 @@ role_assignments:
   in: body
   required: true
   type: array
+role_domain_id_request_body:
+  description: |
+    The ID of the domain of the role.
+  in: body
+  required: false
+  type: string
 role_id_response_body:
   description: |
     The role ID.

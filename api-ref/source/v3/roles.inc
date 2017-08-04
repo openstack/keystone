@@ -166,7 +166,7 @@ Request Parameters
 
    - role: role
    - name: role_name_create_body
-   - domain_id: domain_id_response_body
+   - domain_id: role_domain_id_request_body
 
 Request Example
 ---------------
