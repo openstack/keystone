@@ -406,6 +406,41 @@ Group ids and names can be provided in the local section:
         ]
     }
 
+Users can be mapped to local users that already exist in keystone's identity
+backend by setting the ``type`` attribute of the user to ``local`` and providing
+the domain to which the local user belongs:
+
+.. code-block:: json
+
+    {
+        "local": [
+            {
+                "user": {
+                    "name": "local_user",
+                    "type": "local",
+                    "domain": {
+                        "name": "local_domain"
+                    }
+                }
+            }
+        ]
+    }
+
+The user is then treated as existing in the local identity backend, and the
+server will attempt to fetch user details (id, name, roles, groups) from the
+identity backend. The local user and domain are not generated dynamically, so
+if they do not exist in the local identity backend, authentication attempts
+will result in a 401 Unauthorized error.
+
+If you omit the ``type`` attribute or set it to ``ephemeral`` or do not provide a
+domain, the user is deemed ephemeral and becomes a member of the identity
+provider's domain. It will not be looked up in the local keystone backend, so
+all of its attributes must come from the IdP and the mapping rules.
+
+.. NOTE::
+    Domain ``Federated`` is a service domain - it cannot be listed, displayed,
+    added or deleted.  There is no need to perform any operation on it prior to
+    federation configuration.
 
 Output
 ------
@@ -451,23 +486,8 @@ If a mapping is valid you will receive the following output:
             ]
     }
 
-The ``type`` parameter specifies the type of user being mapped. The 2 possible
-user types are ``local`` and ``ephemeral``.``local`` is displayed if the user
-has a domain specified. The user is treated as existing in the backend, hence
-the server will fetch user details (id, name, roles, groups).``ephemeral`` is
-displayed for a user that does not exist in the backend.
-
-The ``id`` parameter in the service domain specifies the domain a user belongs
-to. ``Federated`` will be displayed if no domain is specified in the local rule.
-User is deemed ephemeral and becomes a member of service domain named ``Federated``.
-If the domain is specified the local domain's id will be displayed.
 If the mapped user is local, mapping engine will discard further group
 assigning and return set of roles configured for the user.
-
-.. NOTE::
-    Domain ``Federated`` is a service domain - it cannot be listed, displayed,
-    added or deleted.  There is no need to perform any operation on it prior to
-    federation configuration.
 
 Regular Expressions
 -------------------
