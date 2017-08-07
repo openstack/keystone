@@ -18,6 +18,17 @@
 User Documentation
 ==================
 
-This section will eventually consist of documentation migrated from other
-guides. This is a placeholder until content best suited for this guide is
-migrated.
+An end user can find the specific API documentation here, `OpenStack's Identity API`_.
+
+.. _`OpenStack's Identity API`: https://developer.openstack.org/api-ref/identity/v3
+
+.. note::
+
+   Following are some API examples using curl. Note that these examples are not
+   automatically generated. They can be outdated as things change and are subject
+   to regular updates and changes.
+
+.. toctree::
+    :maxdepth: 2
+
+    ../api_curl_examples.rst
