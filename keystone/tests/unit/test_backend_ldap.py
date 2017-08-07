@@ -31,6 +31,7 @@ from keystone.common import driver_hints
 import keystone.conf
 from keystone import exception
 from keystone import identity
+from keystone.identity.backends import ldap as ldap_identity
 from keystone.identity.backends.ldap import common as common_ldap
 from keystone.identity.mapping_backends import mapping as map
 from keystone.tests import unit
@@ -1722,6 +1723,25 @@ class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
         user_ref = self.identity_api.get_user('crap')
         self.assertEqual('crap', user_ref['id'])
         self.assertEqual('Foo Bar', user_ref['name'])
+
+    def test_identity_manager_catches_forbidden_when_deleting_a_project(self):
+        # The identity API registers a callback that listens for notifications
+        # that a project has been deleted. When it receives one, it uses the ID
+        # and attempts to clear any users who have `default_project_id`
+        # attributes associated to that project. Since the LDAP backend is
+        # read-only, clearing the `default_project_id` requires a write which
+        # isn't possible.
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        project = self.resource_api.create_project(project['id'], project)
+        with mock.patch.object(
+            ldap_identity.Identity, '_disallow_write'
+        ) as mocked:
+            mocked.side_effect = exception.Forbidden()
+            self.resource_api.delete_project(project['id'])
+
+        mocked.assert_called_once()
 
 
 class LDAPLimitTests(unit.TestCase, identity_tests.LimitTests):
