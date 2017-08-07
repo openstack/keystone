@@ -38,10 +38,11 @@ Identity LDAP server set up
 
 .. important::
 
-   For the OpenStack Identity service to access LDAP servers, you must
-   enable the ``authlogin_nsswitch_use_ldap`` boolean value for SELinux
-   on the server running the OpenStack Identity service. To enable and
-   make the option persistent across reboots, set the following boolean
+   If you are using SELinux (enabled by default on RHEL derivatives),
+   then in order for the OpenStack Identity service to access LDAP servers,
+   you must enable the ``authlogin_nsswitch_use_ldap`` boolean value for
+   SELinux on the server running the OpenStack Identity service. To enable
+   and make the option persistent across reboots, set the following boolean
    value as the root user:
 
    .. code-block:: console
