@@ -823,9 +823,6 @@ class ChangePasswordTestCase(test_v3.RestfulTestCase):
 
 class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
 
-    def setUp(self):
-        super(UserSelfServiceChangingPasswordsTestCase, self).setUp()
-
     def _create_user_with_expired_password(self):
         expire_days = CONF.security_compliance.password_expires_days + 1
         time = (

@@ -421,9 +421,6 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
 class TestCredentialEc2(CredentialBaseTestCase):
     """Test v3 credential compatibility with ec2tokens."""
 
-    def setUp(self):
-        super(TestCredentialEc2, self).setUp()
-
     def _validate_signature(self, access, secret):
         """Test signature validation with the access/secret provided."""
         signer = ec2_utils.Ec2Signer(secret)

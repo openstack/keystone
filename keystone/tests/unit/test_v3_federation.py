@@ -2884,9 +2884,6 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         methods = ['saml2', 'token']
         super(FederatedUserTests, self).auth_plugin_config_override(methods)
 
-    def setUp(self):
-        super(FederatedUserTests, self).setUp()
-
     def load_fixtures(self, fixtures):
         super(FederatedUserTests, self).load_fixtures(fixtures)
         self.load_federation_sample_data()

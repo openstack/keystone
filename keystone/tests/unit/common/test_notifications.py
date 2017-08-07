@@ -1450,9 +1450,6 @@ class TestCallbackRegistration(unit.BaseTestCase):
 
 class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
 
-    def setUp(self):
-        super(CADFNotificationsDataTestCase, self).setUp()
-
     def test_receive_identityId_from_audit_notification(self):
 
         observer = None
