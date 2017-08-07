@@ -6,6 +6,7 @@
                 "links": {
                     "self": "http://example.com/identity/v3/roles/1acd3c5aa0e246b9a7427d252160dcd1"
                 },
+                "description": "My new role",
                 "name": "prior role name"
             },
             "implies": [
@@ -14,6 +15,7 @@
                     "links": {
                         "self": "http://example.com/identity/v3/roles/3602510e2e1f499589f78a0724dcf614"
                     },
+                    "description": "My new role",
                     "name": "implied role1 name"
                 },
                 {
@@ -21,6 +23,7 @@
                     "links": {
                         "self": "http://example.com/identity/v3/roles/738289aeef684e73a987f7cf2ec6d925"
                     },
+                    "description": "My new role",
                     "name": "implied role2 name"
                 }
             ]
@@ -31,6 +34,7 @@
                 "links": {
                     "self" : "http://example.com/identity/v3/roles/bbf7a5098bb34407b7164eb6ff9f144e"
                 },
+                "description": "My new role",
                 "name": "prior role name"
             },
             "implies": [
@@ -39,6 +43,7 @@
                     "links": {
                         "self": "http://example.com/identity/v3/roles/872b20ad124c4c1bafaef2b1aae316ab"
                     },
+                    "description": null,
                     "name": "implied role1 name"
                 },
                 {
@@ -46,6 +51,7 @@
                     "links": {
                         "self": "http://example.com/identity/v3/roles/1d865b1b2da14cb7b05254677e5f36a2"
                     },
+                    "description": null,
                     "name": "implied role2 name"
                 }
             ]

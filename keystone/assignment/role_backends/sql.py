@@ -83,6 +83,7 @@ class Role(base.RoleDriverBase):
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_role, attr))
             ref.extra = new_role.extra
+            ref.description = new_role.description
             return ref.to_dict()
 
     def delete_role(self, role_id):
@@ -193,10 +194,11 @@ class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
         return super(RoleTable, cls).from_dict(new_dict)
 
     __tablename__ = 'role'
-    attributes = ['id', 'name', 'domain_id']
+    attributes = ['id', 'name', 'domain_id', 'description']
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), nullable=False)
     domain_id = sql.Column(sql.String(64), nullable=False,
                            server_default=NULL_DOMAIN_ID)
+    description = sql.Column(sql.String(255), nullable=True)
     extra = sql.Column(sql.JsonBlob())
     __table_args__ = (sql.UniqueConstraint('name', 'domain_id'),)

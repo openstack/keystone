@@ -1,5 +1,6 @@
 {
     "role": {
+        "description": "My new role",
         "name": "Developer"
     }
 }

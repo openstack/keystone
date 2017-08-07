@@ -53,6 +53,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 'properties': {
                     'id': {'type': 'string', },
                     'name': {'type': 'string', },
+                    'description': {'type': 'string', },
                 },
                 'required': ['id', 'name', ],
                 'additionalProperties': False,
