@@ -833,16 +833,6 @@ return an empty list from your new database):
     values, or deployed keystone to a different endpoint, you will need to
     change the provided command accordingly.
 
-``keystone-manage``
-===================
-
-``keystone-manage`` is the command line tool which interacts with the Keystone
-service to initialize and update data within Keystone. Generally,
-``keystone-manage`` is only used for operations that cannot be accomplished
-with the HTTP API, such data import/export and database migrations.
-
-.. include:: man/commands.rst
-
 Supported clients
 =================
 

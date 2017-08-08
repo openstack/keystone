@@ -62,7 +62,6 @@ please see the subsequent sections.
     :maxdepth: 2
 
     getting-started/index.rst
-    man/index.rst
     code_documentation.rst
     indices-tables.rst
 
