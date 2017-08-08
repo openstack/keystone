@@ -4,6 +4,20 @@
  Identity API v3 extensions (CURRENT)
 --------------------------------------
 
+=============
+Relationships
+=============
+
+The entries within the operations below contain a relationship link, which
+appears as a valid URI, however these are actually
+URN (Uniform Resource Name), which are similar to GUID except it uses a URI
+syntax so that it is easier to be read. These links do not resolve to
+anything valid, but exist to show a relationship.
+
+=======================
+Identity API Extensions
+=======================
+
 This page describes these Identity API v3 extensions:
 
 * `OS-ENDPOINT-POLICY API`_
