@@ -19,7 +19,7 @@ such as LDAP.
 Developer documentation, the source of which is in ``doc/source/``, is
 published at:
 
-    https://docs.openstack.org/developer/keystone/
+    https://docs.openstack.org/keystone/latest
 
 The API specification and documentation are available at:
 
