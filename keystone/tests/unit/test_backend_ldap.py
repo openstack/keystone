@@ -33,6 +33,7 @@ from keystone import exception
 from keystone import identity
 from keystone.identity.backends import ldap as ldap_identity
 from keystone.identity.backends.ldap import common as common_ldap
+from keystone.identity.backends import sql as sql_identity
 from keystone.identity.mapping_backends import mapping as map
 from keystone.tests import unit
 from keystone.tests.unit.assignment import test_backends as assignment_tests
@@ -2499,6 +2500,19 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # from BaseLDAPIdentity
         base = super(BaseLDAPIdentity, self)
         base.test_remove_foreign_assignments_when_deleting_a_domain()
+
+    @mock.patch.object(ldap_identity.Identity, 'unset_default_project_id')
+    @mock.patch.object(sql_identity.Identity, 'unset_default_project_id')
+    def test_delete_project_unset_project_ids_for_all_backends(self, sql_mock,
+                                                               ldap_mock):
+        ldap_mock.side_effect = exception.Forbidden
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        project = self.resource_api.create_project(project['id'], project)
+        self.resource_api.delete_project(project['id'])
+        ldap_mock.assert_called_with(project['id'])
+        sql_mock.assert_called_with(project['id'])
 
 
 class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
