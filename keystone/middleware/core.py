@@ -68,7 +68,10 @@ class AdminTokenAuthMiddleware(wsgi.Middleware):
                   '[pipeline:api_v3], [pipeline:admin_api], and '
                   '[pipeline:public_api] sections of your paste ini '
                   'file. The [filter:admin_token_auth] block will also '
-                  'need to be removed from your paste ini file. ')
+                  'need to be removed from your paste ini file. Failure '
+                  'to remove these elements from your paste ini file will '
+                  'result in keystone to no longer start/run when the '
+                  '`admin_token_auth` is removed in the Queens release.')
 
 
 class JsonBodyMiddleware(wsgi.Middleware):
