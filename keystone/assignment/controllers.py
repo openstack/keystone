@@ -266,8 +266,7 @@ class ProjectAssignmentV3(controller.V3Controller):
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_user_projects(self, request, filters, user_id):
         hints = ProjectAssignmentV3.build_driver_hints(request, filters)
-        refs = self.assignment_api.list_projects_for_user(user_id,
-                                                          hints=hints)
+        refs = self.assignment_api.list_projects_for_user(user_id)
         return ProjectAssignmentV3.wrap_collection(request.context_dict,
                                                    refs,
                                                    hints=hints)
