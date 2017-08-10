@@ -223,7 +223,15 @@ class Manager(manager.Manager):
 
     # TODO(henry-nash): We might want to consider list limiting this at some
     # point in the future.
+    @MEMOIZE_COMPUTED_ASSIGNMENTS
     def list_projects_for_user(self, user_id):
+        # FIXME(lbragstad): Without the use of caching, listing effective role
+        # assignments is slow, especially with large data set (lots of users
+        # with multiple role assignments). This should serve as a marker in
+        # case we have the opportunity to come back and optimize this code so
+        # that it can be performant without having a hard dependency on
+        # caching. Please see https://bugs.launchpad.net/keystone/+bug/1700852
+        # for more details.
         assignment_list = self.list_role_assignments(
             user_id=user_id, effective=True)
         # Use set() to process the list to remove any duplicates
@@ -233,6 +241,7 @@ class Manager(manager.Manager):
 
     # TODO(henry-nash): We might want to consider list limiting this at some
     # point in the future.
+    @MEMOIZE_COMPUTED_ASSIGNMENTS
     def list_domains_for_user(self, user_id):
         assignment_list = self.list_role_assignments(
             user_id=user_id, effective=True)
