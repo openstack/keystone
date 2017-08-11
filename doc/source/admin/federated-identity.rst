@@ -38,8 +38,7 @@ To enable federation:
       by the community.
 
 #. Configure Apache to use a federation capable module.
-   We recommend Shibboleth, see `the Shibboleth documentation <https://docs.openstack.org/developer/keystone/federation/shibboleth.html>`_
-   for more information.
+   We recommend Shibboleth, see :doc:`the Shibboleth documentation<../advanced-topics/federation/shibboleth>` for more information.
 
    .. note::
 
@@ -319,7 +318,7 @@ A rule hierarchy is as follows:
   only be set in a remote rule.
 
 For more information on mapping rules, see `Mapping Rules
-<https://docs.openstack.org/developer/keystone/federation/federated_identity.html#mapping-rules>`_.
+<https://docs.openstack.org/keystone/latest/advanced-topics/federation/federated_identity.html#mapping-rules>`_.
 
 Mapping creation
 ----------------

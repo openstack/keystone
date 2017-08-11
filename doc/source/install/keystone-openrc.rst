@@ -31,7 +31,7 @@ scripts to load appropriate credentials for client operations.
 
       The OpenStack client also supports using a ``clouds.yaml`` file.
       For more information, see
-      the `os-client-config <http://docs.openstack.org/developer/os-client-config/>`_.
+      the `os-client-config <http://docs.openstack.org/os-client-config/latest>`_.
 
    .. code-block:: bash
 

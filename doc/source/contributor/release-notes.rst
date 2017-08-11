@@ -19,7 +19,7 @@ Working with Release Notes
 ==========================
 
 The Keystone team uses `reno
-<https://docs.openstack.org/developer/reno/usage.html>`_ to generate release
+<https://docs.openstack.org/reno/latest/user/usage.html>`_ to generate release
 notes. These are important user-facing documents that must be included when a
 user or operator facing change is performed, like a bug-fix or a new feature. A
 release note should be included in the same patch the work is being performed.
