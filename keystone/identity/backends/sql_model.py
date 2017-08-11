@@ -278,7 +278,7 @@ class LocalUser(sql.ModelBase, sql.ModelDictMixin):
                                  cascade='all,delete-orphan',
                                  lazy='subquery',
                                  backref='local_user',
-                                 order_by='Password.created_at')
+                                 order_by='Password.created_at_int')
     failed_auth_count = sql.Column(sql.Integer, nullable=True)
     failed_auth_at = sql.Column(sql.DateTime, nullable=True)
     __table_args__ = (
@@ -303,12 +303,39 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
     password = sql.Column(sql.String(128), nullable=True)
     password_hash = sql.Column(sql.String(255), nullable=True)
 
+    # TODO(lbragstad): Once Rocky opens for development, the _created_at and
+    # _expires_at attributes/columns can be removed from the schema. The
+    # migration ensures all passwords are converted from datetime objects to
+    # big integers. The old datetime columns and their corresponding attributes
+    # in the model are no longer required.
     # created_at default set here to safe guard in case it gets missed
-    created_at = sql.Column(sql.DateTime, nullable=False,
-                            default=datetime.datetime.utcnow)
-    expires_at = sql.Column(sql.DateTime, nullable=True)
+    _created_at = sql.Column('created_at', sql.DateTime, nullable=False,
+                             default=datetime.datetime.utcnow)
+    _expires_at = sql.Column('expires_at', sql.DateTime, nullable=True)
+    # set the default to 0, a 0 indicates it is unset.
+    created_at_int = sql.Column(sql.DateTimeInt(), nullable=False,
+                                default=datetime.datetime.utcnow)
+    expires_at_int = sql.Column(sql.DateTimeInt(), nullable=True)
     self_service = sql.Column(sql.Boolean, default=False, nullable=False,
                               server_default='0')
+
+    @hybrid_property
+    def created_at(self):
+        return self.created_at_int or self._created_at
+
+    @created_at.setter
+    def created_at(self, value):
+        self._created_at = value
+        self.created_at_int = value
+
+    @hybrid_property
+    def expires_at(self):
+        return self.expires_at_int or self._expires_at
+
+    @expires_at.setter
+    def expires_at(self, value):
+        self._expires_at = value
+        self.expires_at_int = value
 
 
 class FederatedUser(sql.ModelBase, sql.ModelDictMixin):

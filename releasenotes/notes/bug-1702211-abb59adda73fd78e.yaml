@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    [`bug 1702211 <https://bugs.launchpad.net/keystone/+bug/1702211>`_]
+    Password `created_at` field under some versions/deployments of MySQL would
+    lose sub-second precision. This means that it was possible for passwords to
+    be returned out-of-order when changed within one second (especially common
+    in testing). This change stores password `created_at` and `expires_at` as
+    an integer instead of as a DATETIME data-type.
