@@ -15,6 +15,7 @@
 """Main entry point into the Identity service."""
 
 import functools
+import itertools
 import operator
 import os
 import threading
@@ -530,15 +531,19 @@ class Manager(manager.Manager):
 
         """
         project_id = payload['resource_info']
-        try:
-            self.driver.unset_default_project_id(project_id)
-        except exception.Forbidden:
-            # NOTE(lbragstad): If the driver throws a Forbidden, it's because
-            # the driver doesn't support writes. This is the case with the
-            # in-tree LDAP implementation since it is read-only. This also
-            # ensures consistency for out-of-tree backends that might be
-            # read-only.
-            pass
+        drivers = itertools.chain(
+            self.domain_configs.values(), [{'driver': self.driver}]
+        )
+        for d in drivers:
+            try:
+                d['driver'].unset_default_project_id(project_id)
+            except exception.Forbidden:
+                # NOTE(lbragstad): If the driver throws a Forbidden, it's
+                # because the driver doesn't support writes. This is the case
+                # with the in-tree LDAP implementation since it is read-only.
+                # This also ensures consistency for out-of-tree backends that
+                # might be read-only.
+                pass
 
     # Domain ID normalization methods
     def _set_domain_id_and_mapping(self, ref, domain_id, driver,
