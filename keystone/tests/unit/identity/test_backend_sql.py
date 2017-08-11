@@ -31,6 +31,28 @@ from keystone.tests.unit import test_backend_sql
 CONF = keystone.conf.CONF
 
 
+class UserPasswordCreatedAtIntTests(test_backend_sql.SqlTests):
+    def config_overrides(self):
+        super(UserPasswordCreatedAtIntTests, self).config_overrides()
+        self.config_fixture.config(group='security_compliance',
+                                   password_expires_days=1)
+
+    def test_user_password_created_expired_at_int_matches_created_at(self):
+        with sql.session_for_read() as session:
+            user_ref = self.identity_api._get_user(session,
+                                                   self.user_foo['id'])
+            self.assertIsNotNone(user_ref.password_ref._created_at)
+            self.assertIsNotNone(user_ref.password_ref._expires_at)
+            self.assertEqual(user_ref.password_ref._created_at,
+                             user_ref.password_ref.created_at_int)
+            self.assertEqual(user_ref.password_ref._expires_at,
+                             user_ref.password_ref.expires_at_int)
+            self.assertEqual(user_ref.password_ref.created_at,
+                             user_ref.password_ref.created_at_int)
+            self.assertEqual(user_ref.password_ref.expires_at,
+                             user_ref.password_ref.expires_at_int)
+
+
 class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
     def config_overrides(self):
         super(UserPasswordHashingTestsNoCompat, self).config_overrides()
