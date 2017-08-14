@@ -1,0 +1,12 @@
+---
+upgrade:
+  - |
+    The resource backend cannot be configured to anything but SQL if the SQL
+    Identity backend is being used. The resource backend must now be SQL which
+    allows for the use of Foreign Keys to domains/projects wherever desired.
+    This makes managing project relationships and such much more straight
+    forward. The inability to configure non-SQL resource backends has been
+    in Keystone since at least Ocata. This is eliminating some complexity
+    and preventing the need for some really ugly back-port SQL migrations
+    in favor of a better model. Resource is highly relational and should be
+    SQL based.

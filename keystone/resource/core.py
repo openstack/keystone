@@ -27,6 +27,7 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.resource.backends import base
+from keystone.resource.backends import sql as resource_sql
 from keystone.token import provider as token_provider
 
 CONF = keystone.conf.CONF
@@ -51,8 +52,12 @@ class Manager(manager.Manager):
     _PROJECT = 'project'
 
     def __init__(self):
-        resource_driver = CONF.resource.driver
-        super(Manager, self).__init__(resource_driver)
+        # NOTE(morgan): The resource driver must be SQL. This is because there
+        # is a FK between identity and resource. Almost every deployment uses
+        # SQL Identity in some form. Even if SQL Identity is not used, there
+        # is almost no reason to have non-SQL Resource. Keystone requires
+        # SQL in a number of ways, this simply codifies it plainly for resource
+        self.driver = resource_sql.Resource()
 
     def _get_hierarchy_depth(self, parents_list):
         return len(parents_list) + 1
