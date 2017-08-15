@@ -214,7 +214,9 @@ Required attributes:
        ]
 
    This assigns authorization attributes, by way of role assignments on the
-   specified group, to ephemeral users.
+   specified group, to ephemeral users. The users are not added to the group,
+   but for the duration of the token they will receive the same authorization
+   as if they were.
 
    ::
 
