@@ -22,6 +22,8 @@ LOG = log.getLogger(__name__)
 
 
 class Resource(base.ResourceDriverBase):
+    # TODO(morgan): Merge all of this code into the manager, Resource backend
+    # is only SQL. There is no configurable driver.
 
     def default_assignment_driver(self):
         return 'sql'
