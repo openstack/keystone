@@ -157,6 +157,8 @@ class SqlModels(SqlTests):
                 ('password_hash', sql.String, 255),
                 ('created_at', sql.DateTime, None),
                 ('expires_at', sql.DateTime, None),
+                ('created_at_int', sql.DateTimeInt, None),
+                ('expires_at_int', sql.DateTimeInt, None),
                 ('self_service', sql.Boolean, False))
         self.assertExpectedSchema('password', cols)
 
