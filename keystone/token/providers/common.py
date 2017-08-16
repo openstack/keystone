@@ -192,11 +192,25 @@ class V3TokenDataHelper(object):
         roles = roles + self._get_roles_for_user(user_id, domain_id,
                                                  project_id)
 
-        # remove duplicates
-        roles = [dict(t) for t in set([tuple(d.items()) for d in roles])]
+        # NOTE(lbragstad): Remove duplicate role references from a list of
+        # roles. It is often suggested that this be done with:
+        #
+        # roles = [dict(t) for t in set([tuple(d.items()) for d in roles])]
+        #
+        # But that doesn't actually remove duplicates in all cases and causes
+        # transient failures because dictionaries are unordered objects. This
+        # means {'id': 1, 'foo': 'bar'} and {'foo': 'bar', 'id': 1} won't
+        # actually resolve to a single entity in the above logic since they are
+        # both considered unique. By using `in` we're performing a containment
+        # check, which also does a deep comparison of the objects, which is
+        # what we want.
+        unique_roles = []
+        for role in roles:
+            if role not in unique_roles:
+                unique_roles.append(role)
 
-        check_roles(roles, user_id, project_id, domain_id)
-        token_data['roles'] = roles
+        check_roles(unique_roles, user_id, project_id, domain_id)
+        token_data['roles'] = unique_roles
 
     def _populate_user(self, token_data, user_id, trust):
         if 'user' in token_data:

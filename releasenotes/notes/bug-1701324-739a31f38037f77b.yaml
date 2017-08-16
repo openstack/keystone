@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [`bug 1701324 <https://bugs.launchpad.net/keystone/+bug/1701324>`_]
+    Token bodies now contain only unique roles in the authentication response.
