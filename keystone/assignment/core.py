@@ -321,8 +321,10 @@ class Manager(manager.Manager):
                     role_id=role_id,
                     project_id=project_id)
 
-        self.driver.create_grant(role_id, user_id, group_id, domain_id,
-                                 project_id, inherited_to_projects)
+        self.driver.create_grant(
+            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects
+        )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def get_grant(self, role_id, user_id=None, group_id=None,
@@ -334,8 +336,9 @@ class Manager(manager.Manager):
         if project_id:
             self.resource_api.get_project(project_id)
         self.check_grant_role_id(
-            role_id, user_id, group_id, domain_id, project_id,
-            inherited_to_projects)
+            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects
+        )
         return role_ref
 
     def list_grants(self, user_id=None, group_id=None,
@@ -346,7 +349,9 @@ class Manager(manager.Manager):
         if project_id:
             self.resource_api.get_project(project_id)
         grant_ids = self.list_grant_role_ids(
-            user_id, group_id, domain_id, project_id, inherited_to_projects)
+            user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects
+        )
         return self.role_api.list_roles_from_ids(grant_ids)
 
     def _emit_revoke_user_grant(self, role_id, user_id, domain_id, project_id,
@@ -363,16 +368,22 @@ class Manager(manager.Manager):
 
         if group_id is None:
             # check if role exists on the user before revoke
-            self.check_grant_role_id(role_id, user_id, None, domain_id,
-                                     project_id, inherited_to_projects)
+            self.check_grant_role_id(
+                role_id, user_id=user_id, group_id=None, domain_id=domain_id,
+                project_id=project_id,
+                inherited_to_projects=inherited_to_projects
+            )
             self._emit_revoke_user_grant(
                 role_id, user_id, domain_id, project_id,
                 inherited_to_projects, context)
         else:
             try:
                 # check if role exists on the group before revoke
-                self.check_grant_role_id(role_id, None, group_id, domain_id,
-                                         project_id, inherited_to_projects)
+                self.check_grant_role_id(
+                    role_id, user_id=None, group_id=group_id,
+                    domain_id=domain_id, project_id=project_id,
+                    inherited_to_projects=inherited_to_projects
+                )
                 if CONF.token.revoke_by_id:
                     # NOTE(morganfainberg): The user ids are the important part
                     # for invalidating tokens below, so extract them here.
@@ -389,8 +400,10 @@ class Manager(manager.Manager):
             self.resource_api.get_domain(domain_id)
         if project_id:
             self.resource_api.get_project(project_id)
-        self.driver.delete_grant(role_id, user_id, group_id, domain_id,
-                                 project_id, inherited_to_projects)
+        self.driver.delete_grant(
+            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects
+        )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     # The methods _expand_indirect_assignment, _list_direct_role_assignments
