@@ -13,7 +13,7 @@ features:
     default values, prune default policies from existing policy files, or
     familiarize yourself with general policy usage, please see the
     `usage documentation
-    <https://docs.openstack.org/oslo.policy/latest/user/usage.html>`_
+    <https://docs.openstack.org/developer/oslo.policy/usage.html>`_
     provided in oslo.policy.
 
 upgrade:
@@ -30,5 +30,5 @@ upgrade:
     default values, prune default policies from existing policy files, or
     familiarize yourself with general policy usage, please see the
     `usage documentation
-    <https://docs.openstack.org/oslo.policy/latest/user/usage.html>`_
+    <https://docs.openstack.org/developer/oslo.policy/usage.html>`_
     provided in oslo.policy.

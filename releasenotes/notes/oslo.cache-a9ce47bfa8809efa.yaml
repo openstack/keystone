@@ -5,7 +5,7 @@ upgrade:
     `keystone.conf` to point to oslo.cache backends:
     ``oslo_cache.memcache_pool`` or ``oslo_cache.mongo``. Refer to the
     sample configuration file for examples. See `oslo.cache
-    <https://docs.openstack.org/oslo.cache/latest/>`_ for additional
+    <https://docs.openstack.org/developer/oslo.cache>`_ for additional
     documentation.
 deprecations:
   - >

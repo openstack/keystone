@@ -9,4 +9,4 @@ features:
     created in the ``domain`` associated with the ``identity provider``.
     This behavior can be triggered using a specific syntax within the ``local``
     rules section of a mapping. For more information see:
-    `mapping combinations <https://docs.openstack.org/keystone/latest/advanced-topics/federation/federated_identity.html#mapping-combinations>`_
+    `mapping combinations <https://docs.openstack.org/developer/keystone/federation/federated_identity.html#mapping-combinations>`_

@@ -14,7 +14,7 @@ upgrade:
     across the deployment. If you do not wish to switch token formats, you will
     need to explicitly set the token provider for each node in the deployment
     by setting ``[token] provider`` to ``uuid`` in ``keystone.conf``.
-    Documentation can be found at `fernet-tokens <https://docs.openstack.org/keystone/latest/configuration.html#encryption-keys-for-fernet-tokens>`_.
+    Documentation can be found at `fernet-tokens <https://docs.openstack.org/developer/keystone/configuration.html#encryption-keys-for-fernet-tokens>`_.
 critical:
   - >
     [`bug 1561054 <https://bugs.launchpad.net/keystone/+bug/1561054>`_]
