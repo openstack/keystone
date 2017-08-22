@@ -1,7 +1,0 @@
----
-fixes:
-  - |
-    [`bug 1652012 <https://bugs.launchpad.net/keystone/+bug/1652012>`_]
-    Changes the token_model to return is_admin_project False if the attribute
-    is not defined. Returning True for this has the potential to be dangerous
-    and the given reason for keeping it True is backwards compatability..
