@@ -1,5 +1,6 @@
 fixes:
   - |
+    [`bug 1698900 <https://bugs.launchpad.net/keystone/+bug/1698900>`_]
     The implementation for checking database state during an upgrade with the
     use of `keystone-manage db_sync --check` has been corrected. This allows
     users and automation to determine what step is next in a rolling upgrade
