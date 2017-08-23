@@ -19,4 +19,4 @@ features:
        ``[security_compliance] minimum_password_age``.
 
    For additional details see:
-   `event notifications <See https://docs.openstack.org/keystone/latest/advanced-topics/event_notifications.html>`_
+   `event notifications <See https://docs.openstack.org/developer/keystone/event_notifications.html>`_
