@@ -643,10 +643,11 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
+        inherited_to_projects = self._check_if_inherited(request.context_dict)
         self.assignment_api.create_grant(
-            role_id, user_id, group_id, domain_id, project_id,
-            self._check_if_inherited(request.context_dict),
-            request.context_dict)
+            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects,
+            context=request.context_dict)
 
     @controller.protected(callback=_check_grant_protection)
     def list_grants(self, request, user_id=None,
@@ -655,9 +656,11 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
+        inherited_to_projects = self._check_if_inherited(request.context_dict)
         refs = self.assignment_api.list_grants(
-            user_id, group_id, domain_id, project_id,
-            self._check_if_inherited(request.context_dict))
+            user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects
+        )
         return GrantAssignmentV3.wrap_collection(request.context_dict, refs)
 
     @controller.protected(callback=_check_grant_protection)
@@ -667,9 +670,11 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
+        inherited_to_projects = self._check_if_inherited(request.context_dict)
         self.assignment_api.get_grant(
-            role_id, user_id, group_id, domain_id, project_id,
-            self._check_if_inherited(request.context_dict))
+            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects
+        )
 
     # NOTE(lbragstad): This will allow users to clean up role assignments
     # from the backend in the event the user was removed prior to the role
@@ -682,10 +687,11 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_domain_xor_project(domain_id, project_id)
         self._require_user_xor_group(user_id, group_id)
 
+        inherited_to_projects = self._check_if_inherited(request.context_dict)
         self.assignment_api.delete_grant(
-            role_id, user_id, group_id, domain_id, project_id,
-            self._check_if_inherited(request.context_dict),
-            request.context_dict)
+            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
+            project_id=project_id, inherited_to_projects=inherited_to_projects,
+            context=request.context_dict)
 
 
 @dependency.requires('assignment_api', 'identity_api', 'resource_api')
