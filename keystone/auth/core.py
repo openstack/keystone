@@ -448,7 +448,7 @@ class UserMFARulesValidator(object):
             if not isinstance(r_list, list):
                 # Rule was not a list, it is invalid, drop the rule from
                 # being considered.
-                LOG.info('Ignoring Rule %(rule)r; rule must be a list of '
+                LOG.info('Ignoring Rule %(type)r; rule must be a list of '
                          'strings.',
                          {'type': type(r_list)})
                 continue
