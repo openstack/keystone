@@ -241,7 +241,6 @@ class TrustV3(controller.V3Controller):
     @controller.protected()
     def list_roles_for_trust(self, request, trust_id):
         trust = self.get_trust(request, trust_id)['trust']
-        _trustor_trustee_only(trust, request.context.user_id)
         return {'roles': trust['roles'],
                 'links': trust['roles_links']}
 
