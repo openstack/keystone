@@ -225,6 +225,11 @@ class SqlModels(SqlTests):
                 ('audit_chain_id', sql.String, 32))
         self.assertExpectedSchema('revocation_event', cols)
 
+    def test_project_tags_model(self):
+        cols = (('project_id', sql.String, 64),
+                ('name', sql.Unicode, 255))
+        self.assertExpectedSchema('project_tag', cols)
+
 
 class SqlIdentity(SqlTests,
                   identity_tests.IdentityTests,

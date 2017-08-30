@@ -34,6 +34,7 @@ TENANTS = [
         'enabled': True,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
+        'tags': []
     }, {
         'id': BAZ_TENANT_ID,
         'name': 'BAZ',
@@ -42,6 +43,7 @@ TENANTS = [
         'enabled': True,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
+        'tags': []
     }, {
         'id': MTU_TENANT_ID,
         'name': 'MTU',
@@ -50,6 +52,7 @@ TENANTS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
+        'tags': []
     }, {
         'id': SERVICE_TENANT_ID,
         'name': 'service',
@@ -58,6 +61,7 @@ TENANTS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
+        'tags': []
     }
 ]
 

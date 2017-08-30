@@ -53,6 +53,7 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
             'enabled': True,
             'description': 'Domain created automatically to support V2.0 '
                            'operations.',
+            'tags': []
         }
         self.assertEqual(expected_domain, default_domain)
 
@@ -80,6 +81,7 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
             'name': name,
             'enabled': True,
             'description': description,
+            'tags': []
         }
 
         self.assertEqual(expected_domain, default_domain)
