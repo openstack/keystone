@@ -35,11 +35,11 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   common/get-started-identity.rst
-   keystone-install-ubuntu.rst
-   keystone-users.rst
-   keystone-verify-ubuntu.rst
-   keystone-openrc.rst
+   get-started-ubuntu
+   keystone-install-ubuntu
+   keystone-users-ubuntu
+   keystone-verify-ubuntu
+   keystone-openrc-ubuntu
 
 .. Pseudo only directive for each distribution used by the build tool.
    This pseudo only directive for toctree only works fine with Tox.

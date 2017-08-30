@@ -1,3 +1,5 @@
+.. -*- rst -*-
+
 Create a domain, projects, users, and roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

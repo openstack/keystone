@@ -1,7 +1,9 @@
+.. -*- rst -*-
+
 Create OpenStack client environment scripts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The previous section used a combination of environment variables and
+The previous sections used a combination of environment variables and
 command options to interact with the Identity service via the
 ``openstack`` client. To increase efficiency of client operations,
 OpenStack supports simple client environment scripts also known as
