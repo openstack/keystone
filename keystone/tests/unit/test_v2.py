@@ -385,27 +385,6 @@ class CoreApiTests(object):
         self.public_request(path='/v2.0/tenants',
                             expected_status=http_client.UNAUTHORIZED)
 
-    def test_invalid_parameter_error_response(self):
-        token = self.get_scoped_token()
-        bad_body = {
-            'OS-KSADM:service%s' % uuid.uuid4().hex: {
-                'name': uuid.uuid4().hex,
-                'type': uuid.uuid4().hex,
-            },
-        }
-        res = self.admin_request(method='POST',
-                                 path='/v2.0/OS-KSADM/services',
-                                 body=bad_body,
-                                 token=token,
-                                 expected_status=http_client.BAD_REQUEST)
-        self.assertValidErrorResponse(res)
-        res = self.admin_request(method='POST',
-                                 path='/v2.0/users',
-                                 body=bad_body,
-                                 token=token,
-                                 expected_status=http_client.BAD_REQUEST)
-        self.assertValidErrorResponse(res)
-
     def _get_user_id(self, r):
         """Helper method to return user ID from a response.
 
@@ -1157,39 +1136,6 @@ class V2TestCase(object):
 
     def get_user_attribute_from_response(self, r, attribute_name):
         return r.result['user'][attribute_name]
-
-    def test_service_crud_requires_auth(self):
-        """Service CRUD should return unauthorized without an X-Auth-Token."""
-        # values here don't matter because it will be unauthorized before
-        # they're checked (bug 1006822).
-        service_path = '/v2.0/OS-KSADM/services/%s' % uuid.uuid4().hex
-        service_body = {
-            'OS-KSADM:service': {
-                'name': uuid.uuid4().hex,
-                'type': uuid.uuid4().hex,
-            },
-        }
-
-        r = self.admin_request(method='GET',
-                               path='/v2.0/OS-KSADM/services',
-                               expected_status=http_client.UNAUTHORIZED)
-        self.assertValidErrorResponse(r)
-
-        r = self.admin_request(method='POST',
-                               path='/v2.0/OS-KSADM/services',
-                               body=service_body,
-                               expected_status=http_client.UNAUTHORIZED)
-        self.assertValidErrorResponse(r)
-
-        r = self.admin_request(method='GET',
-                               path=service_path,
-                               expected_status=http_client.UNAUTHORIZED)
-        self.assertValidErrorResponse(r)
-
-        r = self.admin_request(method='DELETE',
-                               path=service_path,
-                               expected_status=http_client.UNAUTHORIZED)
-        self.assertValidErrorResponse(r)
 
     def test_user_role_list_requires_auth(self):
         """User role list return unauthorized without an X-Auth-Token."""

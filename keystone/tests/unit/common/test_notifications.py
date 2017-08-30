@@ -945,61 +945,6 @@ class V2Notifications(BaseNotificationTest):
                                            'role',
                                            cadftaxonomy.SECURITY_ROLE)
 
-    def test_service_and_endpoint(self):
-        token = self.get_scoped_token()
-        resp = self.admin_request(
-            method='POST',
-            path='/v2.0/OS-KSADM/services',
-            body={
-                'OS-KSADM:service': {
-                    'name': uuid.uuid4().hex,
-                    'type': uuid.uuid4().hex,
-                    'description': uuid.uuid4().hex,
-                },
-            },
-            token=token,
-        )
-        service_id = resp.result.get('OS-KSADM:service').get('id')
-        self._assert_initiator_data_is_set(CREATED_OPERATION,
-                                           'service',
-                                           cadftaxonomy.SECURITY_SERVICE)
-        resp = self.admin_request(
-            method='POST',
-            path='/v2.0/endpoints',
-            body={
-                'endpoint': {
-                    'region': uuid.uuid4().hex,
-                    'service_id': service_id,
-                    'publicurl': uuid.uuid4().hex,
-                    'adminurl': uuid.uuid4().hex,
-                    'internalurl': uuid.uuid4().hex,
-                },
-            },
-            token=token,
-        )
-        endpoint_id = resp.result.get('endpoint').get('id')
-        self._assert_initiator_data_is_set(CREATED_OPERATION,
-                                           'endpoint',
-                                           cadftaxonomy.SECURITY_ENDPOINT)
-        # test for delete endpoint
-        self.admin_request(
-            method='DELETE',
-            path='/v2.0/endpoints/%s' % endpoint_id,
-            token=token,
-        )
-        self._assert_initiator_data_is_set(DELETED_OPERATION,
-                                           'endpoint',
-                                           cadftaxonomy.SECURITY_ENDPOINT)
-        # test for delete service
-        self.admin_request(
-            method='DELETE',
-            path='/v2.0/OS-KSADM/services/%s' % service_id,
-            token=token,
-        )
-        self._assert_initiator_data_is_set(DELETED_OPERATION,
-                                           'service',
-                                           cadftaxonomy.SECURITY_SERVICE)
-
     def test_project(self):
         token = self.get_scoped_token()
         resp = self.admin_request(
