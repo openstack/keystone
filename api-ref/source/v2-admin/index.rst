@@ -8,6 +8,5 @@
 
 .. include:: admin-tenants.inc
 .. include:: admin-tokens.inc
-.. include:: admin-users.inc
 .. include:: admin-versions.inc
 .. include:: admin-certificates.inc

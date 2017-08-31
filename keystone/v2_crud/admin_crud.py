@@ -15,7 +15,6 @@
 from keystone import assignment
 from keystone.common import extension
 from keystone.common import wsgi
-from keystone import identity
 
 
 extension.register_admin_extension(
@@ -47,7 +46,6 @@ class Router(wsgi.ComposableRouter):
     def add_routes(self, mapper):
         assignment_tenant_controller = (
             assignment.controllers.TenantAssignment())
-        user_controller = identity.controllers.User()
 
         # Tenant Operations
         mapper.connect(
@@ -55,62 +53,3 @@ class Router(wsgi.ComposableRouter):
             controller=assignment_tenant_controller,
             action='get_project_users',
             conditions=dict(method=['GET']))
-
-        # User Operations
-        mapper.connect(
-            '/users',
-            controller=user_controller,
-            action='get_users',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users',
-            controller=user_controller,
-            action='create_user',
-            conditions=dict(method=['POST']))
-        # NOTE(termie): not in diablo
-        mapper.connect(
-            '/users/{user_id}',
-            controller=user_controller,
-            action='update_user',
-            conditions=dict(method=['PUT']))
-        mapper.connect(
-            '/users/{user_id}',
-            controller=user_controller,
-            action='delete_user',
-            conditions=dict(method=['DELETE']))
-
-        # COMPAT(diablo): the copy with no OS-KSADM is from diablo
-        mapper.connect(
-            '/users/{user_id}/password',
-            controller=user_controller,
-            action='set_user_password',
-            conditions=dict(method=['PUT']))
-        mapper.connect(
-            '/users/{user_id}/OS-KSADM/password',
-            controller=user_controller,
-            action='set_user_password',
-            conditions=dict(method=['PUT']))
-
-        # COMPAT(diablo): the copy with no OS-KSADM is from diablo
-        mapper.connect(
-            '/users/{user_id}/tenant',
-            controller=user_controller,
-            action='update_user',
-            conditions=dict(method=['PUT']))
-        mapper.connect(
-            '/users/{user_id}/OS-KSADM/tenant',
-            controller=user_controller,
-            action='update_user',
-            conditions=dict(method=['PUT']))
-
-        # COMPAT(diablo): the copy with no OS-KSADM is from diablo
-        mapper.connect(
-            '/users/{user_id}/enabled',
-            controller=user_controller,
-            action='set_user_enabled',
-            conditions=dict(method=['PUT']))
-        mapper.connect(
-            '/users/{user_id}/OS-KSADM/enabled',
-            controller=user_controller,
-            action='set_user_enabled',
-            conditions=dict(method=['PUT']))

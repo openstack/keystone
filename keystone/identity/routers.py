@@ -19,16 +19,6 @@ from keystone.common import wsgi
 from keystone.identity import controllers
 
 
-class Admin(wsgi.ComposableRouter):
-    def add_routes(self, mapper):
-        # User Operations
-        user_controller = controllers.User()
-        mapper.connect('/users/{user_id}',
-                       controller=user_controller,
-                       action='get_user',
-                       conditions=dict(method=['GET']))
-
-
 class Routers(wsgi.RoutersBase):
 
     def append_v3_routers(self, mapper, routers):

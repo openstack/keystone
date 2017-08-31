@@ -36,7 +36,6 @@ from keystone.token import _simple_cert as simple_cert_ext
 from keystone.token import routers as token_routers
 from keystone.trust import routers as trust_routers
 from keystone.v2_crud import admin_crud
-from keystone.v2_crud import user_crud
 from keystone.version import controllers
 from keystone.version import routers
 
@@ -85,7 +84,6 @@ def public_app_factory(global_conf, **local_conf):
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [assignment_routers.Public(),
                                  token_routers.Router(),
-                                 user_crud.Router(),
                                  routers.VersionV2('public'),
                                  routers.Extension(False)])
 
@@ -95,8 +93,7 @@ def public_app_factory(global_conf, **local_conf):
 def admin_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
     return wsgi.ComposingRouter(routes.Mapper(),
-                                [identity_routers.Admin(),
-                                 token_routers.Router(),
+                                [token_routers.Router(),
                                  admin_crud.Router(),
                                  routers.VersionV2('admin'),
                                  routers.Extension()])

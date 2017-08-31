@@ -884,41 +884,6 @@ class CADFNotificationsForEntities(NotificationsForEntities):
                                            cadftaxonomy.SECURITY_DOMAIN)
 
 
-class V2Notifications(BaseNotificationTest):
-
-    def setUp(self):
-        super(V2Notifications, self).setUp()
-        self.config_fixture.config(notification_format='cadf')
-
-    def test_user(self):
-        token = self.get_scoped_token()
-        resp = self.admin_request(
-            method='POST',
-            path='/v2.0/users',
-            body={
-                'user': {
-                    'name': uuid.uuid4().hex,
-                    'password': uuid.uuid4().hex,
-                    'enabled': True,
-                },
-            },
-            token=token,
-        )
-        user_id = resp.result.get('user').get('id')
-        self._assert_initiator_data_is_set(CREATED_OPERATION,
-                                           'user',
-                                           cadftaxonomy.SECURITY_ACCOUNT_USER)
-        # test for delete user
-        self.admin_request(
-            method='DELETE',
-            path='/v2.0/users/%s' % user_id,
-            token=token,
-        )
-        self._assert_initiator_data_is_set(DELETED_OPERATION,
-                                           'user',
-                                           cadftaxonomy.SECURITY_ACCOUNT_USER)
-
-
 class TestEventCallbacks(test_v3.RestfulTestCase):
 
     class FakeManager(object):
