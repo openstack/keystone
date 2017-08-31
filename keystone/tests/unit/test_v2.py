@@ -20,7 +20,6 @@ from six.moves import http_client
 from keystone.common import extension as keystone_extension
 import keystone.conf
 from keystone.tests import unit
-from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
 from keystone.tests.unit.schema import v2
@@ -147,98 +146,6 @@ class CoreApiTests(object):
             },
             expected_status=http_client.OK)
         self.assertValidAuthenticationResponse(r)
-
-    def test_validate_token(self):
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            path='/v2.0/tokens/%(token_id)s' % {
-                'token_id': token,
-            },
-            token=token)
-        self.assertValidAuthenticationResponse(r)
-
-    def test_invalid_token_returns_not_found(self):
-        token = self.get_scoped_token()
-        self.admin_request(
-            path='/v2.0/tokens/%(token_id)s' % {
-                'token_id': 'invalid',
-            },
-            token=token,
-            expected_status=http_client.NOT_FOUND)
-
-    def test_validate_token_service_role(self):
-        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'],
-            self.tenant_service['id'],
-            self.role_service['id'])
-
-        token = self.get_scoped_token(
-            tenant_id=default_fixtures.SERVICE_TENANT_ID)
-        r = self.admin_request(
-            path='/v2.0/tokens/%s' % token,
-            token=token)
-        self.assertValidAuthenticationResponse(r)
-
-    def test_remove_role_revokes_token(self):
-        self.md_foobar = self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'],
-            self.tenant_service['id'],
-            self.role_service['id'])
-
-        token = self.get_scoped_token(
-            tenant_id=default_fixtures.SERVICE_TENANT_ID)
-        r = self.admin_request(
-            path='/v2.0/tokens/%s' % token,
-            token=token)
-        self.assertValidAuthenticationResponse(r)
-
-        self.assignment_api.remove_role_from_user_and_project(
-            self.user_foo['id'],
-            self.tenant_service['id'],
-            self.role_service['id'])
-
-        r = self.admin_request(
-            path='/v2.0/tokens/%s' % token,
-            token=token,
-            expected_status=http_client.UNAUTHORIZED)
-
-    def test_validate_token_belongs_to(self):
-        token = self.get_scoped_token()
-        path = ('/v2.0/tokens/%s?belongsTo=%s' % (token,
-                                                  self.tenant_bar['id']))
-        r = self.admin_request(path=path, token=token)
-        self.assertValidAuthenticationResponse(r, require_service_catalog=True)
-
-    def test_validate_token_no_belongs_to_still_returns_catalog(self):
-        token = self.get_scoped_token()
-        path = ('/v2.0/tokens/%s' % token)
-        r = self.admin_request(path=path, token=token)
-        self.assertValidAuthenticationResponse(r, require_service_catalog=True)
-
-    def test_validate_token_head(self):
-        """The same call as above, except using HEAD.
-
-        There's no response to validate here, but this is included for the
-        sake of completely covering the core API.
-
-        """
-        token = self.get_scoped_token()
-        self.admin_request(
-            method='HEAD',
-            path='/v2.0/tokens/%(token_id)s' % {
-                'token_id': token,
-            },
-            token=token,
-            expected_status=http_client.OK)
-
-    def test_endpoints(self):
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            path='/v2.0/tokens/%(token_id)s/endpoints' % {
-                'token_id': token,
-            },
-            token=token)
-        self.assertValidEndpointListResponse(r)
 
     def test_error_response(self):
         """Trigger assertValidErrorResponse by convention."""
@@ -524,21 +431,6 @@ class V2TestCase(object):
     def get_user_attribute_from_response(self, r, attribute_name):
         return r.result['user'][attribute_name]
 
-    def test_fetch_revocation_list_nonadmin_fails(self):
-        self.admin_request(
-            method='GET',
-            path='/v2.0/tokens/revoked',
-            expected_status=http_client.UNAUTHORIZED)
-
-    def test_fetch_revocation_list_admin_200(self):
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            method='GET',
-            path='/v2.0/tokens/revoked',
-            token=token,
-            expected_status=http_client.OK)
-        self.assertValidRevocationListResponse(r)
-
     def assertValidRevocationListResponse(self, response):
         self.assertIsNotNone(response.result['signed'])
 
@@ -562,12 +454,6 @@ class V2TestCaseFernet(V2TestCase, RestfulTestCase, CoreApiTests):
                 CONF.fernet_tokens.max_active_keys
             )
         )
-
-    def test_fetch_revocation_list_md5(self):
-        self.skipTest('Revocation lists do not support Fernet')
-
-    def test_fetch_revocation_list_sha256(self):
-        self.skipTest('Revocation lists do not support Fernet')
 
 
 class TestFernetTokenProviderV2(RestfulTestCase):
@@ -622,23 +508,6 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         # Fernet token must be of length 255 per usability requirements
         self.assertLess(len(unscoped_token), 255)
 
-    def test_validate_unscoped_token(self):
-        # Grab an admin token to validate with
-        project_ref = self.new_project_ref()
-        self.resource_api.create_project(project_ref['id'], project_ref)
-        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
-                                                         project_ref['id'],
-                                                         self.role_admin['id'])
-        admin_token = self.get_scoped_token(tenant_id=project_ref['id'])
-        unscoped_token = self.get_unscoped_token()
-        path = ('/v2.0/tokens/%s' % unscoped_token)
-        resp = self.admin_request(
-            method='GET',
-            path=path,
-            token=admin_token,
-            expected_status=http_client.OK)
-        self.assertValidUnscopedTokenResponse(resp)
-
     def test_authenticate_scoped_token(self):
         project_ref = self.new_project_ref()
         self.resource_api.create_project(project_ref['id'], project_ref)
@@ -647,28 +516,6 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         token = self.get_scoped_token(tenant_id=project_ref['id'])
         # Fernet token must be of length 255 per usability requirements
         self.assertLess(len(token), 255)
-
-    def test_validate_scoped_token(self):
-        project_ref = self.new_project_ref()
-        self.resource_api.create_project(project_ref['id'], project_ref)
-        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
-                                                         project_ref['id'],
-                                                         self.role_admin['id'])
-        project2_ref = self.new_project_ref()
-        self.resource_api.create_project(project2_ref['id'], project2_ref)
-        self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'], project2_ref['id'], self.role_member['id'])
-        admin_token = self.get_scoped_token(tenant_id=project_ref['id'])
-        member_token = self.get_scoped_token(tenant_id=project2_ref['id'])
-        path = ('/v2.0/tokens/%s?belongsTo=%s' % (member_token,
-                project2_ref['id']))
-        # Validate token belongs to project
-        resp = self.admin_request(
-            method='GET',
-            path=path,
-            token=admin_token,
-            expected_status=http_client.OK)
-        self.assertValidScopedTokenResponse(resp)
 
     def test_token_authentication_and_validation(self):
         """Test token authentication for Fernet token provider.
@@ -685,7 +532,7 @@ class TestFernetTokenProviderV2(RestfulTestCase):
         token_id = unscoped_token
         if six.PY2:
             token_id = token_id.encode('ascii')
-        r = self.public_request(
+        resp = self.public_request(
             method='POST',
             path='/v2.0/tokens',
             body={
@@ -696,15 +543,6 @@ class TestFernetTokenProviderV2(RestfulTestCase):
                     }
                 }
             },
-            expected_status=http_client.OK)
-
-        token_id = self._get_token_id(r)
-        path = ('/v2.0/tokens/%s?belongsTo=%s' % (token_id, project_ref['id']))
-        # Validate token belongs to project
-        resp = self.admin_request(
-            method='GET',
-            path=path,
-            token=self.get_admin_token(),
             expected_status=http_client.OK)
         self.assertValidScopedTokenResponse(resp)
 

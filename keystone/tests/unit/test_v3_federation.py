@@ -44,7 +44,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils
-from keystone.token import controllers as token_controller
 from keystone.token.providers import common as token_common
 
 
@@ -2727,22 +2726,6 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
         self.assertRaises(exception.Unauthorized,
                           self._issue_unscoped_token)
-
-    def test_v2_auth_with_federation_token_fails(self):
-        """Test that using a federation token with v2 auth fails.
-
-        If an admin sets up a federated Keystone environment, and a user
-        incorrectly configures a service (like Nova) to only use v2 auth, the
-        returned message should be informative.
-
-        """
-        r = self._issue_unscoped_token()
-        token_id = r.headers.get('X-Subject-Token')
-        v2_token_controller = token_controller.Auth()
-        self.assertRaises(exception.Unauthorized,
-                          v2_token_controller.validate_token,
-                          self.make_request(is_admin=True),
-                          token_id)
 
     def test_unscoped_token_has_user_domain(self):
         r = self._issue_unscoped_token()

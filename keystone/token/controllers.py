@@ -12,11 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import datetime
 import sys
 
-from keystoneclient.common import cms
-from oslo_serialization import jsonutils
 import six
 
 from keystone.common import controller
@@ -68,18 +65,6 @@ class ExternalAuthNotApplicable(Exception):
 @dependency.requires('catalog_api', 'identity_api', 'resource_api',
                      'token_provider_api', 'trust_api')
 class Auth(controller.V2Controller):
-
-    @controller.v2_deprecated
-    def ca_cert(self, request):
-        with open(CONF.signing.ca_certs, 'r') as ca_file:
-            data = ca_file.read()
-        return data
-
-    @controller.v2_deprecated
-    def signing_cert(self, request):
-        with open(CONF.signing.certfile, 'r') as cert_file:
-            data = cert_file.read()
-        return data
 
     @controller.v2_auth_deprecated
     def authenticate(self, request, auth=None):
@@ -153,145 +138,6 @@ class Auth(controller.V2Controller):
             self.trust_api.consume_use(auth['trust_id'])
 
         return token_data
-
-    def _get_auth_token_data(self, user, tenant, metadata, expiry, audit_id):
-        return dict(user=user,
-                    tenant=tenant,
-                    metadata=metadata,
-                    expires=expiry,
-                    parent_audit_id=audit_id)
-
-    def _token_belongs_to(self, token, belongs_to):
-        """Check if the token belongs to the right project.
-
-        :param token: token reference
-        :param belongs_to: project ID that the token belongs to
-
-        """
-        token_data = token['access']['token']
-        if ('tenant' not in token_data or
-                token_data['tenant']['id'] != belongs_to):
-            raise exception.Unauthorized()
-
-    @controller.v2_deprecated
-    @controller.protected()
-    def validate_token_head(self, request, token_id):
-        """Check that a token is valid.
-
-        Optionally, also ensure that it is owned by a specific tenant.
-
-        Identical to ``validate_token``, except does not return a response.
-
-        The code in ``keystone.common.wsgi.render_response`` will remove
-        the content body.
-
-        """
-        v3_token_response = self.token_provider_api.validate_token(token_id)
-        v2_helper = V2TokenDataHelper()
-        token = v2_helper.v3_to_v2_token(v3_token_response, token_id)
-        belongs_to = request.params.get('belongsTo')
-        if belongs_to:
-            self._token_belongs_to(token, belongs_to)
-        return token
-
-    @controller.v2_deprecated
-    @controller.protected()
-    def validate_token(self, request, token_id):
-        """Check that a token is valid.
-
-        Optionally, also ensure that it is owned by a specific tenant.
-
-        Returns metadata about the token along any associated roles.
-
-        """
-        # TODO(ayoung) validate against revocation API
-        v3_token_response = self.token_provider_api.validate_token(token_id)
-        v2_helper = V2TokenDataHelper()
-        token = v2_helper.v3_to_v2_token(v3_token_response, token_id)
-        belongs_to = request.params.get('belongsTo')
-        if belongs_to:
-            self._token_belongs_to(token, belongs_to)
-        return token
-
-    @controller.v2_deprecated
-    def delete_token(self, request, token_id):
-        """Delete a token, effectively invalidating it for authz."""
-        # TODO(termie): this stuff should probably be moved to middleware
-        self.assert_admin(request)
-        self.token_provider_api.revoke_token(token_id)
-
-    @controller.v2_deprecated
-    @controller.protected()
-    def revocation_list(self, request):
-        if not CONF.token.revoke_by_id:
-            raise exception.Gone()
-        tokens = self.token_provider_api.list_revoked_tokens()
-
-        for t in tokens:
-            expires = t['expires']
-            if expires and isinstance(expires, datetime.datetime):
-                t['expires'] = utils.isotime(expires)
-        data = {'revoked': tokens}
-        json_data = jsonutils.dumps(data)
-        signed_text = cms.cms_sign_text(json_data,
-                                        CONF.signing.certfile,
-                                        CONF.signing.keyfile)
-
-        return {'signed': signed_text}
-
-    @controller.v2_deprecated
-    def endpoints(self, request, token_id):
-        """Return a list of endpoints available to the token."""
-        self.assert_admin(request)
-
-        token_data = self.token_provider_api.validate_token(token_id)
-        token_ref = token_model.KeystoneToken(token_id, token_data)
-
-        catalog_ref = None
-        if token_ref.project_id:
-            catalog_ref = self.catalog_api.get_catalog(
-                token_ref.user_id,
-                token_ref.project_id)
-
-        return Auth.format_endpoint_list(catalog_ref)
-
-    @classmethod
-    def format_endpoint_list(cls, catalog_ref):
-        """Format a list of endpoints according to Identity API v2.
-
-        The v2.0 API wants an endpoint list to look like::
-
-            {
-                'endpoints': [
-                    {
-                        'id': $endpoint_id,
-                        'name': $SERVICE[name],
-                        'type': $SERVICE,
-                        'tenantId': $tenant_id,
-                        'region': $REGION,
-                    }
-                ],
-                'endpoints_links': [],
-            }
-
-        """
-        if not catalog_ref:
-            return {}
-
-        endpoints = []
-        for region_name, region_ref in catalog_ref.items():
-            for service_type, service_ref in region_ref.items():
-                endpoints.append({
-                    'id': service_ref.get('id'),
-                    'name': service_ref.get('name'),
-                    'type': service_type,
-                    'region': region_name,
-                    'publicURL': service_ref.get('publicURL'),
-                    'internalURL': service_ref.get('internalURL'),
-                    'adminURL': service_ref.get('adminURL'),
-                })
-
-        return {'endpoints': endpoints, 'endpoints_links': []}
 
 
 @dependency.requires('resource_api', 'identity_api')

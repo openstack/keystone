@@ -5,30 +5,6 @@ Tokens
 ======
 
 
-List endoints for token
-=======================
-
-.. rest_method::  GET /v2.0/tokens/{tokenId}/endpoints
-
-Lists the endpoints associated with a token.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tokenId: token_id_path
-
-Response Example
-----------------
-
-.. literalinclude:: samples/admin/token-endpoints-list-response.json
-   :language: javascript
-
-
 Authenticate for admin API
 ==========================
 
@@ -98,76 +74,3 @@ Response Example
 
 .. literalinclude:: ../v2/samples/admin/authenticate-response.json
    :language: javascript
-
-
-Validate token
-==============
-
-.. rest_method::  GET /v2.0/tokens/{tokenId}
-
-Validates a token and confirms that it belongs to a tenant.
-
-Returns the permissions relevant to a particular client. Valid
-tokens are in the ``/tokens/{tokenId}`` path. If the token is not
-valid, this call returns the ``itemNotFound (404)`` response code.
-This method supports an optional parameter ``belongsTo`` to check
-the token scope against the ID of a project. If the token does
-not belong to the project specified in the parameter a
-``unauthorized (401)`` response code will be returned.
-
-Normal response codes: 200,203
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tokenId: token_id_path
-   - belongsTo: belongsTo
-
-Response Example
-----------------
-
-.. literalinclude:: samples/admin/token-validate-response.json
-   :language: javascript
-
-
-Validate token (admin)
-======================
-
-.. rest_method::  HEAD /v2.0/tokens/{tokenId}
-
-Validates a token and confirms that it belongs to a tenant, for performance.
-This method supports an optional parameter ``belongsTo`` to check
-the token scope against the ID of a project. If the token does
-not belong to the project specified in the parameter a
-``unauthorized (401)`` response code will be returned.
-
-Normal response codes: 200,203,204
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tokenId: token_id_path
-   - belongsTo: belongsTo
-
-Delete token
-============
-
-.. rest_method::  DELETE /v2.0/tokens/{tokenId}
-
-Deletes a token.
-
-Normal response codes: 204
-Error response codes: 413,405,404,403,401,400,503
-
-Request
--------
-
-.. rest_parameters:: parameters.yaml
-
-   - tokenId: token_id_path

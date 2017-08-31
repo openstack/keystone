@@ -405,63 +405,6 @@ class AuthWithToken(object):
         self.assertIn(self.role_member['id'], roles)
         self.assertIn(self.role_admin['id'], roles)
 
-    def test_belongs_to_no_tenant(self):
-        r = self.controller.authenticate(
-            self.make_request(),
-            auth={
-                'passwordCredentials': {
-                    'username': self.user_foo['name'],
-                    'password': self.user_foo['password']
-                }
-            })
-        unscoped_token_id = r['access']['token']['id']
-        query_string = 'belongsTo=%s' % self.tenant_bar['id']
-        self.assertRaises(
-            exception.Unauthorized,
-            self.controller.validate_token,
-            self.make_request(is_admin=True, query_string=query_string),
-            token_id=unscoped_token_id)
-
-        self.assertRaises(
-            exception.Unauthorized,
-            self.controller.validate_token_head,
-            self.make_request(is_admin=True, query_string=query_string),
-            token_id=unscoped_token_id)
-
-    def test_belongs_to(self):
-        body_dict = _build_user_auth(
-            username='foo',
-            password='foo2',
-            tenant_name=self.tenant_bar['name'])
-
-        scoped_token = self.controller.authenticate(self.make_request(),
-                                                    body_dict)
-        scoped_token_id = scoped_token['access']['token']['id']
-
-        query_string = 'belongsTo=%s' % uuid.uuid4().hex
-        self.assertRaises(
-            exception.Unauthorized,
-            self.controller.validate_token,
-            self.make_request(is_admin=True, query_string=query_string),
-            token_id=scoped_token_id)
-
-        self.assertRaises(
-            exception.Unauthorized,
-            self.controller.validate_token_head,
-            self.make_request(is_admin=True, query_string=query_string),
-            token_id=scoped_token_id)
-
-        query_string = 'belongsTo=%s' % self.tenant_bar['id']
-        self.controller.validate_token(
-            self.make_request(is_admin=True, query_string=query_string),
-            token_id=scoped_token_id
-        )
-
-        self.controller.validate_token_head(
-            self.make_request(is_admin=True, query_string=query_string),
-            token_id=scoped_token_id
-        )
-
     def test_token_auth_with_binding(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
         body_dict = _build_user_auth()
@@ -489,35 +432,6 @@ class AuthWithToken(object):
         # the bind information should be carried over from the original token
         bind = scoped_token['access']['token']['bind']
         self.assertEqual('foo', bind['kerberos'])
-
-    def test_deleting_role_assignment_does_not_revoke_unscoped_token(self):
-        admin_request = self.make_request(is_admin=True)
-
-        project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
-        role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
-        self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'], project['id'], role['id'])
-
-        # Get an unscoped token.
-        token = self.controller.authenticate(
-            self.make_request(),
-            _build_user_auth(username=self.user_foo['name'],
-                             password=self.user_foo['password']))
-        token_id = token['access']['token']['id']
-
-        # Ensure it is valid
-        self.controller.validate_token(admin_request, token_id=token_id)
-
-        # Delete the role assignment, which should not invalidate the token,
-        # because we're not consuming it with just an unscoped token.
-        self.assignment_api.remove_role_from_user_and_project(
-            self.user_foo['id'], project['id'], role['id'])
-
-        # Ensure it is still valid
-        self.controller.validate_token(admin_request, token_id=token_id)
 
     def test_only_original_audit_id_is_kept(self):
         def get_audit_ids(token):
@@ -1089,13 +1003,6 @@ class AuthWithTrust(object):
             self.make_request(), v3_req_with_trust)
         return token_auth_response
 
-    def test_validate_v3_trust_scoped_token_against_v2_succeeds(self):
-        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
-        auth_response = self.fetch_v3_token_from_trust(new_trust, self.trustee)
-        trust_token = auth_response.headers['X-Subject-Token']
-        self.controller.validate_token(self.make_request(is_admin=True),
-                                       trust_token)
-
     def test_create_v3_token_from_trust(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
         auth_response = self.fetch_v3_token_from_trust(new_trust, self.trustee)
@@ -1160,27 +1067,6 @@ class AuthWithTrust(object):
         self.assertRaises(
             exception.Forbidden,
             self.controller.authenticate, self.make_request(), request_body)
-
-    def test_delete_trust_revokes_token(self):
-        unscoped_token = self.get_unscoped_token(self.trustor['name'])
-        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
-        request = self._create_auth_request(
-            unscoped_token['access']['token']['id'])
-        trust_token_resp = self.fetch_v2_token_from_trust(new_trust)
-        trust_scoped_token_id = trust_token_resp['access']['token']['id']
-        self.controller.validate_token(
-            self.make_request(is_admin=True),
-            token_id=trust_scoped_token_id)
-        trust_id = new_trust['id']
-
-        self.time_fixture.advance_time_seconds(1)
-
-        self.trust_controller.delete_trust(request, trust_id=trust_id)
-        self.assertRaises(
-            exception.TokenNotFound,
-            self.controller.validate_token,
-            self.make_request(is_admin=True),
-            token_id=trust_scoped_token_id)
 
     def test_token_from_trust_with_no_role_fails(self):
         new_trust = self.create_trust(self.sample_data, self.trustor['name'])
@@ -1270,13 +1156,6 @@ class AuthWithTrust(object):
             exception.Unauthorized,
             self.controller.authenticate, self.make_request(), request_body)
 
-    def test_validate_trust_scoped_token_against_v2(self):
-        new_trust = self.create_trust(self.sample_data, self.trustor['name'])
-        trust_token_resp = self.fetch_v2_token_from_trust(new_trust)
-        trust_scoped_token_id = trust_token_resp['access']['token']['id']
-        self.controller.validate_token(self.make_request(is_admin=True),
-                                       token_id=trust_scoped_token_id)
-
     def test_trust_get_token_fails_with_future_token_if_trustee_disabled(self):
         """Test disabling trustee and using an unrevoked token.
 
@@ -1340,14 +1219,6 @@ class FernetAuthWithTrust(AuthWithTrust, AuthTest):
         # backend. This same test can be exercised through the API.
         msg = 'The Fernet token provider does not support token persistence'
         self.skipTest(msg)
-
-    def test_delete_trust_revokes_token(self):
-        # NOTE(amakarov): have to override this for Fernet as TokenNotFound
-        # can't be raised for non-persistent token, but deleted trust will
-        # cause TrustNotFound exception.
-        self.assertRaises(
-            exception.TrustNotFound,
-            super(FernetAuthWithTrust, self).test_delete_trust_revokes_token)
 
     def test_trust_get_token_fails_with_future_token_if_trustee_disabled(self):
         """Test disabling trustee and using an unrevoked token.
@@ -1426,10 +1297,6 @@ class TokenExpirationTest(AuthTest):
             timeutils.parse_isotime(r['access']['token']['expires'])
         )
 
-    def test_maintain_uuid_token_expiration(self):
-        self.config_fixture.config(group='token', provider='uuid')
-        self._maintain_token_expiration()
-
 
 class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
     """Test for the catalog provided in the auth response."""
@@ -1491,38 +1358,6 @@ class AuthCatalog(unit.SQLDriverOverrides, AuthTest):
         # Check the catalog
         self.assertEqual(1, len(token['access']['serviceCatalog']))
         endpoint = token['access']['serviceCatalog'][0]['endpoints'][0]
-        self.assertEqual(
-            1, len(token['access']['serviceCatalog'][0]['endpoints']))
-
-        exp_endpoint = {
-            'id': endpoint_ref['id'],
-            'publicURL': endpoint_ref['url'],
-            'region': endpoint_ref['region_id'],
-        }
-
-        self.assertEqual(exp_endpoint, endpoint)
-
-    def test_validate_catalog_disabled_endpoint(self):
-        """On validate, get back a catalog that excludes disabled endpoints."""
-        endpoint_ref = self._create_endpoints()
-
-        # Authenticate
-        body_dict = _build_user_auth(
-            username='foo',
-            password='foo2',
-            tenant_name="BAR")
-
-        token = self.controller.authenticate(self.make_request(), body_dict)
-
-        # Validate
-        token_id = token['access']['token']['id']
-        validate_ref = self.controller.validate_token(
-            self.make_request(is_admin=True),
-            token_id=token_id)
-
-        # Check the catalog
-        self.assertEqual(1, len(token['access']['serviceCatalog']))
-        endpoint = validate_ref['access']['serviceCatalog'][0]['endpoints'][0]
         self.assertEqual(
             1, len(token['access']['serviceCatalog'][0]['endpoints']))
 

@@ -22,38 +22,3 @@ class Router(wsgi.ComposableRouter):
                        controller=token_controller,
                        action='authenticate',
                        conditions=dict(method=['POST']))
-        mapper.connect('/tokens/revoked',
-                       controller=token_controller,
-                       action='revocation_list',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/tokens/{token_id}',
-                       controller=token_controller,
-                       action='validate_token',
-                       conditions=dict(method=['GET']))
-        # NOTE(morganfainberg): For policy enforcement reasons, the
-        # ``validate_token_head`` method is still used for HEAD requests.
-        # The controller method makes the same call as the validate_token
-        # call and lets wsgi.render_response remove the body data.
-        mapper.connect('/tokens/{token_id}',
-                       controller=token_controller,
-                       action='validate_token_head',
-                       conditions=dict(method=['HEAD']))
-        mapper.connect('/tokens/{token_id}',
-                       controller=token_controller,
-                       action='delete_token',
-                       conditions=dict(method=['DELETE']))
-        mapper.connect('/tokens/{token_id}/endpoints',
-                       controller=token_controller,
-                       action='endpoints',
-                       conditions=dict(method=['GET']))
-
-        # Certificates used to verify auth tokens
-        mapper.connect('/certificates/ca',
-                       controller=token_controller,
-                       action='ca_cert',
-                       conditions=dict(method=['GET']))
-
-        mapper.connect('/certificates/signing',
-                       controller=token_controller,
-                       action='signing_cert',
-                       conditions=dict(method=['GET']))
