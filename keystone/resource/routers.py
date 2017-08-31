@@ -21,20 +21,6 @@ from keystone.common import wsgi
 from keystone.resource import controllers
 
 
-class Admin(wsgi.ComposableRouter):
-    def add_routes(self, mapper):
-        # Tenant Operations
-        tenant_controller = controllers.Tenant()
-        mapper.connect('/tenants',
-                       controller=tenant_controller,
-                       action='get_all_projects',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/tenants/{tenant_id}',
-                       controller=tenant_controller,
-                       action='get_project',
-                       conditions=dict(method=['GET']))
-
-
 class Routers(wsgi.RoutersBase):
 
     def append_v3_routers(self, mapper, routers):

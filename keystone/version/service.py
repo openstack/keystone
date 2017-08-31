@@ -97,7 +97,6 @@ def admin_app_factory(global_conf, **local_conf):
     return wsgi.ComposingRouter(routes.Mapper(),
                                 [identity_routers.Admin(),
                                  token_routers.Router(),
-                                 resource_routers.Admin(),
                                  admin_crud.Router(),
                                  routers.VersionV2('admin'),
                                  routers.Extension()])

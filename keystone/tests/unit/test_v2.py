@@ -148,11 +148,6 @@ class CoreApiTests(object):
             expected_status=http_client.OK)
         self.assertValidAuthenticationResponse(r)
 
-    def test_get_tenants_for_token(self):
-        r = self.public_request(path='/v2.0/tenants',
-                                token=self.get_scoped_token())
-        self.assertValidTenantListResponse(r)
-
     def test_validate_token(self):
         token = self.get_scoped_token()
         r = self.admin_request(
@@ -244,24 +239,6 @@ class CoreApiTests(object):
             },
             token=token)
         self.assertValidEndpointListResponse(r)
-
-    def test_get_tenant(self):
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            path='/v2.0/tenants/%(tenant_id)s' % {
-                'tenant_id': self.tenant_bar['id'],
-            },
-            token=token)
-        self.assertValidTenantResponse(r)
-
-    def test_get_tenant_by_name(self):
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            path='/v2.0/tenants?name=%(tenant_name)s' % {
-                'tenant_name': self.tenant_bar['name'],
-            },
-            token=token)
-        self.assertValidTenantResponse(r)
 
     def test_get_user(self):
         token = self.get_scoped_token()
