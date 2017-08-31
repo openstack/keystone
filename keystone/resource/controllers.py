@@ -190,6 +190,12 @@ class ProjectV3(controller.V3Controller):
         # False (which in query terms means '0')
         if 'is_domain' not in request.params:
             hints.add_filter('is_domain', '0')
+        # If any tags filters are passed in when listing projects, add them
+        # to the hint filters
+        tag_params = ['tags', 'tags-any', 'not-tags', 'not-tags-any']
+        for t in tag_params:
+            if t in request.params:
+                hints.add_filter(t, request.params[t])
         refs = self.resource_api.list_projects(hints=hints)
         return ProjectV3.wrap_collection(request.context_dict,
                                          refs, hints=hints)
@@ -258,3 +264,69 @@ class ProjectV3(controller.V3Controller):
         return self.resource_api.delete_project(
             project_id,
             initiator=request.audit_initiator)
+
+
+@dependency.requires('resource_api')
+class ProjectTagV3(controller.V3Controller):
+    collection_name = 'projects'
+    member_name = 'tags'
+
+    def __init__(self):
+        super(ProjectTagV3, self).__init__()
+        self.get_member_from_driver = self.resource_api.get_project_tag
+
+    @classmethod
+    def wrap_member(cls, context, ref):
+        # NOTE(gagehugo): Overriding this due to how the common controller
+        # expects the ref to have an id, which for tags it does not.
+        new_ref = {'links': {'self': cls.full_url(context)}}
+        new_ref[cls.member_name] = (ref or [])
+        return new_ref
+
+    @classmethod
+    def wrap_header(cls, context, query):
+        # NOTE(gagehugo: The API spec for tags has a specific guideline for
+        # what to return when adding a single tag. This wrapper handles
+        # returning the specified url in the header while the body is empty.
+        context['environment']['QUERY_STRING'] = '/' + query
+        url = cls.full_url(context)
+        headers = [('Location', url.replace('?', ''))]
+        status = (http_client.CREATED,
+                  http_client.responses[http_client.CREATED])
+        return wsgi.render_response(status=status, headers=headers)
+
+    @controller.protected()
+    def create_project_tag(self, request, project_id, value):
+        validation.lazy_validate(schema.project_tag_create, value)
+        # Check if we will exceed the max number of tags on this project
+        tags = self.resource_api.list_project_tags(project_id)
+        tags.append(value)
+        validation.lazy_validate(schema.project_tags_update, tags)
+        self.resource_api.create_project_tag(
+            project_id, value, initiator=request.audit_initiator)
+        query = '/'.join((project_id, 'tags', value))
+        return ProjectTagV3.wrap_header(request.context_dict, query)
+
+    @controller.protected()
+    def get_project_tag(self, request, project_id, value):
+        self.resource_api.get_project_tag(project_id, value)
+
+    @controller.protected()
+    def delete_project_tag(self, request, project_id, value):
+        self.resource_api.delete_project_tag(project_id, value)
+
+    @controller.protected()
+    def list_project_tags(self, request, project_id):
+        ref = self.resource_api.list_project_tags(project_id)
+        return ProjectTagV3.wrap_member(request.context_dict, ref)
+
+    @controller.protected()
+    def update_project_tags(self, request, project_id, tags):
+        validation.lazy_validate(schema.project_tags_update, tags)
+        ref = self.resource_api.update_project_tags(
+            project_id, tags, initiator=request.audit_initiator)
+        return ProjectTagV3.wrap_member(request.context_dict, ref)
+
+    @controller.protected()
+    def delete_project_tags(self, request, project_id):
+        self.resource_api.update_project_tags(project_id, [])

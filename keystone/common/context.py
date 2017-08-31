@@ -35,6 +35,7 @@ class RequestContext(oslo_context.RequestContext):
         self.username = kwargs.pop('username', None)
         self.user_domain_name = kwargs.pop('user_domain_name', None)
         self.project_domain_name = kwargs.pop('project_domain_name', None)
+        self.project_tag_name = kwargs.pop('project_tag_name', None)
 
         self.is_delegated_auth = kwargs.pop('is_delegated_auth', False)
 
