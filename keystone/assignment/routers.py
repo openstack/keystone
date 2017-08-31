@@ -37,20 +37,6 @@ class Public(wsgi.ComposableRouter):
                        conditions=dict(method=['GET']))
 
 
-class Admin(wsgi.ComposableRouter):
-    def add_routes(self, mapper):
-        # Role Operations
-        roles_controller = controllers.RoleAssignmentV2()
-        mapper.connect('/tenants/{tenant_id}/users/{user_id}/roles',
-                       controller=roles_controller,
-                       action='get_user_roles',
-                       conditions=dict(method=['GET']))
-        mapper.connect('/users/{user_id}/roles',
-                       controller=roles_controller,
-                       action='get_user_roles',
-                       conditions=dict(method=['GET']))
-
-
 class Routers(wsgi.RoutersBase):
 
     def append_v3_routers(self, mapper, routers):

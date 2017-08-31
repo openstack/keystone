@@ -50,8 +50,6 @@ class Router(wsgi.ComposableRouter):
         assignment_tenant_controller = (
             assignment.controllers.TenantAssignment())
         user_controller = identity.controllers.User()
-        role_controller = assignment.controllers.Role()
-        assignment_role_controller = assignment.controllers.RoleAssignmentV2()
 
         # Tenant Operations
         mapper.connect(
@@ -133,66 +131,3 @@ class Router(wsgi.ComposableRouter):
             controller=user_controller,
             action='set_user_enabled',
             conditions=dict(method=['PUT']))
-
-        # User Roles
-        mapper.connect(
-            '/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=assignment_role_controller,
-            action='add_role_to_user',
-            conditions=dict(method=['PUT']))
-        mapper.connect(
-            '/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=assignment_role_controller,
-            action='remove_role_from_user',
-            conditions=dict(method=['DELETE']))
-
-        # COMPAT(diablo): User Roles
-        mapper.connect(
-            '/users/{user_id}/roleRefs',
-            controller=assignment_role_controller,
-            action='get_role_refs',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users/{user_id}/roleRefs',
-            controller=assignment_role_controller,
-            action='create_role_ref',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/users/{user_id}/roleRefs/{role_ref_id}',
-            controller=assignment_role_controller,
-            action='delete_role_ref',
-            conditions=dict(method=['DELETE']))
-
-        # User-Tenant Roles
-        mapper.connect(
-            '/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=assignment_role_controller,
-            action='add_role_to_user',
-            conditions=dict(method=['PUT']))
-        mapper.connect(
-            '/tenants/{tenant_id}/users/{user_id}/roles/OS-KSADM/{role_id}',
-            controller=assignment_role_controller,
-            action='remove_role_from_user',
-            conditions=dict(method=['DELETE']))
-
-        # Role Operations
-        mapper.connect(
-            '/OS-KSADM/roles',
-            controller=role_controller,
-            action='create_role',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/OS-KSADM/roles',
-            controller=role_controller,
-            action='get_roles',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/OS-KSADM/roles/{role_id}',
-            controller=role_controller,
-            action='get_role',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/OS-KSADM/roles/{role_id}',
-            controller=role_controller,
-            action='delete_role',
-            conditions=dict(method=['DELETE']))

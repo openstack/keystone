@@ -263,24 +263,6 @@ class CoreApiTests(object):
             token=token)
         self.assertValidTenantResponse(r)
 
-    def test_get_user_roles_with_tenant(self):
-        token = self.get_scoped_token()
-        r = self.admin_request(
-            path='/v2.0/tenants/%(tenant_id)s/users/%(user_id)s/roles' % {
-                'tenant_id': self.tenant_bar['id'],
-                'user_id': self.user_foo['id'],
-            },
-            token=token)
-        self.assertValidRoleListResponse(r)
-
-    def test_get_user_roles_without_tenant(self):
-        token = self.get_scoped_token()
-        self.admin_request(
-            path='/v2.0/users/%(user_id)s/roles' % {
-                'user_id': self.user_foo['id'],
-            },
-            token=token, expected_status=http_client.NOT_IMPLEMENTED)
-
     def test_get_user(self):
         token = self.get_scoped_token()
         r = self.admin_request(
@@ -430,86 +412,6 @@ class CoreApiTests(object):
         """
         raise NotImplementedError()
 
-    def test_update_user_tenant(self):
-        token = self.get_scoped_token()
-
-        # Create a new user
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/users',
-            body={
-                'user': {
-                    'name': uuid.uuid4().hex,
-                    'password': uuid.uuid4().hex,
-                    'tenantId': self.tenant_bar['id'],
-                    'enabled': True,
-                },
-            },
-            token=token,
-            expected_status=http_client.OK)
-
-        user_id = self._get_user_id(r.result)
-
-        # Check if member_role is in tenant_bar
-        r = self.admin_request(
-            path='/v2.0/tenants/%(project_id)s/users/%(user_id)s/roles' % {
-                'project_id': self.tenant_bar['id'],
-                'user_id': user_id
-            },
-            token=token,
-            expected_status=http_client.OK)
-        self.assertEqual(CONF.member_role_name, self._get_role_name(r.result))
-
-        # Create a new tenant
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/tenants',
-            body={
-                'tenant': {
-                    'name': 'test_update_user',
-                    'description': 'A description ...',
-                    'enabled': True,
-                },
-            },
-            token=token,
-            expected_status=http_client.OK)
-
-        project_id = self._get_project_id(r.result)
-
-        # Update user's tenant
-        r = self.admin_request(
-            method='PUT',
-            path='/v2.0/users/%(user_id)s' % {
-                'user_id': user_id,
-            },
-            body={
-                'user': {
-                    'tenantId': project_id,
-                },
-            },
-            token=token,
-            expected_status=http_client.OK)
-
-        # 'member_role' should be in new_tenant
-        r = self.admin_request(
-            path='/v2.0/tenants/%(project_id)s/users/%(user_id)s/roles' % {
-                'project_id': project_id,
-                'user_id': user_id
-            },
-            token=token,
-            expected_status=http_client.OK)
-        self.assertEqual('_member_', self._get_role_name(r.result))
-
-        # 'member_role' should not be in tenant_bar any more
-        r = self.admin_request(
-            path='/v2.0/tenants/%(project_id)s/users/%(user_id)s/roles' % {
-                'project_id': self.tenant_bar['id'],
-                'user_id': user_id
-            },
-            token=token,
-            expected_status=http_client.OK)
-        self.assertNoRoles(r.result)
-
     def test_update_user_with_invalid_tenant(self):
         token = self.get_scoped_token()
 
@@ -574,60 +476,6 @@ class CoreApiTests(object):
             },
             token=token,
             expected_status=http_client.NOT_FOUND)
-
-    def test_update_user_with_old_tenant(self):
-        token = self.get_scoped_token()
-
-        # Create a new user
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/users',
-            body={
-                'user': {
-                    'name': uuid.uuid4().hex,
-                    'password': uuid.uuid4().hex,
-                    'tenantId': self.tenant_bar['id'],
-                    'enabled': True,
-                },
-            },
-            token=token,
-            expected_status=http_client.OK)
-
-        user_id = self._get_user_id(r.result)
-
-        # Check if member_role is in tenant_bar
-        r = self.admin_request(
-            path='/v2.0/tenants/%(project_id)s/users/%(user_id)s/roles' % {
-                'project_id': self.tenant_bar['id'],
-                'user_id': user_id
-            },
-            token=token,
-            expected_status=http_client.OK)
-        self.assertEqual(CONF.member_role_name, self._get_role_name(r.result))
-
-        # Update user's tenant with old tenant id
-        r = self.admin_request(
-            method='PUT',
-            path='/v2.0/users/%(user_id)s' % {
-                'user_id': user_id,
-            },
-            body={
-                'user': {
-                    'tenantId': self.tenant_bar['id'],
-                },
-            },
-            token=token,
-            expected_status=http_client.OK)
-
-        # 'member_role' should still be in tenant_bar
-        r = self.admin_request(
-            path='/v2.0/tenants/%(project_id)s/users/%(user_id)s/roles' % {
-                'project_id': self.tenant_bar['id'],
-                'user_id': user_id
-            },
-            token=token,
-            expected_status=http_client.OK)
-        self.assertEqual('_member_', self._get_role_name(r.result))
 
     def test_authenticating_a_user_with_no_password(self):
         token = self.get_scoped_token()
@@ -1136,19 +984,6 @@ class V2TestCase(object):
 
     def get_user_attribute_from_response(self, r, attribute_name):
         return r.result['user'][attribute_name]
-
-    def test_user_role_list_requires_auth(self):
-        """User role list return unauthorized without an X-Auth-Token."""
-        # values here don't matter because it will be unauthorized before
-        # they're checked (bug 1006815).
-        path = '/v2.0/tenants/%(tenant_id)s/users/%(user_id)s/roles' % {
-            'tenant_id': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-        }
-
-        r = self.admin_request(path=path,
-                               expected_status=http_client.UNAUTHORIZED)
-        self.assertValidErrorResponse(r)
 
     def test_fetch_revocation_list_nonadmin_fails(self):
         self.admin_request(
