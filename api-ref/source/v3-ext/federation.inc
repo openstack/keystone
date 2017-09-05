@@ -173,7 +173,7 @@ Required attributes:
 
    If the ``type`` attribute is not set to ``local`` in the local rule and no
    domain is specified, the user is deemed ephemeral and becomes a member of
-   service identity provider's domain.
+   the identity provider's domain.
 
    An example of user object mapping to an existing local user:
 
