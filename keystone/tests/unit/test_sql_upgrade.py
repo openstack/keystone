@@ -1600,7 +1600,7 @@ class VersionTests(SqlMigrateBase):
     def test_assert_not_schema_downgrade(self):
         self.upgrade()
         self.assertRaises(
-            db_exception.DbMigrationError,
+            db_exception.DBMigrationError,
             upgrades._sync_common_repo,
             self.repos[LEGACY_REPO].max_version - 1)
 

@@ -458,7 +458,7 @@ class DbSync(BaseApp):
         status = 0
         try:
             expand_version = upgrades.get_db_version(repo='expand_repo')
-        except migration.exception.DbMigrationError:
+        except migration.exception.DBMigrationError:
             LOG.info('Your database is not currently under version '
                      'control or the database is already controlled. Your '
                      'first step is to run `keystone-manage db_sync '
@@ -467,11 +467,11 @@ class DbSync(BaseApp):
         try:
             migrate_version = upgrades.get_db_version(
                 repo='data_migration_repo')
-        except migration.exception.DbMigrationError:
+        except migration.exception.DBMigrationError:
             migrate_version = 0
         try:
             contract_version = upgrades.get_db_version(repo='contract_repo')
-        except migration.exception.DbMigrationError:
+        except migration.exception.DBMigrationError:
             contract_version = 0
 
         repo = migrate.versioning.repository.Repository(

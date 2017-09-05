@@ -179,7 +179,7 @@ def _sync_repo(repo_name):
         # an exception that we can safely ignore
         try:
             migration.db_version_control(engine, abs_path)
-        except (migration.exception.DbMigrationError,
+        except (migration.exception.DBMigrationError,
                 exceptions.DatabaseAlreadyControlledError):  # nosec
             pass
         init_version = get_init_version(abs_path=abs_path)
@@ -214,7 +214,7 @@ def _assert_not_schema_downgrade(version=None):
         try:
             current_ver = int(six.text_type(get_db_version()))
             if int(version) < current_ver:
-                raise migration.exception.DbMigrationError(
+                raise migration.exception.DBMigrationError(
                     _("Unable to downgrade schema"))
         except exceptions.DatabaseNotControlledError:  # nosec
             # NOTE(morganfainberg): The database is not controlled, this action

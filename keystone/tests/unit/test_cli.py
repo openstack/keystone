@@ -682,7 +682,7 @@ class CliDBSyncTestCase(unit.BaseTestCase):
 
     @mock.patch('keystone.cmd.cli.upgrades.get_db_version')
     def test_db_sync_check_when_database_is_empty(self, mocked_get_db_version):
-        e = migration.exception.DbMigrationError("Invalid version")
+        e = migration.exception.DBMigrationError("Invalid version")
         mocked_get_db_version.side_effect = e
         checker = cli.DbSync()
 
