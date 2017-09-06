@@ -46,18 +46,12 @@ class Manager(manager.Manager):
         return ref
 
     def get_policy(self, policy_id):
-        try:
-            return self.driver.get_policy(policy_id)
-        except exception.NotFound:
-            raise exception.PolicyNotFound(policy_id=policy_id)
+        return self.driver.get_policy(policy_id)
 
     def update_policy(self, policy_id, policy, initiator=None):
         if 'id' in policy and policy_id != policy['id']:
             raise exception.ValidationError('Cannot change policy ID')
-        try:
-            ref = self.driver.update_policy(policy_id, policy)
-        except exception.NotFound:
-            raise exception.PolicyNotFound(policy_id=policy_id)
+        ref = self.driver.update_policy(policy_id, policy)
         notifications.Audit.updated(self._POLICY, policy_id, initiator)
         return ref
 
@@ -69,9 +63,6 @@ class Manager(manager.Manager):
         return self.driver.list_policies()
 
     def delete_policy(self, policy_id, initiator=None):
-        try:
-            ret = self.driver.delete_policy(policy_id)
-        except exception.NotFound:
-            raise exception.PolicyNotFound(policy_id=policy_id)
+        ret = self.driver.delete_policy(policy_id)
         notifications.Audit.deleted(self._POLICY, policy_id, initiator)
         return ret
