@@ -28,7 +28,7 @@ To run these tests against a live database:
     tox -e py27 -- keystone.tests.unit.test_sql_upgrade
 
 For further information, see `oslo.db documentation
-<https://docs.openstack.org/developer/oslo.db/contributing.html#how-to-run-unit-tests>`_.
+<https://docs.openstack.org/oslo.db/latest/contributor/index.html#how-to-run-unit-tests>`_.
 
 WARNING::
 
