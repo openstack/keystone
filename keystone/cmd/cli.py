@@ -481,8 +481,8 @@ class DbSync(BaseApp):
         if (contract_version > migrate_version or migrate_version >
                 expand_version):
             LOG.info('Your database is out of sync. For more information '
-                     'refer to https://docs.openstack.org/developer/'
-                     'keystone/upgrading.html')
+                     'refer to https://docs.openstack.org/keystone/'
+                     'latest/admin/identity-upgrading.html')
             status = 1
         elif migration_script_version > expand_version:
             LOG.info('Your database is not up to date. Your first step is '
