@@ -185,8 +185,9 @@ class FederationProtocol(_ControllerBase):
     @controller.protected()
     def create_protocol(self, request, idp_id, protocol_id, protocol):
         validation.lazy_validate(schema.protocol_create, protocol)
-        ref = self._normalize_dict(protocol)
-        ref = self.federation_api.create_protocol(idp_id, protocol_id, ref)
+        protocol = self._normalize_dict(protocol)
+        ref = self.federation_api.create_protocol(
+            idp_id, protocol_id, protocol)
         response = FederationProtocol.wrap_member(request.context_dict, ref)
         return wsgi.render_response(
             body=response, status=(http_client.CREATED,
@@ -195,7 +196,7 @@ class FederationProtocol(_ControllerBase):
     @controller.protected()
     def update_protocol(self, request, idp_id, protocol_id, protocol):
         validation.lazy_validate(schema.protocol_update, protocol)
-        ref = self._normalize_dict(protocol)
+        protocol = self._normalize_dict(protocol)
         ref = self.federation_api.update_protocol(idp_id, protocol_id,
                                                   protocol)
         return FederationProtocol.wrap_member(request.context_dict, ref)
