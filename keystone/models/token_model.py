@@ -48,7 +48,6 @@ class KeystoneToken(dict):
             super(KeystoneToken, self).__init__(**token_data['token'])
         except KeyError:
             raise exception.UnsupportedTokenVersionException()
-        self.token_id = token_id
 
         if self.project_scoped and self.domain_scoped:
             raise exception.UnexpectedError(_('Found invalid token: scoped to '
