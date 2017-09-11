@@ -35,7 +35,6 @@ import webob.dec
 import webob.exc
 
 from keystone.common import authorization
-from keystone.common import dependency
 from keystone.common import json_home
 from keystone.common import request as request_mod
 from keystone.common import utils
@@ -199,7 +198,6 @@ class BaseApplication(object):
         raise NotImplementedError('You must implement __call__')
 
 
-@dependency.requires('assignment_api', 'policy_api', 'token_provider_api')
 class Application(BaseApplication):
 
     @webob.dec.wsgify(RequestClass=request_mod.Request)
