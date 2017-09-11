@@ -134,7 +134,7 @@ Performing federated authentication
       Unlike other authentication methods in keystone, the user does
       not issue an HTTP POST request with authentication data in the request body.
       To start federated authentication a user must access the dedicated URL with
-      IdP's and orotocol’s identifiers stored within a protected URL.
+      IdP's and protocol's identifiers stored within a protected URL.
       The URL has a format of:
       ``/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth``.
 
