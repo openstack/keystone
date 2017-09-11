@@ -303,8 +303,8 @@ service, such as, a user named ``nova`` for the Compute service, and a
 special service project called ``service``.
 
 For information about how to create services and endpoints, see the
-`OpenStack Administrator Guide <https://docs.openstack.org/admin-guide/
-cli-manage-services.html>`__.
+`OpenStack Administrator Guide <https://docs.openstack.org/keystone/latest/
+admin/cli-keystone-manage-services.html>`__.
 
 Groups
 ~~~~~~
