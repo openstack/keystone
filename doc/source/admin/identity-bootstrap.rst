@@ -12,8 +12,8 @@ must be an administrator, you can use that account to interact with keystone
 via the API.
 
 Keystone provides two separate ways to bootstrap a deployment. The first is
-with the ``keystone-manage bootstrap`` command. This is the perferred and
-recommended way to boostrap new installations. The second, and original way of
+with the ``keystone-manage bootstrap`` command. This is the preferred and
+recommended way to bootstrap new installations. The second, and original way of
 bootstrapping involves configuring a secret and deploying special middleware in
 front of the identity service. The secret is known as the ``ADMIN_TOKEN``. Any
 requests made to the identity API with the ``ADMIN_TOKEN`` will completely
