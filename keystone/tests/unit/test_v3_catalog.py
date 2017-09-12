@@ -797,6 +797,76 @@ class CatalogTestCase(test_v3.RestfulTestCase):
                       expected_status=http_client.BAD_REQUEST)
 
 
+class TestMultiRegion(test_v3.RestfulTestCase):
+
+    def test_catalog_with_multi_region_reports_all_endpoints(self):
+
+        # Create two separate regions
+        first_region = self.post(
+            '/regions',
+            body={'region': unit.new_region_ref()}
+        ).json_body['region']
+
+        second_region = self.post(
+            '/regions',
+            body={'region': unit.new_region_ref()}
+        ).json_body['region']
+
+        # Create two services with the same type but separate name.
+        first_service = self.post(
+            '/services',
+            body={'service': unit.new_service_ref(type='foobar')}
+        ).json_body['service']
+
+        second_service = self.post(
+            '/services',
+            body={'service': unit.new_service_ref(type='foobar')}
+        ).json_body['service']
+
+        # Create an endpoint for each service
+        first_endpoint = self.post(
+            '/endpoints',
+            body={
+                'endpoint': unit.new_endpoint_ref(
+                    first_service['id'],
+                    interface='public',
+                    region_id=first_region['id']
+                )
+            }
+        ).json_body['endpoint']
+
+        second_endpoint = self.post(
+            '/endpoints',
+            body={
+                'endpoint': unit.new_endpoint_ref(
+                    second_service['id'],
+                    interface='public',
+                    region_id=second_region['id']
+                )
+            }
+        ).json_body['endpoint']
+
+        # Assert the endpoints and services from each region are in the
+        # catalog.
+        found_first_endpoint = False
+        found_second_endpoint = False
+        catalog = self.get('/auth/catalog/').json_body['catalog']
+        for service in catalog:
+            if service['id'] == first_service['id']:
+                endpoint = service['endpoints'][0]
+                self.assertEqual(endpoint['id'], first_endpoint['id'])
+                self.assertEqual(endpoint['region_id'], first_region['id'])
+                found_first_endpoint = True
+            elif service['id'] == second_service['id']:
+                endpoint = service['endpoints'][0]
+                self.assertEqual(endpoint['id'], second_endpoint['id'])
+                self.assertEqual(endpoint['region_id'], second_region['id'])
+                found_second_endpoint = True
+
+        self.assertTrue(found_first_endpoint)
+        self.assertTrue(found_second_endpoint)
+
+
 class TestCatalogAPISQL(unit.TestCase):
     """Test for the catalog Manager against the SQL backend."""
 
