@@ -1708,9 +1708,9 @@ class TokenAPITests(object):
             '/auth/tokens', headers={'X-Subject-Token': v2_token})
 
         # Attempting to use the deleted token on v2 should fail.
-        self.admin_request(
-            path='/v2.0/tenants', method='GET', token=v2_token,
-            expected_status=http_client.UNAUTHORIZED)
+        self._validate_token_v2(
+            v2_token, expected_status=http_client.NOT_FOUND
+        )
 
     def test_rescoping_token(self):
         expires = self.v3_token_data['token']['expires_at']

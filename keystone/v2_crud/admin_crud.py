@@ -16,7 +16,6 @@ from keystone import assignment
 from keystone.common import extension
 from keystone.common import wsgi
 from keystone import identity
-from keystone import resource
 
 
 extension.register_admin_extension(
@@ -46,27 +45,11 @@ class Router(wsgi.ComposableRouter):
     """
 
     def add_routes(self, mapper):
-        tenant_controller = resource.controllers.Tenant()
         assignment_tenant_controller = (
             assignment.controllers.TenantAssignment())
         user_controller = identity.controllers.User()
 
         # Tenant Operations
-        mapper.connect(
-            '/tenants',
-            controller=tenant_controller,
-            action='create_project',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/tenants/{tenant_id}',
-            controller=tenant_controller,
-            action='update_project',
-            conditions=dict(method=['PUT', 'POST']))
-        mapper.connect(
-            '/tenants/{tenant_id}',
-            controller=tenant_controller,
-            action='delete_project',
-            conditions=dict(method=['DELETE']))
         mapper.connect(
             '/tenants/{tenant_id}/users',
             controller=assignment_tenant_controller,

@@ -918,34 +918,6 @@ class V2Notifications(BaseNotificationTest):
                                            'user',
                                            cadftaxonomy.SECURITY_ACCOUNT_USER)
 
-    def test_project(self):
-        token = self.get_scoped_token()
-        resp = self.admin_request(
-            method='POST',
-            path='/v2.0/tenants',
-            body={
-                'tenant': {
-                    'name': uuid.uuid4().hex,
-                    'description': uuid.uuid4().hex,
-                    'enabled': True
-                },
-            },
-            token=token,
-        )
-        project_id = resp.result.get('tenant').get('id')
-        self._assert_initiator_data_is_set(CREATED_OPERATION,
-                                           'project',
-                                           cadftaxonomy.SECURITY_PROJECT)
-        # test for delete project
-        self.admin_request(
-            method='DELETE',
-            path='/v2.0/tenants/%s' % project_id,
-            token=token,
-        )
-        self._assert_initiator_data_is_set(DELETED_OPERATION,
-                                           'project',
-                                           cadftaxonomy.SECURITY_PROJECT)
-
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
 

@@ -15,8 +15,6 @@
 
 """Workflow Logic the Resource service."""
 
-import uuid
-
 from six.moves import http_client
 
 from keystone.common import controller
@@ -30,93 +28,6 @@ from keystone.resource import schema
 
 
 CONF = keystone.conf.CONF
-
-
-@dependency.requires('resource_api')
-class Tenant(controller.V2Controller):
-
-    @controller.v2_deprecated
-    def get_all_projects(self, request, **kw):
-        """Get a list of all tenants for an admin user."""
-        self.assert_admin(request)
-
-        name = request.params.get('name')
-        if name:
-            return self._get_project_by_name(name)
-
-        try:
-            tenant_refs = self.resource_api.list_projects_in_domain(
-                CONF.identity.default_domain_id)
-        except exception.DomainNotFound:
-            # If the default domain doesn't exist then there are no V2
-            # projects.
-            tenant_refs = []
-        tenant_refs = [self.v3_to_v2_project(tenant_ref)
-                       for tenant_ref in tenant_refs
-                       if not tenant_ref.get('is_domain')]
-        params = {
-            'limit': request.params.get('limit'),
-            'marker': request.params.get('marker'),
-        }
-        return self.format_project_list(tenant_refs, **params)
-
-    def _assert_not_is_domain_project(self, project_id, project_ref=None):
-        # Projects acting as a domain should not be visible via v2
-        if not project_ref:
-            project_ref = self.resource_api.get_project(project_id)
-        if project_ref.get('is_domain'):
-            raise exception.ProjectNotFound(project_id)
-
-    @controller.v2_deprecated
-    def get_project(self, request, tenant_id):
-        # TODO(termie): this stuff should probably be moved to middleware
-        self.assert_admin(request)
-        ref = self.resource_api.get_project(tenant_id)
-        self._assert_not_is_domain_project(tenant_id, ref)
-        return {'tenant': self.v3_to_v2_project(ref)}
-
-    def _get_project_by_name(self, tenant_name):
-        # Projects acting as a domain should not be visible via v2
-        ref = self.resource_api.get_project_by_name(
-            tenant_name, CONF.identity.default_domain_id)
-        self._assert_not_is_domain_project(ref['id'], ref)
-        return {'tenant': self.v3_to_v2_project(ref)}
-
-    # CRUD Extension
-    @controller.v2_deprecated
-    def create_project(self, request, tenant):
-        tenant_ref = self._normalize_dict(tenant)
-
-        validation.lazy_validate(schema.tenant_create, tenant)
-        self.assert_admin(request)
-
-        self.resource_api.ensure_default_domain_exists()
-
-        tenant_ref['id'] = tenant_ref.get('id', uuid.uuid4().hex)
-        tenant = self.resource_api.create_project(
-            tenant_ref['id'],
-            self._normalize_domain_id(request, tenant_ref),
-            initiator=request.audit_initiator)
-        return {'tenant': self.v3_to_v2_project(tenant)}
-
-    @controller.v2_deprecated
-    def update_project(self, request, tenant_id, tenant):
-        validation.lazy_validate(schema.tenant_update, tenant)
-        self.assert_admin(request)
-        self._assert_not_is_domain_project(tenant_id)
-
-        tenant_ref = self.resource_api.update_project(
-            tenant_id, tenant, initiator=request.audit_initiator)
-        return {'tenant': self.v3_to_v2_project(tenant_ref)}
-
-    @controller.v2_deprecated
-    def delete_project(self, request, tenant_id):
-        self.assert_admin(request)
-        self._assert_not_is_domain_project(tenant_id)
-        self.resource_api.delete_project(
-            tenant_id,
-            initiator=request.audit_initiator
-        )
 
 
 @dependency.requires('resource_api')

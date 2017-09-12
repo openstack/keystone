@@ -55,7 +55,7 @@ class TestNoAdminTokenAuth(unit.TestCase):
         # Note(blk-u): Picked /v2.0/tenants because it's an operation that
         # requires is_admin in the context, any operation that requires
         # is_admin would work for this test.
-        REQ_PATH = '/v2.0/tenants'
+        REQ_PATH = '/v2.0/users'
 
         # If the following does not raise, then the test is successful.
         self.admin_app.get(REQ_PATH, headers={'X-Auth-Token': 'NotAdminToken'},
