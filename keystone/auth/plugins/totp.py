@@ -60,8 +60,12 @@ def _generate_totp_passcode(secret):
         secret = secret + b'='
 
     decoded = base64.b32decode(secret)
+    # NOTE(lhinds) This is marked as #nosec since bandit will see SHA1
+    # which is marked as insecure. In this instance however, keystone uses
+    # HMAC-SHA1 when generating the TOTP, which is currently not insecure but
+    # will still trigger when scanned by bandit.
     totp = crypto_totp.TOTP(
-        decoded, 6, hashes.SHA1(), 30, backend=default_backend())
+        decoded, 6, hashes.SHA1(), 30, backend=default_backend())  # nosec
     return totp.generate(timeutils.utcnow_ts(microsecond=True)).decode('utf-8')
 
 

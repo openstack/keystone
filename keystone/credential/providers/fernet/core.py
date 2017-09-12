@@ -57,7 +57,11 @@ def primary_key_hash(keys):
     """Calculate a hash of the primary key used for encryption."""
     if isinstance(keys[0], six.text_type):
         keys[0] = keys[0].encode('utf-8')
-    return hashlib.sha1(keys[0]).hexdigest()
+    # NOTE(lhinds) This is marked as #nosec since bandit will see SHA1 which
+    # is marked as insecure. However, this hash function is used alongside
+    # encrypted blobs to implement HMAC-SHA1, which is currently not insecure
+    # but will still trigger when scanned by bandit.
+    return hashlib.sha1(keys[0]).hexdigest()  # nosec
 
 
 class Provider(core.Provider):

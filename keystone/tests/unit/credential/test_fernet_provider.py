@@ -64,7 +64,11 @@ class TestFernetCredentialProviderWithNullKey(unit.TestCase):
 
     def test_encryption_with_null_key(self):
         null_key = fernet_utils.NULL_KEY
-        null_key_hash = hashlib.sha1(null_key).hexdigest()
+        # NOTE(lhinds) This is marked as #nosec since bandit will see SHA1
+        # which is marked insecure. Keystone uses SHA1 in this case as part of
+        # HMAC-SHA1 which is currently not insecure but will still get
+        # caught when scanning with bandit.
+        null_key_hash = hashlib.sha1(null_key).hexdigest()  # nosec
 
         blob = uuid.uuid4().hex
         encrypted_blob, primary_key_hash = self.provider.encrypt(blob)
