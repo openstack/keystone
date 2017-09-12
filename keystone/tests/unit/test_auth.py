@@ -26,7 +26,6 @@ import six
 from testtools import matchers
 import webob
 
-from keystone import assignment
 from keystone import auth
 from keystone.common import authorization
 import keystone.conf
@@ -491,38 +490,6 @@ class AuthWithToken(object):
         bind = scoped_token['access']['token']['bind']
         self.assertEqual('foo', bind['kerberos'])
 
-    def test_deleting_role_revokes_token(self):
-        role_controller = assignment.controllers.Role()
-        project1 = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project1['id'], project1)
-        role_one = unit.new_role_ref(id=uuid.uuid4().hex)
-        self.role_api.create_role(role_one['id'], role_one)
-        self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'], project1['id'], role_one['id'])
-
-        # Get a scoped token for the tenant
-        body_dict = _build_user_auth(
-            username=self.user_foo['name'],
-            password=self.user_foo['password'],
-            tenant_name=project1['name'])
-        token = self.controller.authenticate(self.empty_request, body_dict)
-        # Ensure it is valid
-        token_id = token['access']['token']['id']
-        self.controller.validate_token(self.make_request(is_admin=True),
-                                       token_id=token_id)
-
-        # Delete the role, which should invalidate the token
-        role_controller.delete_role(self.make_request(is_admin=True),
-                                    role_one['id'])
-
-        # Check the token is now invalid
-        self.assertRaises(
-            exception.TokenNotFound,
-            self.controller.validate_token,
-            self.make_request(is_admin=True),
-            token_id=token_id)
-
     def test_deleting_role_assignment_does_not_revoke_unscoped_token(self):
         admin_request = self.make_request(is_admin=True)
 
@@ -665,9 +632,6 @@ class FernetAuthWithToken(AuthWithToken, AuthTest):
                           self.controller.authenticate,
                           self.request_with_remote_user,
                           body_dict)
-
-    def test_deleting_role_revokes_token(self):
-        self.skip_test_overrides('Fernet with v2.0 and revocation is broken')
 
 
 class AuthWithPasswordCredentials(AuthTest):

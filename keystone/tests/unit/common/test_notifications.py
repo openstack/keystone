@@ -918,33 +918,6 @@ class V2Notifications(BaseNotificationTest):
                                            'user',
                                            cadftaxonomy.SECURITY_ACCOUNT_USER)
 
-    def test_role(self):
-        token = self.get_scoped_token()
-        resp = self.admin_request(
-            method='POST',
-            path='/v2.0/OS-KSADM/roles',
-            body={
-                'role': {
-                    'name': uuid.uuid4().hex,
-                    'description': uuid.uuid4().hex,
-                },
-            },
-            token=token,
-        )
-        role_id = resp.result.get('role').get('id')
-        self._assert_initiator_data_is_set(CREATED_OPERATION,
-                                           'role',
-                                           cadftaxonomy.SECURITY_ROLE)
-        # test for delete role
-        self.admin_request(
-            method='DELETE',
-            path='/v2.0/OS-KSADM/roles/%s' % role_id,
-            token=token,
-        )
-        self._assert_initiator_data_is_set(DELETED_OPERATION,
-                                           'role',
-                                           cadftaxonomy.SECURITY_ROLE)
-
     def test_project(self):
         token = self.get_scoped_token()
         resp = self.admin_request(

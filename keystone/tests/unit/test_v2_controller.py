@@ -39,37 +39,6 @@ class TenantTestCase(unit.TestCase):
         self.tenant_controller = resource_controllers.Tenant()
         self.assignment_tenant_controller = (
             assignment_controllers.TenantAssignment())
-        self.assignment_role_controller = (
-            assignment_controllers.RoleAssignmentV2())
-
-    def test_get_project_users_no_user(self):
-        """Test the user's existence for get_project_users.
-
-        When a user that's not known to `identity` has a role on a project,
-        then `get_project_users` just skips that user.
-
-        """
-        project_id = self.tenant_bar['id']
-
-        orig_project_users = (
-            self.assignment_tenant_controller.get_project_users(
-                self.make_request(is_admin=True), project_id))
-
-        # Assign a role to a user that doesn't exist to the `bar` project.
-
-        user_id = uuid.uuid4().hex
-        self.assignment_role_controller.add_role_to_user(
-            self.make_request(is_admin=True), user_id,
-            self.role_other['id'], project_id)
-
-        new_project_users = (
-            self.assignment_tenant_controller.get_project_users(
-                self.make_request(is_admin=True), project_id))
-
-        # The new user isn't included in the result, so no change.
-        # asserting that the expected values appear in the list,
-        # without asserting the order of the results
-        self.assertEqual(sorted(orig_project_users), sorted(new_project_users))
 
     def test_list_projects_default_domain(self):
         """Test that list projects only returns those in the default domain."""
