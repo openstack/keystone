@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    The ``policies`` API is deprecated. Keystone is not a policy management
+    service.

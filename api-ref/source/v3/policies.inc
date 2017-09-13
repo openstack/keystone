@@ -4,6 +4,11 @@
  Policies
 ==========
 
+.. warning::
+
+    The ``policies`` API is deprecated. Keystone is not a policy management
+    service. Do not use this.
+
 A policy is an arbitrarily serialized policy engine rule set to be
 consumed by a remote service.
 
