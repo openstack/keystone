@@ -388,14 +388,6 @@ class TokenAPITests(object):
             expected_status=expected_status
         )
 
-    def _validate_token_v2(self, token, expected_status=http_client.OK):
-        return self.admin_request(
-            path='/v2.0/tokens/%s' % token,
-            headers={'X-Auth-Token': self.get_scoped_token()},
-            method='GET',
-            expected_status=expected_status
-        )
-
     def _revoke_token(self, token, expected_status=http_client.NO_CONTENT):
         return self.delete(
             '/auth/tokens',
@@ -1445,110 +1437,6 @@ class TokenAPITests(object):
     def test_default_fixture_scope_token(self):
         self.assertIsNotNone(self.get_scoped_token())
 
-    def test_v2_v3_unscoped_token_intermix(self):
-        r = self.admin_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'userId': self.default_domain_user['id'],
-                        'password': self.default_domain_user['password']
-                    }
-                }
-            })
-        v2_token_data = r.result
-        v2_token = v2_token_data['access']['token']['id']
-
-        r = self.get('/auth/tokens', headers={'X-Subject-Token': v2_token})
-        self.assertValidUnscopedTokenResponse(r)
-        v3_token_data = r.result
-
-        self.assertEqual(v2_token_data['access']['user']['id'],
-                         v3_token_data['token']['user']['id'])
-        self.assertTimestampEqual(v2_token_data['access']['token']['expires'],
-                                  v3_token_data['token']['expires_at'])
-
-    def test_v2_v3_token_intermix(self):
-        r = self.admin_request(
-            path='/v2.0/tokens',
-            method='POST',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'userId': self.default_domain_user['id'],
-                        'password': self.default_domain_user['password']
-                    },
-                    'tenantId': self.default_domain_project['id']
-                }
-            })
-        v2_token_data = r.result
-        v2_token = v2_token_data['access']['token']['id']
-
-        r = self.get('/auth/tokens', headers={'X-Subject-Token': v2_token})
-        self.assertValidProjectScopedTokenResponse(r)
-        v3_token_data = r.result
-
-        self.assertEqual(v2_token_data['access']['user']['id'],
-                         v3_token_data['token']['user']['id'])
-        self.assertTimestampEqual(v2_token_data['access']['token']['expires'],
-                                  v3_token_data['token']['expires_at'])
-        self.assertEqual(v2_token_data['access']['user']['roles'][0]['name'],
-                         v3_token_data['token']['roles'][0]['name'])
-
-        v2_issued_at = timeutils.parse_isotime(
-            v2_token_data['access']['token']['issued_at'])
-        v3_issued_at = timeutils.parse_isotime(
-            v3_token_data['token']['issued_at'])
-
-        self.assertEqual(v2_issued_at, v3_issued_at)
-
-    def test_create_v3_project_token_from_v2_project_token(self):
-        r = self.admin_request(
-            path='/v2.0/tokens',
-            method='POST',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'userId': self.default_domain_user['id'],
-                        'password': self.default_domain_user['password']
-                    },
-                    'tenantId': self.default_domain_project['id']
-                }
-            })
-        v2_token_data = r.result
-        v2_token = v2_token_data['access']['token']['id']
-
-        auth_data = self.build_authentication_request(
-            token=v2_token,
-            project_id=self.default_domain_project['id'])
-        r = self.v3_create_token(auth_data)
-        self.assertValidScopedTokenResponse(r)
-
-    def test_v2_token_deleted_on_v3(self):
-        # Create a v2 token.
-        body = {
-            'auth': {
-                'passwordCredentials': {
-                    'userId': self.default_domain_user['id'],
-                    'password': self.default_domain_user['password']
-                },
-                'tenantId': self.default_domain_project['id']
-            }
-        }
-        r = self.admin_request(
-            path='/v2.0/tokens', method='POST', body=body)
-        v2_token = r.result['access']['token']['id']
-
-        # Delete the v2 token using v3.
-        self.delete(
-            '/auth/tokens', headers={'X-Subject-Token': v2_token})
-
-        # Attempting to use the deleted token on v2 should fail.
-        self._validate_token_v2(
-            v2_token, expected_status=http_client.NOT_FOUND
-        )
-
     def test_rescoping_token(self):
         expires = self.v3_token_data['token']['expires_at']
 
@@ -2239,38 +2127,6 @@ class TokenAPITests(object):
         # the bind information should be carried over from the original token
         self.assertEqual(remote_user, token['bind']['kerberos'])
 
-    def test_v2_v3_bind_token_intermix(self):
-        self.config_fixture.config(group='token', bind='kerberos')
-
-        # we need our own user registered to the default domain because of
-        # the way external auth works.
-        remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
-        body = {'auth': {}}
-        resp = self.admin_request(path='/v2.0/tokens',
-                                  method='POST',
-                                  body=body)
-
-        v2_token_data = resp.result
-
-        bind = v2_token_data['access']['token']['bind']
-        self.assertEqual(self.default_domain_user['name'], bind['kerberos'])
-
-        v2_token_id = v2_token_data['access']['token']['id']
-        # NOTE(gyee): self.get() will try to obtain an auth token if one
-        # is not provided. When REMOTE_USER is present in the request
-        # environment, the external user auth plugin is used in conjunction
-        # with the password auth for the admin user. Therefore, we need to
-        # cleanup the REMOTE_USER information from the previous call.
-        del self.admin_app.extra_environ['REMOTE_USER']
-        headers = {'X-Subject-Token': v2_token_id}
-        resp = self.get('/auth/tokens', headers=headers)
-        token_data = resp.result
-
-        self.assertDictEqual(v2_token_data['access']['token']['bind'],
-                             token_data['token']['bind'])
-
     def test_fetch_expired_allow_expired(self):
         self.config_fixture.config(group='token',
                                    expiration=10,
@@ -2405,48 +2261,6 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
                 project_id=self.project_id),
             expected_status=http_client.FORBIDDEN)
 
-    def _v2_token(self):
-        body = {
-            'auth': {
-                "tenantId": self.default_domain_project['id'],
-                'passwordCredentials': {
-                    'userId': self.default_domain_user['id'],
-                    'password': self.default_domain_user['password']
-                }
-            }}
-        resp = self.admin_request(path='/v2.0/tokens',
-                                  method='POST',
-                                  body=body)
-        v2_token_data = resp.result
-        return v2_token_data
-
-    def _v2_token_from_token(self, token):
-        body = {
-            'auth': {
-                "tenantId": self.project['id'],
-                "token": token
-            }}
-        self.admin_request(path='/v2.0/tokens',
-                           method='POST',
-                           body=body,
-                           expected_status=http_client.FORBIDDEN)
-
-    def test_rescoping_v2_to_v3_disabled(self):
-        token = self._v2_token()
-        self.v3_create_token(
-            self.build_authentication_request(
-                token=token['access']['token']['id'],
-                project_id=self.project_id),
-            expected_status=http_client.FORBIDDEN)
-
-    def test_rescoping_v3_to_v2_disabled(self):
-        token = {'id': self.get_scoped_token()}
-        self._v2_token_from_token(token)
-
-    def test_rescoping_v2_to_v2_disabled(self):
-        token = self._v2_token()
-        self._v2_token_from_token(token['access']['token'])
-
     def test_rescoped_domain_token_disabled(self):
 
         self.domainA = unit.new_domain_ref()
@@ -2545,21 +2359,6 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         # Bind not current supported by Fernet, see bug 1433311.
         self.v3_create_token(auth_data,
                              expected_status=http_client.NOT_IMPLEMENTED)
-
-    def test_v2_v3_bind_token_intermix(self):
-        self.config_fixture.config(group='token', bind='kerberos')
-
-        # we need our own user registered to the default domain because of
-        # the way external auth works.
-        remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
-        body = {'auth': {}}
-        # Bind not current supported by Fernet, see bug 1433311.
-        self.admin_request(path='/v2.0/tokens',
-                           method='POST',
-                           body=body,
-                           expected_status=http_client.NOT_IMPLEMENTED)
 
     def test_auth_with_bind_token(self):
         self.config_fixture.config(group='token', bind=['kerberos'])
@@ -3323,37 +3122,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Make sure that we get a 404 Not Found when heading that role.
         self.head(role_path, expected_status=http_client.NOT_FOUND)
 
-    def get_v2_token(self, token=None, project_id=None):
-        body = {'auth': {}, }
-
-        if token:
-            body['auth']['token'] = {
-                'id': token
-            }
-        else:
-            body['auth']['passwordCredentials'] = {
-                'username': self.default_domain_user['name'],
-                'password': self.default_domain_user['password'],
-            }
-
-        if project_id:
-            body['auth']['tenantId'] = project_id
-
-        r = self.admin_request(method='POST', path='/v2.0/tokens', body=body)
-        return r.json_body['access']['token']['id']
-
-    def test_revoke_v2_token_no_check(self):
-        # Test that a V2 token can be revoked without validating it first.
-
-        token = self.get_v2_token()
-
-        self.delete('/auth/tokens',
-                    headers={'X-Subject-Token': token})
-
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': token},
-                  expected_status=http_client.NOT_FOUND)
-
     def test_revoke_token_from_token(self):
         # Test that a scoped token can be requested from an unscoped token,
         # the scoped token can be revoked, and the unscoped token remains
@@ -3402,31 +3170,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # The domain-scoped token is invalid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': domain_scoped_token},
-                  expected_status=http_client.NOT_FOUND)
-
-        # The unscoped token should still be valid.
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': unscoped_token},
-                  expected_status=http_client.OK)
-
-    def test_revoke_token_from_token_v2(self):
-        # Test that a scoped token can be requested from an unscoped token,
-        # the scoped token can be revoked, and the unscoped token remains
-        # valid.
-
-        unscoped_token = self.get_v2_token()
-
-        # Get a project-scoped token from the unscoped token
-        project_scoped_token = self.get_v2_token(
-            token=unscoped_token, project_id=self.default_domain_project['id'])
-
-        # revoke the project-scoped token.
-        self.delete('/auth/tokens',
-                    headers={'X-Subject-Token': project_scoped_token})
-
-        # The project-scoped token is invalidated.
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': project_scoped_token},
                   expected_status=http_client.NOT_FOUND)
 
         # The unscoped token should still be valid.
@@ -3555,20 +3298,6 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         events_response = self.get('/OS-REVOKE/events').json_body
         self.assertValidRevokedTokenResponse(events_response,
                                              audit_id=response['audit_ids'][0])
-
-    def test_revoke_v2_token(self):
-        token = self.get_v2_token()
-        headers = {'X-Subject-Token': token}
-        response = self.get('/auth/tokens',
-                            headers=headers).json_body['token']
-        self.delete('/auth/tokens', headers=headers)
-        self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.NOT_FOUND)
-        events_response = self.get('/OS-REVOKE/events').json_body
-
-        self.assertValidRevokedTokenResponse(
-            events_response,
-            audit_id=response['audit_ids'][0])
 
     def test_get_revoke_by_id_false_returns_gone(self):
         self.get('/auth/tokens/OS-PKI/revoked',

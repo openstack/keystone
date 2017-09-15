@@ -12,10 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import sys
-
-import six
-
 from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
@@ -60,84 +56,6 @@ class ExternalAuthNotApplicable(Exception):
     """External authentication is not applicable."""
 
     pass
-
-
-@dependency.requires('catalog_api', 'identity_api', 'resource_api',
-                     'token_provider_api', 'trust_api')
-class Auth(controller.V2Controller):
-
-    @controller.v2_auth_deprecated
-    def authenticate(self, request, auth=None):
-        """Authenticate credentials and return a token.
-
-        Accept auth as a dict that looks like::
-
-            {
-                "auth":{
-                    "passwordCredentials":{
-                        "username":"test_user",
-                        "password":"mypass"
-                    },
-                    "tenantName":"customer-x"
-                }
-            }
-
-        In this case, tenant is optional, if not provided the token will be
-        considered "unscoped" and can later be used to get a scoped token.
-
-        Alternatively, this call accepts auth with only a token and tenant
-        that will return a token that is scoped to that tenant.
-        """
-        method = authentication_method_generator(request, auth)
-        user_ref, project_id, expiry, bind, audit_id = (
-            method.authenticate(request, auth)
-        )
-
-        # Ensure the entities provided in the authentication information are
-        # valid and not disabled.
-        try:
-            self.identity_api.assert_user_enabled(
-                user_id=user_ref['id'], user=user_ref)
-            if project_id:
-                try:
-                    self.resource_api.get_project(project_id)
-                except exception.ProjectNotFound:
-                    msg = _(
-                        'Project ID not found: %(p_id)s'
-                    ) % {'p_id': project_id}
-                    raise exception.Unauthorized(msg)
-                self.resource_api.assert_project_enabled(project_id)
-        except AssertionError as e:
-            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
-                        sys.exc_info()[2])
-        # NOTE(morganfainberg): Make sure the data is in correct form since it
-        # might be consumed external to Keystone and this is a v2.0 controller.
-        # The user_ref is encoded into the auth_token_data which is returned as
-        # part of the token data. The token provider doesn't care about the
-        # format.
-        user_ref = self.v3_to_v2_user(user_ref)
-
-        auth_context = {}
-        if bind:
-            auth_context['bind'] = bind
-
-        trust_ref = None
-        if CONF.trust.enabled and 'trust_id' in auth:
-            trust_ref = self.trust_api.get_trust(auth['trust_id'])
-
-        (token_id, token_data) = self.token_provider_api.issue_token(
-            user_ref['id'], ['password'], expires_at=expiry,
-            project_id=project_id, trust=trust_ref, parent_audit_id=audit_id,
-            auth_context=auth_context)
-        v2_helper = V2TokenDataHelper()
-        token_data = v2_helper.v3_to_v2_token(token_data, token_id)
-
-        # NOTE(wanghong): We consume a trust use only when we are using trusts
-        # and have successfully issued a token.
-        if CONF.trust.enabled and 'trust_id' in auth:
-            self.trust_api.consume_use(auth['trust_id'])
-
-        return token_data
 
 
 @dependency.requires('resource_api', 'identity_api')
