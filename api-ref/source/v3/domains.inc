@@ -22,30 +22,31 @@ the uniqueness of these attributes is as follows:
 
 - *Group name*. Unique within the owning domain.
 
-
 List domains
 ============
 
 .. rest_method::  GET /v3/domains
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
-
 Lists all domains.
 
-Normal response codes: 200
-
-Error response codes: 413,405,404,403,401,400,503
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - name: domain_name_query
    - enabled: domain_enabled_query
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -56,8 +57,15 @@ Response Parameters
    - links: domain_link_response_body
    - name: domain_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+Normal response codes: 200
+
+Error response codes: 413,405,404,403,401,400,503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domains-list-response.json
    :language: javascript
@@ -68,16 +76,15 @@ Create domain
 
 .. rest_method::  POST /v3/domains
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
-
 Creates a domain.
 
-Normal response codes: 201
-
-Error response codes: 413,415,405,404,403,401,400,503,409
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -85,15 +92,18 @@ Request
    - enabled: domain_enabled_request_body
    - description: domain_description_request_body
    - name: domain_name_request_body
- 
-Request Example
----------------
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domain-create-request.json
    :language: javascript
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -103,6 +113,13 @@ Response Parameters
    - id: domain_id_response_body
    - links: domain_link_response_body
    - name: domain_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
+
+Normal response codes: 201
+
+Error response codes: 413,415,405,404,403,401,400,503,409
 
 
 Show domain details
@@ -110,23 +127,25 @@ Show domain details
 
 .. rest_method::  GET /v3/domains/{domain_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
-
 Shows details for a domain.
 
-Normal response codes: 200
-
-Error response codes: 413,405,404,403,401,400,503
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domains``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -137,8 +156,15 @@ Response Parameters
    - links: domain_link_response_body
    - name: domain_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+Normal response codes: 200
+
+Error response codes: 413,405,404,403,401,400,503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domain-show-response.json
    :language: javascript
@@ -149,16 +175,15 @@ Update domain
 
 .. rest_method::  PATCH /v3/domains/{domain_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain``
-
 Updates a domain.
 
-Normal response codes: 200
-
-Error response codes: 413,415,405,404,403,401,400,503,409
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -168,14 +193,17 @@ Request
    - description: domain_description_update_request_body
    - name: domain_name_update_request_body
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domain-update-request.json
    :language: javascript
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -186,8 +214,15 @@ Response Parameters
    - links: domain_link_response_body
    - name: domain_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+Normal response codes: 200
+
+Error response codes: 413,415,405,404,403,401,400,503,409
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domain-update-response.json
    :language: javascript
@@ -198,10 +233,7 @@ Delete domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain``
-
 Deletes a domain.
-
 To minimize the risk of accidentally deleting a domain, you must
 first disable the domain by using the update domain method.
 
@@ -212,13 +244,21 @@ granted roles that relate to those entities.
 If you try to delete an enabled domain, this call returns the
 ``Forbidden (403)`` response code.
 
-Normal response codes: 204
-
-Error response codes: 413,415,405,404,403,401,400,503,409
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain``
 
 Request
 -------
 
+Parameters
+~~~~~~~~~~
+
 .. rest_parameters:: parameters.yaml
 
    - domain_id: domain_id_path
+
+Status Codes
+~~~~~~~~~~~~
+
+Normal response codes: 204
+
+Error response codes: 413,415,405,404,403,401,400,503,409
