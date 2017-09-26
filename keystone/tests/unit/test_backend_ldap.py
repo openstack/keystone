@@ -1040,7 +1040,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
                   self).test_remove_foreign_assignments_when_deleting_a_domain)
 
 
-class LDAPIdentity(BaseLDAPIdentity, unit.TestCase):
+class LDAPIdentity(BaseLDAPIdentity):
 
     def assert_backends(self):
         _assert_backends(self,
@@ -1769,7 +1769,7 @@ class LDAPLimitTests(unit.TestCase, identity_tests.LimitTests):
         return config_files
 
 
-class LDAPIdentityEnabledEmulation(LDAPIdentity):
+class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
     def setUp(self):
         super(LDAPIdentityEnabledEmulation, self).setUp()
         _assert_backends(self, identity='ldap')
