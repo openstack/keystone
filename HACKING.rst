@@ -56,3 +56,12 @@ callable we prefer that the call also uses keyword arg syntax. For example::
 
 This gives us the flexibility to re-order arguments and more importantly
 to add new required arguments. It's also more explicit and easier to read.
+
+Testing
+-------
+
+keystone uses testtools and stestr for its unittest suite and its test
+runner. If you'd like to learn more in depth:
+
+  https://testtools.readthedocs.io/en/latest/
+  https://stestr.readthedocs.io/en/latest/

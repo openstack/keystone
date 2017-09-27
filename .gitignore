@@ -30,7 +30,7 @@ keystone/tests/tmp/
 .project
 .pydevproject
 keystone/locale/*/LC_MESSAGES/*.mo
-.testrepository/
+.stestr/
 *.db
 # Files created by releasenotes build
 releasenotes/build
