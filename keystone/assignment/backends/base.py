@@ -145,3 +145,65 @@ class AssignmentDriverBase(object):
     def delete_domain_assignments(self, domain_id):
         """Delete all assignments for a domain."""
         raise exception.NotImplemented()
+
+    @abc.abstractmethod
+    def create_system_grant(self, role_id, actor_id, target_id,
+                            assignment_type, inherited):
+        """Grant a user or group  a role on the system.
+
+        :param role_id: the unique ID of the role to grant to the user
+        :param actor_id: the unique ID of the user or group
+        :param target_id: the unique ID or string representing the target
+        :param assignment_type: a string describing the relationship of the
+                                assignment
+        :param inherited: a boolean denoting if the assignment is inherited or
+                          not
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_system_grants(self, actor_id, target_id, assignment_type):
+        """Return a list of all system assignments for a specific entity.
+
+        :param actor_id: the unique ID of the actor
+        :param target_id: the unique ID of the target
+        :param assignment_type: the type of assignment to return
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_system_grants_by_role(self, role_id):
+        """Return a list of system assignments associated to a role.
+
+        :param role_id: the unique ID of the role to grant to the user
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def check_system_grant(self, role_id, actor_id, target_id, inherited):
+        """Check if a user or group has a specific role on the system.
+
+        :param role_id: the unique ID of the role to grant to the user
+        :param actor_id: the unique ID of the user or group
+        :param target_id: the unique ID or string representing the target
+        :param inherited: a boolean denoting if the assignment is inherited or
+                          not
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_system_grant(self, role_id, actor_id, target_id, inherited):
+        """Remove a system assignment from a user or group.
+
+        :param role_id: the unique ID of the role to grant to the user
+        :param actor_id: the unique ID of the user or group
+        :param target_id: the unique ID or string representing the target
+        :param inherited: a boolean denoting if the assignment is inherited or
+                          not
+
+        """
+        raise exception.NotImplemented()  # pragma: no cover
