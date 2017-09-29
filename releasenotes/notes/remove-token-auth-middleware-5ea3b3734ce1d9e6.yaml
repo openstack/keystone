@@ -1,0 +1,16 @@
+---
+prelude: >
+  The token_auth middleware functionality has been merged into the main auth
+  middleware (keystone.middleware.auth.AuthContextMiddleware).
+  `admin_token_auth` must be removed from the [pipeline:api_v3],
+  [pipeline:admin_api], and [pipeline:public_api] sections of your paste ini
+  file. The [filter:token_auth] block will also need to be removed from your
+  paste ini file. Failure to remove these elements from your paste ini file
+  will result in keystone to no longer start/run when the `token_auth` is
+  removed in the Stein release.
+upgrade:
+  - Remove token_auth from your keystone paste.ini file. Failure to remove
+    these elements from your paste ini file will result in keystone to no
+    longer start/run when the `token_auth` is removed in the Stein release.
+deprecations:
+  - The keystone.middleware.core:TokenAuthMiddleware is deprecated for removal.

@@ -103,17 +103,6 @@ class MiddlewareRequestTestBase(unit.TestCase):
         return self._do_middleware_response(*args, **kwargs).request
 
 
-class TokenAuthMiddlewareTest(MiddlewareRequestTestBase):
-
-    MIDDLEWARE_CLASS = middleware.TokenAuthMiddleware
-
-    def test_request(self):
-        headers = {authorization.AUTH_TOKEN_HEADER: 'MAGIC'}
-        req = self._do_middleware_request(headers=headers)
-        context = req.environ[wsgi.CONTEXT_ENV]
-        self.assertEqual('MAGIC', context['token_id'])
-
-
 class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
 
     MIDDLEWARE_CLASS = middleware.JsonBodyMiddleware

@@ -309,7 +309,7 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def check_token(self, request):
-        token_id = request.context_dict.get('subject_token_id')
+        token_id = request.subject_token
         window_seconds = authorization.token_validation_window(request)
         token_data = PROVIDERS.token_provider_api.validate_token(
             token_id, window_seconds=window_seconds)
@@ -320,12 +320,11 @@ class Auth(controller.V3Controller):
 
     @controller.protected()
     def revoke_token(self, request):
-        token_id = request.context_dict.get('subject_token_id')
-        return PROVIDERS.token_provider_api.revoke_token(token_id)
+        return PROVIDERS.token_provider_api.revoke_token(request.subject_token)
 
     @controller.protected()
     def validate_token(self, request):
-        token_id = request.context_dict.get('subject_token_id')
+        token_id = request.subject_token
         window_seconds = authorization.token_validation_window(request)
         include_catalog = 'nocatalog' not in request.params
         token_data = PROVIDERS.token_provider_api.validate_token(

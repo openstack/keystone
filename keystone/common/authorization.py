@@ -87,13 +87,13 @@ def token_validation_window(request):
 
 
 def _handle_subject_token_id(self, request, policy_dict):
-    if request.context_dict.get('subject_token_id') is not None:
+    if request.subject_token is not None:
         window_seconds = token_validation_window(request)
 
         token_ref = token_model.KeystoneToken(
-            token_id=request.context_dict['subject_token_id'],
+            token_id=request.subject_token,
             token_data=self.token_provider_api.validate_token(
-                request.context_dict['subject_token_id'],
+                request.subject_token,
                 window_seconds=window_seconds))
         policy_dict.setdefault('target', {})
         policy_dict['target'].setdefault(self.member_name, {})

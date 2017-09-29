@@ -178,7 +178,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self._do_test_bootstrap(bootstrap)
         # build validation request
         request = self.make_request(is_admin=True)
-        request.context_dict['subject_token_id'] = token
+        request.headers['X-Subject-Token'] = token
         # Make sure the token we authenticate for is still valid.
         v3_token_controller.validate_token(request)
 
@@ -209,7 +209,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self._do_test_bootstrap(bootstrap)
         # build validation request
         request = self.make_request(is_admin=True)
-        request.context_dict['subject_token_id'] = token
+        request.headers['X-Subject-Token'] = token
         # Since the user account was recovered with a different password, we
         # shouldn't be able to validate this token. Bootstrap should have
         # persisted a revocation event because the user's password was updated.
