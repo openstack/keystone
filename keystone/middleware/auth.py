@@ -23,7 +23,6 @@ from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
 from keystone.i18n import _
-from keystone.middleware import core
 from keystone.models import token_model
 from keystone.token.providers import common
 
@@ -141,7 +140,7 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         # NOTE(notmorgan): This code is merged over from the admin token
         # middleware and now emits the security warning when the
         # conf.admin_token value is set.
-        token = request.headers.get(core.AUTH_TOKEN_HEADER)
+        token = request.headers.get(authorization.AUTH_TOKEN_HEADER)
         if CONF.admin_token and (token == CONF.admin_token):
             context_env['is_admin'] = True
             LOG.warning(

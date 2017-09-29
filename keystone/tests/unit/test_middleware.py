@@ -106,7 +106,7 @@ class TokenAuthMiddlewareTest(MiddlewareRequestTestBase):
     MIDDLEWARE_CLASS = middleware.TokenAuthMiddleware
 
     def test_request(self):
-        headers = {middleware.AUTH_TOKEN_HEADER: 'MAGIC'}
+        headers = {authorization.AUTH_TOKEN_HEADER: 'MAGIC'}
         req = self._do_middleware_request(headers=headers)
         context = req.environ[wsgi.CONTEXT_ENV]
         self.assertEqual('MAGIC', context['token_id'])
@@ -721,7 +721,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
     def test_admin_token_context(self):
         self.config_fixture.config(admin_token='ADMIN')
         log_fix = self.useFixture(fixtures.FakeLogger())
-        headers = {middleware.AUTH_TOKEN_HEADER: 'ADMIN'}
+        headers = {authorization.AUTH_TOKEN_HEADER: 'ADMIN'}
         req = self._do_middleware_request(headers=headers)
         self.assertTrue(req.environ[wsgi.CONTEXT_ENV]['is_admin'])
         self.assertNotIn('Invalid user token', log_fix.output)
@@ -730,6 +730,6 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         self.config_fixture.config(
             admin_token='ADMIN')
         log_fix = self.useFixture(fixtures.FakeLogger())
-        headers = {middleware.AUTH_TOKEN_HEADER: 'NOT-ADMIN'}
+        headers = {authorization.AUTH_TOKEN_HEADER: 'NOT-ADMIN'}
         self._do_middleware_request(headers=headers)
         self.assertIn('Invalid user token', log_fix.output)

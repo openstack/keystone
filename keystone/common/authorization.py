@@ -26,6 +26,14 @@ from keystone.i18n import _
 from keystone.models import token_model
 
 
+# Header used to transmit the auth token
+AUTH_TOKEN_HEADER = 'X-Auth-Token'
+
+
+# Header used to transmit the subject token
+SUBJECT_TOKEN_HEADER = 'X-Subject-Token'
+
+
 CONF = conf.CONF
 AUTH_CONTEXT_ENV = 'KEYSTONE_AUTH_CONTEXT'
 """Environment variable used to convey the Keystone auth context.
