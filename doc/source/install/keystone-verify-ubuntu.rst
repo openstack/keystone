@@ -8,15 +8,7 @@ services.
 
    Perform these commands on the controller node.
 
-#. For security reasons, disable the temporary authentication
-   token mechanism:
-
-   Edit the ``/etc/keystone/keystone-paste.ini``
-   file and remove ``admin_token_auth`` from the
-   ``[pipeline:public_api]``, ``[pipeline:admin_api]``,
-   and ``[pipeline:api_v3]`` sections.
-
-2. Unset the temporary ``OS_AUTH_URL`` and ``OS_PASSWORD``
+#. Unset the temporary ``OS_AUTH_URL`` and ``OS_PASSWORD``
    environment variable:
 
    .. code-block:: console
@@ -25,7 +17,7 @@ services.
 
    .. end
 
-3. As the ``admin`` user, request an authentication token:
+#. As the ``admin`` user, request an authentication token:
 
    .. code-block:: console
 
@@ -51,7 +43,7 @@ services.
 
       This command uses the password for the ``admin`` user.
 
-4. As the ``demo`` user, request an authentication token:
+#. As the ``demo`` user, request an authentication token:
 
    .. code-block:: console
 
