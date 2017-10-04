@@ -14,7 +14,6 @@
 
 import uuid
 
-import six
 from six.moves import http_client
 
 from keystone.common import extension as keystone_extension
@@ -22,7 +21,6 @@ import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import rest
-from keystone.tests.unit.schema import v2
 
 CONF = keystone.conf.CONF
 
@@ -116,37 +114,6 @@ class CoreApiTests(object):
         self.assertValidExtensionResponse(
             r, keystone_extension.ADMIN_EXTENSIONS)
 
-    def test_authenticate(self):
-        r = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'username': self.user_foo['name'],
-                        'password': self.user_foo['password'],
-                    },
-                    'tenantId': self.tenant_bar['id'],
-                },
-            },
-            expected_status=http_client.OK)
-        self.assertValidAuthenticationResponse(r, require_service_catalog=True)
-
-    def test_authenticate_unscoped(self):
-        r = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'username': self.user_foo['name'],
-                        'password': self.user_foo['password'],
-                    },
-                },
-            },
-            expected_status=http_client.OK)
-        self.assertValidAuthenticationResponse(r)
-
     def test_error_response(self):
         """Trigger assertValidErrorResponse by convention."""
         self.public_request(path='/v2.0/tenants',
@@ -196,38 +163,6 @@ class CoreApiTests(object):
 
         """
         raise NotImplementedError()
-
-    def test_authenticating_a_user_with_no_password(self):
-        token = self.get_scoped_token()
-
-        username = uuid.uuid4().hex
-
-        # create the user
-        self.admin_request(
-            method='POST',
-            path='/v3/users',
-            body={
-                'user': {
-                    'name': username,
-                    'enabled': True,
-                },
-            },
-            token=token)
-
-        # fail to authenticate
-        r = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'passwordCredentials': {
-                        'username': username,
-                        'password': 'password',
-                    },
-                },
-            },
-            expected_status=http_client.UNAUTHORIZED)
-        self.assertValidErrorResponse(r)
 
     def test_www_authenticate_header(self):
         r = self.public_request(
@@ -454,136 +389,3 @@ class V2TestCaseFernet(V2TestCase, RestfulTestCase, CoreApiTests):
                 CONF.fernet_tokens.max_active_keys
             )
         )
-
-
-class TestFernetTokenProviderV2(RestfulTestCase):
-
-    def setUp(self):
-        super(TestFernetTokenProviderV2, self).setUp()
-        # Add catalog data
-        self.region = unit.new_region_ref()
-        self.region_id = self.region['id']
-        self.catalog_api.create_region(self.region)
-
-        self.service = unit.new_service_ref()
-        self.service_id = self.service['id']
-        self.catalog_api.create_service(self.service_id, self.service)
-
-        self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
-                                              interface='public',
-                                              region_id=self.region_id)
-        self.endpoint_id = self.endpoint['id']
-        self.catalog_api.create_endpoint(self.endpoint_id, self.endpoint)
-
-    def assertValidUnscopedTokenResponse(self, r):
-        v2.unscoped_validator.validate(r.json['access'])
-
-    def assertValidScopedTokenResponse(self, r):
-        v2.scoped_validator.validate(r.json['access'])
-
-    # Used by RestfulTestCase
-    def _get_token_id(self, r):
-        return r.result['access']['token']['id']
-
-    def new_project_ref(self):
-        return {'id': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex,
-                'description': uuid.uuid4().hex,
-                'domain_id': 'default',
-                'enabled': True}
-
-    def config_overrides(self):
-        super(TestFernetTokenProviderV2, self).config_overrides()
-        self.config_fixture.config(group='token', provider='fernet')
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
-
-    def test_authenticate_unscoped_token(self):
-        unscoped_token = self.get_unscoped_token()
-        # Fernet token must be of length 255 per usability requirements
-        self.assertLess(len(unscoped_token), 255)
-
-    def test_authenticate_scoped_token(self):
-        project_ref = self.new_project_ref()
-        self.resource_api.create_project(project_ref['id'], project_ref)
-        self.assignment_api.add_role_to_user_and_project(
-            self.user_foo['id'], project_ref['id'], self.role_service['id'])
-        token = self.get_scoped_token(tenant_id=project_ref['id'])
-        # Fernet token must be of length 255 per usability requirements
-        self.assertLess(len(token), 255)
-
-    def test_token_authentication_and_validation(self):
-        """Test token authentication for Fernet token provider.
-
-        Verify that token authentication returns validate response code and
-        valid token belongs to project.
-        """
-        project_ref = self.new_project_ref()
-        self.resource_api.create_project(project_ref['id'], project_ref)
-        unscoped_token = self.get_unscoped_token()
-        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
-                                                         project_ref['id'],
-                                                         self.role_admin['id'])
-        token_id = unscoped_token
-        if six.PY2:
-            token_id = token_id.encode('ascii')
-        resp = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'tenantName': project_ref['name'],
-                    'token': {
-                        'id': token_id,
-                    }
-                }
-            },
-            expected_status=http_client.OK)
-        self.assertValidScopedTokenResponse(resp)
-
-    def test_rescoped_tokens_maintain_original_expiration(self):
-        project_ref = self.new_project_ref()
-        self.resource_api.create_project(project_ref['id'], project_ref)
-        self.assignment_api.add_role_to_user_and_project(self.user_foo['id'],
-                                                         project_ref['id'],
-                                                         self.role_admin['id'])
-        resp = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'tenantName': project_ref['name'],
-                    'passwordCredentials': {
-                        'username': self.user_foo['name'],
-                        'password': self.user_foo['password']
-                    }
-                }
-            },
-            # NOTE(lbragstad): This test may need to be refactored if Keystone
-            # decides to disallow rescoping using a scoped token.
-            expected_status=http_client.OK)
-        original_token = resp.result['access']['token']['id']
-        original_expiration = resp.result['access']['token']['expires']
-
-        resp = self.public_request(
-            method='POST',
-            path='/v2.0/tokens',
-            body={
-                'auth': {
-                    'tenantName': project_ref['name'],
-                    'token': {
-                        'id': original_token,
-                    }
-                }
-            },
-            expected_status=http_client.OK)
-        rescoped_token = resp.result['access']['token']['id']
-        rescoped_expiration = resp.result['access']['token']['expires']
-        self.assertNotEqual(original_token, rescoped_token)
-        self.assertEqual(original_expiration, rescoped_expiration)
-        self.assertValidScopedTokenResponse(resp)

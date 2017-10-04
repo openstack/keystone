@@ -27,26 +27,14 @@ from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
-from keystone.tests.unit import rest
+from keystone.tests.unit import test_v3 as rest
 
 CRED_TYPE_EC2 = controllers.CRED_TYPE_EC2
 
 
 class V2CredentialEc2TestCase(rest.RestfulTestCase):
-    def setUp(self):
-        super(V2CredentialEc2TestCase, self).setUp()
-        self.user_id = self.user_foo['id']
-        self.project_id = self.tenant_bar['id']
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'credential',
-                credential_fernet.MAX_ACTIVE_KEYS
-            )
-        )
-
     def _get_token_id(self, r):
-        return r.result['access']['token']['id']
+        return r.headers.get('X-Subject-Token')
 
     def _get_ec2_cred(self):
         uri = self._get_ec2_cred_uri()

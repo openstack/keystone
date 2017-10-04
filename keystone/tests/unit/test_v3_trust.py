@@ -45,6 +45,35 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts', body={'trust': {}},
                   expected_status=http_client.FORBIDDEN)
 
+    def test_create_trust_with_invalid_expiration_fails(self):
+        # create a new trust
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id])
+
+        ref['expires_at'] = 'bad'
+        self.post(
+            '/OS-TRUST/trusts',
+            body={'trust': ref},
+            expected_status=http_client.BAD_REQUEST
+        )
+
+        ref['expires_at'] = ''
+        self.post(
+            '/OS-TRUST/trusts',
+            body={'trust': ref},
+            expected_status=http_client.BAD_REQUEST
+        )
+
+        ref['expires_at'] = 'Z'
+        self.post(
+            '/OS-TRUST/trusts',
+            body={'trust': ref},
+            expected_status=http_client.BAD_REQUEST
+        )
+
     def test_trust_crud(self):
         # create a new trust
         ref = unit.new_trust_ref(
@@ -149,6 +178,22 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.head(
             list_all_as_trustee_url,
             expected_status=http_client.FORBIDDEN
+        )
+
+    def test_create_trust_with_expiration_in_the_past_fails(self):
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=False,
+            expires='2010-06-04T08:44:31.999999Z',
+            role_ids=[self.role_id]
+        )
+
+        self.post(
+            '/OS-TRUST/trusts',
+            body={'trust': ref},
+            expected_status=http_client.BAD_REQUEST
         )
 
     def test_delete_trust(self):

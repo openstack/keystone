@@ -239,18 +239,6 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                                                 user2['id'])
 
         # First check a user in that domain can authenticate..
-        body = {
-            'auth': {
-                'passwordCredentials': {
-                    'userId': user2['id'],
-                    'password': user2['password']
-                },
-                'tenantId': project2['id']
-            }
-        }
-        self.admin_request(
-            path='/v2.0/tokens', method='POST', body=body)
-
         auth_data = self.build_authentication_request(
             user_id=user2['id'],
             password=user2['password'],
@@ -263,21 +251,6 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             'domain_id': domain2['id']},
             body={'domain': {'enabled': False}})
         self.assertValidDomainResponse(r, domain2)
-
-        # Make sure the user can no longer authenticate, via
-        # either API
-        body = {
-            'auth': {
-                'passwordCredentials': {
-                    'userId': user2['id'],
-                    'password': user2['password']
-                },
-                'tenantId': project2['id']
-            }
-        }
-        self.admin_request(
-            path='/v2.0/tokens', method='POST', body=body,
-            expected_status=http_client.UNAUTHORIZED)
 
         # Try looking up in v3 by name and id
         auth_data = self.build_authentication_request(
