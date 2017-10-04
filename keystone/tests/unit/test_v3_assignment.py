@@ -117,6 +117,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role,
                                          resource_url=collection_url,
@@ -146,6 +147,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'role_id': self.role_id}
 
         self.put(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.get(member_url, expected_status=http_client.NOT_FOUND)
 
     def test_crud_user_domain_role_grants(self):
         time = datetime.datetime.utcnow()
@@ -160,6 +163,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             self.put(member_url)
             self.head(member_url)
+            self.get(member_url, expected_status=http_client.NO_CONTENT)
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, ref=self.role,
                                              resource_url=collection_url)
@@ -193,6 +197,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'role_id': self.role_id}
 
         self.put(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.get(member_url, expected_status=http_client.NOT_FOUND)
 
     def test_crud_group_project_role_grants(self):
         time = datetime.datetime.utcnow()
@@ -207,6 +213,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             self.put(member_url)
             self.head(member_url)
+            self.get(member_url, expected_status=http_client.NO_CONTENT)
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, ref=self.role,
                                              resource_url=collection_url)
@@ -241,6 +248,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'role_id': self.role_id}
 
         self.put(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.get(member_url, expected_status=http_client.NOT_FOUND)
 
     def test_crud_group_domain_role_grants(self):
         time = datetime.datetime.utcnow()
@@ -255,6 +264,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             self.put(member_url)
             self.head(member_url)
+            self.get(member_url, expected_status=http_client.NO_CONTENT)
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, ref=self.role,
                                              resource_url=collection_url)
@@ -289,6 +299,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'role_id': self.role_id}
 
         self.put(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.get(member_url, expected_status=http_client.NOT_FOUND)
 
     def _create_new_user_and_assign_role_on_project(self):
         """Create a new user and assign user a role on a project."""
@@ -306,6 +318,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.put(member_url)
         # Check the user has the role assigned
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         return member_url, user_ref
 
     def test_delete_user_before_removing_role_assignment_succeeds(self):
@@ -394,6 +407,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -424,6 +438,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -454,6 +469,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -484,6 +500,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -1517,6 +1534,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check we can read it back
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[0],
                                          resource_url=collection_url)
@@ -1576,6 +1594,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -1821,6 +1840,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -1904,6 +1924,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -1995,6 +2016,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -2010,6 +2032,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[4],
                                          resource_url=collection_url)
