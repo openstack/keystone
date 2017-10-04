@@ -22,6 +22,7 @@ import webtest
 
 from keystone.common import authorization
 from keystone.common import tokenless_auth
+from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
@@ -107,7 +108,7 @@ class TokenAuthMiddlewareTest(MiddlewareRequestTestBase):
     def test_request(self):
         headers = {middleware.AUTH_TOKEN_HEADER: 'MAGIC'}
         req = self._do_middleware_request(headers=headers)
-        context = req.environ[middleware.CONTEXT_ENV]
+        context = req.environ[wsgi.CONTEXT_ENV]
         self.assertEqual('MAGIC', context['token_id'])
 
 
@@ -122,7 +123,7 @@ class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
                                           headers=headers,
                                           method='post')
         self.assertEqual({"arg1": "one", "arg2": ["a"]},
-                         req.environ[middleware.PARAMS_ENV])
+                         req.environ[wsgi.PARAMS_ENV])
 
     def test_malformed_json(self):
         headers = {'Content-Type': 'application/json'}
@@ -147,7 +148,7 @@ class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
                                           headers=headers,
                                           method='post')
         self.assertEqual({"arg1": "one", "arg2": ["a"]},
-                         req.environ[middleware.PARAMS_ENV])
+                         req.environ[wsgi.PARAMS_ENV])
 
     def test_unrecognized_content_type(self):
         headers = {'Content-Type': 'text/plain'}
@@ -159,7 +160,7 @@ class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
     def test_unrecognized_content_type_without_body(self):
         headers = {'Content-Type': 'text/plain'}
         req = self._do_middleware_request(headers=headers)
-        self.assertEqual({}, req.environ.get(middleware.PARAMS_ENV, {}))
+        self.assertEqual({}, req.environ.get(wsgi.PARAMS_ENV, {}))
 
 
 class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
@@ -722,7 +723,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         log_fix = self.useFixture(fixtures.FakeLogger())
         headers = {middleware.AUTH_TOKEN_HEADER: 'ADMIN'}
         req = self._do_middleware_request(headers=headers)
-        self.assertTrue(req.environ[middleware.CONTEXT_ENV]['is_admin'])
+        self.assertTrue(req.environ[wsgi.CONTEXT_ENV]['is_admin'])
         self.assertNotIn('Invalid user token', log_fix.output)
 
     def test_request_non_admin(self):

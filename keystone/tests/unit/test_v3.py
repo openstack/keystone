@@ -25,6 +25,7 @@ from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
 from keystone.common.validation import validators
+from keystone.common import wsgi
 from keystone import exception
 from keystone import middleware
 from keystone.tests.common import auth as common_auth
@@ -1251,7 +1252,7 @@ class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
         # already.
         token_id = uuid.uuid4().hex  # token doesn't matter.
         # the admin_token middleware sets is_admin in the context.
-        extra_environ = {middleware.CONTEXT_ENV: {'is_admin': True}}
+        extra_environ = {wsgi.CONTEXT_ENV: {'is_admin': True}}
         req = self._middleware_request(token_id, extra_environ)
         auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self.assertDictEqual({}, auth_context)

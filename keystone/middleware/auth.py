@@ -136,7 +136,7 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
 
     @wsgi.middleware_exceptions
     def process_request(self, request):
-        context_env = request.environ.get(core.CONTEXT_ENV, {})
+        context_env = request.environ.get(wsgi.CONTEXT_ENV, {})
 
         # NOTE(notmorgan): This code is merged over from the admin token
         # middleware and now emits the security warning when the
@@ -150,7 +150,7 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
                 "not be set. This option is deprecated in favor of using "
                 "'keystone-manage bootstrap' and will be removed in a "
                 "future release.")
-            request.environ[core.CONTEXT_ENV] = context_env
+            request.environ[wsgi.CONTEXT_ENV] = context_env
 
         if not context_env.get('is_admin', False):
             resp = super(AuthContextMiddleware, self).process_request(request)
@@ -186,7 +186,7 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
         # certificate is effectively disabled if no trusted issuers are
         # provided.
 
-        if request.environ.get(core.CONTEXT_ENV, {}).get('is_admin', False):
+        if request.environ.get(wsgi.CONTEXT_ENV, {}).get('is_admin', False):
             request_context.is_admin = True
             auth_context = {}
 

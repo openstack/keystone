@@ -30,22 +30,14 @@ AUTH_TOKEN_HEADER = 'X-Auth-Token'
 SUBJECT_TOKEN_HEADER = 'X-Subject-Token'
 
 
-# Environment variable used to pass the request context
-CONTEXT_ENV = wsgi.CONTEXT_ENV
-
-
-# Environment variable used to pass the request params
-PARAMS_ENV = wsgi.PARAMS_ENV
-
-
 class TokenAuthMiddleware(wsgi.Middleware):
     def process_request(self, request):
         token = request.headers.get(AUTH_TOKEN_HEADER)
-        context = request.environ.get(CONTEXT_ENV, {})
+        context = request.environ.get(wsgi.CONTEXT_ENV, {})
         context['token_id'] = token
         if SUBJECT_TOKEN_HEADER in request.headers:
             context['subject_token_id'] = request.headers[SUBJECT_TOKEN_HEADER]
-        request.environ[CONTEXT_ENV] = context
+        request.environ[wsgi.CONTEXT_ENV] = context
 
 
 class AdminTokenAuthMiddleware(wsgi.Middleware):
@@ -122,7 +114,7 @@ class JsonBodyMiddleware(wsgi.Middleware):
                 continue
             params[k] = v
 
-        request.environ[PARAMS_ENV] = params
+        request.environ[wsgi.PARAMS_ENV] = params
 
 
 class NormalizingFilter(wsgi.Middleware):
