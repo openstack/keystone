@@ -17,11 +17,11 @@ from six.moves import http_client
 
 from keystone.contrib.ec2 import controllers
 from keystone.tests import unit
-from keystone.tests.unit import test_v2
+from keystone.tests.unit import rest
 from keystone.tests.unit import test_v3
 
 
-class EC2ContribCoreV2(test_v2.RestfulTestCase):
+class EC2ContribCoreV2(rest.RestfulTestCase):
     def config_overrides(self):
         super(EC2ContribCoreV2, self).config_overrides()
 
