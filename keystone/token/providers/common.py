@@ -535,80 +535,35 @@ class BaseProvider(base.Provider):
         return token_ref
 
     def validate_token(self, token_id):
-        user_id = None  # id of the user of the token
-        methods = None  # list of methods used to obtain a token
-        bind = None  # dictionary of bind methods
-        issued_at = None  # time at which the token was issued
-        expires_at = None  # time at which the token will expire
-        audit_ids = None  # list of audit ids specific to the token
-        domain_id = None  # domain scope of the token
-        project_id = None  # project scope of the token
-        access_token = None  # dictionary containing OAUTH1 information
-        trust_ref = None  # dictionary containing trust scope
-        token_dict = None  # existing token information
         if self.needs_persistence():
             token_ref = token_id
             token_data = token_ref.get('token_data')
             user_id = token_ref['user_id']
-            if not token_data or 'token' not in token_data:
-                # NOTE(lbragstad): We should never get here. With the
-                # issue_token refactors that landed in Ocata, we should no
-                # longer be persisting different types of tokens. Everything is
-                # a v3 token, period. If a token needs to be represented in the
-                # v2.0 format, it should be translated at the controller layer.
-                # This code can be removed when Pike opens for development.
-                # The only reason I'm not removing it now is because of the
-                # ability for a v2.0 token to be persisted while Newton code is
-                # still active in an upgrade to Ocata. Hopefully once a
-                # deployer is ready to upgrade to Ocata, there won't be any
-                # valid v2.0 formatted tokens in the backend and we can safely
-                # remove this case, which will be in Pike.
-                methods = ['password', 'token']
-                bind = token_ref.get('bind')
-                # I have no idea why issued_at and expires_at come from two
-                # different places...
-                issued_at = (
-                    token_ref['token_data']['access']['token']['issued_at']
-                )
-                expires_at = token_ref['expires']
-                audit_ids = token_ref['token_data']['access']['token'].get(
-                    'audit_ids'
-                )
-                project_id = None
-                project_ref = token_ref.get('tenant')
-                if project_ref:
-                    project_id = project_ref['id']
-                trust_id = token_ref.get('trust_id')
-                if trust_id:
-                    trust_ref = self.trust_api.get_trust(trust_id)
-            else:
-                # NOTE(lbragstad): Otherwise assume we are validating a token
-                # that was created using the v3 token API.
-                methods = token_data['token']['methods']
-                bind = token_data['token'].get('bind')
-                issued_at = token_data['token']['issued_at']
-                expires_at = token_data['token']['expires_at']
-                audit_ids = token_data['token'].get('audit_ids')
-                domain_id = token_data['token'].get('domain', {}).get('id')
-                project_id = token_data['token'].get('project', {}).get('id')
-                access_token = None
-                if token_data['token'].get('OS-OAUTH1'):
-                    access_token = {
-                        'id': token_data['token'].get('OS-OAUTH1', {}).get(
-                            'access_token_id'
-                        ),
-                        'consumer_id': token_data['token'].get(
-                            'OS-OAUTH1', {}
-                        ).get('consumer_id')
-                    }
-                trust_ref = None
-                trust_id = token_ref.get('trust_id')
-                if trust_id:
-                    trust_ref = self.trust_api.get_trust(trust_id)
-                token_dict = None
-                if token_data['token']['user'].get(
-                        federation_constants.FEDERATION):
-                    token_dict = {'user': token_ref['user']}
+            methods = token_data['token']['methods']
+            bind = token_data['token'].get('bind')
+            issued_at = token_data['token']['issued_at']
+            expires_at = token_data['token']['expires_at']
+            audit_ids = token_data['token'].get('audit_ids')
+            domain_id = token_data['token'].get('domain', {}).get('id')
+            project_id = token_data['token'].get('project', {}).get('id')
+            access_token = None
+            if token_data['token'].get('OS-OAUTH1'):
+                access_token = {
+                    'id': token_data['token'].get('OS-OAUTH1', {}).get(
+                        'access_token_id'
+                    ),
+                    'consumer_id': token_data['token'].get(
+                        'OS-OAUTH1', {}
+                    ).get('consumer_id')
+                }
+            trust_ref = None
+            trust_id = token_ref.get('trust_id')
+            if trust_id:
+                trust_ref = self.trust_api.get_trust(trust_id)
+            token_dict = None
+            if token_data['token']['user'].get(
+                    federation_constants.FEDERATION):
+                token_dict = {'user': token_ref['user']}
         else:
             try:
                 (user_id, methods, audit_ids, domain_id, project_id, trust_id,
@@ -617,6 +572,7 @@ class BaseProvider(base.Provider):
             except exception.ValidationError as e:
                 raise exception.TokenNotFound(e)
 
+            bind = None
             token_dict = None
             trust_ref = None
             if federated_info:
