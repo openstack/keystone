@@ -181,7 +181,7 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
         # constraint.
         #
         # Please follow the guidelines outlined at:
-        # https://docs.openstack.org/developer/keystone/devref/development_best_practices.html#database-migrations
+        # https://docs.openstack.org/keystone/latest/contributor/database-migrations.html
 
         if version >= self.first_version and version not in self.exceptions:
             banned_ops = self.banned_ops
