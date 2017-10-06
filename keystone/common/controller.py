@@ -33,18 +33,6 @@ LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 
 
-def v2_deprecated(f):
-    @six.wraps(f)
-    def wrapper(*args, **kwargs):
-        deprecated = versionutils.deprecated(
-            what=f.__name__ + ' of the v2 API',
-            as_of=versionutils.deprecated.MITAKA,
-            in_favor_of='a similar function in the v3 API',
-            remove_in=+4)
-        return deprecated(f)
-    return wrapper()
-
-
 def v2_ec2_deprecated(f):
     @six.wraps(f)
     def wrapper(*args, **kwargs):
