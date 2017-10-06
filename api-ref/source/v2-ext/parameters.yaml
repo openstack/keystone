@@ -112,18 +112,6 @@ tenant:
   in: body
   required: true
   type: object
-tenant_id_request:
-  description: |
-    The tenant ID.
-  in: body
-  required: true
-  type: string
-tenant_id_response:
-  description: |
-    The tenant ID.
-  in: body
-  required: true
-  type: string
 user:
   description: |
     The ``user`` object.
@@ -133,19 +121,6 @@ user:
 user_email:
   description: |
     The user email.
-  in: body
-  required: true
-  type: string
-user_enabled:
-  description: |
-    Indicates whether the user should be enabled (``true``)
-    or disabled(``false``).
-  in: body
-  required: true
-  type: boolean
-user_id_response:
-  description: |
-    The user ID.
   in: body
   required: true
   type: string
