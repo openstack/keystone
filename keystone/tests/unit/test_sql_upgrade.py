@@ -1682,7 +1682,7 @@ class VersionTests(SqlMigrateBase):
                 '^[0-9]{3,}_PREFIX_|^[0-9]{3,}_placeholder.py|^__init__.py')
             pattern = pattern.replace('PREFIX', prefix)
             msg = 'Missing required prefix %s in $file_name' % prefix
-            self.assertRegexpMatches(file_name, pattern, msg)
+            self.assertRegex(file_name, pattern, msg)
 
 
 class MigrationValidation(SqlMigrateBase, unit.TestCase):
