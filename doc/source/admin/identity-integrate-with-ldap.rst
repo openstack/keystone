@@ -262,7 +262,8 @@ administrators to use users and groups in LDAP.
 
 #. List the domains using the dashboard, or the OpenStackClient CLI. Refer
    to the `Command List
-   <https://docs.openstack.org/developer/python-openstackclient/command-list.html>`__
+   <https://docs.openstack.org/python-openstackclient/latest/cli/
+   command-list.html>`__
    for a list of OpenStackClient commands.
 
 #. Create domains using OpenStack dashboard, or the OpenStackClient CLI.
