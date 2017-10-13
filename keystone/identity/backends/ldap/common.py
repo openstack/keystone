@@ -930,9 +930,12 @@ class KeystoneLDAPHandler(LDAPHandler):
                 attrlist_utf8 = None
             else:
                 attrlist_utf8 = list(map(utf8_encode, attrlist))
-            ldap_result = self.conn.search_s(base_utf8, scope,
-                                             filterstr_utf8,
-                                             attrlist_utf8, attrsonly)
+            try:
+                ldap_result = self.conn.search_s(base_utf8, scope,
+                                                 filterstr_utf8,
+                                                 attrlist_utf8, attrsonly)
+            except ldap.SIZELIMIT_EXCEEDED:
+                raise exception.LDAPSizeLimitExceeded()
 
         py_result = convert_ldap_result(ldap_result)
 
