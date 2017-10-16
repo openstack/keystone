@@ -242,6 +242,9 @@ users to the group you already created:
             ],
             "remote": [
                 {
+                    "type": "openstack_user"
+                },
+                {
                     "type": "openstack_user",
                     "any_one_of": [
                         "demo",
