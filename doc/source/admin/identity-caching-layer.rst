@@ -94,9 +94,13 @@ revocation list is refreshed whenever a token is revoked. It typically
 sees significantly more requests than specific token retrievals or token
 validation calls.
 
-Here is a list of actions that are affected by the cached time: getting
-a new token, revoking tokens, validating tokens, checking v2 tokens, and
-checking v3 tokens.
+Here is a list of actions that are affected by the cached time:
+
+* getting a new token
+* revoking tokens
+* validating tokens
+* checking v2 tokens
+* checking v3 tokens
 
 The delete token API calls invalidate the cache for the tokens being
 acted upon, as well as invalidating the cache for the revoked token list
