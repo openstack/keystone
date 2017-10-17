@@ -234,6 +234,7 @@ class SqlModels(SqlTests):
 class SqlIdentity(SqlTests,
                   identity_tests.IdentityTests,
                   assignment_tests.AssignmentTests,
+                  assignment_tests.SystemAssignmentTests,
                   resource_tests.ResourceTests):
     def test_password_hashed(self):
         with sql.session_for_read() as session:
