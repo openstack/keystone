@@ -16,28 +16,24 @@ from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
+from keystone.common import authorization
 from keystone.common import wsgi
 from keystone import exception
 
 
 LOG = log.getLogger(__name__)
 
-# Header used to transmit the auth token
-AUTH_TOKEN_HEADER = 'X-Auth-Token'
-
-
-# Header used to transmit the subject token
-SUBJECT_TOKEN_HEADER = 'X-Subject-Token'
-
 
 class TokenAuthMiddleware(wsgi.Middleware):
     def process_request(self, request):
-        token = request.headers.get(AUTH_TOKEN_HEADER)
-        context = request.environ.get(wsgi.CONTEXT_ENV, {})
+        context = request.environ.setdefault(wsgi.CONTEXT_ENV, {})
+
+        token = request.headers.get(authorization.AUTH_TOKEN_HEADER)
         context['token_id'] = token
-        if SUBJECT_TOKEN_HEADER in request.headers:
-            context['subject_token_id'] = request.headers[SUBJECT_TOKEN_HEADER]
-        request.environ[wsgi.CONTEXT_ENV] = context
+
+        subject_token = request.headers.get(authorization.SUBJECT_TOKEN_HEADER)
+        if subject_token:
+            context['subject_token_id'] = subject_token
 
 
 class AdminTokenAuthMiddleware(wsgi.Middleware):

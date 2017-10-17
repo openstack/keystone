@@ -1242,7 +1242,7 @@ class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
 
         app = webtest.TestApp(middleware.AuthContextMiddleware(application),
                               extra_environ=extra_environ)
-        resp = app.get('/', headers={middleware.AUTH_TOKEN_HEADER: token})
+        resp = app.get('/', headers={authorization.AUTH_TOKEN_HEADER: token})
         self.assertEqual('body', resp.text)  # just to make sure it worked
         return resp.request
 
@@ -1273,7 +1273,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
 
         app = webtest.TestApp(middleware.AuthContextMiddleware(application),
                               extra_environ=extra_environ)
-        resp = app.get('/', headers={middleware.AUTH_TOKEN_HEADER: token})
+        resp = app.get('/', headers={authorization.AUTH_TOKEN_HEADER: token})
         self.assertEqual(b'body', resp.body)  # just to make sure it worked
         return resp.request
 
