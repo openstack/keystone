@@ -2061,6 +2061,28 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
             expected_status=http_client.FORBIDDEN)
 
+    @utils.wip('This will fail because of bug #1291157. The token should be '
+               'invalid after deleting the identity provider.')
+    def test_validate_token_after_deleting_idp_fails(self):
+        token = self.v3_create_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN
+        )
+        token_id = token.headers.get('X-Subject-Token')
+        federated_info = token.json_body['token']['user']['OS-FEDERATION']
+        idp_id = federated_info['identity_provider']['id']
+        self.federation_api.delete_idp(idp_id)
+        headers = {
+            'X-Subject-Token': token_id
+        }
+        # FIXME(lbragstad): This should raise a 401 Unauthorized exception
+        # since the identity provider is gone.
+        self.get(
+            '/auth/tokens/',
+            token=token_id,
+            headers=headers,
+            expected_status=http_client.UNAUTHORIZED
+        )
+
     def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
         self.v3_create_token(
