@@ -12,7 +12,6 @@
 
 import uuid
 
-from keystone.assignment import schema as assignment_schema
 from keystone.catalog import schema as catalog_schema
 from keystone.common.validation import validators
 from keystone import exception
@@ -26,58 +25,6 @@ _INVALID_NAMES = [True, 24, ' ', '']
 _VALID_ENABLED_FORMATS = [True, False]
 
 _INVALID_ENABLED_FORMATS = ['some string', 1, 0, 'True', 'False']
-
-
-class RoleValidationTestCase(unit.BaseTestCase):
-    """Test for V2 Roles API Validation."""
-
-    def setUp(self):
-        super(RoleValidationTestCase, self).setUp()
-
-        schema_role_create = assignment_schema.role_create_v2
-        self.create_validator = validators.SchemaValidator(schema_role_create)
-
-    def test_validate_role_create_succeeds(self):
-        request = {
-            'name': uuid.uuid4().hex
-        }
-        self.create_validator.validate(request)
-
-    def test_validate_role_create_succeeds_with_spaces_in_description(self):
-        request = {
-            'name': uuid.uuid4().hex,
-            'description': 'Description with spaces'
-        }
-        self.create_validator.validate(request)
-
-    def test_validate_role_create_succeeds_with_extra_params(self):
-        request = {
-            'name': uuid.uuid4().hex,
-            'asdf': uuid.uuid4().hex
-        }
-        self.create_validator.validate(request)
-
-    def test_validate_role_create_fails_with_invalid_params(self):
-        request = {
-            'bogus': uuid.uuid4().hex
-        }
-        self.assertRaises(exception.SchemaValidationError,
-                          self.create_validator.validate,
-                          request)
-
-    def test_validate_role_create_fails_with_no_params(self):
-        request = {}
-        self.assertRaises(exception.SchemaValidationError,
-                          self.create_validator.validate,
-                          request)
-
-    def test_validate_role_create_fails_with_invalid_name(self):
-        """Exception when validating a create request with invalid `name`."""
-        for invalid_name in _INVALID_NAMES:
-            request_to_validate = {'name': invalid_name}
-            self.assertRaises(exception.SchemaValidationError,
-                              self.create_validator.validate,
-                              request_to_validate)
 
 
 class TenantValidationTestCase(unit.BaseTestCase):
