@@ -15,7 +15,8 @@
                 "self": "http://example.com/identity/v3/projects/0c4e939acacf4376bdcd1129f1a054ad"
             },
             "name": "admin",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -27,7 +28,8 @@
                 "self": "http://example.com/identity/v3/projects/0cbd49cbf76d405d9c86562e1d579bd3"
             },
             "name": "demo",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -39,7 +41,8 @@
                 "self": "http://example.com/identity/v3/projects/2db68fed84324f29bb73130c6c2094fb"
             },
             "name": "swifttenanttest2",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -51,7 +54,8 @@
                 "self": "http://example.com/identity/v3/projects/3d594eb0f04741069dbbb521635b21c7"
             },
             "name": "service",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -63,7 +67,8 @@
                 "self": "http://example.com/identity/v3/projects/43ebde53fc314b1c9ea2b8c5dc744927"
             },
             "name": "swifttenanttest1",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -75,7 +80,8 @@
                 "self": "http://example.com/identity/v3/projects/4b1eb781a47440acb8af9850103e537f"
             },
             "name": "swifttenanttest4",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -87,7 +93,8 @@
                 "self": "http://example.com/identity/v3/projects/5961c443439d4fcebe42643723755e9d"
             },
             "name": "invisible_to_admin",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         },
         {
             "is_domain": false,
@@ -99,7 +106,8 @@
                 "self": "http://example.com/identity/v3/projects/fdb8424c4e4f4c0ba32c52e2de3bd80e"
             },
             "name": "alt_demo",
-            "parent_id": null
+            "parent_id": null,
+            "tags": []
         }
     ]
 }

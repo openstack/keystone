@@ -1,0 +1,20 @@
+{
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://identity:5000/v3/projects"
+    },
+    "projects": [
+        {
+            "description": "Test Project",
+            "domain_id": "default",
+            "enabled": true,
+            "id": "3d4c2c82bd5948f0bcab0cf3a7c9b48c",
+            "links": {
+                "self": "http://identity:5000/v3/projects/3d4c2c82bd5948f0bcab0cf3a7c9b48c"
+            },
+            "name": "demo",
+            "tags": ["foo", "bar"]
+        }
+    ]
+}

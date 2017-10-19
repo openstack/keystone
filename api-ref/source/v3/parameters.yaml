@@ -300,6 +300,13 @@ project_name_query:
   in: query
   required: false
   type: string
+project_tag_query:
+  description: |
+    A simple string associated with a project. Can be used for assigning
+    values to projects and filtering based on those values.
+  in: query
+  required: true
+  type: string
 protocol_id_query:
   description: |
     Filters the response by a protocol ID.
@@ -1284,6 +1291,12 @@ region_object:
 regions_object:
   description: |
     A list of ``region`` object, each containing the following:
+  in: body
+  required: true
+  type: array
+response_body_project_tags_required:
+  description: |
+    A list of simple strings assigned to a project.
   in: body
   required: true
   type: array
