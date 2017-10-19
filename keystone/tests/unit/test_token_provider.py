@@ -33,127 +33,6 @@ CONF = keystone.conf.CONF
 FUTURE_DELTA = datetime.timedelta(seconds=CONF.token.expiration)
 CURRENT_DATE = timeutils.utcnow()
 
-SAMPLE_V2_TOKEN = {
-    "access": {
-        "trust": {
-            "id": "abc123",
-            "trustee_user_id": "123456",
-            "trustor_user_id": "333333",
-            "impersonation": False
-        },
-        "serviceCatalog": [
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8774/v1.1/01257",
-                        "id": "51934fe63a5b4ac0a32664f64eb462c3",
-                        "internalURL": "http://localhost:8774/v1.1/01257",
-                        "publicURL": "http://localhost:8774/v1.1/01257",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "nova",
-                "type": "compute"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:9292",
-                        "id": "aaa17a539e364297a7845d67c7c7cc4b",
-                        "internalURL": "http://localhost:9292",
-                        "publicURL": "http://localhost:9292",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "glance",
-                "type": "image"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8776/v1/01257",
-                        "id": "077d82df25304abeac2294004441db5a",
-                        "internalURL": "http://localhost:8776/v1/01257",
-                        "publicURL": "http://localhost:8776/v1/01257",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "volume",
-                "type": "volume"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8773/services/Admin",
-                        "id": "b06997fd08414903ad458836efaa9067",
-                        "internalURL": "http://localhost:8773/services/Cloud",
-                        "publicURL": "http://localhost:8773/services/Cloud",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "ec2",
-                "type": "ec2"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8080/v1",
-                        "id": "7bd0c643e05a4a2ab40902b2fa0dd4e6",
-                        "internalURL": "http://localhost:8080/v1/AUTH_01257",
-                        "publicURL": "http://localhost:8080/v1/AUTH_01257",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "swift",
-                "type": "object-store"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:35357/v2.0",
-                        "id": "02850c5d1d094887bdc46e81e1e15dc7",
-                        "internalURL": "http://localhost:5000/v2.0",
-                        "publicURL": "http://localhost:5000/v2.0",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "keystone",
-                "type": "identity"
-            }
-        ],
-        "token": {
-            "expires": "2013-05-22T00:02:43.941430Z",
-            "id": "ce4fc2d36eea4cc9a36e666ac2f1029a",
-            "issued_at": "2013-05-21T00:02:43.941473Z",
-            "tenant": {
-                "enabled": True,
-                "id": "01257",
-                "name": "service"
-            }
-        },
-        "user": {
-            "id": "f19ddbe2c53c46f189fe66d0a7a9c9ce",
-            "name": "nova",
-            "roles": [
-                {
-                    "name": "_member_"
-                },
-                {
-                    "name": "admin"
-                }
-            ],
-            "roles_links": [],
-            "username": "nova"
-        }
-    }
-}
-
 SAMPLE_V3_TOKEN = {
     "token": {
         "catalog": [
@@ -344,127 +223,6 @@ SAMPLE_V3_TOKEN = {
     }
 }
 
-SAMPLE_V2_TOKEN_WITH_EMBEDED_VERSION = {
-    "access": {
-        "trust": {
-            "id": "abc123",
-            "trustee_user_id": "123456",
-            "trustor_user_id": "333333",
-            "impersonation": False
-        },
-        "serviceCatalog": [
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8774/v1.1/01257",
-                        "id": "51934fe63a5b4ac0a32664f64eb462c3",
-                        "internalURL": "http://localhost:8774/v1.1/01257",
-                        "publicURL": "http://localhost:8774/v1.1/01257",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "nova",
-                "type": "compute"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:9292",
-                        "id": "aaa17a539e364297a7845d67c7c7cc4b",
-                        "internalURL": "http://localhost:9292",
-                        "publicURL": "http://localhost:9292",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "glance",
-                "type": "image"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8776/v1/01257",
-                        "id": "077d82df25304abeac2294004441db5a",
-                        "internalURL": "http://localhost:8776/v1/01257",
-                        "publicURL": "http://localhost:8776/v1/01257",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "volume",
-                "type": "volume"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8773/services/Admin",
-                        "id": "b06997fd08414903ad458836efaa9067",
-                        "internalURL": "http://localhost:8773/services/Cloud",
-                        "publicURL": "http://localhost:8773/services/Cloud",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "ec2",
-                "type": "ec2"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:8080/v1",
-                        "id": "7bd0c643e05a4a2ab40902b2fa0dd4e6",
-                        "internalURL": "http://localhost:8080/v1/AUTH_01257",
-                        "publicURL": "http://localhost:8080/v1/AUTH_01257",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "swift",
-                "type": "object-store"
-            },
-            {
-                "endpoints": [
-                    {
-                        "adminURL": "http://localhost:35357/v2.0",
-                        "id": "02850c5d1d094887bdc46e81e1e15dc7",
-                        "internalURL": "http://localhost:5000/v2.0",
-                        "publicURL": "http://localhost:5000/v2.0",
-                        "region": "RegionOne"
-                    }
-                ],
-                "endpoints_links": [],
-                "name": "keystone",
-                "type": "identity"
-            }
-        ],
-        "token": {
-            "expires": "2013-05-22T00:02:43.941430Z",
-            "id": "ce4fc2d36eea4cc9a36e666ac2f1029a",
-            "issued_at": "2013-05-21T00:02:43.941473Z",
-            "tenant": {
-                "enabled": True,
-                "id": "01257",
-                "name": "service"
-            }
-        },
-        "user": {
-            "id": "f19ddbe2c53c46f189fe66d0a7a9c9ce",
-            "name": "nova",
-            "roles": [
-                {
-                    "name": "_member_"
-                },
-                {
-                    "name": "admin"
-                }
-            ],
-            "roles_links": [],
-            "username": "nova"
-        }
-    },
-    'token_version': 'v2.0'
-}
 SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = {
     "token": {
         "catalog": [
@@ -655,38 +413,6 @@ SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = {
 }
 
 
-def create_v2_token():
-    return {
-        "access": {
-            "token": {
-                "expires": utils.isotime(timeutils.utcnow() +
-                                         FUTURE_DELTA),
-                "issued_at": "2013-05-21T00:02:43.941473Z",
-                "tenant": {
-                    "enabled": True,
-                    "id": "01257",
-                    "name": "service"
-                }
-            }
-        }
-    }
-
-
-SAMPLE_V2_TOKEN_EXPIRED = {
-    "access": {
-        "token": {
-            "expires": utils.isotime(CURRENT_DATE),
-            "issued_at": "2013-05-21T00:02:43.941473Z",
-            "tenant": {
-                "enabled": True,
-                "id": "01257",
-                "name": "service"
-            }
-        }
-    }
-}
-
-
 def create_v3_token():
     return {
         "token": {
@@ -728,13 +454,6 @@ class TestTokenProvider(unit.TestCase):
 
     def test_get_token_version(self):
         self.assertEqual(
-            token.provider.V2,
-            self.token_provider_api.get_token_version(SAMPLE_V2_TOKEN))
-        self.assertEqual(
-            token.provider.V2,
-            self.token_provider_api.get_token_version(
-                SAMPLE_V2_TOKEN_WITH_EMBEDED_VERSION))
-        self.assertEqual(
             token.provider.V3,
             self.token_provider_api.get_token_version(SAMPLE_V3_TOKEN))
         self.assertEqual(
@@ -769,15 +488,10 @@ class TestTokenProvider(unit.TestCase):
     def test_provider_token_expiration_validation(self):
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._is_valid_token,
-                          SAMPLE_V2_TOKEN_EXPIRED)
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api._is_valid_token,
                           SAMPLE_V3_TOKEN_EXPIRED)
         self.assertRaises(exception.TokenNotFound,
                           self.token_provider_api._is_valid_token,
                           SAMPLE_MALFORMED_TOKEN)
-        self.assertIsNone(
-            self.token_provider_api._is_valid_token(create_v2_token()))
         self.assertIsNone(
             self.token_provider_api._is_valid_token(create_v3_token()))
 

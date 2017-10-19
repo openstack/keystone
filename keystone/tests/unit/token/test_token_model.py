@@ -26,8 +26,6 @@ from keystone.tests.unit import test_token_provider
 class TestKeystoneTokenModel(core.TestCase):
     def setUp(self):
         super(TestKeystoneTokenModel, self).setUp()
-        self.v2_sample_token = copy.deepcopy(
-            test_token_provider.SAMPLE_V2_TOKEN)
         self.v3_sample_token = copy.deepcopy(
             test_token_provider.SAMPLE_V3_TOKEN)
 
@@ -157,7 +155,6 @@ class TestKeystoneTokenModel(core.TestCase):
     def test_token_model_dual_scoped_token(self):
         domain = {'id': uuid.uuid4().hex,
                   'name': uuid.uuid4().hex}
-        self.v2_sample_token['access']['domain'] = domain
         self.v3_sample_token['token']['domain'] = domain
 
         self.assertRaises(exception.UnexpectedError,
