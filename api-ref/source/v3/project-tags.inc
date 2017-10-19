@@ -85,7 +85,7 @@ Request Parameters
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
-   - tag: project_tag_query
+   - tag: project_tag_path
 
 Status Codes
 ------------
@@ -117,7 +117,7 @@ Request Parameters
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
-   - tag: project_tag_query
+   - tag: project_tag_path
 
 Response Parameters
 -------------------
@@ -208,7 +208,7 @@ Request Parameters
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
-   - tag: project_tag_query
+   - tag: project_tag_path
 
 Status Codes
 ~~~~~~~~~~~~
