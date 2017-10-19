@@ -23,44 +23,6 @@ _identity_name = {
     'pattern': '[\S]+'
 }
 
-# Schema for Identity v2 API
-
-_user_properties_v2 = {
-    'description': validation.nullable(parameter_types.description),
-    'enabled': parameter_types.boolean,
-    'tenantId': validation.nullable(parameter_types.id_string),
-    'name': _identity_name,
-    'username': _identity_name,
-    'password': {
-        'type': ['string', 'null']
-    }
-}
-
-user_create_v2 = {
-    'type': 'object',
-    'properties': _user_properties_v2,
-    'anyOf': [
-        {
-            'required': ['username']
-        },
-        {
-            'required': ['name']
-        }
-    ],
-    'additionalProperties': True
-}
-
-# NOTE(ghugo): minProperties value should really be 1, however it
-# is currently set to 0 to avoid breaking backwards compatibility,
-# and tempest tests.
-
-user_update_v2 = {
-    'type': 'object',
-    'properties': _user_properties_v2,
-    'minProperties': 0,
-    'additionalProperties': True
-}
-
 # Schema for Identity v3 API
 
 _user_properties = {
@@ -114,12 +76,5 @@ group_update = {
     'type': 'object',
     'properties': _group_properties,
     'minProperties': 1,
-    'additionalProperties': True
-}
-
-enable_user_v2 = {
-    'type': 'object',
-    'properties': {'enabled': parameter_types.boolean},
-    'required': ['enabled'],
     'additionalProperties': True
 }

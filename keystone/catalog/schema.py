@@ -47,24 +47,6 @@ region_update = {
     'additionalProperties': True
 }
 
-# Schema for Service v2
-
-_service_properties_v2 = {
-    'enabled': parameter_types.boolean,
-    'description': {
-        'type': ['string', 'null']
-    },
-    'name': parameter_types.name,
-    'type': _service_properties_type
-}
-
-service_create_v2 = {
-    'type': 'object',
-    'properties': _service_properties_v2,
-    'required': ['type'],
-    'additionalProperties': True
-}
-
 # Schema for Service v3
 
 _service_properties = {
