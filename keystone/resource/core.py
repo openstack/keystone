@@ -839,32 +839,6 @@ class Manager(manager.Manager):
     def get_project_by_name(self, project_name, domain_id):
         return self.driver.get_project_by_name(project_name, domain_id)
 
-    def ensure_default_domain_exists(self):
-        """Create the default domain if it doesn't exist.
-
-        This is only used for the v2 API and can go away when V2 does.
-
-        """
-        try:
-            default_domain_attrs = {
-                'name': 'Default',
-                'id': CONF.identity.default_domain_id,
-                'description': 'Domain created automatically to support V2.0 '
-                               'operations.',
-            }
-            self.create_domain(CONF.identity.default_domain_id,
-                               default_domain_attrs)
-            LOG.warning(
-                'The default domain was created automatically to contain V2 '
-                'resources. This is deprecated in the M release and will not '
-                'be supported in the O release. Create the default domain '
-                'manually or use the keystone-manage bootstrap command.')
-        except exception.Conflict:
-            LOG.debug('The default domain already exists.')
-        except Exception:
-            LOG.error('Failed to create the default domain.')
-            raise
-
     def _require_matching_domain_id(self, new_ref, orig_ref):
         """Ensure the current domain ID matches the reference one, if any.
 
