@@ -15,6 +15,7 @@
 import string
 
 from oslo_log import log
+from oslo_log import versionutils
 from six.moves import http_client
 from six.moves import urllib
 import webob
@@ -440,6 +441,10 @@ class DomainV3(controller.V3Controller):
         super(DomainV3, self).__init__()
         self.get_member_from_driver = self.resource_api.get_domain
 
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.JUNO,
+        in_favor_of='GET /v3/auth/domains/',
+    )
     @controller.protected()
     def list_domains_for_user(self, request):
         """List all domains available to an authenticated user.
@@ -466,6 +471,10 @@ class ProjectAssignmentV3(controller.V3Controller):
         super(ProjectAssignmentV3, self).__init__()
         self.get_member_from_driver = self.resource_api.get_project
 
+    @versionutils.deprecated(
+        as_of=versionutils.deprecated.JUNO,
+        in_favor_of='GET /v3/auth/projects/',
+    )
     @controller.protected()
     def list_projects_for_user(self, request):
         """List all projects available to an authenticated user.

@@ -1,0 +1,9 @@
+---
+deprecations:
+  - |
+    The ``/OS-FEDERATION/projects`` and ``/OS-FEDERATION/domains`` APIs are
+    deprecated in favor of the ``/v3/auth/projects`` and ``/v3/auth/domains``
+    APIs. These APIs were originally marked as deprecated during the Juno
+    release cycle, but we never deprecated using ``versionutils`` from oslo.
+    More information regarding this deprecation can be found in the `patch
+    <https://review.openstack.org/#/c/115423/>`_ that proposed the deprecation.
