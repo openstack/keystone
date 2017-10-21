@@ -48,11 +48,11 @@ a *<Location>* directive for each identity provider
         MellonSPCertFile /etc/apache2/mellon/http_keystone.fqdn.cert
         MellonSPMetadataFile /etc/apache2/mellon/http_keystone.fqdn.xml
         MellonIdPMetadataFile /etc/apache2/mellon/idp-metadata.xml
-        MellonEndpointPath /v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth/mellon
+        MellonEndpointPath /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
         MellonIdP "IDP"
     </Location>
 
-    <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth>
+    <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth>
         AuthType "Mellon"
         MellonEnable "auth"
     </Location>
@@ -60,7 +60,7 @@ a *<Location>* directive for each identity provider
 .. NOTE::
     * See below for information about how to generate the values for the
       `MellonSPMetadataFile`, etc. directives.
-    * ``mapped`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
+    * ``saml2`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
     * ``myidp`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
     * You are advised to carefully examine `mod_auth_mellon Apache
       configuration documentation
@@ -83,7 +83,7 @@ the values for the config directives `MellonSPPrivateKeyFile`,
 .. code-block:: bash
 
     $ ./mellon_create_metadata.sh http://keystone.fqdn:5000 \
-      http://keystone.fqdn:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth/mellon
+      http://keystone.fqdn:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
 
 The first parameter is used as the entity ID, a unique identifier for this
 Keystone SP.  You do not have to use the URL, but it is an easy way to uniquely

@@ -96,12 +96,12 @@ Configure authentication drivers in keystone.conf
 
 Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
 Names should be equal to protocol names added via Identity API v3. Here we use
-examples ``mapped`` and ``openid``.
+examples ``saml2`` and ``openid``.
 
 .. code-block:: bash
 
        [auth]
-       methods = external,password,token,mapped,openid
+       methods = external,password,token,saml2,openid
 
 Create keystone groups and assign roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -301,7 +301,7 @@ You can create a protocol like this:
 
 .. code-block:: bash
 
-    $ openstack federation protocol create mapped --mapping myidp_mapping --identity-provider myidp
+    $ openstack federation protocol create saml2 --mapping myidp_mapping --identity-provider myidp
 
 The name you give the protocol is not arbitrary. It must match the method name
 you gave in the ``[auth]/methods`` config option. When authenticating it will be
@@ -518,7 +518,7 @@ Create a Service Provider (SP)
 
 In this example we are creating a new Service Provider with an ID of ``mysp``,
 a ``sp_url`` of ``http://mysp.example.com/Shibboleth.sso/SAML2/ECP`` and a
-``auth_url`` of ``http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth``
+``auth_url`` of ``http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth``
 . The ``sp_url`` will be used when creating a SAML assertion for ``mysp`` and
 signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
 token for ``mysp`` once the SAML assertion is sent. The auth_url has the format
@@ -526,7 +526,7 @@ described in `Get an unscoped token`_.
 
 .. code-block:: bash
 
-    $ openstack service provider create --service-provider-url 'http://mysp.example.com/Shibboleth.sso/SAML2/ECP' --auth-url http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth mysp
+    $ openstack service provider create --service-provider-url 'http://mysp.example.com/Shibboleth.sso/SAML2/ECP' --auth-url http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth mysp
 
 Testing it all out
 ------------------
