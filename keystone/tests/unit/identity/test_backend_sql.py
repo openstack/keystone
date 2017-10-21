@@ -16,7 +16,6 @@ import uuid
 import freezegun
 import passlib.hash
 
-from keystone.common import controller
 from keystone.common import password_hashing
 from keystone.common import resource_options
 from keystone.common import sql
@@ -727,24 +726,6 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
                 days=CONF.security_compliance.password_expires_days + 1)
         )
         user = self._create_user(self.user_dict, password_created_at)
-        # test password is expired
-        self.assertRaises(exception.PasswordExpired,
-                          self.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=user['id'],
-                          password=self.password)
-
-    def test_authenticate_with_expired_password_v2(self):
-        # set password created_at so that the password will expire
-        password_created_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(
-                days=CONF.security_compliance.password_expires_days + 1)
-        )
-        user = self._create_user(self.user_dict, password_created_at)
-        # test password_expires_at is not returned for v2
-        user = controller.V2Controller.v3_to_v2_user(user)
-        self.assertNotIn('password_expires_at', user)
         # test password is expired
         self.assertRaises(exception.PasswordExpired,
                           self.identity_api.authenticate,
