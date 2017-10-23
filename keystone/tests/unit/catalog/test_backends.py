@@ -537,24 +537,6 @@ class CatalogTests(object):
         endpoints = self.catalog_api.list_endpoints()
         self.assertEqual(expected_ids, set(e['id'] for e in endpoints))
 
-    def test_get_catalog_endpoint_disabled(self):
-        """Get back only enabled endpoints when get the v2 catalog."""
-        service_ref, enabled_endpoint_ref, dummy_disabled_endpoint_ref = (
-            self._create_endpoints())
-
-        user_id = uuid.uuid4().hex
-        project_id = uuid.uuid4().hex
-        catalog = self.catalog_api.get_catalog(user_id, project_id)
-
-        exp_entry = {
-            'id': enabled_endpoint_ref['id'],
-            'name': service_ref['name'],
-            'publicURL': enabled_endpoint_ref['url'],
-        }
-
-        region = enabled_endpoint_ref['region_id']
-        self.assertEqual(exp_entry, catalog[region][service_ref['type']])
-
     def test_get_v3_catalog_endpoint_disabled(self):
         """Get back only enabled endpoints when get the v3 catalog."""
         enabled_endpoint_ref = self._create_endpoints()[1]

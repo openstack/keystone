@@ -40,9 +40,9 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
                 'id': '2'
             },
             'identity': {
-                'adminURL': 'http://localhost:35357/v2.0',
-                'publicURL': 'http://localhost:5000/v2.0',
-                'internalURL': 'http://localhost:35357/v2.0',
+                'adminURL': 'http://localhost:35357/v3',
+                'publicURL': 'http://localhost:5000/v3',
+                'internalURL': 'http://localhost:35357/v3',
                 'name': "'Identity Service'",
                 'id': '1'
             }
@@ -81,10 +81,6 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
         self.assertEqual(1, len(catalog_ref['RegionOne']))
 
-    def test_get_catalog_endpoint_disabled(self):
-        self.skip_test_overrides(
-            "Templated backend doesn't have disabled endpoints")
-
     def test_get_v3_catalog_endpoint_disabled(self):
         self.skip_test_overrides(
             "Templated backend doesn't have disabled endpoints")
@@ -119,13 +115,13 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
             {'endpoints': [
                 {'interface': 'admin',
                  'region': 'RegionOne',
-                 'url': 'http://localhost:35357/v2.0'},
+                 'url': 'http://localhost:35357/v3'},
                 {'interface': 'public',
                  'region': 'RegionOne',
-                 'url': 'http://localhost:5000/v2.0'},
+                 'url': 'http://localhost:5000/v3'},
                 {'interface': 'internal',
                  'region': 'RegionOne',
-                 'url': 'http://localhost:35357/v2.0'}],
+                 'url': 'http://localhost:35357/v3'}],
              'type': 'identity',
              'name': "'Identity Service'",
              'id': '1'}]
@@ -145,13 +141,13 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
             {'endpoints': [
                 {'interface': 'admin',
                  'region': 'RegionOne',
-                 'url': 'http://localhost:35357/v2.0'},
+                 'url': 'http://localhost:35357/v3'},
                 {'interface': 'public',
                  'region': 'RegionOne',
-                 'url': 'http://localhost:5000/v2.0'},
+                 'url': 'http://localhost:5000/v3'},
                 {'interface': 'internal',
                  'region': 'RegionOne',
-                 'url': 'http://localhost:35357/v2.0'}],
+                 'url': 'http://localhost:35357/v3'}],
              'type': 'identity',
              'name': "'Identity Service'",
              'id': '1'}]
@@ -253,8 +249,8 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_list_endpoints(self):
-        expected_urls = set(['http://localhost:$(public_port)s/v2.0',
-                             'http://localhost:$(admin_port)s/v2.0',
+        expected_urls = set(['http://localhost:$(public_port)s/v3',
+                             'http://localhost:$(admin_port)s/v3',
                              'http://localhost:8774/v1.1/$(tenant_id)s'])
         endpoints = self.catalog_api.list_endpoints()
         self.assertEqual(expected_urls, set(e['url'] for e in endpoints))
