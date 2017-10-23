@@ -300,7 +300,7 @@ project_name_query:
   in: query
   required: false
   type: string
-project_tag_query:
+project_tag_path:
   description: |
     A simple string associated with a project. Can be used for assigning
     values to projects and filtering based on those values.
