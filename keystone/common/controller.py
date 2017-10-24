@@ -149,64 +149,6 @@ def protected_wrapper(self, f, check_function, request, filter_attr,
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
 
-    def _normalize_domain_id(self, request, ref):
-        """Fill in domain_id since v2 calls are not domain-aware.
-
-        This will overwrite any domain_id that was inadvertently
-        specified in the v2 call.
-
-        """
-        ref['domain_id'] = CONF.identity.default_domain_id
-        return ref
-
-    @staticmethod
-    def filter_domain_id(ref):
-        """Remove domain_id since v2 calls are not domain-aware."""
-        ref.pop('domain_id', None)
-        return ref
-
-    @staticmethod
-    def filter_domain(ref):
-        """Remove domain since v2 calls are not domain-aware."""
-        ref.pop('domain', None)
-        return ref
-
-    @staticmethod
-    def filter_project_parent_id(ref):
-        """Remove parent_id since v2 calls are not hierarchy-aware."""
-        ref.pop('parent_id', None)
-        return ref
-
-    @staticmethod
-    def filter_is_domain(ref):
-        """Remove is_domain field since v2 calls are not domain-aware."""
-        ref.pop('is_domain', None)
-        return ref
-
-    @staticmethod
-    def normalize_username_in_response(ref):
-        """Add username to outgoing user refs to match the v2 spec.
-
-        Internally we use `name` to represent a user's name. The v2 spec
-        requires the use of `username` instead.
-
-        """
-        if 'username' not in ref and 'name' in ref:
-            ref['username'] = ref['name']
-        return ref
-
-    @staticmethod
-    def normalize_username_in_request(ref):
-        """Add name in incoming user refs to match the v2 spec.
-
-        Internally we use `name` to represent a user's name. The v2 spec
-        requires the use of `username` instead.
-
-        """
-        if 'name' not in ref and 'username' in ref:
-            ref['name'] = ref.pop('username')
-        return ref
-
     @staticmethod
     def v3_to_v2_user(ref):
         """Convert a user_ref from v3 to v2 compatible.
@@ -232,12 +174,12 @@ class V2Controller(wsgi.Application):
                 del ref['tenantId']
 
         def _normalize_and_filter_user_properties(ref):
-            """Run through the various filter/normalization methods."""
             _format_default_project_id(ref)
             ref.pop('password_expires_at', None)
-            V2Controller.filter_domain(ref)
-            V2Controller.filter_domain_id(ref)
-            V2Controller.normalize_username_in_response(ref)
+            ref.pop('domain', None)
+            ref.pop('domain_id', None)
+            if 'username' not in ref and 'name' in ref:
+                ref['username'] = ref['name']
             return ref
 
         if isinstance(ref, dict):
@@ -262,10 +204,9 @@ class V2Controller(wsgi.Application):
         conversion.
         """
         def _filter_project_properties(ref):
-            """Run through the various filter methods."""
-            V2Controller.filter_domain_id(ref)
-            V2Controller.filter_project_parent_id(ref)
-            V2Controller.filter_is_domain(ref)
+            ref.pop('domain_id', None)
+            ref.pop('parent_id', None)
+            ref.pop('is_domain', None)
             return ref
 
         if isinstance(ref, dict):
@@ -274,41 +215,6 @@ class V2Controller(wsgi.Application):
             return [_filter_project_properties(x) for x in ref]
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
-
-    def format_project_list(self, tenant_refs, **kwargs):
-        """Format a v2 style project list, including marker/limits."""
-        marker = kwargs.get('marker')
-        first_index = 0
-        if marker is not None:
-            for (marker_index, tenant) in enumerate(tenant_refs):
-                if tenant['id'] == marker:
-                    # we start pagination after the marker
-                    first_index = marker_index + 1
-                    break
-            else:
-                msg = _('Marker could not be found')
-                raise exception.ValidationError(message=msg)
-
-        limit = kwargs.get('limit')
-        last_index = None
-        if limit is not None:
-            try:
-                limit = int(limit)
-                if limit < 0:
-                    raise AssertionError()
-            except (ValueError, AssertionError):
-                msg = _('Invalid limit value')
-                raise exception.ValidationError(message=msg)
-            last_index = first_index + limit
-
-        tenant_refs = tenant_refs[first_index:last_index]
-
-        for x in tenant_refs:
-            if 'enabled' not in x:
-                x['enabled'] = True
-        o = {'tenants': tenant_refs,
-             'tenants_links': []}
-        return o
 
 
 @dependency.requires('policy_api', 'token_provider_api')
