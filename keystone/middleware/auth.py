@@ -199,9 +199,9 @@ class AuthContextMiddleware(auth_token.BaseAuthProtocol):
             auth_context = self._build_tokenless_auth_context(request)
 
         else:
-            LOG.debug('There is either no auth token in the request or '
-                      'the certificate issuer is not trusted. No auth '
-                      'context will be set.')
+            # There is either no auth token in the request or the certificate
+            # issuer is not trusted. No auth context will be set. This
+            # typically happens on an initial token request.
             return
 
         # set authenticated to flag to keystone that a token has been validated
