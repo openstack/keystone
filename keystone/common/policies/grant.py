@@ -145,6 +145,54 @@ grant_policies = [
                 'method': ['DELETE']
             }
         ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'list_system_grants_for_group',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='List all grants a specific group has on the system.',
+        operations=[
+            {
+                'path': '/v3/system/groups/{group_id}/roles',
+                'method': ['HEAD', 'GET']
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'check_system_grant_for_group',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='Check if a group has a role on the system.',
+        operations=[
+            {
+                'path': '/v3/system/groups/{group_id}/roles/{role_id}',
+                'method': ['HEAD', 'GET']
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'create_system_grant_for_group',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='Grant a group a role on the system.',
+        operations=[
+            {
+                'path': '/v3/system/groups/{group_id}/roles/{role_id}',
+                'method': ['PUT']
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'revoke_system_grant_for_group',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='Remove a role from a group on the system.',
+        operations=[
+            {
+                'path': '/v3/system/groups/{group_id}/roles/{role_id}',
+                'method': ['DELETE']
+            }
+        ]
     )
 ]
 
