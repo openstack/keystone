@@ -45,7 +45,6 @@ MEMOIZE_TOKENS = cache.get_memoization_decorator(
 UnsupportedTokenVersionException = exception.UnsupportedTokenVersionException
 
 # supported token versions
-V2 = token_model.V2
 V3 = token_model.V3
 VERSIONS = token_model.VERSIONS
 
@@ -62,7 +61,6 @@ class Manager(manager.Manager):
 
     driver_namespace = 'keystone.token.provider'
 
-    V2 = V2
     V3 = V3
     VERSIONS = VERSIONS
     INVALIDATE_PROJECT_TOKEN_PERSISTENCE = 'invalidate_project_tokens'
@@ -131,16 +129,6 @@ class Manager(manager.Manager):
             except exception.TokenNotFound:
                 six.reraise(*exc_info)
 
-    def check_revocation_v2(self, token):
-        try:
-            token_data = token['access']
-        except KeyError:
-            raise exception.TokenNotFound(_('Failed to validate token'))
-
-        token_values = self.revoke_api.model.build_token_values_v2(
-            token_data, CONF.identity.default_domain_id)
-        self.revoke_api.check_token(token_values)
-
     def check_revocation_v3(self, token):
         try:
             token_data = token['token']
@@ -150,11 +138,7 @@ class Manager(manager.Manager):
         self.revoke_api.check_token(token_values)
 
     def check_revocation(self, token):
-        version = self.get_token_version(token)
-        if version == V2:
-            return self.check_revocation_v2(token)
-        else:
-            return self.check_revocation_v3(token)
+        return self.check_revocation_v3(token)
 
     def validate_token(self, token_id, window_seconds=0):
         if not token_id:

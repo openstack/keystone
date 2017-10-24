@@ -21,9 +21,8 @@ from keystone.federation import constants
 from keystone.i18n import _
 
 # supported token versions
-V2 = 'v2.0'
 V3 = 'v3.0'
-VERSIONS = frozenset([V2, V3])
+VERSIONS = frozenset([V3])
 
 
 def _parse_and_normalize_time(time_data):
@@ -33,7 +32,7 @@ def _parse_and_normalize_time(time_data):
 
 
 class KeystoneToken(dict):
-    """An in-memory representation that unifies v2 and v3 tokens."""
+    """An in-memory representation that unifies v3 tokens."""
 
     # TODO(morganfainberg): Align this in-memory representation with the
     # objects in keystoneclient. This object should be eventually updated
