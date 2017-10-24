@@ -608,3 +608,9 @@ class LDAPServerConnectionError(UnexpectedError):
 class LDAPInvalidCredentialsError(UnexpectedError):
     message_format = _('Unable to authenticate against Identity backend - '
                        'Invalid username or password')
+
+
+class LDAPSizeLimitExceeded(UnexpectedError):
+    message_format = _('Number of User/Group entities returned by LDAP '
+                       'exceeded size limit. Contact your LDAP '
+                       'administrator.')
