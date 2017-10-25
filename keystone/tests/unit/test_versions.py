@@ -191,6 +191,19 @@ V3_JSON_HOME_RESOURCES = {
             json_home.build_v3_parameter_relation('credential_id')}},
     json_home.build_v3_resource_relation('credentials'): {
         'href': '/credentials'},
+    json_home.build_v3_resource_relation('system_user_role'): {
+        'href-template': '/system/users/{user_id}/roles/{role_id}',
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+            'role_id': json_home.Parameters.ROLE_ID
+        }
+    },
+    json_home.build_v3_resource_relation('system_user_roles'): {
+        'href-template': '/system/users/{user_id}/roles',
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID
+        }
+    },
     json_home.build_v3_resource_relation('domain'): {
         'href-template': '/domains/{domain_id}',
         'href-vars': {'domain_id': json_home.Parameters.DOMAIN_ID, }},

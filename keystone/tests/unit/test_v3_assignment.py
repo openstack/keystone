@@ -3098,3 +3098,297 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             projects_result = result.json['projects']
             self.assertEqual(1, len(projects_result))
             self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
+
+
+class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase):
+
+    def _create_new_role(self):
+        """Create a role available for use anywhere and return the ID."""
+        ref = unit.new_role_ref()
+        response = self.post('/roles', body={'role': ref})
+        # We only really need the role ID, so omit the rest of the response and
+        # return the ID of the role we just created.
+        return response.json_body['role']['id']
+
+    # FIXME(lbragstad): These tests contain system-level API calls, which means
+    # they will log a warning message if they are called with a project-scoped
+    # token, regardless of the role assignment on the project.  We need to fix
+    # them by using a proper system-scoped admin token to make the call instead
+    # of a project scoped token.
+    def test_assign_system_role_to_user(self):
+        system_role_id = self._create_new_role()
+
+        # assign the user a role on the system
+        member_url = (
+            '/system/users/%(user_id)s/roles/%(role_id)s' % {
+                'user_id': self.user['id'],
+                'role_id': system_role_id
+            }
+        )
+        self.put(member_url)
+
+        # validate the role assignment
+        self.head(member_url)
+
+        # list system roles
+        collection_url = (
+            '/system/users/%(user_id)s/roles' % {'user_id': self.user['id']}
+        )
+        roles = self.get(collection_url).json_body['roles']
+        self.assertEqual(len(roles), 1)
+        self.assertEqual(roles[0]['id'], system_role_id)
+        self.head(collection_url, expected_status=http_client.OK)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response)
+
+    def test_list_role_assignments_for_user_returns_all_assignments(self):
+        system_role_id = self._create_new_role()
+
+        # assign the user a role on the system
+        member_url = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # the response should contain one role assignment for the system role
+        # and one for a role that was setup during setUp().
+        response = self.get(
+            '/role_assignments?user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=2)
+
+    def test_list_system_roles_for_user_returns_none_without_assignment(self):
+        # list system roles for user
+        collection_url = '/system/users/%(user_id)s/roles' % {
+            'user_id': self.user['id']
+        }
+        response = self.get(collection_url)
+
+        # assert that the user doesn't have any system role assignments, which
+        # is denoted by an empty list
+        self.assertEqual(response.json_body['roles'], [])
+
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['role_assignments']), 0)
+        self.assertValidRoleAssignmentListResponse(response)
+
+    def test_list_system_roles_for_user_does_not_return_project_roles(self):
+        system_role_id = self._create_new_role()
+
+        # assign the user a role on the system
+        member_url = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # list project role assignments and save the role id of that
+        # assignment, this assignment was created during setUp
+        response = self.get(
+            '/projects/%(project_id)s/users/%(user_id)s/roles' % {
+                'project_id': self.project['id'],
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['roles']), 1)
+        project_role_id = response.json_body['roles'][0]['id']
+
+        # list system role assignments
+        collection_url = '/system/users/%(user_id)s/roles' % {
+            'user_id': self.user['id']
+        }
+        response = self.get(collection_url)
+
+        # assert the project role assignment is not in the system role
+        # assignments
+        for role in response.json_body['roles']:
+            self.assertNotEqual(role['id'], project_role_id)
+
+        # make sure the role_assignment API filters correctly based on system
+        # scope
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['role_assignments']), 1)
+        system_assignment = response.json_body['role_assignments'][0]
+        self.assertEqual(system_assignment['role']['id'], system_role_id)
+        self.assertTrue(system_assignment['scope']['system']['all'])
+
+        # make sure the role_assignment API doesn't include the system role
+        # assignment when we filter based on project
+        path = (
+            '/role_assignments?scope.project.id=%(project_id)s&'
+            'user.id=%(user_id)s'
+        ) % {'project_id': self.project['id'],
+             'user_id': self.user['id']}
+        response = self.get(path)
+        self.assertEqual(len(response.json_body['role_assignments']), 1)
+        project_assignment = response.json_body['role_assignments'][0]
+        self.assertEqual(project_assignment['role']['id'], project_role_id)
+
+    def test_list_system_roles_for_user_does_not_return_domain_roles(self):
+        system_role_id = self._create_new_role()
+        domain_role_id = self._create_new_role()
+
+        # assign a role to the user on a domain
+        domain_member_url = (
+            '/domains/%(domain_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+                'domain_id': self.user['domain_id'],
+                'user_id': self.user['id'],
+                'role_id': domain_role_id
+            }
+        )
+        self.put(domain_member_url)
+
+        # assign the user a role on the system
+        member_url = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # list domain role assignments
+        response = self.get(
+            '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
+                'domain_id': self.user['domain_id'],
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['roles']), 1)
+
+        # list system role assignments
+        collection_url = '/system/users/%(user_id)s/roles' % {
+            'user_id': self.user['id']
+        }
+        response = self.get(collection_url)
+
+        # assert the domain role assignment is not in the system role
+        # assignments
+        for role in response.json_body['roles']:
+            self.assertNotEqual(role['id'], domain_role_id)
+
+        # make sure the role_assignment API filters correctly based on system
+        # scope
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['role_assignments']), 1)
+        system_assignment = response.json_body['role_assignments'][0]
+        self.assertEqual(system_assignment['role']['id'], system_role_id)
+        self.assertTrue(system_assignment['scope']['system']['all'])
+
+        # make sure the role_assignment API doesn't include the system role
+        # assignment when we filter based on domain
+        path = (
+            '/role_assignments?scope.domain.id=%(domain_id)s&'
+            'user.id=%(user_id)s'
+        ) % {'domain_id': self.user['domain_id'],
+             'user_id': self.user['id']}
+        response = self.get(path)
+        self.assertEqual(len(response.json_body['role_assignments']), 1)
+        domain_assignment = response.json_body['role_assignments'][0]
+        self.assertEqual(domain_assignment['role']['id'], domain_role_id)
+
+    def test_check_user_has_system_role_when_assignment_exists(self):
+        system_role_id = self._create_new_role()
+
+        # assign the user a role on the system
+        member_url = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # check the user has the system role assignment
+        self.head(member_url)
+
+    def test_check_user_does_not_have_system_role_without_assignment(self):
+        system_role_id = self._create_new_role()
+
+        # check the user does't have the system role assignment
+        member_url = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role_id
+        }
+        self.head(member_url, expected_status=http_client.NOT_FOUND)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['role_assignments']), 0)
+        self.assertValidRoleAssignmentListResponse(response)
+
+    def test_unassign_system_role_from_user(self):
+        system_role_id = self._create_new_role()
+
+        # assign the user a role on the system
+        member_url = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # ensure the user has the role assignment
+        self.head(member_url)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['role_assignments']), 1)
+        self.assertValidRoleAssignmentListResponse(response)
+
+        # remove the system role assignment from the user
+        self.delete(member_url)
+
+        # ensure the user doesn't have any system role assignments
+        collection_url = '/system/users/%(user_id)s/roles' % {
+            'user_id': self.user['id']
+        }
+        response = self.get(collection_url)
+        self.assertEqual(len(response.json_body['roles']), 0)
+        response = self.get(
+            '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
+                'user_id': self.user['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=0)
+
+    def test_query_for_system_scope_and_domain_scope_fails(self):
+        # When asking for assignments and providing query parameters, we
+        # shouldn't be able to ask for two different types of scope. This is
+        # also true for project + domain scope.
+        path = (
+            '/role_assignments?scope.system=all'
+            '&scope.domain.id=%(domain_id)s'
+        ) % {'domain_id': self.domain_id}
+        self.get(path, expected_status=http_client.BAD_REQUEST)
+
+    def test_query_for_system_scope_and_project_scope_fails(self):
+        # When asking for assignments and providing query parameters, we
+        # shouldn't be able to ask for two different types of scope. This is
+        # also true for project + domain scope.
+        path = (
+            '/role_assignments?scope.system=all'
+            '&scope.project.id=%(project_id)s'
+        ) % {'project_id': self.project_id}
+        self.get(path, expected_status=http_client.BAD_REQUEST)
