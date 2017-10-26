@@ -1402,8 +1402,24 @@ class BaseLdap(object):
             raise ValueError('"%(attr)s" is not a valid value for'
                              ' "%(attr_name)s"' % {'attr': attr,
                                                    'attr_name': attr_name})
-        return [obj for obj in ldap_result
-                if obj[1].get(attr) and obj[1].get(attr)[0]]
+        result = []
+        # consider attr = "cn" and
+        # ldap_result = [{'uid': ['fake_id1']},
+        #                {'uid': ['fake_id2'], 'cn': ['     ']},
+        #                {'uid': ['fake_id3'], 'cn': ['']},
+        #                {'uid': ['fake_id4'], 'cn': []},
+        #                {'uid': ['fake_id5'], 'cn': ["name"]}]
+        for obj in ldap_result:
+            # ignore ldap object(user/group entry) which has no attr set
+            # in it or whose value is empty list.
+            if obj[1].get(attr):
+                # ignore ldap object whose attr value has empty strings or
+                # contains only whitespaces.
+                if obj[1].get(attr)[0] and obj[1].get(attr)[0].strip():
+                    result.append(obj)
+        # except {'uid': ['fake_id5'], 'cn': ["name"]}, all entries
+        # will be ignored in ldap_result
+        return result
 
     def _ldap_get(self, object_id, ldap_filter=None):
         query = (u'(&(%(id_attr)s=%(id)s)'
