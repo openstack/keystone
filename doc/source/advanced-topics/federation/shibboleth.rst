@@ -44,7 +44,7 @@ a *<Location>* directive for each identity provider::
         SetHandler shib
     </Location>
 
-    <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/mapped/auth>
+    <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth>
         ShibRequestSetting requireSession 1
         AuthType shibboleth
         ShibExportAssertion Off
@@ -57,7 +57,7 @@ a *<Location>* directive for each identity provider::
     </Location>
 
 .. NOTE::
-    * ``mapped`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
+    * ``saml2`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
     * ``myidp`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
     * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
       Apache 2.4+.

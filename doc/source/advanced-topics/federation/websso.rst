@@ -55,14 +55,14 @@ If `mod_shib` is used, then use the following as an example:
 
       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/mapped">
+      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
         AuthType shibboleth
         Require valid-user
         ShibRequestSetting requireSession 1
         ShibRequireSession On
         ShibExportAssertion Off
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/mapped/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
         AuthType shibboleth
         Require valid-user
       </Location>
@@ -125,13 +125,13 @@ If `mod_auth_mellon` is used, then use the following as an example:
 
       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/mapped">
+      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
         AuthType Mellon
         MellonEnable auth
         Require valid-user
         ...
       </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/mapped/websso">
+      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
         AuthType Mellon
         MellonEnable auth
         Require valid-user
@@ -157,7 +157,7 @@ It is recommended that this option be set on a per-protocol basis.
 
 .. code-block:: ini
 
-  [mapped]
+  [saml2]
   remote_id_attribute = Shib-Identity-Provider
   [openid]
   remote_id_attribute = HTTP_OIDC_ISS
@@ -208,9 +208,9 @@ identity backend.
   WEBSSO_CHOICES = (
         ("credentials", _("Keystone Credentials")),
         ("openid", _("OpenID Connect")),
-        ("mapped", _("Security Assertion Markup Language")),
+        ("saml2", _("Security Assertion Markup Language")),
         ("myidp_openid", "Acme Corporation - OpenID Connect"),
-        ("myidp_mapped", "Acme Corporation - SAML2")
+        ("myidp_saml2", "Acme Corporation - SAML2")
       )
 
 3. (Optional) Create a dictionary of specific identity provider and federation
@@ -227,7 +227,7 @@ protocol endpoint.
 
   WEBSSO_IDP_MAPPING = {
         "myidp_openid": ("myidp", "openid"),
-        "myidp_mapped": ("myidp", "mapped")
+        "myidp_saml2": ("myidp", "saml2")
       }
 
 .. NOTE::
