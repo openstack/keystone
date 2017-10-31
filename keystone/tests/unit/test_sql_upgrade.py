@@ -958,6 +958,8 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
                     this_domain['extra'] = json.dumps(this_domain['extra'])
                 self.insert_dict(session, 'domain', this_domain)
             for project in self.projects:
+                # Tags are done via relationship, not column
+                project.pop('tags', None)
                 self.insert_dict(session, 'project', project)
 
         def _check_projects(projects):
