@@ -30,6 +30,7 @@ class Routers(wsgi.RoutersBase):
                           resource_descriptions=self.v3_resources))
 
         config_controller = controllers.DomainConfigV3()
+        tag_controller = controllers.ProjectTagV3()
 
         self._add_resource(
             mapper, config_controller,
@@ -103,3 +104,28 @@ class Routers(wsgi.RoutersBase):
             router.Router(controllers.ProjectV3(),
                           'projects', 'project',
                           resource_descriptions=self.v3_resources))
+
+        self._add_resource(
+            mapper, tag_controller,
+            path='/projects/{project_id}/tags',
+            get_head_action='list_project_tags',
+            put_action='update_project_tags',
+            delete_action='delete_project_tags',
+            rel=json_home.build_v3_resource_relation(
+                'project_tags'),
+            path_vars={
+                'project_id': json_home.Parameters.PROJECT_ID
+            })
+
+        self._add_resource(
+            mapper, tag_controller,
+            path='/projects/{project_id}/tags/{value}',
+            get_head_action='get_project_tag',
+            put_action='create_project_tag',
+            delete_action='delete_project_tag',
+            rel=json_home.build_v3_resource_relation(
+                'project_tags'),
+            path_vars={
+                'project_id': json_home.Parameters.PROJECT_ID,
+                'value': json_home.Parameters.TAG_VALUE
+            })

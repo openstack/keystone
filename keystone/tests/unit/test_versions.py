@@ -300,6 +300,11 @@ V3_JSON_HOME_RESOURCES = {
         'href-vars': {
             'group_id': json_home.Parameters.GROUP_ID,
             'project_id': json_home.Parameters.PROJECT_ID, }},
+    json_home.build_v3_resource_relation('project_tags'): {
+        'href-template': '/projects/{project_id}/tags/{value}',
+        'href-vars': {
+            'project_id': json_home.Parameters.PROJECT_ID,
+            'value': json_home.Parameters.TAG_VALUE}},
     json_home.build_v3_resource_relation('project_user_role'): {
         'href-template':
         '/projects/{project_id}/users/{user_id}/roles/{role_id}',

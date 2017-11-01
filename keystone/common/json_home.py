@@ -53,6 +53,7 @@ class Parameters(object):
     ROLE_ID = build_v3_parameter_relation('role_id')
     SERVICE_ID = build_v3_parameter_relation('service_id')
     USER_ID = build_v3_parameter_relation('user_id')
+    TAG_VALUE = build_v3_parameter_relation('tag_value')
 
 
 class Status(object):
