@@ -249,6 +249,9 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     def test_invalidate_cache_when_updating_region(self):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
+    def test_update_region_extras(self):
+        self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
+
     def test_create_region_with_duplicate_id(self):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 

@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1729933 <https://bugs.launchpad.net/keystone/+bug/1729933>`_]
+    The Region Update API now correctly updates extra values. Previously
+    adding any extra values to a region via the update API would discard
+    any added values besides the default ones. Any extra values are now
+    correctly added and returned. This fix was for consistency with other
+    APIs in keystone that use 'extra' and the use of 'extra' in
+    keystone is highly discouraged.

@@ -174,6 +174,7 @@ class Catalog(base.CatalogDriverBase):
             for attr in Region.attributes:
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_region, attr))
+            ref.extra = new_region.extra
             return ref.to_dict()
 
     # Services
