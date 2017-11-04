@@ -13,7 +13,6 @@
 import copy
 import uuid
 
-import fixtures
 import mock
 from oslo_config import cfg
 from testtools import matchers
@@ -33,68 +32,6 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
         super(TestResourceManagerNoFixtures, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
-
-    def test_ensure_default_domain_exists(self):
-        # When there's no default domain, ensure_default_domain_exists creates
-        # it.
-
-        # First make sure there's no default domain.
-        self.assertRaises(
-            exception.DomainNotFound,
-            self.resource_api.get_domain, CONF.identity.default_domain_id)
-
-        self.resource_api.ensure_default_domain_exists()
-        default_domain = self.resource_api.get_domain(
-            CONF.identity.default_domain_id)
-
-        expected_domain = {
-            'id': CONF.identity.default_domain_id,
-            'name': 'Default',
-            'enabled': True,
-            'description': 'Domain created automatically to support V2.0 '
-                           'operations.',
-            'tags': []
-        }
-        self.assertEqual(expected_domain, default_domain)
-
-    def test_ensure_default_domain_exists_already_exists(self):
-        # When there's already a default domain, ensure_default_domain_exists
-        # doesn't do anything.
-
-        name = uuid.uuid4().hex
-        description = uuid.uuid4().hex
-        domain_attrs = {
-            'id': CONF.identity.default_domain_id,
-            'name': name,
-            'description': description,
-        }
-        self.resource_api.create_domain(CONF.identity.default_domain_id,
-                                        domain_attrs)
-
-        self.resource_api.ensure_default_domain_exists()
-
-        default_domain = self.resource_api.get_domain(
-            CONF.identity.default_domain_id)
-
-        expected_domain = {
-            'id': CONF.identity.default_domain_id,
-            'name': name,
-            'enabled': True,
-            'description': description,
-            'tags': []
-        }
-
-        self.assertEqual(expected_domain, default_domain)
-
-    def test_ensure_default_domain_exists_fails(self):
-        # When there's an unexpected exception creating domain it's passed on.
-
-        self.useFixture(fixtures.MockPatchObject(
-            self.resource_api, 'create_domain',
-            side_effect=exception.UnexpectedError))
-
-        self.assertRaises(exception.UnexpectedError,
-                          self.resource_api.ensure_default_domain_exists)
 
     def test_update_project_name_conflict(self):
         name = uuid.uuid4().hex
