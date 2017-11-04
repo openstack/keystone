@@ -146,6 +146,7 @@ def protected_wrapper(self, f, check_function, request, filter_attr,
     check_function(self, request, prep_info, *args, **kwargs)
 
 
+@dependency.requires('policy_api')
 class V2Controller(wsgi.Application):
     """Base controller class for Identity API v2."""
 
