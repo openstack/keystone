@@ -97,34 +97,3 @@ domain_update = {
     'minProperties': 1,
     'additionalProperties': True
 }
-
-_tenant_properties = {
-    'description': validation.nullable(parameter_types.description),
-    'enabled': parameter_types.boolean,
-    'name': _name_properties,
-    'id': validation.nullable(parameter_types.id_string)
-}
-
-tenant_create = {
-    'type': 'object',
-    'properties': _tenant_properties,
-    'required': ['name'],
-    'not': {
-        'required': ['is_domain']
-    },
-    'additionalProperties': True
-}
-
-tenant_update = {
-    'type': 'object',
-    'properties': _tenant_properties,
-    'not': {
-        'anyOf': [
-            {'required': ['is_domain']},
-            {'required': ['domain_id']}
-        ]
-    },
-    'tenantId': validation.nullable(parameter_types.id_string),
-    'minProperties': 1,
-    'additionalProperties': True
-}
