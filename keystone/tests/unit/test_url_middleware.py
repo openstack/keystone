@@ -39,13 +39,13 @@ class UrlMiddlewareTest(unit.TestCase):
         self.response_headers = dict(headers)
 
     def test_trailing_slash_normalization(self):
-        """Test /v2.0/tokens and /v2.0/tokens/ normalized URLs match."""
-        req1 = webob.Request.blank('/v2.0/tokens')
-        req2 = webob.Request.blank('/v2.0/tokens/')
+        """Test /v3/auth/tokens & /v3/auth/tokens/ normalized URLs match."""
+        req1 = webob.Request.blank('/v3/auth/tokens')
+        req2 = webob.Request.blank('/v3/auth/tokens/')
         self.middleware(req1.environ, self.start_fake_response)
         self.middleware(req2.environ, self.start_fake_response)
         self.assertEqual(req1.path_url, req2.path_url)
-        self.assertEqual('http://localhost/v2.0/tokens', req1.path_url)
+        self.assertEqual('http://localhost/v3/auth/tokens', req1.path_url)
 
     def test_rewrite_empty_path(self):
         """Test empty path is rewritten to root."""
