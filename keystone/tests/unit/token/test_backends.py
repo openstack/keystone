@@ -97,7 +97,7 @@ class TokenTests(object):
             # the cases of impersonation and therefore should not match the
             # token's user_id.
             data['access']['trust']['trustee_user_id'] = 'testuserid2'
-        data['token_version'] = provider.V2
+        data['token_version'] = provider.V3
         # Issue token stores a copy of all token data at token['token_data'].
         # This emulates that assumption as part of the test.
         data['token_data'] = copy.deepcopy(data)

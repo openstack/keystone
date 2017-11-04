@@ -204,56 +204,6 @@ def matches(event, token_values):
     return True
 
 
-def build_token_values_v2(access, default_domain_id):
-    token_data = access['token']
-
-    token_expires_at = timeutils.parse_isotime(token_data['expires'])
-
-    # Trim off the microseconds because the revocation event only has
-    # expirations accurate to the second.
-    token_expires_at = token_expires_at.replace(microsecond=0)
-
-    token_values = {
-        'expires_at': timeutils.normalize_time(token_expires_at),
-        'issued_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token_data['issued_at'])),
-        'audit_id': token_data.get('audit_ids', [None])[0],
-        'audit_chain_id': token_data.get('audit_ids', [None])[-1],
-    }
-
-    token_values['user_id'] = access.get('user', {}).get('id')
-
-    project = token_data.get('tenant')
-    if project is not None:
-        token_values['project_id'] = project['id']
-    else:
-        token_values['project_id'] = None
-
-    token_values['identity_domain_id'] = default_domain_id
-    token_values['assignment_domain_id'] = default_domain_id
-
-    trust = access.get('trust')
-    if trust is None:
-        token_values['trust_id'] = None
-        token_values['trustor_id'] = None
-        token_values['trustee_id'] = None
-    else:
-        token_values['trust_id'] = trust['id']
-        token_values['trustor_id'] = trust['trustor_user_id']
-        token_values['trustee_id'] = trust['trustee_user_id']
-
-    token_values['consumer_id'] = None
-    token_values['access_token_id'] = None
-
-    role_list = []
-    # Roles are by ID in metadata and by name in the user section
-    roles = access.get('metadata', {}).get('roles', [])
-    for role in roles:
-        role_list.append(role)
-    token_values['roles'] = role_list
-    return token_values
-
-
 def build_token_values(token_data):
 
     token_expires_at = timeutils.parse_isotime(token_data['expires_at'])
