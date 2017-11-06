@@ -18,6 +18,7 @@ import mock
 
 from keystone import auth
 from keystone.auth.plugins import base
+from keystone.auth.plugins import mapped
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import auth_plugins
@@ -188,6 +189,24 @@ class TestMapped(unit.TestCase):
             ((context, auth_payload),
              kwargs) = authenticate.call_args
             self.assertEqual(method_name, auth_payload['protocol'])
+
+    def test_mapped_without_identity_provider_or_protocol(self):
+        test_mapped = mapped.Mapped()
+        test_mapped.resource_api = mock.Mock()
+        test_mapped.federation_api = mock.Mock()
+        test_mapped.identity_api = mock.Mock()
+        test_mapped.assignment_api = mock.Mock()
+        test_mapped.role_api = mock.Mock()
+
+        request = self.make_request()
+
+        auth_payload = {'identity_provider': 'test_provider'}
+        self.assertRaises(exception.ValidationError, test_mapped.authenticate,
+                          request, auth_payload)
+
+        auth_payload = {'protocol': 'saml2'}
+        self.assertRaises(exception.ValidationError, test_mapped.authenticate,
+                          request, auth_payload)
 
     def test_supporting_multiple_methods(self):
         method_names = ('saml2', 'openid', 'x509', 'mapped')
