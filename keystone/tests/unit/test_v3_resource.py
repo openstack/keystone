@@ -700,6 +700,22 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         resp = self.post('/projects', body={'project': ref})
         return resp.result['project'], tags
 
+    def test_list_project_response_returns_tags(self):
+        """Call ``GET /projects`` should always return tag attributes."""
+        tagged_project, tags = self._create_project_and_tags()
+        self.get('/projects')
+        ref = unit.new_project_ref(domain_id=self.domain_id)
+        untagged_project = self.post(
+            '/projects', body={'project': ref}
+        ).json_body['project']
+        resp = self.get('/projects')
+        for project in resp.json_body['projects']:
+            if project['id'] == tagged_project['id']:
+                self.assertIsNotNone(project['tags'])
+                self.assertEqual(project['tags'], tags)
+            if project['id'] == untagged_project['id']:
+                self.assertEqual(project['tags'], [])
+
     def test_list_projects_filtering_by_tags(self):
         """Call ``GET /projects?tags={tags}``."""
         project, tags = self._create_project_and_tags(num_of_tags=2)
