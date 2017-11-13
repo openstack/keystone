@@ -801,6 +801,11 @@ Response Example
 .. literalinclude:: ./samples/admin/project-user-roles-list-response.json
    :language: javascript
 
+The functionality of this request can also be achieved using the generalized
+list assignments API::
+
+  GET /role_assignments?user.id={user_id}&scope.project.id={project_id}
+
 
 Assign role to user on project
 ==============================
