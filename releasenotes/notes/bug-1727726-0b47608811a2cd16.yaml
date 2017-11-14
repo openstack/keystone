@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1727726 <https://bugs.launchpad.net/keystone/+bug/1727726>`_]
+    All users and groups are required to have a name. Prior to this fix,
+    Keystone was allowing LDAP users and groups whose name has only empty
+    white spaces. Keystone will now ignore users and groups that do have
+    only white spaces as value for the LDAP attribute which Keystone has
+    been configured to use for that entity's name.
