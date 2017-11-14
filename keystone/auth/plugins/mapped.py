@@ -202,8 +202,16 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
         return resp
 
     assertion = extract_assertion_data(request)
-    identity_provider = auth_payload['identity_provider']
-    protocol = auth_payload['protocol']
+    try:
+        identity_provider = auth_payload['identity_provider']
+    except KeyError:
+        raise exception.ValidationError(
+            attribute='identity_provider', target='mapped')
+    try:
+        protocol = auth_payload['protocol']
+    except KeyError:
+        raise exception.ValidationError(
+            attribute='protocol', target='mapped')
 
     utils.assert_enabled_identity_provider(federation_api, identity_provider)
 
