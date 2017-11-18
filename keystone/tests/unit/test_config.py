@@ -12,7 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import os
 import uuid
+
+from oslo_config import generator
 
 import keystone.conf
 from keystone import exception
@@ -27,22 +30,30 @@ class ConfigTestCase(unit.TestCase):
 
     def config_files(self):
         config_files = super(ConfigTestCase, self).config_files()
-        # Insert the keystone sample as the first config file to be loaded
-        # since it is used in one of the code paths to determine the paste-ini
-        # location.
-        config_files.insert(0, unit.dirs.etc('keystone.conf.sample'))
+
+        # NOTE(lbragstad): This needs some investigation, but CONF.find_file()
+        # apparently needs the sample configuration file in order to find the
+        # paste file. This should really be replaced by just setting the
+        # default configuration directory on the config object instead.
+        sample_file = 'keystone.conf.sample'
+        args = ['--namespace', 'keystone', '--output-file',
+                unit.dirs.etc(sample_file)]
+        generator.main(args=args)
+        config_files.insert(0, unit.dirs.etc(sample_file))
+        self.addCleanup(os.remove, unit.dirs.etc(sample_file))
         return config_files
 
-    def test_paste_config(self):
-        self.assertEqual(unit.dirs.etc('keystone-paste.ini'),
-                         wsgi.find_paste_config())
-        self.config_fixture.config(group='paste_deploy',
-                                   config_file=uuid.uuid4().hex)
-        self.assertRaises(exception.ConfigFileNotFound,
-                          wsgi.find_paste_config)
-        self.config_fixture.config(group='paste_deploy', config_file='')
-        self.assertEqual(unit.dirs.etc('keystone.conf.sample'),
-                         wsgi.find_paste_config())
+    def test_default_paste_config_location_succeeds(self):
+        paste_file_location = unit.dirs.etc(CONF.paste_deploy.config_file)
+        self.assertEqual(paste_file_location, wsgi.find_paste_config())
+
+    def test_invalid_paste_file_location_fails(self):
+        self.config_fixture.config(
+            group='paste_deploy', config_file=uuid.uuid4().hex
+        )
+        self.assertRaises(
+            exception.ConfigFileNotFound, wsgi.find_paste_config
+        )
 
     def test_config_default(self):
         self.assertIsNone(CONF.auth.password)
