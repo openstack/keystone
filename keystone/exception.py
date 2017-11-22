@@ -105,8 +105,8 @@ class PasswordRequirementsValidationError(PasswordValidationError):
 
 class PasswordHistoryValidationError(PasswordValidationError):
     message_format = _("The new password cannot be identical to a "
-                       "previous password. The number of previous "
-                       "passwords that must be unique is "
+                       "previous password. The total number which"
+                       "includes the new password must be unique is "
                        "%(unique_count)s.")
 
 

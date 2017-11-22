@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1727099 <https://bugs.launchpad.net/keystone/+bug/1727099>`_]
+    When users try to changes their password, the total number which
+    includes the new password should not be greater or equal to the
+    ``unique_last_password_count`` config options. But the help and error
+    messages for this scenario are not described clearly. Now the messges
+    are updated to be more clear.

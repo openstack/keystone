@@ -70,10 +70,11 @@ unique_last_password_count = cfg.IntOpt(
     min=1,
     help=utils.fmt("""
 This controls the number of previous user password iterations to keep in
-history, in order to enforce that newly created passwords are unique. Setting
-the value to one (the default) disables this feature. Thus, to enable this
-feature, values must be greater than 1. This feature depends on the `sql`
-backend for the `[identity] driver`.
+history, in order to enforce that newly created passwords are unique. The total
+number which includes the new password should not be greater or equal to this
+value. Setting the value to one (the default) disables this feature. Thus, to
+enable this feature, values must be greater than 1. This feature depends on
+the `sql` backend for the `[identity] driver`.
 """))
 
 minimum_password_age = cfg.IntOpt(
