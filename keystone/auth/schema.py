@@ -82,6 +82,12 @@ token_issue = {
                         'name': {'type': 'string', },
                     },
                 },
+                'OS-TRUST:trust': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'string', },
+                    },
+                },
             },
         },
     },

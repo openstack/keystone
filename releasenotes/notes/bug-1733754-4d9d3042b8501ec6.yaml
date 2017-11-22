@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1733754 <https://bugs.launchpad.net/keystone/+bug/1733754>`_]
+    Keystone didn't validate the OS-TRUST:trust key of the authentication
+    request is actually a dictionary. This results in a 500 Internal Server
+    Error when it should really be a 400 Bad Request.
