@@ -372,8 +372,6 @@ class BootStrap(BaseApp):
 
                 self.endpoints[interface] = endpoint_ref['id']
 
-        self.assignment_manager.ensure_default_role()
-
     @classmethod
     def main(cls):
         klass = cls()

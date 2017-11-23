@@ -1,0 +1,8 @@
+---
+other:
+  - >
+    [`bug 1728690 <https://bugs.launchpad.net/keystone/+bug/1728690>`_]
+    The ``keystone-manage bootstrap`` command will only create the admin role
+    and will no longer create a default member role. Please create any
+    additional roles you need after running ``bootstrap`` by using the
+    ``openstack role create`` command.
