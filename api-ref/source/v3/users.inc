@@ -22,25 +22,15 @@ List users
 
 .. rest_method::  GET /v3/users
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/users``
-
 Lists users.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/users``
 
-.. rest_status_code:: success status.yaml
+Request
+-------
 
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -52,8 +42,11 @@ Request Parameters
    - protocol_id: protocol_id_query
    - unique_id: unique_id_query
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -67,8 +60,21 @@ Response Parameters
    - name: user_name_response_body
    - password_expires_at: password_expires_at
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/users-list-response.json
    :language: javascript
@@ -79,12 +85,50 @@ Create user
 
 .. rest_method::  POST /v3/users
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/users``
-
 Creates a user.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/users``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user: user_object
+   - default_project_id: default_project_id_request_body
+   - domain_id: user_domain_id_request_body
+   - enabled: enabled_user_request_body
+   - name: user_name_create_request_body
+   - password: password_request_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/user-create-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user: user_object
+   - default_project_id: default_project_id_response_body
+   - domain_id: domain_id_response_body
+   - enabled: enabled_user_response_body
+   - id: id_user_body
+   - links: links_user
+   - name: user_name_response_body
+   - password_expires_at: password_expires_at
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -97,26 +141,31 @@ Response Codes
    - 403
    - 409
 
-Request Parameters
-------------------
+
+Show user details
+=================
+
+.. rest_method::  GET /v3/users/{user_id}
+
+Shows details for a user.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
-   - user: user_object
-   - default_project_id: default_project_id_request_body
-   - domain_id: user_domain_id_request_body
-   - enabled: enabled_user_request_body
-   - name: user_name_create_request_body
-   - password: password_request_body
+   - user_id: user_id_path
 
-Request Example
----------------
+Response
+--------
 
-.. literalinclude:: ./samples/admin/user-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -129,18 +178,8 @@ Response Parameters
    - name: user_name_response_body
    - password_expires_at: password_expires_at
 
-
-Show user details
-=================
-
-.. rest_method::  GET /v3/users/{user_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
-
-Shows details for a user.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -153,15 +192,52 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/user-show-response.json
+   :language: javascript
+
+
+Update user
+===========
+
+.. rest_method::  PATCH /v3/users/{user_id}
+
+Updates a user's password, or whether they are enabled or disabled.
+
+If the back-end driver does not support this functionality, this
+call might return the HTTP ``Not Implemented (501)`` response code.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_path
+   - user: user_object
+   - default_project_id: default_project_id_update_body
+   - domain_id: user_domain_id_update_body
+   - enabled: enabled_user_update_body
+   - name: user_name_update_body
+   - password: user_update_password_body
 
-Response Parameters
--------------------
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/user-update-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -174,27 +250,8 @@ Response Parameters
    - name: user_name_response_body
    - password_expires_at: password_expires_at
 
-Response Example
-----------------
-
-.. literalinclude:: ./samples/admin/user-show-response.json
-   :language: javascript
-
-
-Update user
-===========
-
-.. rest_method::  PATCH /v3/users/{user_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
-
-Updates a user's password, or whether they are enabled or disabled.
-
-If the back-end driver does not support this functionality, this
-call might return the HTTP ``Not Implemented (501)`` response code.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -209,41 +266,8 @@ Response Codes
    - 409
    - 501
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-   - user: user_object
-   - default_project_id: default_project_id_update_body
-   - domain_id: user_domain_id_update_body
-   - enabled: enabled_user_update_body
-   - name: user_name_update_body
-   - password: user_update_password_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/user-update-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user: user_object
-   - default_project_id: default_project_id_response_body
-   - domain_id: domain_id_response_body
-   - enabled: enabled_user_response_body
-   - id: id_user_body
-   - links: links_user
-   - name: user_name_response_body
-   - password_expires_at: password_expires_at
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/user-update-response.json
    :language: javascript
@@ -254,12 +278,25 @@ Delete user
 
 .. rest_method::  DELETE /v3/users/{user_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
-
 Deletes a user.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -272,25 +309,31 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-
 
 List groups to which a user belongs
 ===================================
 
 .. rest_method::  GET /v3/users/{user_id}/groups
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_groups``
-
 Lists groups to which a user belongs.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_groups``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -303,15 +346,8 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/user-groups-list-response.json
    :language: javascript
@@ -322,12 +358,25 @@ List projects for user
 
 .. rest_method::  GET /v3/users/{user_id}/projects
 
+List projects to which the user has authorization to access.
+
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_projects``
 
-List projects for a user.
+Request
+-------
 
-Response Codes
---------------
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -340,15 +389,8 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/user-projects-list-response.json
    :language: javascript
@@ -359,15 +401,37 @@ Change password for user
 
 .. rest_method::  POST /v3/users/{user_id}/password
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_change_password``
-
 Changes the password for a user.
 
 .. note::
     This API call does not require a token for authentication.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/user_change_password``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+   - user: user_object
+   - original_password: original_password
+   - password: user_password_update_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/user-password-update-request.json
+   :language: javascript
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -380,19 +444,3 @@ Response Codes
    - 403
    - 404
    - 409
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-   - user: user_object
-   - original_password: original_password
-   - password: user_password_update_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/user-password-update-request.json
-   :language: javascript
