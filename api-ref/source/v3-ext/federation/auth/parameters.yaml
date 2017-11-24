@@ -16,14 +16,14 @@ idp_id:
     Identity Provider's unique ID
   in: path
   required: true
-  type: object
+  type: string
 
 protocol_id:
   description: |
     Federation Protocol's unique ID
   in: path
   required: true
-  type: object
+  type: string
 
 # variables in query
 
