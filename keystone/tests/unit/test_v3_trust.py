@@ -19,6 +19,7 @@ import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 CONF = keystone.conf.CONF
 
@@ -295,6 +296,20 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             role_ids=[uuid.uuid4().hex])
         self.post('/OS-TRUST/trusts', body={'trust': ref},
                   expected_status=http_client.NOT_FOUND)
+
+    @test_utils.wip('Waiting on validation to be added from fixing bug'
+                    '1734244')
+    def test_create_trust_with_extra_attributes_fails(self):
+        ref = unit.new_trust_ref(trustor_user_id=self.user_id,
+                                 trustee_user_id=self.trustee_user_id,
+                                 project_id=self.project_id,
+                                 role_ids=[self.role_id])
+        ref['roles'].append({'fake_key': 'fake_value'})
+
+        # Should return 400 Bad Request because `fake_key` is an extra
+        # attribute that keystone doesn't associate with trusts.
+        self.post('/OS-TRUST/trusts', body={'trust': ref},
+                  expected_status=http_client.BAD_REQUEST)
 
     def test_create_trust_with_non_existant_role_name_returns_not_found(self):
         ref = unit.new_trust_ref(
