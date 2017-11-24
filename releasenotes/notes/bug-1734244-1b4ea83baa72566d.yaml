@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1734244 <https://bugs.launchpad.net/keystone/+bug/1734244>`_]
+    Return a 400 status code instead of a 500 when creating a trust with
+    extra attributes in the roles parameter.

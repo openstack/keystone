@@ -1483,7 +1483,9 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
 class TrustValidationTestCase(unit.BaseTestCase):
     """Test for V3 Trust API validation."""
 
-    _valid_roles = ['member', uuid.uuid4().hex, str(uuid.uuid4())]
+    _valid_roles = [{'name': 'member'},
+                    {'id': uuid.uuid4().hex},
+                    {'id': str(uuid.uuid4())}]
     _invalid_roles = [False, True, 123, None]
 
     def setUp(self):
@@ -1505,7 +1507,8 @@ class TrustValidationTestCase(unit.BaseTestCase):
                                'trustee_user_id': uuid.uuid4().hex,
                                'impersonation': False,
                                'project_id': uuid.uuid4().hex,
-                               'roles': [uuid.uuid4().hex, uuid.uuid4().hex],
+                               'roles': [{'id': uuid.uuid4().hex},
+                                         {'id': uuid.uuid4().hex}],
                                'expires_at': 'some timestamp',
                                'remaining_uses': 2}
         self.create_trust_validator.validate(request_to_validate)
@@ -1540,7 +1543,8 @@ class TrustValidationTestCase(unit.BaseTestCase):
                                'trustee_user_id': uuid.uuid4().hex,
                                'impersonation': False,
                                'project_id': uuid.uuid4().hex,
-                               'roles': [uuid.uuid4().hex, uuid.uuid4().hex],
+                               'roles': [{'id': uuid.uuid4().hex},
+                                         {'id': uuid.uuid4().hex}],
                                'expires_at': 'some timestamp',
                                'remaining_uses': 2,
                                'extra': 'something extra!'}

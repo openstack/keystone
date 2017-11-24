@@ -79,23 +79,23 @@ class TrustV3(controller.V3Controller):
             'previous': None}
 
     def _normalize_role_list(self, trust_roles):
-        roles = [{'id': role['id']} for role in trust_roles if 'id' in role]
-        names = [role['name'] for role in trust_roles if 'id' not in role]
-        if len(names):
-            # Long way
-            for name in names:
+        roles = []
+        for role in trust_roles:
+            if role.get('id'):
+                roles.append({'id': role['id']})
+            else:
                 hints = driver_hints.Hints()
-                hints.add_filter("name", name, case_sensitive=True)
+                hints.add_filter("name", role['name'], case_sensitive=True)
                 found_roles = self.role_api.list_roles(hints)
                 if not found_roles:
                     raise exception.RoleNotFound(
-                        _("Role %s is not defined") % name
+                        _("Role %s is not defined") % role['name']
                     )
                 elif len(found_roles) == 1:
                     roles.append({'id': found_roles[0]['id']})
                 else:
                     raise exception.AmbiguityError(resource='role',
-                                                   name=name)
+                                                   name=role['name'])
         return roles
 
     def _find_redelegated_trust(self, request):

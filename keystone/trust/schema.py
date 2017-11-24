@@ -13,6 +13,19 @@
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 
+_role_properties = {
+    'type': 'array',
+    'items': {
+        'type': 'object',
+        'properties': {
+            'id': parameter_types.id_string,
+            'name': parameter_types.id_string
+        },
+        'minProperties': 1,
+        'maxProperties': 1,
+        'additionalProperties': False
+    }
+}
 
 _trust_properties = {
     # NOTE(lbragstad): These are set as external_id_string because they have
@@ -36,9 +49,7 @@ _trust_properties = {
         'type': ['integer', 'null'],
         'minimum': 0
     },
-    # TODO(lbragstad): Need to find a better way to do this. We should be
-    # checking that a role is a list of IDs and/or names.
-    'roles': validation.add_array_type(parameter_types.id_string)
+    'roles': _role_properties
 }
 
 trust_create = {
