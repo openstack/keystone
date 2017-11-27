@@ -716,8 +716,11 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
     def test_authenticate_requires_simple_bind(self):
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user)
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                user['id'])
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(user['id'],
+                                                         self.tenant_baz['id'],
+                                                         role_member['id'])
         driver = self.identity_api._select_identity_driver(
             user['domain_id'])
         driver.user.LDAP_USER = None

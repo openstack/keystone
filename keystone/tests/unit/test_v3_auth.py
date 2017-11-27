@@ -1962,8 +1962,6 @@ class TokenAPITests(object):
         self.role_api.create_role(role_foo_domain1['id'], role_foo_domain1)
         role_group_domain1 = unit.new_role_ref()
         self.role_api.create_role(role_group_domain1['id'], role_group_domain1)
-        self.assignment_api.add_user_to_project(project1['id'],
-                                                user_foo['id'])
         new_group = unit.new_group_ref(domain_id=domain1['id'])
         new_group = self.identity_api.create_group(new_group)
         self.identity_api.add_user_to_group(user_foo['id'],

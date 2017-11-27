@@ -74,8 +74,13 @@ class IdentityTests(object):
         del user['id']
 
         new_user = self.identity_api.create_user(user)
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                new_user['id'])
+
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+
+        self.assignment_api.add_role_to_user_and_project(new_user['id'],
+                                                         self.tenant_baz['id'],
+                                                         role_member['id'])
         user_ref = self.identity_api.authenticate(
             self.make_request(),
             user_id=new_user['id'],
@@ -89,7 +94,7 @@ class IdentityTests(object):
         role_list = self.assignment_api.get_roles_for_user_and_project(
             new_user['id'], self.tenant_baz['id'])
         self.assertEqual(1, len(role_list))
-        self.assertIn(CONF.member_role_id, role_list)
+        self.assertIn(role_member['id'], role_list)
 
     def test_authenticate_if_no_password_set(self):
         id_ = uuid.uuid4().hex

@@ -268,8 +268,11 @@ class SqlIdentity(SqlTests,
     def test_delete_user_with_project_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user)
-        self.assignment_api.add_user_to_project(self.tenant_bar['id'],
-                                                user['id'])
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(user['id'],
+                                                         self.tenant_bar['id'],
+                                                         role_member['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
                           self.assignment_api.list_projects_for_user,
@@ -317,8 +320,11 @@ class SqlIdentity(SqlTests,
     def test_delete_project_with_user_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user)
-        self.assignment_api.add_user_to_project(self.tenant_bar['id'],
-                                                user['id'])
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(user['id'],
+                                                         self.tenant_bar['id'],
+                                                         role_member['id'])
         self.resource_api.delete_project(self.tenant_bar['id'])
         tenants = self.assignment_api.list_projects_for_user(user['id'])
         self.assertEqual([], tenants)
