@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1524030 <https://bugs.launchpad.net/keystone/+bug/1524030>`_]
+    Revocation records are no longer written to the ``revocation_event`` table
+    when a domain or project is disabled. These records were only ever used
+    during the token validation process. In favor of revocation events, the
+    project or domain will be validated online when the token is validated. This
+    results in less database bloat while maintaining security during token
+    validation.
