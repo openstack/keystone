@@ -1485,7 +1485,8 @@ class TrustValidationTestCase(unit.BaseTestCase):
 
     _valid_roles = [{'name': 'member'},
                     {'id': uuid.uuid4().hex},
-                    {'id': str(uuid.uuid4())}]
+                    {'id': str(uuid.uuid4())},
+                    {'name': '_member_'}]
     _invalid_roles = [False, True, 123, None]
 
     def setUp(self):

@@ -19,7 +19,7 @@ _role_properties = {
         'type': 'object',
         'properties': {
             'id': parameter_types.id_string,
-            'name': parameter_types.id_string
+            'name': parameter_types.name
         },
         'minProperties': 1,
         'maxProperties': 1,
