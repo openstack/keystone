@@ -1300,10 +1300,14 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
     def test_unscoped_token_auth_context(self):
         unscoped_token = self.get_unscoped_token()
         req = self._middleware_request(unscoped_token)
+        # This check originally looked that the value was unset
+        # but that was an artifact of the custom context keystone
+        # used to create.  Oslo-context will always provide the
+        # same set of keys, but the values will be None in an
+        # unscoped token
         for key in ['project_id', 'domain_id', 'domain_name']:
-            self.assertNotIn(
-                key,
-                req.environ.get(authorization.AUTH_CONTEXT_ENV))
+            self.assertIsNone(
+                req.environ.get(authorization.AUTH_CONTEXT_ENV)[key])
 
     def test_project_scoped_token_auth_context(self):
         project_scoped_token = self.get_scoped_token()
