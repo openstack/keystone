@@ -481,6 +481,11 @@ class ConfigRegistrationNotFound(Exception):
     pass
 
 
+class ApplicationCredentialNotFound(NotFound):
+    message_format = _("Could not find Application Credential: "
+                       "%(application_credential_id)s.")
+
+
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s.")
