@@ -345,6 +345,12 @@ scope_project_id_query:
   in: query
   required: false
   type: string
+scope_system_query:
+  description: |
+    Filters the response by system assignments.
+  in: query
+  required: false
+  type: string
 service_id_query:
   description: |
     Filters the response by a service ID.
@@ -1450,6 +1456,13 @@ signed:
   in: body
   required: true
   type: string
+system_roles_response_body:
+  description: |
+    A list of ``role`` objects containing ``domain_id``, ``id``, ``links``,
+    and ``name`` attributes.
+  in: body
+  required: true
+  type: array
 token:
   description: |
     A ``token`` object.
