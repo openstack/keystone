@@ -171,6 +171,10 @@ class AmbiguityError(ValidationError):
                        " resolve the ambiguity.")
 
 
+class ApplicationCredentialValidationError(ValidationError):
+    message_format = _("Invalid application credential: %(detail)s")
+
+
 class CircularRegionHierarchyError(Error):
     message_format = _("The specified parent region %(parent_region_id)s "
                        "would create a circular region hierarchy.")
