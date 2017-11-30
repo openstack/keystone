@@ -28,8 +28,40 @@ from keystone.tests.unit import test_v3
 CONF = keystone.conf.CONF
 
 
+class SystemRoleAssignmentMixin(object):
+
+    def _create_new_role(self):
+        """Create a role available for use anywhere and return the ID."""
+        ref = unit.new_role_ref()
+        response = self.post('/roles', body={'role': ref})
+        # We only really need the role ID, so omit the rest of the response and
+        # return the ID of the role we just created.
+        return response.json_body['role']['id']
+
+    def _create_group(self):
+        body = {
+            'group': {
+                'domain_id': self.domain_id,
+                'name': uuid.uuid4().hex
+            }
+        }
+        response = self.post('/groups/', body=body)
+        return response.json_body['group']
+
+    def _create_user(self):
+        body = {
+            'user': {
+                'domain_id': self.domain_id,
+                'name': uuid.uuid4().hex
+            }
+        }
+        response = self.post('/users/', body=body)
+        return response.json_body['user']
+
+
 class AssignmentTestCase(test_v3.RestfulTestCase,
-                         test_v3.AssignmentTestMixin):
+                         test_v3.AssignmentTestMixin,
+                         SystemRoleAssignmentMixin):
     """Test roles and role assignments."""
 
     def setUp(self):
@@ -952,6 +984,116 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Should have one direct role and one from group membership...
         self.assertRoleAssignmentInListResponse(r, up_entity)
         self.assertRoleAssignmentInListResponse(r, up1_entity)
+
+    def test_list_system_role_assignments(self):
+        # create a bunch of roles
+        user_system_role_id = self._create_new_role()
+        user_domain_role_id = self._create_new_role()
+        user_project_role_id = self._create_new_role()
+        group_system_role_id = self._create_new_role()
+        group_domain_role_id = self._create_new_role()
+        group_project_role_id = self._create_new_role()
+
+        # create a user and grant the user a role on the system, domain, and
+        # project
+        user = self._create_user()
+        url = '/system/users/%s/roles/%s' % (user['id'], user_system_role_id)
+        self.put(url)
+        url = '/domains/%s/users/%s/roles/%s' % (
+            self.domain_id, user['id'], user_domain_role_id
+        )
+        self.put(url)
+        url = '/projects/%s/users/%s/roles/%s' % (
+            self.project_id, user['id'], user_project_role_id
+        )
+        self.put(url)
+
+        # create a group and grant the group a role on the system, domain, and
+        # project
+        group = self._create_group()
+        url = '/system/groups/%s/roles/%s' % (
+            group['id'], group_system_role_id
+        )
+        self.put(url)
+        url = '/domains/%s/groups/%s/roles/%s' % (
+            self.domain_id, group['id'], group_domain_role_id
+        )
+        self.put(url)
+        url = '/projects/%s/groups/%s/roles/%s' % (
+            self.project_id, group['id'], group_project_role_id
+        )
+        self.put(url)
+
+        # /v3/role_assignments?scope.system=all should return two assignments
+        response = self.get('/role_assignments?scope.system=all')
+        self.assertValidRoleAssignmentListResponse(response, expected_length=2)
+        for assignment in response.json_body['role_assignments']:
+            self.assertTrue(assignment['scope']['system']['all'])
+            if assignment.get('user'):
+                self.assertEqual(user_system_role_id, assignment['role']['id'])
+            if assignment.get('group'):
+                self.assertEqual(
+                    group_system_role_id,
+                    assignment['role']['id']
+                )
+
+        # /v3/role_assignments?scope_system=all&user.id=$USER_ID should return
+        # one role assignment
+        url = '/role_assignments?scope.system=all&user.id=%s' % user['id']
+        response = self.get(url)
+        self.assertValidRoleAssignmentListResponse(response, expected_length=1)
+        self.assertEqual(
+            user_system_role_id,
+            response.json_body['role_assignments'][0]['role']['id']
+        )
+
+        # /v3/role_assignments?scope_system=all&group.id=$GROUP_ID should
+        # return one role assignment
+        url = '/role_assignments?scope.system=all&group.id=%s' % group['id']
+        response = self.get(url)
+        self.assertValidRoleAssignmentListResponse(response, expected_length=1)
+        self.assertEqual(
+            group_system_role_id,
+            response.json_body['role_assignments'][0]['role']['id']
+        )
+
+        # /v3/role_assignments?user.id=$USER_ID should return 3 assignments
+        # and system should be in that list of assignments
+        url = '/role_assignments?user.id=%s' % user['id']
+        response = self.get(url)
+        self.assertValidRoleAssignmentListResponse(response, expected_length=3)
+        for assignment in response.json_body['role_assignments']:
+            if 'system' in assignment['scope']:
+                self.assertEqual(
+                    user_system_role_id, assignment['role']['id']
+                )
+            if 'domain' in assignment['scope']:
+                self.assertEqual(
+                    user_domain_role_id, assignment['role']['id']
+                )
+            if 'project' in assignment['scope']:
+                self.assertEqual(
+                    user_project_role_id, assignment['role']['id']
+                )
+
+        # /v3/role_assignments?group.id=$GROUP_ID should return 3 assignments
+        # and system should be in that list of assignments
+        url = '/role_assignments?group.id=%s' % group['id']
+        response = self.get(url)
+        self.assertValidRoleAssignmentListResponse(response, expected_length=3)
+        for assignment in response.json_body['role_assignments']:
+            if 'system' in assignment['scope']:
+                self.assertEqual(
+                    group_system_role_id, assignment['role']['id']
+                )
+            if 'domain' in assignment['scope']:
+                self.assertEqual(
+                    group_domain_role_id, assignment['role']['id']
+                )
+            if 'project' in assignment['scope']:
+                self.assertEqual(
+                    group_project_role_id, assignment['role']['id']
+                )
 
 
 class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
@@ -3100,17 +3242,6 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
 
 
-class SystemRoleAssignmentMixin(object):
-
-    def _create_new_role(self):
-        """Create a role available for use anywhere and return the ID."""
-        ref = unit.new_role_ref()
-        response = self.post('/roles', body={'role': ref})
-        # We only really need the role ID, so omit the rest of the response and
-        # return the ID of the role we just created.
-        return response.json_body['role']['id']
-
-
 # FIXME(lbragstad): These tests contain system-level API calls, which means
 # they will log a warning message if they are called with a project-scoped
 # token, regardless of the role assignment on the project.  We need to fix
@@ -3405,16 +3536,6 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
 # of a project scoped token.
 class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
                                         SystemRoleAssignmentMixin):
-
-    def _create_group(self):
-        body = {
-            'group': {
-                'domain_id': self.domain_id,
-                'name': uuid.uuid4().hex
-            }
-        }
-        response = self.post('/groups/', body=body)
-        return response.json_body['group']
 
     def test_assign_system_role_to_group(self):
         system_role_id = self._create_new_role()

@@ -880,7 +880,7 @@ class Manager(manager.Manager):
                          'user_id': user_id,
                          'role_id': assignment['id']}
                     )
-            if group_id:
+            elif group_id:
                 assignments = self.list_system_grants_for_group(group_id)
                 for assignment in assignments:
                     system_assignments.append(
@@ -888,6 +888,17 @@ class Manager(manager.Manager):
                          'group_id': group_id,
                          'role_id': assignment['id']}
                     )
+            else:
+                assignments = self.list_all_system_grants()
+                for assignment in assignments:
+                    a = {}
+                    if assignment['type'] == self._GROUP_SYSTEM:
+                        a['group_id'] = assignment['actor_id']
+                    elif assignment['type'] == self._USER_SYSTEM:
+                        a['user_id'] = assignment['actor_id']
+                    a['role_id'] = assignment['role_id']
+                    a['system'] = {'all': True}
+                    system_assignments.append(a)
 
         assignments = []
         for assignment in itertools.chain(
@@ -1238,6 +1249,15 @@ class Manager(manager.Manager):
         inherited = False
         self.driver.delete_system_grant(
             role_id, group_id, target_id, inherited
+        )
+
+    def list_all_system_grants(self):
+        """Return a list of all system grants."""
+        actor_id = None
+        target_id = self._SYSTEM_SCOPE_TOKEN
+        assignment_type = None
+        return self.driver.list_system_grants(
+            actor_id, target_id, assignment_type
         )
 
 
