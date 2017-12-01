@@ -162,8 +162,6 @@ on the keystone configuration.
  * :mod:`keystone.assignment.controllers.ImpliedRolesV3`
  * :mod:`keystone.assignment.controllers.ProjectAssignmentV3`
  * :mod:`keystone.assignment.controllers.TenantAssignment`
- * :mod:`keystone.assignment.controllers.Role`
- * :mod:`keystone.assignment.controllers.RoleAssignmentV2`
  * :mod:`keystone.assignment.controllers.RoleAssignmentV3`
  * :mod:`keystone.assignment.controllers.RoleV3`
 
@@ -190,6 +188,9 @@ on the keystone configuration.
  * :mod:`keystone.federation.controllers.IdentityProvider`
  * :mod:`keystone.federation.controllers.FederationProtocol`
  * :mod:`keystone.federation.controllers.MappingController`
+ * :mod:`keystone.federation.controllers.Auth`
+ * :mod:`keystone.federation.controllers.DomainV3`
+ * :mod:`keystone.federation.controllers.ProjectAssignmentV3`
  * :mod:`keystone.federation.controllers.ServiceProvider`
  * :mod:`keystone.federation.controllers.SAMLMetadataV3`
 
@@ -197,6 +198,13 @@ on the keystone configuration.
 
  * :mod:`keystone.identity.controllers.GroupV3`
  * :mod:`keystone.identity.controllers.UserV3`
+
+* Oauth1
+
+ * :mod:`keystone.oauth1.controllers.ConsumerCrudV3`
+ * :mod:`keystone.oauth1.controllers.AccessTokenCrudV3`
+ * :mod:`keystone.oauth1.controllers.AccessTokenRolesV3`
+ * :mod:`keystone.oauth1.controllers.OAuthControllerV3`
 
 * Policy
 
@@ -207,6 +215,7 @@ on the keystone configuration.
  * :mod:`keystone.resource.controllers.DomainV3`
  * :mod:`keystone.resource.controllers.DomainConfigV3`
  * :mod:`keystone.resource.controllers.ProjectV3`
+ * :mod:`keystone.resource.controllers.ProjectTagV3`
 
 * Revoke
 
