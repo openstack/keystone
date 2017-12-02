@@ -361,12 +361,12 @@ Optional query parameters:
    - effective: effective_query
    - include_names: include_names_query
    - include_subtree: include_subtree_query
-   - group_id: group_id_query
-   - role_id: role_id_query
+   - group.id: group_id_query
+   - role.id: role_id_query
    - scope.domain.id: scope_domain_id_query
    - scope.OS-INHERIT:inherited_to: scope_os_inherit_inherited_to
    - scope.project.id: scope_project_id_query
-   - user_id: user_id_query
+   - user.id: user_id_query
 
 Get a list of role assignments.
 
