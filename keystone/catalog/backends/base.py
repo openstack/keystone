@@ -16,6 +16,7 @@ import abc
 
 import six
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 
@@ -24,7 +25,7 @@ CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)
-class CatalogDriverBase(object):
+class CatalogDriverBase(provider_api.ProviderAPIMixin, object):
     """Interface description for the Catalog driver."""
 
     def _get_list_limit(self):

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 
@@ -18,10 +17,10 @@ import keystone.conf
 CONF = keystone.conf.CONF
 
 
-@dependency.provider('credential_provider_api')
 class Manager(manager.Manager):
 
     driver_namespace = 'keystone.credential.provider'
+    _provides_api = 'credential_provider_api'
 
     def __init__(self):
         super(Manager, self).__init__(CONF.credential.provider)

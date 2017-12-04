@@ -16,7 +16,6 @@ import datetime
 
 from oslo_utils import timeutils
 
-from keystone.common import dependency
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -24,8 +23,6 @@ from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
-from keystone.token.providers import fernet
-from keystone.token.providers import uuid
 
 
 CONF = keystone.conf.CONF
@@ -463,21 +460,6 @@ class TestTokenProvider(unit.TestCase):
         self.assertRaises(exception.UnsupportedTokenVersionException,
                           self.token_provider_api.get_token_version,
                           'bogus')
-
-    def test_supported_token_providers(self):
-        # test default config
-
-        dependency.reset()
-        self.assertIsInstance(token.provider.Manager().driver,
-                              fernet.Provider)
-
-        dependency.reset()
-        self.config_fixture.config(group='token', provider='uuid')
-        self.assertIsInstance(token.provider.Manager().driver, uuid.Provider)
-
-        dependency.reset()
-        self.config_fixture.config(group='token', provider='fernet')
-        self.assertIsInstance(token.provider.Manager().driver, fernet.Provider)
 
     def test_unsupported_token_provider(self):
         self.config_fixture.config(group='token',

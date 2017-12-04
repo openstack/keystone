@@ -41,7 +41,7 @@ import testtools
 from testtools import testcase
 
 from keystone.common import context
-from keystone.common import dependency
+from keystone.common import provider_api
 from keystone.common import request
 from keystone.common import sql
 import keystone.conf
@@ -677,7 +677,7 @@ class TestCase(BaseTestCase):
 
         # Clear the registry of providers so that providers from previous
         # tests aren't used.
-        self.addCleanup(dependency.reset)
+        self.addCleanup(provider_api.ProviderAPIs._clear_registry_instances)
 
         # Ensure Notification subscriptions and resource types are empty
         self.addCleanup(notifications.clear_subscribers)
@@ -691,6 +691,10 @@ class TestCase(BaseTestCase):
 
     def load_backends(self):
         """Initialize each manager and assigns them to an attribute."""
+        # TODO(morgan): Ensure our tests only ever call load_backends
+        # a single time via this method. for now just clear the registry
+        # if we are reloading.
+        provider_api.ProviderAPIs._clear_registry_instances()
         self.useFixture(ksfixtures.BackendLoader(self))
 
     def load_fixtures(self, fixtures):

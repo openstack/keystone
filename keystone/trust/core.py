@@ -16,7 +16,6 @@
 
 from six.moves import zip
 
-from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
@@ -27,8 +26,6 @@ from keystone import notifications
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('identity_api')
-@dependency.provider('trust_api')
 class Manager(manager.Manager):
     """Default pivot point for the Trust backend.
 
@@ -38,6 +35,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.trust'
+    _provides_api = 'trust_api'
 
     _TRUST = "OS-TRUST:trust"
 

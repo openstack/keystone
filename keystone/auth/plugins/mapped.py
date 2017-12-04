@@ -19,7 +19,6 @@ from six.moves.urllib import parse
 
 from keystone.auth import plugins as auth_plugins
 from keystone.auth.plugins import base
-from keystone.common import dependency
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
@@ -32,8 +31,6 @@ LOG = log.getLogger(__name__)
 METHOD_NAME = 'mapped'
 
 
-@dependency.requires('assignment_api', 'federation_api', 'identity_api',
-                     'resource_api', 'token_provider_api', 'role_api')
 class Mapped(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):

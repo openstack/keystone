@@ -17,14 +17,12 @@ import hashlib
 from oslo_serialization import jsonutils
 
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import validation
 from keystone.credential import schema
 from keystone import exception
 from keystone.i18n import _
 
 
-@dependency.requires('credential_api')
 class CredentialV3(controller.V3Controller):
     collection_name = 'credentials'
     member_name = 'credential'

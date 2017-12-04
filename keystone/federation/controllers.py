@@ -22,7 +22,6 @@ import webob
 
 from keystone.auth import controllers as auth_controllers
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import utils as k_utils
 from keystone.common import validation
 from keystone.common import wsgi
@@ -49,7 +48,6 @@ class _ControllerBase(controller.V3Controller):
         return super(_ControllerBase, cls).base_url(context, path=path)
 
 
-@dependency.requires('federation_api')
 class IdentityProvider(_ControllerBase):
     """Identity Provider representation."""
 
@@ -128,7 +126,6 @@ class IdentityProvider(_ControllerBase):
         return IdentityProvider.wrap_member(request.context_dict, idp_ref)
 
 
-@dependency.requires('federation_api')
 class FederationProtocol(_ControllerBase):
     """A federation protocol representation.
 
@@ -219,7 +216,6 @@ class FederationProtocol(_ControllerBase):
         self.federation_api.delete_protocol(idp_id, protocol_id)
 
 
-@dependency.requires('federation_api')
 class MappingController(_ControllerBase):
     collection_name = 'mappings'
     member_name = 'mapping'
@@ -257,7 +253,6 @@ class MappingController(_ControllerBase):
         return MappingController.wrap_member(request.context_dict, mapping_ref)
 
 
-@dependency.requires('federation_api')
 class Auth(auth_controllers.Auth):
 
     def _get_sso_origin_host(self, request):
@@ -432,7 +427,6 @@ class Auth(auth_controllers.Auth):
             headers=headers)
 
 
-@dependency.requires('assignment_api', 'resource_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
@@ -462,7 +456,6 @@ class DomainV3(controller.V3Controller):
         return DomainV3.wrap_collection(request.context_dict, domains)
 
 
-@dependency.requires('assignment_api', 'resource_api')
 class ProjectAssignmentV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
@@ -493,7 +486,6 @@ class ProjectAssignmentV3(controller.V3Controller):
                                                    projects)
 
 
-@dependency.requires('federation_api')
 class ServiceProvider(_ControllerBase):
     """Service Provider representation."""
 

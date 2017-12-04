@@ -42,6 +42,7 @@ class AssignmentType(object):
 
 class Assignment(base.AssignmentDriverBase):
 
+    @classmethod
     def default_role_driver(self):
         return 'sql'
 

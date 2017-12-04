@@ -18,7 +18,7 @@ from oslo_utils import importutils
 import six
 import stevedore
 
-from keystone.common import dependency
+from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -132,8 +132,7 @@ class AuthContext(dict):
                 self[key] = val
 
 
-@dependency.requires('resource_api', 'trust_api')
-class AuthInfo(object):
+class AuthInfo(provider_api.ProviderAPIMixin, object):
     """Encapsulation of "auth" request."""
 
     @staticmethod
@@ -353,8 +352,7 @@ class AuthInfo(object):
         self._scope_data = (domain_id, project_id, trust, unscoped)
 
 
-@dependency.requires('identity_api')
-class UserMFARulesValidator(object):
+class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
     """Helper object that can validate the MFA Rules."""
 
     @property

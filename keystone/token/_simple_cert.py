@@ -17,7 +17,6 @@ import functools
 import webob
 
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import json_home
 from keystone.common import wsgi
@@ -69,7 +68,6 @@ class Routers(wsgi.RoutersBase):
             rel=build_resource_relation(resource_name='certificates'))
 
 
-@dependency.requires('token_provider_api')
 class SimpleCert(controller.V3Controller):
 
     def _get_certificate(self, name):

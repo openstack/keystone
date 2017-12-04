@@ -15,7 +15,7 @@ from oslo_log import log
 
 from keystone.common import authorization
 from keystone.common import context
-from keystone.common import dependency
+from keystone.common import provider_api
 from keystone.common import tokenless_auth
 from keystone.common import wsgi
 import keystone.conf
@@ -32,8 +32,8 @@ LOG = log.getLogger(__name__)
 __all__ = ('AuthContextMiddleware',)
 
 
-@dependency.requires('token_provider_api')
-class AuthContextMiddleware(auth_token.BaseAuthProtocol):
+class AuthContextMiddleware(provider_api.ProviderAPIMixin,
+                            auth_token.BaseAuthProtocol):
     """Build the authentication context from the request auth token."""
 
     kwargs_to_fetch_token = True

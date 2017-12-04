@@ -20,8 +20,8 @@ from oslo_log import versionutils
 import six
 
 from keystone.common import authorization
-from keystone.common import dependency
 from keystone.common import driver_hints
+from keystone.common import provider_api
 from keystone.common import utils
 from keystone.common import wsgi
 import keystone.conf
@@ -146,8 +146,7 @@ def protected_wrapper(self, f, check_function, request, filter_attr,
     check_function(self, request, prep_info, *args, **kwargs)
 
 
-@dependency.requires('policy_api')
-class V2Controller(wsgi.Application):
+class V2Controller(provider_api.ProviderAPIMixin, wsgi.Application):
     """Base controller class for Identity API v2."""
 
     @staticmethod
@@ -218,8 +217,7 @@ class V2Controller(wsgi.Application):
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
 
-@dependency.requires('policy_api', 'token_provider_api')
-class V3Controller(wsgi.Application):
+class V3Controller(provider_api.ProviderAPIMixin, wsgi.Application):
     """Base controller class for Identity API v3.
 
     Child classes should set the ``collection_name`` and ``member_name`` class

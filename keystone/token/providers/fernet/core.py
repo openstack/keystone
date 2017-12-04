@@ -13,7 +13,6 @@
 import os
 
 
-from keystone.common import dependency
 from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone.federation import constants as federation_constants
@@ -25,7 +24,6 @@ from keystone.token.providers.fernet import token_formatters as tf
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('trust_api', 'oauth_api', 'identity_api')
 class Provider(common.BaseProvider):
     def __init__(self, *args, **kwargs):
         super(Provider, self).__init__(*args, **kwargs)

@@ -17,7 +17,6 @@ from six.moves import http_client
 
 from keystone.catalog import schema
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import validation
 from keystone.common import wsgi
@@ -30,7 +29,6 @@ from keystone import resource
 INTERFACES = ['public', 'internal', 'admin']
 
 
-@dependency.requires('catalog_api')
 class RegionV3(controller.V3Controller):
     collection_name = 'regions'
     member_name = 'region'
@@ -95,7 +93,6 @@ class RegionV3(controller.V3Controller):
         )
 
 
-@dependency.requires('catalog_api')
 class ServiceV3(controller.V3Controller):
     collection_name = 'services'
     member_name = 'service'
@@ -142,7 +139,6 @@ class ServiceV3(controller.V3Controller):
         )
 
 
-@dependency.requires('catalog_api')
 class EndpointV3(controller.V3Controller):
     collection_name = 'endpoints'
     member_name = 'endpoint'
@@ -232,7 +228,6 @@ class EndpointV3(controller.V3Controller):
         )
 
 
-@dependency.requires('catalog_api', 'resource_api')
 class EndpointFilterV3Controller(controller.V3Controller):
 
     def __init__(self):
@@ -303,7 +298,6 @@ class EndpointFilterV3Controller(controller.V3Controller):
             request.context_dict, projects)
 
 
-@dependency.requires('catalog_api', 'resource_api')
 class EndpointGroupV3Controller(controller.V3Controller):
     collection_name = 'endpoint_groups'
     member_name = 'endpoint_group'
@@ -408,7 +402,6 @@ class EndpointGroupV3Controller(controller.V3Controller):
                                           filtered_endpoints)
 
 
-@dependency.requires('catalog_api', 'resource_api')
 class ProjectEndpointGroupV3Controller(controller.V3Controller):
     collection_name = 'project_endpoint_groups'
     member_name = 'project_endpoint_group'

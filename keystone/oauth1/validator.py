@@ -16,7 +16,7 @@
 
 import six
 
-from keystone.common import dependency
+from keystone.common import provider_api
 from keystone import exception
 from keystone.oauth1.backends import base
 from keystone.oauth1 import core as oauth1
@@ -25,8 +25,7 @@ from keystone.oauth1 import core as oauth1
 METHOD_NAME = 'oauth_validator'
 
 
-@dependency.requires('oauth_api')
-class OAuthValidator(oauth1.RequestValidator):
+class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
 
     # TODO(mhu) set as option probably?
     @property

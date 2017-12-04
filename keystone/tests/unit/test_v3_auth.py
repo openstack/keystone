@@ -2143,7 +2143,8 @@ class TokenAPITests(object):
 
             # flush the tokens, this will only have an effect on sql
             try:
-                self.token_provider_api._persistence.flush_expired_tokens()
+                provider_api = self.token_provider_api
+                provider_api._persistence.flush_expired_tokens()
             except exception.NotImplemented:
                 pass
 

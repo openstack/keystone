@@ -14,7 +14,6 @@
 
 from keystone.auth import plugins as auth_plugins
 from keystone.auth.plugins import base
-from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
 
@@ -22,7 +21,6 @@ from keystone.i18n import _
 METHOD_NAME = 'password'
 
 
-@dependency.requires('identity_api')
 class Password(base.AuthMethodHandler):
 
     def authenticate(self, request, auth_payload):

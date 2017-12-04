@@ -16,14 +16,12 @@ from oslo_utils import timeutils
 
 from keystone.auth.plugins import base
 from keystone.common import controller
-from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
 from keystone.oauth1 import core as oauth
 from keystone.oauth1 import validator
 
 
-@dependency.requires('oauth_api')
 class OAuth(base.AuthMethodHandler):
     def authenticate(self, request, auth_payload):
         """Turn a signed request with an access key into a keystone token."""

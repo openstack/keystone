@@ -17,7 +17,6 @@ import six
 
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
-from keystone.common import dependency
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
@@ -30,7 +29,6 @@ LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('federation_api', 'identity_api', 'token_provider_api')
 class Token(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):

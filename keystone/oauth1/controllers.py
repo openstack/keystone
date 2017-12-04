@@ -22,7 +22,6 @@ from six.moves.urllib import parse as urlparse
 
 from keystone.common import authorization
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
@@ -49,7 +48,6 @@ def _emit_user_oauth_consumer_token_invalidate(payload):
     )
 
 
-@dependency.requires('oauth_api', 'token_provider_api')
 class ConsumerCrudV3(controller.V3Controller):
     collection_name = 'consumers'
     member_name = 'consumer'
@@ -102,7 +100,6 @@ class ConsumerCrudV3(controller.V3Controller):
         )
 
 
-@dependency.requires('oauth_api')
 class AccessTokenCrudV3(controller.V3Controller):
     collection_name = 'access_tokens'
     member_name = 'access_token'
@@ -172,7 +169,6 @@ class AccessTokenCrudV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('oauth_api', 'role_api')
 class AccessTokenRolesV3(controller.V3Controller):
     collection_name = 'roles'
     member_name = 'role'
@@ -212,8 +208,6 @@ class AccessTokenRolesV3(controller.V3Controller):
         return formatted_entity
 
 
-@dependency.requires('assignment_api', 'oauth_api',
-                     'resource_api', 'token_provider_api')
 class OAuthControllerV3(controller.V3Controller):
     collection_name = 'not_used'
     member_name = 'not_used'

@@ -16,7 +16,6 @@ from oslo_log import versionutils
 import six
 
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import validation
 from keystone.policy import schema
 
@@ -31,7 +30,6 @@ def policy_deprecated(f):
     return wrapper()
 
 
-@dependency.requires('policy_api')
 class PolicyV3(controller.V3Controller):
     collection_name = 'policies'
     member_name = 'policy'

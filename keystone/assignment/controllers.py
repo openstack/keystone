@@ -22,7 +22,6 @@ from oslo_log import log
 from keystone.assignment import schema
 from keystone.common import authorization
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
@@ -34,7 +33,6 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'token_provider_api')
 class TenantAssignment(controller.V2Controller):
     """The V2 Project APIs that are processing assignments."""
 
@@ -61,7 +59,6 @@ class TenantAssignment(controller.V2Controller):
         return self.format_project_list(tenant_refs, **params)
 
 
-@dependency.requires('assignment_api', 'resource_api')
 class ProjectAssignmentV3(controller.V3Controller):
     """The V3 Project APIs that are processing assignments."""
 
@@ -81,7 +78,6 @@ class ProjectAssignmentV3(controller.V3Controller):
                                                    hints=hints)
 
 
-@dependency.requires('role_api')
 class RoleV3(controller.V3Controller):
     """The V3 Role CRUD APIs.
 
@@ -246,7 +242,6 @@ class RoleV3(controller.V3Controller):
         return hints
 
 
-@dependency.requires('role_api')
 class ImpliedRolesV3(controller.V3Controller):
     """The V3 ImpliedRoles CRD APIs.  There is no Update."""
 
@@ -383,8 +378,6 @@ class ImpliedRolesV3(controller.V3Controller):
         return results
 
 
-@dependency.requires('assignment_api', 'identity_api', 'resource_api',
-                     'role_api')
 class GrantAssignmentV3(controller.V3Controller):
     """The V3 Grant Assignment APIs."""
 
@@ -503,7 +496,6 @@ class GrantAssignmentV3(controller.V3Controller):
             context=request.context_dict)
 
 
-@dependency.requires('assignment_api', 'identity_api', 'resource_api')
 class RoleAssignmentV3(controller.V3Controller):
     """The V3 Role Assignment APIs, really just list_role_assignment()."""
 

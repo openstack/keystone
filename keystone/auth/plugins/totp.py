@@ -33,7 +33,6 @@ import six
 
 from keystone.auth import plugins
 from keystone.auth.plugins import base
-from keystone.common import dependency
 from keystone import exception
 from keystone.i18n import _
 
@@ -69,7 +68,6 @@ def _generate_totp_passcode(secret):
     return totp.generate(timeutils.utcnow_ts(microsecond=True)).decode('utf-8')
 
 
-@dependency.requires('credential_api')
 class TOTP(base.AuthMethodHandler):
 
     def authenticate(self, request, auth_payload):

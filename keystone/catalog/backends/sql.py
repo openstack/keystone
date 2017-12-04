@@ -19,7 +19,6 @@ import sqlalchemy
 from sqlalchemy.sql import true
 
 from keystone.catalog.backends import base
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone.common import utils
@@ -90,7 +89,6 @@ class Endpoint(sql.ModelBase, sql.ModelDictMixinWithExtras):
         return super(Endpoint, cls).from_dict(new_dict)
 
 
-@dependency.requires('catalog_api')
 class Catalog(base.CatalogDriverBase):
     # Regions
     def list_regions(self, hints):

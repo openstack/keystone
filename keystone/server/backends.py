@@ -14,6 +14,7 @@ from keystone import assignment
 from keystone import auth
 from keystone import catalog
 from keystone.common import cache
+from keystone.common import provider_api
 from keystone import credential
 from keystone import endpoint_policy
 from keystone import federation
@@ -23,6 +24,7 @@ from keystone import policy
 from keystone import resource
 from keystone import revoke
 from keystone import token
+from keystone.token import persistence
 from keystone import trust
 
 
@@ -37,29 +39,21 @@ def load_backends():
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
     cache.configure_invalidation_region()
 
-    # NOTE(knikolla): The assignment manager must be instantiated before the
-    # resource manager. The current dictionary ordering ensures that.
-    DRIVERS = dict(
-        assignment_api=assignment.Manager(),
-        catalog_api=catalog.Manager(),
-        credential_api=credential.Manager(),
-        credential_provider_api=credential.provider.Manager(),
-        domain_config_api=resource.DomainConfigManager(),
-        endpoint_policy_api=endpoint_policy.Manager(),
-        federation_api=federation.Manager(),
-        id_generator_api=identity.generator.Manager(),
-        id_mapping_api=identity.MappingManager(),
-        identity_api=identity.Manager(),
-        shadow_users_api=identity.ShadowUsersManager(),
-        oauth_api=oauth1.Manager(),
-        policy_api=policy.Manager(),
-        resource_api=resource.Manager(),
-        revoke_api=revoke.Manager(),
-        role_api=assignment.RoleManager(),
-        token_api=token.persistence.Manager(),
-        trust_api=trust.Manager(),
-        token_provider_api=token.provider.Manager())
+    managers = [assignment.Manager, catalog.Manager, credential.Manager,
+                credential.provider.Manager, resource.DomainConfigManager,
+                endpoint_policy.Manager, federation.Manager,
+                identity.generator.Manager, identity.MappingManager,
+                identity.Manager, identity.ShadowUsersManager, oauth1.Manager,
+                policy.Manager, resource.Manager, revoke.Manager,
+                assignment.RoleManager, trust.Manager, token.provider.Manager,
+                persistence.PersistenceManager]
+
+    drivers = {d._provides_api: d() for d in managers}
+
+    # NOTE(morgan): lock the APIs, these should only ever be instantiated
+    # before running keystone.
+    provider_api.ProviderAPIs.lock_provider_registry()
 
     auth.core.load_auth_methods()
 
-    return DRIVERS
+    return drivers

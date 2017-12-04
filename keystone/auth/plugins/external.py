@@ -19,7 +19,6 @@ import abc
 import six
 
 from keystone.auth.plugins import base
-from keystone.common import dependency
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -65,7 +64,6 @@ class Base(base.AuthMethodHandler):
         pass
 
 
-@dependency.requires('identity_api')
 class DefaultDomain(Base):
     def _authenticate(self, request):
         """Use remote_user to look up the user in the identity backend."""
@@ -74,7 +72,6 @@ class DefaultDomain(Base):
             CONF.identity.default_domain_id)
 
 
-@dependency.requires('identity_api', 'resource_api')
 class Domain(Base):
     def _authenticate(self, request):
         """Use remote_user to look up the user in the identity backend.

@@ -28,9 +28,9 @@ from pycadf import reason
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
 from keystone.common import cache
 from keystone.common import clean
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
+from keystone.common import provider_api
 from keystone.common.validation import validators
 import keystone.conf
 from keystone import exception
@@ -62,8 +62,7 @@ REGISTRATION_ATTEMPTS = 10
 SQL_DRIVER = 'SQL'
 
 
-@dependency.requires('domain_config_api', 'resource_api')
-class DomainConfigs(dict):
+class DomainConfigs(provider_api.ProviderAPIMixin, dict):
     """Discover, store and provide access to domain specific configs.
 
     The setup_domain_drivers() call will be made via the wrapper from
@@ -436,9 +435,6 @@ def exception_translated(exception_type):
 
 
 @notifications.listener
-@dependency.provider('identity_api')
-@dependency.requires('assignment_api', 'credential_api', 'id_mapping_api',
-                     'resource_api', 'shadow_users_api', 'federation_api')
 class Manager(manager.Manager):
     """Default pivot point for the Identity backend.
 
@@ -479,6 +475,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.identity'
+    _provides_api = 'identity_api'
 
     _USER = 'user'
     _GROUP = 'group'
@@ -1423,11 +1420,11 @@ class Manager(manager.Manager):
         return user_dict
 
 
-@dependency.provider('id_mapping_api')
 class MappingManager(manager.Manager):
     """Default pivot point for the ID Mapping backend."""
 
     driver_namespace = 'keystone.identity.id_mapping'
+    _provides_api = 'id_mapping_api'
 
     def __init__(self):
         super(MappingManager, self).__init__(CONF.identity_mapping.driver)
@@ -1475,11 +1472,11 @@ class MappingManager(manager.Manager):
         ID_MAPPING_REGION.invalidate()
 
 
-@dependency.provider('shadow_users_api')
 class ShadowUsersManager(manager.Manager):
     """Default pivot point for the Shadow Users backend."""
 
     driver_namespace = 'keystone.identity.shadow_users'
+    _provides_api = 'shadow_users_api'
 
     def __init__(self):
         shadow_driver = CONF.shadow_users.driver

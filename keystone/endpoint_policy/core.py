@@ -14,7 +14,6 @@
 
 from oslo_log import log
 
-from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
@@ -25,8 +24,6 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-@dependency.provider('endpoint_policy_api')
-@dependency.requires('catalog_api', 'policy_api')
 class Manager(manager.Manager):
     """Default pivot point for the Endpoint Policy backend.
 
@@ -36,6 +33,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.endpoint_policy'
+    _provides_api = 'endpoint_policy_api'
 
     def __init__(self):
         super(Manager, self).__init__(CONF.endpoint_policy.driver)

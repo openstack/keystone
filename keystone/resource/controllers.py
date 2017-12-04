@@ -18,7 +18,6 @@
 from six.moves import http_client
 
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
@@ -30,7 +29,6 @@ from keystone.resource import schema
 CONF = keystone.conf.CONF
 
 
-@dependency.requires('resource_api')
 class DomainV3(controller.V3Controller):
     collection_name = 'domains'
     member_name = 'domain'
@@ -76,8 +74,6 @@ class DomainV3(controller.V3Controller):
         )
 
 
-@dependency.requires('domain_config_api')
-@dependency.requires('resource_api')
 class DomainConfigV3(controller.V3Controller):
     member_name = 'config'
 
@@ -151,7 +147,6 @@ class DomainConfigV3(controller.V3Controller):
         return {self.member_name: ref}
 
 
-@dependency.requires('resource_api')
 class ProjectV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'project'
@@ -266,7 +261,6 @@ class ProjectV3(controller.V3Controller):
             initiator=request.audit_initiator)
 
 
-@dependency.requires('resource_api')
 class ProjectTagV3(controller.V3Controller):
     collection_name = 'projects'
     member_name = 'tags'

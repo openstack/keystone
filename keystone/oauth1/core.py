@@ -22,7 +22,6 @@ import oauthlib.common
 from oauthlib import oauth1
 from oslo_log import log
 
-from keystone.common import dependency
 from keystone.common import extension
 from keystone.common import manager
 import keystone.conf
@@ -123,7 +122,6 @@ def validate_oauth_params(query_string):
         raise exception.ValidationError(message=msg)
 
 
-@dependency.provider('oauth_api')
 class Manager(manager.Manager):
     """Default pivot point for the OAuth1 backend.
 
@@ -133,6 +131,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.oauth1'
+    _provides_api = 'oauth_api'
 
     _ACCESS_TOKEN = "OS-OAUTH1:access_token"
     _REQUEST_TOKEN = "OS-OAUTH1:request_token"

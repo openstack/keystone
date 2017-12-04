@@ -17,7 +17,7 @@ import sys
 from oslo_log import log
 import six
 
-from keystone.common import dependency
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 
@@ -95,8 +95,7 @@ def convert_integer_to_method_list(method_int):
     return methods
 
 
-@dependency.requires('identity_api', 'resource_api')
-class BaseUserInfo(object):
+class BaseUserInfo(provider_api.ProviderAPIMixin, object):
 
     @classmethod
     def create(cls, auth_payload, method_name):

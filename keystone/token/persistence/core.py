@@ -21,7 +21,6 @@ from oslo_log import log
 import six
 
 from keystone.common import cache
-from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
@@ -34,8 +33,6 @@ REVOCATION_MEMOIZE = cache.get_memoization_decorator(group='token',
                                                      expiration_group='revoke')
 
 
-@dependency.requires('assignment_api', 'identity_api', 'resource_api',
-                     'trust_api')
 class PersistenceManager(manager.Manager):
     """Default pivot point for the Token Persistence backend.
 
@@ -45,6 +42,7 @@ class PersistenceManager(manager.Manager):
     """
 
     driver_namespace = 'keystone.token.persistence'
+    _provides_api = '_token_persistence_manager'
 
     def __init__(self):
         super(PersistenceManager, self).__init__(CONF.token.driver)
@@ -165,37 +163,6 @@ class PersistenceManager(manager.Manager):
         # the normal method, this means we need to pass "self" in (which gets
         # stripped off).
         self._get_token.invalidate(self, token_id)
-
-
-@dependency.requires('token_provider_api')
-@dependency.provider('token_api')
-class Manager(object):
-    """The token_api provider.
-
-    This class is a proxy class to the token_provider_api's persistence
-    manager.
-    """
-
-    def __init__(self):
-        # NOTE(morganfainberg): __init__ is required for dependency processing.
-        super(Manager, self).__init__()
-
-    def __getattr__(self, item):
-        """Forward calls to the `token_provider_api` persistence manager."""
-        # NOTE(morganfainberg): Prevent infinite recursion, raise an
-        # AttributeError for 'token_provider_api' ensuring that the dep
-        # injection doesn't infinitely try and lookup self.token_provider_api
-        # on _process_dependencies. This doesn't need an exception string as
-        # it should only ever be hit on instantiation.
-        if item == 'token_provider_api':
-            raise AttributeError()
-
-        f = getattr(self.token_provider_api._persistence, item)
-        LOG.warning('`token_api.%s` is deprecated as of Juno in favor of '
-                    'utilizing methods on `token_provider_api` and may be '
-                    'removed in Kilo.', item)
-        setattr(self, item, f)
-        return f
 
 
 @six.add_metaclass(abc.ABCMeta)

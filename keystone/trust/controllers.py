@@ -18,7 +18,6 @@ from oslo_utils import timeutils
 
 from keystone import assignment
 from keystone.common import controller
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import utils
 from keystone.common import validation
@@ -34,8 +33,6 @@ def _trustor_trustee_only(trust, user_id):
             action=_('Requested user has no relation to this trust'))
 
 
-@dependency.requires('assignment_api', 'identity_api', 'resource_api',
-                     'role_api', 'token_provider_api', 'trust_api')
 class TrustV3(controller.V3Controller):
     collection_name = "trusts"
     member_name = "trust"

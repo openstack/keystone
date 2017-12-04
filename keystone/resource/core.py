@@ -18,7 +18,6 @@ import six
 from keystone import assignment
 from keystone.common import cache
 from keystone.common import clean
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.common import utils
@@ -37,9 +36,6 @@ MEMOIZE = cache.get_memoization_decorator(group='resource')
 TAG_SEARCH_FILTERS = ('tags', 'tags-any', 'not-tags', 'not-tags-any')
 
 
-@dependency.provider('resource_api')
-@dependency.requires('assignment_api', 'credential_api', 'domain_config_api',
-                     'identity_api', 'trust_api')
 class Manager(manager.Manager):
     """Default pivot point for the Resource backend.
 
@@ -49,6 +45,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.resource'
+    _provides_api = 'resource_api'
 
     _DOMAIN = 'domain'
     _PROJECT = 'project'
@@ -60,7 +57,9 @@ class Manager(manager.Manager):
         # SQL Identity in some form. Even if SQL Identity is not used, there
         # is almost no reason to have non-SQL Resource. Keystone requires
         # SQL in a number of ways, this simply codifies it plainly for resource
+        # the driver_name = None simply implies we don't need to load a driver.
         self.driver = resource_sql.Resource()
+        super(Manager, self).__init__(driver_name=None)
 
     def _get_hierarchy_depth(self, parents_list):
         return len(parents_list) + 1
@@ -946,7 +945,6 @@ class Manager(manager.Manager):
 MEMOIZE_CONFIG = cache.get_memoization_decorator(group='domain_config')
 
 
-@dependency.provider('domain_config_api')
 class DomainConfigManager(manager.Manager):
     """Default pivot point for the Domain Config backend."""
 
@@ -960,6 +958,7 @@ class DomainConfigManager(manager.Manager):
     # the identity manager are supported.
 
     driver_namespace = 'keystone.resource.domain_config'
+    _provides_api = 'domain_config_api'
 
     # We explicitly state each whitelisted option instead of pulling all ldap
     # options from CONF and selectively pruning them to prevent a security

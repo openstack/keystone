@@ -22,14 +22,12 @@ from oslo_utils import timeutils
 import six
 
 from keystone.common import cache
-from keystone.common import dependency
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
-from keystone.token import persistence
 
 
 CONF = keystone.conf.CONF
@@ -49,8 +47,6 @@ V3 = token_model.V3
 VERSIONS = token_model.VERSIONS
 
 
-@dependency.provider('token_provider_api')
-@dependency.requires('assignment_api', 'revoke_api')
 class Manager(manager.Manager):
     """Default pivot point for the token provider backend.
 
@@ -60,6 +56,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.token.provider'
+    _provides_api = 'token_provider_api'
 
     V3 = V3
     VERSIONS = VERSIONS
@@ -111,7 +108,7 @@ class Manager(manager.Manager):
         # the provider manager requires the token persistence manager, which
         # requires the token provider manager).
         if self._persistence_manager is None:
-            self._persistence_manager = persistence.PersistenceManager()
+            self._persistence_manager = self._token_persistence_manager
         return self._persistence_manager
 
     def _create_token(self, token_id, token_data):

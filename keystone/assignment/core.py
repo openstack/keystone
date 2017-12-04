@@ -20,7 +20,6 @@ import functools
 from oslo_log import log
 
 from keystone.common import cache
-from keystone.common import dependency
 from keystone.common import driver_hints
 from keystone.common import manager
 import keystone.conf
@@ -46,9 +45,6 @@ MEMOIZE_COMPUTED_ASSIGNMENTS = cache.get_memoization_decorator(
 
 
 @notifications.listener
-@dependency.provider('assignment_api')
-@dependency.requires('credential_api', 'identity_api', 'resource_api',
-                     'role_api')
 class Manager(manager.Manager):
     """Default pivot point for the Assignment backend.
 
@@ -58,6 +54,7 @@ class Manager(manager.Manager):
     """
 
     driver_namespace = 'keystone.assignment'
+    _provides_api = 'assignment_api'
 
     _PROJECT = 'project'
     _ROLE_REMOVED_FROM_USER = 'role_removed_from_user'
@@ -1057,12 +1054,11 @@ class Manager(manager.Manager):
             )
 
 
-@dependency.provider('role_api')
-@dependency.requires('assignment_api')
 class RoleManager(manager.Manager):
     """Default pivot point for the Role backend."""
 
     driver_namespace = 'keystone.role'
+    _provides_api = 'role_api'
 
     _ROLE = 'role'
 
@@ -1072,8 +1068,12 @@ class RoleManager(manager.Manager):
         role_driver = CONF.role.driver
 
         if role_driver is None:
-            assignment_manager = dependency.get_provider('assignment_api')
-            role_driver = assignment_manager.default_role_driver()
+            # Explicitly load the assignment manager object
+            assignment_driver = CONF.assignment.driver
+            assignment_manager_obj = manager.load_driver(
+                Manager.driver_namespace,
+                assignment_driver)
+            role_driver = assignment_manager_obj.default_role_driver()
 
         super(RoleManager, self).__init__(role_driver)
 

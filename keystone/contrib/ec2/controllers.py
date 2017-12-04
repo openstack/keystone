@@ -43,7 +43,7 @@ from six.moves import http_client
 
 from keystone.common import authorization
 from keystone.common import controller
-from keystone.common import dependency
+from keystone.common import provider_api
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone import exception
@@ -53,11 +53,8 @@ from keystone.token import controllers as token_controllers
 CRED_TYPE_EC2 = 'ec2'
 
 
-@dependency.requires('assignment_api', 'catalog_api', 'credential_api',
-                     'identity_api', 'resource_api', 'role_api',
-                     'token_provider_api')
 @six.add_metaclass(abc.ABCMeta)
-class Ec2ControllerCommon(object):
+class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
     def check_signature(self, creds_ref, credentials):
         signer = ec2_utils.Ec2Signer(creds_ref['secret'])
         signature = signer.generate(credentials)
@@ -270,7 +267,6 @@ class Ec2ControllerCommon(object):
                                     headers=headers)
 
 
-@dependency.requires('policy_api', 'token_provider_api')
 class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
     @controller.v2_ec2_deprecated
@@ -358,7 +354,6 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
             raise exception.Forbidden(_('Credential belongs to another user'))
 
 
-@dependency.requires('policy_api', 'token_provider_api')
 class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
 
     collection_name = 'credentials'
