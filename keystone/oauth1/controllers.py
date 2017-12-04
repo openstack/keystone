@@ -237,7 +237,7 @@ class OAuthControllerV3(controller.V3Controller):
                 attribute='oauth_consumer_key', target='request')
         if not requested_project_id:
             raise exception.ValidationError(
-                attribute='requested_project_id', target='request')
+                attribute='Requested-Project-Id', target='request')
 
         # NOTE(stevemar): Ensure consumer and requested project exist
         self.resource_api.get_project(requested_project_id)
