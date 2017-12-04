@@ -34,6 +34,7 @@ from testtools import testcase
 from keystone import auth
 from keystone.auth.plugins import totp
 from keystone.common import policy
+from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
@@ -46,6 +47,7 @@ from keystone.tests.unit import test_v3
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestMFARules(test_v3.RestfulTestCase):
@@ -5317,3 +5319,160 @@ class UUIDFetchRevocationList(TestFetchRevocationList,
 
 # NOTE(lbragstad): The Fernet token provider doesn't use Revocation lists so
 # don't inherit TestFetchRevocationList here to test it.
+
+
+class ApplicationCredentialAuth(test_v3.RestfulTestCase):
+
+    def setUp(self):
+        super(ApplicationCredentialAuth, self).setUp()
+        self.app_cred_api = PROVIDERS.application_credential_api
+
+    def config_overrides(self):
+        super(ApplicationCredentialAuth, self).config_overrides()
+        self.auth_plugin_config_override(
+            methods=['application_credential', 'password', 'token'])
+
+    def _make_app_cred(self, expires=None):
+        roles = [{'id': self.role_id}]
+        data = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret': uuid.uuid4().hex,
+            'user_id': self.user['id'],
+            'project_id': self.project['id'],
+            'description': uuid.uuid4().hex,
+            'roles': roles
+        }
+        if expires:
+            data['expires_at'] = expires
+        return data
+
+    def test_valid_application_credential_succeeds(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_valid_application_credential_with_name_succeeds(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_name=app_cred_ref['name'], secret=app_cred_ref['secret'],
+            user_id=self.user['id'])
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_valid_application_credential_name_and_username_succeeds(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_name=app_cred_ref['name'], secret=app_cred_ref['secret'],
+            username=self.user['name'], user_domain_id=self.user['domain_id'])
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_application_credential_with_invalid_secret_fails(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret='badsecret')
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_unexpired_application_credential_succeeds(self):
+        expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+        app_cred = self._make_app_cred(expires=expires_at)
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_expired_application_credential_fails(self):
+        expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+        app_cred = self._make_app_cred(expires=expires_at)
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        future = datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
+        with freezegun.freeze_time(future):
+            self.v3_create_token(auth_data,
+                                 expected_status=http_client.UNAUTHORIZED)
+
+    def test_application_credential_fails_when_user_deleted(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        PROVIDERS.identity_api.delete_user(self.user['id'])
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+
+    def test_application_credential_fails_when_user_disabled(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        PROVIDERS.identity_api.update_user(self.user['id'],
+                                           {'enabled': False})
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_application_credential_fails_when_project_deleted(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        PROVIDERS.resource_api.delete_project(self.project['id'])
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+
+    def test_application_credential_fails_when_role_deleted(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        PROVIDERS.role_api.delete_role(self.role_id)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+
+    def test_application_credential_fails_when_role_unassigned(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        PROVIDERS.assignment_api.remove_role_from_user_and_project(
+            self.user['id'], self.project['id'],
+            self.role_id)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+
+    def test_application_credential_cannot_scope(self):
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        new_project_ref = unit.new_project_ref(domain_id=self.domain_id)
+        # Create a new project and assign the user a valid role on it
+        new_project = PROVIDERS.resource_api.create_project(
+            new_project_ref['id'], new_project_ref)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user['id'], new_project['id'], self.role_id)
+        # Check that a password auth would work
+        password_auth = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=new_project['id'])
+        password_response = self.v3_create_token(password_auth)
+        self.assertValidProjectScopedTokenResponse(password_response)
+        # Should not be able to use that scope with an application credential
+        # even though the user has a valid assignment on it
+        app_cred_auth = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'],
+            project_id=new_project['id'])
+        self.v3_create_token(app_cred_auth,
+                             expected_status=http_client.UNAUTHORIZED)

@@ -53,6 +53,21 @@ class AuthTestMixin(object):
 
         return scope_data
 
+    def _build_user(self, user_id=None, username=None, user_domain_id=None,
+                    user_domain_name=None):
+        user = {}
+        if user_id:
+            user['id'] = user_id
+        else:
+            user['name'] = username
+            if user_domain_id or user_domain_name:
+                user['domain'] = {}
+                if user_domain_id:
+                    user['domain']['id'] = user_domain_id
+                else:
+                    user['domain']['name'] = user_domain_name
+        return user
+
     def _build_auth(self, user_id=None, username=None, user_domain_id=None,
                     user_domain_name=None, **kwargs):
 
@@ -68,27 +83,36 @@ class AuthTestMixin(object):
                       message="_build_auth only supports 'passcode' "
                               "and 'password' secret types")
 
-        data = {'user': {}}
-        if user_id:
-            data['user']['id'] = user_id
-        else:
-            data['user']['name'] = username
-            if user_domain_id or user_domain_name:
-                data['user']['domain'] = {}
-                if user_domain_id:
-                    data['user']['domain']['id'] = user_domain_id
-                else:
-                    data['user']['domain']['name'] = user_domain_name
+        data = {}
+        data['user'] = self._build_user(user_id=user_id, username=username,
+                                        user_domain_id=user_domain_id,
+                                        user_domain_name=user_domain_name)
         data['user'][secret_type] = secret_value
         return data
 
     def _build_token_auth(self, token):
         return {'id': token}
 
+    def _build_app_cred_auth(self, secret, app_cred_id=None,
+                             app_cred_name=None, user_id=None, username=None,
+                             user_domain_id=None, user_domain_name=None):
+        data = {'secret': secret}
+        if app_cred_id:
+            data['id'] = app_cred_id
+        else:
+            data['name'] = app_cred_name
+            data['user'] = self._build_user(user_id=user_id,
+                                            username=username,
+                                            user_domain_id=user_domain_id,
+                                            user_domain_name=user_domain_name)
+        return data
+
     def build_authentication_request(self, token=None, user_id=None,
                                      username=None, user_domain_id=None,
                                      user_domain_name=None, password=None,
-                                     kerberos=False, passcode=None, **kwargs):
+                                     kerberos=False, passcode=None,
+                                     app_cred_id=None, app_cred_name=None,
+                                     secret=None, **kwargs):
         """Build auth dictionary.
 
         It will create an auth dictionary based on all the arguments
@@ -112,6 +136,14 @@ class AuthTestMixin(object):
             auth_data['identity']['totp'] = self._build_auth(
                 user_id, username, user_domain_id, user_domain_name,
                 passcode=passcode)
+        if (app_cred_id or app_cred_name) and secret:
+            auth_data['identity']['methods'].append('application_credential')
+            identity = auth_data['identity']
+            identity['application_credential'] = self._build_app_cred_auth(
+                secret, app_cred_id=app_cred_id, app_cred_name=app_cred_name,
+                user_id=user_id, username=username,
+                user_domain_id=user_domain_id,
+                user_domain_name=user_domain_name)
         if kwargs:
             auth_data['scope'] = self._build_auth_scope(**kwargs)
         return {'auth': auth_data}

@@ -100,6 +100,14 @@ class TrustV3(controller.V3Controller):
             redelegated_trust = None
         return redelegated_trust
 
+    def _check_unrestricted(self, token):
+        auth_methods = token['methods']
+        if 'application_credential' in auth_methods:
+            if token.token_data['token']['application_credential_restricted']:
+                action = _("Using method 'application_credential' is not "
+                           "allowed for managing trusts.")
+                raise exception.ForbiddenAction(action=action)
+
     @controller.protected()
     def create_trust(self, request, trust):
         """Create a new trust.
@@ -108,6 +116,10 @@ class TrustV3(controller.V3Controller):
 
         """
         validation.lazy_validate(schema.trust_create, trust)
+
+        token = request.auth_context['token']
+        self._check_unrestricted(token)
+
         redelegated_trust = self._find_redelegated_trust(request)
 
         if trust.get('project_id') and not trust.get('roles'):
@@ -211,6 +223,9 @@ class TrustV3(controller.V3Controller):
 
     @controller.protected()
     def delete_trust(self, request, trust_id):
+        token = request.auth_context['token']
+        self._check_unrestricted(token)
+
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
         if (request.context.user_id != trust.get('trustor_user_id') and

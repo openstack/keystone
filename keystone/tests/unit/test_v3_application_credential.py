@@ -30,6 +30,11 @@ MEMBER_PATH_FMT = '/users/%(user_id)s/application_credentials/%(app_cred_id)s'
 class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
     """Test CRUD operations for application credentials."""
 
+    def config_overrides(self):
+        super(ApplicationCredentialTestCase, self).config_overrides()
+        self.config_fixture.config(group='auth',
+                                   methods='password,application_credential')
+
     def _app_cred_body(self, roles=None, name=None, expires=None, secret=None):
         name = name or uuid.uuid4().hex
         description = 'Credential for backups'
@@ -115,13 +120,44 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                   body=app_cred_body,
                   expected_status=http_client.BAD_REQUEST)
 
+    def test_create_application_credential_with_application_credential(self):
+        roles = [{'id': self.role_id}]
+        app_cred_body_1 = self._app_cred_body(roles=roles)
+        app_cred_1 = self.post(
+            '/users/%s/application_credentials' % self.user_id,
+            body=app_cred_body_1,
+            expected_status=http_client.CREATED)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_1.json['application_credential']['id'],
+            secret=app_cred_1.json['application_credential']['secret'])
+        token_data = self.v3_create_token(auth_data,
+                                          expected_status=http_client.CREATED)
+        app_cred_body_2 = self._app_cred_body(roles=roles)
+        self.post(
+            path='/users/%s/application_credentials' % self.user_id,
+            body=app_cred_body_2,
+            token=token_data.headers['x-subject-token'],
+            expected_status=http_client.FORBIDDEN)
+
     def test_create_application_credential_allow_recursion(self):
         roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        app_cred_body['application_credential']['unrestricted'] = True
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.CREATED)
+        app_cred_body_1 = self._app_cred_body(roles=roles)
+        app_cred_body_1['application_credential']['unrestricted'] = True
+        app_cred_1 = self.post(
+            '/users/%s/application_credentials' % self.user_id,
+            body=app_cred_body_1,
+            expected_status=http_client.CREATED)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_1.json['application_credential']['id'],
+            secret=app_cred_1.json['application_credential']['secret'])
+        token_data = self.v3_create_token(auth_data,
+                                          expected_status=http_client.CREATED)
+        app_cred_body_2 = self._app_cred_body(roles=roles)
+        self.post(
+            path='/users/%s/application_credentials' % self.user_id,
+            body=app_cred_body_2,
+            token=token_data.headers['x-subject-token'],
+            expected_status=http_client.CREATED)
 
     def test_list_application_credentials(self):
         resp = self.get('/users/%s/application_credentials' % self.user_id,
@@ -215,6 +251,45 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
         self.delete(MEMBER_PATH_FMT % {'user_id': self.user_id,
                                        'app_cred_id': uuid.uuid4().hex},
                     expected_status=http_client.NOT_FOUND)
+
+    def test_delete_application_credential_with_application_credential(self):
+        roles = [{'id': self.role_id}]
+        app_cred_body = self._app_cred_body(roles=roles)
+        app_cred = self.post(
+            '/users/%s/application_credentials' % self.user_id,
+            body=app_cred_body,
+            expected_status=http_client.CREATED)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred.json['application_credential']['id'],
+            secret=app_cred.json['application_credential']['secret'])
+        token_data = self.v3_create_token(auth_data,
+                                          expected_status=http_client.CREATED)
+        self.delete(
+            path=MEMBER_PATH_FMT % {
+                'user_id': self.user_id,
+                'app_cred_id': app_cred.json['application_credential']['id']},
+            token=token_data.headers['x-subject-token'],
+            expected_status=http_client.FORBIDDEN)
+
+    def test_delete_application_credential_allow_recursion(self):
+        roles = [{'id': self.role_id}]
+        app_cred_body = self._app_cred_body(roles=roles)
+        app_cred_body['application_credential']['unrestricted'] = True
+        app_cred = self.post(
+            '/users/%s/application_credentials' % self.user_id,
+            body=app_cred_body,
+            expected_status=http_client.CREATED)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred.json['application_credential']['id'],
+            secret=app_cred.json['application_credential']['secret'])
+        token_data = self.v3_create_token(auth_data,
+                                          expected_status=http_client.CREATED)
+        self.delete(
+            path=MEMBER_PATH_FMT % {
+                'user_id': self.user_id,
+                'app_cred_id': app_cred.json['application_credential']['id']},
+            token=token_data.headers['x-subject-token'],
+            expected_status=http_client.NO_CONTENT)
 
     def test_update_application_credential(self):
         roles = [{'id': self.role_id}]
