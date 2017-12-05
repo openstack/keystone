@@ -19,7 +19,9 @@ class AuthTestMixin(object):
                           project_domain_name=None, domain_id=None,
                           domain_name=None, trust_id=None, unscoped=None):
         scope_data = {}
-        if unscoped:
+        if system:
+            scope_data['system'] = {'all': True}
+        elif unscoped:
             scope_data['unscoped'] = {}
         elif system:
             scope_data['system'] = {'all': True}

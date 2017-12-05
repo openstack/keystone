@@ -622,6 +622,226 @@ class TokenAPITests(object):
             expected_status=http_client.NOT_FOUND
         )
 
+    def test_create_system_token_with_user_id(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            system=True
+        )
+
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+
+    def test_create_system_token_with_username(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            username=self.user['name'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'],
+            system=True
+        )
+
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+
+    def test_create_system_token_fails_without_system_assignment(self):
+        auth_request_body = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            system=True
+        )
+        self.v3_create_token(
+            auth_request_body,
+            expected_status=http_client.UNAUTHORIZED
+        )
+
+    def test_system_token_is_invalid_after_disabling_user(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            username=self.user['name'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'],
+            system=True
+        )
+
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+        token = response.headers.get('X-Subject-Token')
+        self._validate_token(token)
+
+        # NOTE(lbragstad): This would make a good test for groups, but
+        # apparently it's not possible to disable a group.
+        user_ref = {
+            'user': {
+                'enabled': False
+            }
+        }
+        self.patch(
+            '/users/%(user_id)s' % {'user_id': self.user['id']},
+            body=user_ref
+        )
+
+        self.admin_request(
+            path='/v3/auth/tokens',
+            headers={'X-Auth-Token': token,
+                     'X-Subject-Token': token},
+            method='GET',
+            expected_status=http_client.UNAUTHORIZED
+        )
+        self.admin_request(
+            path='/v3/auth/tokens',
+            headers={'X-Auth-Token': token,
+                     'X-Subject-Token': token},
+            method='HEAD',
+            expected_status=http_client.UNAUTHORIZED
+        )
+
+    def test_create_system_token_via_system_group_assignment(self):
+        ref = {
+            'group': unit.new_group_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        }
+
+        group = self.post('/groups', body=ref).json_body['group']
+        path = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        path = '/groups/%(group_id)s/users/%(user_id)s' % {
+            'group_id': group['id'],
+            'user_id': self.user['id']
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            system=True
+        )
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+        token = response.headers.get('X-Subject-Token')
+        self._validate_token(token)
+
+    def test_revoke_system_token(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            username=self.user['name'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'],
+            system=True
+        )
+
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+        token = response.headers.get('X-Subject-Token')
+        self._validate_token(token)
+        self._revoke_token(token)
+        self._validate_token(token, expected_status=http_client.NOT_FOUND)
+
+    def test_system_token_is_invalid_after_deleting_system_role(self):
+        ref = {'role': unit.new_role_ref()}
+        system_role = self.post('/roles', body=ref).json_body['role']
+
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role['id']
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            username=self.user['name'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'],
+            system=True
+        )
+
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+        token = response.headers.get('X-Subject-Token')
+        self._validate_token(token)
+
+        self.delete('/roles/%(role_id)s' % {'role_id': system_role['id']})
+        self._validate_token(token, expected_status=http_client.NOT_FOUND)
+
+    def test_rescoping_a_system_token_for_a_project_token_fails(self):
+        ref = {'role': unit.new_role_ref()}
+        system_role = self.post('/roles', body=ref).json_body['role']
+
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role['id']
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            username=self.user['name'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'],
+            system=True
+        )
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+        system_token = response.headers.get('X-Subject-Token')
+
+        auth_request_body = self.build_authentication_request(
+            token=system_token, project_id=self.project_id
+        )
+        self.v3_create_token(
+            auth_request_body, expected_status=http_client.FORBIDDEN
+        )
+
+    def test_rescoping_a_system_token_for_a_domain_token_fails(self):
+        ref = {'role': unit.new_role_ref()}
+        system_role = self.post('/roles', body=ref).json_body['role']
+
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': system_role['id']
+        }
+        self.put(path=path)
+
+        auth_request_body = self.build_authentication_request(
+            username=self.user['name'],
+            password=self.user['password'],
+            user_domain_id=self.domain['id'],
+            system=True
+        )
+        response = self.v3_create_token(auth_request_body)
+        self.assertValidSystemScopedTokenResponse(response)
+        system_token = response.headers.get('X-Subject-Token')
+
+        auth_request_body = self.build_authentication_request(
+            token=system_token, domain_id=CONF.identity.default_domain_id
+        )
+        self.v3_create_token(
+            auth_request_body, expected_status=http_client.FORBIDDEN
+        )
+
     def test_create_domain_token_scoped_with_domain_id_and_user_id(self):
         # grant the user a role on the domain
         path = '/domains/%s/users/%s/roles/%s' % (

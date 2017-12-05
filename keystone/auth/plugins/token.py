@@ -68,6 +68,13 @@ def token_authenticate(request, token_ref):
         # state in Keystone. To do so is to invite elevation of
         # privilege attacks
 
+        project_scoped = 'project' in request.json_body['auth'].get(
+            'scope', {}
+        )
+        domain_scoped = 'domain' in request.json_body['auth'].get(
+            'scope', {}
+        )
+
         if token_ref.oauth_scoped:
             raise exception.ForbiddenAction(
                 action=_(
@@ -78,6 +85,13 @@ def token_authenticate(request, token_ref):
                 action=_(
                     'Using trust-scoped token to create another token. '
                     'Create a new trust-scoped token instead'))
+        elif token_ref.system_scoped and (project_scoped or domain_scoped):
+            raise exception.ForbiddenAction(
+                action=_(
+                    'Using a system-scoped token to create a project-scoped '
+                    'or domain-scoped token is not allowed.'
+                )
+            )
 
         if not CONF.token.allow_rescope_scoped_token:
             # Do not allow conversion from scoped tokens.

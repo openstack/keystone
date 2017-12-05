@@ -177,6 +177,10 @@ class KeystoneToken(dict):
         return False
 
     @property
+    def system_scoped(self):
+        return 'system' in self
+
+    @property
     def project_scoped(self):
         return 'project' in self
 
@@ -186,7 +190,7 @@ class KeystoneToken(dict):
 
     @property
     def scoped(self):
-        return self.project_scoped or self.domain_scoped
+        return self.project_scoped or self.domain_scoped or self.system_scoped
 
     @property
     def is_admin_project(self):
