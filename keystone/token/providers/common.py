@@ -129,17 +129,22 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             filtered_project['domain'] = None
         return filtered_project
 
-    def _populate_scope(self, token_data, domain_id, project_id):
+    def _populate_scope(self, token_data, system, domain_id, project_id):
         if 'domain' in token_data or 'project' in token_data:
             # scope already exist, no need to populate it again
             return
 
         if domain_id:
             token_data['domain'] = self._get_filtered_domain(domain_id)
-        if project_id:
+        elif project_id:
             token_data['project'] = self._get_filtered_project(project_id)
             project_ref = PROVIDERS.resource_api.get_project(project_id)
             token_data['is_domain'] = project_ref['is_domain']
+        elif system == 'all':
+            # NOTE(lbragstad): This might have to be more elegant in the future
+            # if, or when, keystone supports scoping a token to a specific
+            # service or region.
+            token_data['system'] = {'all': True}
 
     def _populate_is_admin_project(self, token_data):
         # TODO(ayoung): Support the ability for a project acting as a domain
@@ -283,8 +288,8 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             token_data['OS-OAUTH1'] = ({'access_token_id': access_token_id,
                                         'consumer_id': consumer_id})
 
-    def _populate_roles(self, token_data, user_id, domain_id, project_id,
-                        trust, access_token):
+    def _populate_roles(self, token_data, user_id, system, domain_id,
+                        project_id, trust, access_token):
         if 'roles' in token_data:
             # no need to repopulate roles
             return
@@ -325,7 +330,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             token_project_id = project_id
             token_domain_id = domain_id
 
-        if token_domain_id or token_project_id:
+        if system or token_domain_id or token_project_id:
             filtered_roles = []
             if CONF.trust.enabled and trust:
                 # First expand out any roles that were in the trust to include
@@ -337,6 +342,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                 # including any domain specific roles.
                 assignments = PROVIDERS.assignment_api.list_role_assignments(
                     user_id=token_user_id,
+                    system=system,
                     project_id=token_project_id,
                     effective=True, strip_domain_roles=False)
                 current_effective_trustor_roles = (
@@ -369,25 +375,34 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                             'to project %(project_id)s') % {
                                 'user_id': user_id,
                                 'project_id': token_project_id}
-                else:
+                elif token_domain_id:
                     msg = _('User %(user_id)s has no access '
                             'to domain %(domain_id)s') % {
                                 'user_id': user_id,
                                 'domain_id': token_domain_id}
+                elif system:
+                    msg = _('User %(user_id)s has no access '
+                            'to the system') % {'user_id': user_id}
                 LOG.debug(msg)
                 raise exception.Unauthorized(msg)
 
             token_data['roles'] = filtered_roles
 
-    def _populate_service_catalog(self, token_data, user_id,
-                                  domain_id, project_id, trust):
+    def _populate_service_catalog(self, token_data, user_id, system, domain_id,
+                                  project_id, trust):
         if 'catalog' in token_data:
             # no need to repopulate service catalog
             return
 
         if CONF.trust.enabled and trust:
             user_id = trust['trustor_user_id']
-        if project_id or domain_id:
+
+        # NOTE(lbragstad): The catalog API requires a project in order to
+        # generate a service catalog, but that appears to be only if there are
+        # endpoint -> project relationships. In the event we're dealing with a
+        # system_scoped token, we should pass None to the catalog API and just
+        # get a catalog anyway.
+        if project_id or domain_id or system:
             service_catalog = PROVIDERS.catalog_api.get_v3_catalog(
                 user_id, project_id)
             token_data['catalog'] = service_catalog
@@ -422,10 +437,10 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             LOG.error(msg)
             raise exception.UnexpectedError(msg)
 
-    def get_token_data(self, user_id, method_names, domain_id=None,
-                       project_id=None, expires=None, trust=None, token=None,
-                       include_catalog=True, bind=None, access_token=None,
-                       issued_at=None, audit_info=None):
+    def get_token_data(self, user_id, method_names, system=None,
+                       domain_id=None, project_id=None, expires=None,
+                       trust=None, token=None, include_catalog=True, bind=None,
+                       access_token=None, issued_at=None, audit_info=None):
         token_data = {'methods': method_names}
 
         # We've probably already written these to the token
@@ -437,17 +452,18 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
         if bind:
             token_data['bind'] = bind
 
-        self._populate_scope(token_data, domain_id, project_id)
+        self._populate_scope(token_data, system, domain_id, project_id)
         if token_data.get('project'):
             self._populate_is_admin_project(token_data)
         self._populate_user(token_data, user_id, trust)
-        self._populate_roles(token_data, user_id, domain_id, project_id, trust,
-                             access_token)
+        self._populate_roles(token_data, user_id, system, domain_id,
+                             project_id, trust, access_token)
         self._populate_audit_info(token_data, audit_info)
 
         if include_catalog:
-            self._populate_service_catalog(token_data, user_id, domain_id,
-                                           project_id, trust)
+            self._populate_service_catalog(
+                token_data, user_id, system, domain_id, project_id, trust
+            )
         self._populate_service_providers(token_data)
         self._populate_token_dates(token_data, expires=expires,
                                    issued_at=issued_at)
@@ -480,8 +496,8 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
                 federation_constants.PROTOCOL in auth_context)
 
     def issue_token(self, user_id, method_names, expires_at=None,
-                    project_id=None, domain_id=None, auth_context=None,
-                    trust=None, include_catalog=True,
+                    system=None, project_id=None, domain_id=None,
+                    auth_context=None, trust=None, include_catalog=True,
                     parent_audit_id=None):
         if auth_context and auth_context.get('bind'):
             # NOTE(lbragstad): Check if the token provider being used actually
@@ -510,6 +526,7 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
         token_data = self.v3_token_data_helper.get_token_data(
             user_id,
             method_names,
+            system=system,
             domain_id=domain_id,
             project_id=project_id,
             expires=expires_at,
@@ -570,6 +587,7 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
             issued_at = token_data['token']['issued_at']
             expires_at = token_data['token']['expires_at']
             audit_ids = token_data['token'].get('audit_ids')
+            system = token_data['token'].get('system', {}).get('all')
             domain_id = token_data['token'].get('domain', {}).get('id')
             project_id = token_data['token'].get('project', {}).get('id')
             access_token = None
@@ -592,8 +610,9 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
                 token_dict = {'user': token_ref['user']}
         else:
             try:
-                (user_id, methods, audit_ids, domain_id, project_id, trust_id,
-                    federated_info, access_token_id, issued_at, expires_at) = (
+                (user_id, methods, audit_ids, system, domain_id,
+                    project_id, trust_id, federated_info, access_token_id,
+                    issued_at, expires_at) = (
                         self.token_formatter.validate_token(token_id))
             except exception.ValidationError as e:
                 raise exception.TokenNotFound(e)
@@ -633,6 +652,7 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
         return self.v3_token_data_helper.get_token_data(
             user_id,
             method_names=methods,
+            system=system,
             domain_id=domain_id,
             project_id=project_id,
             issued_at=issued_at,
