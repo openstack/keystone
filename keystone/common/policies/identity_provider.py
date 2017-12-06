@@ -18,12 +18,20 @@ identity_provider_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
+        # FIXME(lbragstad): All `scope_types` for identity provider policies
+        # should be updated to include project scope if, or when, it becomes
+        # possible to manage federated identity providers without modifying
+        # configurations outside of keystone (Apache). It makes sense to
+        # associate system scope to identity provider management since it
+        # requires modifying configuration files.
+        scope_types=['system'],
         description='Create identity provider.',
         operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
                      'method': 'PUT'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_identity_providers',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List identity providers.',
         operations=[
             {
@@ -39,6 +47,7 @@ identity_provider_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Get identity provider.',
         operations=[
             {
@@ -54,12 +63,14 @@ identity_provider_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update identity provider.',
         operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete identity provider.',
         operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
                      'method': 'DELETE'}])
