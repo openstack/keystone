@@ -26,33 +26,26 @@ List groups
 
 .. rest_method::  GET /v3/groups
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/groups``
-
 Lists groups.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/groups``
 
-.. rest_status_code:: success status.yaml
+Request
+-------
 
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - name: group_name_query
    - domain_id: domain_id_query
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -64,8 +57,21 @@ Response Parameters
    - links: link_response_body
    - name: group_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/groups-list-response.json
    :language: javascript
@@ -76,12 +82,46 @@ Create group
 
 .. rest_method::  POST /v3/groups
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/groups``
-
 Creates a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/groups``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group
+   - description: group_description_request_body
+   - domain_id: group_domain_id_request_body
+   - name: group_name_request_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/group-create-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -94,36 +134,8 @@ Response Codes
    - 403
    - 409
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group: group
-   - description: group_description_request_body
-   - domain_id: group_domain_id_request_body
-   - name: group_name_request_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/group-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group: group
-   - description: group_description_response_body
-   - domain_id: group_domain_id_response_body
-   - id: group_id_response_body
-   - links: link_response_body
-   - name: group_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/group-show-response.json
    :language: javascript
@@ -134,12 +146,37 @@ Show group details
 
 .. rest_method::  GET /v3/groups/{group_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
-
 Shows details for a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id_path
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -152,27 +189,8 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id_path
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group: group
-   - description: group_description_response_body
-   - domain_id: group_domain_id_response_body
-   - id: group_id_response_body
-   - links: link_response_body
-   - name: group_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/group-show-response.json
    :language: javascript
@@ -183,15 +201,50 @@ Update group
 
 .. rest_method::  PATCH /v3/groups/{group_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
-
 Updates a group.
 
 If the back-end driver does not support this functionality, the
 call returns the ``Not Implemented (501)`` response code.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id_path
+   - group: group
+   - description: group_description_update_request_body
+   - domain_id: group_domain_id_update_request_body
+   - name: group_name_update_request_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/group-update-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group: group
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -206,37 +259,8 @@ Response Codes
    - 409
    - 501
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id_path
-   - group: group
-   - description: group_description_update_request_body
-   - domain_id: group_domain_id_update_request_body
-   - name: group_name_update_request_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/group-update-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group: group
-   - description: group_description_response_body
-   - domain_id: group_domain_id_response_body
-   - id: group_id_response_body
-   - links: link_response_body
-   - name: group_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/group-update-response.json
    :language: javascript
@@ -247,12 +271,25 @@ Delete group
 
 .. rest_method::  DELETE /v3/groups/{group_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
-
 Deletes a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -265,25 +302,32 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id_path
-
 
 List users in group
 ===================
 
 .. rest_method::  GET /v3/groups/{group_id}/users
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_users``
-
 Lists the users that belong to a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_users``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - group_id: group_id_path
+   - password_expires_at: password_expires_at_query
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -296,16 +340,8 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - group_id: group_id_path
-   - password_expires_at: password_expires_at_query
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/group-users-list-response.json
    :language: javascript
@@ -316,12 +352,26 @@ Add user to group
 
 .. rest_method::  PUT /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
-
 Adds a user to a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+   - group_id: group_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -334,26 +384,32 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-   - group_id: group_id_path
-
 
 Check whether user belongs to group
 ===================================
 
 .. rest_method::  HEAD /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
-
 Validates that a user belongs to a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+   - group_id: group_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -365,14 +421,6 @@ Response Codes
    - 401
    - 403
    - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-   - group_id: group_id_path
 
 
 Remove user from group
@@ -380,12 +428,26 @@ Remove user from group
 
 .. rest_method::  DELETE /v3/groups/{group_id}/users/{user_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
-
 Removes a user from a group.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/group_user``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: user_id_path
+   - group_id: group_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -397,11 +459,3 @@ Response Codes
    - 401
    - 403
    - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - user_id: user_id_path
-   - group_id: group_id_path
