@@ -18,30 +18,37 @@ policy_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_policy',
         check_str=base.RULE_ADMIN_REQUIRED,
+        # This API isn't really exposed to usable, it's actually deprecated.
+        # More-or-less adding scope_types to be consistent with other policies.
+        scope_types=['system'],
         description='Show policy details.',
         operations=[{'path': '/v3/policy/{policy_id}',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_policies',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List policies.',
         operations=[{'path': '/v3/policies',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Create policy.',
         operations=[{'path': '/v3/policies',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_policy',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update policy.',
         operations=[{'path': '/v3/policies/{policy_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete policy.',
         operations=[{'path': '/v3/policies/{policy_id}',
                      'method': 'DELETE'}])
