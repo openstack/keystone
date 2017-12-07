@@ -159,10 +159,6 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
             # different systems) to unauthorized parties.
             hashed_passwd = password_hashing.hash_password(value)
 
-            # TODO(notmorgan): Remove this compat code in Q release.
-            if CONF.identity.rolling_upgrade_password_hash_compat:
-                hashed_compat = password_hashing.hash_password_compat(value)
-
         new_password_ref.password_hash = hashed_passwd
         new_password_ref.password = hashed_compat
         new_password_ref.created_at = now

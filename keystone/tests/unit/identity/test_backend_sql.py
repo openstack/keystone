@@ -78,45 +78,6 @@ class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
             password_hashing._get_hasher_from_ident(user_ref.password))
 
 
-class UserPasswordHashingTestsWithCompat(test_backend_sql.SqlTests):
-    def config_overrides(self):
-        super(UserPasswordHashingTestsWithCompat, self).config_overrides()
-        self.config_fixture.config(
-            group='identity',
-            rolling_upgrade_password_hash_compat=True)
-
-    def test_compat_password_hashing(self):
-        with sql.session_for_read() as session:
-            user_ref = self.identity_api._get_user(session,
-                                                   self.user_foo['id'])
-        self.assertIsNotNone(user_ref.password_ref.password)
-        self.assertIsNotNone(user_ref.password_ref.password_hash)
-        self.assertEqual(user_ref.password,
-                         user_ref.password_ref.password_hash)
-        self.assertNotEqual(user_ref.password,
-                            user_ref.password_ref.password)
-        self.assertTrue(password_hashing.check_password(
-            self.user_foo['password'], user_ref.password))
-        self.assertTrue(password_hashing.check_password(
-            self.user_foo['password'], user_ref.password_ref.password))
-
-    def test_user_with_compat_password_hash_only(self):
-        with sql.session_for_write() as session:
-            user_ref = self.identity_api._get_user(session,
-                                                   self.user_foo['id'])
-            user_ref.password_ref.password_hash = None
-
-        with sql.session_for_read() as session:
-            user_ref = self.identity_api._get_user(session,
-                                                   self.user_foo['id'])
-
-        self.assertIsNone(user_ref.password_ref.password_hash)
-        self.assertIsNotNone(user_ref.password)
-        self.assertEqual(user_ref.password, user_ref.password_ref.password)
-        self.assertTrue(password_hashing.check_password(
-            self.user_foo['password'], user_ref.password))
-
-
 class UserResourceOptionTests(test_backend_sql.SqlTests):
     def setUp(self):
         super(UserResourceOptionTests, self).setUp()

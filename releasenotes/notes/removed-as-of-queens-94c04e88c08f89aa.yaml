@@ -6,3 +6,6 @@ other:
     and will no longer create a default member role. Please create any
     additional roles you need after running ``bootstrap`` by using the
     ``openstack role create`` command.
+  - >
+    The config option ``rolling_upgrade_password_hash_compat`` is removed. It
+    is only used for rolling-upgrade from Ocata release to Pike release.
