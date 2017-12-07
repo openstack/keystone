@@ -739,9 +739,11 @@ class TestCase(BaseTestCase):
                 # the dict returned.
                 user_copy['password'] = user['password']
 
+                # fixtures.ROLES[2] is the _member_ role.
                 for tenant_id in tenants:
-                    self.assignment_api.add_user_to_project(
-                        tenant_id, user_copy['id'])
+                    self.assignment_api.add_role_to_user_and_project(
+                        user_copy['id'], tenant_id, fixtures.ROLES[2]['id'])
+
                 # Use the ID from the fixture as the attribute name, so
                 # that our tests can easily reference each user dict, while
                 # the ID in the dict will be the real public ID.

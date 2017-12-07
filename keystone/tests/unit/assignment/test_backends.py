@@ -1779,86 +1779,6 @@ class AssignmentTests(AssignmentTestHelperMixin):
                           user_id=self.user_foo['id'],
                           source_from_group_ids=[group['id']])
 
-    def test_add_user_to_project(self):
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                self.user_foo['id'])
-        tenants = self.assignment_api.list_projects_for_user(
-            self.user_foo['id'])
-        self.assertIn(self.tenant_baz, tenants)
-
-    def test_add_user_to_project_missing_default_role(self):
-        self.role_api.delete_role(CONF.member_role_id)
-        self.assertRaises(exception.RoleNotFound,
-                          self.role_api.get_role,
-                          CONF.member_role_id)
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                self.user_foo['id'])
-        tenants = (
-            self.assignment_api.list_projects_for_user(self.user_foo['id']))
-        self.assertIn(self.tenant_baz, tenants)
-        default_role = self.role_api.get_role(CONF.member_role_id)
-        self.assertIsNotNone(default_role)
-
-    def test_add_user_to_project_returns_not_found(self):
-        self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.add_user_to_project,
-                          uuid.uuid4().hex,
-                          self.user_foo['id'])
-
-    def test_add_user_to_project_no_user(self):
-        # If add_user_to_project and the user doesn't exist, then
-        # no error.
-        user_id_not_exist = uuid.uuid4().hex
-        self.assignment_api.add_user_to_project(self.tenant_bar['id'],
-                                                user_id_not_exist)
-
-    def test_remove_user_from_project(self):
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                self.user_foo['id'])
-        self.assignment_api.remove_user_from_project(self.tenant_baz['id'],
-                                                     self.user_foo['id'])
-        tenants = self.assignment_api.list_projects_for_user(
-            self.user_foo['id'])
-        self.assertNotIn(self.tenant_baz, tenants)
-
-    def test_remove_user_from_project_race_delete_role(self):
-        self.assignment_api.add_user_to_project(self.tenant_baz['id'],
-                                                self.user_foo['id'])
-        self.assignment_api.add_role_to_user_and_project(
-            tenant_id=self.tenant_baz['id'],
-            user_id=self.user_foo['id'],
-            role_id=self.role_other['id'])
-
-        # Mock a race condition, delete a role after
-        # get_roles_for_user_and_project() is called in
-        # remove_user_from_project().
-        roles = self.assignment_api.get_roles_for_user_and_project(
-            self.user_foo['id'], self.tenant_baz['id'])
-        self.role_api.delete_role(self.role_other['id'])
-        self.assignment_api.get_roles_for_user_and_project = mock.Mock(
-            return_value=roles)
-        self.assignment_api.remove_user_from_project(self.tenant_baz['id'],
-                                                     self.user_foo['id'])
-        tenants = self.assignment_api.list_projects_for_user(
-            self.user_foo['id'])
-        self.assertNotIn(self.tenant_baz, tenants)
-
-    def test_remove_user_from_project_returns_not_found(self):
-        self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.remove_user_from_project,
-                          uuid.uuid4().hex,
-                          self.user_foo['id'])
-
-        self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.remove_user_from_project,
-                          self.tenant_bar['id'],
-                          uuid.uuid4().hex)
-
-        self.assertRaises(exception.NotFound,
-                          self.assignment_api.remove_user_from_project,
-                          self.tenant_baz['id'],
-                          self.user_foo['id'])
-
     def test_list_user_project_ids_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
                           self.assignment_api.list_projects_for_user,
@@ -1867,8 +1787,11 @@ class AssignmentTests(AssignmentTestHelperMixin):
     def test_delete_user_with_project_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = self.identity_api.create_user(user)
-        self.assignment_api.add_user_to_project(self.tenant_bar['id'],
-                                                user['id'])
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+        self.assignment_api.add_role_to_user_and_project(user['id'],
+                                                         self.tenant_bar['id'],
+                                                         role_member['id'])
         self.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
                           self.assignment_api.list_projects_for_user,

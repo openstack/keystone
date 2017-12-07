@@ -234,8 +234,12 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                                  domain_id=domain2['id'],
                                  project_id=project2['id'])
 
-        self.assignment_api.add_user_to_project(project2['id'],
-                                                user2['id'])
+        role_member = unit.new_role_ref()
+        self.role_api.create_role(role_member['id'], role_member)
+
+        self.assignment_api.add_role_to_user_and_project(user2['id'],
+                                                         project2['id'],
+                                                         role_member['id'])
 
         # First check a user in that domain can authenticate..
         auth_data = self.build_authentication_request(

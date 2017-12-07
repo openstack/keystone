@@ -162,24 +162,6 @@ class Manager(manager.Manager):
                          "was already created",
                          CONF.member_role_id)
 
-    def add_user_to_project(self, tenant_id, user_id):
-        """Add user to a tenant by creating a default role relationship.
-
-        :raises keystone.exception.ProjectNotFound: If the project doesn't
-            exist.
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-
-        """
-        self.resource_api.get_project(tenant_id)
-        self.ensure_default_role()
-
-        # now that default role exists, the add should succeed
-        self.driver.add_role_to_user_and_project(
-            user_id,
-            tenant_id,
-            CONF.member_role_id)
-        COMPUTED_ASSIGNMENTS_REGION.invalidate()
-
     @notifications.role_assignment('created')
     def _add_role_to_user_and_project_adapter(self, role_id, user_id=None,
                                               group_id=None, domain_id=None,
@@ -198,27 +180,6 @@ class Manager(manager.Manager):
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
         self._add_role_to_user_and_project_adapter(
             role_id, user_id=user_id, project_id=tenant_id)
-        COMPUTED_ASSIGNMENTS_REGION.invalidate()
-
-    def remove_user_from_project(self, tenant_id, user_id):
-        """Remove user from a tenant.
-
-        :raises keystone.exception.ProjectNotFound: If the project doesn't
-            exist.
-        :raises keystone.exception.UserNotFound: If the user doesn't exist.
-
-        """
-        roles = self.get_roles_for_user_and_project(user_id, tenant_id)
-        if not roles:
-            raise exception.NotFound(tenant_id)
-        for role_id in roles:
-            try:
-                self.driver.remove_role_from_user_and_project(user_id,
-                                                              tenant_id,
-                                                              role_id)
-            except exception.RoleNotFound:
-                LOG.debug("Removing role %s failed because it does not exist.",
-                          role_id)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     # TODO(henry-nash): We might want to consider list limiting this at some
