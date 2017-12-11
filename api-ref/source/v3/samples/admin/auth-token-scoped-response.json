@@ -385,7 +385,6 @@
                 "name": "swift"
             }
         ],
-        "extras": {},
         "user": {
             "domain": {
                 "id": "default",

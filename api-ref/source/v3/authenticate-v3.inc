@@ -142,7 +142,6 @@ Response Parameters
    - methods: auth_methods_passwd
    - expires_at: expires_at
    - token: token
-   - extras: extras
    - user: user
    - audit_ids: audit_ids
    - issued_at: issued_at
@@ -211,7 +210,6 @@ Response Parameters
    - project: project
    - issued_at: issued_at
    - catalog: catalog
-   - extras: extras
    - user: user
    - audit_ids: audit_ids
    - interface: endpoint_interface
@@ -275,7 +273,6 @@ Response Parameters
    - roles: roles
    - expires_at: expires_at
    - token: token
-   - extras: extras
    - user: user
    - audit_ids: audit_ids
    - issued_at: issued_at
@@ -476,7 +473,6 @@ Response Parameters
    - expires_at: expires_at
    - project: project
    - catalog: catalog
-   - extras: extras
    - roles: roles
    - audit_ids: audit_ids
    - issued_at: issued_at

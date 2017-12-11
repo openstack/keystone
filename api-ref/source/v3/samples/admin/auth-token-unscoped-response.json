@@ -4,7 +4,6 @@
             "token"
         ],
         "expires_at": "2015-11-05T22:00:11.000000Z",
-        "extras": {},
         "user": {
             "domain": {
                 "id": "default",

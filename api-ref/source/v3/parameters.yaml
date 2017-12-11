@@ -849,12 +849,6 @@ explicit_unscoped_string:
   in: body
   required: false
   type: string
-extras:
-  description: |
-    A set of metadata key and value pairs, if any.
-  in: body
-  required: true
-  type: object
 group:
   description: |
     A ``group`` object, containing:
