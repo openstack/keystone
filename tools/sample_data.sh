@@ -25,15 +25,12 @@
 # Disable creation of endpoints by setting DISABLE_ENDPOINTS environment variable.
 # Use this with the Catalog Templated backend.
 #
-# A EC2-compatible credential is created for the admin user and
-# placed in etc/ec2rc.
-#
-# Tenant               User      Roles
+# Project              User      Roles
 # -------------------------------------------------------
 # demo                 admin     admin
 # service              glance    service
 # service              nova      service
-# service              ec2       service
+# service              cinder    service
 # service              swift     service
 # service              neutron   service
 
@@ -51,7 +48,7 @@ type openstack >/dev/null 2>&1 || {
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-secret}
 NOVA_PASSWORD=${NOVA_PASSWORD:-${SERVICE_PASSWORD:-nova}}
 GLANCE_PASSWORD=${GLANCE_PASSWORD:-${SERVICE_PASSWORD:-glance}}
-EC2_PASSWORD=${EC2_PASSWORD:-${SERVICE_PASSWORD:-ec2}}
+CINDER_PASSWORD=${CINDER_PASSWORD:-${SERVICE_PASSWORD:-cinder}}
 SWIFT_PASSWORD=${SWIFT_PASSWORD:-${SERVICE_PASSWORD:-swiftpass}}
 NEUTRON_PASSWORD=${NEUTRON_PASSWORD:-${SERVICE_PASSWORD:-neutron}}
 
@@ -61,15 +58,13 @@ CONTROLLER_INTERNAL_ADDRESS=${CONTROLLER_INTERNAL_ADDRESS:-localhost}
 
 TOOLS_DIR=$(cd $(dirname "$0") && pwd)
 KEYSTONE_CONF=${KEYSTONE_CONF:-/etc/keystone/keystone.conf}
-if [[ -r "$KEYSTONE_CONF" ]]; then
-    EC2RC="$(dirname "$KEYSTONE_CONF")/ec2rc"
-elif [[ -r "$TOOLS_DIR/../etc/keystone.conf" ]]; then
-    # assume git checkout
-    KEYSTONE_CONF="$TOOLS_DIR/../etc/keystone.conf"
-    EC2RC="$TOOLS_DIR/../etc/ec2rc"
-else
-    KEYSTONE_CONF=""
-    EC2RC="ec2rc"
+if [[ ! -r "$KEYSTONE_CONF" ]]; then
+    if [[ -r "$TOOLS_DIR/../etc/keystone.conf" ]]; then
+        # assume git checkout
+        KEYSTONE_CONF="$TOOLS_DIR/../etc/keystone.conf"
+    else
+        KEYSTONE_CONF=""
+    fi
 fi
 
 # Extract some info from Keystone's configuration file
@@ -124,10 +119,10 @@ openstack role add --user nova \
                    --project service \
                    service
 
-openstack user create ec2 --project service \
-                      --password "${EC2_PASSWORD}"
+openstack user create cinder --project service \
+                      --password "${CINDER_PASSWORD}"
 
-openstack role add --user ec2 \
+openstack role add --user cinder \
                    --project service \
                    service
 
@@ -148,31 +143,55 @@ openstack role add --user neutron \
 #
 # Nova service
 #
+openstack service create --name=nova_legacy \
+                         --description="Nova Compute Service (Legacy 2.0)" \
+                         compute_legacy
+if [[ -z "$DISABLE_ENDPOINTS" ]]; then
+    openstack endpoint create --region RegionOne \
+        compute public "http://$CONTROLLER_PUBLIC_ADDRESS:8774/v2/\$(project_id)s"
+    openstack endpoint create --region RegionOne \
+        compute admin "http://$CONTROLLER_ADMIN_ADDRESS:8774/v2/\$(project_id)s"
+    openstack endpoint create --region RegionOne \
+        compute internal "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2/\$(project_id)s"
+fi
+
 openstack service create --name=nova \
                          --description="Nova Compute Service" \
                          compute
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        compute public "http://$CONTROLLER_PUBLIC_ADDRESS:8774/v2/\$(tenant_id)s"
+        compute public "http://$CONTROLLER_PUBLIC_ADDRESS:8774/v2.1"
     openstack endpoint create --region RegionOne \
-        compute admin "http://$CONTROLLER_ADMIN_ADDRESS:8774/v2/\$(tenant_id)s"
+        compute admin "http://$CONTROLLER_ADMIN_ADDRESS:8774/v2.1"
     openstack endpoint create --region RegionOne \
-        compute internal "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2/\$(tenant_id)s"
+        compute internal "http://$CONTROLLER_INTERNAL_ADDRESS:8774/v2.1"
 fi
 
 #
 # Volume service
 #
-openstack service create --name=volume \
-                         --description="Cinder Volume Service" \
-                         volume
+openstack service create --name=cinderv2 \
+                         --description="Cinder Volume Service V2" \
+                         volumev2
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v1/\$(tenant_id)s"
+        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v2/\$(project_id)s"
     openstack endpoint create --region RegionOne \
-        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v1/\$(tenant_id)s"
+        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v2/\$(project_id)s"
     openstack endpoint create --region RegionOne \
-        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v1/\$(tenant_id)s"
+        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v2/\$(project_id)s"
+fi
+
+openstack service create --name=cinderv3 \
+                         --description="Cinder Volume Service V3" \
+                         volumev3
+if [[ -z "$DISABLE_ENDPOINTS" ]]; then
+    openstack endpoint create --region RegionOne \
+        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v3/\$(project_id)s"
+    openstack endpoint create --region RegionOne \
+        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v3/\$(project_id)s"
+    openstack endpoint create --region RegionOne \
+        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v3/\$(project_id)s"
 fi
 
 #
@@ -191,21 +210,6 @@ if [[ -z "$DISABLE_ENDPOINTS" ]]; then
 fi
 
 #
-# EC2 service
-#
-openstack service create --name=ec2 \
-                         --description="EC2 Compatibility Layer" \
-                         ec2
-if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    openstack endpoint create --region RegionOne \
-        ec2 public "http://$CONTROLLER_PUBLIC_ADDRESS:8773/services/Cloud"
-    openstack endpoint create --region RegionOne \
-        ec2 admin "http://$CONTROLLER_ADMIN_ADDRESS:8773/services/Admin"
-    openstack endpoint create --region RegionOne \
-        ec2 internal "http://$CONTROLLER_INTERNAL_ADDRESS:8773/services/Cloud"
-fi
-
-#
 # Swift service
 #
 openstack service create --name=swift \
@@ -213,11 +217,11 @@ openstack service create --name=swift \
                          object-store
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        object-store public "http://$CONTROLLER_PUBLIC_ADDRESS:8080/v1/AUTH_\$(tenant_id)s"
+        object-store public "http://$CONTROLLER_PUBLIC_ADDRESS:8080/v1/AUTH_\$(project_id)s"
     openstack endpoint create --region RegionOne \
         object-store admin "http://$CONTROLLER_ADMIN_ADDRESS:8080/v1"
     openstack endpoint create --region RegionOne \
-        object-store internal "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(tenant_id)s"
+        object-store internal "http://$CONTROLLER_INTERNAL_ADDRESS:8080/v1/AUTH_\$(project_id)s"
 fi
 
 #
@@ -234,15 +238,3 @@ if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
         network internal "http://$CONTROLLER_INTERNAL_ADDRESS:9696"
 fi
-
-# create ec2 creds and parse the secret and access key returned
-ADMIN_USER=$(openstack user show admin -f value -c id)
-RESULT=$(openstack ec2 credentials create --project service --user $ADMIN_USER)
-ADMIN_ACCESS=`echo "$RESULT" | grep access | awk '{print $4}'`
-ADMIN_SECRET=`echo "$RESULT" | grep secret | awk '{print $4}'`
-
-# write the secret and access to ec2rc
-cat > $EC2RC <<EOF
-ADMIN_ACCESS=$ADMIN_ACCESS
-ADMIN_SECRET=$ADMIN_SECRET
-EOF
