@@ -852,7 +852,7 @@ class CredentialDoctorTests(unit.TestCase):
     def test_usability_of_cred_fernet_key_repo_raised(self, mock_utils):
         # Symptom Detected: credential fernet key repository is world readable
         self.config_fixture.config(group='credential', provider='fernet')
-        mock_utils.FernetUtils().validate_key_repository.return_value = False
+        mock_utils.TokenUtils().validate_key_repository.return_value = False
         self.assertTrue(
             credential.symptom_usability_of_credential_fernet_key_repository())
 
@@ -860,13 +860,13 @@ class CredentialDoctorTests(unit.TestCase):
     def test_usability_of_cred_fernet_key_repo_not_raised(self, mock_utils):
         # No Symptom Detected: Custom driver is used
         self.config_fixture.config(group='credential', provider='my-driver')
-        mock_utils.FernetUtils().validate_key_repository.return_value = True
+        mock_utils.TokenUtils().validate_key_repository.return_value = True
         self.assertFalse(
             credential.symptom_usability_of_credential_fernet_key_repository())
 
         # No Symptom Detected: key repository is not world readable
         self.config_fixture.config(group='credential', provider='fernet')
-        mock_utils.FernetUtils().validate_key_repository.return_value = True
+        mock_utils.TokenUtils().validate_key_repository.return_value = True
         self.assertFalse(
             credential.symptom_usability_of_credential_fernet_key_repository())
 
@@ -874,7 +874,7 @@ class CredentialDoctorTests(unit.TestCase):
     def test_keys_in_credential_fernet_key_repository_raised(self, mock_utils):
         # Symptom Detected: Key repo is empty
         self.config_fixture.config(group='credential', provider='fernet')
-        mock_utils.FernetUtils().load_keys.return_value = False
+        mock_utils.TokenUtils().load_keys.return_value = False
         self.assertTrue(
             credential.symptom_keys_in_credential_fernet_key_repository())
 
@@ -883,13 +883,13 @@ class CredentialDoctorTests(unit.TestCase):
             self, mock_utils):
         # No Symptom Detected: Custom driver is used
         self.config_fixture.config(group='credential', provider='my-driver')
-        mock_utils.FernetUtils().load_keys.return_value = True
+        mock_utils.TokenUtils().load_keys.return_value = True
         self.assertFalse(
             credential.symptom_keys_in_credential_fernet_key_repository())
 
         # No Symptom Detected: Key repo is not empty, fernet is current driver
         self.config_fixture.config(group='credential', provider='fernet')
-        mock_utils.FernetUtils().load_keys.return_value = True
+        mock_utils.TokenUtils().load_keys.return_value = True
         self.assertFalse(
             credential.symptom_keys_in_credential_fernet_key_repository())
 
@@ -1273,7 +1273,7 @@ class TokenFernetDoctorTests(unit.TestCase):
     def test_usability_of_Fernet_key_repository_raised(self, mock_utils):
         # Symptom Detected: Fernet key repo is world readable
         self.config_fixture.config(group='token', provider='fernet')
-        mock_utils.FernetUtils().validate_key_repository.return_value = False
+        mock_utils.TokenUtils().validate_key_repository.return_value = False
         self.assertTrue(
             tokens_fernet.symptom_usability_of_Fernet_key_repository())
 
@@ -1281,14 +1281,14 @@ class TokenFernetDoctorTests(unit.TestCase):
     def test_usability_of_Fernet_key_repository_not_raised(self, mock_utils):
         # No Symptom Detected: UUID is used instead of fernet
         self.config_fixture.config(group='token', provider='uuid')
-        mock_utils.FernetUtils().validate_key_repository.return_value = False
+        mock_utils.TokenUtils().validate_key_repository.return_value = False
         self.assertFalse(
             tokens_fernet.symptom_usability_of_Fernet_key_repository())
 
         # No Symptom Detected: configs set properly, key repo is not world
         # readable but is user readable
         self.config_fixture.config(group='token', provider='fernet')
-        mock_utils.FernetUtils().validate_key_repository.return_value = True
+        mock_utils.TokenUtils().validate_key_repository.return_value = True
         self.assertFalse(
             tokens_fernet.symptom_usability_of_Fernet_key_repository())
 
@@ -1296,7 +1296,7 @@ class TokenFernetDoctorTests(unit.TestCase):
     def test_keys_in_Fernet_key_repository_raised(self, mock_utils):
         # Symptom Detected: Fernet key repository is empty
         self.config_fixture.config(group='token', provider='fernet')
-        mock_utils.FernetUtils().load_keys.return_value = False
+        mock_utils.TokenUtils().load_keys.return_value = False
         self.assertTrue(
             tokens_fernet.symptom_keys_in_Fernet_key_repository())
 
@@ -1304,14 +1304,14 @@ class TokenFernetDoctorTests(unit.TestCase):
     def test_keys_in_Fernet_key_repository_not_raised(self, mock_utils):
         # No Symptom Detected: UUID is used instead of fernet
         self.config_fixture.config(group='token', provider='uuid')
-        mock_utils.FernetUtils().load_keys.return_value = True
+        mock_utils.TokenUtils().load_keys.return_value = True
         self.assertFalse(
             tokens_fernet.symptom_usability_of_Fernet_key_repository())
 
         # No Symptom Detected: configs set properly, key repo has been
         # populated with keys
         self.config_fixture.config(group='token', provider='fernet')
-        mock_utils.FernetUtils().load_keys.return_value = True
+        mock_utils.TokenUtils().load_keys.return_value = True
         self.assertFalse(
             tokens_fernet.symptom_usability_of_Fernet_key_repository())
 

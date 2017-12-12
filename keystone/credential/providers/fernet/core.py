@@ -16,7 +16,7 @@ from cryptography import fernet
 from oslo_log import log
 import six
 
-from keystone.common import fernet_utils
+from keystone.common import token_utils
 import keystone.conf
 from keystone.credential.providers import core
 from keystone import exception
@@ -36,13 +36,13 @@ LOG = log.getLogger(__name__)
 # could remove a key used to encrypt credentials, leaving them recoverable.
 # This also means that we don't need to expose a `[credential] max_active_keys`
 # option through configuration. Instead we will use a global configuration and
-# share that across all places that need to use FernetUtils for credential
+# share that across all places that need to use TokenUtils for credential
 # encryption.
 MAX_ACTIVE_KEYS = 3
 
 
 def get_multi_fernet_keys():
-    key_utils = fernet_utils.FernetUtils(
+    key_utils = token_utils.TokenUtils(
         CONF.credential.key_repository, MAX_ACTIVE_KEYS,
         'credential')
     keys = key_utils.load_keys(use_null_key=True)
@@ -73,7 +73,7 @@ class Provider(core.Provider):
         """
         crypto, keys = get_multi_fernet_keys()
 
-        if keys[0] == fernet_utils.NULL_KEY:
+        if keys[0] == token_utils.NULL_KEY:
             LOG.warning(
                 'Encrypting credentials with the null key. Please properly '
                 'encrypt credentials using `keystone-manage credential_setup`,'
@@ -95,7 +95,7 @@ class Provider(core.Provider):
         :param credential: an encrypted credential string
         :returns: a decrypted credential
         """
-        key_utils = fernet_utils.FernetUtils(
+        key_utils = token_utils.TokenUtils(
             CONF.credential.key_repository, MAX_ACTIVE_KEYS)
         keys = key_utils.load_keys(use_null_key=True)
         fernet_keys = [fernet.Fernet(key) for key in keys]

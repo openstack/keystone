@@ -21,7 +21,7 @@ from oslo_utils import timeutils
 import six
 
 from keystone import auth
-from keystone.common import fernet_utils
+from keystone.common import token_utils
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -491,7 +491,7 @@ class TestFernetKeyRotation(unit.TestCase):
 
         """
         # Load the keys into a list, keys is list of six.text_type.
-        key_utils = fernet_utils.FernetUtils(
+        key_utils = token_utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'
@@ -559,7 +559,7 @@ class TestFernetKeyRotation(unit.TestCase):
 
             # Rotate the keys just enough times to fully populate the key
             # repository.
-            key_utils = fernet_utils.FernetUtils(
+            key_utils = token_utils.TokenUtils(
                 CONF.fernet_tokens.key_repository,
                 CONF.fernet_tokens.max_active_keys,
                 'fernet_tokens'
@@ -577,7 +577,7 @@ class TestFernetKeyRotation(unit.TestCase):
 
             # Rotate an additional number of times to ensure that we maintain
             # the desired number of active keys.
-            key_utils = fernet_utils.FernetUtils(
+            key_utils = token_utils.TokenUtils(
                 CONF.fernet_tokens.key_repository,
                 CONF.fernet_tokens.max_active_keys,
                 'fernet_tokens'
@@ -604,7 +604,7 @@ class TestFernetKeyRotation(unit.TestCase):
         # Make sure that the init key repository contains 2 keys
         self.assertRepositoryState(expected_size=2)
 
-        key_utils = fernet_utils.FernetUtils(
+        key_utils = token_utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'
@@ -615,13 +615,13 @@ class TestFernetKeyRotation(unit.TestCase):
         file_handle = mock_open()
         file_handle.flush.side_effect = IOError('disk full')
 
-        with mock.patch('keystone.common.fernet_utils.open', mock_open):
+        with mock.patch('keystone.common.token_utils.open', mock_open):
             self.assertRaises(IOError, key_utils.rotate_keys)
 
         # Assert that the key repository is unchanged
         self.assertEqual(self.key_repository_size, 2)
 
-        with mock.patch('keystone.common.fernet_utils.open', mock_open):
+        with mock.patch('keystone.common.token_utils.open', mock_open):
             self.assertRaises(IOError, key_utils.rotate_keys)
 
         # Assert that the key repository is still unchanged, even after
@@ -646,7 +646,7 @@ class TestFernetKeyRotation(unit.TestCase):
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '99.bak')
         with open(evil_file, 'w'):
             pass
-        key_utils = fernet_utils.FernetUtils(
+        key_utils = token_utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'
@@ -678,7 +678,7 @@ class TestLoadKeys(unit.TestCase):
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '~1')
         with open(evil_file, 'w'):
             pass
-        key_utils = fernet_utils.FernetUtils(
+        key_utils = token_utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'

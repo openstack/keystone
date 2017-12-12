@@ -16,7 +16,7 @@ import uuid
 
 from oslo_log import log
 
-from keystone.common import fernet_utils
+from keystone.common import token_utils
 from keystone.credential.providers import fernet as credential_fernet
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
@@ -63,7 +63,7 @@ class TestFernetCredentialProviderWithNullKey(unit.TestCase):
         )
 
     def test_encryption_with_null_key(self):
-        null_key = fernet_utils.NULL_KEY
+        null_key = token_utils.NULL_KEY
         # NOTE(lhinds) This is marked as #nosec since bandit will see SHA1
         # which is marked insecure. Keystone uses SHA1 in this case as part of
         # HMAC-SHA1 which is currently not insecure but will still get

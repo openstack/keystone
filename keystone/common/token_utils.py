@@ -33,7 +33,7 @@ CONF = keystone.conf.CONF
 NULL_KEY = base64.urlsafe_b64encode(b'\x00' * 32)
 
 
-class FernetUtils(object):
+class TokenUtils(object):
 
     def __init__(self, key_repository=None, max_active_keys=None,
                  config_group=None):
