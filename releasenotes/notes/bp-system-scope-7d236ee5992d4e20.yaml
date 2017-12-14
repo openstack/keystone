@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    [`blueprint system-scope <https://blueprints.launchpad.net/keystone/+spec/system-scope>`_]
+    Keystone now supports the ability to assign roles to users and groups on
+    the system. As a result, users and groups with system role assignment will
+    be able to request system-scoped tokens.
+fixes:
+  - |
+    [`bug 968696 <https://bugs.launchpad.net/keystone/+bug/968696>`_]
+    The work to introduce `system-scope <https://blueprints.launchpad.net/keystone/+spec/system-scope>`_
+    in addition to associating `scope types <http://specs.openstack.org/openstack/oslo-specs/specs/queens/include-scope-in-policy.html>`_
+    to operations with ``oslo.policy`` will give project developers the ability
+    to fix `bug 968696 <https://bugs.launchpad.net/keystone/+bug/968696>`_.
