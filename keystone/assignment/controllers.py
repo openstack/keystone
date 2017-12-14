@@ -114,8 +114,8 @@ class RoleV3(controller.V3Controller):
             # We hide this error since we have not yet carried out a policy
             # check - and it maybe that the caller isn't authorized to make
             # this call. If so, we want that error to be raised instead.
-            return False
-        return self._is_domain_role(role)
+            return None, False
+        return role, self._is_domain_role(role)
 
     def create_role_wrapper(self, request, role):
         if self._is_domain_role(role):
@@ -148,24 +148,30 @@ class RoleV3(controller.V3Controller):
         return self._list_roles(request, filters)
 
     def get_role_wrapper(self, request, role_id):
-        if self._is_domain_role_target(role_id):
-            return self.get_domain_role(request, role_id=role_id)
+        role, is_domain_role = self._is_domain_role_target(role_id)
+        if is_domain_role:
+            return self.get_domain_role(request, role_id=role_id, role=role)
         else:
-            return self.get_role(request, role_id=role_id)
+            return self.get_role(request, role_id=role_id, role=role)
 
     @controller.protected()
-    def get_role(self, request, role_id):
-        return self._get_role(request, role_id)
+    def get_role(self, request, role_id, role):
+        if not role:
+            raise exception.RoleNotFound(role_id=role_id)
+        return RoleV3.wrap_member(request.context_dict, role)
 
     @controller.protected()
-    def get_domain_role(self, request, role_id):
-        return self._get_role(request, role_id)
+    def get_domain_role(self, request, role_id, role):
+        if not role:
+            raise exception.RoleNotFound(role_id=role_id)
+        return RoleV3.wrap_member(request.context_dict, role)
 
     def update_role_wrapper(self, request, role_id, role):
         # Since we don't allow you change whether a role is global or domain
         # specific, we can ignore the new update attributes and just look at
         # the existing role.
-        if self._is_domain_role_target(role_id):
+        _, is_domain_role = self._is_domain_role_target(role_id)
+        if is_domain_role:
             return self.update_domain_role(
                 request, role_id=role_id, role=role)
         else:
@@ -182,7 +188,8 @@ class RoleV3(controller.V3Controller):
         return self._update_role(request, role_id, role)
 
     def delete_role_wrapper(self, request, role_id):
-        if self._is_domain_role_target(role_id):
+        _, is_domain_role = self._is_domain_role_target(role_id)
+        if is_domain_role:
             return self.delete_domain_role(request, role_id=role_id)
         else:
             return self.delete_role(request, role_id=role_id)
@@ -214,10 +221,6 @@ class RoleV3(controller.V3Controller):
         hints = RoleV3.build_driver_hints(request, filters)
         refs = self.role_api.list_roles(hints=hints)
         return RoleV3.wrap_collection(request.context_dict, refs, hints=hints)
-
-    def _get_role(self, request, role_id):
-        ref = self.role_api.get_role(role_id)
-        return RoleV3.wrap_member(request.context_dict, ref)
 
     def _update_role(self, request, role_id, role):
         self._require_matching_id(role_id, role)
