@@ -40,25 +40,6 @@ from keystone.tests.unit import test_v3
 CONF = keystone.conf.CONF
 
 
-# NOTE(morganfainberg): To be removed when admin_token_auth middleware is
-# removed. This was moved to it's own testcase so it can setup the
-# admin_token_auth pipeline without impacting other tests.
-class IdentityTestCaseStaticAdminToken(test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(IdentityTestCaseStaticAdminToken, self).config_overrides()
-        self.config_fixture.config(
-            admin_token='ADMIN')
-
-    def test_list_users_with_static_admin_token_and_multiple_backends(self):
-        # domain-specific operations with the bootstrap ADMIN token is
-        # disallowed when domain-specific drivers are enabled
-        self.config_fixture.config(group='identity',
-                                   domain_specific_drivers_enabled=True)
-        self.get('/users', token=CONF.admin_token,
-                 expected_status=exception.Unauthorized.code)
-
-
 class IdentityTestCase(test_v3.RestfulTestCase):
     """Test users and groups."""
 

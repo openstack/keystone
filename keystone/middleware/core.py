@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_log import log
-from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import authorization
@@ -34,32 +33,6 @@ class TokenAuthMiddleware(wsgi.Middleware):
         subject_token = request.headers.get(authorization.SUBJECT_TOKEN_HEADER)
         if subject_token:
             context['subject_token_id'] = subject_token
-
-
-class AdminTokenAuthMiddleware(wsgi.Middleware):
-    # NOTE(notmorgan): DEPRECATED FOR REMOVAL does nothing but warn to remove
-    # from pipeline
-
-    @versionutils.deprecated(
-        as_of=versionutils.deprecated.PIKE,
-        what='AdminTokenAuthMiddleware in the paste-ini pipeline.',
-        remove_in=+1)
-    def __init__(self, application):
-        super(AdminTokenAuthMiddleware, self).__init__(application)
-        # NOTE(notmorgan): This is deprecated and emits a significant error
-        # message to make sure deployers update their deployments so in the
-        # future release upgrade the deployment does not break.
-        LOG.error('The admin_token_auth middleware functionality has been '
-                  'merged into the main auth middleware '
-                  '(keystone.middleware.auth.AuthContextMiddleware). '
-                  '`admin_token_auth` must be removed from the '
-                  '[pipeline:api_v3], [pipeline:admin_api], and '
-                  '[pipeline:public_api] sections of your paste ini '
-                  'file. The [filter:admin_token_auth] block will also '
-                  'need to be removed from your paste ini file. Failure '
-                  'to remove these elements from your paste ini file will '
-                  'result in keystone to no longer start/run when the '
-                  '`admin_token_auth` is removed in the Queens release.')
 
 
 class JsonBodyMiddleware(wsgi.Middleware):
