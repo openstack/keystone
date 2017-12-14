@@ -15,7 +15,6 @@
 """Main entry point into the Assignment service."""
 
 import copy
-import functools
 import itertools
 
 from oslo_log import log
@@ -1264,31 +1263,6 @@ class RoleManager(manager.Manager):
 
         super(RoleManager, self).__init__(role_driver)
 
-    def _append_null_domain_id(f):
-        """Append a domain_id field to a role dict if it is not already there.
-
-        When caching is turned on, upgrading from liberty to
-        mitaka or master causes tokens to fail to be issued for the
-        time-to-live of the cache. This is because as part of the token
-        issuance the token's role is looked up, and the cached version of the
-        role immediately after upgrade does not have a domain_id field, even
-        though that column was successfully added to the role database. This
-        decorator artificially adds a null domain_id value to the role
-        reference so that the cached value acts like the updated schema.
-
-        Note: This decorator must appear before the @MEMOIZE decorator
-        because it operates on the cached value returned by the MEMOIZE
-        function.
-        """
-        @functools.wraps(f)
-        def wrapper(self, *args, **kwargs):
-            ref = f(self, *args, **kwargs)
-            if 'domain_id' not in ref:
-                ref['domain_id'] = None
-            return ref
-        return wrapper
-
-    @_append_null_domain_id
     @MEMOIZE
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
