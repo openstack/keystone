@@ -635,7 +635,22 @@ V3_JSON_HOME_RESOURCES = {
         'href-template': '/domains/config/{group}/{option}/default',
         'href-vars': {
             'group': json_home.build_v3_parameter_relation('config_group'),
-            'option': json_home.build_v3_parameter_relation('config_option')}}
+            'option': json_home.build_v3_parameter_relation('config_option')}},
+    json_home.build_v3_resource_relation('registered_limits'): {
+        'href-template': '/registered_limits/{registered_limit_id}',
+        'href-vars': {
+            'registered_limit_id': json_home.build_v3_parameter_relation(
+                'registered_limit_id')
+        },
+        'hints': {'status': 'experimental'}
+    },
+    json_home.build_v3_resource_relation('limits'): {
+        'href-template': '/limits/{limit_id}',
+        'href-vars': {
+            'limit_id': json_home.build_v3_parameter_relation('limit_id')
+        },
+        'hints': {'status': 'experimental'}
+    },
 }
 
 
