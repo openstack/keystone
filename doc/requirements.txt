@@ -1,0 +1,22 @@
+# The order of packages is significant, because pip processes them in the order
+# of appearance. Changing the order has an impact on the overall integration
+# process, which may cause wedges in the gate later.
+
+# required to build documentation
+flake8-docstrings==0.2.1.post1 # MIT
+openstackdocstheme>=1.16.0 # Apache-2.0
+sphinx>=1.6.2 # BSD
+reno>=1.8.0,!=2.3.1 # Apache-2.0
+fixtures>=3.0.0 # Apache-2.0/BSD
+os-api-ref>=1.0.0 # Apache-2.0
+testtools>=1.4.0 # MIT
+WebTest>=2.0 # MIT
+mock>=2.0 # BSD
+freezegun>=0.3.6 # Apache-2.0
+oslotest>=1.10.0 # Apache-2.0
+oslo.db>=4.24.0 # Apache-2.0
+lxml>=2.3,!=3.7.0 # BSD
+pyldap>=2.4.20 # PSF
+ldappool>=2.0.0 # MPL
+testresources>=0.2.4  # Apache-2.0/BSD
+testscenarios>=0.4.0
