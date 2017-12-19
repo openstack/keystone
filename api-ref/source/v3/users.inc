@@ -204,7 +204,7 @@ Update user
 
 .. rest_method::  PATCH /v3/users/{user_id}
 
-Updates a user's password, or whether they are enabled or disabled.
+Updates a user.
 
 If the back-end driver does not support this functionality, this
 call might return the HTTP ``Not Implemented (501)`` response code.
