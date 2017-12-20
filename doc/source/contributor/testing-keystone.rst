@@ -35,7 +35,7 @@ environment (in addition to the other external dependencies in
     python virtualenv, or prefix the above command with ``sudo``, depending on
     your preference.
 
-To execute the full suite of tests maintained within Keystone, simply run:
+To execute the full suite of tests maintained within keystone, simply run:
 
 .. code-block:: bash
 
@@ -59,56 +59,39 @@ common configuration of Python 2.7 and PEP-8), list the environments with the
 
     $ tox -e py27,pep8
 
-See ``tox.ini`` for the full list of available test environments.
+Use ``tox --listenvs`` to list all testing environments specified in keystone's
+``tox.ini`` file.
 
-Running with PDB
-~~~~~~~~~~~~~~~~
+Interactive debugging
+~~~~~~~~~~~~~~~~~~~~~
 
-Using PDB breakpoints with tox and testr normally doesn't work since the tests
-just fail with a BdbQuit exception rather than stopping at the breakpoint.
+Using ``pdb`` breakpoints with ``tox`` and ``testr`` normally doesn't work
+since the tests just fail with a ``BdbQuit`` exception rather than stopping at
+the breakpoint.
 
-To run with PDB breakpoints during testing, use the ``debug`` tox environment
-rather than ``py27``. Here's an example, passing the name of a test since
-you'll normally only want to run the test that hits your breakpoint:
-
-.. code-block:: bash
-
-    $ tox -e debug keystone.tests.unit.test_auth.AuthWithToken.test_belongs_to
-
-For reference, the ``debug`` tox environment implements the instructions
-here: https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
-
-Disabling Stream Capture
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The stdout, stderr and log messages generated during a test are captured and
-in the event of a test failure those streams will be printed to the terminal
-along with the traceback. The data is discarded for passing tests.
-
-Each stream has an environment variable that can be used to force captured
-data to be discarded even if the test fails: `OS_STDOUT_CAPTURE` for stdout,
-`OS_STDERR_CAPTURE` for stderr and `OS_LOG_CAPTURE` for logging. If the value
-of the environment variable is not one of (True, true, 1, yes) the stream will
-be discarded. All three variables default to 1.
-
-For example, to discard logging data during a test run:
+To capture breakpoints while running tests, use the ``debug`` environment. The
+following example uses the environment while invoking a specific test run.
 
 .. code-block:: bash
 
-    $ OS_LOG_CAPTURE=0 tox -e py27
+    $ tox -e debug keystone.tests.unit.test_module.TestClass.test_case
+
+For reference, the ``debug`` environment implements the instructions here:
+https://wiki.openstack.org/wiki/Testr#Debugging_.28pdb.29_Tests
 
 Building the Documentation
 --------------------------
 
-The documentation is generated with Sphinx using the tox command. To create HTML
-docs and man pages:
+The ``docs`` and ``api-ref`` environments will automatically generate
+documentation and the API reference respectively. The results are written to
+``doc/`` and ``api-ref/``.
+
+For example, use the following command to render all documentation and manual
+pages:
 
 .. code-block:: bash
 
     $ tox -e docs
-
-The results are in the ``doc/build/html`` and ``doc/build/man`` directories
-respectively.
 
 Tests Structure
 ---------------
@@ -129,27 +112,22 @@ test class in ``test_backend.py``.
 .. NOTE::
 
     The structure of backend testing is in transition, migrating from having
-    all classes in a single file (test_backend.py) to one where there is a
+    all classes in a single file (``test_backend.py``) to one where there is a
     directory structure to reduce the size of the test files. See:
 
         - :mod:`keystone.tests.unit.backend.role`
         - :mod:`keystone.tests.unit.backend.domain_config`
 
-To add new drivers, subclass the base class at ``test_backend.py`` (look
-towards ``test_backend_sql.py`` for examples) and update the configuration of
-the test class in ``setUp()``.
+To add new drivers, subclass the base class at ``test_backend.py`` (look at
+``test_backend_sql.py`` for examples) and update the configuration of the test
+class in ``setUp()``.
 
 For example, ``test_backend.py`` has a sequence of tests under the class
-:class:`~keystone.tests.unit.test_backend.IdentityTests` that will work with
-the default drivers as configured in this project's etc/ directory.
-``test_backend_sql.py`` subclasses those tests, changing the configuration by
-overriding with configuration files stored in the ``tests/unit/config_files``
-directory aimed at enabling the SQL backend for the Identity module.
-
-:class:`keystone.tests.unit.test_v2_keystoneclient.ClientDrivenTestCase`
-uses the installed python-keystoneclient, verifying it against a temporarily
-running local keystone instance to explicitly verify basic functional testing
-across the API.
+:class:`keystone.tests.unit.test_backend.IdentityTests` that will work with the
+default drivers. The ``test_backend_sql.py`` module subclasses those tests,
+changing the configuration by overriding with configuration files stored in the
+``tests/unit/config_files`` directory aimed at enabling the SQL backend for the
+Identity module.
 
 Testing Schema Migrations
 -------------------------
@@ -162,8 +140,8 @@ built-in test runner, one migration at a time.
     This may leave your database in an inconsistent state; attempt this in
     non-production environments only!
 
-This is useful for testing the *next* migration in sequence (both forward &
-backward) in a database under version control:
+This is useful for testing the *next* migration in sequence in a database under
+version control:
 
 .. code-block:: bash
 
@@ -178,7 +156,7 @@ of your data during migration.
 LDAP Tests
 ----------
 
-LDAP has a fake backend that performs rudimentary operations.  If you
+LDAP has a fake backend that performs rudimentary operations. If you
 are building more significant LDAP functionality, you should test against
 a live LDAP server.  Devstack has an option to set up a directory server for
 Keystone to use.  Add ldap to the ``ENABLED_SERVICES`` environment variable,
@@ -203,14 +181,14 @@ password.
 Work in progress (WIP) tests are very useful in a variety of situations
 including:
 
-* During a TDD process they can be used to add tests to a review while
-  they are not yet working and will not cause test failures. (They should
-  be removed before the final merge.)
-* Often bug reports include small snippets of code to show broken
-  behaviors. Some of these can be converted into WIP tests that can later
-  be worked on by a developer. This allows us to take code that can be
-  used to catch bug regressions and commit it before any code is
-  written.
+* While doing test-driven-development they can be used to add tests to a review
+  while they are not yet working and will not cause test failures. They can be
+  removed when the functionality is fixed in a later patch set.
+* A common practice is to recreate bugs by exposing the broken behavior in a
+  functional or unit test. To encapsulate the correct behavior in the test, the
+  test will usually assert the correct outcome, which will break without a fix.
+  Marking the test as WIP gives us the ability to capture the broken behavior
+  in code if a fix isn't ready yet.
 
 The :func:`keystone.tests.unit.utils.wip` decorator can be used to mark a test
 as WIP. A WIP test will always be run. If the test fails then a TestSkipped
@@ -220,14 +198,14 @@ successfully run tests. If the test passes an AssertionError exception is
 raised so that the developer knows they made the test pass. This is a
 reminder to remove the decorator.
 
-The :func:`~keystone.tests.unit.utils.wip` decorator requires that the author
+The :func:`keystone.tests.unit.utils.wip` decorator requires that the author
 provides a message. This message is important because it will tell other
 developers why this test is marked as a work in progress. Reviewers will
 require that these messages are descriptive and accurate.
 
 .. NOTE::
-    The :func:`~keystone.tests.unit.utils.wip` decorator is not a replacement for
-    skipping tests.
+    The :func:`keystone.tests.unit.utils.wip` decorator is not a replacement
+    for skipping tests.
 
 .. code-block:: python
 
@@ -243,11 +221,11 @@ require that these messages are descriptive and accurate.
 API & Scenario Tests
 --------------------
 
-Keystone provides API and scenario tests via a `tempest plugin`_ located at
-:func:`~keystone.keystone_tempest_plugin`. This tempest plugin is mainly
-intended for specific scenarios that require a special deployment, such as
-the tests for the ``Federated Identity`` feature. For the deployment of these
-scenarios, keystone also provides a `devstack plugin`_.
+Keystone provides API and scenario tests via a `tempest plugin`_ which is
+located in a separate `repository`_. This tempest plugin is mainly intended for
+specific scenarios that require a special deployment, such as the tests for the
+``Federated Identity`` feature or live testing against LDAP. For the deployment
+of these scenarios, keystone also provides a `devstack plugin`_.
 
 For example, to setup a working federated environment, add the following lines
 in your `devstack` `local.conf`` file:
@@ -274,6 +252,7 @@ from the tempest directory:
 .. _devstack plugin: https://docs.openstack.org/devstack/latest/plugins.html
 .. _tempest: https://git.openstack.org/cgit/openstack/tempest
 .. _tempest plugin: https://docs.openstack.org/tempest/latest/plugin.html
+.. _repository: http://git.openstack.org/cgit/openstack/keystone-tempest-plugin
 
 Writing new API & Scenario Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -366,7 +345,7 @@ method.
         self._setup_mapping()
         self._setup_protocol()
 
-Finally, the tests perform the complete workflow of the feature, asserting its
+Finally, the tests perform the complete workflow of the feature, asserting
 correctness in each step:
 
 .. code-block:: python
