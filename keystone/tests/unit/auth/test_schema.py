@@ -367,6 +367,15 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
         }
         self._expect_failure(p)
 
+    def test_trust_not_object_ex(self):
+        p = {
+            'identity': {'methods': [], },
+            'scope': {
+                'OS-TRUST:trust': 'something',
+            },
+        }
+        self._expect_failure(p)
+
     def test_unscoped(self):
         post_data = {
             'identity': {
