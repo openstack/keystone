@@ -233,7 +233,10 @@ class Application(BaseApplication):
                                     context=req.context_dict,
                                     user_locale=best_match_language(req))
         except exception.Error as e:
-            LOG.warning(six.text_type(e))
+            if isinstance(e, exception.UnexpectedError):
+                LOG.exception(six.text_type(e))
+            else:
+                LOG.warning(six.text_type(e))
             return render_exception(e,
                                     context=req.context_dict,
                                     user_locale=best_match_language(req))
