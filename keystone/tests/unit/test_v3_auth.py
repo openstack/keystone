@@ -43,6 +43,7 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -3934,6 +3935,35 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data)
         return trust
+
+    @test_utils.wip('Waiting on validation to be added from fixing bug '
+                    '1733754')
+    def test_authenticate_without_trust_dict_returns_bad_request(self):
+        # Authenticate for a token to use in the request
+        token = self.v3_create_token(
+            self.build_authentication_request(
+                user_id=self.trustee_user['id'],
+                password=self.trustee_user['password']
+            )
+        ).headers.get('X-Subject-Token')
+
+        auth_data = {
+            'auth': {
+                'identity': {
+                    'methods': ['token'],
+                    'token': {'id': token}
+                },
+                # We don't need a trust to execute this test, the
+                # OS-TRUST:trust key of the request body just has to be a
+                # string instead of a dictionary in order to throw a 500 when
+                # it should a 400 Bad Request.
+                'scope': {'OS-TRUST:trust': ''}
+            }
+        }
+        self.admin_request(
+            method='POST', path='/v3/auth/tokens', body=auth_data,
+            expected_status=http_client.BAD_REQUEST
+        )
 
     def test_consume_trust_once(self):
         trust = self._initialize_test_consume_trust(2)
