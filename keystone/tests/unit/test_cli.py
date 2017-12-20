@@ -252,19 +252,6 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             user_id,
             bootstrap.password)
 
-    def test_bootstrap_creates_default_role(self):
-        bootstrap = cli.BootStrap()
-        try:
-            role = bootstrap.role_manager.get_role(CONF.member_role_id)
-            self.fail('Member Role is created and should not be.')
-        except exception.RoleNotFound:
-            pass
-
-        self._do_test_bootstrap(bootstrap)
-        role = bootstrap.role_manager.get_role(CONF.member_role_id)
-        self.assertEqual(role['name'], CONF.member_role_name)
-        self.assertEqual(role['id'], CONF.member_role_id)
-
 
 class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
 

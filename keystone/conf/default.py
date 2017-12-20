@@ -21,6 +21,16 @@ This option has been deprecated in the N release and will be removed in the P
 release. Use oslo.middleware.http_proxy_to_wsgi configuration instead.
 """)
 
+
+_DEPRECATE_MEMBER_ID_AND_NAME = utils.fmt("""
+This option was used to create a default member role for keystone v2 role
+assignments, but with the removal of the v2 API it is no longer necessary to
+create this default role. This option is deprecated and will be removed in the
+S release. If you are depending on having a predictable role name and ID for
+this member role you will need to update your tooling.
+""")
+
+
 admin_token = cfg.StrOpt(
     'admin_token',
     secret=True,
@@ -92,6 +102,9 @@ this should be set to 32).
 member_role_id = cfg.StrOpt(
     'member_role_id',
     default='9fe2ff9ee4384b1894a90878d3e92bab',
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_MEMBER_ID_AND_NAME,
+    deprecated_since=versionutils.deprecated.QUEENS,
     help=utils.fmt("""
 Similar to the `[DEFAULT] member_role_name` option, this represents the default
 role ID used to associate users with their default projects in the v2 API. This
@@ -104,6 +117,9 @@ which case, you should set `[DEFAULT] member_role_name` as well).
 member_role_name = cfg.StrOpt(
     'member_role_name',
     default='_member_',
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATE_MEMBER_ID_AND_NAME,
+    deprecated_since=versionutils.deprecated.QUEENS,
     help=utils.fmt("""
 This is the role name used in combination with the `[DEFAULT] member_role_id`
 option; see that option for more detail. You do not need to set this option
