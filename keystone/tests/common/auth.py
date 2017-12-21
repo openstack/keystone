@@ -21,7 +21,7 @@ class AuthTestMixin(object):
         scope_data = {}
         if unscoped:
             scope_data['unscoped'] = {}
-        if project_id or project_name:
+        elif project_id or project_name:
             scope_data['project'] = {}
             if project_id:
                 scope_data['project']['id'] = project_id
@@ -34,15 +34,19 @@ class AuthTestMixin(object):
                     else:
                         project_domain_json['name'] = project_domain_name
                     scope_data['project']['domain'] = project_domain_json
-        if domain_id or domain_name:
+        elif domain_id or domain_name:
             scope_data['domain'] = {}
             if domain_id:
                 scope_data['domain']['id'] = domain_id
             else:
                 scope_data['domain']['name'] = domain_name
-        if trust_id:
+        elif trust_id:
             scope_data['OS-TRUST:trust'] = {}
             scope_data['OS-TRUST:trust']['id'] = trust_id
+        else:
+            raise ValueError(_('Programming Error: Invalid arguments supplied '
+                               'to build scope.'))
+
         return scope_data
 
     def _build_auth(self, user_id=None, username=None, user_domain_id=None,
