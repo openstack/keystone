@@ -2491,6 +2491,46 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
 
         session.close()
 
+    def test_migration_031_adds_system_assignment_table(self):
+        self.expand(30)
+        self.migrate(30)
+        self.contract(30)
+
+        system_assignment_table_name = 'system_assignment'
+        self.assertTableDoesNotExist(system_assignment_table_name)
+
+        self.expand(31)
+        self.migrate(31)
+        self.contract(31)
+
+        self.assertTableExists(system_assignment_table_name)
+        self.assertTableColumns(
+            system_assignment_table_name,
+            ['type', 'actor_id', 'target_id', 'role_id', 'inherited']
+        )
+
+        system_assignment_table = sqlalchemy.Table(
+            system_assignment_table_name, self.metadata, autoload=True
+        )
+
+        system_user = {
+            'type': 'UserSystem',
+            'target_id': uuid.uuid4().hex,
+            'actor_id': uuid.uuid4().hex,
+            'role_id': uuid.uuid4().hex,
+            'inherited': False
+        }
+        system_assignment_table.insert().values(system_user).execute()
+
+        system_group = {
+            'type': 'GroupSystem',
+            'target_id': uuid.uuid4().hex,
+            'actor_id': uuid.uuid4().hex,
+            'role_id': uuid.uuid4().hex,
+            'inherited': False
+        }
+        system_assignment_table.insert().values(system_group).execute()
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
