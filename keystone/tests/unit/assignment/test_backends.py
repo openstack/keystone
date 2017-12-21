@@ -3710,3 +3710,132 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
             ]
         }
         self.execute_assignment_plan(test_plan)
+
+
+class SystemAssignmentTests(AssignmentTestHelperMixin):
+    def test_create_system_grant_for_user(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        role_ref = self._create_role()
+
+        self.assignment_api.create_system_grant_for_user(
+            user_id, role_ref['id']
+        )
+        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        self.assertEqual(len(system_roles), 1)
+        self.assertEqual(system_roles[0]['type'], 'UserSystem')
+        self.assertEqual(system_roles[0]['target_id'], 'system')
+        self.assertEqual(system_roles[0]['actor_id'], user_id)
+        self.assertFalse(system_roles[0]['inherited'])
+
+    def test_list_system_grants_for_user(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        first_role = self._create_role()
+        second_role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_user(
+            user_id, first_role['id']
+        )
+        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        self.assertEqual(len(system_roles), 1)
+
+        self.assignment_api.create_system_grant_for_user(
+            user_id, second_role['id']
+        )
+        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        self.assertEqual(len(system_roles), 2)
+
+    def test_check_system_grant_for_user(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        role = self._create_role()
+
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.check_system_grant_for_user,
+            user_id,
+            role['id']
+        )
+
+        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
+        self.assignment_api.check_system_grant_for_user(user_id, role['id'])
+
+    def test_delete_system_grant_for_user(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
+        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        self.assertEqual(len(system_roles), 1)
+
+        self.assignment_api.delete_system_grant_for_user(user_id, role['id'])
+        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        self.assertEqual(len(system_roles), 0)
+
+    def test_check_system_grant_for_user_with_invalid_role_fails(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.check_system_grant_for_user,
+            user_id,
+            uuid.uuid4().hex
+        )
+
+    def test_check_system_grant_for_user_with_invalid_user_fails(self):
+        role = self._create_role()
+
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.check_system_grant_for_user,
+            uuid.uuid4().hex,
+            role['id']
+        )
+
+    def test_delete_system_grant_for_user_with_invalid_role_fails(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.delete_system_grant_for_user,
+            user_id,
+            uuid.uuid4().hex
+        )
+
+    def test_delete_system_grant_for_user_with_invalid_user_fails(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.delete_system_grant_for_user,
+            uuid.uuid4().hex,
+            role['id']
+        )
+
+    def test_list_system_grants_for_user_returns_empty_list(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+
+        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        self.assertFalse(system_roles)
+
+    def test_create_system_grant_for_user_fails_with_domain_role(self):
+        user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_id = self.identity_api.create_user(user_ref)['id']
+        role = self._create_role(domain_id=CONF.identity.default_domain_id)
+
+        self.assertRaises(
+            exception.ValidationError,
+            self.assignment_api.create_system_grant_for_user,
+            user_id,
+            role['id']
+        )
