@@ -97,7 +97,55 @@ grant_policies = [
                      'applicable. In that case, revoking the role grant in '
                      'the target would remove the logical effect of '
                      'inheriting it to the target\'s projects subtree.'),
-        operations=list_operations(resource_paths, ['DELETE']))
+        operations=list_operations(resource_paths, ['DELETE'])),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'list_system_grants_for_user',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='List all grants a specific user has on the system.',
+        operations=[
+            {
+                'path': '/v3/system/users/{user_id}/roles',
+                'method': ['HEAD', 'GET']
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'check_system_grant_for_user',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='Check if a user has a role on the system.',
+        operations=[
+            {
+                'path': '/v3/system/users/{user_id}/roles/{role_id}',
+                'method': ['HEAD', 'GET']
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'create_system_grant_for_user',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='Grant a user a role on the system.',
+        operations=[
+            {
+                'path': '/v3/system/users/{user_id}/roles/{role_id}',
+                'method': ['PUT']
+            }
+        ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'revoke_system_grant_for_user',
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
+        description='Remove a role from a user on the system.',
+        operations=[
+            {
+                'path': '/v3/system/users/{user_id}/roles/{role_id}',
+                'method': ['DELETE']
+            }
+        ]
+    )
 ]
 
 

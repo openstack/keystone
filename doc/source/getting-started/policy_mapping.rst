@@ -99,6 +99,11 @@ identity:list_grants                                       GET `grant_collection
 identity:create_grant                                      PUT `grant_resources`_
 identity:revoke_grant                                      DELETE `grant_resources`_
 
+identity:list_system_grants_for_user                       GET /v3/system/users/{user_id}/roles
+identity:check_system_grant_for_user                       GET /v3/system/users/{user_id}/roles/{role_id}
+identity:create_system_grant_for_user                      PUT /v3/system/users/{user_id}/roles/{role_id}
+identity:revoke_system_grant_for_user                      DELETE /v3/system/users/{user_id}/roles/{role_id}
+
 identity:list_role_assignments                             GET /v3/role_assignments
 identity:list_role_assignments_for_tree                    GET /v3/role_assignments?include_subtree
 
