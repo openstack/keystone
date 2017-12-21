@@ -12,11 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import uuid
 
 import oslo_context.context
 from oslo_serialization import jsonutils
-from oslo_utils import timeutils
 from six.moves import http_client
 from testtools import matchers
 import webtest
@@ -549,7 +549,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def assertValidISO8601ExtendedFormatDatetime(self, dt):
         try:
-            return timeutils.parse_strtime(dt, fmt=TIME_FORMAT)
+            return datetime.datetime.strptime(dt, TIME_FORMAT)
         except Exception:
             msg = '%s is not a valid ISO 8601 extended format date time.' % dt
             raise AssertionError(msg)
