@@ -58,6 +58,7 @@ class Manager(manager.Manager):
 
     _SYSTEM_SCOPE_TOKEN = 'system'
     _USER_SYSTEM = 'UserSystem'
+    _GROUP_SYSTEM = 'GroupSystem'
     _PROJECT = 'project'
     _ROLE_REMOVED_FROM_USER = 'role_removed_from_user'
     _INVALIDATION_USER_PROJECT_TOKENS = 'invalidate_user_project_tokens'
@@ -1121,6 +1122,75 @@ class Manager(manager.Manager):
         target_id = self._SYSTEM_SCOPE_TOKEN
         inherited = False
         self.driver.delete_system_grant(role_id, user_id, target_id, inherited)
+
+    def check_system_grant_for_group(self, group_id, role_id):
+        """Check if a group has a specific role on the system.
+
+        :param group_id: the ID of the group in the assignment
+        :param role_id: the ID of the system role in the assignment
+
+        :raises keystone.exception.RoleAssignmentNotFound: if the group doesn't
+            have a role assignment matching the role_id on the system
+
+        """
+        target_id = self._SYSTEM_SCOPE_TOKEN
+        inherited = False
+        return self.driver.check_system_grant(
+            role_id, group_id, target_id, inherited
+        )
+
+    def list_system_grants_for_group(self, group_id):
+        """Return a list of roles the group has on the system.
+
+        :param group_id: the ID of the group
+
+        :returns: a list of role assignments the group has system-wide
+
+        """
+        target_id = self._SYSTEM_SCOPE_TOKEN
+        assignment_type = self._GROUP_SYSTEM
+        return self.driver.list_system_grants(
+            group_id, target_id, assignment_type
+        )
+
+    def create_system_grant_for_group(self, group_id, role_id):
+        """Grant a group a role on the system.
+
+        :param group_id: the ID of the group
+        :param role_id: the ID of the role to grant on the system
+
+        """
+        role = self.role_api.get_role(role_id)
+        if role.get('domain_id'):
+            raise exception.ValidationError(
+                'Role %(role_id)s is a domain-specific role. Unable to use '
+                'a domain-specific role in a system assignment.' % {
+                    'role_id': role_id
+                }
+            )
+        target_id = self._SYSTEM_SCOPE_TOKEN
+        assignment_type = self._GROUP_SYSTEM
+        inherited = False
+        self.driver.create_system_grant(
+            role_id, group_id, target_id, assignment_type, inherited
+        )
+
+    def delete_system_grant_for_group(self, group_id, role_id):
+        """Remove a system grant from a group.
+
+        :param group_id: the ID of the group
+        :param role_id: the ID of the role to remove from the group on the
+                        system
+
+        :raises keystone.exception.RoleAssignmentNotFound: if the group doesn't
+            have a role assignment with role_id on the system
+
+        """
+        target_id = self._SYSTEM_SCOPE_TOKEN
+        inherited = False
+        self.driver.delete_system_grant(
+            role_id, group_id, target_id, inherited
+        )
 
 
 class RoleManager(manager.Manager):

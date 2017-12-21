@@ -3839,3 +3839,142 @@ class SystemAssignmentTests(AssignmentTestHelperMixin):
             user_id,
             role['id']
         )
+
+    def test_create_system_grant_for_group(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        role_ref = self._create_role()
+
+        self.assignment_api.create_system_grant_for_group(
+            group_id, role_ref['id']
+        )
+        system_roles = self.assignment_api.list_system_grants_for_group(
+            group_id
+        )
+        self.assertEqual(len(system_roles), 1)
+        self.assertEqual(system_roles[0]['type'], 'GroupSystem')
+        self.assertEqual(system_roles[0]['target_id'], 'system')
+        self.assertEqual(system_roles[0]['actor_id'], group_id)
+        self.assertFalse(system_roles[0]['inherited'])
+
+    def test_list_system_grants_for_group(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        first_role = self._create_role()
+        second_role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_group(
+            group_id, first_role['id']
+        )
+        system_roles = self.assignment_api.list_system_grants_for_group(
+            group_id
+        )
+        self.assertEqual(len(system_roles), 1)
+
+        self.assignment_api.create_system_grant_for_group(
+            group_id, second_role['id']
+        )
+        system_roles = self.assignment_api.list_system_grants_for_group(
+            group_id
+        )
+        self.assertEqual(len(system_roles), 2)
+
+    def test_check_system_grant_for_group(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        role = self._create_role()
+
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.check_system_grant_for_group,
+            group_id,
+            role['id']
+        )
+
+        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
+        self.assignment_api.check_system_grant_for_group(group_id, role['id'])
+
+    def test_delete_system_grant_for_group(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
+        system_roles = self.assignment_api.list_system_grants_for_group(
+            group_id
+        )
+        self.assertEqual(len(system_roles), 1)
+
+        self.assignment_api.delete_system_grant_for_group(group_id, role['id'])
+        system_roles = self.assignment_api.list_system_grants_for_group(
+            group_id
+        )
+        self.assertEqual(len(system_roles), 0)
+
+    def test_check_system_grant_for_group_with_invalid_role_fails(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.check_system_grant_for_group,
+            group_id,
+            uuid.uuid4().hex
+        )
+
+    def test_check_system_grant_for_group_with_invalid_group_fails(self):
+        role = self._create_role()
+
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.check_system_grant_for_group,
+            uuid.uuid4().hex,
+            role['id']
+        )
+
+    def test_delete_system_grant_for_group_with_invalid_role_fails(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.delete_system_grant_for_group,
+            group_id,
+            uuid.uuid4().hex
+        )
+
+    def test_delete_system_grant_for_group_with_invalid_group_fails(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        role = self._create_role()
+
+        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
+        self.assertRaises(
+            exception.RoleAssignmentNotFound,
+            self.assignment_api.delete_system_grant_for_group,
+            uuid.uuid4().hex,
+            role['id']
+        )
+
+    def test_list_system_grants_for_group_returns_empty_list(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+
+        system_roles = self.assignment_api.list_system_grants_for_group(
+            group_id
+        )
+        self.assertFalse(system_roles)
+
+    def test_create_system_grant_for_group_fails_with_domain_role(self):
+        group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
+        group_id = self.identity_api.create_group(group_ref)['id']
+        role = self._create_role(CONF.identity.default_domain_id)
+
+        self.assertRaises(
+            exception.ValidationError,
+            self.assignment_api.create_system_grant_for_group,
+            group_id,
+            role['id']
+        )
