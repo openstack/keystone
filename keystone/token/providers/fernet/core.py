@@ -151,23 +151,14 @@ class Provider(common.BaseProvider):
         self.v3_token_data_helper.populate_roles_for_federated_user(
             token_dict, group_ids, project_id, domain_id, user_id)
 
-    def _extract_v2_token_data(self, token_data):
-        user_id = token_data['access']['user']['id']
-        expires_at = token_data['access']['token']['expires']
-        audit_ids = token_data['access']['token'].get('audit_ids')
-        methods = ['password']
-        if len(audit_ids) > 1:
-            methods.append('token')
-        project_id = token_data['access']['token'].get('tenant', {}).get('id')
-        domain_id = None
-        trust_id = token_data['access'].get('trust', {}).get('id')
-        access_token_id = None
-        federated_info = None
-        return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, access_token_id, federated_info)
+    def _get_token_id(self, token_data):
+        """Generate the token_id based upon the data in token_data.
 
-    def _extract_v3_token_data(self, token_data):
-        """Extract information from a v3 token reference."""
+        :param token_data: token information
+        :type token_data: dict
+        :rtype: six.text_type
+
+        """
         user_id = token_data['token']['user']['id']
         expires_at = token_data['token']['expires_at']
         audit_ids = token_data['token']['audit_ids']
@@ -178,28 +169,6 @@ class Provider(common.BaseProvider):
         access_token_id = token_data['token'].get('OS-OAUTH1', {}).get(
             'access_token_id')
         federated_info = self._build_federated_info(token_data)
-
-        return (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, access_token_id, federated_info)
-
-    def _get_token_id(self, token_data):
-        """Generate the token_id based upon the data in token_data.
-
-        :param token_data: token information
-        :type token_data: dict
-        :rtype: six.text_type
-
-        """
-        # NOTE(lbragstad): Only v2.0 token responses include an 'access'
-        # attribute.
-        if token_data.get('access'):
-            (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, access_token_id, federated_info) = (
-                    self._extract_v2_token_data(token_data))
-        else:
-            (user_id, expires_at, audit_ids, methods, domain_id, project_id,
-                trust_id, access_token_id, federated_info) = (
-                    self._extract_v3_token_data(token_data))
 
         return self.token_formatter.create_token(
             user_id,
