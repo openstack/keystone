@@ -25,7 +25,6 @@ from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
 from keystone.common.validation import validators
-from keystone.common import wsgi
 from keystone import exception
 from keystone import middleware
 from keystone.tests.common import auth as common_auth
@@ -1217,45 +1216,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 class VersionTestCase(RestfulTestCase):
     def test_get_version(self):
         pass
-
-
-# NOTE(morganfainberg): To be removed when admin_token_auth is removed. This
-# has been split out to allow testing admin_token auth without enabling it
-# for other tests.
-class AuthContextMiddlewareAdminTokenTestCase(RestfulTestCase):
-
-    def config_overrides(self):
-        super(AuthContextMiddlewareAdminTokenTestCase, self).config_overrides()
-        self.config_fixture.config(
-            admin_token='ADMIN')
-
-    # NOTE(morganfainberg): This is knowingly copied from below for simplicity
-    # during the deprecation cycle.
-    def _middleware_request(self, token, extra_environ=None):
-
-        def application(environ, start_response):
-            body = b'body'
-            headers = [('Content-Type', 'text/html; charset=utf8'),
-                       ('Content-Length', str(len(body)))]
-            start_response('200 OK', headers)
-            return [body]
-
-        app = webtest.TestApp(middleware.AuthContextMiddleware(application),
-                              extra_environ=extra_environ)
-        resp = app.get('/', headers={authorization.AUTH_TOKEN_HEADER: token})
-        self.assertEqual('body', resp.text)  # just to make sure it worked
-        return resp.request
-
-    def test_admin_auth_context(self):
-        # test to make sure AuthContextMiddleware does not attempt to build the
-        # auth context if the admin_token middleware indicates it's admin
-        # already.
-        token_id = uuid.uuid4().hex  # token doesn't matter.
-        # the admin_token middleware sets is_admin in the context.
-        extra_environ = {wsgi.CONTEXT_ENV: {'is_admin': True}}
-        req = self._middleware_request(token_id, extra_environ)
-        auth_context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
-        self.assertDictEqual({}, auth_context)
 
 
 # NOTE(gyee): test AuthContextMiddleware here instead of test_middleware.py

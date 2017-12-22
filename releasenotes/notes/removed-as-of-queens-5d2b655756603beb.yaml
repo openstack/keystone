@@ -1,0 +1,5 @@
+---
+other:
+  - >
+    [`blueprint removed-as-of-queens <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-queens>`_]
+    The ``admin_token_auth`` middleware is removed now. The related doc is removed as well.

@@ -66,7 +66,7 @@ application in the ``public_api`` WSGI pipeline in
    paste.filter_factory = keystone.contrib.user_crud:CrudExtension.factory
 
    [pipeline:public_api]
-   pipeline = sizelimit url_normalize request_id build_auth_context token_auth admin_token_auth json_body ec2_extension user_crud_extension public_service
+   pipeline = sizelimit url_normalize request_id build_auth_context token_auth json_body ec2_extension user_crud_extension public_service
 
 Each user can then change their own password with a HTTP PATCH.
 

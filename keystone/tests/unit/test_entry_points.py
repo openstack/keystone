@@ -20,7 +20,6 @@ class TestPasteDeploymentEntryPoints(test.TestCase):
     def test_entry_point_middleware(self):
         """Assert that our list of expected middleware is present."""
         expected_names = [
-            'admin_token_auth',
             'build_auth_context',
             'cors',
             'debug',
