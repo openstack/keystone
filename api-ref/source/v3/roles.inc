@@ -92,12 +92,38 @@ List roles
 
 .. rest_method::  GET /v3/roles
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/roles``
-
 Lists roles.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/roles``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - name: role_name_query
+   - domain_id: domain_id_query
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - links: link_collection
+   - roles: roles
+   - domain_id: domain_id_response_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -109,28 +135,8 @@ Response Codes
    - 401
    - 403
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - name: role_name_query
-   - domain_id: domain_id_query
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - links: link_collection
-   - roles: roles
-   - domain_id: domain_id_response_body
-   - id: role_id_response_body
-   - links: link_response_body
-   - name: role_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/roles-list-response.json
    :language: javascript
@@ -141,12 +147,50 @@ Create role
 
 .. rest_method::  POST /v3/roles
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/roles``
-
 Creates a role.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/roles``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - role: role
+   - name: role_name_create_body
+   - domain_id: role_domain_id_request_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/role-create-request.json
+   :language: javascript
+
+Example for Domain Specific Role
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/admin/domain-specific-role-create-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - role: role
+   - domain_id: domain_id_response_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -159,29 +203,31 @@ Response Codes
    - 403
    - 409
 
-Request Parameters
-------------------
+
+Show role details
+=================
+
+.. rest_method::  GET /v3/roles/{role_id}
+
+Shows details for a role.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
-   - role: role
-   - name: role_name_create_body
-   - domain_id: role_domain_id_request_body
+   - role_id: role_id_path
 
-Request Example
----------------
+Response
+--------
 
-.. literalinclude:: ./samples/admin/role-create-request.json
-   :language: javascript
-
-Request Example for Domain Specific Role
-----------------------------------------
-
-.. literalinclude:: ./samples/admin/domain-specific-role-create-request.json
-   :language: javascript
-
-Response Parameters
--------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -191,18 +237,8 @@ Response Parameters
    - links: link_response_body
    - name: role_name_response_body
 
-
-Show role details
-=================
-
-.. rest_method::  GET /v3/roles/{role_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
-
-Shows details for a role.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -215,26 +251,8 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - role_id: role_id_path
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - role: role
-   - domain_id: domain_id_response_body
-   - id: role_id_response_body
-   - links: link_response_body
-   - name: role_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/role-show-response.json
    :language: javascript
@@ -245,12 +263,44 @@ Update role
 
 .. rest_method::  PATCH /v3/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
-
 Updates a role.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - role_id: role_id_path
+   - role: role
+   - name: role_name_update_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/role-update-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - role: role
+   - domain_id: domain_id_response_body
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -264,34 +314,8 @@ Response Codes
    - 404
    - 409
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - role_id: role_id_path
-   - role: role
-   - name: role_name_update_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/role-update-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - role: role
-   - domain_id: domain_id_response_body
-   - id: role_id_response_body
-   - links: link_response_body
-   - name: role_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/role-update-response.json
    :language: javascript
@@ -302,12 +326,24 @@ Delete role
 
 .. rest_method::  DELETE /v3/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
-
 Deletes a role.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+.. rest_parameters:: parameters.yaml
+
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -320,25 +356,32 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - role_id: role_id_path
-
 
 List role assignments for group on domain
 =========================================
 
 .. rest_method::  GET /v3/domains/{domain_id}/groups/{group_id}/roles
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
-
 Lists role assignments for a group on a domain.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_roles``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - group_id: group_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -350,16 +393,8 @@ Response Codes
    - 401
    - 403
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_path
-   - group_id: group_id_path
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domain-group-roles-list-response.json
    :language: javascript
@@ -375,12 +410,27 @@ Assign role to group on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
-
 Assigns a role to a group on a domain.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - group_id: group_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -394,8 +444,20 @@ Response Codes
    - 404
    - 409
 
-Request Parameters
-------------------
+Check whether group has role assignment on domain
+=================================================
+
+.. rest_method::  HEAD /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
+
+Validates that a group has a role assignment on a domain.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -403,18 +465,11 @@ Request Parameters
    - group_id: group_id_path
    - role_id: role_id_path
 
+Response
+--------
 
-Check whether group has role assignment on domain
-=================================================
-
-.. rest_method::  HEAD /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
-
-Validates that a group has a role assignment on a domain.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -426,15 +481,6 @@ Response Codes
    - 401
    - 403
    - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_path
-   - group_id: group_id_path
-   - role_id: role_id_path
 
 
 Unassign role from group on domain
@@ -442,12 +488,27 @@ Unassign role from group on domain
 
 .. rest_method::  DELETE /v3/domains/{domain_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
-
 Unassigns a role from a group on a domain.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_group_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - group_id: group_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -460,27 +521,42 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_path
-   - group_id: group_id_path
-   - role_id: role_id_path
-
 
 List role assignments for user on domain
 ========================================
 
 .. rest_method::  GET /v3/domains/{domain_id}/users/{user_id}/roles
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_roles``
-
 Lists role assignments for a user on a domain.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_roles``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - user_id: user_id_path
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - roles: roles
+   - id: role_id_response_body
+   - links: link_response_body
+   - name: role_name_response_body
+
+Status Codes
+~~~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -492,26 +568,8 @@ Response Codes
    - 401
    - 403
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_path
-   - user_id: user_id_path
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - roles: roles
-   - id: role_id_response_body
-   - links: link_response_body
-   - name: role_name_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/domain-user-roles-list-response.json
    :language: javascript
@@ -527,27 +585,15 @@ Assign role to user on domain
 
 .. rest_method::  PUT /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``https://developer.openstack.org/api-ref/identity/v3/index.html#assign-role-to-user-on-domain``
-
 Assigns a role to a user on a domain.
 
-Response Codes
---------------
+Relationship: ``https://developer.openstack.org/api-ref/identity/v3/index.html#assign-role-to-user-on-domain``
 
-.. rest_status_code:: success status.yaml
+Request
+-------
 
-   - 204
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-   - 404
-   - 409
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -555,85 +601,11 @@ Request Parameters
    - user_id: user_id_path
    - role_id: role_id_path
 
+Response
+--------
 
-Check whether user has role assignment on domain
-================================================
-
-.. rest_method::  HEAD /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
-
-Validates that a user has a role assignment on a domain.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 204
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-   - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_path
-   - user_id: user_id_path
-   - role_id: role_id_path
-
-
-Unassigns role from user on domain
-==================================
-
-.. rest_method::  DELETE /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
-
-Unassigns a role from a user on a domain.
-
-Response Codes
---------------
-
-.. rest_status_code:: success status.yaml
-
-   - 204
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-   - 404
-   - 409
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - domain_id: domain_id_path
-   - user_id: user_id_path
-   - role_id: role_id_path
-
-
-List role assignments for group on project
-==========================================
-
-.. rest_method::  GET /v3/projects/{project_id}/groups/{group_id}/roles
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
-
-Lists role assignments for a group on a project.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -645,16 +617,123 @@ Response Codes
    - 401
    - 403
 
-Request Parameters
-------------------
+Check whether user has role assignment on domain
+================================================
+
+.. rest_method::  HEAD /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
+
+Validates that a user has a role assignment on a domain.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - user_id: user_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+
+
+Unassigns role from user on domain
+==================================
+
+.. rest_method::  DELETE /v3/domains/{domain_id}/users/{user_id}/roles/{role_id}
+
+Unassigns a role from a user on a domain.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/domain_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - domain_id: domain_id_path
+   - user_id: user_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 409
+
+
+List role assignments for group on project
+==========================================
+
+.. rest_method::  GET /v3/projects/{project_id}/groups/{group_id}/roles
+
+Lists role assignments for a group on a project.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id_path
    - group_id: group_id_path
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-group-roles-list-response.json
    :language: javascript
@@ -670,12 +749,27 @@ Assign role to group on project
 
 .. rest_method::  PUT /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
-
 Assigns a role to a group on a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+   - group_id: group_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -689,8 +783,21 @@ Response Codes
    - 404
    - 409
 
-Request Parameters
-------------------
+
+Check whether group has role assignment on project
+==================================================
+
+.. rest_method::  HEAD /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
+
+Validates that a group has a role assignment on a project.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -698,18 +805,11 @@ Request Parameters
    - group_id: group_id_path
    - role_id: role_id_path
 
+Response
+--------
 
-Check whether group has role assignment on project
-==================================================
-
-.. rest_method::  HEAD /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
-
-Validates that a group has a role assignment on a project.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -721,15 +821,6 @@ Response Codes
    - 401
    - 403
    - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - group_id: group_id_path
-   - role_id: role_id_path
 
 
 Unassign role from group on project
@@ -737,12 +828,27 @@ Unassign role from group on project
 
 .. rest_method::  DELETE /v3/projects/{project_id}/groups/{group_id}/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
-
 Unassigns a role from a group on a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_group_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+   - group_id: group_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -755,27 +861,32 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - group_id: group_id_path
-   - role_id: role_id_path
-
 
 List role assignments for user on project
 =========================================
 
 .. rest_method::  GET /v3/projects/{project_id}/users/{user_id}/roles
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
-
 Lists role assignments for a user on a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+   - user_id: user_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -787,16 +898,8 @@ Response Codes
    - 401
    - 403
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - user_id: user_id_path
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-user-roles-list-response.json
    :language: javascript
@@ -812,12 +915,27 @@ Assign role to user on project
 
 .. rest_method::  PUT /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
-
 Assigns a role to a user on a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+   - user_id: user_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -831,8 +949,21 @@ Response Codes
    - 404
    - 409
 
-Request Parameters
-------------------
+
+Check whether user has role assignment on project
+=================================================
+
+.. rest_method::  HEAD /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
+
+Validates that a user has a role on a project.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -840,18 +971,11 @@ Request Parameters
    - user_id: user_id_path
    - role_id: role_id_path
 
+Response
+--------
 
-Check whether user has role assignment on project
-=================================================
-
-.. rest_method::  HEAD /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
-
-Validates that a user has a role on a project.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -864,27 +988,32 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - user_id: user_id_path
-   - role_id: role_id_path
-
 
 Unassign role from user on project
 ==================================
 
 .. rest_method::  DELETE /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
-
 Unassigns a role from a user on a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project_user_role``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+   - user_id: user_id_path
+   - role_id: role_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -897,15 +1026,6 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - user_id: user_id_path
-   - role_id: role_id_path
-
 
 List implied (inference) roles for role
 =======================================
@@ -917,27 +1037,20 @@ Lists implied (inference) roles for a role.
 Relationship:
 ``https://developer.openstack.org/api-ref/identity/v3/#list-implied-roles-for-role``
 
-Response Codes
---------------
+Request
+-------
 
-.. rest_status_code:: success status.yaml
-
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 401
-   - 404
-
-Request Parameters
-------------------
-
+Parameters
+~~~~~~~~~~
 .. rest_parameters:: parameters.yaml
 
    - prior_role_id: prior_role_id
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -948,8 +1061,20 @@ Response Parameters
    - links: link_response_body
    - name: role_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/list-implied-roles-for-role-response.json
    :language: javascript
@@ -965,28 +1090,22 @@ Creates a role inference rule.
 Relationship:
 ``https://developer.openstack.org/api-ref/identity/v3/#create-role-inference-rule``
 
-Response Codes
---------------
+Request
+-------
 
-.. rest_status_code:: success status.yaml
-
-   - 201
-
-.. rest_status_code:: error status.yaml
-
-   - 401
-   - 404
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - prior_role_id: prior_role_id
    - implies_role_id: implies_role_id
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -997,8 +1116,20 @@ Response Parameters
    - links: link_response_body
    - name: role_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/create-role-inferences-response.json
    :language: javascript
@@ -1014,28 +1145,22 @@ Gets a role inference rule.
 Relationship:
 ``https://developer.openstack.org/api-ref/identity/v3/#get-role-inference-rule``
 
-Response Codes
---------------
+Request
+-------
 
-.. rest_status_code:: success status.yaml
-
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 401
-   - 404
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - prior_role_id: prior_role_id
    - implies_role_id: implies_role_id
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -1046,8 +1171,20 @@ Response Parameters
    - links: link_response_body
    - name: role_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/get-role-inferences-response.json
    :language: javascript
@@ -1063,8 +1200,22 @@ Checks a role role inference rule.
 Relationship:
 ``https://developer.openstack.org/api-ref/identity/v3/#confirm-role-inference-rule``
 
-Response Codes
---------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - prior_role_id: prior_role_id
+   - implies_role_id: implies_role_id
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -1075,16 +1226,8 @@ Response Codes
    - 401
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - prior_role_id: prior_role_id
-   - implies_role_id: implies_role_id
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 Status: 204 No Content
 
@@ -1099,8 +1242,21 @@ Deletes a role inference rule.
 Relationship:
 ``https://developer.openstack.org/api-ref/identity/v3/#delete-role-inference-rule``
 
-Response Codes
---------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+.. rest_parameters:: parameters.yaml
+
+   - prior_role_id: prior_role_id
+   - implies_role_id: implies_role_id
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -1111,16 +1267,8 @@ Response Codes
    - 401
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - prior_role_id: prior_role_id
-   - implies_role_id: implies_role_id
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 Status: 204 No Content
 
@@ -1130,25 +1278,15 @@ List role assignments
 
 .. rest_method::  GET /v3/role_assignments
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role_assignments``
-
 Lists role assignments.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/role_assignments``
 
-.. rest_status_code:: success status.yaml
+Request
+-------
 
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -1161,15 +1299,31 @@ Request Parameters
    - scope.project.id: scope_project_id_query
    - user.id: user_id_query
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - role_assignments: role_assignments
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/role-assignments-list-response.json
    :language: javascript
@@ -1185,20 +1339,11 @@ Lists all role inference rules.
 Relationship:
 ``https://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules``
 
-Response Codes
---------------
+Response
+--------
 
-.. rest_status_code:: success status.yaml
-
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 401
-   - 404
-
-Response Parameters
--------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -1209,8 +1354,20 @@ Response Parameters
    - links: link_response_body
    - name: role_name_response_body
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 404
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/role-inferences-response.json
    :language: javascript
