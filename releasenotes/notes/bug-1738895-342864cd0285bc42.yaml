@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1738895 <https://bugs.launchpad.net/keystone/+bug/1738895>`_]
+    Fixed the bug that federated users can't be listed by `name` filter. Now
+    when list users by `name`, Keystone will query both local user backend and
+    shadow user backend.

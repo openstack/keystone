@@ -14,6 +14,7 @@
 
 """Main entry point into the Identity service."""
 
+import copy
 import functools
 import itertools
 import operator
@@ -1025,12 +1026,23 @@ class Manager(manager.Manager):
                     raise exception.InvalidOperatorError(op)
         return hints
 
-    def _handle_federated_attributes_in_hints(self, driver, hints):
+    def _handle_shadow_and_local_users(self, driver, hints):
         federated_attributes = ['idp_id', 'protocol_id', 'unique_id']
         for filter_ in hints.filters:
             if filter_['name'] in federated_attributes:
                 return PROVIDERS.shadow_users_api.get_federated_users(hints)
-        return driver.list_users(hints)
+        fed_hints = copy.deepcopy(hints)
+        res = driver.list_users(hints)
+
+        # Note: If the filters contain 'name', we should get the user from both
+        # local user and shadow user backend.
+        for filter_ in fed_hints.filters:
+            if filter_['name'] == 'name':
+                fed_res = PROVIDERS.shadow_users_api.get_federated_users(
+                    fed_hints)
+                res += fed_res
+                break
+        return res
 
     @domains_configured
     @exception_translated('user')
@@ -1047,7 +1059,7 @@ class Manager(manager.Manager):
             # driver selection, so remove any such filter.
             self._mark_domain_id_filter_satisfied(hints)
         hints = self._translate_expired_password_hints(hints)
-        ref_list = self._handle_federated_attributes_in_hints(driver, hints)
+        ref_list = self._handle_shadow_and_local_users(driver, hints)
         return self._set_domain_id_and_mapping(
             ref_list, domain_scope, driver, mapping.EntityType.USER)
 
