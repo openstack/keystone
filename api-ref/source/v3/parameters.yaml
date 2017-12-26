@@ -1469,9 +1469,9 @@ roles:
   type: array
 scope_string:
   description: |
-    The authorization scope, including either a project or
-    a domain (Since v3.4). If both a domain and a project are
-    specified, an HTTP 400 Bad Request will be returned, as a
+    The authorization scope, including the system (Since v3.10), a
+    project, or a domain (Since v3.4). If both a domain and a project
+    are specified, an HTTP ``400 Bad Request`` will be returned, as a
     token cannot be simultaneously scoped to both a project
     and a domain. An ID is sufficient to uniquely identify
     a project but if a project is specified by name, then
@@ -1572,6 +1572,12 @@ signed:
   in: body
   required: true
   type: string
+system:
+  description: |
+    A ``system`` object.
+  in: body
+  required: false
+  type: object
 system_roles_response_body:
   description: |
     A list of ``role`` objects containing ``domain_id``, ``id``, ``links``,
@@ -1579,6 +1585,14 @@ system_roles_response_body:
   in: body
   required: true
   type: array
+system_scope_string:
+  description: |
+    Authorization scope specific to the deployment system (Since v3.10).
+    Specifying a project or domain scope in addition to system scope results
+    in an HTTP ``400 Bad Request``.
+  in: body
+  required: false
+  type: string
 token:
   description: |
     A ``token`` object.

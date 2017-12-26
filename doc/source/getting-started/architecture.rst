@@ -481,14 +481,15 @@ What is Scope?
 
 Scope is an overloaded term.
 
-In reference to authenticating, as seen above, scope refers to the portion
-of the POST data that dictates what ``Resource`` (project or domain) the user
-wants to access.
+In reference to authenticating, as seen above, scope refers to the portion of
+the POST data that dictates what ``Resource`` (project, domain, or system) the
+user wants to access.
 
 In reference to tokens, scope refers to the effectiveness of a token,
 i.e.: a `project-scoped` token is only useful on the project it was initially
 granted for. A `domain-scoped` token may be used to perform domain-related
-function.
+function. A `system-scoped` token is only useful for interacting with APIs that
+affect the entire deployment.
 
 In reference to users, groups, and projects, scope often refers to the domain
 that the entity is owned by. i.e.: a user in domain X is scoped to domain X.
