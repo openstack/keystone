@@ -38,11 +38,6 @@ class Resource(base.ResourceDriverBase):
         else:
             return ref
 
-    def _encode_tags(self, ref):
-        if ref.get('tags'):
-            ref['tags'] = [text_type(t) for t in ref['tags']]
-        return ref
-
     def _is_hidden_ref(self, ref):
         return ref.id == base.NULL_DOMAIN_ID
 
@@ -235,7 +230,6 @@ class Resource(base.ResourceDriverBase):
     @sql.handle_conflicts(conflict_type='project')
     def create_project(self, project_id, project):
         new_project = self._encode_domain_id(project)
-        new_project = self._encode_tags(new_project)
         with sql.session_for_write() as session:
             project_ref = Project.from_dict(new_project)
             session.add(project_ref)
@@ -252,7 +246,6 @@ class Resource(base.ResourceDriverBase):
             # When we read the old_project_dict, any "null" domain_id will have
             # been decoded, so we need to re-encode it
             old_project_dict = self._encode_domain_id(old_project_dict)
-            old_project_dict = self._encode_tags(old_project_dict)
             new_project = Project.from_dict(old_project_dict)
             for attr in Project.attributes:
                 if attr != 'id':
@@ -335,7 +328,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
         for tag in values:
             tag_ref = ProjectTag()
             tag_ref.project_id = self.id
-            tag_ref.name = tag
+            tag_ref.name = text_type(tag)
             new_tags.append(tag_ref)
         self._tags = new_tags
 
