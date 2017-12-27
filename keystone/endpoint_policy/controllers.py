@@ -13,7 +13,11 @@
 # under the License.
 
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone import notifications
+
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class EndpointPolicyV3Controller(controller.V3Controller):
@@ -32,110 +36,112 @@ class EndpointPolicyV3Controller(controller.V3Controller):
             'deleted', 'policy', self._on_policy_delete)
 
     def _on_endpoint_delete(self, service, resource_type, operation, payload):
-        self.endpoint_policy_api.delete_association_by_endpoint(
+        PROVIDERS.endpoint_policy_api.delete_association_by_endpoint(
             payload['resource_info'])
 
     def _on_service_delete(self, service, resource_type, operation, payload):
-        self.endpoint_policy_api.delete_association_by_service(
+        PROVIDERS.endpoint_policy_api.delete_association_by_service(
             payload['resource_info'])
 
     def _on_region_delete(self, service, resource_type, operation, payload):
-        self.endpoint_policy_api.delete_association_by_region(
+        PROVIDERS.endpoint_policy_api.delete_association_by_region(
             payload['resource_info'])
 
     def _on_policy_delete(self, service, resource_type, operation, payload):
-        self.endpoint_policy_api.delete_association_by_policy(
+        PROVIDERS.endpoint_policy_api.delete_association_by_policy(
             payload['resource_info'])
 
     @controller.protected()
     def create_policy_association_for_endpoint(self, request,
                                                policy_id, endpoint_id):
         """Create an association between a policy and an endpoint."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_endpoint(endpoint_id)
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_endpoint(endpoint_id)
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             policy_id, endpoint_id=endpoint_id)
 
     @controller.protected()
     def check_policy_association_for_endpoint(self, request,
                                               policy_id, endpoint_id):
         """Check an association between a policy and an endpoint."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_endpoint(endpoint_id)
-        self.endpoint_policy_api.check_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_endpoint(endpoint_id)
+        PROVIDERS.endpoint_policy_api.check_policy_association(
             policy_id, endpoint_id=endpoint_id)
 
     @controller.protected()
     def delete_policy_association_for_endpoint(self, request,
                                                policy_id, endpoint_id):
         """Delete an association between a policy and an endpoint."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_endpoint(endpoint_id)
-        self.endpoint_policy_api.delete_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_endpoint(endpoint_id)
+        PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, endpoint_id=endpoint_id)
 
     @controller.protected()
     def create_policy_association_for_service(self, request,
                                               policy_id, service_id):
         """Create an association between a policy and a service."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_service(service_id)
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_service(service_id)
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             policy_id, service_id=service_id)
 
     @controller.protected()
     def check_policy_association_for_service(self, request,
                                              policy_id, service_id):
         """Check an association between a policy and a service."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_service(service_id)
-        self.endpoint_policy_api.check_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_service(service_id)
+        PROVIDERS.endpoint_policy_api.check_policy_association(
             policy_id, service_id=service_id)
 
     @controller.protected()
     def delete_policy_association_for_service(self, request,
                                               policy_id, service_id):
         """Delete an association between a policy and a service."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_service(service_id)
-        self.endpoint_policy_api.delete_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_service(service_id)
+        PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, service_id=service_id)
 
     @controller.protected()
     def create_policy_association_for_region_and_service(
             self, request, policy_id, service_id, region_id):
         """Create an association between a policy and region+service."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_service(service_id)
-        self.catalog_api.get_region(region_id)
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_service(service_id)
+        PROVIDERS.catalog_api.get_region(region_id)
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             policy_id, service_id=service_id, region_id=region_id)
 
     @controller.protected()
     def check_policy_association_for_region_and_service(
             self, request, policy_id, service_id, region_id):
         """Check an association between a policy and region+service."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_service(service_id)
-        self.catalog_api.get_region(region_id)
-        self.endpoint_policy_api.check_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_service(service_id)
+        PROVIDERS.catalog_api.get_region(region_id)
+        PROVIDERS.endpoint_policy_api.check_policy_association(
             policy_id, service_id=service_id, region_id=region_id)
 
     @controller.protected()
     def delete_policy_association_for_region_and_service(
             self, request, policy_id, service_id, region_id):
         """Delete an association between a policy and region+service."""
-        self.policy_api.get_policy(policy_id)
-        self.catalog_api.get_service(service_id)
-        self.catalog_api.get_region(region_id)
-        self.endpoint_policy_api.delete_policy_association(
+        PROVIDERS.policy_api.get_policy(policy_id)
+        PROVIDERS.catalog_api.get_service(service_id)
+        PROVIDERS.catalog_api.get_region(region_id)
+        PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, service_id=service_id, region_id=region_id)
 
     @controller.protected()
     def get_policy_for_endpoint(self, request, endpoint_id):
         """Get the effective policy for an endpoint."""
-        self.catalog_api.get_endpoint(endpoint_id)
-        ref = self.endpoint_policy_api.get_policy_for_endpoint(endpoint_id)
+        PROVIDERS.catalog_api.get_endpoint(endpoint_id)
+        ref = PROVIDERS.endpoint_policy_api.get_policy_for_endpoint(
+            endpoint_id
+        )
         # NOTE(henry-nash): since the collection and member for this class is
         # set to endpoints, we have to handle wrapping this policy entity
         # ourselves.
@@ -159,7 +165,9 @@ class EndpointPolicyV3Controller(controller.V3Controller):
     @controller.protected()
     def list_endpoints_for_policy(self, request, policy_id):
         """List endpoints with the effective association to a policy."""
-        self.policy_api.get_policy(policy_id)
-        refs = self.endpoint_policy_api.list_endpoints_for_policy(policy_id)
+        PROVIDERS.policy_api.get_policy(policy_id)
+        refs = PROVIDERS.endpoint_policy_api.list_endpoints_for_policy(
+            policy_id
+        )
         return EndpointPolicyV3Controller.wrap_collection(request.context_dict,
                                                           refs)

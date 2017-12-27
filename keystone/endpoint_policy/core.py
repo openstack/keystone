@@ -15,6 +15,7 @@
 from oslo_log import log
 
 from keystone.common import manager
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -22,6 +23,7 @@ from keystone.i18n import _
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class Manager(manager.Manager):
@@ -84,7 +86,7 @@ class Manager(manager.Manager):
 
         def _get_endpoint(endpoint_id, policy_id):
             try:
-                return self.catalog_api.get_endpoint(endpoint_id)
+                return PROVIDERS.catalog_api.get_endpoint(endpoint_id)
             except exception.EndpointNotFound:
                 msg = ('Endpoint %(endpoint_id)s referenced in '
                        'association for policy %(policy_id)s not found.')
@@ -151,8 +153,8 @@ class Manager(manager.Manager):
             return endpoints_found
 
         matching_endpoints = []
-        endpoints = self.catalog_api.list_endpoints()
-        regions = self.catalog_api.list_regions()
+        endpoints = PROVIDERS.catalog_api.list_endpoints()
+        regions = PROVIDERS.catalog_api.list_regions()
         for ref in self.list_associations_for_policy(policy_id):
             if ref.get('endpoint_id') is not None:
                 matching_endpoints.append(
@@ -187,7 +189,7 @@ class Manager(manager.Manager):
 
         def _get_policy(policy_id, endpoint_id):
             try:
-                return self.policy_api.get_policy(policy_id)
+                return PROVIDERS.policy_api.get_policy(policy_id)
             except exception.PolicyNotFound:
                 msg = ('Policy %(policy_id)s referenced in association '
                        'for endpoint %(endpoint_id)s not found.')
@@ -218,7 +220,7 @@ class Manager(manager.Manager):
                 # There wasn't one for that region & service, let's
                 # chase up the region tree
                 regions_examined.append(region_id)
-                region = self.catalog_api.get_region(region_id)
+                region = PROVIDERS.catalog_api.get_region(region_id)
                 region_id = None
                 if region.get('parent_region_id') is not None:
                     region_id = region['parent_region_id']
@@ -242,7 +244,7 @@ class Manager(manager.Manager):
         # There wasn't a policy explicitly defined for this endpoint, so
         # now let's see if there is one for the Region & Service.
 
-        endpoint = self.catalog_api.get_endpoint(endpoint_id)
+        endpoint = PROVIDERS.catalog_api.get_endpoint(endpoint_id)
         policy_id = _look_for_policy_for_region_and_service(endpoint)
         if policy_id is not None:
             return _get_policy(policy_id, endpoint_id)
