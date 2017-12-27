@@ -60,7 +60,10 @@ def enforce(credentials, action, target, do_raise=True):
         extra.update(exc=exception.ForbiddenAction, action=action,
                      do_raise=do_raise)
 
-    return _ENFORCER.enforce(action, target, credentials, **extra)
+    try:
+        return _ENFORCER.enforce(action, target, credentials, **extra)
+    except common_policy.InvalidScope:
+        raise exception.ForbiddenAction(action=action)
 
 
 def register_rules(enforcer):
