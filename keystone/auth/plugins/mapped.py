@@ -19,6 +19,7 @@ from six.moves.urllib import parse
 
 from keystone.auth import plugins as auth_plugins
 from keystone.auth.plugins import base
+from keystone.common import provider_api
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
@@ -29,13 +30,14 @@ from keystone import notifications
 LOG = log.getLogger(__name__)
 
 METHOD_NAME = 'mapped'
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class Mapped(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
-        response = self.token_provider_api.validate_token(token_id)
+        response = PROVIDERS.token_provider_api.validate_token(token_id)
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 
@@ -55,16 +57,16 @@ class Mapped(base.AuthMethodHandler):
             token_ref = self._get_token_ref(auth_payload)
             response_data = handle_scoped_token(request,
                                                 token_ref,
-                                                self.federation_api,
-                                                self.identity_api)
+                                                PROVIDERS.federation_api,
+                                                PROVIDERS.identity_api)
         else:
             response_data = handle_unscoped_token(request,
                                                   auth_payload,
-                                                  self.resource_api,
-                                                  self.federation_api,
-                                                  self.identity_api,
-                                                  self.assignment_api,
-                                                  self.role_api)
+                                                  PROVIDERS.resource_api,
+                                                  PROVIDERS.federation_api,
+                                                  PROVIDERS.identity_api,
+                                                  PROVIDERS.assignment_api,
+                                                  PROVIDERS.role_api)
 
         return base.AuthHandlerResponse(status=True, response_body=None,
                                         response_data=response_data)

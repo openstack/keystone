@@ -157,7 +157,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
     def _assert_project_is_enabled(self, project_ref):
         # ensure the project is enabled
         try:
-            self.resource_api.assert_project_enabled(
+            PROVIDERS.resource_api.assert_project_enabled(
                 project_id=project_ref['id'],
                 project=project_ref)
         except AssertionError as e:
@@ -167,7 +167,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
 
     def _assert_domain_is_enabled(self, domain_ref):
         try:
-            self.resource_api.assert_domain_enabled(
+            PROVIDERS.resource_api.assert_domain_enabled(
                 domain_id=domain_ref['id'],
                 domain=domain_ref)
         except AssertionError as e:
@@ -185,10 +185,10 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
                     msg = _('Domain name cannot contain reserved characters.')
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=msg)
-                domain_ref = self.resource_api.get_domain_by_name(
+                domain_ref = PROVIDERS.resource_api.get_domain_by_name(
                     domain_name)
             else:
-                domain_ref = self.resource_api.get_domain(domain_id)
+                domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
@@ -209,10 +209,10 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
                     raise exception.ValidationError(attribute='domain',
                                                     target='project')
                 domain_ref = self._lookup_domain(project_info['domain'])
-                project_ref = self.resource_api.get_project_by_name(
+                project_ref = PROVIDERS.resource_api.get_project_by_name(
                     project_name, domain_ref['id'])
             else:
-                project_ref = self.resource_api.get_project(project_id)
+                project_ref = PROVIDERS.resource_api.get_project(project_id)
                 # NOTE(morganfainberg): The _lookup_domain method will raise
                 # exception.Unauthorized if the domain isn't found or is
                 # disabled.
@@ -228,7 +228,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         if not trust_id:
             raise exception.ValidationError(attribute='trust_id',
                                             target='trust')
-        trust = self.trust_api.get_trust(trust_id)
+        trust = PROVIDERS.trust_api.get_trust(trust_id)
         return trust
 
     def _lookup_app_cred(self, app_cred_info):
@@ -439,7 +439,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
         :returns: Boolean, ``True`` means rules match and auth may proceed,
                   ``False`` means rules do not match.
         """
-        user_ref = self.identity_api.get_user(user_id)
+        user_ref = PROVIDERS.identity_api.get_user(user_id)
         mfa_rules = user_ref['options'].get(ro.MFA_RULES_OPT.option_name, [])
         mfa_rules_enabled = user_ref['options'].get(
             ro.MFA_ENABLED_OPT.option_name, True)

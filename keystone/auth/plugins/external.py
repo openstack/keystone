@@ -19,12 +19,14 @@ import abc
 import six
 
 from keystone.auth.plugins import base
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -67,7 +69,7 @@ class Base(base.AuthMethodHandler):
 class DefaultDomain(Base):
     def _authenticate(self, request):
         """Use remote_user to look up the user in the identity backend."""
-        return self.identity_api.get_user_by_name(
+        return PROVIDERS.identity_api.get_user_by_name(
             request.remote_user,
             CONF.identity.default_domain_id)
 
@@ -80,13 +82,15 @@ class Domain(Base):
         variable if present. If not, the default domain will be used.
         """
         if request.remote_domain:
-            ref = self.resource_api.get_domain_by_name(request.remote_domain)
+            ref = PROVIDERS.resource_api.get_domain_by_name(
+                request.remote_domain
+            )
             domain_id = ref['id']
         else:
             domain_id = CONF.identity.default_domain_id
 
-        return self.identity_api.get_user_by_name(request.remote_user,
-                                                  domain_id)
+        return PROVIDERS.identity_api.get_user_by_name(request.remote_user,
+                                                       domain_id)
 
 
 class KerberosDomain(Domain):

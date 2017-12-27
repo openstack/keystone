@@ -145,7 +145,7 @@ class Auth(controller.V3Controller):
             token_audit_id = auth_context.get('audit_id')
 
             is_domain = auth_context.get('is_domain')
-            (token_id, token_data) = self.token_provider_api.issue_token(
+            (token_id, token_data) = PROVIDERS.token_provider_api.issue_token(
                 auth_context['user_id'], method_names, expires_at=expires_at,
                 system=system, project_id=project_id,
                 is_domain=is_domain, domain_id=domain_id,
@@ -156,7 +156,7 @@ class Auth(controller.V3Controller):
             # NOTE(wanghong): We consume a trust use only when we are using
             # trusts and have successfully issued a token.
             if trust:
-                self.trust_api.consume_use(trust['id'])
+                PROVIDERS.trust_api.consume_use(trust['id'])
 
             return render_token_data_response(token_id, token_data,
                                               created=True)
@@ -184,7 +184,7 @@ class Auth(controller.V3Controller):
 
         # fill in default_project_id if it is available
         try:
-            user_ref = self.identity_api.get_user(auth_context['user_id'])
+            user_ref = PROVIDERS.identity_api.get_user(auth_context['user_id'])
         except exception.UserNotFound as e:
             LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
@@ -196,13 +196,13 @@ class Auth(controller.V3Controller):
 
         # make sure user's default project is legit before scoping to it
         try:
-            default_project_ref = self.resource_api.get_project(
+            default_project_ref = PROVIDERS.resource_api.get_project(
                 default_project_id)
-            default_project_domain_ref = self.resource_api.get_domain(
+            default_project_domain_ref = PROVIDERS.resource_api.get_domain(
                 default_project_ref['domain_id'])
             if (default_project_ref.get('enabled', True) and
                     default_project_domain_ref.get('enabled', True)):
-                if self.assignment_api.get_roles_for_user_and_project(
+                if PROVIDERS.assignment_api.get_roles_for_user_and_project(
                         user_ref['id'], default_project_id):
                     auth_info.set_scope(project_id=default_project_id)
                 else:
@@ -311,7 +311,7 @@ class Auth(controller.V3Controller):
     def check_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
         window_seconds = authorization.token_validation_window(request)
-        token_data = self.token_provider_api.validate_token(
+        token_data = PROVIDERS.token_provider_api.validate_token(
             token_id, window_seconds=window_seconds)
         # NOTE(morganfainberg): The code in
         # ``keystone.common.wsgi.render_response`` will remove the content
@@ -321,14 +321,14 @@ class Auth(controller.V3Controller):
     @controller.protected()
     def revoke_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
-        return self.token_provider_api.revoke_token(token_id)
+        return PROVIDERS.token_provider_api.revoke_token(token_id)
 
     @controller.protected()
     def validate_token(self, request):
         token_id = request.context_dict.get('subject_token_id')
         window_seconds = authorization.token_validation_window(request)
         include_catalog = 'nocatalog' not in request.params
-        token_data = self.token_provider_api.validate_token(
+        token_data = PROVIDERS.token_provider_api.validate_token(
             token_id, window_seconds=window_seconds)
         if not include_catalog and 'catalog' in token_data['token']:
             del token_data['token']['catalog']
@@ -341,7 +341,7 @@ class Auth(controller.V3Controller):
 
         audit_id_only = 'audit_id_only' in request.params
 
-        tokens = self.token_provider_api.list_revoked_tokens()
+        tokens = PROVIDERS.token_provider_api.list_revoked_tokens()
 
         for t in tokens:
             expires = t['expires']
@@ -378,14 +378,18 @@ class Auth(controller.V3Controller):
         user_refs = []
         if user_id:
             try:
-                user_refs = self.assignment_api.list_projects_for_user(user_id)
+                user_refs = PROVIDERS.assignment_api.list_projects_for_user(
+                    user_id
+                )
             except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
                 pass
 
         grp_refs = []
         if group_ids:
-            grp_refs = self.assignment_api.list_projects_for_groups(group_ids)
+            grp_refs = PROVIDERS.assignment_api.list_projects_for_groups(
+                group_ids
+            )
 
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
         return resource_controllers.ProjectV3.wrap_collection(
@@ -399,14 +403,18 @@ class Auth(controller.V3Controller):
         user_refs = []
         if user_id:
             try:
-                user_refs = self.assignment_api.list_domains_for_user(user_id)
+                user_refs = PROVIDERS.assignment_api.list_domains_for_user(
+                    user_id
+                )
             except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
                 pass
 
         grp_refs = []
         if group_ids:
-            grp_refs = self.assignment_api.list_domains_for_groups(group_ids)
+            grp_refs = PROVIDERS.assignment_api.list_domains_for_groups(
+                group_ids
+            )
 
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
         return resource_controllers.DomainV3.wrap_collection(
@@ -477,7 +485,9 @@ class Auth(controller.V3Controller):
         # self-referential link building) to avoid overriding or refactoring
         # several private methods.
         return {
-            'catalog': self.catalog_api.get_v3_catalog(user_id, project_id),
+            'catalog': PROVIDERS.catalog_api.get_v3_catalog(
+                user_id, project_id
+            ),
             'links': {'self': self.base_url(request.context_dict,
                                             path='auth/catalog')}
         }

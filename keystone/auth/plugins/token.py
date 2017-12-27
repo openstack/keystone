@@ -17,6 +17,7 @@ import six
 
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
+from keystone.common import provider_api
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
@@ -27,13 +28,14 @@ from keystone.models import token_model
 LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class Token(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
-        response = self.token_provider_api.validate_token(token_id)
+        response = PROVIDERS.token_provider_api.validate_token(token_id)
         return token_model.KeystoneToken(token_id=token_id,
                                          token_data=response)
 
@@ -42,9 +44,11 @@ class Token(base.AuthMethodHandler):
             raise exception.ValidationError(attribute='id',
                                             target='token')
         token_ref = self._get_token_ref(auth_payload)
-        if token_ref.is_federated_user and self.federation_api:
+        if token_ref.is_federated_user and PROVIDERS.federation_api:
             response_data = mapped.handle_scoped_token(
-                request, token_ref, self.federation_api, self.identity_api)
+                request, token_ref, PROVIDERS.federation_api,
+                PROVIDERS.identity_api
+            )
         else:
             response_data = token_authenticate(request,
                                                token_ref)

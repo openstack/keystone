@@ -14,11 +14,13 @@
 
 from keystone.auth import plugins as auth_plugins
 from keystone.auth.plugins import base
+from keystone.common import provider_api
 from keystone import exception
 from keystone.i18n import _
 
 
 METHOD_NAME = 'password'
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class Password(base.AuthMethodHandler):
@@ -29,7 +31,7 @@ class Password(base.AuthMethodHandler):
         user_info = auth_plugins.UserAuthInfo.create(auth_payload, METHOD_NAME)
 
         try:
-            self.identity_api.authenticate(
+            PROVIDERS.identity_api.authenticate(
                 request,
                 user_id=user_info.user_id,
                 password=user_info.password)
