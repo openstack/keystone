@@ -22,6 +22,7 @@ import webob
 
 from keystone.auth import controllers as auth_controllers
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone.common import utils as k_utils
 from keystone.common import validation
 from keystone.common import wsgi
@@ -36,6 +37,7 @@ from keystone.models import token_model
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class _ControllerBase(controller.V3Controller):
@@ -94,7 +96,9 @@ class IdentityProvider(_ControllerBase):
                                  identity_provider)
         identity_provider = self._normalize_dict(identity_provider)
         identity_provider.setdefault('enabled', False)
-        idp_ref = self.federation_api.create_idp(idp_id, identity_provider)
+        idp_ref = PROVIDERS.federation_api.create_idp(
+            idp_id, identity_provider
+        )
         response = IdentityProvider.wrap_member(request.context_dict, idp_ref)
         return wsgi.render_response(
             body=response, status=(http_client.CREATED,
@@ -103,26 +107,28 @@ class IdentityProvider(_ControllerBase):
     @controller.filterprotected('id', 'enabled')
     def list_identity_providers(self, request, filters):
         hints = self.build_driver_hints(request, filters)
-        ref = self.federation_api.list_idps(hints=hints)
+        ref = PROVIDERS.federation_api.list_idps(hints=hints)
         ref = [self.filter_params(x) for x in ref]
         return IdentityProvider.wrap_collection(request.context_dict,
                                                 ref, hints=hints)
 
     @controller.protected()
     def get_identity_provider(self, request, idp_id):
-        ref = self.federation_api.get_idp(idp_id)
+        ref = PROVIDERS.federation_api.get_idp(idp_id)
         return IdentityProvider.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_identity_provider(self, request, idp_id):
-        self.federation_api.delete_idp(idp_id)
+        PROVIDERS.federation_api.delete_idp(idp_id)
 
     @controller.protected()
     def update_identity_provider(self, request, idp_id, identity_provider):
         validation.lazy_validate(schema.identity_provider_update,
                                  identity_provider)
         identity_provider = self._normalize_dict(identity_provider)
-        idp_ref = self.federation_api.update_idp(idp_id, identity_provider)
+        idp_ref = PROVIDERS.federation_api.update_idp(
+            idp_id, identity_provider
+        )
         return IdentityProvider.wrap_member(request.context_dict, idp_ref)
 
 
@@ -184,7 +190,7 @@ class FederationProtocol(_ControllerBase):
     def create_protocol(self, request, idp_id, protocol_id, protocol):
         validation.lazy_validate(schema.protocol_create, protocol)
         protocol = self._normalize_dict(protocol)
-        ref = self.federation_api.create_protocol(
+        ref = PROVIDERS.federation_api.create_protocol(
             idp_id, protocol_id, protocol)
         response = FederationProtocol.wrap_member(request.context_dict, ref)
         return wsgi.render_response(
@@ -195,25 +201,25 @@ class FederationProtocol(_ControllerBase):
     def update_protocol(self, request, idp_id, protocol_id, protocol):
         validation.lazy_validate(schema.protocol_update, protocol)
         protocol = self._normalize_dict(protocol)
-        ref = self.federation_api.update_protocol(idp_id, protocol_id,
-                                                  protocol)
+        ref = PROVIDERS.federation_api.update_protocol(idp_id, protocol_id,
+                                                       protocol)
         return FederationProtocol.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def get_protocol(self, request, idp_id, protocol_id):
-        ref = self.federation_api.get_protocol(idp_id, protocol_id)
+        ref = PROVIDERS.federation_api.get_protocol(idp_id, protocol_id)
         return FederationProtocol.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def list_protocols(self, request, idp_id):
-        protocols_ref = self.federation_api.list_protocols(idp_id)
+        protocols_ref = PROVIDERS.federation_api.list_protocols(idp_id)
         protocols = list(protocols_ref)
         return FederationProtocol.wrap_collection(request.context_dict,
                                                   protocols)
 
     @controller.protected()
     def delete_protocol(self, request, idp_id, protocol_id):
-        self.federation_api.delete_protocol(idp_id, protocol_id)
+        PROVIDERS.federation_api.delete_protocol(idp_id, protocol_id)
 
 
 class MappingController(_ControllerBase):
@@ -224,7 +230,7 @@ class MappingController(_ControllerBase):
     def create_mapping(self, request, mapping_id, mapping):
         ref = self._normalize_dict(mapping)
         utils.validate_mapping_structure(ref)
-        mapping_ref = self.federation_api.create_mapping(mapping_id, ref)
+        mapping_ref = PROVIDERS.federation_api.create_mapping(mapping_id, ref)
         response = MappingController.wrap_member(request.context_dict,
                                                  mapping_ref)
         return wsgi.render_response(
@@ -233,23 +239,25 @@ class MappingController(_ControllerBase):
 
     @controller.protected()
     def list_mappings(self, request):
-        ref = self.federation_api.list_mappings()
+        ref = PROVIDERS.federation_api.list_mappings()
         return MappingController.wrap_collection(request.context_dict, ref)
 
     @controller.protected()
     def get_mapping(self, request, mapping_id):
-        ref = self.federation_api.get_mapping(mapping_id)
+        ref = PROVIDERS.federation_api.get_mapping(mapping_id)
         return MappingController.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_mapping(self, request, mapping_id):
-        self.federation_api.delete_mapping(mapping_id)
+        PROVIDERS.federation_api.delete_mapping(mapping_id)
 
     @controller.protected()
     def update_mapping(self, request, mapping_id, mapping):
         mapping = self._normalize_dict(mapping)
         utils.validate_mapping_structure(mapping)
-        mapping_ref = self.federation_api.update_mapping(mapping_id, mapping)
+        mapping_ref = PROVIDERS.federation_api.update_mapping(
+            mapping_id, mapping
+        )
         return MappingController.wrap_member(request.context_dict, mapping_ref)
 
 
@@ -320,7 +328,7 @@ class Auth(auth_controllers.Auth):
 
         host = self._get_sso_origin_host(request)
 
-        ref = self.federation_api.get_idp_from_remote_id(remote_id)
+        ref = PROVIDERS.federation_api.get_idp_from_remote_id(remote_id)
         # NOTE(stevemar): the returned object is a simple dict that
         # contains the idp_id and remote_id.
         identity_provider = ref['idp_id']
@@ -356,12 +364,12 @@ class Auth(auth_controllers.Auth):
     def _create_base_saml_assertion(self, context, auth):
         issuer = CONF.saml.idp_entity_id
         sp_id = auth['scope']['service_provider']['id']
-        service_provider = self.federation_api.get_sp(sp_id)
+        service_provider = PROVIDERS.federation_api.get_sp(sp_id)
         utils.assert_enabled_service_provider_object(service_provider)
         sp_url = service_provider['sp_url']
 
         token_id = auth['identity']['token']['id']
-        token_data = self.token_provider_api.validate_token(token_id)
+        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
         token_ref = token_model.KeystoneToken(token_id, token_data)
 
         if not token_ref.project_scoped:
@@ -433,7 +441,7 @@ class DomainV3(controller.V3Controller):
 
     def __init__(self):
         super(DomainV3, self).__init__()
-        self.get_member_from_driver = self.resource_api.get_domain
+        self.get_member_from_driver = PROVIDERS.resource_api.get_domain
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.JUNO,
@@ -447,9 +455,9 @@ class DomainV3(controller.V3Controller):
         :returns: list of accessible domains
 
         """
-        domains = self.assignment_api.list_domains_for_groups(
+        domains = PROVIDERS.assignment_api.list_domains_for_groups(
             request.auth_context['group_ids'])
-        domains = domains + self.assignment_api.list_domains_for_user(
+        domains = domains + PROVIDERS.assignment_api.list_domains_for_user(
             request.auth_context['user_id'])
         # remove duplicates
         domains = k_utils.remove_duplicate_dicts_by_id(domains)
@@ -462,7 +470,7 @@ class ProjectAssignmentV3(controller.V3Controller):
 
     def __init__(self):
         super(ProjectAssignmentV3, self).__init__()
-        self.get_member_from_driver = self.resource_api.get_project
+        self.get_member_from_driver = PROVIDERS.resource_api.get_project
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.JUNO,
@@ -476,9 +484,9 @@ class ProjectAssignmentV3(controller.V3Controller):
         :returns: list of accessible projects
 
         """
-        projects = self.assignment_api.list_projects_for_groups(
+        projects = PROVIDERS.assignment_api.list_projects_for_groups(
             request.auth_context['group_ids'])
-        projects = projects + self.assignment_api.list_projects_for_user(
+        projects = projects + PROVIDERS.assignment_api.list_projects_for_user(
             request.auth_context['user_id'])
         # remove duplicates
         projects = k_utils.remove_duplicate_dicts_by_id(projects)
@@ -503,7 +511,7 @@ class ServiceProvider(_ControllerBase):
         service_provider.setdefault('enabled', False)
         service_provider.setdefault('relay_state_prefix',
                                     CONF.saml.relay_state_prefix)
-        sp_ref = self.federation_api.create_sp(sp_id, service_provider)
+        sp_ref = PROVIDERS.federation_api.create_sp(sp_id, service_provider)
         response = ServiceProvider.wrap_member(request.context_dict, sp_ref)
         return wsgi.render_response(
             body=response, status=(http_client.CREATED,
@@ -512,26 +520,26 @@ class ServiceProvider(_ControllerBase):
     @controller.filterprotected('id', 'enabled')
     def list_service_providers(self, request, filters):
         hints = self.build_driver_hints(request, filters)
-        ref = self.federation_api.list_sps(hints=hints)
+        ref = PROVIDERS.federation_api.list_sps(hints=hints)
         ref = [self.filter_params(x) for x in ref]
         return ServiceProvider.wrap_collection(request.context_dict,
                                                ref, hints=hints)
 
     @controller.protected()
     def get_service_provider(self, request, sp_id):
-        ref = self.federation_api.get_sp(sp_id)
+        ref = PROVIDERS.federation_api.get_sp(sp_id)
         return ServiceProvider.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_service_provider(self, request, sp_id):
-        self.federation_api.delete_sp(sp_id)
+        PROVIDERS.federation_api.delete_sp(sp_id)
 
     @controller.protected()
     def update_service_provider(self, request, sp_id, service_provider):
         validation.lazy_validate(schema.service_provider_update,
                                  service_provider)
         service_provider = self._normalize_dict(service_provider)
-        sp_ref = self.federation_api.update_sp(sp_id, service_provider)
+        sp_ref = PROVIDERS.federation_api.update_sp(sp_id, service_provider)
         return ServiceProvider.wrap_member(request.context_dict, sp_ref)
 
 

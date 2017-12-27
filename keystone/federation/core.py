@@ -17,6 +17,7 @@ import uuid
 from keystone.common import cache
 from keystone.common import extension
 from keystone.common import manager
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.federation import utils
@@ -27,6 +28,7 @@ from keystone.i18n import _
 MEMOIZE = cache.get_memoization_decorator(group='federation')
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 EXTENSION_DATA = {
     'name': 'OpenStack Federation APIs',
     'namespace': 'https://docs.openstack.org/identity/api/ext/'
@@ -77,8 +79,8 @@ class Manager(manager.Manager):
 
     def _cleanup_idp_domain(self, domain_id):
         domain = {'enabled': False}
-        self.resource_api.update_domain(domain_id, domain)
-        self.resource_api.delete_domain(domain_id)
+        PROVIDERS.resource_api.update_domain(domain_id, domain)
+        PROVIDERS.resource_api.delete_domain(domain_id)
 
     def _create_idp_domain(self, idp_id):
         domain_id = uuid.uuid4().hex
@@ -90,11 +92,11 @@ class Manager(manager.Manager):
             'description': desc,
             'enabled': True
         }
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         return domain_id
 
     def _assert_valid_domain_id(self, domain_id):
-        self.resource_api.get_domain(domain_id)
+        PROVIDERS.resource_api.get_domain(domain_id)
 
     @MEMOIZE
     def get_enabled_service_providers(self):
