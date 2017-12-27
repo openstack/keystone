@@ -22,6 +22,7 @@ from oslo_log import log
 from keystone.common import cache
 from keystone.common import driver_hints
 from keystone.common import manager
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -30,6 +31,7 @@ from keystone import notifications
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 # This is a general cache region for assignment administration (CRUD
 # operations).
@@ -1244,6 +1246,21 @@ class RoleManager(manager.Manager):
     @MEMOIZE
     def get_role(self, role_id):
         return self.driver.get_role(role_id)
+
+    def get_unique_role_by_name(self, role_name, hints=None):
+        if not hints:
+            hints = driver_hints.Hints()
+        hints.add_filter("name", role_name, case_sensitive=True)
+        found_roles = PROVIDERS.role_api.list_roles(hints)
+        if not found_roles:
+            raise exception.RoleNotFound(
+                _("Role %s is not defined") % role_name
+            )
+        elif len(found_roles) == 1:
+            return {'id': found_roles[0]['id']}
+        else:
+            raise exception.AmbiguityError(resource='role',
+                                           name=role_name)
 
     def create_role(self, role_id, role, initiator=None):
         ret = self.driver.create_role(role_id, role)
