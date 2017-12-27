@@ -227,7 +227,7 @@ class Auth(controller.V3Controller):
             LOG.error(
                 '`auth_context` passed to the Auth controller '
                 '`authenticate` method is not of type '
-                '`keystone.auth.controllers.AuthContext`. For security '
+                '`keystone.auth.core.AuthContext`. For security '
                 'purposes this is required. This is likely a programming '
                 'error. Received object of type `%s`', type(auth_context))
             raise exception.Unauthorized(
