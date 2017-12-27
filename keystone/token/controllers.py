@@ -24,6 +24,7 @@ from keystone.token.providers import common
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def authentication_method_generator(request, auth):
@@ -87,7 +88,7 @@ class BaseAuthenticationMethod(provider_api.ProviderAPIMixin, object):
                 msg = _('Tenant name cannot contain reserved characters.')
                 raise exception.Unauthorized(message=msg)
             try:
-                project_id = self.resource_api.get_project_by_name(
+                project_id = PROVIDERS.resource_api.get_project_by_name(
                     project_name, CONF.identity.default_domain_id
                 )['id']
             except exception.ProjectNotFound as e:
@@ -137,7 +138,7 @@ class TokenAuthenticationMethod(BaseAuthenticationMethod):
                                                 size=CONF.max_token_size)
 
         try:
-            v3_token_data = self.token_provider_api.validate_token(
+            v3_token_data = PROVIDERS.token_provider_api.validate_token(
                 old_token
             )
             # NOTE(lbragstad): Even though we are not using the v2.0 token
@@ -168,7 +169,7 @@ class TokenAuthenticationMethod(BaseAuthenticationMethod):
             raise exception.Forbidden('Trusts are disabled.')
         elif CONF.trust.enabled and 'trust_id' in auth:
             try:
-                trust_ref = self.trust_api.get_trust(auth['trust_id'])
+                trust_ref = PROVIDERS.trust_api.get_trust(auth['trust_id'])
             except exception.TrustNotFound:
                 raise exception.Forbidden()
             # If a trust is being used to obtain access to another project and
@@ -179,7 +180,7 @@ class TokenAuthenticationMethod(BaseAuthenticationMethod):
                 raise exception.Forbidden()
 
         expiry = token_model_ref.expires
-        user_ref = self.identity_api.get_user(user_id)
+        user_ref = PROVIDERS.identity_api.get_user(user_id)
         bind = token_model_ref.bind
         original_audit_id = token_model_ref.audit_chain_id
         return (user_ref, project_id, expiry, bind, original_audit_id)
@@ -224,14 +225,14 @@ class LocalAuthenticationMethod(BaseAuthenticationMethod):
                 raise exception.ValidationSizeError(attribute='username',
                                                     size=CONF.max_param_size)
             try:
-                user_ref = self.identity_api.get_user_by_name(
+                user_ref = PROVIDERS.identity_api.get_user_by_name(
                     username, CONF.identity.default_domain_id)
                 user_id = user_ref['id']
             except exception.UserNotFound as e:
                 raise exception.Unauthorized(e)
 
         try:
-            user_ref = self.identity_api.authenticate(
+            user_ref = PROVIDERS.identity_api.authenticate(
                 request,
                 user_id=user_id,
                 password=password)
@@ -263,7 +264,7 @@ class ExternalAuthenticationMethod(BaseAuthenticationMethod):
             raise ExternalAuthNotApplicable()
 
         try:
-            user_ref = self.identity_api.get_user_by_name(
+            user_ref = PROVIDERS.identity_api.get_user_by_name(
                 username, CONF.identity.default_domain_id)
         except exception.UserNotFound as e:
             raise exception.Unauthorized(e)
@@ -317,7 +318,7 @@ class V2TokenDataHelper(provider_api.ProviderAPIMixin, object):
 
         if 'project' in v3_token:
             # v3 token_data does not contain all tenant attributes
-            tenant = self.resource_api.get_project(
+            tenant = PROVIDERS.resource_api.get_project(
                 v3_token['project']['id'])
             # Drop domain specific fields since v2 calls are not domain-aware.
             token['tenant'] = controller.V2Controller.v3_to_v2_project(
@@ -337,21 +338,21 @@ class V2TokenDataHelper(provider_api.ProviderAPIMixin, object):
             msg = _('Non-default domain is not supported')
             if CONF.trust.enabled:
                 try:
-                    trust_ref = self.trust_api.get_trust(v3_trust['id'])
+                    trust_ref = PROVIDERS.trust_api.get_trust(v3_trust['id'])
                 except exception.TrustNotFound:
                     raise exception.TokenNotFound(token_id=token_id)
-                trustee_user_ref = self.identity_api.get_user(
+                trustee_user_ref = PROVIDERS.identity_api.get_user(
                     trust_ref['trustee_user_id'])
                 if (trustee_user_ref['domain_id'] !=
                         CONF.identity.default_domain_id):
                     raise exception.Unauthorized(msg)
-                trustor_user_ref = self.identity_api.get_user(
+                trustor_user_ref = PROVIDERS.identity_api.get_user(
                     trust_ref['trustor_user_id'])
                 if (trustor_user_ref['domain_id'] !=
                         CONF.identity.default_domain_id):
                     raise exception.Unauthorized(msg)
                 if trust_ref.get('project_id'):
-                    project_ref = self.resource_api.get_project(
+                    project_ref = PROVIDERS.resource_api.get_project(
                         trust_ref['project_id'])
                     if (project_ref['domain_id'] !=
                             CONF.identity.default_domain_id):
@@ -387,7 +388,7 @@ class V2TokenDataHelper(provider_api.ProviderAPIMixin, object):
         # Get and build v2 service catalog
         token_data['serviceCatalog'] = []
         if 'tenant' in token:
-            catalog_ref = self.catalog_api.get_catalog(
+            catalog_ref = PROVIDERS.catalog_api.get_catalog(
                 user['id'], token['tenant']['id'])
             if catalog_ref:
                 token_data['serviceCatalog'] = self.format_catalog(catalog_ref)

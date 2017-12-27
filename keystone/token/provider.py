@@ -23,6 +23,7 @@ import six
 
 from keystone.common import cache
 from keystone.common import manager
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -32,6 +33,7 @@ from keystone import notifications
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 TOKENS_REGION = cache.create_region(name='tokens')
 MEMOIZE_TOKENS = cache.get_memoization_decorator(
@@ -132,7 +134,7 @@ class Manager(manager.Manager):
         except KeyError:
             raise exception.TokenNotFound(_('Failed to validate token'))
         token_values = self.revoke_api.model.build_token_values(token_data)
-        self.revoke_api.check_token(token_values)
+        PROVIDERS.revoke_api.check_token(token_values)
 
     def check_revocation(self, token):
         return self.check_revocation_v3(token)
@@ -242,11 +244,12 @@ class Manager(manager.Manager):
         domain_id = token_ref.domain_id if token_ref.domain_scoped else None
 
         if revoke_chain:
-            self.revoke_api.revoke_by_audit_chain_id(token_ref.audit_chain_id,
-                                                     project_id=project_id,
-                                                     domain_id=domain_id)
+            PROVIDERS.revoke_api.revoke_by_audit_chain_id(
+                token_ref.audit_chain_id, project_id=project_id,
+                domain_id=domain_id
+            )
         else:
-            self.revoke_api.revoke_by_audit_id(token_ref.audit_id)
+            PROVIDERS.revoke_api.revoke_by_audit_id(token_ref.audit_id)
 
         if CONF.token.revoke_by_id and self._needs_persistence:
             self._persistence.delete_token(token_id=token_id)
@@ -264,7 +267,7 @@ class Manager(manager.Manager):
                                       payload):
         if CONF.token.revoke_by_id:
             trust_id = payload['resource_info']
-            trust = self.trust_api.get_trust(trust_id, deleted=True)
+            trust = PROVIDERS.trust_api.get_trust(trust_id, deleted=True)
             self._persistence.delete_tokens(user_id=trust['trustor_user_id'],
                                             trust_id=trust_id)
         if CONF.token.cache_on_issue:
@@ -305,7 +308,7 @@ class Manager(manager.Manager):
         if CONF.token.revoke_by_id:
             project_id = payload['resource_info']
             self._persistence.delete_tokens_for_users(
-                self.assignment_api.list_user_ids_for_project(project_id),
+                PROVIDERS.assignment_api.list_user_ids_for_project(project_id),
                 project_id=project_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
