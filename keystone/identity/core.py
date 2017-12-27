@@ -44,6 +44,8 @@ CONF = keystone.conf.CONF
 
 LOG = log.getLogger(__name__)
 
+PROVIDERS = provider_api.ProviderAPIs
+
 MEMOIZE = cache.get_memoization_decorator(group='identity')
 
 ID_MAPPING_REGION = cache.create_region(name='id mapping')
@@ -175,7 +177,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
 
             """
             if not new_config['driver'].is_sql:
-                self.domain_config_api.release_registration(domain_id)
+                PROVIDERS.domain_config_api.release_registration(domain_id)
                 return
 
             # To ensure the current domain is the only SQL driver, we attempt
@@ -191,7 +193,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
 
             domain_registered = 'Unknown'
             for attempt in range(REGISTRATION_ATTEMPTS):
-                if self.domain_config_api.obtain_registration(
+                if PROVIDERS.domain_config_api.obtain_registration(
                         domain_id, SQL_DRIVER):
                     LOG.debug('Domain %s successfully registered to use the '
                               'SQL driver.', domain_id)
@@ -200,7 +202,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                 # We failed to register our use, let's find out who is using it
                 try:
                     domain_registered = (
-                        self.domain_config_api.read_registration(
+                        PROVIDERS.domain_config_api.read_registration(
                             SQL_DRIVER))
                 except exception.ConfigRegistrationNotFound:
                     msg = ('While attempting to register domain %(domain)s to '
@@ -225,7 +227,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                 # So we don't have it, but someone else does...let's check that
                 # this domain is still valid
                 try:
-                    self.resource_api.get_domain(domain_registered)
+                    PROVIDERS.resource_api.get_domain(domain_registered)
                 except exception.DomainNotFound:
                     msg = ('While attempting to register domain %(domain)s to '
                            'use the SQL driver, found that it was already '
@@ -235,7 +237,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                     LOG.debug(msg, {'domain': domain_id,
                                     'old_domain': domain_registered,
                                     'attempt': attempt + 1})
-                    self.domain_config_api.release_registration(
+                    PROVIDERS.domain_config_api.release_registration(
                         domain_registered, type=SQL_DRIVER)
                     continue
 
@@ -288,7 +290,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         """
         for domain in resource_api.list_domains():
             domain_config_options = (
-                self.domain_config_api.
+                PROVIDERS.domain_config_api.
                 get_config_with_sensitive_info(domain['id']))
             if domain_config_options:
                 self._load_config_from_database(domain['id'],
@@ -364,7 +366,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
             return
 
         latest_domain_config = (
-            self.domain_config_api.
+            PROVIDERS.domain_config_api.
             get_config_with_sensitive_info(domain_id))
         domain_config_in_use = domain_id in self
 
@@ -409,7 +411,7 @@ def domains_configured(f):
                 # completed domain config.
                 if not self.domain_configs.configured:
                     self.domain_configs.setup_domain_drivers(
-                        self.driver, self.resource_api)
+                        self.driver, PROVIDERS.resource_api)
         return f(self, *args, **kwargs)
     return wrapper
 
@@ -607,7 +609,7 @@ class Manager(manager.Manager):
         public_id = None
         if driver.generates_uuids():
             public_id = ref['id']
-        ref['id'] = self.id_mapping_api.create_id_mapping(
+        ref['id'] = PROVIDERS.id_mapping_api.create_id_mapping(
             local_entity, public_id)
         LOG.debug('Created new mapping to public ID: %s', ref['id'])
 
@@ -622,7 +624,7 @@ class Manager(manager.Manager):
             local_entity = {'domain_id': ref['domain_id'],
                             'local_id': ref['id'],
                             'entity_type': entity_type}
-            public_id = self.id_mapping_api.get_public_id(local_entity)
+            public_id = PROVIDERS.id_mapping_api.get_public_id(local_entity)
             if public_id:
                 ref['id'] = public_id
                 LOG.debug('Found existing mapping to public ID: %s',
@@ -660,7 +662,7 @@ class Manager(manager.Manager):
 
         # fetch all mappings for the domain, lookup the user at the map built
         # at previous step and replace his id.
-        domain_mappings = self.id_mapping_api.get_domain_mapping_list(
+        domain_mappings = PROVIDERS.id_mapping_api.get_domain_mapping_list(
             domain_id)
         for _mapping in domain_mappings:
             idx = (_mapping.local_id, _mapping.entity_type, _mapping.domain_id)
@@ -774,7 +776,7 @@ class Manager(manager.Manager):
         # assume it needs mapping, so long as we are using domain specific
         # drivers.
         if conf.domain_specific_drivers_enabled:
-            local_id_ref = self.id_mapping_api.get_id_mapping(public_id)
+            local_id_ref = PROVIDERS.id_mapping_api.get_id_mapping(public_id)
             if local_id_ref:
                 return (
                     local_id_ref['domain_id'],
@@ -804,7 +806,7 @@ class Manager(manager.Manager):
         if not CONF.identity_mapping.backward_compatible_ids:
             # We are not running in backward compatibility mode, so we
             # must use a mapping.
-            local_id_ref = self.id_mapping_api.get_id_mapping(public_id)
+            local_id_ref = PROVIDERS.id_mapping_api.get_id_mapping(public_id)
             if local_id_ref:
                 return (
                     local_id_ref['domain_id'],
@@ -906,14 +908,16 @@ class Manager(manager.Manager):
         ref = self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
         ref = self._shadow_nonlocal_user(ref)
-        self.shadow_users_api.set_last_active_at(ref['id'])
+        PROVIDERS.shadow_users_api.set_last_active_at(ref['id'])
         return ref
 
     def _assert_default_project_id_is_not_domain(self, default_project_id):
         if default_project_id:
             # make sure project is not a domain
             try:
-                project_ref = self.resource_api.get_project(default_project_id)
+                project_ref = PROVIDERS.resource_api.get_project(
+                    default_project_id
+                )
                 if project_ref['is_domain'] is True:
                     msg = _("User's default project ID cannot be a "
                             "domain ID: %s")
@@ -934,7 +938,7 @@ class Manager(manager.Manager):
         user.setdefault('enabled', True)
         user['enabled'] = clean.user_enabled(user['enabled'])
         domain_id = user['domain_id']
-        self.resource_api.get_domain(domain_id)
+        PROVIDERS.resource_api.get_domain(domain_id)
 
         self._assert_default_project_id_is_not_domain(
             user_ref.get('default_project_id'))
@@ -969,7 +973,7 @@ class Manager(manager.Manager):
         """
         if user is None:
             user = self.get_user(user_id)
-        self.resource_api.assert_domain_enabled(user['domain_id'])
+        PROVIDERS.resource_api.assert_domain_enabled(user['domain_id'])
         if not user.get('enabled', True):
             raise AssertionError(_('User is disabled: %s') % user_id)
 
@@ -1025,7 +1029,7 @@ class Manager(manager.Manager):
         federated_attributes = ['idp_id', 'protocol_id', 'unique_id']
         for filter_ in hints.filters:
             if filter_['name'] in federated_attributes:
-                return self.shadow_users_api.get_federated_users(hints)
+                return PROVIDERS.shadow_users_api.get_federated_users(hints)
         return driver.list_users(hints)
 
     @domains_configured
@@ -1113,12 +1117,12 @@ class Manager(manager.Manager):
         # Get user details to invalidate the cache.
         user_old = self.get_user(user_id)
         driver.delete_user(entity_id)
-        self.assignment_api.delete_user_assignments(user_id)
+        PROVIDERS.assignment_api.delete_user_assignments(user_id)
         self.get_user.invalidate(self, user_id)
         self.get_user_by_name.invalidate(self, user_old['name'],
                                          user_old['domain_id'])
-        self.credential_api.delete_credentials_for_user(user_id)
-        self.id_mapping_api.delete_id_mapping(user_id)
+        PROVIDERS.credential_api.delete_credentials_for_user(user_id)
+        PROVIDERS.id_mapping_api.delete_id_mapping(user_id)
         notifications.Audit.deleted(self._USER, user_id, initiator)
 
         # Invalidate user role assignments cache region, as it may be caching
@@ -1131,7 +1135,7 @@ class Manager(manager.Manager):
         group = group_ref.copy()
         group.setdefault('description', '')
         domain_id = group['domain_id']
-        self.resource_api.get_domain(domain_id)
+        PROVIDERS.resource_api.get_domain(domain_id)
 
         # For creating a group, the domain is in the object itself
         domain_id = group_ref['domain_id']
@@ -1188,12 +1192,14 @@ class Manager(manager.Manager):
     def delete_group(self, group_id, initiator=None):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(group_id))
-        roles = self.assignment_api.list_role_assignments(group_id=group_id)
+        roles = PROVIDERS.assignment_api.list_role_assignments(
+            group_id=group_id
+        )
         user_ids = (u['id'] for u in self.list_users_in_group(group_id))
         driver.delete_group(entity_id)
         self.get_group.invalidate(self, group_id)
-        self.id_mapping_api.delete_id_mapping(group_id)
-        self.assignment_api.delete_group_assignments(group_id)
+        PROVIDERS.id_mapping_api.delete_id_mapping(group_id)
+        PROVIDERS.assignment_api.delete_group_assignments(group_id)
 
         notifications.Audit.deleted(self._GROUP, group_id, initiator)
 
@@ -1383,9 +1389,9 @@ class Manager(manager.Manager):
     @MEMOIZE
     def _shadow_nonlocal_user(self, user):
         try:
-            return self.shadow_users_api.get_user(user['id'])
+            return PROVIDERS.shadow_users_api.get_user(user['id'])
         except exception.UserNotFound:
-            return self.shadow_users_api.create_nonlocal_user(user)
+            return PROVIDERS.shadow_users_api.create_nonlocal_user(user)
 
     @MEMOIZE
     def shadow_federated_user(self, idp_id, protocol_id, unique_id,
@@ -1401,12 +1407,12 @@ class Manager(manager.Manager):
         """
         user_dict = {}
         try:
-            self.shadow_users_api.update_federated_user_display_name(
+            PROVIDERS.shadow_users_api.update_federated_user_display_name(
                 idp_id, protocol_id, unique_id, display_name)
-            user_dict = self.shadow_users_api.get_federated_user(
+            user_dict = PROVIDERS.shadow_users_api.get_federated_user(
                 idp_id, protocol_id, unique_id)
         except exception.UserNotFound:
-            idp = self.federation_api.get_idp(idp_id)
+            idp = PROVIDERS.federation_api.get_idp(idp_id)
             federated_dict = {
                 'idp_id': idp_id,
                 'protocol_id': protocol_id,
@@ -1414,9 +1420,11 @@ class Manager(manager.Manager):
                 'display_name': display_name
             }
             user_dict = (
-                self.shadow_users_api.create_federated_user(idp['domain_id'],
-                                                            federated_dict))
-        self.shadow_users_api.set_last_active_at(user_dict['id'])
+                PROVIDERS.shadow_users_api.create_federated_user(
+                    idp['domain_id'], federated_dict
+                )
+            )
+        PROVIDERS.shadow_users_api.set_last_active_at(user_dict['id'])
         return user_dict
 
 
