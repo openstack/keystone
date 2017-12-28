@@ -298,6 +298,26 @@ class BootStrap(BaseApp):
                       'role': self.role_name,
                       'project': self.project_name})
 
+        # NOTE(lbragstad): We need to make sure a user has at least one role on
+        # the system. Otherwise it's possible for administrators to lock
+        # themselves out of system-level APIs in their deployment. This is
+        # considered backwards compatible because even if the assignment
+        # exists, it needs to be enabled through oslo.policy configuration
+        # options to be enforced.
+        try:
+            self.assignment_manager.create_system_grant_for_user(
+                user['id'], self.role_id
+            )
+            LOG.info('Granted %(role)s on the system to user'
+                     ' %(username)s.',
+                     {'role': self.role_name,
+                      'username': self.username})
+        except exception.Conflict:
+            LOG.info('User %(username)s already has %(role)s on '
+                     'the system.',
+                     {'username': self.username,
+                      'role': self.role_name})
+
         if self.region_id:
             try:
                 self.catalog_manager.create_region(
