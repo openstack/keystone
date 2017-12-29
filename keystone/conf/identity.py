@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import versionutils
 import passlib.utils
 
 from keystone.conf import utils
@@ -167,24 +166,6 @@ This option is only used when the `password_hash_algorithm` option is set
 to `scrypt`. Defaults to 1.
 """))
 
-# TODO(notmorgan): remove this option in Q release.
-rolling_upgrade_password_hash_compat = cfg.BoolOpt(
-    'rolling_upgrade_password_hash_compat',
-    default=False,
-    deprecated_since=versionutils.deprecated.PIKE,
-    deprecated_reason='Only used for rolling-upgrade between Ocata and Pike',
-    help=utils.fmt("""
-This option tells keystone to continue to hash passwords with the sha512_crypt
-algorithm for supporting rolling upgrades. sha512_crypt is typically more
-insecure than bcrypt, pbkdf2, and scrypt. This option should be set to
-`False` except in the case of performing a rolling upgrade where some
-Keystone servers may not know how to verify non-sha512_crypt based password
-hashes.
-
-This option will be removed in the Queens release and is only to support
-rolling upgrades from Ocata release to Pike release.
-"""))
-
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     default_domain_id,
@@ -201,7 +182,6 @@ ALL_OPTS = [
     scrypt_block_size,
     scrypt_paralellism,
     salt_bytesize,
-    rolling_upgrade_password_hash_compat,
 ]
 
 
