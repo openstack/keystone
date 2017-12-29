@@ -15,3 +15,6 @@ deprecations:
     role. This option is deprecated and will be removed in the S release. If
     you are depending on having a predictable role name and ID for this member
     role you will need to update your tooling.
+  - >
+    The ``enabled`` config option of the ``trust`` feature is deprecated and
+    will be removed in the next release. Trusts will then always be enabled.

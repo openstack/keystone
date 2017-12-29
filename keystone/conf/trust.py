@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -18,6 +19,12 @@ from keystone.conf import utils
 enabled = cfg.BoolOpt(
     'enabled',
     default=True,
+    deprecated_for_removal=True,
+    deprecated_reason=utils.fmt("""
+Disabling the trusts API is deprecated. This option will be removed in the
+next release and trusts will always be enabled.
+"""),
+    deprecated_since=versionutils.deprecated.QUEENS,
     help=utils.fmt("""
 Delegation and impersonation features using trusts can be optionally disabled.
 """))
