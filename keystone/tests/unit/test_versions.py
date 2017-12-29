@@ -71,7 +71,7 @@ v3_MEDIA_TYPES = [
 ]
 
 v3_EXPECTED_RESPONSE = {
-    "id": "v3.9",
+    "id": "v3.10",
     "status": "stable",
     "updated": "2018-02-28T00:00:00Z",
     "links": [
@@ -184,6 +184,8 @@ V3_JSON_HOME_RESOURCES = {
         'href': '/auth/projects'},
     json_home.build_v3_resource_relation('auth_domains'): {
         'href': '/auth/domains'},
+    json_home.build_v3_resource_relation('auth_system'): {
+        'href': '/auth/system'},
     json_home.build_v3_resource_relation('credential'): {
         'href-template': '/credentials/{credential_id}',
         'href-vars': {

@@ -215,6 +215,7 @@
     "identity:get_auth_catalog": "",
     "identity:get_auth_projects": "",
     "identity:get_auth_domains": "",
+    "identity:get_auth_system": "",
 
     "identity:list_projects_for_user": "",
     "identity:list_domains_for_user": "",

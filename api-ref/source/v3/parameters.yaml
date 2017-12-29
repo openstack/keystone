@@ -1315,6 +1315,12 @@ response_body_project_tags_required:
   in: body
   required: true
   type: array
+response_body_system_required:
+  description: |
+    A list of systems to access based on role assignments.
+  in: body
+  required: true
+  type: array
 role:
   description: |
     A ``role`` object, containing:

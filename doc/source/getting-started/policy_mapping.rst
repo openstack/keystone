@@ -190,6 +190,7 @@ identity:delete_service_provider                           DELETE /v3/OS-FEDERAT
 identity:get_auth_catalog                                  GET /v3/auth/catalog
 identity:get_auth_projects                                 GET /v3/auth/projects
 identity:get_auth_domains                                  GET /v3/auth/domains
+identity:get_auth_system                                   GET /v3/auth/system
 
 identity:list_projects_for_user                            GET /v3/OS-FEDERATION/projects
 identity:list_domains_for_user                             GET /v3/OS-FEDERATION/domains

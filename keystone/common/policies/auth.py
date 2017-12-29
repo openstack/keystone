@@ -61,6 +61,21 @@ auth_policies = [
                 'method': 'HEAD'
             }
         ]
+    ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'get_auth_system',
+        check_str='',
+        description='List systems a user has access to via role assignments.',
+        operations=[
+            {
+                'path': '/v3/auth/system',
+                'method': 'GET'
+            },
+            {
+                'path': '/v3/auth/system',
+                'method': 'HEAD'
+            }
+        ]
     )
 ]
 

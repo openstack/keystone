@@ -21,6 +21,7 @@ from keystone.auth import core
 from keystone.auth import schema
 from keystone.common import authorization
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone.common import utils
 from keystone.common import validation
 from keystone.common import wsgi
@@ -34,6 +35,7 @@ from keystone.resource import controllers as resource_controllers
 LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def validate_issue_token_auth(auth=None):
@@ -397,6 +399,54 @@ class Auth(controller.V3Controller):
         refs = self._combine_lists_uniquely(user_refs, grp_refs)
         return resource_controllers.DomainV3.wrap_collection(
             request.context_dict, refs)
+
+    @controller.protected()
+    def get_auth_system(self, request):
+        user_id = request.auth_context.get('user_id')
+        group_ids = request.auth_context.get('group_ids')
+
+        user_assignments = []
+        if user_id:
+            try:
+                user_assignments = (
+                    PROVIDERS.assignment_api.list_system_grants_for_user(
+                        user_id
+                    )
+                )
+            except exception.UserNotFound:  # nosec
+                # federated users have an id but they don't link to anything
+                pass
+
+        group_assignments = []
+        if group_ids:
+            group_assignments = (
+                PROVIDERS.assignment_api.list_system_grants_for_group(
+                    group_ids
+                )
+            )
+
+        assignments = self._combine_lists_uniquely(
+            user_assignments, group_assignments
+        )
+        if assignments:
+            response = {
+                'system': [{'all': True}],
+                'links': {
+                    'self': self.base_url(
+                        request.context_dict, path='auth/system'
+                    )
+                }
+            }
+        else:
+            response = {
+                'system': [],
+                'links': {
+                    'self': self.base_url(
+                        request.context_dict, path='auth/system'
+                    )
+                }
+            }
+        return response
 
     @controller.protected()
     def get_auth_catalog(self, request):
