@@ -2531,6 +2531,64 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         system_assignment_table.insert().values(system_group).execute()
 
+    def test_migration_032_add_expires_at_int_column_trust(self):
+
+        self.expand(31)
+        self.migrate(31)
+        self.contract(31)
+
+        trust_table_name = 'trust'
+
+        self.assertTableColumns(
+            trust_table_name,
+            ['id', 'trustor_user_id', 'trustee_user_id', 'project_id',
+             'impersonation', 'deleted_at', 'expires_at', 'remaining_uses',
+             'extra'],
+        )
+
+        self.expand(32)
+
+        self.assertTableColumns(
+            trust_table_name,
+            ['id', 'trustor_user_id', 'trustee_user_id', 'project_id',
+             'impersonation', 'deleted_at', 'expires_at', 'expires_at_int',
+             'remaining_uses', 'extra'],
+        )
+
+        # Create Trust
+        trust_table = sqlalchemy.Table('trust', self.metadata,
+                                       autoload=True)
+        trust_1_data = {
+            'id': uuid.uuid4().hex,
+            'trustor_user_id': uuid.uuid4().hex,
+            'trustee_user_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+            'impersonation': False,
+            'expires_at': datetime.datetime.utcnow()
+        }
+        trust_2_data = {
+            'id': uuid.uuid4().hex,
+            'trustor_user_id': uuid.uuid4().hex,
+            'trustee_user_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+            'impersonation': False,
+            'expires_at': None
+        }
+        trust_table.insert().values(trust_1_data).execute()
+        trust_table.insert().values(trust_2_data).execute()
+
+        self.migrate(32)
+        self.contract(32)
+        trusts = list(trust_table.select().execute())
+
+        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
+
+        for t in trusts:
+            if t.expires_at:
+                e = t.expires_at.replace(tzinfo=pytz.UTC) - epoch
+                e = e.total_seconds()
+                self.assertEqual(t.expires_at_int, int(e * 1000000))
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
