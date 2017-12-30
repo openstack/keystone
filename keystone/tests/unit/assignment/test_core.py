@@ -27,6 +27,11 @@ class RoleTests(object):
                           self.role_api.get_role,
                           uuid.uuid4().hex)
 
+    def test_get_unique_role_by_name_returns_not_found(self):
+        self.assertRaises(exception.RoleNotFound,
+                          self.role_api.get_unique_role_by_name,
+                          uuid.uuid4().hex)
+
     def test_create_duplicate_role_name_fails(self):
         role_id = uuid.uuid4().hex
         role = unit.new_role_ref(id=role_id, name='fake1name')
@@ -53,10 +58,14 @@ class RoleTests(object):
 
     def test_role_crud(self):
         role = unit.new_role_ref()
+        role_name = role['name']
         self.role_api.create_role(role['id'], role)
         role_ref = self.role_api.get_role(role['id'])
         role_ref_dict = {x: role_ref[x] for x in role_ref}
         self.assertDictEqual(role, role_ref_dict)
+
+        role_ref = self.role_api.get_unique_role_by_name(role_name)
+        self.assertEqual(role['id'], role_ref['id'])
 
         role['name'] = uuid.uuid4().hex
         updated_role_ref = self.role_api.update_role(role['id'], role)
