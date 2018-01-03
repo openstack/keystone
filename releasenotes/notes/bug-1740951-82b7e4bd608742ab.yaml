@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1740951 <https://bugs.launchpad.net/keystone/+bug/1740951>`_]
+    A new method was added that made it so oslo.policy sample generation
+    scripts can be used with keystone. The ``oslopolicy-policy-generator``
+    script will now generate a policy file containing overrides and defaults
+    registered in code.
