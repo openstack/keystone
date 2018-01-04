@@ -849,6 +849,18 @@ explicit_unscoped_string:
   in: body
   required: false
   type: string
+extra_request_body:
+  description: |
+    The extra attributes of a resource.
+    The actual name ``extra`` is not the key name in the request body,
+    but rather a collection of any attributes that a resource may contain
+    that are not part of the resource's default attributes.
+    Generally these are custom fields that are added to a resource in keystone
+    by operators for their own specific uses,
+    such as ``email`` and ``description`` for users.
+  in: body
+  required: false
+  type: string
 group:
   description: |
     A ``group`` object, containing:
