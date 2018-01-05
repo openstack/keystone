@@ -23,6 +23,7 @@ from keystone.oauth1 import core as oauth1
 
 
 METHOD_NAME = 'oauth_validator'
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
@@ -60,15 +61,15 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
                 len(verifier) == 8)
 
     def get_client_secret(self, client_key, request):
-        client = self.oauth_api.get_consumer_with_secret(client_key)
+        client = PROVIDERS.oauth_api.get_consumer_with_secret(client_key)
         return client['secret']
 
     def get_request_token_secret(self, client_key, token, request):
-        token_ref = self.oauth_api.get_request_token(token)
+        token_ref = PROVIDERS.oauth_api.get_request_token(token)
         return token_ref['request_secret']
 
     def get_access_token_secret(self, client_key, token, request):
-        access_token = self.oauth_api.get_access_token(token)
+        access_token = PROVIDERS.oauth_api.get_access_token(token)
         return access_token['access_secret']
 
     def get_default_realms(self, client_key, request):
@@ -94,13 +95,13 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
 
     def validate_client_key(self, client_key, request):
         try:
-            return self.oauth_api.get_consumer(client_key) is not None
+            return PROVIDERS.oauth_api.get_consumer(client_key) is not None
         except exception.NotFound:
             return False
 
     def validate_request_token(self, client_key, token, request):
         try:
-            req_token = self.oauth_api.get_request_token(token)
+            req_token = PROVIDERS.oauth_api.get_request_token(token)
             if req_token:
                 return req_token['consumer_id'] == client_key
             else:
@@ -110,7 +111,7 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
 
     def validate_access_token(self, client_key, token, request):
         try:
-            return self.oauth_api.get_access_token(token) is not None
+            return PROVIDERS.oauth_api.get_access_token(token) is not None
         except exception.NotFound:
             return False
 
@@ -141,7 +142,7 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
 
     def validate_verifier(self, client_key, token, verifier, request):
         try:
-            req_token = self.oauth_api.get_request_token(token)
+            req_token = PROVIDERS.oauth_api.get_request_token(token)
             return req_token['verifier'] == verifier
         except exception.NotFound:
             return False
