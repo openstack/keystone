@@ -13,8 +13,12 @@
 from oslo_utils import timeutils
 
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone import exception
 from keystone.i18n import _
+
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class RevokeController(controller.V3Controller):
@@ -35,7 +39,7 @@ class RevokeController(controller.V3Controller):
         # and should be deprecated in the near future. Fix this before adding
         # resource_options or any lazy-loaded relationships to the revocation
         # events themselves.
-        events = self.revoke_api.list_events(last_fetch=last_fetch)
+        events = PROVIDERS.revoke_api.list_events(last_fetch=last_fetch)
         # Build the links by hand as the standard controller calls require ids
         response = {'events': [event.to_dict() for event in events],
                     'links': {
