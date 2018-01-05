@@ -22,6 +22,7 @@ from oslo_log import log
 from keystone.assignment import schema
 from keystone.common import authorization
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
@@ -31,6 +32,7 @@ from keystone.i18n import _
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TenantAssignment(controller.V2Controller):
@@ -49,7 +51,7 @@ class TenantAssignment(controller.V2Controller):
         token_ref = authorization.get_token_ref(request.context_dict)
 
         tenant_refs = (
-            self.assignment_api.list_projects_for_user(token_ref.user_id))
+            PROVIDERS.assignment_api.list_projects_for_user(token_ref.user_id))
         tenant_refs = [self.v3_to_v2_project(ref) for ref in tenant_refs
                        if ref['domain_id'] == CONF.identity.default_domain_id]
         params = {
@@ -67,12 +69,12 @@ class ProjectAssignmentV3(controller.V3Controller):
 
     def __init__(self):
         super(ProjectAssignmentV3, self).__init__()
-        self.get_member_from_driver = self.resource_api.get_project
+        self.get_member_from_driver = PROVIDERS.resource_api.get_project
 
     @controller.filterprotected('domain_id', 'enabled', 'name')
     def list_user_projects(self, request, filters, user_id):
         hints = ProjectAssignmentV3.build_driver_hints(request, filters)
-        refs = self.assignment_api.list_projects_for_user(user_id)
+        refs = PROVIDERS.assignment_api.list_projects_for_user(user_id)
         return ProjectAssignmentV3.wrap_collection(request.context_dict,
                                                    refs,
                                                    hints=hints)
@@ -98,14 +100,14 @@ class RoleV3(controller.V3Controller):
 
     def __init__(self):
         super(RoleV3, self).__init__()
-        self.get_member_from_driver = self.role_api.get_role
+        self.get_member_from_driver = PROVIDERS.role_api.get_role
 
     def _is_domain_role(self, role):
         return role.get('domain_id') is not None
 
     def _is_domain_role_target(self, role_id):
         try:
-            role = self.role_api.get_role(role_id)
+            role = PROVIDERS.role_api.get_role(role_id)
         except exception.RoleNotFound:
             # We hide this error since we have not yet carried out a policy
             # check - and it maybe that the caller isn't authorized to make
@@ -208,25 +210,27 @@ class RoleV3(controller.V3Controller):
             role = self._assign_unique_id(role)
 
         ref = self._normalize_dict(role)
-        ref = self.role_api.create_role(ref['id'],
-                                        ref,
-                                        initiator=request.audit_initiator)
+        ref = PROVIDERS.role_api.create_role(
+            ref['id'],
+            ref,
+            initiator=request.audit_initiator)
         return RoleV3.wrap_member(request.context_dict, ref)
 
     def _list_roles(self, request, filters):
         hints = RoleV3.build_driver_hints(request, filters)
-        refs = self.role_api.list_roles(hints=hints)
+        refs = PROVIDERS.role_api.list_roles(hints=hints)
         return RoleV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     def _update_role(self, request, role_id, role):
         self._require_matching_id(role_id, role)
-        ref = self.role_api.update_role(
+        ref = PROVIDERS.role_api.update_role(
             role_id, role, initiator=request.audit_initiator
         )
         return RoleV3.wrap_member(request.context_dict, ref)
 
     def _delete_role(self, request, role_id):
-        self.role_api.delete_role(role_id, initiator=request.audit_initiator)
+        PROVIDERS.role_api.delete_role(role_id,
+                                       initiator=request.audit_initiator)
 
     @classmethod
     def build_driver_hints(cls, request, supported_filters):
@@ -251,9 +255,9 @@ class ImpliedRolesV3(controller.V3Controller):
     def _check_implies_role(self, request, prep_info,
                             prior_role_id, implied_role_id=None):
         ref = {}
-        ref['prior_role'] = self.role_api.get_role(prior_role_id)
+        ref['prior_role'] = PROVIDERS.role_api.get_role(prior_role_id)
         if implied_role_id:
-            ref['implied_role'] = self.role_api.get_role(implied_role_id)
+            ref['implied_role'] = PROVIDERS.role_api.get_role(implied_role_id)
 
         self.check_protection(request, prep_info, ref)
 
@@ -278,7 +282,7 @@ class ImpliedRolesV3(controller.V3Controller):
         return implied_response
 
     def _populate_prior_role_response(self, endpoint, prior_id):
-        prior_role = self.role_api.get_role(prior_id)
+        prior_role = PROVIDERS.role_api.get_role(prior_id)
         response = {
             "role_inference": {
                 "prior_role": self._prior_role_stanza(
@@ -292,7 +296,7 @@ class ImpliedRolesV3(controller.V3Controller):
         response = self._populate_prior_role_response(endpoint, prior_id)
         response["role_inference"]['implies'] = []
         for implied_id in implied_ids:
-            implied_role = self.role_api.get_role(implied_id)
+            implied_role = PROVIDERS.role_api.get_role(implied_id)
             implied_response = self._implied_role_stanza(
                 endpoint, implied_role)
             response["role_inference"]['implies'].append(implied_response)
@@ -303,7 +307,7 @@ class ImpliedRolesV3(controller.V3Controller):
 
     def _populate_implied_role_response(self, endpoint, prior_id, implied_id):
         response = self._populate_prior_role_response(endpoint, prior_id)
-        implied_role = self.role_api.get_role(implied_id)
+        implied_role = PROVIDERS.role_api.get_role(implied_id)
         stanza = self._implied_role_stanza(endpoint, implied_role)
         response["role_inference"]['implies'] = stanza
         response["links"] = {
@@ -314,7 +318,8 @@ class ImpliedRolesV3(controller.V3Controller):
 
     @controller.protected(callback=_check_implies_role)
     def get_implied_role(self, request, prior_role_id, implied_role_id):
-        ref = self.role_api.get_implied_role(prior_role_id, implied_role_id)
+        ref = PROVIDERS.role_api.get_implied_role(prior_role_id,
+                                                  implied_role_id)
 
         prior_id = ref['prior_role_id']
         implied_id = ref['implied_role_id']
@@ -326,11 +331,11 @@ class ImpliedRolesV3(controller.V3Controller):
 
     @controller.protected(callback=_check_implies_role)
     def check_implied_role(self, request, prior_role_id, implied_role_id):
-        self.role_api.get_implied_role(prior_role_id, implied_role_id)
+        PROVIDERS.role_api.get_implied_role(prior_role_id, implied_role_id)
 
     @controller.protected(callback=_check_implies_role)
     def create_implied_role(self, request, prior_role_id, implied_role_id):
-        self.role_api.create_implied_role(prior_role_id, implied_role_id)
+        PROVIDERS.role_api.create_implied_role(prior_role_id, implied_role_id)
         return wsgi.render_response(
             self.get_implied_role(request,
                                   prior_role_id,
@@ -339,11 +344,11 @@ class ImpliedRolesV3(controller.V3Controller):
 
     @controller.protected(callback=_check_implies_role)
     def delete_implied_role(self, request, prior_role_id, implied_role_id):
-        self.role_api.delete_implied_role(prior_role_id, implied_role_id)
+        PROVIDERS.role_api.delete_implied_role(prior_role_id, implied_role_id)
 
     @controller.protected(callback=_check_implies_role)
     def list_implied_roles(self, request, prior_role_id):
-        ref = self.role_api.list_implied_roles(prior_role_id)
+        ref = PROVIDERS.role_api.list_implied_roles(prior_role_id)
         implied_ids = [r['implied_role_id'] for r in ref]
         endpoint = super(controller.V3Controller, ImpliedRolesV3).base_url(
             request.context_dict, 'public')
@@ -355,9 +360,9 @@ class ImpliedRolesV3(controller.V3Controller):
 
     @controller.protected()
     def list_role_inference_rules(self, request):
-        refs = self.role_api.list_role_inference_rules()
+        refs = PROVIDERS.role_api.list_role_inference_rules()
         role_dict = {role_ref['id']: role_ref
-                     for role_ref in self.role_api.list_roles()}
+                     for role_ref in PROVIDERS.role_api.list_roles()}
 
         rules = dict()
         endpoint = super(controller.V3Controller, ImpliedRolesV3).base_url(
@@ -389,7 +394,7 @@ class GrantAssignmentV3(controller.V3Controller):
 
     def __init__(self):
         super(GrantAssignmentV3, self).__init__()
-        self.get_member_from_driver = self.role_api.get_role
+        self.get_member_from_driver = PROVIDERS.role_api.get_role
 
     def _require_domain_xor_project(self, domain_id, project_id):
         if domain_id and project_id:
@@ -424,20 +429,20 @@ class GrantAssignmentV3(controller.V3Controller):
         """
         ref = {}
         if role_id:
-            ref['role'] = self.role_api.get_role(role_id)
+            ref['role'] = PROVIDERS.role_api.get_role(role_id)
         if user_id:
             try:
-                ref['user'] = self.identity_api.get_user(user_id)
+                ref['user'] = PROVIDERS.identity_api.get_user(user_id)
             except exception.UserNotFound:
                 if not allow_no_user:
                     raise
         else:
-            ref['group'] = self.identity_api.get_group(group_id)
+            ref['group'] = PROVIDERS.identity_api.get_group(group_id)
 
         if domain_id:
-            ref['domain'] = self.resource_api.get_domain(domain_id)
+            ref['domain'] = PROVIDERS.resource_api.get_domain(domain_id)
         else:
-            ref['project'] = self.resource_api.get_project(project_id)
+            ref['project'] = PROVIDERS.resource_api.get_project(project_id)
 
         self.check_protection(request, protection, ref)
 
@@ -449,7 +454,7 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         inherited_to_projects = self._check_if_inherited(request.context_dict)
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects,
             context=request.context_dict)
@@ -462,7 +467,7 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         inherited_to_projects = self._check_if_inherited(request.context_dict)
-        refs = self.assignment_api.list_grants(
+        refs = PROVIDERS.assignment_api.list_grants(
             user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects
         )
@@ -476,7 +481,7 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         inherited_to_projects = self._check_if_inherited(request.context_dict)
-        self.assignment_api.get_grant(
+        PROVIDERS.assignment_api.get_grant(
             role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects
         )
@@ -493,7 +498,7 @@ class GrantAssignmentV3(controller.V3Controller):
         self._require_user_xor_group(user_id, group_id)
 
         inherited_to_projects = self._check_if_inherited(request.context_dict)
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects,
             context=request.context_dict)
@@ -747,7 +752,7 @@ class RoleAssignmentV3(controller.V3Controller):
                                            domain=params.get(
                                                'scope.domain.id'))
 
-        refs = self.assignment_api.list_role_assignments(
+        refs = PROVIDERS.assignment_api.list_role_assignments(
             role_id=params.get('role.id'),
             user_id=params.get('user.id'),
             group_id=params.get('group.id'),
@@ -779,7 +784,7 @@ class RoleAssignmentV3(controller.V3Controller):
         ref = {}
         for filter, value in protection_info.get('filter_attr', {}).items():
             if filter == 'scope.project.id' and value:
-                ref['project'] = self.resource_api.get_project(value)
+                ref['project'] = PROVIDERS.resource_api.get_project(value)
 
         self.check_protection(request, protection_info, ref)
 

@@ -84,10 +84,10 @@ class Manager(manager.Manager):
         # TODO(morganfainberg): Implement a way to get only group_ids
         # instead of the more expensive to_dict() call for each record.
         return [x['id'] for
-                x in self.identity_api.list_groups_for_user(user_id)]
+                x in PROVIDERS.identity_api.list_groups_for_user(user_id)]
 
     def list_user_ids_for_project(self, tenant_id):
-        self.resource_api.get_project(tenant_id)
+        PROVIDERS.resource_api.get_project(tenant_id)
         assignment_list = self.list_role_assignments(
             project_id=tenant_id, effective=True)
         # Use set() to process the list to remove any duplicates
@@ -106,7 +106,7 @@ class Manager(manager.Manager):
             exist.
 
         """
-        self.resource_api.get_project(tenant_id)
+        PROVIDERS.resource_api.get_project(tenant_id)
         assignment_list = self.list_role_assignments(
             user_id=user_id, project_id=tenant_id, effective=True)
         # Use set() to process the list to remove any duplicates
@@ -120,7 +120,7 @@ class Manager(manager.Manager):
         :raises keystone.exception.DomainNotFound: If the domain doesn't exist.
 
         """
-        self.resource_api.get_domain(domain_id)
+        PROVIDERS.resource_api.get_domain(domain_id)
         assignment_list = self.list_role_assignments(
             user_id=user_id, domain_id=domain_id, effective=True)
         # Use set() to process the list to remove any duplicates
@@ -134,7 +134,7 @@ class Manager(manager.Manager):
         if not group_ids:
             return []
         if project_id is not None:
-            self.resource_api.get_project(project_id)
+            PROVIDERS.resource_api.get_project(project_id)
             assignment_list = self.list_role_assignments(
                 source_from_group_ids=group_ids, project_id=project_id,
                 effective=True)
@@ -146,11 +146,11 @@ class Manager(manager.Manager):
             raise AttributeError(_("Must specify either domain or project"))
 
         role_ids = list(set([x['role_id'] for x in assignment_list]))
-        return self.role_api.list_roles_from_ids(role_ids)
+        return PROVIDERS.role_api.list_roles_from_ids(role_ids)
 
     def ensure_default_role(self):
         try:
-            self.role_api.get_role(CONF.member_role_id)
+            PROVIDERS.role_api.get_role(CONF.member_role_id)
         except exception.RoleNotFound:
             LOG.info("Creating the default role %s "
                      "because it does not exist.",
@@ -158,7 +158,7 @@ class Manager(manager.Manager):
             role = {'id': CONF.member_role_id,
                     'name': CONF.member_role_name}
             try:
-                self.role_api.create_role(CONF.member_role_id, role)
+                PROVIDERS.role_api.create_role(CONF.member_role_id, role)
             except exception.Conflict:
                 LOG.info("Creating the default role %s failed because it "
                          "was already created",
@@ -175,8 +175,8 @@ class Manager(manager.Manager):
         # create_grant so that the notifications.role_assignment decorator
         # will work.
 
-        self.resource_api.get_project(project_id)
-        self.role_api.get_role(role_id)
+        PROVIDERS.resource_api.get_project(project_id)
+        PROVIDERS.role_api.get_role(role_id)
         self.driver.add_role_to_user_and_project(user_id, project_id, role_id)
 
     def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
@@ -200,7 +200,7 @@ class Manager(manager.Manager):
         # Use set() to process the list to remove any duplicates
         project_ids = list(set([x['project_id'] for x in assignment_list
                                 if x.get('project_id')]))
-        return self.resource_api.list_projects_from_ids(project_ids)
+        return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
     # TODO(henry-nash): We might want to consider list limiting this at some
     # point in the future.
@@ -211,21 +211,21 @@ class Manager(manager.Manager):
         # Use set() to process the list to remove any duplicates
         domain_ids = list(set([x['domain_id'] for x in assignment_list
                                if x.get('domain_id')]))
-        return self.resource_api.list_domains_from_ids(domain_ids)
+        return PROVIDERS.resource_api.list_domains_from_ids(domain_ids)
 
     def list_domains_for_groups(self, group_ids):
         assignment_list = self.list_role_assignments(
             source_from_group_ids=group_ids, effective=True)
         domain_ids = list(set([x['domain_id'] for x in assignment_list
                                if x.get('domain_id')]))
-        return self.resource_api.list_domains_from_ids(domain_ids)
+        return PROVIDERS.resource_api.list_domains_from_ids(domain_ids)
 
     def list_projects_for_groups(self, group_ids):
         assignment_list = self.list_role_assignments(
             source_from_group_ids=group_ids, effective=True)
         project_ids = list(set([x['project_id'] for x in assignment_list
                                if x.get('project_id')]))
-        return self.resource_api.list_projects_from_ids(project_ids)
+        return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
     @notifications.role_assignment('deleted')
     def _remove_role_from_user_and_project_adapter(self, role_id, user_id=None,
@@ -244,7 +244,8 @@ class Manager(manager.Manager):
         if project_id:
             self._emit_invalidate_grant_token_persistence(user_id, project_id)
         else:
-            self.identity_api.emit_invalidate_user_token_persistence(user_id)
+            PROVIDERS.identity_api.emit_invalidate_user_token_persistence(
+                user_id)
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         self._remove_role_from_user_and_project_adapter(
@@ -252,7 +253,7 @@ class Manager(manager.Manager):
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def _emit_invalidate_user_token_persistence(self, user_id):
-        self.identity_api.emit_invalidate_user_token_persistence(user_id)
+        PROVIDERS.identity_api.emit_invalidate_user_token_persistence(user_id)
 
         # NOTE(lbragstad): The previous notification decorator behavior didn't
         # send the notification unless the operation was successful. We
@@ -263,7 +264,7 @@ class Manager(manager.Manager):
         )
 
     def _emit_invalidate_grant_token_persistence(self, user_id, project_id):
-        self.identity_api.emit_invalidate_grant_token_persistence(
+        PROVIDERS.identity_api.emit_invalidate_grant_token_persistence(
             {'user_id': user_id, 'project_id': project_id}
         )
 
@@ -271,11 +272,11 @@ class Manager(manager.Manager):
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False, context=None):
-        role = self.role_api.get_role(role_id)
+        role = PROVIDERS.role_api.get_role(role_id)
         if domain_id:
-            self.resource_api.get_domain(domain_id)
+            PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
-            project = self.resource_api.get_project(project_id)
+            project = PROVIDERS.resource_api.get_project(project_id)
 
             # For domain specific roles, the domain of the project
             # and role must match
@@ -293,11 +294,11 @@ class Manager(manager.Manager):
     def get_grant(self, role_id, user_id=None, group_id=None,
                   domain_id=None, project_id=None,
                   inherited_to_projects=False):
-        role_ref = self.role_api.get_role(role_id)
+        role_ref = PROVIDERS.role_api.get_role(role_id)
         if domain_id:
-            self.resource_api.get_domain(domain_id)
+            PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
-            self.resource_api.get_project(project_id)
+            PROVIDERS.resource_api.get_project(project_id)
         self.check_grant_role_id(
             role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects
@@ -308,14 +309,14 @@ class Manager(manager.Manager):
                     domain_id=None, project_id=None,
                     inherited_to_projects=False):
         if domain_id:
-            self.resource_api.get_domain(domain_id)
+            PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
-            self.resource_api.get_project(project_id)
+            PROVIDERS.resource_api.get_project(project_id)
         grant_ids = self.list_grant_role_ids(
             user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects
         )
-        return self.role_api.list_roles_from_ids(grant_ids)
+        return PROVIDERS.role_api.list_roles_from_ids(grant_ids)
 
     def _emit_revoke_user_grant(self, role_id, user_id, domain_id, project_id,
                                 inherited_to_projects, context):
@@ -327,7 +328,7 @@ class Manager(manager.Manager):
                      inherited_to_projects=False, context=None):
 
         # check if role exist before any processing
-        self.role_api.get_role(role_id)
+        PROVIDERS.role_api.get_role(role_id)
 
         if group_id is None:
             # check if role exists on the user before revoke
@@ -350,7 +351,7 @@ class Manager(manager.Manager):
                 if CONF.token.revoke_by_id:
                     # NOTE(morganfainberg): The user ids are the important part
                     # for invalidating tokens below, so extract them here.
-                    for user in self.identity_api.list_users_in_group(
+                    for user in PROVIDERS.identity_api.list_users_in_group(
                             group_id):
                         self._emit_revoke_user_grant(
                             role_id, user['id'], domain_id, project_id,
@@ -360,9 +361,9 @@ class Manager(manager.Manager):
                           group_id)
 
         if domain_id:
-            self.resource_api.get_domain(domain_id)
+            PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
-            self.resource_api.get_project(project_id)
+            PROVIDERS.resource_api.get_project(project_id)
         self.driver.delete_grant(
             role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
             project_id=project_id, inherited_to_projects=inherited_to_projects
@@ -452,7 +453,8 @@ class Manager(manager.Manager):
             # if a group wasn't found in the backend, users are set
             # as empty list.
             try:
-                users = self.identity_api.list_users_in_group(ref['group_id'])
+                users = PROVIDERS.identity_api.list_users_in_group(
+                    ref['group_id'])
             except exception.GroupNotFound:
                 LOG.warning('Group %(group)s was not found but still has role '
                             'assignments.', {'group': ref['group_id']})
@@ -547,24 +549,25 @@ class Manager(manager.Manager):
                     # again all the project_ids will get the assignment.  If,
                     # however, the assignment point is within the subtree,
                     # then only a partial tree will get the assignment.
+                    resource_api = PROVIDERS.resource_api
                     if ref.get('project_id'):
                         if ref['project_id'] in project_ids:
                             project_ids = (
                                 [x['id'] for x in
-                                    self.resource_api.list_projects_in_subtree(
-                                        ref['project_id'])])
+                                 resource_api.list_projects_in_subtree(
+                                     ref['project_id'])])
             elif ref.get('domain_id'):
                 # A domain inherited assignment, so apply it to all projects
                 # in this domain
                 project_ids = (
                     [x['id'] for x in
-                        self.resource_api.list_projects_in_domain(
+                        PROVIDERS.resource_api.list_projects_in_domain(
                             ref['domain_id'])])
             else:
                 # It must be a project assignment, so apply it to its subtree
                 project_ids = (
                     [x['id'] for x in
-                        self.resource_api.list_projects_in_subtree(
+                        PROVIDERS.resource_api.list_projects_in_subtree(
                             ref['project_id'])])
 
             new_refs = []
@@ -630,7 +633,7 @@ class Manager(manager.Manager):
                     implied_roles = implied_roles_cache[next_role_id]
                 else:
                     implied_roles = (
-                        self.role_api.list_implied_roles(next_role_id))
+                        PROVIDERS.role_api.list_implied_roles(next_role_id))
                     implied_roles_cache[next_role_id] = implied_roles
                 for implied_role in implied_roles:
                     implied_ref = (
@@ -665,7 +668,7 @@ class Manager(manager.Manager):
 
         """
         def _role_is_global(role_id):
-            ref = self.role_api.get_role(role_id)
+            ref = PROVIDERS.role_api.get_role(role_id)
             return (ref['domain_id'] is None)
 
         filter_results = []
@@ -760,7 +763,7 @@ class Manager(manager.Manager):
                     # their parents projects.
 
                     # List inherited assignments from the project's domain
-                    proj_domain_id = self.resource_api.get_project(
+                    proj_domain_id = PROVIDERS.resource_api.get_project(
                         project_id)['domain_id']
                     inherited_refs += self.driver.list_role_assignments(
                         role_id=role_id, domain_id=proj_domain_id,
@@ -772,7 +775,7 @@ class Manager(manager.Manager):
                     # come from are from parents of the main project or
                     # inherited assignments on the project or subtree itself.
                     source_ids = [project['id'] for project in
-                                  self.resource_api.list_project_parents(
+                                  PROVIDERS.resource_api.list_project_parents(
                                       project_id)]
                     if subtree_ids:
                         source_ids += project_ids_of_interest
@@ -911,7 +914,8 @@ class Manager(manager.Manager):
         if project_id and include_subtree:
             subtree_ids = (
                 [x['id'] for x in
-                    self.resource_api.list_projects_in_subtree(project_id)])
+                    PROVIDERS.resource_api.list_projects_in_subtree(
+                        project_id)])
 
         if effective:
             role_assignments = self._list_effective_role_assignments(
@@ -934,14 +938,14 @@ class Manager(manager.Manager):
             new_assign = copy.deepcopy(role_asgmt)
             for key, value in role_asgmt.items():
                 if key == 'domain_id':
-                    _domain = self.resource_api.get_domain(value)
+                    _domain = PROVIDERS.resource_api.get_domain(value)
                     new_assign['domain_name'] = _domain['name']
                 elif key == 'user_id':
                     try:
                         # Note(knikolla): Try to get the user, otherwise
                         # if the user wasn't found in the backend
                         # use empty values.
-                        _user = self.identity_api.get_user(value)
+                        _user = PROVIDERS.identity_api.get_user(value)
                     except exception.UserNotFound:
                         msg = ('User %(user)s not found in the'
                                ' backend but still has role assignments.')
@@ -953,14 +957,14 @@ class Manager(manager.Manager):
                         new_assign['user_name'] = _user['name']
                         new_assign['user_domain_id'] = _user['domain_id']
                         new_assign['user_domain_name'] = (
-                            self.resource_api.get_domain(_user['domain_id'])
-                            ['name'])
+                            PROVIDERS.resource_api.get_domain(
+                                _user['domain_id'])['name'])
                 elif key == 'group_id':
                     try:
                         # Note(knikolla): Try to get the group, otherwise
                         # if the group wasn't found in the backend
                         # use empty values.
-                        _group = self.identity_api.get_group(value)
+                        _group = PROVIDERS.identity_api.get_group(value)
                     except exception.GroupNotFound:
                         msg = ('Group %(group)s not found in the'
                                ' backend but still has role assignments.')
@@ -972,23 +976,23 @@ class Manager(manager.Manager):
                         new_assign['group_name'] = _group['name']
                         new_assign['group_domain_id'] = _group['domain_id']
                         new_assign['group_domain_name'] = (
-                            self.resource_api.get_domain(_group['domain_id'])
-                            ['name'])
+                            PROVIDERS.resource_api.get_domain(
+                                _group['domain_id'])['name'])
                 elif key == 'project_id':
-                    _project = self.resource_api.get_project(value)
+                    _project = PROVIDERS.resource_api.get_project(value)
                     new_assign['project_name'] = _project['name']
                     new_assign['project_domain_id'] = _project['domain_id']
                     new_assign['project_domain_name'] = (
-                        self.resource_api.get_domain(_project['domain_id'])
-                        ['name'])
+                        PROVIDERS.resource_api.get_domain(
+                            _project['domain_id'])['name'])
                 elif key == 'role_id':
-                    _role = self.role_api.get_role(value)
+                    _role = PROVIDERS.role_api.get_role(value)
                     new_assign['role_name'] = _role['name']
                     if _role['domain_id'] is not None:
                         new_assign['role_domain_id'] = _role['domain_id']
                         new_assign['role_domain_name'] = (
-                            self.resource_api.get_domain(_role['domain_id'])
-                            ['name'])
+                            PROVIDERS.resource_api.get_domain(
+                                _role['domain_id'])['name'])
             role_assign_list.append(new_assign)
         return role_assign_list
 
@@ -1017,7 +1021,7 @@ class Manager(manager.Manager):
                 # Add in any users for this group, being tolerant of any
                 # cross-driver database integrity errors.
                 try:
-                    users = self.identity_api.list_users_in_group(
+                    users = PROVIDERS.identity_api.list_users_in_group(
                         assignment['group_id'])
                 except exception.GroupNotFound:
                     # Ignore it, but log a debug message
@@ -1095,7 +1099,7 @@ class Manager(manager.Manager):
         :param role_id: the ID of the role to grant on the system
 
         """
-        role = self.role_api.get_role(role_id)
+        role = PROVIDERS.role_api.get_role(role_id)
         if role.get('domain_id'):
             raise exception.ValidationError(
                 'Role %(role_id)s is a domain-specific role. Unable to use '
@@ -1162,7 +1166,7 @@ class Manager(manager.Manager):
         :param role_id: the ID of the role to grant on the system
 
         """
-        role = self.role_api.get_role(role_id)
+        role = PROVIDERS.role_api.get_role(role_id)
         if role.get('domain_id'):
             raise exception.ValidationError(
                 'Role %(role_id)s is a domain-specific role. Unable to use '
@@ -1286,8 +1290,8 @@ class RoleManager(manager.Manager):
         return ret
 
     def delete_role(self, role_id, initiator=None):
-        self.assignment_api.delete_tokens_for_role_assignments(role_id)
-        self.assignment_api.delete_role_assignments(role_id)
+        PROVIDERS.assignment_api.delete_tokens_for_role_assignments(role_id)
+        PROVIDERS.assignment_api.delete_role_assignments(role_id)
         self.driver.delete_role(role_id)
         notifications.Audit.deleted(self._ROLE, role_id, initiator)
         self.get_role.invalidate(self, role_id)
