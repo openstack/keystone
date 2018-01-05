@@ -17,10 +17,14 @@ import hashlib
 from oslo_serialization import jsonutils
 
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone.common import validation
 from keystone.credential import schema
 from keystone import exception
 from keystone.i18n import _
+
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class CredentialV3(controller.V3Controller):
@@ -29,7 +33,7 @@ class CredentialV3(controller.V3Controller):
 
     def __init__(self):
         super(CredentialV3, self).__init__()
-        self.get_member_from_driver = self.credential_api.get_credential
+        self.get_member_from_driver = PROVIDERS.credential_api.get_credential
 
     def _assign_unique_id(self, ref, trust_id=None):
         # Generates and assigns a unique identifier to
@@ -64,7 +68,7 @@ class CredentialV3(controller.V3Controller):
         validation.lazy_validate(schema.credential_create, credential)
         ref = self._assign_unique_id(self._normalize_dict(credential),
                                      request.context.trust_id)
-        ref = self.credential_api.create_credential(ref['id'], ref)
+        ref = PROVIDERS.credential_api.create_credential(ref['id'], ref)
         return CredentialV3.wrap_member(request.context_dict, ref)
 
     @staticmethod
@@ -82,14 +86,14 @@ class CredentialV3(controller.V3Controller):
     @controller.filterprotected('user_id', 'type')
     def list_credentials(self, request, filters):
         hints = CredentialV3.build_driver_hints(request, filters)
-        refs = self.credential_api.list_credentials(hints)
+        refs = PROVIDERS.credential_api.list_credentials(hints)
         ret_refs = [self._blob_to_json(r) for r in refs]
         return CredentialV3.wrap_collection(request.context_dict, ret_refs,
                                             hints=hints)
 
     @controller.protected()
     def get_credential(self, request, credential_id):
-        ref = self.credential_api.get_credential(credential_id)
+        ref = PROVIDERS.credential_api.get_credential(credential_id)
         ret_ref = self._blob_to_json(ref)
         return CredentialV3.wrap_member(request.context_dict, ret_ref)
 
@@ -98,9 +102,11 @@ class CredentialV3(controller.V3Controller):
         validation.lazy_validate(schema.credential_update, credential)
         self._require_matching_id(credential_id, credential)
 
-        ref = self.credential_api.update_credential(credential_id, credential)
+        ref = PROVIDERS.credential_api.update_credential(
+            credential_id, credential
+        )
         return CredentialV3.wrap_member(request.context_dict, ref)
 
     @controller.protected()
     def delete_credential(self, request, credential_id):
-        return self.credential_api.delete_credential(credential_id)
+        return PROVIDERS.credential_api.delete_credential(credential_id)
