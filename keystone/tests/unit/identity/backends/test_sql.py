@@ -10,17 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from oslo_db.sqlalchemy import test_base as db_test
+from oslo_db.sqlalchemy import enginefacade
+from oslo_db.sqlalchemy import test_fixtures as db_fixtures
+from oslotest import base as test_base
 
 from keystone.common import sql
 from keystone.identity.backends import sql as sql_backend
-from keystone.tests.unit.identity.backends import test_base
+from keystone.tests.unit.identity.backends import test_base as id_test_base
 from keystone.tests.unit.ksfixtures import database
 
 
-class TestIdentityDriver(db_test.DbTestCase,
-                         test_base.IdentityDriverTests):
+class TestIdentityDriver(db_fixtures.OpportunisticDBTestMixin,
+                         test_base.BaseTestCase,
+                         id_test_base.IdentityDriverTests):
 
     expected_is_domain_aware = True
     expected_default_assignment_driver = 'sql'
@@ -29,6 +31,8 @@ class TestIdentityDriver(db_test.DbTestCase,
 
     def setUp(self):
         super(TestIdentityDriver, self).setUp()
+        self.engine = enginefacade.writer.get_engine()
+        self.sessionmaker = enginefacade.writer.get_sessionmaker()
 
         # Set keystone's connection URL to be the test engine's url.
         database.initialize_sql_session(self.engine.url)
@@ -47,8 +51,8 @@ class TestIdentityDriver(db_test.DbTestCase,
 
 
 class MySQLOpportunisticIdentityDriverTestCase(TestIdentityDriver):
-    FIXTURE = db_test.MySQLOpportunisticFixture
+    FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticIdentityDriverTestCase(TestIdentityDriver):
-    FIXTURE = db_test.PostgreSQLOpportunisticFixture
+    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
