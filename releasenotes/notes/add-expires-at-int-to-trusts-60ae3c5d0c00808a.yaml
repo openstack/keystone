@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The trusts table now has an expires_at_int column that represents the
+    expiration time as an integer instead of a datetime object. This will
+    prevent rounding errors related to the way date objects are stored in some
+    versions of MySQL. The expires_at column remains, but will be dropped in
+    Rocky.

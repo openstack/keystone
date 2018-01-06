@@ -44,6 +44,7 @@ from keystone.tests.unit.resource import test_backends as resource_tests
 from keystone.tests.unit.token import test_backends as token_tests
 from keystone.tests.unit.trust import test_backends as trust_tests
 from keystone.token.persistence.backends import sql as token_sql
+from keystone.trust.backends import sql as trust_sql
 
 
 CONF = keystone.conf.CONF
@@ -710,7 +711,15 @@ class SqlIdentity(SqlTests,
 
 
 class SqlTrust(SqlTests, trust_tests.TrustTests):
-    pass
+
+    def test_trust_expires_at_int_matches_expires_at(self):
+        with sql.session_for_write() as session:
+            new_id = uuid.uuid4().hex
+            self.create_sample_trust(new_id)
+            trust_ref = session.query(trust_sql.TrustModel).get(new_id)
+            self.assertIsNotNone(trust_ref._expires_at)
+            self.assertEqual(trust_ref._expires_at, trust_ref.expires_at_int)
+            self.assertEqual(trust_ref.expires_at, trust_ref.expires_at_int)
 
 
 class SqlToken(SqlTests, token_tests.TokenTests):
