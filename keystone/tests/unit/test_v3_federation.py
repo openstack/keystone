@@ -2869,9 +2869,6 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
         super(FederatedTokenTests,
               self).auth_plugin_config_override(methods)
 
-    @utils.wip('This will fail because of bug #1501032. The returned method'
-               'list should contain "saml2". This is documented in bug '
-               '1501032.')
     def test_full_workflow(self):
         """Test 'standard' workflow for granting access tokens.
 
@@ -2894,7 +2891,7 @@ class FederatedTokenTestsMethodToken(FederatedTokenTests):
         v3_scope_request = self._scope_request(employee_unscoped_token_id,
                                                'project', project['id'])
 
-        r = self.v3_authenticate_token(v3_scope_request)
+        r = self.v3_create_token(v3_scope_request)
         token_resp = r.result['token']
         self.assertIn('token', token_resp['methods'])
         self.assertIn('saml2', token_resp['methods'])
