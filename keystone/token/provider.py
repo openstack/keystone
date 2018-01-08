@@ -91,6 +91,8 @@ class Manager(manager.Manager):
                     self._delete_user_project_tokens_callback],
                 [notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
                     self._delete_user_oauth_consumer_tokens_callback],
+                [notifications.INVALIDATE_TOKEN_CACHE_DELETED_IDP,
+                    self._invalidate_token_cache_from_deleted_idp_callback],
             ]
         }
 
@@ -329,3 +331,16 @@ class Manager(manager.Manager):
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()
+
+    def _invalidate_token_cache_from_deleted_idp_callback(self,
+                                                          service,
+                                                          resource_type,
+                                                          operation, payload):
+        """Callback to invalidate the token cache after deleting an idp.
+
+        While this callback doesn't use the information about the deleted
+        identity provider to invalidate the cache, the method name and payload
+        are emitted when logging at the DEBUG level.
+
+        """
+        TOKENS_REGION.invalidate()

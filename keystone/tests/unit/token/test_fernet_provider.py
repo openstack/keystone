@@ -135,13 +135,19 @@ class TestValidate(unit.TestCase):
         method_names = ['mapped']
 
         group_ids = [uuid.uuid4().hex, ]
-        identity_provider = uuid.uuid4().hex
+        idp_id = uuid.uuid4().hex
+        idp_ref = {
+            'id': idp_id,
+            'description': uuid.uuid4().hex,
+            'enabled': True
+        }
+        self.federation_api.create_idp(idp_id, idp_ref)
         protocol = uuid.uuid4().hex
         auth_context_params = {
             'user_id': user_ref['id'],
             'user_name': user_ref['name'],
             'group_ids': group_ids,
-            federation_constants.IDENTITY_PROVIDER: identity_provider,
+            federation_constants.IDENTITY_PROVIDER: idp_id,
             federation_constants.PROTOCOL: protocol,
         }
         auth_context = auth.core.AuthContext(**auth_context_params)
@@ -157,7 +163,7 @@ class TestValidate(unit.TestCase):
                        'name': CONF.federation.federated_domain_name, },
             federation_constants.FEDERATION: {
                 'groups': [{'id': group_id} for group_id in group_ids],
-                'identity_provider': {'id': identity_provider, },
+                'identity_provider': {'id': idp_id, },
                 'protocol': {'id': protocol, },
             },
         }

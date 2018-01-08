@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1291157 <https://bugs.launchpad.net/keystone/+bug/1291157>`_]
+    Identity provider information is now validated in during token validation.
+    If an identity provider is removed from a keystone service provider, tokens
+    associated to that identity provider will be considered invalid.

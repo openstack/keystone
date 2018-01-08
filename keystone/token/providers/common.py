@@ -462,6 +462,12 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
         if service_providers:
             token_data['service_providers'] = service_providers
 
+    def _validate_identity_provider(self, token_data):
+        federated_info = token_data['user'].get('OS-FEDERATION')
+        if federated_info:
+            idp_id = federated_info['identity_provider']['id']
+            PROVIDERS.federation_api.get_idp(idp_id)
+
     def _populate_token_dates(self, token_data, expires=None, issued_at=None):
         if not expires:
             expires = default_expire_time()
@@ -518,6 +524,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                 token_data, user_id, system, domain_id, project_id, trust
             )
         self._populate_service_providers(token_data)
+        self._validate_identity_provider(token_data)
         self._populate_token_dates(token_data, expires=expires,
                                    issued_at=issued_at)
         self._populate_oauth_section(token_data, access_token)
