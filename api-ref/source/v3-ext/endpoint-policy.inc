@@ -42,16 +42,26 @@ Associates a policy and an endpoint.
 If an association already exists between the endpoint and another
 policy, this call replaces that association.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
    - endpoint_id: endpoint_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Verify a policy and endpoint association
 ========================================
@@ -62,16 +72,26 @@ Verifies an association between a policy and an endpoint.
 
 A HEAD version of this API is also supported.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
    - endpoint_id: endpoint_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Delete a policy and endpoint association
 ========================================
@@ -80,16 +100,26 @@ Delete a policy and endpoint association
 
 Deletes an association between a policy and an endpoint.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
    - endpoint_id: endpoint_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Associate policy and service-type endpoint
 ==========================================
@@ -101,16 +131,26 @@ Associates a policy and any endpoint of a service type.
 If an association already exists between the endpoint of a service
 type and another policy, this call replaces that association.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
    - service_id: service_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Verify a policy and service-type endpoint association
 =====================================================
@@ -121,16 +161,26 @@ Verifies an association between a policy and an endpoint of a service type.
 
 A HEAD version of this API is also supported.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
    - service_id: service_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Delete a policy and service-type endpoint association
 =====================================================
@@ -139,16 +189,26 @@ Delete a policy and service-type endpoint association
 
 Deletes an association between a policy and an endpoint of a service type.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
    - service_id: service_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Show policy for endpoint
 ========================
@@ -163,18 +223,21 @@ first association that it finds. If the region of the endpoint has
 a parent, the extension examines the region associations up the
 region tree in ascending order.
 
-Normal response codes: 200
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
 
-Response Parameters
--------------------
+Response
+--------
 
+Parameters
+~~~~~~~~~~
 .. rest_parameters:: parameters.yaml
 
    - policy: policy
@@ -183,12 +246,17 @@ Response Parameters
    - links: policy_links
    - id: policy_id
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
 
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~
 .. literalinclude:: samples/OS-ENDPOINT-POLICY/policy-show-response.json
    :language: javascript
-
 
 Check policy and service endpoint association
 =============================================
@@ -197,15 +265,25 @@ Check policy and service endpoint association
 
 Checks whether a policy is associated with an endpoint.
 
-Normal response codes: 200
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
 
 Associate policy and service-type endpoint in a region
 ======================================================
@@ -217,10 +295,11 @@ Associates a policy and an endpoint of a service type in a region.
 If an association already exists between the service in a region
 and another policy, this call replaces that association.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -228,6 +307,15 @@ Request
    - service_id: service_id_path
    - region_id: region_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Verify a policy and service-type endpoint in a region association
 =================================================================
@@ -238,10 +326,11 @@ Verifies an association between a policy and service-type endpoint in a region.
 
 A HEAD version of this API is also supported.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -249,6 +338,15 @@ Request
    - service_id: service_id_path
    - region_id: region_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Delete a policy and service-type endpoint in a region association
 =================================================================
@@ -257,10 +355,11 @@ Delete a policy and service-type endpoint in a region association
 
 Deletes an association between a policy and service-type endpoint in a region.
 
-Normal response codes: 204
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -268,6 +367,15 @@ Request
    - service_id: service_id_path
    - region_id: region_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 List policy and service endpoint associations
 =============================================
@@ -276,18 +384,21 @@ List policy and service endpoint associations
 
 Lists all the endpoints that are currently associated with a policy through any of the association methods.
 
-Normal response codes: 200
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - policy_id: policy_id_path
 
-Response Parameters
--------------------
+Response
+--------
 
+Parameters
+~~~~~~~~~~
 .. rest_parameters:: parameters.yaml
 
    - links: policy_links
@@ -301,8 +412,15 @@ Response Parameters
    - id: endpoint_id
    - previous: previous
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~
 
 .. literalinclude:: samples/OS-ENDPOINT-POLICY/policy-endpoint-associations-list-response.json
    :language: javascript
@@ -321,17 +439,21 @@ ascending order.
 
 A HEAD version of this API is also supported.
 
-Normal response codes: 200
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - endpoint_id: endpoint_id_path
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -341,8 +463,15 @@ Response Parameters
    - links: policy_links
    - id: policy_id
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~
 
 .. literalinclude:: samples/OS-ENDPOINT-POLICY/policy-show-response.json
    :language: javascript
