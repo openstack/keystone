@@ -18,8 +18,6 @@ Create credential
 
 .. rest_method::  POST /v3/credentials
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credentials``
-
 Creates a credential.
 
 The following example shows how to create an EC2-style credential.
@@ -29,12 +27,13 @@ required when you specify the ``ec2`` type. To specify other
 credentials, such as ``access_key``, change the type and contents
 of the data blob.
 
-Normal response codes: 201
-
-Error response codes: 413,415,405,404,403,401,400,503,409
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credentials``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -44,14 +43,17 @@ Request
    - blob: credential_blob
    - user_id: credential_user_id
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/credential-create-request.json
    :language: javascript
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -63,8 +65,27 @@ Response Parameters
    - type: credential_type
    - id: credential_id
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/credential-create-response.json
    :language: javascript
@@ -75,27 +96,29 @@ List credentials
 
 .. rest_method::  GET /v3/credentials
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credentials``
-
 Lists all credentials.
 
 Optionally, you can include the ``user_id`` or ``type`` query parameter in the
 URI to filter the response by a user or credential type.
 
-Normal response codes: 200
-
-Error response codes: 413,405,404,403,401,400,503
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credentials``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_query
    - type: credential_type_not_required
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -107,8 +130,25 @@ Response Parameters
    - type: credential_type
    - id: credential_id
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/credentials-list-response.json
    :language: javascript
@@ -119,23 +159,25 @@ Show credential details
 
 .. rest_method::  GET /v3/credentials/{credential_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
-
 Shows details for a credential.
 
-Normal response codes: 200
-
-Error response codes: 413,405,404,403,401,400,503
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - credential_id: credential_id_path
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -147,8 +189,25 @@ Response Parameters
    - type: credential_type
    - id: credential_id
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/credential-show-response.json
    :language: javascript
@@ -159,16 +218,15 @@ Update credential
 
 .. rest_method::  PATCH /v3/credentials/{credential_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
-
 Updates a credential.
 
-Normal response codes: 200
-
-Error response codes: 413,415,405,404,403,401,400,503,409
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -179,14 +237,17 @@ Request
    - blob: credential_blob_not_required
    - user_id: credential_user_id_not_required
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/credential-update-request.json
    :language: javascript
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -198,8 +259,27 @@ Response Parameters
    - type: credential_type
    - id: credential_id
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/credential-update-response.json
    :language: javascript
@@ -210,17 +290,38 @@ Delete credential
 
 .. rest_method::  DELETE /v3/credentials/{credential_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
-
 Deletes a credential.
 
-Normal response codes: 204
-
-Error response codes: 413,415,405,404,403,401,400,503,409
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Request
 -------
 
+Parameters
+~~~~~~~~~~
+
 .. rest_parameters:: parameters.yaml
 
    - credential_id: credential_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
