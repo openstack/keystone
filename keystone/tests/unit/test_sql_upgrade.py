@@ -2589,6 +2589,123 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
                 e = e.total_seconds()
                 self.assertEqual(t.expires_at_int, int(e * 1000000))
 
+    def test_migration_033_adds_limits_table(self):
+        self.expand(32)
+        self.migrate(32)
+        self.contract(32)
+
+        registered_limit_table_name = 'registered_limit'
+        limit_table_name = 'limit'
+        self.assertTableDoesNotExist(registered_limit_table_name)
+        self.assertTableDoesNotExist(limit_table_name)
+
+        self.expand(33)
+        self.migrate(33)
+        self.contract(33)
+
+        self.assertTableExists(registered_limit_table_name)
+        self.assertTableColumns(
+            registered_limit_table_name,
+            ['id', 'service_id', 'resource_name', 'region_id', 'default_limit']
+        )
+        self.assertTableExists(limit_table_name)
+        self.assertTableColumns(
+            limit_table_name,
+            ['id', 'project_id', 'service_id', 'resource_name', 'region_id',
+             'resource_limit']
+        )
+
+        session = self.sessionmaker()
+        service_id = uuid.uuid4().hex
+        service = {
+            'id': service_id,
+            'type': 'compute',
+            'enabled': True
+        }
+        region = {
+            'id': 'RegionOne',
+            'description': 'test'
+        }
+        project_id = uuid.uuid4().hex
+        project = {
+            'id': project_id,
+            'name': 'nova',
+            'enabled': True,
+            'domain_id': resource_base.NULL_DOMAIN_ID,
+            'is_domain': False
+        }
+        self.insert_dict(session, 'service', service)
+        self.insert_dict(session, 'region', region)
+        self.insert_dict(session, 'project', project)
+
+        # Insert one registered limit
+        registered_limit_table = sqlalchemy.Table(
+            registered_limit_table_name, self.metadata, autoload=True)
+        registered_limit = {
+            'id': uuid.uuid4().hex,
+            'service_id': service_id,
+            'region_id': 'RegionOne',
+            'resource_name': 'cores',
+            'default_limit': 10
+        }
+        registered_limit_table.insert().values(registered_limit).execute()
+
+        # It will raise error if insert another one with same service_id,
+        # region_id and resource name.
+        registered_limit['id'] = uuid.uuid4().hex
+        registered_limit['default_limit'] = 20
+        self.assertRaises(db_exception.DBDuplicateEntry,
+                          registered_limit_table.insert().values(
+                              registered_limit).execute)
+
+        # Insert one without region_id
+        registered_limit_without_region = {
+            'id': uuid.uuid4().hex,
+            'service_id': service_id,
+            'resource_name': 'cores',
+            'default_limit': 10
+        }
+        registered_limit_table.insert().values(
+            registered_limit_without_region).execute()
+
+        # It will not raise error if insert another one with same service_id
+        # and resource_name but the region_id is None. Because that
+        # UniqueConstraint doesn't work if one of the columns is None. This
+        # should be controlled at the Manager layer to forbid this behavior.
+        registered_limit_without_region['id'] = uuid.uuid4().hex
+        registered_limit_table.insert().values(
+            registered_limit_without_region).execute()
+
+        # Insert one limit
+        limit_table = sqlalchemy.Table(
+            limit_table_name, self.metadata, autoload=True)
+        limit = {
+            'id': uuid.uuid4().hex,
+            'project_id': project_id,
+            'service_id': service_id,
+            'region_id': 'RegionOne',
+            'resource_name': 'cores',
+            'resource_limit': 5
+        }
+        limit_table.insert().values(limit).execute()
+
+        # Insert another one with the same project_id, service_id, region_id
+        # and resource_name, then raise error.
+        limit['id'] = uuid.uuid4().hex
+        limit['resource_limit'] = 10
+        self.assertRaises(db_exception.DBDuplicateEntry,
+                          limit_table.insert().values(limit).execute)
+
+        # Insert one without region_id
+        limit_without_region = {
+            'id': uuid.uuid4().hex,
+            'project_id': project_id,
+            'service_id': service_id,
+            'resource_name': 'cores',
+            'resource_limit': 5
+        }
+        limit_table.insert().values(limit_without_region).execute()
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
