@@ -32,22 +32,28 @@ Lists all tags within a project.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Request Parameters
-------------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - tags: response_body_project_tags_required
 
 Status Codes
-------------
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -60,8 +66,8 @@ Status Codes
    - 403
    - 404
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-tags-list-response.json
    :language: javascript
@@ -79,16 +85,22 @@ Checks if a project contains the specified tag.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Request Parameters
-------------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
    - tag: project_tag_path
 
+Response
+--------
+
 Status Codes
-------------
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -111,23 +123,29 @@ Creates the specified tag and adds it to the list of tags in the project.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Request Parameters
-------------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
    - tag: project_tag_path
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - tags: response_body_project_tags_required
 
 Status Codes
-------------
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -151,16 +169,28 @@ be deleted.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Request Parameters
-------------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
    - tags: response_body_project_tags_required
 
-Response Parameters
--------------------
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/project-tags-update-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -180,14 +210,8 @@ Status Codes
    - 403
    - 404
 
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/project-tags-update-request.json
-   :language: javascript
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-tags-update-response.json
    :language: javascript
@@ -202,13 +226,19 @@ Remove a single tag from a project.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Request Parameters
-------------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
    - tag: project_tag_path
+
+Response
+--------
 
 Status Codes
 ~~~~~~~~~~~~
@@ -234,12 +264,18 @@ Remove all tags from a given project.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-Request Parameters
-------------------
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - project_id: project_id
+
+Response
+--------
 
 Status Codes
 ~~~~~~~~~~~~
