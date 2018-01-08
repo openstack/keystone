@@ -93,12 +93,29 @@ user_id_path:
   type: string
 
 # variables in query
-
 since_query:
   description: |
     A timestamp used to limit the list of results to events
     that occurred on or after the specified time.
     (RFC 1123 format date time)
+  in: query
+  required: false
+  type: string
+
+trustee_user_id_query:
+  description: |
+    Filters the response by a trustee user ID.
+    In order to list trusts for a given trustee, filter the collection using a query string
+    (e.g., ``?trustee_user_id={user_id}``).
+  in: query
+  required: false
+  type: string
+
+trustor_user_id_query:
+  description: |
+    Filters the response by a trustor user ID.
+    In order to list trusts for a given trustor, filter the collection using a query string
+    (e.g., ``?trustor_user_id={user_id}``).
   in: query
   required: false
   type: string

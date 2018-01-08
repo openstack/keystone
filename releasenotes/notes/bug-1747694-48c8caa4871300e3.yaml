@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1747694 <https://bugs.launchpad.net/keystone/+bug/1747694>`_]
+    The trust API reference declared support for ``page`` and ``per_page``
+    query parameters, when the actual trust API didn't support them. The
+    API reference has been updated accordingly.
