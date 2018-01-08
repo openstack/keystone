@@ -65,19 +65,18 @@ Enables a user to create a consumer.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
 
-Normal response codes: 201
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
     - description: consumer_description
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-create-request.json
    :language: javascript
@@ -85,12 +84,31 @@ Request Example
 Response
 --------
 
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 201
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
 Status: 201 Created
 
 The ``secret`` is only returned once, during consumer creation.
 
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-create-response.json
    :language: javascript
@@ -108,17 +126,37 @@ tokens, and Identity API tokens are also revoked.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
-Normal response codes: 204
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - consumer_id: consumer_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
 
 List consumers
 ==============
@@ -129,12 +167,28 @@ Lists consumers.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumers``
 
-Normal response codes: 200
+Response
+--------
 
-Error response codes: 413, 405, 404, 403, 401, 400, 503
+Status Codes
+~~~~~~~~~~~~
 
-Response Example
-----------------
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumers-list-response.json
    :language: javascript
@@ -149,19 +203,38 @@ Shows details for a consumer.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
-Normal response codes: 200
-
-Error response codes: 413, 405, 404, 403, 401, 400, 503
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - consumer_id: consumer_id_path
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-show-response.json
    :language: javascript
@@ -179,25 +252,47 @@ If you try to update any attribute other than ``description``, an HTTP
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/consumer``
 
-Normal response codes: 200
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - consumer_id: consumer_id_path
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-update-request.json
    :language: javascript
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/consumer-update-response.json
    :language: javascript
@@ -217,25 +312,21 @@ request. See `Consumer Obtains a Request Token
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/request_tokens``
 
-Normal response codes: 201
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
     - Requested-Project-Id: requested_project_id
 
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-OAUTH1/request-token-create-response.txt
-   :language: javascript
-
 Response
 --------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -243,6 +334,30 @@ Response
     - oauth_token_secret: oauth_token_secret
     - oauth_expires_at: oauth_expires_at
 
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 201
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/OS-OAUTH1/request-token-create-response.txt
+   :language: javascript
 
 Authorize request token
 =======================
@@ -255,18 +370,39 @@ returned. The Consumer receives the OAuth Verifier from the User out-of-band.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/authorize_request_token``
 
-Normal response codes: 200
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
 Request
 -------
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/authorize-request-token-request.json
    :language: javascript
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/authorize-request-token-response.json
    :language: javascript
@@ -289,18 +425,11 @@ request. See `Consumer Requests an Access Token
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/access_tokens``
 
-Normal response codes: 201
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
-Response Example
-----------------
-
-.. literalinclude:: ./samples/OS-OAUTH1/access-token-create-response.txt
-   :language: javascript
-
 Response
 --------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -308,6 +437,31 @@ Response
     - oauth_token_secret: oauth_token_secret
     - oauth_expires_at: oauth_expires_at
 
+Status Codes
+~~~~~~~~~~~~
+
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 201
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/OS-OAUTH1/access-token-create-response.txt
+   :language: javascript
 
 Get access token
 ================
@@ -318,20 +472,40 @@ Gets an access token.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
-Normal response codes: 200
-
-Error response codes: 413, 405, 404, 403, 401, 400, 503
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_path
    - access_token_id: access_token_id_path
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/access-token-show-response.json
    :language: javascript
@@ -348,18 +522,38 @@ API tokens that were issued to the consumer through that access token.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token``
 
-Normal response codes: 204
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503, 409
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_path
    - access_token_id: access_token_id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
 
 List access tokens
 ==================
@@ -370,19 +564,38 @@ Lists authorized access tokens.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_tokens``
 
-Normal response codes: 200
-
-Error response codes: 413, 405, 404, 403, 401, 400, 503
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_path
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/access-tokens-list-response.json
    :language: javascript
@@ -397,20 +610,41 @@ Lists associated roles for an access token.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_roles``
 
-Normal response codes: 200
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - user_id: user_id_path
    - access_token_id: access_token_id_path
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 415
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+   - 409
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/access-token-roles-list-response.json
    :language: javascript
@@ -425,12 +659,12 @@ Shows details for a role for an access token.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0/rel/user_access_token_role``
 
-Normal response codes: 200
-
-Error response codes: 413, 415, 405, 404, 403, 401, 400, 503
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -438,8 +672,28 @@ Request
    - role_id: role_id_path
    - access_token_id: access_token_id_path
 
-Response Example
-----------------
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/OS-OAUTH1/access-token-role-show-response.json
    :language: javascript
@@ -475,6 +729,23 @@ Example OAuth-specific object in a token:
 
 Relationship: ``https://docs.openstack.org/identity/rel/v3/auth_tokens``
 
-Normal response codes: 200
+Response
+--------
 
-Error response codes: 413, 405, 404, 403, 401, 400, 503
+Status Codes
+~~~~~~~~~~~~
+
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+.. rest_status_code:: error ../v3/status.yaml
+
+   - 413
+   - 405
+   - 404
+   - 403
+   - 401
+   - 400
+   - 503
