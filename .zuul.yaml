@@ -11,6 +11,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- job:
+    name: keystone-dsvm-functional
+    parent: legacy-dsvm-base
+    run: playbooks/legacy/keystone-dsvm-functional/run.yaml
+    post-run: playbooks/legacy/keystone-dsvm-functional/post.yaml
+    timeout: 4200
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/keystone
+      - openstack/keystone-tempest-plugin
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^api-ref/.*$
+      - ^doc/.*$
+      - ^etc/.*$
+      - ^keystone/tests/unit/.*$
+      - ^releasenotes/.*$
+
+- job:
+    name: keystone-dsvm-functional-v3-only
+    parent: legacy-dsvm-base
+    run: playbooks/legacy/keystone-dsvm-functional-v3-only/run.yaml
+    post-run: playbooks/legacy/keystone-dsvm-functional-v3-only/post.yaml
+    timeout: 4200
+    voting: false
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/keystone
+      - openstack/keystone-tempest-plugin
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^api-ref/.*$
+      - ^doc/.*$
+      - ^etc/.*$
+      - ^keystone/tests/unit/.*$
+      - ^releasenotes/.*$
+
+- job:
+    name: keystone-dsvm-py35-functional-v3-only
+    parent: legacy-dsvm-base
+    run: playbooks/legacy/keystone-dsvm-py35-functional-v3-only/run.yaml
+    post-run: playbooks/legacy/keystone-dsvm-py35-functional-v3-only/post.yaml
+    timeout: 4200
+    voting: false
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/keystone
+      - openstack/keystone-tempest-plugin
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^api-ref/.*$
+      - ^doc/.*$
+      - ^etc/.*$
+      - ^keystone/tests/unit/.*$
+      - ^releasenotes/.*$
+
 # This job will execute 'tox -e upgrade' from the OSA
 # repo specified in 'osa_test_repo'.
 - job:
@@ -30,8 +86,55 @@
       tox_env: upgrade
       osa_test_repo: "openstack/openstack-ansible-os_keystone"
 
+# Experimental
+- job:
+    name: keystone-tox-patch_cover
+    parent: legacy-base
+    run: playbooks/legacy/keystone-tox-patch_cover/run.yaml
+    post-run: playbooks/legacy/keystone-tox-patch_cover/post.yaml
+    timeout: 2400
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^api-ref/.*$
+      - ^doc/.*$
+      - ^etc/.*$
+      - ^keystone/tests/unit/.*$
+      - ^releasenotes/.*$
+    required-projects:
+      - openstack/requirements
+
+# Experimental
+- job:
+    name: keystone-dsvm-grenade-multinode
+    parent: legacy-dsvm-base-multinode
+    run: playbooks/legacy/keystone-dsvm-grenade-multinode/run.yaml
+    post-run: playbooks/legacy/keystone-dsvm-grenade-multinode/post.yaml
+    timeout: 10800
+    irrelevant-files:
+      - ^.*\.rst$
+      - ^api-ref/.*$
+      - ^doc/.*$
+      - ^etc/.*$
+      - ^keystone/tests/unit/.*$
+      - ^releasenotes/.*$
+    required-projects:
+      - openstack-dev/grenade
+      - openstack-infra/devstack-gate
+      - openstack/keystone
+    nodeset: legacy-ubuntu-xenial-2-node
+
 - project:
     name: openstack/keystone
     check:
       jobs:
+        - keystone-dsvm-functional
+        - keystone-dsvm-functional-v3-only
+        - keystone-dsvm-py35-functional-v3-only
         - openstack-ansible-keystone-rolling-upgrade
+    gate:
+      jobs:
+        - keystone-dsvm-functional
+    experimental:
+      jobs:
+        - keystone-tox-patch_cover
+        - keystone-dsvm-grenade-multinode
