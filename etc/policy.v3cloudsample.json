@@ -132,7 +132,7 @@
     "project_admin_for_domain_role_grants": "rule:admin_required and project_domain_id:%(target.role.domain_id)s and project_id:%(project_id)s",
     "domain_admin_for_list_grants": "rule:admin_required and rule:domain_admin_grant_match",
     "project_admin_for_list_grants": "rule:admin_required and project_id:%(project_id)s",
- 
+
     "admin_on_domain_filter": "rule:admin_required and domain_id:%(scope.domain.id)s",
     "admin_on_project_filter": "rule:admin_required and project_id:%(scope.project.id)s",
     "admin_on_domain_of_project_filter": "rule:admin_required and domain_id:%(target.project.domain_id)s",
