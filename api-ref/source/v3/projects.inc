@@ -43,25 +43,15 @@ List projects
 
 .. rest_method::  GET /v3/projects
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
-
 Lists projects.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
 
-.. rest_status_code:: success status.yaml
+Request
+-------
 
-   - 200
-
-.. rest_status_code:: error status.yaml
-
-   - 400
-   - 401
-   - 403
-
-Request Parameters
-------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -71,8 +61,11 @@ Request Parameters
    - name: project_name_query
    - parent_id: parent_id_query
 
-Response Parameters
--------------------
+Response
+--------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -88,8 +81,21 @@ Response Parameters
    - parent_id: project_parent_id_response_body
    - tags: response_body_project_tags_required
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/projects-list-response.json
    :language: javascript
@@ -100,12 +106,59 @@ Create project
 
 .. rest_method::  POST /v3/projects
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
-
 Creates a project, where the project may act as a domain.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/projects``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project: project
+   - is_domain: is_domain_request_body
+   - description: project_description_request_body
+   - domain_id: project_domain_id_request_body
+   - enabled: project_enabled_request_body
+   - name: project_name_request_body
+   - parent_id: project_parent_id_request_body
+
+Examples
+~~~~~~~~
+
+Sample for creating a regular project:
+
+.. literalinclude:: ./samples/admin/project-create-request.json
+   :language: javascript
+
+Sample for creating a project that also acts as a domain:
+
+.. literalinclude:: ./samples/admin/project-create-domain-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project: project
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id
+   - links: link_response_body
+   - name: project_name_response_body
+   - parent_id: project_parent_id_response_body
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -118,34 +171,34 @@ Response Codes
    - 403
    - 409
 
-Request Parameters
-------------------
+Show project details
+====================
+
+.. rest_method::  GET /v3/projects/{project_id}
+
+Shows details for a project.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
-   - project: project
-   - is_domain: is_domain_request_body
-   - description: project_description_request_body
-   - domain_id: project_domain_id_request_body
-   - enabled: project_enabled_request_body
-   - name: project_name_request_body
-   - parent_id: project_parent_id_request_body
+   - project_id: project_id_path
+   - parents_as_list: parents_as_list
+   - subtree_as_list: subtree_as_list
+   - parents_as_ids: parents_as_ids
+   - subtree_as_ids: subtree_as_ids
 
-Request Examples
-----------------
+Response
+--------
 
-Sample for creating a regular project:
-
-.. literalinclude:: ./samples/admin/project-create-request.json
-   :language: javascript
-
-Sample for creating a project that also acts as a domain:
-
-.. literalinclude:: ./samples/admin/project-create-domain-request.json
-   :language: javascript
-
-Response Parameters
--------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -159,17 +212,8 @@ Response Parameters
    - name: project_name_response_body
    - parent_id: project_parent_id_response_body
 
-Show project details
-====================
-
-.. rest_method::  GET /v3/projects/{project_id}
-
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
-
-Shows details for a project.
-
-Response Codes
---------------
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -182,46 +226,20 @@ Response Codes
    - 403
    - 404
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - parents_as_list: parents_as_list
-   - subtree_as_list: subtree_as_list
-   - parents_as_ids: parents_as_ids
-   - subtree_as_ids: subtree_as_ids
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project: project
-   - is_domain: is_domain_response_body
-   - description: project_description_response_body
-   - domain_id: project_domain_id_response_body
-   - enabled: project_enabled_response_body
-   - id: project_id
-   - links: link_response_body
-   - name: project_name_response_body
-   - parent_id: project_parent_id_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-show-response.json
    :language: javascript
 
-Response Example with ``parents_as_list``
------------------------------------------
+Example with ``parents_as_list``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-show-parents-response.json
    :language: javascript
 
-Response Example with ``subtree_as_list``
------------------------------------------
+Example with ``subtree_as_list``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-show-subtree-response.json
    :language: javascript
@@ -232,12 +250,53 @@ Update project
 
 .. rest_method::  PATCH /v3/projects/{project_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
-
 Updates a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+   - project: project
+   - is_domain: is_domain_request_body
+   - description: project_description_request_body
+   - domain_id: project_domain_id_update_request_body
+   - enabled: project_enabled_update_request_body
+   - name: project_name_update_request_body
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/project-update-request.json
+   :language: javascript
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project: project
+   - is_domain: is_domain_response_body
+   - description: project_description_response_body
+   - domain_id: project_domain_id_response_body
+   - enabled: project_enabled_response_body
+   - id: project_id
+   - name: project_name_response_body
+   - links: link_response_body
+   - parent_id: project_parent_id_response_body
+
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -251,42 +310,8 @@ Response Codes
    - 404
    - 409
 
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
-   - project: project
-   - is_domain: is_domain_request_body
-   - description: project_description_request_body
-   - domain_id: project_domain_id_update_request_body
-   - enabled: project_enabled_update_request_body
-   - name: project_name_update_request_body
-
-Request Example
----------------
-
-.. literalinclude:: ./samples/admin/project-update-request.json
-   :language: javascript
-
-Response Parameters
--------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project: project
-   - is_domain: is_domain_response_body
-   - description: project_description_response_body
-   - domain_id: project_domain_id_response_body
-   - enabled: project_enabled_response_body
-   - id: project_id
-   - name: project_name_response_body
-   - links: link_response_body
-   - parent_id: project_parent_id_response_body
-
-Response Example
-----------------
+Example
+~~~~~~~
 
 .. literalinclude:: ./samples/admin/project-update-response.json
    :language: javascript
@@ -297,12 +322,25 @@ Delete project
 
 .. rest_method::  DELETE /v3/projects/{project_id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
-
 Deletes a project.
 
-Response Codes
---------------
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/project``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - project_id: project_id_path
+
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
 
 .. rest_status_code:: success status.yaml
 
@@ -314,10 +352,3 @@ Response Codes
    - 401
    - 403
    - 404
-
-Request Parameters
-------------------
-
-.. rest_parameters:: parameters.yaml
-
-   - project_id: project_id_path
