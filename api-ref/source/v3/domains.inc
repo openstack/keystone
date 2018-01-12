@@ -60,9 +60,19 @@ Parameters
 Status Codes
 ~~~~~~~~~~~~
 
-Normal response codes: 200
+.. rest_status_code:: success status.yaml
 
-Error response codes: 413,405,404,403,401,400,503
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 413
+   - 503
 
 Example
 ~~~~~~~
@@ -117,9 +127,21 @@ Parameters
 Status Codes
 ~~~~~~~~~~~~
 
-Normal response codes: 201
+.. rest_status_code:: success status.yaml
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+   - 201
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 409
+   - 413
+   - 415
+   - 503
 
 
 Show domain details
@@ -159,9 +181,19 @@ Parameters
 Status Codes
 ~~~~~~~~~~~~
 
-Normal response codes: 200
+.. rest_status_code:: success status.yaml
 
-Error response codes: 413,405,404,403,401,400,503
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 413
+   - 503
 
 Example
 ~~~~~~~
@@ -217,9 +249,21 @@ Parameters
 Status Codes
 ~~~~~~~~~~~~
 
-Normal response codes: 200
+.. rest_status_code:: success status.yaml
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 409
+   - 413
+   - 415
+   - 503
 
 Example
 ~~~~~~~
@@ -259,6 +303,18 @@ Parameters
 Status Codes
 ~~~~~~~~~~~~
 
-Normal response codes: 204
+.. rest_status_code:: success status.yaml
 
-Error response codes: 413,415,405,404,403,401,400,503,409
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 409
+   - 413
+   - 415
+   - 503
