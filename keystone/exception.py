@@ -456,6 +456,19 @@ class PublicIDNotFound(NotFound):
     message_format = "%(id)s"
 
 
+class RegisteredLimitNotFound(NotFound):
+    message_format = _("Could not find registered limit for %(id)s.")
+
+
+class LimitNotFound(NotFound):
+    message_format = _("Could not find limit for %(id)s.")
+
+
+class NoLimitReference(Forbidden):
+    message_format = _("Unable to create a limit that doesn't have a "
+                       "corresponding registered limit")
+
+
 class DomainConfigNotFound(NotFound):
     message_format = _('Could not find %(group_or_option)s in domain '
                        'configuration for domain %(domain_id)s.')

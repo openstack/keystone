@@ -328,6 +328,8 @@ class _WontMatch(Exception):
         won't match any value in the column in the table.
 
         """
+        if value is None:
+            return
         col = col_attr.property.columns[0]
         if isinstance(col.type, sql.types.Boolean):
             # The column is a Boolean, we should have already validated input.
