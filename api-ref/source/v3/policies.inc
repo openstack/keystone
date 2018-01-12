@@ -77,15 +77,15 @@ Status Codes
 
 .. rest_status_code:: error status.yaml
 
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 409
    - 413
    - 415
-   - 405
-   - 404
-   - 403
-   - 401
-   - 400
    - 503
-   - 409
 
 List policies
 =============
@@ -129,12 +129,12 @@ Status Codes
 
 .. rest_status_code:: error status.yaml
 
-   - 413
-   - 405
-   - 404
-   - 403
-   - 401
    - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 413
    - 503
 
 Example
@@ -186,12 +186,12 @@ Status Codes
 
 .. rest_status_code:: error status.yaml
 
-   - 413
-   - 405
-   - 404
-   - 403
-   - 401
    - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 413
    - 503
 
 Example
@@ -252,15 +252,15 @@ Status Codes
 
 .. rest_status_code:: error status.yaml
 
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 409
    - 413
    - 415
-   - 405
-   - 404
-   - 403
-   - 401
-   - 400
    - 503
-   - 409
 
 Example
 ~~~~~~~
@@ -300,12 +300,12 @@ Status Codes
 
 .. rest_status_code:: error status.yaml
 
+   - 400
+   - 401
+   - 403
+   - 404
+   - 405
+   - 409
    - 413
    - 415
-   - 405
-   - 404
-   - 403
-   - 401
-   - 400
    - 503
-   - 409
