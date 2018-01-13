@@ -6,9 +6,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 12.0.0.0b4.dev8\n"
+"Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-08-01 22:35+0000\n"
+"POT-Creation-Date: 2018-01-09 19:58+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -138,23 +138,6 @@ msgstr "無法變更使用者 ID"
 
 msgid "Cannot change user name"
 msgstr "無法變更使用者名稱"
-
-#, python-format
-msgid ""
-"Cannot create project, since it specifies its owner as domain %(domain_id)s, "
-"but specifies a parent in a different domain (%(parent_domain_id)s)."
-msgstr ""
-"無法建立專案，因為它指定自己的擁有者作為網域 %(domain_id)s，但卻指定了位於不"
-"同網域 (%(parent_domain_id)s) 中的母項。"
-
-#, python-format
-msgid ""
-"Cannot create project, since its parent (%(domain_id)s) is acting as a "
-"domain, but project's specified parent_id (%(parent_id)s) does not match "
-"this domain_id."
-msgstr ""
-"無法建立專案，因為它的母項 (%(domain_id)s) 正在充當網域，但專案的指定 "
-"parent_id (%(parent_id)s) 與此 domain_id 不符。"
 
 msgid "Cannot delete a domain that is enabled, please disable it first."
 msgstr "無法刪除已啟用的網域，請先停用該網域。"
@@ -448,9 +431,6 @@ msgid ""
 msgstr ""
 "在配置檔名稱 %(file)s 中找到的網域名稱 %(domain)s 無效 - 正在忽略此檔案。"
 
-msgid "Invalid limit value"
-msgstr "無效的限制值"
-
 #, python-format
 msgid ""
 "Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
@@ -484,9 +464,6 @@ msgstr ""
 #, python-format
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr "端點 URL (%(endpoint)s) 的格式不正確，請參閱錯誤日誌以取得詳細資料。"
-
-msgid "Marker could not be found"
-msgstr "找不到標記"
 
 #, python-format
 msgid "Max hierarchy depth reached for %s branch."
@@ -847,9 +824,6 @@ msgstr "使用者不是受託人。"
 
 msgid "User not valid for tenant."
 msgstr "使用者不是有效的承租人。"
-
-msgid "User roles not supported: tenant_id required"
-msgstr "使用者角色不受支援：需要 tenant_id"
 
 #, python-format
 msgid "User type %s not supported"

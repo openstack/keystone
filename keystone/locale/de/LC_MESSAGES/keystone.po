@@ -9,9 +9,9 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: keystone 12.0.0.0b4.dev8\n"
+"Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2017-08-01 22:35+0000\n"
+"POT-Creation-Date: 2018-01-09 19:58+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -159,26 +159,6 @@ msgstr "Benutzer-ID kann nicht geändert werden"
 
 msgid "Cannot change user name"
 msgstr "Benutzername kann nicht geändert werden"
-
-#, python-format
-msgid ""
-"Cannot create project, since it specifies its owner as domain %(domain_id)s, "
-"but specifies a parent in a different domain (%(parent_domain_id)s)."
-msgstr ""
-"Das Projekt kann nicht erstellt werden, da es den zugehörigen Eigner als "
-"Domäne %(domain_id)s angibt, jedoch ein übergeordnetes Projekt in einer "
-"anderen Domäne (%(parent_domain_id)s) angibt."
-
-#, python-format
-msgid ""
-"Cannot create project, since its parent (%(domain_id)s) is acting as a "
-"domain, but project's specified parent_id (%(parent_id)s) does not match "
-"this domain_id."
-msgstr ""
-"Das Projekt kann nicht erstellt werden, da das zugehörige übergeordnete "
-"Projekt (%(domain_id)s) als Domäne fungiert, aber die für das Projekt "
-"angegebene 'parent_id' (%(parent_id)s) nicht mit dieser 'domain_id' "
-"übereinstimmt."
 
 msgid "Cannot delete a domain that is enabled, please disable it first."
 msgstr ""
@@ -530,9 +510,6 @@ msgstr ""
 "Ungültiger Domänenname: %(domain)s im Konfigurationsdateinamen gefunden: "
 "%(file)s - diese Datei wird ignoriert."
 
-msgid "Invalid limit value"
-msgstr "Ungültiger Grenzwert"
-
 #, python-format
 msgid ""
 "Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
@@ -572,9 +549,6 @@ msgstr ""
 msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
 msgstr ""
 "Fehlerhafte Endpunkt-URL (%(endpoint)s), siehe Details im FEHLER-Protokoll. "
-
-msgid "Marker could not be found"
-msgstr "Marker konnte nicht gefunden werden"
 
 #, python-format
 msgid "Max hierarchy depth reached for %s branch."
@@ -981,9 +955,6 @@ msgstr "Benutzer ist kein Trustee."
 
 msgid "User not valid for tenant."
 msgstr "Benutzer nicht gültig für Mandant."
-
-msgid "User roles not supported: tenant_id required"
-msgstr "Benutzerrollen nicht unterstützt: tenant_id erforderlich"
 
 #, python-format
 msgid "User type %s not supported"
