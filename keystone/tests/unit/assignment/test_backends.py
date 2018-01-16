@@ -3723,10 +3723,9 @@ class SystemAssignmentTests(AssignmentTestHelperMixin):
         )
         system_roles = self.assignment_api.list_system_grants_for_user(user_id)
         self.assertEqual(len(system_roles), 1)
-        self.assertEqual(system_roles[0]['type'], 'UserSystem')
-        self.assertEqual(system_roles[0]['target_id'], 'system')
-        self.assertEqual(system_roles[0]['actor_id'], user_id)
-        self.assertFalse(system_roles[0]['inherited'])
+        self.assertIsNone(system_roles[0]['domain_id'])
+        self.assertEqual(system_roles[0]['id'], role_ref['id'])
+        self.assertEqual(system_roles[0]['name'], role_ref['name'])
 
     def test_list_system_grants_for_user(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)

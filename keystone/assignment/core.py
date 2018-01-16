@@ -16,6 +16,7 @@
 
 import copy
 import functools
+import itertools
 
 from oslo_log import log
 
@@ -844,7 +845,7 @@ class Manager(manager.Manager):
 
         return refs
 
-    def _list_direct_role_assignments(self, role_id, user_id, group_id,
+    def _list_direct_role_assignments(self, role_id, user_id, group_id, system,
                                       domain_id, project_id, subtree_ids,
                                       inherited):
         """List role assignments without applying expansion.
@@ -862,13 +863,33 @@ class Manager(manager.Manager):
             else:
                 project_ids_of_interest = [project_id]
 
-        return self.driver.list_role_assignments(
-            role_id=role_id, user_id=user_id, group_ids=group_ids,
-            domain_id=domain_id, project_ids=project_ids_of_interest,
-            inherited_to_projects=inherited)
+        project_and_domain_assignments = []
+        if not system:
+            project_and_domain_assignments = self.driver.list_role_assignments(
+                role_id=role_id, user_id=user_id, group_ids=group_ids,
+                domain_id=domain_id, project_ids=project_ids_of_interest,
+                inherited_to_projects=inherited)
+
+        system_assignments = []
+        if system or (not project_id and not domain_id and not system):
+            if user_id:
+                assignments = self.list_system_grants_for_user(user_id)
+                for assignment in assignments:
+                    system_assignments.append(
+                        {'system': {'all': True},
+                         'user_id': user_id,
+                         'role_id': assignment['id']}
+                    )
+
+        assignments = []
+        for assignment in itertools.chain(
+                project_and_domain_assignments, system_assignments):
+            assignments.append(assignment)
+
+        return assignments
 
     def list_role_assignments(self, role_id=None, user_id=None, group_id=None,
-                              domain_id=None, project_id=None,
+                              system=None, domain_id=None, project_id=None,
                               include_subtree=False, inherited=None,
                               effective=None, include_names=False,
                               source_from_group_ids=None,
@@ -917,6 +938,9 @@ class Manager(manager.Manager):
                     PROVIDERS.resource_api.list_projects_in_subtree(
                         project_id)])
 
+        if system != 'all':
+            system = None
+
         if effective:
             role_assignments = self._list_effective_role_assignments(
                 role_id, user_id, group_id, domain_id, project_id,
@@ -924,7 +948,7 @@ class Manager(manager.Manager):
                 strip_domain_roles)
         else:
             role_assignments = self._list_direct_role_assignments(
-                role_id, user_id, group_id, domain_id, project_id,
+                role_id, user_id, group_id, system, domain_id, project_id,
                 subtree_ids, inherited)
 
         if include_names:
@@ -1088,9 +1112,14 @@ class Manager(manager.Manager):
         """
         target_id = self._SYSTEM_SCOPE_TOKEN
         assignment_type = self._USER_SYSTEM
-        return self.driver.list_system_grants(
+        grants = self.driver.list_system_grants(
             user_id, target_id, assignment_type
         )
+        grant_ids = []
+        for grant in grants:
+            grant_ids.append(grant['role_id'])
+
+        return PROVIDERS.role_api.list_roles_from_ids(grant_ids)
 
     def create_system_grant_for_user(self, user_id, role_id):
         """Grant a user a role on the system.
