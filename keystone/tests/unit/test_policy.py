@@ -15,6 +15,7 @@
 
 import json
 import os
+import subprocess
 import uuid
 
 import mock
@@ -249,3 +250,18 @@ class PolicyJsonTestCase(unit.TestCase):
 
         doc_targets = list(read_doc_targets())
         self.assertItemsEqual(policy_keys, doc_targets + policy_rule_keys)
+
+
+class GeneratePolicyFileTestCase(unit.TestCase):
+
+    def test_policy_generator_from_command_line(self):
+        # This test ensures keystone.common.policy:get_enforcer ignores
+        # unexpected arguments before handing them off to oslo.config, which
+        # will fail and prevent users from generating policy files.
+        ret_val = subprocess.Popen(
+            ['oslopolicy-policy-generator', '--namespace', 'keystone'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        ret_val.communicate()
+        self.assertEqual(ret_val.returncode, 0)
