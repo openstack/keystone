@@ -23,7 +23,7 @@ import six
 from six.moves import map
 
 from keystone.auth import plugins as auth_plugins
-from keystone.common import fernet_utils as utils
+from keystone.common import token_utils as utils
 from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone import exception
@@ -55,12 +55,12 @@ class TokenFormatter(object):
         ``encrypt(plaintext)`` and ``decrypt(ciphertext)``.
 
         """
-        fernet_utils = utils.FernetUtils(
+        token_utils = utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'
         )
-        keys = fernet_utils.load_keys()
+        keys = token_utils.load_keys()
 
         if not keys:
             raise exception.KeysNotFound()

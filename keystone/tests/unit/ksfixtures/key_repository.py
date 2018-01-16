@@ -12,7 +12,7 @@
 
 import fixtures
 
-from keystone.common import fernet_utils as utils
+from keystone.common import token_utils as utils
 
 
 class KeyRepository(fixtures.Fixture):
@@ -28,10 +28,10 @@ class KeyRepository(fixtures.Fixture):
         self.config_fixture.config(group=self.key_group,
                                    key_repository=directory)
 
-        fernet_utils = utils.FernetUtils(
+        token_utils = utils.TokenUtils(
             directory,
             self.max_active_keys,
             self.key_group
         )
-        fernet_utils.create_key_directory()
-        fernet_utils.initialize_key_repository()
+        token_utils.create_key_directory()
+        token_utils.initialize_key_repository()

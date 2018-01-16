@@ -20,7 +20,7 @@ from oslo_config import fixture as config_fixture
 from oslo_log import log
 import six
 
-from keystone.common import fernet_utils
+from keystone.common import token_utils
 from keystone.common import utils as common_utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
@@ -272,10 +272,10 @@ class ServiceHelperTests(unit.BaseTestCase):
         self.assertRaises(unit.UnexpectedExit, self._do_test)
 
 
-class FernetUtilsTestCase(unit.BaseTestCase):
+class TokenUtilsTestCase(unit.BaseTestCase):
 
     def setUp(self):
-        super(FernetUtilsTestCase, self).setUp()
+        super(TokenUtilsTestCase, self).setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_debug_message_logged_when_loading_fernet_token_keys(self):
@@ -287,7 +287,7 @@ class FernetUtilsTestCase(unit.BaseTestCase):
             )
         )
         logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
-        fernet_utilities = fernet_utils.FernetUtils(
+        fernet_utilities = token_utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'
@@ -310,7 +310,7 @@ class FernetUtilsTestCase(unit.BaseTestCase):
             )
         )
         logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
-        fernet_utilities = fernet_utils.FernetUtils(
+        fernet_utilities = token_utils.TokenUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS,
             'credential'
