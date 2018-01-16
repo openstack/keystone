@@ -11,7 +11,7 @@ domains:
     The list of domains the authenticated user may scope to
   in: body
   required: true
-  type: object
+  type: array
 
 links_domains:
   description: |
@@ -32,4 +32,4 @@ projects:
     The list of projects the authenticated user may scope to
   in: body
   required: true
-  type: object
+  type: array
