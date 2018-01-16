@@ -103,6 +103,7 @@ Parameters
    - enabled: enabled_user_request_body
    - name: user_name_create_request_body
    - password: password_request_body
+   - extra: extra_request_body
 
 Example
 ~~~~~~~
@@ -140,6 +141,12 @@ Status Codes
    - 401
    - 403
    - 409
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/user-create-response.json
+   :language: javascript
 
 
 Show user details

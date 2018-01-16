@@ -4,6 +4,8 @@
         "domain_id": "1789d1",
         "enabled": true,
         "name": "James Doe",
-        "password": "secretsecret"
+        "password": "secretsecret",
+        "description": "James Doe user",
+        "email": "jdoe@example.com"
     }
 }
