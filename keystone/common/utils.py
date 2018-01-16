@@ -502,6 +502,18 @@ def isotime(at=None, subsecond=False):
     return st
 
 
+def parse_expiration_date(expiration_date):
+    if not expiration_date.endswith('Z'):
+        expiration_date += 'Z'
+    try:
+        expiration_time = timeutils.parse_isotime(expiration_date)
+    except ValueError:
+        raise exception.ValidationTimeStampError()
+    if timeutils.is_older_than(expiration_time, 0):
+        raise exception.ValidationExpirationError()
+    return expiration_time
+
+
 URL_RESERVED_CHARS = ":/?#[]@!$&'()*+,;="
 
 

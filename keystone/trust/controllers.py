@@ -14,8 +14,6 @@
 
 import uuid
 
-from oslo_utils import timeutils
-
 from keystone import assignment
 from keystone.common import controller
 from keystone.common import provider_api
@@ -169,15 +167,7 @@ class TrustV3(controller.V3Controller):
     def _parse_expiration_date(self, expiration_date):
         if expiration_date is None:
             return None
-        if not expiration_date.endswith('Z'):
-            expiration_date += 'Z'
-        try:
-            expiration_time = timeutils.parse_isotime(expiration_date)
-        except ValueError:
-            raise exception.ValidationTimeStampError()
-        if timeutils.is_older_than(expiration_time, 0):
-            raise exception.ValidationExpirationError()
-        return expiration_time
+        return utils.parse_expiration_date(expiration_date)
 
     @controller.protected()
     def list_trusts(self, request):
