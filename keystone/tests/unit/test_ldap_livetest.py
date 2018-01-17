@@ -13,7 +13,6 @@
 # under the License.
 
 import subprocess
-import uuid
 
 import ldap.modlist
 from six.moves import range
@@ -126,14 +125,8 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         GROUP_COUNT = 3
         USER_COUNT = 2
 
-        for x in range(0, USER_COUNT):
-            # TODO(shaleh): use unit.new_user_ref()
-            new_user = {'name': uuid.uuid4().hex, 'password': uuid.uuid4().hex,
-                        'enabled': True, 'domain_id': domain['id']}
-            new_user = self.identity_api.create_user(new_user)
-            test_users.append(new_user)
-        positive_user = test_users[0]
-        negative_user = test_users[1]
+        positive_user = unit.create_user(self.identity_api, domain['id'])
+        negative_user = unit.create_user(self.identity_api, domain['id'])
 
         for x in range(0, USER_COUNT):
             group_refs = self.identity_api.list_groups_for_user(

@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
-
 import ldappool
 
 import keystone.conf
@@ -105,12 +103,9 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
                           password=old_password)
 
     def _create_user_and_authenticate(self, password):
-        # TODO(shaleh): port to new_user_ref()
-        user_dict = {
-            'domain_id': CONF.identity.default_domain_id,
-            'name': uuid.uuid4().hex,
-            'password': password}
-        user = self.identity_api.create_user(user_dict)
+        user = unit.create_user(self.identity_api,
+                                CONF.identity.default_domain_id,
+                                password=password)
 
         self.identity_api.authenticate(
             self.make_request(),
