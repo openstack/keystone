@@ -60,13 +60,13 @@ examples. Modify these examples as needed.
 
 Define the destination LDAP server in the ``/etc/keystone/keystone.conf`` file:
 
-   .. code-block:: ini
+.. code-block:: ini
 
-      [ldap]
-      url = ldap://localhost
-      user = dc=Manager,dc=example,dc=org
-      password = samplepassword
-      suffix = dc=example,dc=org
+   [ldap]
+   url = ldap://localhost
+   user = dc=Manager,dc=example,dc=org
+   password = samplepassword
+   suffix = dc=example,dc=org
 
 
 Multiple LDAP servers can be supplied to ``url`` to provide high-availability
@@ -74,9 +74,9 @@ support for a single LDAP backend. To specify multiple LDAP servers, simply
 change the ``url`` option in the ``[ldap]`` section to be a list, separated by
 commas:
 
-   .. code-block:: ini
+.. code-block:: ini
 
-      url = "ldap://localhost,ldap://backup.localhost"
+   url = "ldap://localhost,ldap://backup.localhost"
 
 **Additional LDAP integration settings**
 

@@ -158,72 +158,72 @@ on the keystone configuration.
 
 * Assignment
 
- * :mod:`keystone.assignment.controllers.GrantAssignmentV3`
- * :mod:`keystone.assignment.controllers.ImpliedRolesV3`
- * :mod:`keystone.assignment.controllers.ProjectAssignmentV3`
- * :mod:`keystone.assignment.controllers.TenantAssignment`
- * :mod:`keystone.assignment.controllers.RoleAssignmentV3`
- * :mod:`keystone.assignment.controllers.RoleV3`
+  * :mod:`keystone.assignment.controllers.GrantAssignmentV3`
+  * :mod:`keystone.assignment.controllers.ImpliedRolesV3`
+  * :mod:`keystone.assignment.controllers.ProjectAssignmentV3`
+  * :mod:`keystone.assignment.controllers.TenantAssignment`
+  * :mod:`keystone.assignment.controllers.RoleAssignmentV3`
+  * :mod:`keystone.assignment.controllers.RoleV3`
 
 * Authentication
 
- * :mod:`keystone.auth.controllers.Auth`
+  * :mod:`keystone.auth.controllers.Auth`
 
 * Catalog
 
- * :mod:`keystone.catalog.controllers.EndpointFilterV3Controller`
- * :mod:`keystone.catalog.controllers.EndpointGroupV3Controller`
- * :mod:`keystone.catalog.controllers.EndpointV3`
- * :mod:`keystone.catalog.controllers.ProjectEndpointGroupV3Controller`
- * :mod:`keystone.catalog.controllers.RegionV3`
- * :mod:`keystone.catalog.controllers.ServiceV3`
+  * :mod:`keystone.catalog.controllers.EndpointFilterV3Controller`
+  * :mod:`keystone.catalog.controllers.EndpointGroupV3Controller`
+  * :mod:`keystone.catalog.controllers.EndpointV3`
+  * :mod:`keystone.catalog.controllers.ProjectEndpointGroupV3Controller`
+  * :mod:`keystone.catalog.controllers.RegionV3`
+  * :mod:`keystone.catalog.controllers.ServiceV3`
 
 * Credentials
 
- * :mod:`keystone.contrib.ec2.controllers.Ec2ControllerV3`
- * :mod:`keystone.credential.controllers.CredentialV3`
+  * :mod:`keystone.contrib.ec2.controllers.Ec2ControllerV3`
+  * :mod:`keystone.credential.controllers.CredentialV3`
 
 * Federation
 
- * :mod:`keystone.federation.controllers.IdentityProvider`
- * :mod:`keystone.federation.controllers.FederationProtocol`
- * :mod:`keystone.federation.controllers.MappingController`
- * :mod:`keystone.federation.controllers.Auth`
- * :mod:`keystone.federation.controllers.DomainV3`
- * :mod:`keystone.federation.controllers.ProjectAssignmentV3`
- * :mod:`keystone.federation.controllers.ServiceProvider`
- * :mod:`keystone.federation.controllers.SAMLMetadataV3`
+  * :mod:`keystone.federation.controllers.IdentityProvider`
+  * :mod:`keystone.federation.controllers.FederationProtocol`
+  * :mod:`keystone.federation.controllers.MappingController`
+  * :mod:`keystone.federation.controllers.Auth`
+  * :mod:`keystone.federation.controllers.DomainV3`
+  * :mod:`keystone.federation.controllers.ProjectAssignmentV3`
+  * :mod:`keystone.federation.controllers.ServiceProvider`
+  * :mod:`keystone.federation.controllers.SAMLMetadataV3`
 
 * Identity
 
- * :mod:`keystone.identity.controllers.GroupV3`
- * :mod:`keystone.identity.controllers.UserV3`
+  * :mod:`keystone.identity.controllers.GroupV3`
+  * :mod:`keystone.identity.controllers.UserV3`
 
 * Oauth1
 
- * :mod:`keystone.oauth1.controllers.ConsumerCrudV3`
- * :mod:`keystone.oauth1.controllers.AccessTokenCrudV3`
- * :mod:`keystone.oauth1.controllers.AccessTokenRolesV3`
- * :mod:`keystone.oauth1.controllers.OAuthControllerV3`
+  * :mod:`keystone.oauth1.controllers.ConsumerCrudV3`
+  * :mod:`keystone.oauth1.controllers.AccessTokenCrudV3`
+  * :mod:`keystone.oauth1.controllers.AccessTokenRolesV3`
+  * :mod:`keystone.oauth1.controllers.OAuthControllerV3`
 
 * Policy
 
- * :mod:`keystone.policy.controllers.PolicyV3`
+  * :mod:`keystone.policy.controllers.PolicyV3`
 
 * Resource
 
- * :mod:`keystone.resource.controllers.DomainV3`
- * :mod:`keystone.resource.controllers.DomainConfigV3`
- * :mod:`keystone.resource.controllers.ProjectV3`
- * :mod:`keystone.resource.controllers.ProjectTagV3`
+  * :mod:`keystone.resource.controllers.DomainV3`
+  * :mod:`keystone.resource.controllers.DomainConfigV3`
+  * :mod:`keystone.resource.controllers.ProjectV3`
+  * :mod:`keystone.resource.controllers.ProjectTagV3`
 
 * Revoke
 
- * :mod:`keystone.revoke.controllers.RevokeController`
+  * :mod:`keystone.revoke.controllers.RevokeController`
 
 * Trust
 
- * :mod:`keystone.trust.controllers.TrustV3`
+  * :mod:`keystone.trust.controllers.TrustV3`
 
 .. _Paste: http://pythonpaste.org/
 
@@ -291,14 +291,14 @@ data than they know what to do with and pass them on to a backend.
 
 There are a few main data types:
 
- * **User**: has account credentials, is associated with one or more projects or domains
- * **Group**: a collection of users, is associated with one or more projects or domains
- * **Project**: unit of ownership in OpenStack, contains one or more users
- * **Domain**: unit of ownership in OpenStack, contains users, groups and projects
- * **Role**: a first-class piece of metadata associated with many user-project pairs.
- * **Token**: identifying credential associated with a user or user and project
- * **Extras**: bucket of key-value metadata associated with a user-project pair.
- * **Rule**: describes a set of requirements for performing an action.
+* **User**: has account credentials, is associated with one or more projects or domains
+* **Group**: a collection of users, is associated with one or more projects or domains
+* **Project**: unit of ownership in OpenStack, contains one or more users
+* **Domain**: unit of ownership in OpenStack, contains users, groups and projects
+* **Role**: a first-class piece of metadata associated with many user-project pairs.
+* **Token**: identifying credential associated with a user or user and project
+* **Extras**: bucket of key-value metadata associated with a user-project pair.
+* **Rule**: describes a set of requirements for performing an action.
 
 While the general data model allows a many-to-many relationship between users
 and groups to projects and domains; the actual backend implementations take
@@ -327,8 +327,8 @@ based on whether the user is authorized to perform that action.
 For the purposes of keystone there are only a couple levels of authorization
 being checked for:
 
- * Require that the performing user is considered an admin.
- * Require that the performing user matches the user being referenced.
+* Require that the performing user is considered an admin.
+* Require that the performing user matches the user being referenced.
 
 Other systems wishing to use the policy engine will require additional styles
 of checks and will possibly write completely custom backends. By default,
