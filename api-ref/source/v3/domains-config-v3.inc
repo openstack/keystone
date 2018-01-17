@@ -31,8 +31,8 @@ other than the ``identity`` or ``ldap`` groups, the ``Forbidden
 (403)`` response code is returned.
 
 For information about how to integrate the Identity service with
-LDAP, see `Integrate Identity with LDAP <https://docs.openstack.org
-/admin-guide/keystone_integrate_with_ldap.html>`_.
+LDAP, see `Integrate Identity with LDAP
+<https://docs.openstack.org/keystone/latest/admin/identity-integrate-with-ldap.html>`_.
 
 Show default configuration settings
 ===================================
