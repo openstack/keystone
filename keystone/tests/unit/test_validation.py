@@ -2319,8 +2319,11 @@ class OAuth1ValidationTestCase(unit.BaseTestCase):
 
         create = oauth1_schema.consumer_create
         update = oauth1_schema.consumer_update
+        authorize = oauth1_schema.request_token_authorize
         self.create_consumer_validator = validators.SchemaValidator(create)
         self.update_consumer_validator = validators.SchemaValidator(update)
+        self.authorize_request_token_validator = validators.SchemaValidator(
+            authorize)
 
     def test_validate_consumer_request_succeeds(self):
         """Test that we validate a consumer request successfully."""
@@ -2362,6 +2365,53 @@ class OAuth1ValidationTestCase(unit.BaseTestCase):
         request_to_validate = {'description': None}
         self.create_consumer_validator.validate(request_to_validate)
         self.update_consumer_validator.validate(request_to_validate)
+
+    def test_validate_authorize_request_token(self):
+        request_to_validate = [
+            {
+                "id": "711aa6371a6343a9a43e8a310fbe4a6f"
+            },
+            {
+                "name": "test_role"
+            }
+        ]
+
+        self.authorize_request_token_validator.validate(request_to_validate)
+
+    def test_validate_authorize_request_token_with_additional_properties(self):
+        request_to_validate = [
+            {
+                "id": "711aa6371a6343a9a43e8a310fbe4a6f",
+                "fake_key": "fake_value"
+            }
+        ]
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.authorize_request_token_validator.validate,
+                          request_to_validate)
+
+    def test_validate_authorize_request_token_with_id_and_name(self):
+        request_to_validate = [
+            {
+                "id": "711aa6371a6343a9a43e8a310fbe4a6f",
+                "name": "admin"
+            }
+        ]
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.authorize_request_token_validator.validate,
+                          request_to_validate)
+
+    def test_validate_authorize_request_token_with_non_id_or_name(self):
+        request_to_validate = [
+            {
+                "fake_key": "fake_value"
+            }
+        ]
+
+        self.assertRaises(exception.SchemaValidationError,
+                          self.authorize_request_token_validator.validate,
+                          request_to_validate)
 
 
 class PasswordValidationTestCase(unit.TestCase):

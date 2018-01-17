@@ -370,6 +370,16 @@ class OAuthControllerV3(controller.V3Controller):
 
         return response
 
+    def _normalize_role_list(self, authorize_roles):
+        roles = set()
+        for role in authorize_roles:
+            if role.get('id'):
+                roles.add(role['id'])
+            else:
+                roles.add(PROVIDERS.role_api.get_unique_role_by_name(
+                    role['name'])['id'])
+        return roles
+
     @controller.protected()
     def authorize_request_token(self, request, request_token_id, roles):
         """An authenticated user is going to authorize a request token.
@@ -379,6 +389,7 @@ class OAuthControllerV3(controller.V3Controller):
         there is not another easy way to make sure the user knows which roles
         are being requested before authorizing.
         """
+        validation.lazy_validate(schema.request_token_authorize, roles)
         if request.context.is_delegated_auth:
             raise exception.Forbidden(
                 _('Cannot authorize a request token'
@@ -394,10 +405,7 @@ class OAuthControllerV3(controller.V3Controller):
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
-        # put the roles in a set for easy comparison
-        authed_roles = set()
-        for role in roles:
-            authed_roles.add(role['id'])
+        authed_roles = self._normalize_role_list(roles)
 
         # verify the authorizing user has the roles
         user_token = authorization.get_token_ref(request.context_dict)

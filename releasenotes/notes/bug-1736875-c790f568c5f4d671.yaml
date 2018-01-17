@@ -1,0 +1,11 @@
+---
+fixes:
+  - >
+    [`bug 1736875 <https://bugs.launchpad.net/keystone/+bug/1736875>`_]
+    Add schema check to return a 400 status code instead of a 500 when
+    authorize a request token with non-id attributes in the `roles` parameter.
+other:
+  - >
+    Keystone now supports authorizing a request token by providing a role name.
+    A `role` in the `roles` parameter can include either a role name or role
+    id, but not both.

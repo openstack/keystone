@@ -35,7 +35,6 @@ from keystone.tests.unit.common import test_notifications
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -720,8 +719,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         body = {'roles': [{'id': self.role_id}]}
         self.put(url, body=body, expected_status=http_client.NOT_FOUND)
 
-    @test_utils.wip('Waiting on validation to be added from fixing bug '
-                    '1736875')
     def test_bad_request_body_when_authorize(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
@@ -872,7 +869,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         self.assertIn('Provided consumer key',
                       resp_data.get('error', {}).get('message'))
 
-    def test_bad_authorizing_roles(self):
+    def test_bad_authorizing_roles_id(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
         consumer_secret = consumer['secret']
@@ -889,6 +886,24 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             self.user_id, self.project_id, self.role_id)
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
+        self.admin_request(path=url, method='PUT',
+                           body=body, expected_status=http_client.NOT_FOUND)
+
+    def test_bad_authorizing_roles_name(self):
+        consumer = self._create_single_consumer()
+        consumer_id = consumer['id']
+        consumer_secret = consumer['secret']
+        consumer = {'key': consumer_id, 'secret': consumer_secret}
+
+        url, headers = self._create_request_token(consumer, self.project_id)
+        content = self.post(
+            url, headers=headers,
+            response_content_type='application/x-www-form-urlencoded')
+        credentials = _urllib_parse_qs_text_keys(content.result)
+        request_key = credentials['oauth_token'][0]
+
+        url = self._authorize_request_token(request_key)
+        body = {'roles': [{'name': 'fake_name'}]}
         self.admin_request(path=url, method='PUT',
                            body=body, expected_status=http_client.NOT_FOUND)
 
