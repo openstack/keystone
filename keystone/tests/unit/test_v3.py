@@ -1017,7 +1017,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                                               resource_url=None):
         entities = resp.result.get('role_assignments')
 
-        if expected_length:
+        if expected_length or expected_length == 0:
             self.assertEqual(expected_length, len(entities))
 
         # Collections should have relational links

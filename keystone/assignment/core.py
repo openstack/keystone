@@ -880,6 +880,14 @@ class Manager(manager.Manager):
                          'user_id': user_id,
                          'role_id': assignment['id']}
                     )
+            if group_id:
+                assignments = self.list_system_grants_for_group(group_id)
+                for assignment in assignments:
+                    system_assignments.append(
+                        {'system': {'all': True},
+                         'group_id': group_id,
+                         'role_id': assignment['id']}
+                    )
 
         assignments = []
         for assignment in itertools.chain(
@@ -1184,9 +1192,14 @@ class Manager(manager.Manager):
         """
         target_id = self._SYSTEM_SCOPE_TOKEN
         assignment_type = self._GROUP_SYSTEM
-        return self.driver.list_system_grants(
+        grants = self.driver.list_system_grants(
             group_id, target_id, assignment_type
         )
+        grant_ids = []
+        for grant in grants:
+            grant_ids.append(grant['role_id'])
+
+        return PROVIDERS.role_api.list_roles_from_ids(grant_ids)
 
     def create_system_grant_for_group(self, group_id, role_id):
         """Grant a group a role on the system.

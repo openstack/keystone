@@ -3100,7 +3100,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
 
 
-class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase):
+class SystemRoleAssignmentMixin(object):
 
     def _create_new_role(self):
         """Create a role available for use anywhere and return the ID."""
@@ -3110,11 +3110,15 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase):
         # return the ID of the role we just created.
         return response.json_body['role']['id']
 
-    # FIXME(lbragstad): These tests contain system-level API calls, which means
-    # they will log a warning message if they are called with a project-scoped
-    # token, regardless of the role assignment on the project.  We need to fix
-    # them by using a proper system-scoped admin token to make the call instead
-    # of a project scoped token.
+
+# FIXME(lbragstad): These tests contain system-level API calls, which means
+# they will log a warning message if they are called with a project-scoped
+# token, regardless of the role assignment on the project.  We need to fix
+# them by using a proper system-scoped admin token to make the call instead
+# of a project scoped token.
+class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
+                                       SystemRoleAssignmentMixin):
+
     def test_assign_system_role_to_user(self):
         system_role_id = self._create_new_role()
 
@@ -3392,3 +3396,283 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase):
             '&scope.project.id=%(project_id)s'
         ) % {'project_id': self.project_id}
         self.get(path, expected_status=http_client.BAD_REQUEST)
+
+
+# FIXME(lbragstad): These tests contain system-level API calls, which means
+# they will log a warning message if they are called with a project-scoped
+# token, regardless of the role assignment on the project.  We need to fix
+# them by using a proper system-scoped admin token to make the call instead
+# of a project scoped token.
+class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
+                                        SystemRoleAssignmentMixin):
+
+    def _create_group(self):
+        body = {
+            'group': {
+                'domain_id': self.domain_id,
+                'name': uuid.uuid4().hex
+            }
+        }
+        response = self.post('/groups/', body=body)
+        return response.json_body['group']
+
+    def test_assign_system_role_to_group(self):
+        system_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # assign the role to the group globally
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # validate the role assignment
+        self.head(member_url)
+
+        # list global roles
+        collection_url = '/system/groups/%(group_id)s/roles' % {
+            'group_id': group['id']
+        }
+        roles = self.get(collection_url).json_body['roles']
+        self.assertEqual(len(roles), 1)
+        self.assertEqual(roles[0]['id'], system_role_id)
+        self.head(collection_url, expected_status=http_client.OK)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=1)
+        self.assertEqual(
+            response.json_body['role_assignments'][0]['role']['id'],
+            system_role_id
+        )
+
+    def test_assign_system_role_to_non_existant_group_fails(self):
+        system_role_id = self._create_new_role()
+        group_id = uuid.uuid4().hex
+
+        # assign the role to the group globally
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group_id,
+            'role_id': system_role_id
+        }
+        self.put(member_url, expected_status=http_client.NOT_FOUND)
+
+    def test_list_role_assignments_for_group_returns_all_assignments(self):
+        system_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # assign the role to the group globally and on a single project
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+        member_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/'
+            'roles/%(role_id)s'
+        ) % {
+            'project_id': self.project_id,
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # make sure both assignments exist in the response, there should be two
+        response = self.get(
+            '/role_assignments?group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=2)
+
+    def test_list_system_roles_for_group_returns_none_without_assignment(self):
+        group = self._create_group()
+
+        # list global roles for group
+        collection_url = '/system/groups/%(group_id)s/roles' % {
+            'group_id': group['id']
+        }
+        response = self.get(collection_url)
+
+        # assert that the group doesn't have any system role assignments, which
+        # is denoted by an empty list
+        self.assertEqual(response.json_body['roles'], [])
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=0)
+
+    def test_list_system_roles_for_group_does_not_return_project_roles(self):
+        system_role_id = self._create_new_role()
+        project_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # assign the group a role on the system and a role on a project
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'], 'role_id': system_role_id
+        }
+        self.put(member_url)
+        member_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/'
+            'roles/%(role_id)s'
+        ) % {
+            'project_id': self.project_id,
+            'group_id': group['id'],
+            'role_id': project_role_id
+        }
+        self.put(member_url)
+
+        # list system role assignments
+        collection_url = '/system/groups/%(group_id)s/roles' % {
+            'group_id': group['id']
+        }
+        response = self.get(collection_url)
+
+        # assert the project role assignment is not in the system role
+        # assignments
+        for role in response.json_body['roles']:
+            self.assertNotEqual(role['id'], project_role_id)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=1)
+
+    def test_list_system_roles_for_group_does_not_return_domain_roles(self):
+        system_role_id = self._create_new_role()
+        domain_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # assign a role to the group on a domain
+        domain_member_url = (
+            '/domains/%(domain_id)s/groups/%(group_id)s/'
+            'roles/%(role_id)s' % {
+                'domain_id': group['domain_id'],
+                'group_id': group['id'],
+                'role_id': domain_role_id
+            }
+        )
+        self.put(domain_member_url)
+
+        # assign the group a role on the system
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # list domain role assignments
+        response = self.get(
+            '/domains/%(domain_id)s/groups/%(group_id)s/roles' % {
+                'domain_id': group['domain_id'], 'group_id': group['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['roles']), 1)
+
+        # list system role assignments
+        collection_url = '/system/groups/%(group_id)s/roles' % {
+            'group_id': group['id']
+        }
+        response = self.get(collection_url)
+
+        # assert the domain role assignment is not in the system role
+        # assignments
+        for role in response.json_body['roles']:
+            self.assertNotEqual(role['id'], domain_role_id)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=1)
+
+    def test_check_group_has_system_role_when_assignment_exists(self):
+        system_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # assign the group a role on the system
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # check the group has the system role assignment
+        self.head(member_url)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=1)
+        self.assertEqual(
+            response.json_body['role_assignments'][0]['role']['id'],
+            system_role_id
+        )
+
+    def test_check_group_does_not_have_system_role_without_assignment(self):
+        system_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # check the group does't have the system role assignment
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.head(member_url, expected_status=http_client.NOT_FOUND)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=0)
+
+    def test_unassign_system_role_from_group(self):
+        system_role_id = self._create_new_role()
+        group = self._create_group()
+
+        # assign the group a role on the system
+        member_url = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
+            'group_id': group['id'],
+            'role_id': system_role_id
+        }
+        self.put(member_url)
+
+        # ensure the group has the role assignment
+        self.head(member_url)
+
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertEqual(len(response.json_body['role_assignments']), 1)
+        self.assertValidRoleAssignmentListResponse(response)
+
+        # remove the system role assignment from the group
+        self.delete(member_url)
+
+        # ensure the group doesn't have any system role assignments
+        collection_url = '/system/groups/%(group_id)s/roles' % {
+            'group_id': group['id']
+        }
+        response = self.get(collection_url)
+        self.assertEqual(len(response.json_body['roles']), 0)
+        response = self.get(
+            '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
+                'group_id': group['id']
+            }
+        )
+        self.assertValidRoleAssignmentListResponse(response, expected_length=0)
