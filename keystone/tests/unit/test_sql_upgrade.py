@@ -2706,6 +2706,88 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         limit_table.insert().values(limit_without_region).execute()
 
+    def test_migration_034_adds_application_credential_table(self):
+        self.expand(33)
+        self.migrate(33)
+        self.contract(33)
+
+        application_credential_table_name = 'application_credential'
+        self.assertTableDoesNotExist(application_credential_table_name)
+        application_credential_role_table_name = 'application_credential_role'
+        self.assertTableDoesNotExist(application_credential_role_table_name)
+
+        self.expand(34)
+        self.migrate(34)
+        self.contract(34)
+
+        self.assertTableExists(application_credential_table_name)
+        self.assertTableColumns(
+            application_credential_table_name,
+            ['internal_id', 'id', 'name', 'secret_hash',
+             'description', 'user_id', 'project_id', 'expires_at',
+             'allow_application_credential_creation']
+        )
+        if self.engine.name == 'mysql':
+            self.assertTrue(self.does_index_exist(
+                'application_credential', 'duplicate_app_cred_constraint'))
+        else:
+            self.assertTrue(self.does_constraint_exist(
+                'application_credential', 'duplicate_app_cred_constraint'))
+        self.assertTableExists(application_credential_role_table_name)
+        self.assertTableColumns(
+            application_credential_role_table_name,
+            ['application_credential_id', 'role_id']
+        )
+
+        app_cred_table = sqlalchemy.Table(
+            application_credential_table_name, self.metadata, autoload=True
+        )
+        app_cred_role_table = sqlalchemy.Table(
+            application_credential_role_table_name,
+            self.metadata, autoload=True
+        )
+        self.assertTrue(self.does_fk_exist('application_credential_role',
+                                           'application_credential_id'))
+
+        expires_at = datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
+        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
+        expires_at_int = (expires_at - epoch).total_seconds()
+        app_cred = {
+            'internal_id': 1,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret_hash': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'user_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+            'expires_at': expires_at_int,
+            'allow_application_credential_creation': False
+        }
+        app_cred_table.insert().values(app_cred).execute()
+
+        # Exercise unique constraint
+        dup_app_cred = {
+            'internal_id': 2,
+            'id': uuid.uuid4().hex,
+            'name': app_cred['name'],
+            'secret_hash': uuid.uuid4().hex,
+            'user_id': app_cred['user_id'],
+            'project_id': uuid.uuid4().hex
+        }
+        insert = app_cred_table.insert().values(dup_app_cred)
+        self.assertRaises(db_exception.DBDuplicateEntry,
+                          insert.execute)
+
+        role_rel = {
+            'application_credential_id': app_cred['internal_id'],
+            'role_id': uuid.uuid4().hex
+        }
+        app_cred_role_table.insert().values(role_rel).execute()
+
+        # Exercise role table primary keys
+        insert = app_cred_role_table.insert().values(role_rel)
+        self.assertRaises(db_exception.DBDuplicateEntry, insert.execute)
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
