@@ -76,6 +76,16 @@ namespace. You do not need to set this unless you are overriding keystone's own
 `mapped` authentication plugin.
 """))
 
+application_credential = cfg.StrOpt(
+    'application_credential',
+    help=utils.fmt("""
+Entry point for the application_credential auth plugin module in the
+`keystone.auth.application_credential` namespace. You do not need to set this
+unless you are overriding keystone's own `application_credential`
+authentication plugin.
+"""))
+
+
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     methods,
@@ -84,6 +94,7 @@ ALL_OPTS = [
     external,
     oauth1,
     mapped,
+    application_credential,
 ]
 
 
