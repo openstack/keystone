@@ -10,8 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.application_credential.backends import sql as sql_driver
+from keystone.common import provider_api
 from keystone.common import sql
+from keystone.tests.unit.application_credential import test_backends
 from keystone.tests.unit.backend import core_sql
+from keystone.tests.unit.ksfixtures import database
+
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class SQLModelTestCase(core_sql.BaseBackendSqlModels):
@@ -30,3 +37,13 @@ class SQLModelTestCase(core_sql.BaseBackendSqlModels):
         cols = (('application_credential_id', sql.Integer, None),
                 ('role_id', sql.String, 64))
         self.assertExpectedSchema('application_credential_role', cols)
+
+
+class SQLDriverTestCase(core_sql.BaseBackendSqlTests,
+                        test_backends.ApplicationCredentialTests):
+    def setUp(self):
+        self.useFixture(database.Database())
+        self.driver = sql_driver.ApplicationCredential()
+        super(SQLDriverTestCase, self).setUp()
+
+        self.app_cred_api = PROVIDERS.application_credential_api

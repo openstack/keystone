@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone import application_credential
 from keystone import assignment
 from keystone import auth
 from keystone import catalog
@@ -39,7 +40,8 @@ def load_backends():
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
     cache.configure_invalidation_region()
 
-    managers = [assignment.Manager, catalog.Manager, credential.Manager,
+    managers = [application_credential.Manager, assignment.Manager,
+                catalog.Manager, credential.Manager,
                 credential.provider.Manager, resource.DomainConfigManager,
                 endpoint_policy.Manager, federation.Manager,
                 identity.generator.Manager, identity.MappingManager,
