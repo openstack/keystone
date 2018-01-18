@@ -1,0 +1,17 @@
+{
+    "roles": [
+        {
+            "domain_id": null,
+            "id": "6d550353899f4b0fbf3e410e1b6ddc05",
+            "links": {
+                "self": "http://example.com/identity/v3/roles/6d550353899f4b0fbf3e410e1b6ddc05"
+            },
+            "name": "admin"
+        }
+    ],
+    "links": {
+        "next": null,
+        "previous": null,
+        "self": "http://example.com/identity/v3/system/users/0b916f1b1e51455cb24b3a051520c576/roles"
+    }
+}

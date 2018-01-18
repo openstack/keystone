@@ -24,10 +24,10 @@ user on a project::
 
   PUT /v3/projects/{project_id}/users/{user_id}/roles/{role_id}
 
-You can also list roles assigned to a specified domain, project, or user using
-this form of API, however a more generalized API for list assignments is
-provided where query parameters are used to filter the set of assignments
-returned in the collection. For example:
+You can also list roles assigned to the system, or to a specified domain,
+project, or user using this form of API, however a more generalized API for
+list assignments is provided where query parameters are used to filter the set
+of assignments returned in the collection. For example:
 
 - List role assignments for the specified user::
 
@@ -36,6 +36,14 @@ returned in the collection. For example:
 - List role assignments for the specified project::
 
     GET /role_assignments?scope.project.id={project_id}
+
+- List system role assignments for a specific user::
+
+    GET /role_assignments?scope.system=all?user.id={user_id}
+
+Since Identity API v3.10, you can grant role assignments to users and groups on
+an entity called the ``system``. The role assignment API also supports listing
+and filtering role assignments on the system.
 
 Since Identity API v3.6, you can also list all role assignments within a tree of projects,
 for example the following would list all role assignments for a specified
@@ -51,15 +59,15 @@ Each role assignment entity in the collection contains a link to
 the assignment that created the entity.
 
 As mentioned earlier, role assignments can be made to a user or a group on a
-particular project or domain. A user who is a member of a group that has a
-role assignment, will also be treated as having that role assignment by virtue
-of their group membership. The *effective* role assignments of a user (on a
-given project or domain) therefore consists of any direct assignments they have,
-plus any they gain by virtue of membership of groups that also have assignments
-on the given project or domain. This set of effective role assignments is what
-is placed in the token for reference by services wishing to check policy. You
-can list the effective role assignments using the ``effective`` query parameter
-at the user, project, and domain level:
+particular project, domain, or the entire system. A user who is a member of a
+group that has a role assignment, will also be treated as having that role
+assignment by virtue of their group membership. The *effective* role
+assignments of a user (on a given project or domain) therefore consists of any
+direct assignments they have, plus any they gain by virtue of membership of
+groups that also have assignments on the given project or domain. This set of
+effective role assignments is what is placed in the token for reference by
+services wishing to check policy. You can list the effective role assignments
+using the ``effective`` query parameter at the user, project, and domain level:
 
 - Determine what a user can actually do::
 
@@ -1295,6 +1303,7 @@ Parameters
    - include_subtree: include_subtree_query
    - group.id: group_id_query
    - role.id: role_id_query
+   - scope.system: scope_system_query
    - scope.domain.id: scope_domain_id_query
    - scope.project.id: scope_project_id_query
    - user.id: user_id_query

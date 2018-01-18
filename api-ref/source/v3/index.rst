@@ -187,6 +187,7 @@ This page lists the Identity API operations in the following order:
 * `Project Tags`_
 * `Regions`_
 * `Roles`_
+* `System Role Assignments`_
 * `Service catalog and endpoints`_
 * `Users`_
 * `OS-INHERIT`_
@@ -206,5 +207,6 @@ This page lists the Identity API operations in the following order:
 .. include:: project-tags.inc
 .. include:: regions-v3.inc
 .. include:: roles.inc
+.. include:: system-roles.inc
 .. include:: service-catalog.inc
 .. include:: users.inc
