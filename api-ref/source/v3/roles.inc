@@ -41,6 +41,10 @@ of assignments returned in the collection. For example:
 
     GET /role_assignments?scope.system=all?user.id={user_id}
 
+- List system role assignments for all users and groups::
+
+    GET /role_assignments?scope.system=all
+
 Since Identity API v3.10, you can grant role assignments to users and groups on
 an entity called the ``system``. The role assignment API also supports listing
 and filtering role assignments on the system.
