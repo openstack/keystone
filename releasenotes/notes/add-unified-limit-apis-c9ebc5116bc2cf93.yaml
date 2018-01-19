@@ -1,0 +1,9 @@
+---
+features:
+  - >
+    [`blueprint unified-limit <https://blueprints.launchpad.net/keystone/+spec/unified-limit>`_]
+    Keystone now supports unified limits. Two resouces called ``registered
+    limit`` and ``limit`` are added and a batch of related APIs are supported
+    as well. These APIs are experimental now. It means that they are not stable
+    enough and may be changed without backward compatibility. Once unified
+    limit feature are ready for consuming, the APIs will be marked as stable.

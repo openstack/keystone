@@ -1,0 +1,12 @@
+{
+    "limits":[
+        {
+            "id": "25a04c7a065c430590881c646cdcdd58",
+            "resource_limit": 11
+        },
+        {
+            "id": "3229b3849f584faea483d6851f7aab05",
+            "resource_limit": 5
+        }
+    ]
+}

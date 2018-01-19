@@ -1,0 +1,29 @@
+{
+    "links": {
+        "self": "http://10.3.150.25/identity/v3/registered_limits",
+        "previous": null,
+        "next": null
+    },
+    "registered_limits": [
+        {
+            "resource_name": "snapshot",
+            "region_id": null,
+            "links": {
+                "self": "http://10.3.150.25/identity/v3/registered_limits/195acb8a093e43e9afb23d6628361e7c"
+            },
+            "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+            "default_limit": 10,
+            "id": "195acb8a093e43e9afb23d6628361e7c"
+        },
+        {
+            "resource_name": "volume",
+            "region_id": "RegionOne",
+            "links": {
+                "self": "http://10.3.150.25/identity/v3/registered_limits/ea7f74f15cba4c6db1406fe52532f98d"
+            },
+            "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+            "default_limit": 5,
+            "id": "ea7f74f15cba4c6db1406fe52532f98d"
+        }
+    ]
+}
