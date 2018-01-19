@@ -30,6 +30,7 @@ class SQLModelTestCase(core_sql.BaseBackendSqlModels):
                 ('description', sql.Text, None),
                 ('user_id', sql.String, 64),
                 ('project_id', sql.String, 64),
+                ('system', sql.String, 64),
                 ('expires_at', sql.DateTimeInt, None))
         self.assertExpectedSchema('application_credential', cols)
 
