@@ -150,7 +150,7 @@ will perform proper invalidations of the cached methods listed above.
 For more information about the different back ends (and configuration
 options), see:
 
-- `dogpile.cache.memory <https://dogpilecache.readthedocs.io/en/latest/api.html#memory-backend>`__
+- `dogpile.cache.memory <https://dogpilecache.readthedocs.io/en/latest/api.html#memory-backends>`__
 
 - `dogpile.cache.memcached <https://dogpilecache.readthedocs.io/en/latest/api.html#memcached-backends>`__
 

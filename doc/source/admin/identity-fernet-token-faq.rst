@@ -10,7 +10,7 @@ What is a fernet token?
 
 A fernet token is a bearer token that represents user authentication. Fernet
 tokens contain a limited amount of identity and authorization data in a
-`MessagePacked <http://msgpack.org/>`_ payload. The payload is then wrapped as
+`MessagePacked <https://msgpack.org/>`_ payload. The payload is then wrapped as
 a `Fernet <https://github.com/fernet/spec>`_ message for transport, where
 Fernet provides the required web safe characteristics for use in URLs and
 headers. The data inside a fernet token is protected using symmetric encryption
