@@ -42,23 +42,21 @@ The HTTP Date header returned in the response reflects the timestamp of the
 most recently issued revocation event. Clients can then use this value in the
 since query parameter to limit the list of events in subsequent requests.
 
-Normal response codes: 200
-
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
    - since: since_query
 
-Request Example
----------------
+Response
+--------
 
-.. literalinclude:: samples/OS-REVOKE/list-revoke-response.json
-   :language: javascript
-
-Response Parameters
--------------------
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: parameters.yaml
 
@@ -73,3 +71,16 @@ Response Parameters
    - OS-TRUST:trust_id: revoke_trust_id
    - OS-OAUTH1:consumer_id: revoke_consumer_id
    - expires_at: revoke_expires_at
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~
+
+.. literalinclude:: samples/OS-REVOKE/list-revoke-response.json
+   :language: javascript
