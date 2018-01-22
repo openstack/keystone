@@ -73,10 +73,9 @@ token types, ``UUID`` and ``fernet``.
 UUID tokens
 ~~~~~~~~~~~
 
-UUID was the first token type supported and is currently the default token
-provider. UUID tokens are 32 bytes in length and must be persisted in a back
-end. Clients must pass their UUID token to the Identity service in order to
-validate it.
+UUID was the first token type supported but was deprecated in Pike. UUID tokens
+are 32 bytes in length and must be persisted in a back end. Clients must pass
+their UUID token to the Identity service in order to validate it.
 
 As mentioned above, UUID tokens must be persisted. By default, keystone
 persists UUID tokens using a SQL backend. An unfortunate side-effect is that
@@ -98,13 +97,14 @@ We recommend invoking this command periodically using ``cron``.
 Fernet tokens
 ~~~~~~~~~~~~~
 
-The fernet token format was introduced in the OpenStack Kilo release. Unlike
-the other token types mentioned in this document, fernet tokens do not need to
-be persisted in a back end. ``AES256`` encryption is used to protect the
-information stored in the token and integrity is verified with a ``SHA256
-HMAC`` signature. Only the Identity service should have access to the keys used
-to encrypt and decrypt fernet tokens. Like UUID tokens, fernet tokens must be
-passed back to the Identity service in order to validate them. For more
-information on the fernet token type, see the :doc:`identity-fernet-token-faq`.
+The fernet token format was introduced in the OpenStack Kilo release and now
+is the default token provider in Keystone. Unlike the other token types
+mentioned in this document, fernet tokens do not need to be persisted in a back
+end. ``AES256`` encryption is used to protect the information stored in the
+token and integrity is verified with a ``SHA256 HMAC`` signature. Only the
+Identity service should have access to the keys used to encrypt and decrypt
+fernet tokens. Like UUID tokens, fernet tokens must be passed back to the
+Identity service in order to validate them. For more information on the fernet
+token type, see the :doc:`identity-fernet-token-faq`.
 
 .. support_matrix:: token-support-matrix.ini
