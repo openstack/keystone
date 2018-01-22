@@ -102,7 +102,8 @@ Using a shared secret
     ``keystone-manage bootstrap`` command and not the ``ADMIN_TOKEN``. The
     ``ADMIN_TOKEN`` can leave your deployment vulnerable by exposing
     administrator functionality through the API based solely on a single
-    secret.
+    secret. You shouldn't have to use ``ADMIN_TOKEN`` at all, unless you have
+    some special case bootstrapping requirements.
 
 
 Before you can use the identity API, you need to configure keystone with a
@@ -120,7 +121,5 @@ keystone that bootstrap the rest of the deployment.  You must create a project,
 user, and role in order to use normal user authentication through the API.
 
 The ``admin_token`` does not represent a user or explicit authorization of any
-kind. It is imperative that you disable the ``AdminTokenAuthMiddleware`` from
-your paste application pipelines after bootstrapping, especially in production
-deployments. Failure to remove this functionality exposes an additional attack
-vector and security risk.
+kind. After bootstrapping, failure to remove this functionality exposes an
+additional attack vector and security risk.
