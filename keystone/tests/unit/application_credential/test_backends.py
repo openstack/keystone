@@ -47,7 +47,7 @@ class ApplicationCredentialTests(object):
                 {'id': self.role__member_['id']},
             ],
             'secret': uuid.uuid4().hex,
-            'allow_application_credential_creation': False
+            'unrestricted': False
         }
         return app_cred_data
 
@@ -86,7 +86,7 @@ class ApplicationCredentialTests(object):
     def test_application_credential_allow_recursion(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
                                            project_id=self.tenant_bar['id'])
-        app_cred['allow_application_credential_creation'] = True
+        app_cred['unrestricted'] = True
         resp = self.app_cred_api.create_application_credential(app_cred)
         resp.pop('roles')
         app_cred.pop('roles')

@@ -2866,6 +2866,52 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         application_credential_table.insert().values(app_cred).execute()
 
+    def test_migration_036_rename_application_credentials_column(self):
+        self.expand(35)
+        self.migrate(35)
+        self.contract(35)
+
+        application_credential_table_name = 'application_credential'
+        application_credential_role_table_name = 'application_credential_role'
+
+        self.expand(36)
+        self.migrate(36)
+        self.contract(36)
+
+        self.assertTableColumns(
+            application_credential_table_name,
+            ['internal_id', 'id', 'name', 'secret_hash',
+             'description', 'user_id', 'project_id', 'system', 'expires_at',
+             'unrestricted']
+        )
+
+        application_credential_table = sqlalchemy.Table(
+            application_credential_table_name, self.metadata, autoload=True
+        )
+        app_cred_role_table = sqlalchemy.Table(
+            application_credential_role_table_name,
+            self.metadata, autoload=True
+        )
+
+        # Test that the new column works
+        app_cred = {
+            'internal_id': 1,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret_hash': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'user_id': uuid.uuid4().hex,
+            'system': uuid.uuid4().hex,
+            'expires_at': None,
+            'unrestricted': False
+        }
+        application_credential_table.insert().values(app_cred).execute()
+        role_rel = {
+            'application_credential_id': app_cred['internal_id'],
+            'role_id': uuid.uuid4().hex
+        }
+        app_cred_role_table.insert().values(role_rel).execute()
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture

@@ -27,7 +27,7 @@ class ApplicationCredentialModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'application_credential'
     attributes = ['internal_id', 'id', 'name', 'secret_hash', 'description',
                   'user_id', 'project_id', 'system', 'expires_at',
-                  'allow_application_credential_creation']
+                  'unrestricted']
     internal_id = sql.Column(sql.Integer, primary_key=True, nullable=False)
     id = sql.Column(sql.String(64), nullable=False)
     name = sql.Column(sql.String(255), nullable=False)
@@ -37,7 +37,7 @@ class ApplicationCredentialModel(sql.ModelBase, sql.ModelDictMixin):
     project_id = sql.Column(sql.String(64), nullable=True)
     system = sql.Column(sql.String(64), nullable=True)
     expires_at = sql.Column(sql.DateTimeInt())
-    allow_application_credential_creation = sql.Column(sql.Boolean)
+    unrestricted = sql.Column(sql.Boolean)
     __table_args__ = (sql.UniqueConstraint('name', 'user_id',
                       name='duplicate_app_cred_constraint'),)
 
