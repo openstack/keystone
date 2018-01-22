@@ -378,7 +378,7 @@ class DomainSpecificRoleNotWithinIdPDomain(Forbidden):
 class RoleAssignmentNotFound(NotFound):
     message_format = _("Could not find role assignment with role: "
                        "%(role_id)s, user or group: %(actor_id)s, "
-                       "project or domain: %(target_id)s.")
+                       "project, domain, or system: %(target_id)s.")
 
 
 class RegionNotFound(NotFound):
