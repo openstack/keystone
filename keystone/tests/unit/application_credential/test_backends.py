@@ -25,18 +25,23 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class ApplicationCredentialTests(object):
 
-    def _new_app_cred_data(self, user_id, project_id, name=None,
-                           expires=None):
+    def _new_app_cred_data(self, user_id, project_id=None, name=None,
+                           expires=None, system=None):
         if not name:
             name = uuid.uuid4().hex
         if not expires:
             expires = datetime.datetime.utcnow() + datetime.timedelta(days=365)
+        if not system:
+            system = uuid.uuid4().hex
+        if not project_id:
+            project_id = uuid.uuid4().hex
         app_cred_data = {
             'id': uuid.uuid4().hex,
             'name': name,
             'description': uuid.uuid4().hex,
             'user_id': user_id,
             'project_id': project_id,
+            'system': system,
             'expires_at': expires,
             'roles': [
                 {'id': self.role__member_['id']},
@@ -48,7 +53,7 @@ class ApplicationCredentialTests(object):
 
     def test_create_application_credential(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         resp = self.app_cred_api.create_application_credential(app_cred)
         resp_roles = resp.pop('roles')
         orig_roles = app_cred.pop('roles')
@@ -59,11 +64,11 @@ class ApplicationCredentialTests(object):
         # Ensure a user can't create two application credentials with the same
         # name
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         name = app_cred['name']
         self.app_cred_api.create_application_credential(app_cred)
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'],
+                                           project_id=self.tenant_bar['id'],
                                            name=name)
         self.assertRaises(exception.Conflict,
                           self.app_cred_api.create_application_credential,
@@ -73,14 +78,14 @@ class ApplicationCredentialTests(object):
         # Ensure a user can't create an application credential for a project
         # they don't have a role assignment on
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_baz['id'])
+                                           project_id=self.tenant_baz['id'])
         self.assertRaises(exception.RoleAssignmentNotFound,
                           self.app_cred_api.create_application_credential,
                           app_cred)
 
     def test_application_credential_allow_recursion(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         app_cred['allow_application_credential_creation'] = True
         resp = self.app_cred_api.create_application_credential(app_cred)
         resp.pop('roles')
@@ -89,7 +94,7 @@ class ApplicationCredentialTests(object):
 
     def test_get_application_credential(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         create_resp = self.app_cred_api.create_application_credential(app_cred)
         app_cred_id = create_resp['id']
         get_resp = self.app_cred_api.get_application_credential(app_cred_id)
@@ -103,13 +108,13 @@ class ApplicationCredentialTests(object):
 
     def test_list_application_credentials(self):
         app_cred_1 = self._new_app_cred_data(self.user_foo['id'],
-                                             self.tenant_bar['id'],
+                                             project_id=self.tenant_bar['id'],
                                              name='app1')
         app_cred_2 = self._new_app_cred_data(self.user_foo['id'],
-                                             self.tenant_bar['id'],
+                                             project_id=self.tenant_bar['id'],
                                              name='app2')
         app_cred_3 = self._new_app_cred_data(self.user_two['id'],
-                                             self.tenant_baz['id'],
+                                             project_id=self.tenant_baz['id'],
                                              name='app3')
         resp1 = self.app_cred_api.create_application_credential(app_cred_1)
         resp2 = self.app_cred_api.create_application_credential(app_cred_2)
@@ -132,7 +137,7 @@ class ApplicationCredentialTests(object):
 
     def test_delete_application_credential(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         self.app_cred_api.create_application_credential(app_cred)
         self.assertIn(app_cred['id'], self._list_ids(self.user_foo))
         self.app_cred_api.delete_application_credential(app_cred['id'])
@@ -145,10 +150,10 @@ class ApplicationCredentialTests(object):
 
     def test_deleting_a_user_deletes_application_credentials(self):
         app_cred_1 = self._new_app_cred_data(self.user_foo['id'],
-                                             self.tenant_bar['id'],
+                                             project_id=self.tenant_bar['id'],
                                              name='app1')
         app_cred_2 = self._new_app_cred_data(self.user_foo['id'],
-                                             self.tenant_bar['id'],
+                                             project_id=self.tenant_bar['id'],
                                              name='app2')
         self.app_cred_api.create_application_credential(app_cred_1)
         self.app_cred_api.create_application_credential(app_cred_2)
@@ -165,11 +170,11 @@ class ApplicationCredentialTests(object):
 
     def test_removing_user_from_project_deletes_application_credentials(self):
         app_cred_proj_A_1 = self._new_app_cred_data(
-            self.user_foo['id'], self.tenant_bar['id'], name='app1')
+            self.user_foo['id'], project_id=self.tenant_bar['id'], name='app1')
         app_cred_proj_A_2 = self._new_app_cred_data(
-            self.user_foo['id'], self.tenant_bar['id'], name='app2')
+            self.user_foo['id'], project_id=self.tenant_bar['id'], name='app2')
         app_cred_proj_B = self._new_app_cred_data(
-            self.user_foo['id'], self.tenant_baz['id'], name='app3')
+            self.user_foo['id'], project_id=self.tenant_baz['id'], name='app3')
         PROVIDERS.assignment_api.add_role_to_user_and_project(
             tenant_id=self.tenant_baz['id'],
             user_id=self.user_foo['id'],
@@ -195,7 +200,7 @@ class ApplicationCredentialTests(object):
 
     def test_authenticate(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         resp = self.app_cred_api.create_application_credential(app_cred)
         self.app_cred_api.authenticate(
             self.make_request(), resp['id'], resp['secret'])
@@ -210,7 +215,7 @@ class ApplicationCredentialTests(object):
     def test_authenticate_expired(self):
         yesterday = datetime.datetime.utcnow() - datetime.timedelta(days=1)
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'],
+                                           project_id=self.tenant_bar['id'],
                                            expires=yesterday)
         resp = self.app_cred_api.create_application_credential(app_cred)
         self.assertRaises(AssertionError,
@@ -221,7 +226,7 @@ class ApplicationCredentialTests(object):
 
     def test_authenticate_bad_secret(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           self.tenant_bar['id'])
+                                           project_id=self.tenant_bar['id'])
         resp = self.app_cred_api.create_application_credential(app_cred)
         badpass = 'badpass'
         self.assertNotEqual(badpass, resp['secret'])

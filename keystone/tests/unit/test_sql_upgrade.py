@@ -2788,6 +2788,84 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         insert = app_cred_role_table.insert().values(role_rel)
         self.assertRaises(db_exception.DBDuplicateEntry, insert.execute)
 
+    def test_migration_035_add_system_column_to_credential_table(self):
+        self.expand(34)
+        self.migrate(34)
+        self.contract(34)
+
+        application_credential_table_name = 'application_credential'
+        self.assertTableExists(application_credential_table_name)
+        self.assertTableColumns(
+            application_credential_table_name,
+            ['internal_id', 'id', 'name', 'secret_hash',
+             'description', 'user_id', 'project_id', 'expires_at',
+             'allow_application_credential_creation']
+        )
+
+        self.expand(35)
+        self.migrate(35)
+        self.contract(35)
+
+        self.assertTableColumns(
+            application_credential_table_name,
+            ['internal_id', 'id', 'name', 'secret_hash',
+             'description', 'user_id', 'project_id', 'system', 'expires_at',
+             'allow_application_credential_creation']
+        )
+
+        application_credential_table = sqlalchemy.Table(
+            application_credential_table_name, self.metadata, autoload=True
+        )
+
+        # Test that we can insert an application credential without project_id
+        # defined.
+        expires_at = datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
+        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
+        expires_at_int = (expires_at - epoch).total_seconds()
+        app_cred = {
+            'internal_id': 1,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret_hash': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'user_id': uuid.uuid4().hex,
+            'system': uuid.uuid4().hex,
+            'expires_at': expires_at_int,
+            'allow_application_credential_creation': False
+        }
+        application_credential_table.insert().values(app_cred).execute()
+
+        # Test that we can insert an application credential with a project_id
+        # and without system defined.
+        app_cred = {
+            'internal_id': 2,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret_hash': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'user_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+            'expires_at': expires_at_int,
+            'allow_application_credential_creation': False
+        }
+        application_credential_table.insert().values(app_cred).execute()
+
+        # Test that we can create an application credential without a project
+        # or a system defined. Technically, project_id and system should be
+        # mutually exclusive, which will be handled by the application and not
+        # the data layer.
+        app_cred = {
+            'internal_id': 3,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret_hash': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'user_id': uuid.uuid4().hex,
+            'expires_at': expires_at_int,
+            'allow_application_credential_creation': False
+        }
+        application_credential_table.insert().values(app_cred).execute()
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
