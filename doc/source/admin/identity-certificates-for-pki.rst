@@ -7,8 +7,7 @@ cryptographically signed using the X509 standard. In order to work
 correctly token generation requires a public/private key pair. The
 public key must be signed in an X509 certificate, and the certificate
 used to sign it must be available as a Certificate Authority (CA)
-certificate. These files can be generated either using the
-:command:`keystone-manage` utility, or externally generated. The files need to
+certificate. These files should be externally generated. The files need to
 be in the locations specified by the top level Identity service
 configuration file ``/etc/keystone/keystone.conf`` as specified in the
 above section. Additionally, the private key should only be readable by
@@ -19,11 +18,7 @@ the system user that will run the Identity service.
 
    The certificates can be world readable, but the private key cannot
    be. The private key should only be readable by the account that is
-   going to sign tokens. When generating files with the
-   :command:`keystone-manage pki_setup` command, your best option is to run
-   as the pki user. If you run :command:`keystone-manage` as root, you can
-   append ``--keystone-user`` and ``--keystone-group`` parameters
-   to set the user name and group keystone is going to run under.
+   going to sign tokens.
 
 The values that specify where to read the certificates are under the
 ``[signing]`` section of the configuration file. The configuration
@@ -56,54 +51,20 @@ values are:
     Certificate subject (auto generated certificate) for token signing.
     Default is ``/C=US/ST=Unset/L=Unset/O=Unset/CN=www.example.com``.
 
-When generating certificates with the :command:`keystone-manage pki_setup`
-command, the ``ca_key``, ``key_size``, and ``valid_days`` configuration
-options are used.
+.. warning::
 
-If the :command:`keystone-manage pki_setup` command is not used to generate
-certificates, or you are providing your own certificates, these values
-do not need to be set.
-
-If ``provider=keystone.token.providers.uuid.Provider`` in the
-``[token]`` section of the keystone configuration file, a typical token
-looks like ``53f7f6ef0cc344b5be706bcc8b1479e1``. If
-``provider=keystone.token.providers.pki.Provider``, a typical token is a
-much longer string, such as::
-
-    MIIKtgYJKoZIhvcNAQcCoIIKpzCCCqMCAQExCTAHBgUrDgMCGjCCCY8GCSqGSIb3DQEHAaCCCYAEggl8eyJhY2Nlc3MiOiB7InRva2VuIjogeyJpc3N1ZWRfYXQiOiAiMjAxMy0wNS0z
-    MFQxNTo1MjowNi43MzMxOTgiLCAiZXhwaXJlcyI6ICIyMDEzLTA1LTMxVDE1OjUyOjA2WiIsICJpZCI6ICJwbGFjZWhvbGRlciIsICJ0ZW5hbnQiOiB7ImRlc2NyaXB0aW9uIjogbnVs
-    bCwgImVuYWJsZWQiOiB0cnVlLCAiaWQiOiAiYzJjNTliNGQzZDI4NGQ4ZmEwOWYxNjljYjE4MDBlMDYiLCAibmFtZSI6ICJkZW1vIn19LCAic2VydmljZUNhdGFsb2ciOiBbeyJlbmRw
-    b2ludHMiOiBbeyJhZG1pblVSTCI6ICJodHRwOi8vMTkyLjE2OC4yNy4xMDA6ODc3NC92Mi9jMmM1OWI0ZDNkMjg0ZDhmYTA5ZjE2OWNiMTgwMGUwNiIsICJyZWdpb24iOiAiUmVnaW9u
-    T25lIiwgImludGVybmFsVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3LjEwMDo4Nzc0L3YyL2MyYzU5YjRkM2QyODRkOGZhMDlmMTY5Y2IxODAwZTA2IiwgImlkIjogIjFmYjMzYmM5M2Y5
-    ODRhNGNhZTk3MmViNzcwOTgzZTJlIiwgInB1YmxpY1VSTCI6ICJodHRwOi8vMTkyLjE2OC4yNy4xMDA6ODc3NC92Mi9jMmM1OWI0ZDNkMjg0ZDhmYTA5ZjE2OWNiMTgwMGUwNiJ9XSwg
-    ImVuZHBvaW50c19saW5rcyI6IFtdLCAidHlwZSI6ICJjb21wdXRlIiwgIm5hbWUiOiAibm92YSJ9LCB7ImVuZHBvaW50cyI6IFt7ImFkbWluVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3
-    LjEwMDozMzMzIiwgInJlZ2lvbiI6ICJSZWdpb25PbmUiLCAiaW50ZXJuYWxVUkwiOiAiaHR0cDovLzE5Mi4xNjguMjcuMTAwOjMzMzMiLCAiaWQiOiAiN2JjMThjYzk1NWFiNDNkYjhm
-    MGU2YWNlNDU4NjZmMzAiLCAicHVibGljVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3LjEwMDozMzMzIn1dLCAiZW5kcG9pbnRzX2xpbmtzIjogW10sICJ0eXBlIjogInMzIiwgIm5hbWUi
-    OiAiczMifSwgeyJlbmRwb2ludHMiOiBbeyJhZG1pblVSTCI6ICJodHRwOi8vMTkyLjE2OC4yNy4xMDA6OTI5MiIsICJyZWdpb24iOiAiUmVnaW9uT25lIiwgImludGVybmFsVVJMIjog
-    Imh0dHA6Ly8xOTIuMTY4LjI3LjEwMDo5MjkyIiwgImlkIjogIjczODQzNTJhNTQ0MjQ1NzVhM2NkOTVkN2E0YzNjZGY1IiwgInB1YmxpY1VSTCI6ICJodHRwOi8vMTkyLjE2OC4yNy4x
-    MDA6OTI5MiJ9XSwgImVuZHBvaW50c19saW5rcyI6IFtdLCAidHlwZSI6ICJpbWFnZSIsICJuYW1lIjogImdsYW5jZSJ9LCB7ImVuZHBvaW50cyI6IFt7ImFkbWluVVJMIjogImh0dHA6
-    Ly8xOTIuMTY4LjI3LjEwMDo4Nzc2L3YxL2MyYzU5YjRkM2QyODRkOGZhMDlmMTY5Y2IxODAwZTA2IiwgInJlZ2lvbiI6ICJSZWdpb25PbmUiLCAiaW50ZXJuYWxVUkwiOiAiaHR0cDov
-    LzE5Mi4xNjguMjcuMTAwOjg3NzYvdjEvYzJjNTliNGQzZDI4NGQ4ZmEwOWYxNjljYjE4MDBlMDYiLCAiaWQiOiAiMzQ3ZWQ2ZThjMjkxNGU1MGFlMmJiNjA2YWQxNDdjNTQiLCAicHVi
-    bGljVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3LjEwMDo4Nzc2L3YxL2MyYzU5YjRkM2QyODRkOGZhMDlmMTY5Y2IxODAwZTA2In1dLCAiZW5kcG9pbnRzX2xpbmtzIjogW10sICJ0eXBl
-    IjogInZvbHVtZSIsICJuYW1lIjogImNpbmRlciJ9LCB7ImVuZHBvaW50cyI6IFt7ImFkbWluVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3LjEwMDo4NzczL3NlcnZpY2VzL0FkbWluIiwg
-    InJlZ2lvbiI6ICJSZWdpb25PbmUiLCAiaW50ZXJuYWxVUkwiOiAiaHR0cDovLzE5Mi4xNjguMjcuMTAwOjg3NzMvc2VydmljZXMvQ2xvdWQiLCAiaWQiOiAiMmIwZGMyYjNlY2U4NGJj
-    YWE1NDAzMDMzNzI5YzY3MjIiLCAicHVibGljVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3LjEwMDo4NzczL3NlcnZpY2VzL0Nsb3VkIn1dLCAiZW5kcG9pbnRzX2xpbmtzIjogW10sICJ0
-    eXBlIjogImVjMiIsICJuYW1lIjogImVjMiJ9LCB7ImVuZHBvaW50cyI6IFt7ImFkbWluVVJMIjogImh0dHA6Ly8xOTIuMTY4LjI3LjEwMDozNTM1Ny92Mi4wIiwgInJlZ2lvbiI6ICJS
-    ZWdpb25PbmUiLCAiaW50ZXJuYWxVUkwiOiAiaHR0cDovLzE5Mi4xNjguMjcuMTAwOjUwMDAvdjIuMCIsICJpZCI6ICJiNTY2Y2JlZjA2NjQ0ZmY2OWMyOTMxNzY2Yjc5MTIyOSIsICJw
-    dWJsaWNVUkwiOiAiaHR0cDovLzE5Mi4xNjguMjcuMTAwOjUwMDAvdjIuMCJ9XSwgImVuZHBvaW50c19saW5rcyI6IFtdLCAidHlwZSI6ICJpZGVudGl0eSIsICJuYW1lIjogImtleXN0
-    b25lIn1dLCAidXNlciI6IHsidXNlcm5hbWUiOiAiZGVtbyIsICJyb2xlc19saW5rcyI6IFtdLCAiaWQiOiAiZTVhMTM3NGE4YTRmNDI4NWIzYWQ3MzQ1MWU2MDY4YjEiLCAicm9sZXMi
-    OiBbeyJuYW1lIjogImFub3RoZXJyb2xlIn0sIHsibmFtZSI6ICJNZW1iZXIifV0sICJuYW1lIjogImRlbW8ifSwgIm1ldGFkYXRhIjogeyJpc19hZG1pbiI6IDAsICJyb2xlcyI6IFsi
-    YWRiODM3NDVkYzQzNGJhMzk5ODllNjBjOTIzYWZhMjgiLCAiMzM2ZTFiNjE1N2Y3NGFmZGJhNWUwYTYwMWUwNjM5MmYiXX19fTGB-zCB-AIBATBcMFcxCzAJBgNVBAYTAlVTMQ4wDAYD
-    VQQIEwVVbnNldDEOMAwGA1UEBxMFVW5zZXQxDjAMBgNVBAoTBVVuc2V0MRgwFgYDVQQDEw93d3cuZXhhbXBsZS5jb20CAQEwBwYFKw4DAhowDQYJKoZIhvcNAQEBBQAEgYCAHLpsEs2R
-    nouriuiCgFayIqCssK3SVdhOMINiuJtqv0sE-wBDFiEj-Prcudqlz-n+6q7VgV4mwMPszz39-rwp+P5l4AjrJasUm7FrO-4l02tPLaaZXU1gBQ1jUG5e5aL5jPDP08HbCWuX6wr-QQQB
-    SrWY8lF3HrTcJT23sZIleg==
+   Keystone utilities do not support to ability to generate certificates from
+   Pike, and the related command :command:`keystone-manage pki_setup` has been
+   removed as well. So most of the configuration options above are useless now.
+   To keep backwards compatibility, they are still supported in Keystone
+   server. Only ``certfile`` and ``keyfile`` are used to get revocation list
+   (GET, HEAD /v3/auth/tokens/OS-PKI/revoked). And ``ca_certs`` is for get or
+   list CA certificate (GET, HEAD /v3/OS-SIMPLE-CERT/).
 
 Sign certificate issued by external CA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can use a signing certificate issued by an external CA instead of
-generated by :command:`keystone-manage`. However, a certificate issued by an
-external CA must satisfy the following conditions:
+A certificate issued by an external CA must satisfy the following conditions:
 
 - All certificate and key files must be in Privacy Enhanced Mail (PEM)
   format
