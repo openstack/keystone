@@ -18,13 +18,14 @@ def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
 
+    table = sql.Table(
+        'application_credential', meta, autoload=True
+    )
     # MySQL and PostgreSQL can handle a column rename.
     # Only Sqlite is special. Since Sqlite can't support an online upgrade
     # anyway, just brute-force the migration by copying the table.
     if migrate_engine.name == 'sqlite':
-        old_table = sql.Table(
-            'application_credential', meta, autoload=True
-        )
+        old_table = table
 
         args = []
         for column in old_table.columns:
@@ -38,3 +39,6 @@ def upgrade(migrate_engine):
         new_table = sql.Table('application_credential_temp',
                               old_table.metadata, *args)
         new_table.create(migrate_engine, checkfirst=True)
+    else:
+        unrestricted = sql.Column('unrestricted', sql.Boolean())
+        table.create_column(unrestricted)

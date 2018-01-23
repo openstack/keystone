@@ -28,5 +28,13 @@ def upgrade(migrate_engine):
         new_table.rename('application_credential')
     else:
         table = application_credential_table
+        # NOTE(cmurphy) because of lb#1744948, some deployments could already
+        # have made it past the expand step and be stuck on the contract step.
+        # If necessary, do the expand step here.
+        # At this point this API is not yet exposed and there should be no data
+        # in this table.
+        if 'unrestricted' not in table.columns:
+            unrestricted = sql.Column('unrestricted', sql.Boolean())
+            table.create_column(unrestricted)
         column = table.c.allow_application_credential_creation
-        column.alter(name='unrestricted')
+        column.drop()
