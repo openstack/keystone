@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The token_formatter utility class has been moved from under fernet
+    to the default token directory. This is to allow for the reuse of
+    functionality with other token providers. Any deployments that are
+    specifically using the fernet utils may be affected and will need
+    to adjust accordingly.

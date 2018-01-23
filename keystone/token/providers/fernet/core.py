@@ -18,7 +18,7 @@ import keystone.conf
 from keystone.federation import constants as federation_constants
 from keystone.i18n import _
 from keystone.token.providers import common
-from keystone.token.providers.fernet import token_formatters as tf
+from keystone.token import token_formatters as tf
 
 
 CONF = keystone.conf.CONF

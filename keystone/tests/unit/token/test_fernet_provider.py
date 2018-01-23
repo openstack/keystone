@@ -31,7 +31,7 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.token.providers import common
 from keystone.token.providers import fernet
-from keystone.token.providers.fernet import token_formatters
+from keystone.token import token_formatters
 
 
 CONF = keystone.conf.CONF
