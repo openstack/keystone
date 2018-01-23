@@ -22,7 +22,7 @@ Definitions
   the User, and exchanged with an OAuth Verifier for an Access Token.
 
 - *Access Token:* A token used by the Consumer to request new Identity API
-  tokens on behalf of the authorizing User, instead of using the User’s
+  tokens on behalf of the authorizing User, instead of using the User's
   credentials.
 
 - *Token Key:* A key used by the token to identify itself. Both Request Tokens

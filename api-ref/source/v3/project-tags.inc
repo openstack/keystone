@@ -13,7 +13,7 @@ Tags for projects have the following restrictions:
 .. Note::
 
    - Tags are case sensitive
-   - Forward Slash ‘/’ is not allowed to be in a tag name
+   - Forward Slash '/' is not allowed to be in a tag name
    - Commas ',' are not allowed to be in a tag name in order
      to simplify requests that specify lists of tags
    - Each project can have a maximum of 80 tags

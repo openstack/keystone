@@ -168,7 +168,7 @@ impersonation:
     If set to `true`, then the user attribute of tokens generated based on the
     trust will represent that of the ``trustor`` rather than the ``trustee``,
     thus allowing the ``trustee`` to impersonate the ``trustor``. If impersonation
-    is set to `false`, then the token’s user attribute will represent that of the
+    is set to `false`, then the token's user attribute will represent that of the
     ``trustee``.
   in: body
   required: true
@@ -492,12 +492,12 @@ trust_project_id:
   type: string
 trust_roles:
   description: |
-    Specifies the subset of the trustor’s roles on the ``project_id`` to be granted
+    Specifies the subset of the trustor's roles on the ``project_id`` to be granted
     to the ``trustee`` when the token is consumed. The ``trustor`` must already be
     granted these roles in the project referenced by the ``project_id`` attribute.
     If redelegation is used (when trust-scoped token is used and consumed trust has
     ``allow_redelegation`` set to `true`) this parameter should contain redelegated
-    trust’s roles only.
+    trust's roles only.
 
     Roles are only provided when the trust is created, and are subsequently available
     as a separate read-only collection. Each role can be specified by either ``id`` or
@@ -513,7 +513,7 @@ trustee_user_id:
   type: string
 trustor_user_id:
   description: |
-    Represents the user who created the trust, and who’s authorization is being delegated.
+    Represents the user who created the trust, and who's authorization is being delegated.
   in: body
   required: true
   type: string

@@ -12,14 +12,14 @@ API Resources
 Trusts
 ------
 
-A trust represents a user’s (the `trustor`) authorization to delegate
+A trust represents a user's (the `trustor`) authorization to delegate
 roles to another user (the `trustee`), and optionally allow the trustee
 to impersonate the trustor. After the trustor has created a trust, the
-trustee can specify the trust’s id attribute as part of an authentication
+trustee can specify the trust's id attribute as part of an authentication
 request to then create a token representing the delegated authority of the trustor.
 
 The trust contains constraints on the delegated attributes. A token created
-based on a trust will convey a subset of the trustor’s roles on the specified
+based on a trust will convey a subset of the trustor's roles on the specified
 project. Optionally, the trust may only be valid for a specified time period,
 as defined by ``expires_at``. If no ``expires_at`` is specified, then the trust is
 valid until it is explicitly revoked.
@@ -56,11 +56,11 @@ Consuming a trust
 Consuming a trust effectively assumes the scope as delegated in the trust. No
 other scope attributes may be specified.
 
-The user specified by authentication must match the trust’s ``trustee_user_id``
+The user specified by authentication must match the trust's ``trustee_user_id``
 attribute.
 
 If the trust has the ``impersonation`` attribute set to `true`, then the resulting
-token’s user attribute will also represent the trustor, rather than the
+token's user attribute will also represent the trustor, rather than the
 authenticating user (the trustee).
 
 Request Example
