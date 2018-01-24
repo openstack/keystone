@@ -18,30 +18,35 @@ domain_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain',
         check_str=base.RULE_ADMIN_OR_TARGET_DOMAIN,
+        scope_types=['system'],
         description='Show domain details.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domains',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List domains.',
         operations=[{'path': '/v3/domains',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Create domain.',
         operations=[{'path': '/v3/domains',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'DELETE'}])
