@@ -163,6 +163,7 @@ class Provider(common.BaseProvider):
         expires_at = token_data['token']['expires_at']
         audit_ids = token_data['token']['audit_ids']
         methods = token_data['token'].get('methods')
+        system = token_data['token'].get('system', {}).get('all', None)
         domain_id = token_data['token'].get('domain', {}).get('id')
         project_id = token_data['token'].get('project', {}).get('id')
         trust_id = token_data['token'].get('OS-TRUST:trust', {}).get('id')
@@ -175,6 +176,7 @@ class Provider(common.BaseProvider):
             expires_at,
             audit_ids,
             methods=methods,
+            system=system,
             domain_id=domain_id,
             project_id=project_id,
             trust_id=trust_id,
