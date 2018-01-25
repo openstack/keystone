@@ -31,12 +31,6 @@ UUID
  ``[token] driver`` option), but do not require any extra configuration
  or setup.
 
-PKI and PKIZ
- ``pki`` and ``pkiz`` tokens can be validated offline, without making HTTP
- calls to keystone. However, this format requires that certificates be
- installed and distributed to facilitate signing tokens and later validating
- those signatures.
-
 Fernet
  ``fernet`` tokens do not need to be persisted at all, but require that you run
  ``keystone-manage fernet_setup`` (also see the
@@ -44,6 +38,6 @@ Fernet
 
 .. warning::
 
-    UUID, PKI, PKIZ, and Fernet tokens are all bearer tokens. They
+    UUID and Fernet tokens are both bearer tokens. They
     must be protected from unnecessary disclosure to prevent unauthorized
     access.
