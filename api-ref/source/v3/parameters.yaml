@@ -1277,6 +1277,13 @@ project_parent_id_response_body:
   required: true
   type: string
   min_version: 3.4
+project_tags_request_body:
+  description: |
+    A list of simple strings assigned to a project.
+    Tags can be used to classify projects into groups.
+  in: body
+  required: false
+  type: array
 projects:
   description: |
     A list of ``project`` objects, each containing:
