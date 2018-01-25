@@ -196,12 +196,14 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(_('Failed to validate token'))
 
     def issue_token(self, user_id, method_names, expires_at=None,
-                    project_id=None, is_domain=False, domain_id=None,
-                    auth_context=None, trust=None, include_catalog=True,
-                    parent_audit_id=None):
+                    system=None, project_id=None, is_domain=False,
+                    domain_id=None, auth_context=None, trust=None,
+                    include_catalog=True, parent_audit_id=None):
         token_id, token_data = self.driver.issue_token(
-            user_id, method_names, expires_at, project_id, domain_id,
-            auth_context, trust, include_catalog, parent_audit_id)
+            user_id, method_names, expires_at=expires_at,
+            system=system, project_id=project_id,
+            domain_id=domain_id, auth_context=auth_context, trust=trust,
+            include_catalog=include_catalog, parent_audit_id=parent_audit_id)
 
         if self._needs_persistence:
             data = dict(key=token_id,

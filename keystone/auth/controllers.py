@@ -137,8 +137,10 @@ class Auth(controller.V3Controller):
 
             is_domain = auth_context.get('is_domain')
             (token_id, token_data) = self.token_provider_api.issue_token(
-                auth_context['user_id'], method_names, expires_at, project_id,
-                is_domain, domain_id, auth_context, trust, include_catalog,
+                auth_context['user_id'], method_names, expires_at=expires_at,
+                project_id=project_id, is_domain=is_domain,
+                domain_id=domain_id, auth_context=auth_context, trust=trust,
+                include_catalog=include_catalog,
                 parent_audit_id=token_audit_id)
 
             # NOTE(wanghong): We consume a trust use only when we are using

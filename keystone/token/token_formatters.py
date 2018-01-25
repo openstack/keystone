@@ -199,8 +199,9 @@ class TokenFormatter(object):
         expires_at = timeutils.parse_isotime(expires_at)
         expires_at = ks_utils.isotime(at=expires_at, subsecond=True)
 
-        return (user_id, methods, audit_ids, domain_id, project_id, trust_id,
-                federated_info, access_token_id, issued_at, expires_at)
+        return (user_id, methods, audit_ids, system, domain_id, project_id,
+                trust_id, federated_info, access_token_id, issued_at,
+                expires_at)
 
 
 class BasePayload(object):
