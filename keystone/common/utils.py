@@ -498,7 +498,8 @@ def isotime(at=None, subsecond=False):
                      if not subsecond
                      else _ISO8601_TIME_FORMAT_SUBSECOND)
     tz = at.tzinfo.tzname(None) if at.tzinfo else 'UTC'
-    st += ('Z' if tz == 'UTC' else tz)
+    # Need to handle either iso8601 or python UTC format
+    st += ('Z' if tz in ['UTC', 'UTC+00:00'] else tz)
     return st
 
 
