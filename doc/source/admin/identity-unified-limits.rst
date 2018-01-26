@@ -111,3 +111,60 @@ that would exceed the limits in question. Members of a project can fix this for
 themselves by bringing down the project usage to where there is now headroom.
 If they don’t, at some point the administrators can more aggressively delete
 things themselves.
+
+Enforcement models
+==================
+
+Project resources in keystone can be organized in hierarchical structures,
+where projects can be nested. As a result, resource limits and usage should
+respect that hierarchy if present. It's possible to think of different cases
+where limits or usage assume different characteristics, regardless of the
+project structure.  For example, if a project's usage for a particular resource
+hasn't been met, should the projects underneath that project assume those
+limits? Should they not assume those limits? These opinionated models are
+referred to as enforcement models. This section is dedicated to describing
+different enforcement models that are implemented.
+
+It is important to note that enforcement must be consistent across the entire
+deployment. Grouping certain characteristics into a model makes referring to
+behaviors consistent across services. Operators should be aware that switching
+between enforcement models may result in backwards incompatible changes. We
+recommend extremely careful planning and understanding of various enforcement
+models if you're planning on switching from one model to another in a
+deployment.
+
+Keystone exposes a ``GET /limits-model`` endpoint that returns the enforcement
+model selected by the deployment. This allows limit information to be
+discoverable and perserves interoperability between OpenStack deployments with
+different enforcement models.
+
+.. NOTE:: The API to expose the limit model configuration in keystone will be
+   implemented when keystone supports more than one enforcement model. Until
+   then, keystone only supports the following enforcement model.
+
+Flat
+----
+
+.. NOTE::
+
+    The flat enforcement model is currently the only supported enforcement
+    model. Future work will add more enforcement models which will be
+    configurable via configuration files and discoverable via the API.
+
+Flat enforcement ignores all aspects of a project hierarchy. Each project is
+considered a peer to all other projects. The limits associated to the parents,
+siblings, or children have no affect on a particular project. This model
+exercises the most isolation between projects because there are no assumptions
+between limits, regardless of the hierarchy. Validation of limits via the API
+will allow operations that might not be considered accepted in other models.
+
+For example, assume project `Charlie` is a child of project `Beta`, which is a
+child of project `Alpha`. A default is set on a limit, all projects get that
+effective default, which is 10. The following operations would be possible:
+
+- ``UPDATE LIMIT on Alpha to 20``
+- ``UPDATE LIMIT on Charlie to 30``
+
+This is allowed with flat enforcement because the hierarchy is not taken into
+consideration during limit validation, even though a child project has a higher
+limit than a parent project.
