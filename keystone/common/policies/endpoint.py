@@ -18,30 +18,35 @@ endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Show endpoint details.',
         operations=[{'path': '/v3/endpoints/{endpoint_id}',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List endpoints.',
         operations=[{'path': '/v3/endpoints',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Create endpoint.',
         operations=[{'path': '/v3/endpoints',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update endpoint.',
         operations=[{'path': '/v3/endpoints/{endpoint_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete endpoint.',
         operations=[{'path': '/v3/endpoints/{endpoint_id}',
                      'method': 'DELETE'}])
