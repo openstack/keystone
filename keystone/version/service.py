@@ -28,6 +28,7 @@ from keystone.credential import routers as credential_routers
 from keystone.endpoint_policy import routers as endpoint_policy_routers
 from keystone.federation import routers as federation_routers
 from keystone.identity import routers as identity_routers
+from keystone.limit import routers as limit_routers
 from keystone.oauth1 import routers as oauth1_routers
 from keystone.policy import routers as policy_routers
 from keystone.resource import routers as resource_routers
@@ -126,6 +127,7 @@ def v3_app_factory(global_conf, **local_conf):
                        catalog_routers,
                        credential_routers,
                        identity_routers,
+                       limit_routers,
                        policy_routers,
                        resource_routers,
                        revoke_routers,
