@@ -1,0 +1,13 @@
+{
+    "limit": {
+        "resource_name": "volume",
+        "region_id": null,
+        "links": {
+            "self": "http://10.3.150.25/identity/v3/limits/25a04c7a065c430590881c646cdcdd58"
+        },
+        "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+        "project_id": "3a705b9f56bb439381b43c4fe59dccce",
+        "id": "25a04c7a065c430590881c646cdcdd58",
+        "resource_limit": 11
+    }
+}

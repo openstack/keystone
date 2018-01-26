@@ -1,0 +1,17 @@
+{
+    "limits":[
+        {
+            "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+            "project_id": "3a705b9f56bb439381b43c4fe59dccce",
+            "region_id": "RegionOne",
+            "resource_name": "snapshot",
+            "resource_limit": 5
+        },
+        {
+            "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+            "project_id": "3a705b9f56bb439381b43c4fe59dccce",
+            "resource_name": "volume",
+            "resource_limit": 10
+        }
+    ]
+}

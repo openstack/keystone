@@ -189,6 +189,7 @@ This page lists the Identity API operations in the following order:
 * `Roles`_
 * `System Role Assignments`_
 * `Service catalog and endpoints`_
+* `Unified Limits`_
 * `Users`_
 * `OS-INHERIT`_
 * `OS-PKI API`_
@@ -209,4 +210,5 @@ This page lists the Identity API operations in the following order:
 .. include:: roles.inc
 .. include:: system-roles.inc
 .. include:: service-catalog.inc
+.. include:: unified_limits.inc
 .. include:: users.inc

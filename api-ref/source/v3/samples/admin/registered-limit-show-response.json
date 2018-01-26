@@ -1,0 +1,12 @@
+{
+    "registered_limit": {
+        "resource_name": "volume",
+        "region_id": null,
+        "links": {
+            "self": "http://10.3.150.25/identity/v3/registered_limits/773147dd53cd4a17b921d555cf17c633"
+        },
+        "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+        "default_limit": 10,
+        "id": "773147dd53cd4a17b921d555cf17c633"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "registered_limits":[
+        {
+            "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+            "id": "e35a965b2b244209bb0c2b193c55955f",
+            "region_id": "RegionOne",
+            "resource_name": "snapshot",
+            "default_limit": 5
+        },
+        {
+            "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
+            "id": "773147dd53cd4a17b921d555cf17c633",
+            "resource_name": "volume",
+            "default_limit": 10
+        }
+    ]
+}
