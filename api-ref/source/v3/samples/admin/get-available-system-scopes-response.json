@@ -1,0 +1,10 @@
+{
+    "system": [
+        {
+            "all": true
+        }
+    ],
+    "links": {
+        "self": "https://example.com/identity/v3/auth/system"
+    }
+}

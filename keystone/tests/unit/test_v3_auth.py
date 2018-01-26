@@ -4703,6 +4703,102 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
         self.head('/auth/domains', expected_status=http_client.OK)
 
+    def test_get_system_roles_with_unscoped_token(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        unscoped_request = self.build_authentication_request(
+            user_id=self.user['id'], password=self.user['password']
+        )
+        r = self.post('/auth/tokens', body=unscoped_request)
+        unscoped_token = r.headers.get('X-Subject-Token')
+        self.assertValidUnscopedTokenResponse(r)
+        response = self.get('/auth/system', token=unscoped_token)
+        self.assertTrue(response.json_body['system'][0]['all'])
+        self.head(
+            '/auth/system', token=unscoped_token,
+            expected_status=http_client.OK
+        )
+
+    def test_get_system_roles_returns_empty_list_without_system_roles(self):
+        # A user without a system role assignment shouldn't expect an empty
+        # list when calling /v3/auth/system regardless of calling the API with
+        # an unscoped token or a project-scoped token.
+        unscoped_request = self.build_authentication_request(
+            user_id=self.user['id'], password=self.user['password']
+        )
+        r = self.post('/auth/tokens', body=unscoped_request)
+        unscoped_token = r.headers.get('X-Subject-Token')
+        self.assertValidUnscopedTokenResponse(r)
+        response = self.get('/auth/system', token=unscoped_token)
+        self.assertEqual(response.json_body['system'], [])
+        self.head(
+            '/auth/system', token=unscoped_token,
+            expected_status=http_client.OK
+        )
+
+        project_scoped_request = self.build_authentication_request(
+            user_id=self.user['id'], password=self.user['password'],
+            project_id=self.project_id
+        )
+        r = self.post('/auth/tokens', body=project_scoped_request)
+        project_scoped_token = r.headers.get('X-Subject-Token')
+        self.assertValidProjectScopedTokenResponse(r)
+        response = self.get('/auth/system', token=project_scoped_token)
+        self.assertEqual(response.json_body['system'], [])
+        self.head(
+            '/auth/system', token=project_scoped_token,
+            expected_status=http_client.OK
+        )
+
+    def test_get_system_roles_with_project_scoped_token(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        self.put(path='/domains/%s/users/%s/roles/%s' % (
+            self.domain['id'], self.user['id'], self.role['id']))
+
+        domain_scoped_request = self.build_authentication_request(
+            user_id=self.user['id'], password=self.user['password'],
+            domain_id=self.domain['id']
+        )
+        r = self.post('/auth/tokens', body=domain_scoped_request)
+        domain_scoped_token = r.headers.get('X-Subject-Token')
+        self.assertValidDomainScopedTokenResponse(r)
+        response = self.get('/auth/system', token=domain_scoped_token)
+        self.assertTrue(response.json_body['system'][0]['all'])
+        self.head(
+            '/auth/system', token=domain_scoped_token,
+            expected_status=http_client.OK
+        )
+
+    def test_get_system_roles_with_domain_scoped_token(self):
+        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
+            'user_id': self.user['id'],
+            'role_id': self.role_id
+        }
+        self.put(path=path)
+
+        project_scoped_request = self.build_authentication_request(
+            user_id=self.user['id'], password=self.user['password'],
+            project_id=self.project_id
+        )
+        r = self.post('/auth/tokens', body=project_scoped_request)
+        project_scoped_token = r.headers.get('X-Subject-Token')
+        self.assertValidProjectScopedTokenResponse(r)
+        response = self.get('/auth/system', token=project_scoped_token)
+        self.assertTrue(response.json_body['system'][0]['all'])
+        self.head(
+            '/auth/system', token=project_scoped_token,
+            expected_status=http_client.OK
+        )
+
 
 class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
     def config_overrides(self):

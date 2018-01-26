@@ -922,3 +922,54 @@ Example
 
 .. literalinclude:: ./samples/admin/get-available-domain-scopes-response.json
    :language: javascript
+
+Get available system scopes
+===========================
+
+.. rest_method:: GET /v3/auth/system
+
+New in version 3.10
+
+This call returns the list of systems that are available to be scoped
+to based on the X-Auth-Token provided in the request.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/auth_system``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - X-Auth-Token: X-Auth-Token
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - links: domain_link_response_body
+   - system: response_body_system_required
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 400
+
+Example
+~~~~~~~
+
+.. literalinclude:: ./samples/admin/get-available-system-scopes-response.json
+   :language: javascript
