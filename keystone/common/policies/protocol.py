@@ -18,6 +18,10 @@ protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_protocol',
         check_str=base.RULE_ADMIN_REQUIRED,
+        # FIXME(lbragstad): Once it is possible to add complete federated
+        # identity without having to modify system configuration files, like
+        # Apache, this should include 'project' in scope_types.
+        scope_types=['system'],
         description='Create federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
@@ -25,6 +29,7 @@ protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_protocol',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
@@ -32,6 +37,7 @@ protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_protocol',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Get federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
@@ -39,6 +45,7 @@ protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_protocols',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List federated protocols.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols'),
@@ -46,6 +53,7 @@ protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_protocol',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
