@@ -18,14 +18,19 @@ import abc
 from oslo_log import log
 import six
 
+import keystone.conf
 from keystone import exception
 
 
 LOG = log.getLogger(__name__)
+CONF = keystone.conf.CONF
 
 
 @six.add_metaclass(abc.ABCMeta)
 class UnifiedLimitDriverBase(object):
+
+    def _get_list_limit(self):
+        return CONF.unified_limit.list_limit or CONF.list_limit
 
     @abc.abstractmethod
     def create_registered_limits(self, registered_limits):

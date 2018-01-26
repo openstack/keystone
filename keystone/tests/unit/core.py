@@ -461,6 +461,29 @@ def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
     return ref
 
 
+def new_registered_limit_ref(**kwargs):
+    ref = {
+        'service_id': uuid.uuid4().hex,
+        'resource_name': uuid.uuid4().hex,
+        'default_limit': 10
+    }
+
+    ref.update(kwargs)
+    return ref
+
+
+def new_limit_ref(**kwargs):
+    ref = {
+        'project_id': uuid.uuid4().hex,
+        'service_id': uuid.uuid4().hex,
+        'resource_name': uuid.uuid4().hex,
+        'resource_limit': 10
+    }
+
+    ref.update(kwargs)
+    return ref
+
+
 def create_user(api, domain_id, **kwargs):
     """Create a user via the API. Keep the created password.
 
