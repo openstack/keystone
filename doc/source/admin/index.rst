@@ -35,6 +35,7 @@ command-line client.
    identity-auth-token-middleware.rst
    identity-service-api-protection.rst
    identity-troubleshoot.rst
+   identity-unified-limits.rst
    token-provider.rst
    federated-identity.rst
    identity-credential-encryption.rst
