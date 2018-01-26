@@ -26,6 +26,7 @@ from keystone.common.policies import grant
 from keystone.common.policies import group
 from keystone.common.policies import identity_provider
 from keystone.common.policies import implied_role
+from keystone.common.policies import limit
 from keystone.common.policies import mapping
 from keystone.common.policies import policy
 from keystone.common.policies import policy_association
@@ -33,6 +34,7 @@ from keystone.common.policies import project
 from keystone.common.policies import project_endpoint
 from keystone.common.policies import protocol
 from keystone.common.policies import region
+from keystone.common.policies import registered_limit
 from keystone.common.policies import revoke_event
 from keystone.common.policies import role
 from keystone.common.policies import role_assignment
@@ -60,6 +62,7 @@ def list_rules():
         group.list_rules(),
         identity_provider.list_rules(),
         implied_role.list_rules(),
+        limit.list_rules(),
         mapping.list_rules(),
         policy.list_rules(),
         policy_association.list_rules(),
@@ -67,6 +70,7 @@ def list_rules():
         project_endpoint.list_rules(),
         protocol.list_rules(),
         region.list_rules(),
+        registered_limit.list_rules(),
         revoke_event.list_rules(),
         role.list_rules(),
         role_assignment.list_rules(),
