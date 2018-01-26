@@ -2912,6 +2912,17 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         app_cred_role_table.insert().values(role_rel).execute()
 
+    def test_migration_037_remove_service_and_region_fk_for_registered_limit(
+            self):
+        self.expand(37)
+        self.migrate(37)
+        self.contract(37)
+
+        registered_limit_table_name = 'registered_limit'
+        registered_limit_table = sqlalchemy.Table(registered_limit_table_name,
+                                                  self.metadata, autoload=True)
+        self.assertEqual(set([]), registered_limit_table.foreign_keys)
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = test_base.MySQLOpportunisticFixture
