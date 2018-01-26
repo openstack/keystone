@@ -18,6 +18,13 @@ region_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_region',
         check_str='',
+        # NOTE(lbragstad): Both get_region and list_regions were accessible
+        # with a valid token. By including both `system` and `project`
+        # scope types, we're ensuring anyone with a valid token can still
+        # pass these policies. Since the administrative policies of regions
+        # require and administrator, it makes sense to isolate those to
+        # `system` scope.
+        scope_types=['system', 'project'],
         description='Show region details.',
         operations=[{'path': '/v3/regions/{region_id}',
                      'method': 'GET'},
@@ -26,6 +33,7 @@ region_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_regions',
         check_str='',
+        scope_types=['system', 'project'],
         description='List regions.',
         operations=[{'path': '/v3/regions',
                      'method': 'GET'},
@@ -34,6 +42,7 @@ region_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_region',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Create region.',
         operations=[{'path': '/v3/regions',
                      'method': 'POST'},
@@ -42,12 +51,14 @@ region_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_region',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update region.',
         operations=[{'path': '/v3/regions/{region_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_region',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete region.',
         operations=[{'path': '/v3/regions/{region_id}',
                      'method': 'DELETE'}])
