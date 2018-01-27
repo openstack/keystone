@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1779903 <https://bugs.launchpad.net/keystone/+bug/1779903>`_]
+    When a project is deleted, the limits which belong to it will be deleted
+    as well.
