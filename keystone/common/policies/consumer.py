@@ -18,30 +18,35 @@ consumer_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Show OAUTH1 consumer details.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_consumers',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List OAUTH1 consumers.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Create OAUTH1 consumer.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update OAUTH1 consumer.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete OAUTH1 consumer.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
                      'method': 'DELETE'}])
