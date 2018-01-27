@@ -18,30 +18,35 @@ service_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Show service details.',
         operations=[{'path': '/v3/services/{service_id}',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_services',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List services.',
         operations=[{'path': '/v3/services',
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_service',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Create service.',
         operations=[{'path': '/v3/services',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Update service.',
         operations=[{'path': '/v3/services/{service_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_service',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Delete service.',
         operations=[{'path': '/v3/services/{service_id}',
                      'method': 'DELETE'}])
