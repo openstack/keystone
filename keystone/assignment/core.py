@@ -1051,12 +1051,15 @@ class Manager(manager.Manager):
             # a domain assignment, we might as well kill all the tokens for
             # the user, since in the vast majority of cases all the tokens
             # for a user will be within one domain anyway, so not worth
-            # trying to delete tokens for each project in the domain.
+            # trying to delete tokens for each project in the domain. If the
+            # assignment is a system assignment, invalidate all tokens from the
+            # cache. A future patch may optimize this to only remove specific
+            # system-scoped tokens from the cache.
             if 'user_id' in assignment:
                 if 'project_id' in assignment:
                     user_and_project_ids.append(
                         (assignment['user_id'], assignment['project_id']))
-                elif 'domain_id' in assignment:
+                elif 'domain_id' or 'system' in assignment:
                     self._emit_invalidate_user_token_persistence(
                         assignment['user_id'])
             elif 'group_id' in assignment:
@@ -1083,7 +1086,7 @@ class Manager(manager.Manager):
                     for user in users:
                         user_and_project_ids.append(
                             (user['id'], assignment['project_id']))
-                elif 'domain_id' in assignment:
+                elif 'domain_id' or 'system' in assignment:
                     for user in users:
                         self._emit_invalidate_user_token_persistence(
                             user['id'])
