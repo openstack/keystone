@@ -18,12 +18,17 @@ trust_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_trust',
         check_str=base.RULE_TRUST_OWNER,
+        # FIXME(lbragstad): Trusts have the ability to optionally include a
+        # project, but until trusts deal with system scope it's not really
+        # useful. For now, this should be a project only operation.
+        scope_types=['project'],
         description='Create trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts',
         check_str='',
+        scope_types=['project'],
         description='List trusts.',
         operations=[{'path': '/v3/OS-TRUST/trusts',
                      'method': 'GET'},
@@ -32,6 +37,7 @@ trust_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles_for_trust',
         check_str='',
+        scope_types=['project'],
         description='List roles delegated by a trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',
                      'method': 'GET'},
@@ -40,6 +46,7 @@ trust_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role_for_trust',
         check_str='',
+        scope_types=['project'],
         description='Check if trust delegates a particular role.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
                      'method': 'GET'},
@@ -48,12 +55,14 @@ trust_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_trust',
         check_str='',
+        scope_types=['project'],
         description='Revoke trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
                      'method': 'DELETE'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_trust',
         check_str='',
+        scope_types=['project'],
         description='Get trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
                      'method': 'GET'},
