@@ -11,10 +11,12 @@ deployment characteristics.
 Authorization scopes
 --------------------
 
-Tokens can express your authorization in different scopes. You likely have
-different sets of roles, in different projects, and in different domains.
-While tokens always express your identity, they may only ever express one set
-of roles in one authorization scope at a time.
+Tokens are used to relay information about your user's role assignments. It's
+not uncommon for a user to have multiple role assignments, sometimes spanning
+projects, domains, or the entire system. These are referred to as authorization
+scopes, where a token has a single scope of operation. For example, a token
+scoped to a project can't be reused to do something else in a different
+project.
 
 Each level of authorization scope is useful for certain types of operations in
 certain OpenStack services, and are not interchangeable.
@@ -39,9 +41,9 @@ The following conditions must be met to receive an unscoped token:
 Project-scoped tokens
 ~~~~~~~~~~~~~~~~~~~~~
 
-Project-scoped tokens are the bread and butter of OpenStack. They express your
-authorization to operate in a specific tenancy of the cloud and are useful to
-authenticate yourself when working with most other services.
+Project-scoped tokens express your authorization to operate in a specific
+tenancy of the cloud and are useful to authenticate yourself when working with
+most other services.
 
 They contain a service catalog, a set of roles, and details of the project upon
 which you have authorization.
@@ -49,11 +51,11 @@ which you have authorization.
 Domain-scoped tokens
 ~~~~~~~~~~~~~~~~~~~~
 
-Domain-scoped tokens also have limited use cases in OpenStack. They express
-your authorization to operate a domain-level, above that of the user and
-projects contained therein (typically as a domain-level administrator).
-Depending on Keystone's configuration, they are useful for working with a
-single domain in Keystone.
+Domain-scoped tokens have limited use cases in OpenStack. They express your
+authorization to operate a domain-level, above that of the user and projects
+contained therein (typically as a domain-level administrator).  Depending on
+Keystone's configuration, they are useful for working with a single domain in
+Keystone.
 
 They contain a limited service catalog (only those services which do not
 explicitly require per-project endpoints), a set of roles, and details of the
@@ -62,6 +64,16 @@ project upon which you have authorization.
 They can also be used to work with domain-level concerns in other services,
 such as to configure domain-wide quotas that apply to all users or projects in
 a specific domain.
+
+System-scoped tokens
+~~~~~~~~~~~~~~~~~~~~
+
+There are APIs across OpenStack that fit nicely within the concept of a project
+or domain, but there are also APIs that affect the entire deployment system
+(e.g. modifying endpoints, service management, or listing information about
+hypervisors). These operations require the use of a system-scoped token, which
+represents the role assignments a user has to operate on the deployment as a
+whole.
 
 Token providers
 ---------------

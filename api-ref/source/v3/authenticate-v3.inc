@@ -4,24 +4,19 @@
  Authentication and token management
 =====================================
 
-In exchange for a set of authentication credentials, the Identity
-service generates tokens. A token represents the authenticated
-identity of a user and, optionally, grants authorization on a
-specific project or domain.
+The Identity service generates tokens in exchange for authentication
+credentials. A token represents the authenticated identity of a user and,
+optionally, grants authorization on a specific project, domain, or the
+deployment system.
 
 The body of an authentication request must include a payload that
 specifies the authentication method, which is ``password`` or
 ``token``, the credentials, and, optionally, the authorization
-scope. You can scope a token to a project or domain, or the token
-can be unscoped. You cannot scope a token to both a project and
-domain.
+scope. You can scope a token to a project, domain, the deployment system, or
+the token can be unscoped. You cannot scope a token to multiple scope targets.
 
 Tokens have IDs, which the Identity API returns in the
 ``X-Subject-Token`` response header.
-
-Also, validates an authentication token and lists the domains,
-projects, roles, and endpoints to which the token gives access.
-Forces the immediate revocation of a token.
 
 After you obtain an authentication token, you can:
 
@@ -48,8 +43,12 @@ is processed, it will have an additional field in the token
 ``{is_admin_project: True}``. The additional field can be used when
 writing policy rules that evaluate access control to APIs.
 
-The Identity API treats expired tokens as no longer valid tokens.
-The deployment determines how long expired tokens are stored.
+Alternatively, in v3.10 the Identity API service introduced the concept of
+system role assignments and system-scoped tokens. APIs that affect the
+deployment system require system-scoped tokens.
+
+The Identity API considers expired tokens as invalid, which is determined by
+the deployment's configuration.
 
 These authentication errors can occur:
 
@@ -231,6 +230,7 @@ Parameters
    - token: token
    - expires_at: expires_at
    - project: project
+   - system: system
    - issued_at: issued_at
    - catalog: catalog
    - user: user
