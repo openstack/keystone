@@ -236,6 +236,10 @@ identity:delete_domain_config                              DELETE /v3/domains/{d
 identity:get_domain_config_default                         GET /v3/domains/config/default
                                                            GET /v3/domains/config/{group}/default
                                                            GET /v3/domains/config/{group}/{option}/default
+identity:get_application_credential                        GET /v3/users/{user_id}/application_credentials/{application_credential_id}
+identity:list_application_credentials                      GET /v3/users/{user_id}/application_credentials
+identity:create_application_credential                     POST /v3/users/{user_id}/application_credential
+identity:delete_application_credential                     DELETE /v3/users/{user_id}/application_credential/{application_credential_id}
 =========================================================  ===
 
 .. _grant_resources:

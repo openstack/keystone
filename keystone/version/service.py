@@ -19,6 +19,7 @@ from oslo_log import log
 from paste import deploy
 import routes
 
+from keystone.application_credential import routers as app_cred_routers
 from keystone.assignment import routers as assignment_routers
 from keystone.auth import routers as auth_routers
 from keystone.catalog import routers as catalog_routers
@@ -127,6 +128,7 @@ def v3_app_factory(global_conf, **local_conf):
                        catalog_routers,
                        credential_routers,
                        identity_routers,
+                       app_cred_routers,
                        limit_routers,
                        policy_routers,
                        resource_routers,

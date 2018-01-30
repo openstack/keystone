@@ -251,5 +251,10 @@
     "identity:get_security_compliance_domain_config": "",
     "identity:update_domain_config": "rule:cloud_admin",
     "identity:delete_domain_config": "rule:cloud_admin",
-    "identity:get_domain_config_default": "rule:cloud_admin"
+    "identity:get_domain_config_default": "rule:cloud_admin",
+
+    "identity:get_application_credential": "rule:admin_or_owner",
+    "identity:list_application_credentials": "rule:admin_or_owner",
+    "identity:create_application_credential": "rule:admin_or_owner",
+    "identity:delete_application_credential": "rule:admin_or_owner"
 }
