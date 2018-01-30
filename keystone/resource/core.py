@@ -757,6 +757,9 @@ class Manager(manager.Manager):
                   'first.'))
 
         self._delete_domain_contents(domain_id)
+        notifications.Audit.internal(
+            notifications.DOMAIN_DELETED, domain_id
+        )
         self._delete_project(domain_id, initiator)
         try:
             self.get_domain.invalidate(self, domain_id)

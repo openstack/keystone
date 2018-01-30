@@ -487,16 +487,25 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.identity.driver)
         self.domain_configs = DomainConfigs()
-
-        self.event_callbacks = {
-            notifications.ACTIONS.deleted: {
-                'domain': [self._domain_deleted],
-            },
-        }
+        notifications.register_event_callback(
+            notifications.ACTIONS.internal, notifications.DOMAIN_DELETED,
+            self._domain_deleted
+        )
+        self.event_callbacks = {}
 
     def _domain_deleted(self, service, resource_type, operation,
                         payload):
         domain_id = payload['resource_info']
+
+        driver = self._select_identity_driver(domain_id)
+
+        if not driver.is_sql:
+            # The LDAP driver does not support deleting users or groups.
+            # Moreover, we shouldn't destroy users and groups in an unknown
+            # driver. The only time when we should delete users and groups is
+            # when the backend is SQL because the foreign key in the SQL table
+            # forces us to.
+            return
 
         user_refs = self.list_users(domain_scope=domain_id)
         group_refs = self.list_groups(domain_scope=domain_id)
