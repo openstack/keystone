@@ -34,10 +34,12 @@ class ApplicationCredentialDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def create_application_credential(self, application_credential):
+    def create_application_credential(self, application_credential, roles):
         """Create a new application credential.
 
         :param dict application_credential: Application Credential data
+        :param list roles: A list of roles that apply to the
+                           application_credential.
         :returns: a new application credential
         """
         raise exception.NotImplemented()  # pragma: no cover
@@ -51,10 +53,13 @@ class ApplicationCredentialDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_application_credentials_for_user(self, user_id):
+    def list_application_credentials_for_user(self, user_id, hints):
         """List application credentials for a user.
 
         :param str user_id: User ID
+        :param hints: contains the list of filters yet to be satisfied.
+                      Any filters satisfied here will be removed so that
+                      the caller will know if any filters remain.
         """
         raise exception.NotImplemented()  # pragma: no cover
 
