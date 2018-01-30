@@ -1,0 +1,17 @@
+---
+fixes:
+  - |
+    [`bug 1718747 <https://bugs.launchpad.net/keystone/+bug/1718747>`_]
+    Fixes a regression where deleting a domain with users in it caues a server
+    error. This bugfix restores the previous behavior of deleting the users
+    namespaced in the domain. This only applies when using the SQL identity
+    backend.
+other:
+  - |
+    [`bug 1718747 <https://bugs.launchpad.net/keystone/+bug/1718747>`_]
+    As part of solving a regression in the identity SQL backend that prevented
+    domains containing users from being deleted, a notification callback was
+    altered so that users would only be deleted if the identity backend is SQL.
+    If you have a custom identity backend that is not read-only, deleting a
+    domain in keystone will not delete the users in your backend unless your
+    driver has an is_sql property that evaluates to true.

@@ -80,6 +80,7 @@ INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
 INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE = 'invalidate_user_project_tokens'
 INVALIDATE_USER_OAUTH_CONSUMER_TOKENS = 'invalidate_user_consumer_tokens'
 INVALIDATE_TOKEN_CACHE_DELETED_IDP = 'invalidate_token_cache_from_deleted_idp'
+DOMAIN_DELETED = 'domain_deleted'
 
 
 class Audit(object):
