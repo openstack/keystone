@@ -41,10 +41,6 @@ that can be used to bootstrap Keystone through the API. This "token" does not
 represent a user (it has no identity), and carries no explicit authorization
 (it effectively bypasses most authorization checks). If set to `None`, the
 value is ignored and the `admin_token` middleware is effectively disabled.
-However, to completely disable `admin_token` in production (highly recommended,
-as it presents a security risk), remove `AdminTokenAuthMiddleware`
-(the `admin_token_auth` filter) from your paste application pipelines (for
-example, in `keystone-paste.ini`).
 """))
 
 public_endpoint = cfg.URIOpt(
