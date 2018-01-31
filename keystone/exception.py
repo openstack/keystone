@@ -205,6 +205,11 @@ class RegionDeletionError(ForbiddenNotSecurity):
                        "its child regions have associated endpoints.")
 
 
+class ApplicationCredentialLimitExceeded(ForbiddenNotSecurity):
+    message_format = _("Unable to create additional application credentials, "
+                       "maximum of %(limit)d already exceeded for user.")
+
+
 class SecurityError(Error):
     """Security error exception.
 

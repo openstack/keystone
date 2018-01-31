@@ -91,6 +91,14 @@ class Manager(manager.Manager):
                                                        actor_id=user_id,
                                                        target_id=project_id)
 
+    def _assert_limit_not_exceeded(self, user_id):
+        user_limit = CONF.application_credential.user_limit
+        if user_limit >= 0:
+            app_cred_count = len(self.list_application_credentials(user_id))
+            if app_cred_count >= user_limit:
+                raise exception.ApplicationCredentialLimitExceeded(
+                    limit=user_limit)
+
     def _get_role_list(self, app_cred_roles):
         roles = []
         for role in app_cred_roles:
@@ -126,6 +134,8 @@ class Manager(manager.Manager):
         user_id = application_credential['user_id']
         project_id = application_credential['project_id']
         roles = application_credential.pop('roles', [])
+
+        self._assert_limit_not_exceeded(user_id)
         self._require_user_has_role_in_project(roles, user_id, project_id)
         unhashed_secret = application_credential['secret']
         ref = self.driver.create_application_credential(
