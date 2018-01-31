@@ -129,6 +129,11 @@ class Auth(controller.V3Controller):
             method_names_set = set(auth_context.get('method_names', []))
             method_names = list(method_names_set)
 
+            app_cred_id = None
+            if 'application_credential' in method_names:
+                token_auth = auth_info.auth['identity']
+                app_cred_id = token_auth['application_credential']['id']
+
             # Do MFA Rule Validation for the user
             if not self._mfa_rules_validator.check_auth_methods_against_rules(
                     auth_context['user_id'], method_names_set):
@@ -145,7 +150,7 @@ class Auth(controller.V3Controller):
                 system=system, project_id=project_id,
                 is_domain=is_domain, domain_id=domain_id,
                 auth_context=auth_context, trust=trust,
-                include_catalog=include_catalog,
+                app_cred_id=app_cred_id, include_catalog=include_catalog,
                 parent_audit_id=token_audit_id)
 
             # NOTE(wanghong): We consume a trust use only when we are using

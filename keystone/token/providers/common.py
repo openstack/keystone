@@ -192,6 +192,20 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                 user_id, project_id)
         return [PROVIDERS.role_api.get_role(role_id) for role_id in roles]
 
+    def _get_app_cred_roles(self, app_cred, user_id, domain_id, project_id):
+        roles = app_cred['roles']
+        token_roles = []
+        for role in roles:
+            try:
+                role_ref = PROVIDERS.assignment_api.get_grant(
+                    role['id'], user_id=user_id, domain_id=domain_id,
+                    project_id=project_id)
+                token_roles.append(role_ref)
+            except exception.RoleAssignmentNotFound:
+                pass
+        return [
+            PROVIDERS.role_api.get_role(role['id']) for role in token_roles]
+
     def populate_roles_for_federated_user(self, token_data, group_ids,
                                           project_id=None, domain_id=None,
                                           user_id=None, system=None):
@@ -309,7 +323,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                                         'consumer_id': consumer_id})
 
     def _populate_roles(self, token_data, user_id, system, domain_id,
-                        project_id, trust, access_token):
+                        project_id, trust, app_cred_id, access_token):
         if 'roles' in token_data:
             # no need to repopulate roles
             return
@@ -381,6 +395,16 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                     else:
                         raise exception.Forbidden(
                             _('Trustee has no delegated roles.'))
+            elif app_cred_id:
+                app_cred_api = PROVIDERS.application_credential_api
+                app_cred_ref = app_cred_api.get_application_credential(
+                    app_cred_id)
+                for role in self._get_app_cred_roles(app_cred_ref,
+                                                     token_user_id,
+                                                     token_domain_id,
+                                                     token_project_id):
+                    filtered_roles.append({'id': role['id'],
+                                           'name': role['name']})
             else:
                 for role in self._get_roles_for_user(token_user_id,
                                                      system,
@@ -458,10 +482,18 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             LOG.error(msg)
             raise exception.UnexpectedError(msg)
 
+    def _populate_app_cred_restrictions(self, token_data, app_cred_id):
+        if app_cred_id:
+            app_cred_api = PROVIDERS.application_credential_api
+            app_cred = app_cred_api.get_application_credential(app_cred_id)
+            restricted = not app_cred['unrestricted']
+            token_data['application_credential_restricted'] = restricted
+
     def get_token_data(self, user_id, method_names, system=None,
                        domain_id=None, project_id=None, expires=None,
-                       trust=None, token=None, include_catalog=True, bind=None,
-                       access_token=None, issued_at=None, audit_info=None):
+                       app_cred_id=None, trust=None, token=None,
+                       include_catalog=True, bind=None, access_token=None,
+                       issued_at=None, audit_info=None):
         token_data = {'methods': method_names}
 
         # We've probably already written these to the token
@@ -478,7 +510,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             self._populate_is_admin_project(token_data)
         self._populate_user(token_data, user_id, trust)
         self._populate_roles(token_data, user_id, system, domain_id,
-                             project_id, trust, access_token)
+                             project_id, trust, app_cred_id, access_token)
         self._populate_audit_info(token_data, audit_info)
 
         if include_catalog:
@@ -489,6 +521,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
         self._populate_token_dates(token_data, expires=expires,
                                    issued_at=issued_at)
         self._populate_oauth_section(token_data, access_token)
+        self._populate_app_cred_restrictions(token_data, app_cred_id)
         return {'token': token_data}
 
 
@@ -518,8 +551,8 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
 
     def issue_token(self, user_id, method_names, expires_at=None,
                     system=None, project_id=None, domain_id=None,
-                    auth_context=None, trust=None, include_catalog=True,
-                    parent_audit_id=None):
+                    auth_context=None, trust=None, app_cred_id=None,
+                    include_catalog=True, parent_audit_id=None):
         if auth_context and auth_context.get('bind'):
             # NOTE(lbragstad): Check if the token provider being used actually
             # supports bind authentication methods before proceeding.
@@ -552,6 +585,7 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
             project_id=project_id,
             expires=expires_at,
             trust=trust,
+            app_cred_id=app_cred_id,
             bind=auth_context.get('bind') if auth_context else None,
             token=token_ref,
             include_catalog=include_catalog,

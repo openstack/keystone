@@ -83,6 +83,15 @@ class ApplicationCredentialV3(controller.V3Controller):
         ref = cls.filter_params(ref)
         return {cls.member_name: ref}
 
+    def _check_unrestricted(self, token):
+        auth_methods = token['methods']
+        if 'application_credential' in auth_methods:
+            if token.token_data['token']['application_credential_restricted']:
+                action = _("Using method 'application_credential' is not "
+                           "allowed for managing additional application "
+                           "credentials.")
+                raise exception.ForbiddenAction(action=action)
+
     @controller.protected()
     def create_application_credential(self, request, user_id,
                                       application_credential):
@@ -90,7 +99,7 @@ class ApplicationCredentialV3(controller.V3Controller):
                                  application_credential)
 
         token = request.auth_context['token']
-
+        self._check_unrestricted(token)
         if request.context.user_id != user_id:
             action = _("Cannot create an application credential for another "
                        "user")
@@ -138,6 +147,8 @@ class ApplicationCredentialV3(controller.V3Controller):
     @controller.protected()
     def delete_application_credential(self, request, user_id,
                                       application_credential_id):
+        token = request.auth_context['token']
+        self._check_unrestricted(token)
         PROVIDERS.application_credential_api.delete_application_credential(
             application_credential_id, initiator=request.audit_initiator
         )

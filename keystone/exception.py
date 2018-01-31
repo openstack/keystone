@@ -302,6 +302,11 @@ class AuthMethodNotSupported(AuthPluginException):
         self.authentication = {'methods': CONF.auth.methods}
 
 
+class ApplicationCredentialAuthError(AuthPluginException):
+    message_format = _(
+        "Error authenticating with application credential: %(detail)s")
+
+
 class AdditionalAuthRequired(AuthPluginException):
     message_format = _("Additional authentications steps required.")
 
