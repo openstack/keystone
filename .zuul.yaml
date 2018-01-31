@@ -88,10 +88,11 @@
 # Experimental
 - job:
     name: keystone-tox-patch_cover
-    parent: legacy-base
-    run: playbooks/legacy/keystone-tox-patch_cover/run.yaml
-    post-run: playbooks/legacy/keystone-tox-patch_cover/post.yaml
-    timeout: 2400
+    parent: openstack-tox
+    description: |
+      Run test for keystone project.
+
+      Uses tox with the ``patch_cover`` environment.
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
@@ -99,8 +100,8 @@
       - ^etc/.*$
       - ^keystone/tests/unit/.*$
       - ^releasenotes/.*$
-    required-projects:
-      - openstack/requirements
+    vars:
+      tox_envlist: patch_cover
 
 # Experimental
 - job:
