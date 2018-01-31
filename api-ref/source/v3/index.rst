@@ -26,6 +26,12 @@ For information about Identity API protection, see
 <https://docs.openstack.org/keystone/latest/admin/identity-service-api-protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
+==========================
+What's New in Version 3.10
+==========================
+
+- Introduction of the Application Credentials API.
+
 =========================
 What's New in Version 3.9
 =========================
@@ -178,6 +184,7 @@ Identity API Operations
 This page lists the Identity API operations in the following order:
 
 * `Authentication and token management`_
+* `Application Credentials`_
 * `Credentials`_
 * `Domains`_
 * `Domain configuration`_
@@ -197,6 +204,7 @@ This page lists the Identity API operations in the following order:
 .. rest_expand_all::
 
 .. include:: authenticate-v3.inc
+.. include:: application-credentials.inc
 .. include:: credentials.inc
 .. include:: domains.inc
 .. include:: domains-config-v3.inc

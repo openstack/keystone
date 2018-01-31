@@ -96,6 +96,18 @@ registered_limit_id_path:
   in: path
   required: true
   type: string
+request_application_credential_id_path_required:
+  description: |
+    The ID of the application credential.
+  in: path
+  required: true
+  type: string
+request_application_credential_user_id_path_required:
+  description: |
+    The ID of the user who owns the application credential.
+  in: path
+  required: true
+  type: string
 role_id:
   description: |
     The role ID.
@@ -442,6 +454,13 @@ auth:
   in: body
   required: true
   type: object
+auth_application_credential_restricted_body:
+  description: |
+    Whether the application credential is permitted to be used for creating and
+    deleting additional application credentials and trusts.
+  in: body
+  required: true
+  type: object
 auth_domain:
   description: |
     Specify either ``id`` or ``name`` to uniquely
@@ -463,6 +482,13 @@ auth_methods:
     methods that were used to authenticate the user in exchange for a
     token. The client is responsible for determining the total number
     of authentication factors.
+  in: body
+  required: true
+  type: array
+auth_methods_application_credential:
+  description: |
+    The authentication method. To authenticate with an application credential,
+    specify ``application_credential``.
   in: body
   required: true
   type: array
@@ -1382,6 +1408,82 @@ registered_limits:
   in: body
   required: true
   type: array
+request_application_credential_auth_id_body_not_required:
+  description: |
+    The ID of the application credential used for authentication. If not
+    provided, the application credential must be identified by its name and
+    its owning user.
+  in: body
+  required: false
+  type: string
+request_application_credential_auth_name_body_not_required:
+  description: |
+    The name of the application credential used for authentication. If
+    provided, must be accompanied by a user object.
+  in: body
+  required: false
+  type: string
+request_application_credential_auth_secret_body_required:
+  description: |
+    The secret for authenticating the application credential.
+  in: body
+  required: true
+  type: string
+request_application_credential_body_required:
+  description: |
+    An application credential object.
+  in: body
+  required: true
+  type: object
+request_application_credential_description_body_not_required:
+  description: |
+    A description of the application credential's purpose.
+  in: body
+  required: false
+  type: string
+request_application_credential_expires_at_body_not_required:
+  description: |
+    An optional expiry time for the application credential. If unset, the
+    application credential does not expire.
+  in: body
+  required: false
+  type: string
+request_application_credential_name_body_required:
+  description: |
+    The name of the application credential. Must be unique to a user.
+  in: body
+  required: true
+  type: string
+request_application_credential_roles_body_not_required:
+  description: |
+    An optional list of role objects, identified by ID or name. If not
+    provided, the roles assigned to the application credential will be the
+    same as the roles in the current token.
+  in: body
+  required: false
+  type: array
+request_application_credential_secret_body_not_required:
+  description: |
+    The secret that the application credential will be created with. If not
+    provided, one will be generated.
+  in: body
+  required: false
+  type: string
+request_application_credential_unrestricted_body_not_required:
+  description: |
+    An optional flag to restrict whether the application credential may be
+    used for the creation or destruction of other application credentials or
+    trusts. Defaults to false.
+  in: body
+  required: false
+  type: boolean
+request_application_credential_user_body_not_required:
+  description: |
+    A ``user`` object, required if an application credential is identified by
+    name and not ID.
+  in: body
+  required: false
+  type: object
 resource_limit:
   description: |
     The override limit.
@@ -1394,6 +1496,68 @@ resource_name:
   in: body
   required: true
   type: string
+response_application_credential_body:
+  description: |
+    The application credential object.
+  in: body
+  type: object
+  required: true
+response_application_credential_description_body:
+  description: |
+    A description of the application credential's purpose.
+  in: body
+  type: string
+  required: true
+response_application_credential_expires_at_body:
+  description: |
+    The expiration time of the application credential, if one was specified.
+  in: body
+  type: string
+  required: true
+response_application_credential_id_body:
+  description: |
+    The ID of the application credential.
+  in: body
+  type: string
+  required: true
+response_application_credential_name_body:
+  description: |
+    The name of the application credential.
+  in: body
+  type: string
+  required: true
+response_application_credential_project_id_body:
+  description: |
+    The ID of the project the application credential was created for and that
+    authentication requests using this application credential will be scoped
+    to.
+  in: body
+  type: string
+  required: true
+response_application_credential_roles_body:
+  description: |
+    A list of one or more roles that this application credential has
+    associated with its project. A token using this application credential
+    will have these same roles.
+  in: body
+  type: array
+  required: true
+response_application_credential_secret_body:
+  description: |
+    The secret for the application credential, either generated by the server
+    or provided by the user. This is only ever shown once in the response to a
+    create request. It is not stored nor ever shown again. If the secret is
+    lost, a new application credential must be created.
+  in: body
+  type: string
+  required: true
+response_application_credential_unrestricted_body:
+  description: |
+    A flag indicating whether the application credential may be used for
+    creation or destruction of other application credentials or trusts.
+  in: body
+  type: boolean
+  required: true
 response_body_project_tags_required:
   description: |
     A list of simple strings assigned to a project.
