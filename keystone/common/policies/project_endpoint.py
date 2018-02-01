@@ -19,6 +19,11 @@ project_endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_for_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
+        # NOTE(lbragstad): While projects can be considered project-level APIs
+        # with hierarchical multi-tenancy, endpoints are a system-level
+        # resource. Managing associations between projects and endpoints should
+        # default to system-level.
+        scope_types=['system'],
         description='List projects allowed to access an endpoint.',
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoints/{endpoint_id}/'
                               'projects'),
@@ -26,6 +31,7 @@ project_endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_endpoint_to_project',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Allow project to access an endpoint.',
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints/{endpoint_id}'),
@@ -33,6 +39,7 @@ project_endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_endpoint_in_project',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='Check if a project is allowed to access an endpoint.',
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints/{endpoint_id}'),
@@ -43,6 +50,7 @@ project_endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_for_project',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description='List the endpoints a project is allowed to access.',
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints'),
@@ -50,6 +58,7 @@ project_endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_endpoint_from_project',
         check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system'],
         description=('Remove access to an endpoint from a project that has '
                      'previously been given explicit access.'),
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
