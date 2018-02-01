@@ -18,6 +18,11 @@ token_revocation_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revocation_list',
         check_str=base.RULE_SERVICE_OR_ADMIN,
+        # NOTE(lbragstad): Documenting scope_types here doesn't really make a
+        # difference since this API is going to return an empty list regardless
+        # of the token scope used in the API call. More-or-less just doing this
+        # for consistency with other policies.
+        scope_types=['system', 'project'],
         description='List revoked PKI tokens.',
         operations=[{'path': '/v3/auth/tokens/OS-PKI/revoked',
                      'method': 'GET'}])
