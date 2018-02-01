@@ -36,7 +36,6 @@ from keystone.resource import routers as resource_routers
 from keystone.revoke import routers as revoke_routers
 from keystone.token import _simple_cert as simple_cert_ext
 from keystone.trust import routers as trust_routers
-from keystone.v2_crud import admin_crud
 from keystone.version import controllers
 from keystone.version import routers
 
@@ -82,20 +81,24 @@ def warn_local_conf(f):
 @warn_local_conf
 def public_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
-    return wsgi.ComposingRouter(routes.Mapper(),
-                                [assignment_routers.Public(),
-                                 routers.VersionV2('public'),
-                                 routers.Extension(False)])
+    # NOTE(lbragstad): Only wire up the v2.0 version controller. We should keep
+    # this here because we still support the ec2tokens API on the v2.0 path
+    # until T. Once that is removed, we can remove the rest of the v2.0 routers
+    # and whatnot. The ec2token controller is actually wired up by the paste
+    # pipeline.
+    return wsgi.ComposingRouter(routes.Mapper(), [routers.VersionV2('public')])
 
 
 @fail_gracefully
 @warn_local_conf
 def admin_app_factory(global_conf, **local_conf):
     controllers.register_version('v2.0')
-    return wsgi.ComposingRouter(routes.Mapper(),
-                                [admin_crud.Router(),
-                                 routers.VersionV2('admin'),
-                                 routers.Extension()])
+    # NOTE(lbragstad): Only wire up the v2.0 version controller. We should keep
+    # this here because we still support the ec2tokens API on the v2.0 path
+    # until T. Once that is removed, we can remove the rest of the v2.0 routers
+    # and whatnot. The ec2token controller is actually wired up by the paste
+    # pipeline.
+    return wsgi.ComposingRouter(routes.Mapper(), [routers.VersionV2('admin')])
 
 
 @fail_gracefully

@@ -12,6 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.token import controllers  # noqa
 from keystone.token import persistence  # noqa
 from keystone.token import provider  # noqa
