@@ -146,37 +146,6 @@ working properly. Most likely, the token from Identity is not valid for
 the operation you are attempting to perform, and your user needs a
 different role for the operation.
 
-Debug signing key file errors
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Problem
--------
-
-If an error occurs when the signing key file opens, it is possible that
-the person who ran the :command:`keystone-manage pki_setup` command to
-generate certificates and keys did not use the correct user.
-
-Solution
---------
-
-When you run the :command:`keystone-manage pki_setup` command, Identity
-generates a set of certificates and keys in ``/etc/keystone/ssl*``, which
-is owned by ``root:root``. This can present a problem when you run the
-Identity daemon under the keystone user account (nologin) when you try
-to run PKI. Unless you run the :command:`chown` command against the
-files ``keystone:keystone``, or run the :command:`keystone-manage pki_setup`
-command with the ``--keystone-user`` and
-``--keystone-group`` parameters, you will get an error.
-For example:
-
-.. code-block:: console
-
-   2012-07-31 11:10:53 ERROR [keystone.common.cms] Error opening signing key file
-   /etc/keystone/ssl/private/signing_key.pem
-   140380567730016:error:0200100D:system library:fopen:Permission
-   denied:bss_file.c:398:fopen('/etc/keystone/ssl/private/signing_key.pem','r')
-   140380567730016:error:20074002:BIO routines:FILE_CTRL:system lib:bss_file.c:400:
-   unable to load signing key file
 
 Flush expired tokens from the token database table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
