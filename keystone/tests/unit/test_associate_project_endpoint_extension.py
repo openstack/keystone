@@ -18,8 +18,11 @@ import uuid
 from six.moves import http_client
 from testtools import matchers
 
+from keystone.common import provider_api
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class EndpointFilterTestCase(test_v3.RestfulTestCase):
@@ -296,14 +299,14 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                                           region_id=self.region_id,
                                           interface='public',
                                           id=endpoint_id2)
-        self.catalog_api.create_endpoint(endpoint_id2, endpoint2.copy())
+        PROVIDERS.catalog_api.create_endpoint(endpoint_id2, endpoint2.copy())
 
         # create endpoint project association.
         self.put(self.default_request_url)
 
         # should get back only one endpoint that was just created.
         user_id = uuid.uuid4().hex
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -313,13 +316,13 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         # add the second endpoint to default project, bypassing
         # catalog_api API manager.
-        self.catalog_api.driver.add_endpoint_to_project(
+        PROVIDERS.catalog_api.driver.add_endpoint_to_project(
             endpoint_id2,
             self.default_domain_project_id)
 
         # but, we can just get back one endpoint from the cache, since the
         # catalog is pulled out from cache and its haven't been invalidated.
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -327,7 +330,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         # remove the endpoint2 from the default project, and add it again via
         # catalog_api API manager.
-        self.catalog_api.driver.remove_endpoint_from_project(
+        PROVIDERS.catalog_api.driver.remove_endpoint_from_project(
             endpoint_id2,
             self.default_domain_project_id)
 
@@ -358,7 +361,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
                                           region_id=self.region_id,
                                           interface='public',
                                           id=endpoint_id2)
-        self.catalog_api.create_endpoint(endpoint_id2, endpoint2.copy())
+        PROVIDERS.catalog_api.create_endpoint(endpoint_id2, endpoint2.copy())
         # create endpoint project association.
         self.put(self.default_request_url)
 
@@ -370,7 +373,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         # should get back only one endpoint that was just created.
         user_id = uuid.uuid4().hex
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -382,14 +385,14 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         # remove the endpoint2 from the default project, bypassing
         # catalog_api API manager.
-        self.catalog_api.driver.remove_endpoint_from_project(
+        PROVIDERS.catalog_api.driver.remove_endpoint_from_project(
             endpoint_id2,
             self.default_domain_project_id)
 
         # but, we can just still get back two endpoints from the cache,
         # since the catalog is pulled out from cache and its haven't
         # been invalidated.
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -397,7 +400,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         # add back the endpoint2 to the default project, and remove it by
         # catalog_api API manage.
-        self.catalog_api.driver.add_endpoint_to_project(
+        PROVIDERS.catalog_api.driver.add_endpoint_to_project(
             endpoint_id2,
             self.default_domain_project_id)
 
@@ -411,7 +414,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         # should only get back one endpoint since the cache has been
         # invalidated after the endpoint project association was removed.
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -522,7 +525,7 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
                                           region_id=self.region_id,
                                           interface='public',
                                           id=endpoint_id2)
-        self.catalog_api.create_endpoint(endpoint_id2, endpoint2.copy())
+        PROVIDERS.catalog_api.create_endpoint(endpoint_id2, endpoint2.copy())
 
         # add second endpoint to default project
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
@@ -533,7 +536,7 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
         # remove the temporary reference
         # this will create inconsistency in the endpoint filter table
         # which is fixed during the catalog creation for token request
-        self.catalog_api.delete_endpoint(endpoint_id2)
+        PROVIDERS.catalog_api.delete_endpoint(endpoint_id2)
 
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -566,8 +569,9 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
             'enabled': False,
             'interface': 'internal'
         })
-        self.catalog_api.create_endpoint(disabled_endpoint_id,
-                                         disabled_endpoint_ref)
+        PROVIDERS.catalog_api.create_endpoint(
+            disabled_endpoint_id, disabled_endpoint_ref
+        )
 
         self.put('/OS-EP-FILTER/projects/%(project_id)s'
                  '/endpoints/%(endpoint_id)s' % {
@@ -1144,7 +1148,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         # association, this is needed when a project scoped token is issued
         # and "endpoint_filter.sql" backend driver is in place.
         user_id = uuid.uuid4().hex
-        catalog_list = self.catalog_api.get_v3_catalog(
+        catalog_list = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
         self.assertEqual(2, len(catalog_list))
@@ -1163,7 +1167,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(1, len(endpoints))
 
-        catalog_list = self.catalog_api.get_v3_catalog(
+        catalog_list = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
         self.assertEqual(1, len(catalog_list))
@@ -1259,14 +1263,14 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                                           region_id=self.region_id,
                                           interface='admin',
                                           id=endpoint_id2)
-        self.catalog_api.create_endpoint(endpoint_id2, endpoint2)
+        PROVIDERS.catalog_api.create_endpoint(endpoint_id2, endpoint2)
 
         # create a project and endpoint association.
         self.put(self.default_request_url)
 
         # there is only one endpoint associated with the default project.
         user_id = uuid.uuid4().hex
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -1278,13 +1282,13 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         # add the endpoint group to default project, bypassing
         # catalog_api API manager.
-        self.catalog_api.driver.add_endpoint_group_to_project(
+        PROVIDERS.catalog_api.driver.add_endpoint_group_to_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
         # can get back only one endpoint from the cache, since the catalog
         # is pulled out from cache.
-        invalid_catalog = self.catalog_api.get_v3_catalog(
+        invalid_catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -1294,16 +1298,16 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         # remove the endpoint group from default project, and add it again via
         # catalog_api API manager.
-        self.catalog_api.driver.remove_endpoint_group_from_project(
+        PROVIDERS.catalog_api.driver.remove_endpoint_group_from_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
         # add the endpoint group to default project.
-        self.catalog_api.add_endpoint_group_to_project(
+        PROVIDERS.catalog_api.add_endpoint_group_to_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -1329,7 +1333,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
                                           region_id=self.region_id,
                                           interface='admin',
                                           id=endpoint_id2)
-        self.catalog_api.create_endpoint(endpoint_id2, endpoint2)
+        PROVIDERS.catalog_api.create_endpoint(endpoint_id2, endpoint2)
 
         # create project and endpoint association.
         self.put(self.default_request_url)
@@ -1339,7 +1343,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY)
 
         # add the endpoint group to default project.
-        self.catalog_api.add_endpoint_group_to_project(
+        PROVIDERS.catalog_api.add_endpoint_group_to_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
@@ -1347,7 +1351,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         # association, the other one is from endpoint_group project
         # association.
         user_id = uuid.uuid4().hex
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -1359,13 +1363,13 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         # remove endpoint_group project association, bypassing
         # catalog_api API manager.
-        self.catalog_api.driver.remove_endpoint_group_from_project(
+        PROVIDERS.catalog_api.driver.remove_endpoint_group_from_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
         # still get back two endpoints, since the catalog is pulled out
         # from cache and the cache haven't been invalidated.
-        invalid_catalog = self.catalog_api.get_v3_catalog(
+        invalid_catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 
@@ -1375,18 +1379,18 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         # add back the endpoint_group project association and remove it from
         # manager.
-        self.catalog_api.driver.add_endpoint_group_to_project(
+        PROVIDERS.catalog_api.driver.add_endpoint_group_to_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
-        self.catalog_api.remove_endpoint_group_from_project(
+        PROVIDERS.catalog_api.remove_endpoint_group_from_project(
             endpoint_group_id,
             self.default_domain_project_id)
 
         # should only get back one endpoint since the cache has been
         # invalidated after the endpoint_group project association was
         # removed.
-        catalog = self.catalog_api.get_v3_catalog(
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
             user_id,
             self.default_domain_project_id)
 

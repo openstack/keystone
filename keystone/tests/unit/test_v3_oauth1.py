@@ -25,6 +25,7 @@ from six.moves import http_client
 from six.moves import urllib
 from six.moves.urllib import parse as urlparse
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone import oauth1
@@ -38,6 +39,7 @@ from keystone.tests.unit import test_v3
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def _urllib_parse_qs_text_keys(content):
@@ -535,14 +537,14 @@ class AuthTokenTests(object):
 
     def test_delete_keystone_tokens_by_consumer_id(self):
         self.test_oauth_flow()
-        self.token_provider_api._persistence.get_token(
+        PROVIDERS.token_provider_api._persistence.get_token(
             self.keystone_token_id)
-        self.token_provider_api._persistence.delete_tokens(
+        PROVIDERS.token_provider_api._persistence.delete_tokens(
             self.user_id,
             consumer_id=self.consumer['key'])
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_provider_api._persistence.get_token,
+            PROVIDERS.token_provider_api._persistence.get_token,
             self.keystone_token_id)
 
     def _create_trust_get_token(self):
@@ -882,7 +884,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
 
-        self.assignment_api.remove_role_from_user_and_project(
+        PROVIDERS.assignment_api.remove_role_from_user_and_project(
             self.user_id, self.project_id, self.role_id)
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
@@ -927,14 +929,14 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         resp = self.put(url, body=body, expected_status=http_client.OK)
         verifier = resp.result['token']['oauth_verifier']
         request_token.set_verifier(verifier)
-        request_token_created = self.oauth_api.get_request_token(
+        request_token_created = PROVIDERS.oauth_api.get_request_token(
             request_key.decode('utf-8'))
         request_token_created.update({'authorizing_user_id': ''})
         # Update the request token that is created instead of mocking
         # the whole token object to focus on what's we want to test
         # here and avoid any other factors that will result in the same
         # exception.
-        with mock.patch.object(self.oauth_api,
+        with mock.patch.object(PROVIDERS.oauth_api,
                                'get_request_token') as mock_token:
             mock_token.return_value = request_token_created
             url, headers = self._create_access_token(consumer, request_token)
@@ -1069,7 +1071,7 @@ class OAuthNotificationTests(OAuth1Tests,
     def test_update_consumer(self):
         consumer_ref = self._create_single_consumer()
         update_ref = {'consumer': {'description': uuid.uuid4().hex}}
-        self.oauth_api.update_consumer(consumer_ref['id'], update_ref)
+        PROVIDERS.oauth_api.update_consumer(consumer_ref['id'], update_ref)
         self._assert_notify_sent(consumer_ref['id'],
                                  test_notifications.UPDATED_OPERATION,
                                  'OS-OAUTH1:consumer')
@@ -1080,7 +1082,7 @@ class OAuthNotificationTests(OAuth1Tests,
 
     def test_delete_consumer(self):
         consumer_ref = self._create_single_consumer()
-        self.oauth_api.delete_consumer(consumer_ref['id'])
+        PROVIDERS.oauth_api.delete_consumer(consumer_ref['id'])
         self._assert_notify_sent(consumer_ref['id'],
                                  test_notifications.DELETED_OPERATION,
                                  'OS-OAUTH1:consumer')

@@ -17,8 +17,11 @@ import uuid
 
 from six.moves import http_client
 
+from keystone.common import provider_api
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class PolicyTestCase(test_v3.RestfulTestCase):
@@ -28,7 +31,7 @@ class PolicyTestCase(test_v3.RestfulTestCase):
         super(PolicyTestCase, self).setUp()
         self.policy = unit.new_policy_ref()
         self.policy_id = self.policy['id']
-        self.policy_api.create_policy(
+        PROVIDERS.policy_api.create_policy(
             self.policy_id,
             self.policy.copy())
 

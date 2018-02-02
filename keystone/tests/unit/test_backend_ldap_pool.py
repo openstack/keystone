@@ -17,6 +17,7 @@ import fixtures
 import ldappool
 import mock
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone.identity.backends import ldap
 from keystone.identity.backends.ldap import common as common_ldap
@@ -26,6 +27,7 @@ from keystone.tests.unit import test_backend_ldap
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class LdapPoolCommonTestMixin(object):
@@ -36,7 +38,7 @@ class LdapPoolCommonTestMixin(object):
 
     def test_handler_with_use_pool_enabled(self):
         # by default use_pool and use_auth_pool is enabled in test pool config
-        user_ref = self.identity_api.get_user(self.user_foo['id'])
+        user_ref = PROVIDERS.identity_api.get_user(self.user_foo['id'])
         self.user_foo.pop('password')
         self.assertDictEqual(self.user_foo, user_ref)
 
@@ -90,7 +92,7 @@ class LdapPoolCommonTestMixin(object):
 
     def test_pool_retry_delay_set(self):
         # just make one identity call to initiate ldap connection if not there
-        self.identity_api.get_user(self.user_foo['id'])
+        PROVIDERS.identity_api.get_user(self.user_foo['id'])
 
         # get related connection manager instance
         ldappool_cm = self.conn_pools[CONF.ldap.url]
@@ -174,7 +176,7 @@ class LdapPoolCommonTestMixin(object):
 
         # authenticate so that connection is added to pool before password
         # change
-        user_ref = self.identity_api.authenticate(
+        user_ref = PROVIDERS.identity_api.authenticate(
             self.make_request(),
             user_id=self.user_sna['id'],
             password=self.user_sna['password'])
@@ -185,11 +187,11 @@ class LdapPoolCommonTestMixin(object):
 
         new_password = 'new_password'
         user_ref['password'] = new_password
-        self.identity_api.update_user(user_ref['id'], user_ref)
+        PROVIDERS.identity_api.update_user(user_ref['id'], user_ref)
 
         # now authenticate again to make sure new password works with
         # connection pool
-        user_ref2 = self.identity_api.authenticate(
+        user_ref2 = PROVIDERS.identity_api.authenticate(
             self.make_request(),
             user_id=self.user_sna['id'],
             password=new_password)
@@ -201,7 +203,7 @@ class LdapPoolCommonTestMixin(object):
         # is only one connection in pool which get bind again with updated
         # password..so no old bind is maintained in this case.
         self.assertRaises(AssertionError,
-                          self.identity_api.authenticate,
+                          PROVIDERS.identity_api.authenticate,
                           self.make_request(),
                           user_id=self.user_sna['id'],
                           password=old_password)
@@ -223,7 +225,7 @@ class LDAPIdentity(LdapPoolCommonTestMixin,
         # super class loads db fixtures which establishes ldap connection
         # so adding dummy call to highlight connection pool initialization
         # as its not that obvious though its not needed here
-        self.identity_api.get_user(self.user_foo['id'])
+        PROVIDERS.identity_api.get_user(self.user_foo['id'])
 
     def config_files(self):
         config_files = super(LDAPIdentity, self).config_files()
@@ -236,8 +238,8 @@ class LDAPIdentity(LdapPoolCommonTestMixin,
             return arg
         mocked_method.side_effect = side_effect
         # invalidate the cache to get utf8_encode function called.
-        self.identity_api.get_user.invalidate(self.identity_api,
-                                              self.user_foo['id'])
-        self.identity_api.get_user(self.user_foo['id'])
+        PROVIDERS.identity_api.get_user.invalidate(PROVIDERS.identity_api,
+                                                   self.user_foo['id'])
+        PROVIDERS.identity_api.get_user(self.user_foo['id'])
         mocked_method.assert_any_call(CONF.ldap.user)
         mocked_method.assert_any_call(CONF.ldap.password)

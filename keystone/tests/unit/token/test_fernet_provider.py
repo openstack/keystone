@@ -21,6 +21,7 @@ from oslo_utils import timeutils
 import six
 
 from keystone import auth
+from keystone.common import provider_api
 from keystone.common import token_utils
 from keystone.common import utils
 import keystone.conf
@@ -35,6 +36,7 @@ from keystone.token import token_formatters
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestFernetTokenProvider(unit.TestCase):
@@ -94,17 +96,18 @@ class TestValidate(unit.TestCase):
         # with a simple token.
 
         domain_ref = unit.new_domain_ref()
-        domain_ref = self.resource_api.create_domain(domain_ref['id'],
-                                                     domain_ref)
+        domain_ref = PROVIDERS.resource_api.create_domain(
+            domain_ref['id'], domain_ref
+        )
 
         user_ref = unit.new_user_ref(domain_ref['id'])
-        user_ref = self.identity_api.create_user(user_ref)
+        user_ref = PROVIDERS.identity_api.create_user(user_ref)
 
         method_names = ['password']
-        token_id, token_data_ = self.token_provider_api.issue_token(
+        token_id, token_data_ = PROVIDERS.token_provider_api.issue_token(
             user_ref['id'], method_names)
 
-        token_data = self.token_provider_api.validate_token(token_id)
+        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
         token = token_data['token']
         self.assertIsInstance(token['audit_ids'], list)
         self.assertIsInstance(token['expires_at'], str)
@@ -126,11 +129,12 @@ class TestValidate(unit.TestCase):
         # when the token has federated info.
 
         domain_ref = unit.new_domain_ref()
-        domain_ref = self.resource_api.create_domain(domain_ref['id'],
-                                                     domain_ref)
+        domain_ref = PROVIDERS.resource_api.create_domain(
+            domain_ref['id'], domain_ref
+        )
 
         user_ref = unit.new_user_ref(domain_ref['id'])
-        user_ref = self.identity_api.create_user(user_ref)
+        user_ref = PROVIDERS.identity_api.create_user(user_ref)
 
         method_names = ['mapped']
 
@@ -145,10 +149,10 @@ class TestValidate(unit.TestCase):
             federation_constants.PROTOCOL: protocol,
         }
         auth_context = auth.core.AuthContext(**auth_context_params)
-        token_id, token_data_ = self.token_provider_api.issue_token(
+        token_id, token_data_ = PROVIDERS.token_provider_api.issue_token(
             user_ref['id'], method_names, auth_context=auth_context)
 
-        token_data = self.token_provider_api.validate_token(token_id)
+        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
         token = token_data['token']
         exp_user_info = {
             'id': user_ref['id'],
@@ -168,27 +172,29 @@ class TestValidate(unit.TestCase):
         # when the token has trust info.
 
         domain_ref = unit.new_domain_ref()
-        domain_ref = self.resource_api.create_domain(domain_ref['id'],
-                                                     domain_ref)
+        domain_ref = PROVIDERS.resource_api.create_domain(
+            domain_ref['id'], domain_ref
+        )
 
         user_ref = unit.new_user_ref(domain_ref['id'])
-        user_ref = self.identity_api.create_user(user_ref)
+        user_ref = PROVIDERS.identity_api.create_user(user_ref)
 
         trustor_user_ref = unit.new_user_ref(domain_ref['id'])
-        trustor_user_ref = self.identity_api.create_user(trustor_user_ref)
+        trustor_user_ref = PROVIDERS.identity_api.create_user(trustor_user_ref)
 
         project_ref = unit.new_project_ref(domain_id=domain_ref['id'])
-        project_ref = self.resource_api.create_project(project_ref['id'],
-                                                       project_ref)
+        project_ref = PROVIDERS.resource_api.create_project(
+            project_ref['id'], project_ref
+        )
 
         role_ref = unit.new_role_ref()
-        role_ref = self.role_api.create_role(role_ref['id'], role_ref)
+        role_ref = PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             role_ref['id'], user_id=user_ref['id'],
             project_id=project_ref['id'])
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             role_ref['id'], user_id=trustor_user_ref['id'],
             project_id=project_ref['id'])
 
@@ -197,16 +203,17 @@ class TestValidate(unit.TestCase):
         trust_ref = unit.new_trust_ref(
             trustor_user_id, trustee_user_id, project_id=project_ref['id'],
             role_ids=[role_ref['id'], ])
-        trust_ref = self.trust_api.create_trust(trust_ref['id'], trust_ref,
-                                                trust_ref['roles'])
+        trust_ref = PROVIDERS.trust_api.create_trust(
+            trust_ref['id'], trust_ref, trust_ref['roles']
+        )
 
         method_names = ['password']
 
-        token_id, token_data_ = self.token_provider_api.issue_token(
+        token_id, token_data_ = PROVIDERS.token_provider_api.issue_token(
             user_ref['id'], method_names, project_id=project_ref['id'],
             trust=trust_ref)
 
-        token_data = self.token_provider_api.validate_token(token_id)
+        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
         token = token_data['token']
         exp_trust_info = {
             'id': trust_ref['id'],
@@ -221,8 +228,11 @@ class TestValidate(unit.TestCase):
 
         # A uuid string isn't a valid Fernet token.
         token_id = uuid.uuid4().hex
-        self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api.validate_token, token_id)
+        self.assertRaises(
+            exception.TokenNotFound,
+            PROVIDERS.token_provider_api.validate_token,
+            token_id
+        )
 
 
 class TestTokenFormatter(unit.TestCase):

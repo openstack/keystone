@@ -16,6 +16,7 @@ import mock
 from six.moves import range
 from testtools import matchers
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
@@ -23,6 +24,7 @@ from keystone.tests.unit import default_fixtures
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class AssignmentTestHelperMixin(object):
@@ -152,8 +154,9 @@ class AssignmentTestHelperMixin(object):
         def _create_project(domain_id, parent_id):
             new_project = unit.new_project_ref(domain_id=domain_id,
                                                parent_id=parent_id)
-            new_project = self.resource_api.create_project(new_project['id'],
-                                                           new_project)
+            new_project = PROVIDERS.resource_api.create_project(
+                new_project['id'], new_project
+            )
             return new_project
 
         if isinstance(project_spec, list):
@@ -173,7 +176,7 @@ class AssignmentTestHelperMixin(object):
 
     def _create_role(self, domain_id=None):
         new_role = unit.new_role_ref(domain_id=domain_id)
-        return self.role_api.create_role(new_role['id'], new_role)
+        return PROVIDERS.role_api.create_role(new_role['id'], new_role)
 
     def _handle_domain_spec(self, test_data, domain_spec):
         """Handle the creation of domains and their contents.
@@ -191,21 +194,22 @@ class AssignmentTestHelperMixin(object):
         def _create_domain(domain_id=None):
             if domain_id is None:
                 new_domain = unit.new_domain_ref()
-                self.resource_api.create_domain(new_domain['id'],
-                                                new_domain)
+                PROVIDERS.resource_api.create_domain(
+                    new_domain['id'], new_domain
+                )
                 return new_domain
             else:
                 # The test plan specified an existing domain to use
-                return self.resource_api.get_domain(domain_id)
+                return PROVIDERS.resource_api.get_domain(domain_id)
 
         def _create_entity_in_domain(entity_type, domain_id):
             """Create a user or group entity in the domain."""
             if entity_type == 'users':
                 new_entity = unit.new_user_ref(domain_id=domain_id)
-                new_entity = self.identity_api.create_user(new_entity)
+                new_entity = PROVIDERS.identity_api.create_user(new_entity)
             elif entity_type == 'groups':
                 new_entity = unit.new_group_ref(domain_id=domain_id)
-                new_entity = self.identity_api.create_group(new_entity)
+                new_entity = PROVIDERS.identity_api.create_group(new_entity)
             elif entity_type == 'roles':
                 new_entity = self._create_role(domain_id=domain_id)
             else:
@@ -298,11 +302,15 @@ class AssignmentTestHelperMixin(object):
             if isinstance(implied_spec['implied_roles'], list):
                 for this_role in implied_spec['implied_roles']:
                     implied_role = test_data['roles'][this_role]['id']
-                    self.role_api.create_implied_role(prior_role, implied_role)
+                    PROVIDERS.role_api.create_implied_role(
+                        prior_role, implied_role
+                    )
             else:
                 implied_role = (
                     test_data['roles'][implied_spec['implied_roles']]['id'])
-                self.role_api.create_implied_role(prior_role, implied_role)
+                PROVIDERS.role_api.create_implied_role(
+                    prior_role, implied_role
+                )
 
     def create_group_memberships(self, group_pattern, test_data):
         """Create the group memberships specified in the test plan."""
@@ -316,7 +324,9 @@ class AssignmentTestHelperMixin(object):
             group_value = test_data['groups'][group_spec['group']]['id']
             for user_index in group_spec['users']:
                 user_value = test_data['users'][user_index]['id']
-                self.identity_api.add_user_to_group(user_value, group_value)
+                PROVIDERS.identity_api.add_user_to_group(
+                    user_value, group_value
+                )
         return test_data
 
     def create_assignments(self, assignment_pattern, test_data):
@@ -325,7 +335,7 @@ class AssignmentTestHelperMixin(object):
         # so during the tests we can check the number of new assignments
         # created.
         test_data['initial_assignment_count'] = (
-            len(self.assignment_api.list_role_assignments()))
+            len(PROVIDERS.assignment_api.list_role_assignments()))
 
         # Now create the new assignments in the test plan
         for assignment in assignment_pattern:
@@ -348,7 +358,7 @@ class AssignmentTestHelperMixin(object):
                     key, value = self._convert_entity_shorthand(
                         param, assignment, test_data)
                     args[key] = value
-            self.assignment_api.create_grant(**args)
+            PROVIDERS.assignment_api.create_grant(**args)
         return test_data
 
     def execute_assignment_cases(self, test_plan, test_data):
@@ -415,7 +425,7 @@ class AssignmentTestHelperMixin(object):
                     key, value = self._convert_entity_shorthand(
                         param, test['params'], test_data)
                     args[key] = value
-            results = self.assignment_api.list_role_assignments(**args)
+            results = PROVIDERS.assignment_api.list_role_assignments(**args)
             check_results(test['results'], results, len(args))
 
     def execute_assignment_plan(self, test_plan):
@@ -444,28 +454,28 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
     def _get_domain_fixture(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         return domain
 
     def test_project_add_and_remove_user_role(self):
-        user_ids = self.assignment_api.list_user_ids_for_project(
+        user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
             self.tenant_bar['id'])
         self.assertNotIn(self.user_two['id'], user_ids)
 
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             tenant_id=self.tenant_bar['id'],
             user_id=self.user_two['id'],
             role_id=self.role_other['id'])
-        user_ids = self.assignment_api.list_user_ids_for_project(
+        user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
             self.tenant_bar['id'])
         self.assertIn(self.user_two['id'], user_ids)
 
-        self.assignment_api.remove_role_from_user_and_project(
+        PROVIDERS.assignment_api.remove_role_from_user_and_project(
             tenant_id=self.tenant_bar['id'],
             user_id=self.user_two['id'],
             role_id=self.role_other['id'])
 
-        user_ids = self.assignment_api.list_user_ids_for_project(
+        user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
             self.tenant_bar['id'])
         self.assertNotIn(self.user_two['id'], user_ids)
 
@@ -473,14 +483,14 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Expect failure if attempt to remove a role that was never assigned to
         # the user.
         self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.
+                          PROVIDERS.assignment_api.
                           remove_role_from_user_and_project,
                           tenant_id=self.tenant_bar['id'],
                           user_id=self.user_two['id'],
                           role_id=self.role_other['id'])
 
     def test_list_user_ids_for_project(self):
-        user_ids = self.assignment_api.list_user_ids_for_project(
+        user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
             self.tenant_baz['id'])
         self.assertEqual(2, len(user_ids))
         self.assertIn(self.user_two['id'], user_ids)
@@ -489,29 +499,29 @@ class AssignmentTests(AssignmentTestHelperMixin):
     def test_list_user_ids_for_project_no_duplicates(self):
         # Create user
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_ref = self.identity_api.create_user(user_ref)
+        user_ref = PROVIDERS.identity_api.create_user(user_ref)
         # Create project
         project_ref = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(
+        PROVIDERS.resource_api.create_project(
             project_ref['id'], project_ref)
         # Create 2 roles and give user each role in project
         for i in range(2):
             role_ref = unit.new_role_ref()
-            self.role_api.create_role(role_ref['id'], role_ref)
-            self.assignment_api.add_role_to_user_and_project(
+            PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
+            PROVIDERS.assignment_api.add_role_to_user_and_project(
                 user_id=user_ref['id'],
                 tenant_id=project_ref['id'],
                 role_id=role_ref['id'])
         # Get the list of user_ids in project
-        user_ids = self.assignment_api.list_user_ids_for_project(
+        user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
             project_ref['id'])
         # Ensure the user is only returned once
         self.assertEqual(1, len(user_ids))
 
     def test_get_project_user_ids_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.list_user_ids_for_project,
+                          PROVIDERS.assignment_api.list_user_ids_for_project,
                           uuid.uuid4().hex)
 
     def test_list_role_assignments_unfiltered(self):
@@ -575,7 +585,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.execute_assignment_plan(test_plan)
 
     def test_list_role_assignments_bad_role(self):
-        assignment_list = self.assignment_api.list_role_assignments(
+        assignment_list = PROVIDERS.assignment_api.list_role_assignments(
             role_id=uuid.uuid4().hex)
         self.assertEqual([], assignment_list)
 
@@ -587,9 +597,9 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # this simulates the possibility of a user being deleted
         # directly in the backend and still having lingering role
         # assignments.
-        with mock.patch.object(self.identity_api, 'get_user',
+        with mock.patch.object(PROVIDERS.identity_api, 'get_user',
                                _user_not_found):
-            assignment_list = self.assignment_api.list_role_assignments(
+            assignment_list = PROVIDERS.assignment_api.list_role_assignments(
                 include_names=True
             )
 
@@ -608,33 +618,33 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
         # Setup
         # 1) Remove any pre-existing assignments so we control what's there
-        for a in self.assignment_api.list_role_assignments():
-            self.assignment_api.delete_grant(**a)
+        for a in PROVIDERS.assignment_api.list_role_assignments():
+            PROVIDERS.assignment_api.delete_grant(**a)
         # 2) create a group and 2 users in that group
         domain_id = CONF.identity.default_domain_id
-        group = self.identity_api.create_group(
+        group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=domain_id))
-        user1 = self.identity_api.create_user(
+        user1 = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=domain_id))
-        user2 = self.identity_api.create_user(
+        user2 = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=domain_id))
-        self.identity_api.add_user_to_group(user1['id'], group['id'])
-        self.identity_api.add_user_to_group(user2['id'], group['id'])
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], group['id'])
+        PROVIDERS.identity_api.add_user_to_group(user2['id'], group['id'])
         # 3) create a role assignment for the group
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=group['id'],
             domain_id=domain_id,
             role_id=default_fixtures.MEMBER_ROLE_ID)
 
-        num_assignments = len(self.assignment_api.list_role_assignments())
+        num_assignments = len(PROVIDERS.assignment_api.list_role_assignments())
         self.assertEqual(1, num_assignments)
 
         # Patch get_group to return GroupNotFound, allowing us to confirm
         # that the exception is handled properly when include_names processing
         # attempts to lookup a group that has been deleted in the backend
-        with mock.patch.object(self.identity_api, 'get_group',
+        with mock.patch.object(PROVIDERS.identity_api, 'get_group',
                                _group_not_found):
-            assignment_list = self.assignment_api.list_role_assignments(
+            assignment_list = PROVIDERS.assignment_api.list_role_assignments(
                 include_names=True
             )
 
@@ -650,7 +660,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
                 self.assertEqual('', assignment['group_domain_name'])
         self.assertTrue(includes_group_assignments)
 
-        num_effective = len(self.assignment_api.list_role_assignments(
+        num_effective = len(PROVIDERS.assignment_api.list_role_assignments(
             effective=True))
         self.assertGreater(num_effective, len(assignment_list))
 
@@ -658,16 +668,16 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # confirm that the exception is handled properly when effective
         # processing attempts to lookup users for a group that has been deleted
         # in the backend
-        with mock.patch.object(self.identity_api, 'list_users_in_group',
+        with mock.patch.object(PROVIDERS.identity_api, 'list_users_in_group',
                                _group_not_found):
-            assignment_list = self.assignment_api.list_role_assignments(
+            assignment_list = PROVIDERS.assignment_api.list_role_assignments(
                 effective=True
             )
 
         self.assertGreater(num_effective, len(assignment_list))
 
         # cleanup
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             group_id=group['id'],
             domain_id=domain_id,
             role_id=default_fixtures.MEMBER_ROLE_ID)
@@ -675,16 +685,18 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # LDAP read-only issues
 
     def test_add_duplicate_role_grant(self):
-        roles_ref = self.assignment_api.get_roles_for_user_and_project(
+        roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(self.role_admin['id'], roles_ref)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], self.role_admin['id'])
-        self.assertRaises(exception.Conflict,
-                          self.assignment_api.add_role_to_user_and_project,
-                          self.user_foo['id'],
-                          self.tenant_bar['id'],
-                          self.role_admin['id'])
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.assignment_api.add_role_to_user_and_project,
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            self.role_admin['id']
+        )
 
     def test_get_role_by_user_and_project_with_user_in_group(self):
         """Test for get role by user and project, user was added into a group.
@@ -697,28 +709,28 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
         """
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_ref = self.identity_api.create_user(user_ref)
+        user_ref = PROVIDERS.identity_api.create_user(user_ref)
 
         project_ref = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project_ref['id'], project_ref)
+        PROVIDERS.resource_api.create_project(project_ref['id'], project_ref)
 
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group)['id']
-        self.identity_api.add_user_to_group(user_ref['id'], group_id)
+        group_id = PROVIDERS.identity_api.create_group(group)['id']
+        PROVIDERS.identity_api.add_user_to_group(user_ref['id'], group_id)
 
         role_ref_list = []
         for i in range(2):
             role_ref = unit.new_role_ref()
-            self.role_api.create_role(role_ref['id'], role_ref)
+            PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
             role_ref_list.append(role_ref)
 
-            self.assignment_api.add_role_to_user_and_project(
+            PROVIDERS.assignment_api.add_role_to_user_and_project(
                 user_id=user_ref['id'],
                 tenant_id=project_ref['id'],
                 role_id=role_ref['id'])
 
-        role_list = self.assignment_api.get_roles_for_user_and_project(
+        role_list = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             user_ref['id'],
             project_ref['id'])
 
@@ -726,21 +738,21 @@ class AssignmentTests(AssignmentTestHelperMixin):
                          set(role_list))
 
     def test_get_role_by_user_and_project(self):
-        roles_ref = self.assignment_api.get_roles_for_user_and_project(
+        roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(self.role_admin['id'], roles_ref)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], self.role_admin['id'])
-        roles_ref = self.assignment_api.get_roles_for_user_and_project(
+        roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertIn(self.role_admin['id'], roles_ref)
         self.assertNotIn(default_fixtures.MEMBER_ROLE_ID, roles_ref)
 
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.get_roles_for_user_and_project(
+        roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertIn(self.role_admin['id'], roles_ref)
         self.assertIn(default_fixtures.MEMBER_ROLE_ID, roles_ref)
@@ -760,45 +772,45 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
         """
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
         new_user1 = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user1 = self.identity_api.create_user(new_user1)
+        new_user1 = PROVIDERS.identity_api.create_user(new_user1)
         new_user2 = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user2 = self.identity_api.create_user(new_user2)
-        roles_ref = self.assignment_api.list_grants(
+        new_user2 = PROVIDERS.identity_api.create_user(new_user2)
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=new_user1['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
         # Now create the grants (roles are defined in default_fixtures)
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=new_user1['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=new_user1['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.OTHER_ROLE_ID)
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=new_user2['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.ADMIN_ROLE_ID)
         # Read back the roles for user1 on domain
-        roles_ids = self.assignment_api.get_roles_for_user_and_domain(
+        roles_ids = PROVIDERS.assignment_api.get_roles_for_user_and_domain(
             new_user1['id'], new_domain['id'])
         self.assertEqual(2, len(roles_ids))
         self.assertIn(self.role_member['id'], roles_ids)
         self.assertIn(self.role_other['id'], roles_ids)
 
         # Now delete both grants for user1
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             user_id=new_user1['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             user_id=new_user1['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.OTHER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=new_user1['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
@@ -814,87 +826,100 @@ class AssignmentTests(AssignmentTestHelperMixin):
         """
         new_domain = self._get_domain_fixture()
         new_user1 = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user1 = self.identity_api.create_user(new_user1)
+        new_user1 = PROVIDERS.identity_api.create_user(new_user1)
 
-        self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.get_roles_for_user_and_domain,
-                          uuid.uuid4().hex,
-                          new_domain['id'])
+        self.assertRaises(
+            exception.UserNotFound,
+            PROVIDERS.assignment_api.get_roles_for_user_and_domain,
+            uuid.uuid4().hex,
+            new_domain['id']
+        )
 
-        self.assertRaises(exception.DomainNotFound,
-                          self.assignment_api.get_roles_for_user_and_domain,
-                          new_user1['id'],
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.DomainNotFound,
+            PROVIDERS.assignment_api.get_roles_for_user_and_domain,
+            new_user1['id'],
+            uuid.uuid4().hex
+        )
 
     def test_get_roles_for_user_and_project_returns_not_found(self):
-        self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.get_roles_for_user_and_project,
-                          uuid.uuid4().hex,
-                          self.tenant_bar['id'])
+        self.assertRaises(
+            exception.UserNotFound,
+            PROVIDERS.assignment_api.get_roles_for_user_and_project,
+            uuid.uuid4().hex,
+            self.tenant_bar['id']
+        )
 
-        self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.get_roles_for_user_and_project,
-                          self.user_foo['id'],
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.ProjectNotFound,
+            PROVIDERS.assignment_api.get_roles_for_user_and_project,
+            self.user_foo['id'],
+            uuid.uuid4().hex
+        )
 
     def test_add_role_to_user_and_project_returns_not_found(self):
-        self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.add_role_to_user_and_project,
-                          self.user_foo['id'],
-                          uuid.uuid4().hex,
-                          self.role_admin['id'])
+        self.assertRaises(
+            exception.ProjectNotFound,
+            PROVIDERS.assignment_api.add_role_to_user_and_project,
+            self.user_foo['id'],
+            uuid.uuid4().hex,
+            self.role_admin['id']
+        )
 
-        self.assertRaises(exception.RoleNotFound,
-                          self.assignment_api.add_role_to_user_and_project,
-                          self.user_foo['id'],
-                          self.tenant_bar['id'],
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.RoleNotFound,
+            PROVIDERS.assignment_api.add_role_to_user_and_project,
+            self.user_foo['id'],
+            self.tenant_bar['id'],
+            uuid.uuid4().hex
+        )
 
     def test_add_role_to_user_and_project_no_user(self):
         # If add_role_to_user_and_project and the user doesn't exist, then
         # no error.
         user_id_not_exist = uuid.uuid4().hex
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id_not_exist, self.tenant_bar['id'], self.role_admin['id'])
 
     def test_remove_role_from_user_and_project(self):
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             default_fixtures.MEMBER_ROLE_ID)
-        self.assignment_api.remove_role_from_user_and_project(
+        PROVIDERS.assignment_api.remove_role_from_user_and_project(
             self.user_foo['id'],
             self.tenant_bar['id'],
             default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.get_roles_for_user_and_project(
+        roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(default_fixtures.MEMBER_ROLE_ID, roles_ref)
         self.assertRaises(exception.NotFound,
-                          self.assignment_api.
+                          PROVIDERS.assignment_api.
                           remove_role_from_user_and_project,
                           self.user_foo['id'],
                           self.tenant_bar['id'],
                           default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_role_grant_by_user_and_project(self):
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual(1, len(roles_ref))
-        self.assignment_api.create_grant(user_id=self.user_foo['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_admin['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.create_grant(
+            user_id=self.user_foo['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_admin['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_bar['id'])
         self.assertIn(self.role_admin['id'],
                       [role_ref['id'] for role_ref in roles_ref])
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=self.user_foo['id'],
             project_id=self.tenant_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_bar['id'])
 
@@ -905,364 +930,384 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertIn(default_fixtures.MEMBER_ROLE_ID, roles_ref_ids)
 
     def test_remove_role_grant_from_user_and_project(self):
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
                           project_id=self.tenant_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_role_assignment_by_project_not_found(self):
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.check_grant_role_id,
+                          PROVIDERS.assignment_api.check_grant_role_id,
                           user_id=self.user_foo['id'],
                           project_id=self.tenant_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.check_grant_role_id,
+                          PROVIDERS.assignment_api.check_grant_role_id,
                           group_id=uuid.uuid4().hex,
                           project_id=self.tenant_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_role_assignment_by_domain_not_found(self):
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.check_grant_role_id,
+                          PROVIDERS.assignment_api.check_grant_role_id,
                           user_id=self.user_foo['id'],
                           domain_id=CONF.identity.default_domain_id,
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.check_grant_role_id,
+                          PROVIDERS.assignment_api.check_grant_role_id,
                           group_id=uuid.uuid4().hex,
                           domain_id=CONF.identity.default_domain_id,
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_del_role_assignment_by_project_not_found(self):
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
                           project_id=self.tenant_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=uuid.uuid4().hex,
                           project_id=self.tenant_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_del_role_assignment_by_domain_not_found(self):
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
                           domain_id=CONF.identity.default_domain_id,
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=uuid.uuid4().hex,
                           domain_id=CONF.identity.default_domain_id,
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         new_user = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            new_group['id'])
-        roles_ref = self.assignment_api.list_grants(
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], new_group['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           project_id=self.tenant_bar['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_role_grant_by_group_and_domain(self):
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         new_user = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            new_group['id'])
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], new_group['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             group_id=new_group['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           domain_id=new_domain['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_correct_role_grant_from_a_mix(self):
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
         new_project = unit.new_project_ref(domain_id=new_domain['id'])
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         new_group2 = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group2 = self.identity_api.create_group(new_group2)
+        new_group2 = PROVIDERS.identity_api.create_group(new_group2)
         new_user = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
+        new_user = PROVIDERS.identity_api.create_user(new_user)
         new_user2 = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user2 = self.identity_api.create_user(new_user2)
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            new_group['id'])
+        new_user2 = PROVIDERS.identity_api.create_user(new_user2)
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], new_group['id']
+        )
         # First check we have no grants
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
         # Now add the grant we are going to test for, and some others as
         # well just to make sure we get back the right one
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
 
-        self.assignment_api.create_grant(group_id=new_group2['id'],
-                                         domain_id=new_domain['id'],
-                                         role_id=self.role_admin['id'])
-        self.assignment_api.create_grant(user_id=new_user2['id'],
-                                         domain_id=new_domain['id'],
-                                         role_id=self.role_admin['id'])
-        self.assignment_api.create_grant(group_id=new_group['id'],
-                                         project_id=new_project['id'],
-                                         role_id=self.role_admin['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=new_group2['id'], domain_id=new_domain['id'],
+            role_id=self.role_admin['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=new_user2['id'], domain_id=new_domain['id'],
+            role_id=self.role_admin['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=new_group['id'], project_id=new_project['id'],
+            role_id=self.role_admin['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             group_id=new_group['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           domain_id=new_domain['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_role_grant_by_user_and_domain(self):
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
         new_user = unit.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
-        roles_ref = self.assignment_api.list_grants(
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=new_user['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=new_user['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=new_user['id'],
             domain_id=new_domain['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             user_id=new_user['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=new_user['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           user_id=new_user['id'],
                           domain_id=new_domain['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_role_grant_by_group_and_cross_domain(self):
         group1_domain1_role = unit.new_role_ref()
-        self.role_api.create_role(group1_domain1_role['id'],
-                                  group1_domain1_role)
+        PROVIDERS.role_api.create_role(
+            group1_domain1_role['id'], group1_domain1_role
+        )
         group1_domain2_role = unit.new_role_ref()
-        self.role_api.create_role(group1_domain2_role['id'],
-                                  group1_domain2_role)
+        PROVIDERS.role_api.create_role(
+            group1_domain2_role['id'], group1_domain2_role
+        )
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
-        roles_ref = self.assignment_api.list_grants(
+        group1 = PROVIDERS.identity_api.create_group(group1)
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain1['id'])
         self.assertEqual(0, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain2['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=group1_domain1_role['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=group1_domain2_role['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain1['id'],
+            role_id=group1_domain1_role['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain2['id'],
+            role_id=group1_domain2_role['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain1['id'])
         self.assertDictEqual(group1_domain1_role, roles_ref[0])
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain2['id'])
         self.assertDictEqual(group1_domain2_role, roles_ref[0])
 
-        self.assignment_api.delete_grant(group_id=group1['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=group1_domain2_role['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.delete_grant(
+            group_id=group1['id'], domain_id=domain2['id'],
+            role_id=group1_domain2_role['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain2['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=group1['id'],
                           domain_id=domain2['id'],
                           role_id=group1_domain2_role['id'])
 
     def test_get_and_remove_role_grant_by_user_and_cross_domain(self):
         user1_domain1_role = unit.new_role_ref()
-        self.role_api.create_role(user1_domain1_role['id'], user1_domain1_role)
+        PROVIDERS.role_api.create_role(
+            user1_domain1_role['id'], user1_domain1_role
+        )
         user1_domain2_role = unit.new_role_ref()
-        self.role_api.create_role(user1_domain2_role['id'], user1_domain2_role)
+        PROVIDERS.role_api.create_role(
+            user1_domain2_role['id'], user1_domain2_role
+        )
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
-        roles_ref = self.assignment_api.list_grants(
+        user1 = PROVIDERS.identity_api.create_user(user1)
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain1['id'])
         self.assertEqual(0, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain2['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=user1_domain1_role['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=user1_domain2_role['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'],
+            role_id=user1_domain1_role['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain2['id'],
+            role_id=user1_domain2_role['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain1['id'])
         self.assertDictEqual(user1_domain1_role, roles_ref[0])
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain2['id'])
         self.assertDictEqual(user1_domain2_role, roles_ref[0])
 
-        self.assignment_api.delete_grant(user_id=user1['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=user1_domain2_role['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.delete_grant(
+            user_id=user1['id'], domain_id=domain2['id'],
+            role_id=user1_domain2_role['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain2['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           user_id=user1['id'],
                           domain_id=domain2['id'],
                           role_id=user1_domain2_role['id'])
 
     def test_role_grant_by_group_and_cross_domain_project(self):
         role1 = unit.new_role_ref()
-        self.role_api.create_role(role1['id'], role1)
+        PROVIDERS.role_api.create_role(role1['id'], role1)
         role2 = unit.new_role_ref()
-        self.role_api.create_role(role2['id'], role2)
+        PROVIDERS.role_api.create_role(role2['id'], role2)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         project1 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project1['id'], project1)
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role2['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role2['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
 
@@ -1272,10 +1317,11 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertIn(role1['id'], roles_ref_ids)
         self.assertIn(role2['id'], roles_ref_ids)
 
-        self.assignment_api.delete_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role1['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.delete_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role1['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
         self.assertEqual(1, len(roles_ref))
@@ -1283,28 +1329,28 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
     def test_role_grant_by_user_and_cross_domain_project(self):
         role1 = unit.new_role_ref()
-        self.role_api.create_role(role1['id'], role1)
+        PROVIDERS.role_api.create_role(role1['id'], role1)
         role2 = unit.new_role_ref()
-        self.role_api.create_role(role2['id'], role2)
+        PROVIDERS.role_api.create_role(role2['id'], role2)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         project1 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project1['id'], project1)
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role2['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'], role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'], role_id=role2['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
 
@@ -1314,10 +1360,10 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertIn(role1['id'], roles_ref_ids)
         self.assertIn(role2['id'], roles_ref_ids)
 
-        self.assignment_api.delete_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role1['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.assignment_api.delete_grant(
+            user_id=user1['id'], project_id=project1['id'], role_id=role1['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(1, len(roles_ref))
@@ -1327,29 +1373,33 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Can delete a grant where the user doesn't exist.
         role = unit.new_role_ref()
         role_id = role['id']
-        self.role_api.create_role(role_id, role)
+        PROVIDERS.role_api.create_role(role_id, role)
 
         user_id = uuid.uuid4().hex
 
-        self.assignment_api.create_grant(role_id, user_id=user_id,
-                                         project_id=self.tenant_bar['id'])
+        PROVIDERS.assignment_api.create_grant(
+            role_id, user_id=user_id, project_id=self.tenant_bar['id']
+        )
 
-        self.assignment_api.delete_grant(role_id, user_id=user_id,
-                                         project_id=self.tenant_bar['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            role_id, user_id=user_id, project_id=self.tenant_bar['id']
+        )
 
     def test_delete_group_grant_no_group(self):
         # Can delete a grant where the group doesn't exist.
         role = unit.new_role_ref()
         role_id = role['id']
-        self.role_api.create_role(role_id, role)
+        PROVIDERS.role_api.create_role(role_id, role)
 
         group_id = uuid.uuid4().hex
 
-        self.assignment_api.create_grant(role_id, group_id=group_id,
-                                         project_id=self.tenant_bar['id'])
+        PROVIDERS.assignment_api.create_grant(
+            role_id, group_id=group_id, project_id=self.tenant_bar['id']
+        )
 
-        self.assignment_api.delete_grant(role_id, group_id=group_id,
-                                         project_id=self.tenant_bar['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            role_id, group_id=group_id, project_id=self.tenant_bar['id']
+        )
 
     def test_grant_crud_throws_exception_if_invalid_role(self):
         """Ensure RoleNotFound thrown if role does not exist."""
@@ -1358,15 +1408,17 @@ class AssignmentTests(AssignmentTestHelperMixin):
                               role_id=uuid.uuid4().hex, **kwargs)
 
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_resp = self.identity_api.create_user(user)
+        user_resp = PROVIDERS.identity_api.create_user(user)
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group_resp = self.identity_api.create_group(group)
+        group_resp = PROVIDERS.identity_api.create_group(group)
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        project_resp = self.resource_api.create_project(project['id'], project)
+        project_resp = PROVIDERS.resource_api.create_project(
+            project['id'], project
+        )
 
-        for manager_call in [self.assignment_api.create_grant,
-                             self.assignment_api.get_grant]:
+        for manager_call in [PROVIDERS.assignment_api.create_grant,
+                             PROVIDERS.assignment_api.get_grant]:
             assert_role_not_found_exception(
                 manager_call,
                 user_id=user_resp['id'], project_id=project_resp['id'])
@@ -1383,17 +1435,17 @@ class AssignmentTests(AssignmentTestHelperMixin):
                 domain_id=CONF.identity.default_domain_id)
 
         assert_role_not_found_exception(
-            self.assignment_api.delete_grant,
+            PROVIDERS.assignment_api.delete_grant,
             user_id=user_resp['id'], project_id=project_resp['id'])
         assert_role_not_found_exception(
-            self.assignment_api.delete_grant,
+            PROVIDERS.assignment_api.delete_grant,
             group_id=group_resp['id'], project_id=project_resp['id'])
         assert_role_not_found_exception(
-            self.assignment_api.delete_grant,
+            PROVIDERS.assignment_api.delete_grant,
             user_id=user_resp['id'],
             domain_id=CONF.identity.default_domain_id)
         assert_role_not_found_exception(
-            self.assignment_api.delete_grant,
+            PROVIDERS.assignment_api.delete_grant,
             group_id=group_resp['id'],
             domain_id=CONF.identity.default_domain_id)
 
@@ -1401,69 +1453,83 @@ class AssignmentTests(AssignmentTestHelperMixin):
         role_list = []
         for _ in range(10):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         group2 = unit.new_group_ref(domain_id=domain1['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group1['id'])
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group2['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[2]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[3]['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[4]['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[5]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[6]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[7]['id'])
-        roles_ref = self.assignment_api.list_grants(user_id=user1['id'],
-                                                    domain_id=domain1['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain1['id'],
+            role_id=role_list[2]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain1['id'],
+            role_id=role_list[3]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'],
+            role_id=role_list[4]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'],
+            role_id=role_list[5]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role_list[6]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role_list[7]['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
+            user_id=user1['id'], domain_id=domain1['id']
+        )
         self.assertEqual(2, len(roles_ref))
         self.assertIn(role_list[0], roles_ref)
         self.assertIn(role_list[1], roles_ref)
-        roles_ref = self.assignment_api.list_grants(group_id=group1['id'],
-                                                    domain_id=domain1['id'])
+        roles_ref = PROVIDERS.assignment_api.list_grants(
+            group_id=group1['id'], domain_id=domain1['id']
+        )
         self.assertEqual(2, len(roles_ref))
         self.assertIn(role_list[2], roles_ref)
         self.assertIn(role_list[3], roles_ref)
-        roles_ref = self.assignment_api.list_grants(user_id=user1['id'],
-                                                    project_id=project1['id'])
+        roles_ref = PROVIDERS.assignment_api.list_grants(
+            user_id=user1['id'], project_id=project1['id']
+        )
         self.assertEqual(2, len(roles_ref))
         self.assertIn(role_list[4], roles_ref)
         self.assertIn(role_list[5], roles_ref)
-        roles_ref = self.assignment_api.list_grants(group_id=group1['id'],
-                                                    project_id=project1['id'])
+        roles_ref = PROVIDERS.assignment_api.list_grants(
+            group_id=group1['id'], project_id=project1['id']
+        )
         self.assertEqual(2, len(roles_ref))
         self.assertIn(role_list[6], roles_ref)
         self.assertIn(role_list[7], roles_ref)
@@ -1471,16 +1537,22 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Now test the alternate way of getting back lists of grants,
         # where user and group roles are combined.  These should match
         # the above results.
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'], project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(4, len(combined_list))
         self.assertIn(role_list[4]['id'], combined_list)
         self.assertIn(role_list[5]['id'], combined_list)
         self.assertIn(role_list[6]['id'], combined_list)
         self.assertIn(role_list[7]['id'], combined_list)
 
-        combined_role_list = self.assignment_api.get_roles_for_user_and_domain(
-            user1['id'], domain1['id'])
+        combined_role_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_domain(
+                user1['id'], domain1['id']
+            )
+        )
         self.assertEqual(4, len(combined_role_list))
         self.assertIn(role_list[0]['id'], combined_role_list)
         self.assertIn(role_list[1]['id'], combined_role_list)
@@ -1506,58 +1578,72 @@ class AssignmentTests(AssignmentTestHelperMixin):
         role_list = []
         for _ in range(6):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         group2 = unit.new_group_ref(domain_id=domain1['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group1['id'])
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group2['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'])
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[2]['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[3]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[4]['id'])
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[5]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], domain_id=domain1['id'],
+            role_id=role_list[2]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'],
+            role_id=role_list[3]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role_list[4]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], project_id=project1['id'],
+            role_id=role_list[5]['id']
+        )
 
         # Read by the roles, ensuring we get the correct 3 roles for
         # both project and domain
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'], project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(3, len(combined_list))
         self.assertIn(role_list[3]['id'], combined_list)
         self.assertIn(role_list[4]['id'], combined_list)
         self.assertIn(role_list[5]['id'], combined_list)
 
-        combined_role_list = self.assignment_api.get_roles_for_user_and_domain(
-            user1['id'], domain1['id'])
+        combined_role_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_domain(
+                user1['id'], domain1['id']
+            )
+        )
         self.assertEqual(3, len(combined_role_list))
         self.assertIn(role_list[0]['id'], combined_role_list)
         self.assertIn(role_list[1]['id'], combined_role_list)
@@ -1565,57 +1651,58 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
     def test_delete_role_with_user_and_group_grants(self):
         role1 = unit.new_role_ref()
-        self.role_api.create_role(role1['id'], role1)
+        PROVIDERS.role_api.create_role(role1['id'], role1)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role1['id'])
-        roles_ref = self.assignment_api.list_grants(
+        group1 = PROVIDERS.identity_api.create_group(group1)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'], role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'], role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain1['id'], role_id=role1['id']
+        )
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(1, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
         self.assertEqual(1, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain1['id'])
         self.assertEqual(1, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain1['id'])
         self.assertEqual(1, len(roles_ref))
-        self.role_api.delete_role(role1['id'])
-        roles_ref = self.assignment_api.list_grants(
+        PROVIDERS.role_api.delete_role(role1['id'])
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             domain_id=domain1['id'])
         self.assertEqual(0, len(roles_ref))
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=group1['id'],
             domain_id=domain1['id'])
         self.assertEqual(0, len(roles_ref))
@@ -1772,90 +1859,96 @@ class AssignmentTests(AssignmentTestHelperMixin):
     def test_list_role_assignment_fails_with_userid_and_source_groups(self):
         """Show we trap this unsupported internal combination of params."""
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
         self.assertRaises(exception.UnexpectedError,
-                          self.assignment_api.list_role_assignments,
+                          PROVIDERS.assignment_api.list_role_assignments,
                           effective=True,
                           user_id=self.user_foo['id'],
                           source_from_group_ids=[group['id']])
 
     def test_list_user_project_ids_returns_not_found(self):
         self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.list_projects_for_user,
+                          PROVIDERS.assignment_api.list_projects_for_user,
                           uuid.uuid4().hex)
 
     def test_delete_user_with_project_association(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.add_role_to_user_and_project(user['id'],
-                                                         self.tenant_bar['id'],
-                                                         role_member['id'])
-        self.identity_api.delete_user(user['id'])
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            user['id'], self.tenant_bar['id'], role_member['id']
+        )
+        PROVIDERS.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.list_projects_for_user,
+                          PROVIDERS.assignment_api.list_projects_for_user,
                           user['id'])
 
     def test_delete_user_with_project_roles(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        self.assignment_api.add_role_to_user_and_project(
+        user = PROVIDERS.identity_api.create_user(user)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user['id'],
             self.tenant_bar['id'],
             self.role_member['id'])
-        self.identity_api.delete_user(user['id'])
+        PROVIDERS.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.assignment_api.list_projects_for_user,
+                          PROVIDERS.assignment_api.list_projects_for_user,
                           user['id'])
 
     def test_delete_role_returns_not_found(self):
         self.assertRaises(exception.RoleNotFound,
-                          self.role_api.delete_role,
+                          PROVIDERS.role_api.delete_role,
                           uuid.uuid4().hex)
 
     def test_delete_project_with_role_assignments(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'],
             project['id'],
             default_fixtures.MEMBER_ROLE_ID)
-        self.resource_api.delete_project(project['id'])
+        PROVIDERS.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.assignment_api.list_user_ids_for_project,
+                          PROVIDERS.assignment_api.list_user_ids_for_project,
                           project['id'])
 
     def test_delete_role_check_role_grant(self):
         role = unit.new_role_ref()
         alt_role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
-        self.role_api.create_role(alt_role['id'], alt_role)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(alt_role['id'], alt_role)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], role['id'])
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'], alt_role['id'])
-        self.role_api.delete_role(role['id'])
-        roles_ref = self.assignment_api.get_roles_for_user_and_project(
+        PROVIDERS.role_api.delete_role(role['id'])
+        roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.tenant_bar['id'])
         self.assertNotIn(role['id'], roles_ref)
         self.assertIn(alt_role['id'], roles_ref)
 
     def test_list_projects_for_user(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         user1 = unit.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        user1 = PROVIDERS.identity_api.create_user(user1)
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertEqual(0, len(user_projects))
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_baz['id'],
-                                         role_id=self.role_member['id'])
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_baz['id'],
+            role_id=self.role_member['id']
+        )
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertEqual(2, len(user_projects))
 
     def test_list_projects_for_user_with_grants(self):
@@ -1863,43 +1956,48 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # make user1 a member of both groups.  Both these new projects
         # should now be included, along with any direct user grants.
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         user1 = unit.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         group2 = unit.new_group_ref(domain_id=domain['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
-        self.identity_api.add_user_to_group(user1['id'], group1['id'])
-        self.identity_api.add_user_to_group(user1['id'], group2['id'])
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], group1['id'])
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], group2['id'])
 
         # Create 3 grants, one user grant, the other two as group grants
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=project1['id'],
-                                         role_id=self.role_admin['id'])
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         project_id=project2['id'],
-                                         role_id=self.role_admin['id'])
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=project1['id'],
+            role_id=self.role_admin['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], project_id=project2['id'],
+            role_id=self.role_admin['id']
+        )
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertEqual(3, len(user_projects))
 
     def test_create_grant_no_user(self):
         # If call create_grant with a user that doesn't exist, doesn't fail.
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             self.role_other['id'],
             user_id=uuid.uuid4().hex,
             project_id=self.tenant_bar['id'])
 
     def test_create_grant_no_group(self):
         # If call create_grant with a group that doesn't exist, doesn't fail.
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             self.role_other['id'],
             group_id=uuid.uuid4().hex,
             project_id=self.tenant_bar['id'])
@@ -1909,7 +2007,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # removed.
 
         def get_member_assignments():
-            assignments = self.assignment_api.list_role_assignments()
+            assignments = PROVIDERS.assignment_api.list_role_assignments()
             return ([x for x in assignments if x['role_id'] ==
                     default_fixtures.MEMBER_ROLE_ID])
 
@@ -1918,20 +2016,20 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Create a group.
         new_group = unit.new_group_ref(
             domain_id=CONF.identity.default_domain_id)
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
 
         # Create a project.
         new_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         # Assign a role to the group.
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'], project_id=new_project['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
 
         # Delete the group.
-        self.identity_api.delete_group(new_group['id'])
+        PROVIDERS.identity_api.delete_group(new_group['id'])
 
         # Check that the role assignment for the group is gone
         member_assignments = get_member_assignments()
@@ -1951,36 +2049,38 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
         """
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         group_list = []
         group_id_list = []
         role_list = []
         for _ in range(3):
             group = unit.new_group_ref(domain_id=domain1['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             group_list.append(group)
             group_id_list.append(group['id'])
 
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         # Assign the roles - one is inherited
-        self.assignment_api.create_grant(group_id=group_list[0]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(group_id=group_list[1]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'])
-        self.assignment_api.create_grant(group_id=group_list[2]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[2]['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[0]['id'], domain_id=domain1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[1]['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[2]['id'], domain_id=domain1['id'],
+            role_id=role_list[2]['id'], inherited_to_projects=True
+        )
 
         # Now get the effective roles for the groups on the domain project. We
         # shouldn't get back the inherited role.
 
-        role_refs = self.assignment_api.get_roles_for_groups(
+        role_refs = PROVIDERS.assignment_api.get_roles_for_groups(
             group_id_list, domain_id=domain1['id'])
 
         self.assertThat(role_refs, matchers.HasLength(2))
@@ -2003,55 +2103,59 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
         """
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         group_list = []
         group_id_list = []
         role_list = []
         for _ in range(6):
             group = unit.new_group_ref(domain_id=domain1['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             group_list.append(group)
             group_id_list.append(group['id'])
 
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         # Assign the roles - one inherited and one non-inherited on Domain1,
         # plus one on Project1
-        self.assignment_api.create_grant(group_id=group_list[0]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(group_id=group_list[1]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'],
-                                         inherited_to_projects=True)
-        self.assignment_api.create_grant(group_id=group_list[2]['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[2]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[0]['id'], domain_id=domain1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[1]['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id'], inherited_to_projects=True
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[2]['id'], project_id=project1['id'],
+            role_id=role_list[2]['id']
+        )
 
         # ...and a duplicate set of spoiler assignments to Domain2/Project2
-        self.assignment_api.create_grant(group_id=group_list[3]['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=role_list[3]['id'])
-        self.assignment_api.create_grant(group_id=group_list[4]['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=role_list[4]['id'],
-                                         inherited_to_projects=True)
-        self.assignment_api.create_grant(group_id=group_list[5]['id'],
-                                         project_id=project2['id'],
-                                         role_id=role_list[5]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[3]['id'], domain_id=domain2['id'],
+            role_id=role_list[3]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[4]['id'], domain_id=domain2['id'],
+            role_id=role_list[4]['id'], inherited_to_projects=True
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[5]['id'], project_id=project2['id'],
+            role_id=role_list[5]['id']
+        )
 
         # With inheritance on, we should also get back the inherited role from
         # its owning domain.
 
-        role_refs = self.assignment_api.get_roles_for_groups(
+        role_refs = PROVIDERS.assignment_api.get_roles_for_groups(
             group_id_list, project_id=project1['id'])
 
         self.assertThat(role_refs, matchers.HasLength(2))
@@ -2074,34 +2178,36 @@ class AssignmentTests(AssignmentTestHelperMixin):
         group_id_list = []
         for _ in range(3):
             domain = unit.new_domain_ref()
-            self.resource_api.create_domain(domain['id'], domain)
+            PROVIDERS.resource_api.create_domain(domain['id'], domain)
             domain_list.append(domain)
 
             group = unit.new_group_ref(domain_id=domain['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             group_list.append(group)
             group_id_list.append(group['id'])
 
         role1 = unit.new_role_ref()
-        self.role_api.create_role(role1['id'], role1)
+        PROVIDERS.role_api.create_role(role1['id'], role1)
 
         # Assign the roles - one is inherited
-        self.assignment_api.create_grant(group_id=group_list[0]['id'],
-                                         domain_id=domain_list[0]['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(group_id=group_list[1]['id'],
-                                         domain_id=domain_list[1]['id'],
-                                         role_id=role1['id'])
-        self.assignment_api.create_grant(group_id=group_list[2]['id'],
-                                         domain_id=domain_list[2]['id'],
-                                         role_id=role1['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[0]['id'], domain_id=domain_list[0]['id'],
+            role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[1]['id'], domain_id=domain_list[1]['id'],
+            role_id=role1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[2]['id'], domain_id=domain_list[2]['id'],
+            role_id=role1['id'], inherited_to_projects=True
+        )
 
         # Now list the domains that have roles for any of the 3 groups
         # We shouldn't get back domain[2] since that had an inherited role.
 
         domain_refs = (
-            self.assignment_api.list_domains_for_groups(group_id_list))
+            PROVIDERS.assignment_api.list_domains_for_groups(group_id_list))
 
         self.assertThat(domain_refs, matchers.HasLength(2))
         self.assertIn(domain_list[0], domain_refs)
@@ -2125,55 +2231,68 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
         """
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        project1 = self.resource_api.create_project(project1['id'], project1)
+        project1 = PROVIDERS.resource_api.create_project(
+            project1['id'], project1
+        )
         project2 = unit.new_project_ref(domain_id=domain1['id'])
-        project2 = self.resource_api.create_project(project2['id'], project2)
+        project2 = PROVIDERS.resource_api.create_project(
+            project2['id'], project2
+        )
         project3 = unit.new_project_ref(domain_id=domain1['id'])
-        project3 = self.resource_api.create_project(project3['id'], project3)
+        project3 = PROVIDERS.resource_api.create_project(
+            project3['id'], project3
+        )
         project4 = unit.new_project_ref(domain_id=domain2['id'])
-        project4 = self.resource_api.create_project(project4['id'], project4)
+        project4 = PROVIDERS.resource_api.create_project(
+            project4['id'], project4
+        )
         group_list = []
         role_list = []
         for _ in range(7):
             group = unit.new_group_ref(domain_id=domain1['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             group_list.append(group)
 
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         # Assign the roles - one inherited and one non-inherited on Domain1,
         # plus one on Project1 and Project2
-        self.assignment_api.create_grant(group_id=group_list[0]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(group_id=group_list[1]['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'],
-                                         inherited_to_projects=True)
-        self.assignment_api.create_grant(group_id=group_list[2]['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[2]['id'])
-        self.assignment_api.create_grant(group_id=group_list[3]['id'],
-                                         project_id=project2['id'],
-                                         role_id=role_list[3]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[0]['id'], domain_id=domain1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[1]['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id'], inherited_to_projects=True
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[2]['id'], project_id=project1['id'],
+            role_id=role_list[2]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[3]['id'], project_id=project2['id'],
+            role_id=role_list[3]['id']
+        )
 
         # ...and a few of spoiler assignments to Domain2/Project4
-        self.assignment_api.create_grant(group_id=group_list[4]['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=role_list[4]['id'])
-        self.assignment_api.create_grant(group_id=group_list[5]['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=role_list[5]['id'],
-                                         inherited_to_projects=True)
-        self.assignment_api.create_grant(group_id=group_list[6]['id'],
-                                         project_id=project4['id'],
-                                         role_id=role_list[6]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[4]['id'], domain_id=domain2['id'],
+            role_id=role_list[4]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[5]['id'], domain_id=domain2['id'],
+            role_id=role_list[5]['id'], inherited_to_projects=True
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group_list[6]['id'], project_id=project4['id'],
+            role_id=role_list[6]['id']
+        )
 
         group_id_list = [group_list[1]['id'], group_list[2]['id'],
                          group_list[3]['id']]
@@ -2181,7 +2300,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # With inheritance on, we should also get back the Project3 due to the
         # inherited role from its owning domain.
         project_refs = (
-            self.assignment_api.list_projects_for_groups(group_id_list))
+            PROVIDERS.assignment_api.list_projects_for_groups(group_id_list))
 
         self.assertThat(project_refs, matchers.HasLength(3))
         self.assertIn(project1, project_refs)
@@ -2192,15 +2311,17 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # A user can update a role and not include the name.
 
         # description is picked just because it's not name.
-        self.role_api.update_role(self.role_member['id'],
-                                  {'description': uuid.uuid4().hex})
+        PROVIDERS.role_api.update_role(
+            self.role_member['id'], {'description': uuid.uuid4().hex}
+        )
         # If the previous line didn't raise an exception then the test passes.
 
     def test_update_role_same_name(self):
         # A user can update a role and set the name to be the same as it was.
 
-        self.role_api.update_role(self.role_member['id'],
-                                  {'name': self.role_member['name']})
+        PROVIDERS.role_api.update_role(
+            self.role_member['id'], {'name': self.role_member['name']}
+        )
         # If the previous line didn't raise an exception then the test passes.
 
     def _test_list_role_assignment_containing_names(self, domain_role=False):
@@ -2214,29 +2335,32 @@ class AssignmentTests(AssignmentTestHelperMixin):
         new_project = unit.new_project_ref(domain_id=new_domain['id'])
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
         # Create entities
-        new_role = self.role_api.create_role(new_role['id'], new_role)
-        new_user = self.identity_api.create_user(new_user)
-        new_group = self.identity_api.create_group(new_group)
-        self.resource_api.create_project(new_project['id'], new_project)
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=new_project['id'],
-                                         role_id=new_role['id'])
-        self.assignment_api.create_grant(group_id=new_group['id'],
-                                         project_id=new_project['id'],
-                                         role_id=new_role['id'])
-        self.assignment_api.create_grant(domain_id=new_domain['id'],
-                                         user_id=new_user['id'],
-                                         role_id=new_role['id'])
+        new_role = PROVIDERS.role_api.create_role(new_role['id'], new_role)
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=new_user['id'], project_id=new_project['id'],
+            role_id=new_role['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=new_group['id'], project_id=new_project['id'],
+            role_id=new_role['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            domain_id=new_domain['id'], user_id=new_user['id'],
+            role_id=new_role['id']
+        )
         # Get the created assignments with the include_names flag
-        _asgmt_prj = self.assignment_api.list_role_assignments(
+        _asgmt_prj = PROVIDERS.assignment_api.list_role_assignments(
             user_id=new_user['id'],
             project_id=new_project['id'],
             include_names=True)
-        _asgmt_grp = self.assignment_api.list_role_assignments(
+        _asgmt_grp = PROVIDERS.assignment_api.list_role_assignments(
             group_id=new_group['id'],
             project_id=new_project['id'],
             include_names=True)
-        _asgmt_dmn = self.assignment_api.list_role_assignments(
+        _asgmt_dmn = PROVIDERS.assignment_api.list_role_assignments(
             domain_id=new_domain['id'],
             user_id=new_user['id'],
             include_names=True)
@@ -2318,22 +2442,28 @@ class AssignmentTests(AssignmentTestHelperMixin):
         new_user = unit.new_user_ref(domain_id=new_domain['id'])
         new_project = unit.new_project_ref(domain_id=new_domain['id'])
         # Create entities
-        new_role = self.role_api.create_role(new_role['id'], new_role)
-        new_user = self.identity_api.create_user(new_user)
-        self.resource_api.create_project(new_project['id'], new_project)
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=new_project['id'],
-                                         role_id=new_role['id'])
+        new_role = PROVIDERS.role_api.create_role(new_role['id'], new_role)
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=new_user['id'], project_id=new_project['id'],
+            role_id=new_role['id']
+        )
         # Get the created assignments with NO include_names flag
-        role_assign_without_names = self.assignment_api.list_role_assignments(
-            user_id=new_user['id'],
-            project_id=new_project['id'])
+        role_assign_without_names = (
+            PROVIDERS.assignment_api.list_role_assignments(
+                user_id=new_user['id'], project_id=new_project['id']
+            )
+        )
         assert_does_not_contain_names(role_assign_without_names)
         # Get the created assignments with include_names=False
-        role_assign_without_names = self.assignment_api.list_role_assignments(
-            user_id=new_user['id'],
-            project_id=new_project['id'],
-            include_names=False)
+        role_assign_without_names = (
+            PROVIDERS.assignment_api.list_role_assignments(
+                user_id=new_user['id'],
+                project_id=new_project['id'],
+                include_names=False
+            )
+        )
         assert_does_not_contain_names(role_assign_without_names)
 
     def test_delete_user_assignments_user_same_id_as_group(self):
@@ -2353,50 +2483,52 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Create a project
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
         # Create a user
         user = unit.new_user_ref(id=common_id,
                                  domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.driver.create_user(common_id, user)
+        user = PROVIDERS.identity_api.driver.create_user(common_id, user)
         self.assertEqual(common_id, user['id'])
         # Create a group
         group = unit.new_group_ref(id=common_id,
                                    domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.driver.create_group(common_id, group)
+        group = PROVIDERS.identity_api.driver.create_group(common_id, group)
         self.assertEqual(common_id, group['id'])
         # Create four roles
         roles = []
         for _ in range(4):
             role = unit.new_role_ref()
-            roles.append(self.role_api.create_role(role['id'], role))
+            roles.append(PROVIDERS.role_api.create_role(role['id'], role))
         # Assign roles for user
-        self.assignment_api.driver.create_grant(
+        PROVIDERS.assignment_api.driver.create_grant(
             user_id=user['id'], domain_id=CONF.identity.default_domain_id,
             role_id=roles[0]['id'])
-        self.assignment_api.driver.create_grant(user_id=user['id'],
-                                                project_id=project['id'],
-                                                role_id=roles[1]['id'])
+        PROVIDERS.assignment_api.driver.create_grant(
+            user_id=user['id'], project_id=project['id'],
+            role_id=roles[1]['id']
+        )
         # Assign roles for group
-        self.assignment_api.driver.create_grant(
+        PROVIDERS.assignment_api.driver.create_grant(
             group_id=group['id'], domain_id=CONF.identity.default_domain_id,
             role_id=roles[2]['id'])
-        self.assignment_api.driver.create_grant(group_id=group['id'],
-                                                project_id=project['id'],
-                                                role_id=roles[3]['id'])
+        PROVIDERS.assignment_api.driver.create_grant(
+            group_id=group['id'], project_id=project['id'],
+            role_id=roles[3]['id']
+        )
         # Make sure they were assigned
-        user_assignments = self.assignment_api.list_role_assignments(
+        user_assignments = PROVIDERS.assignment_api.list_role_assignments(
             user_id=user['id'])
         self.assertThat(user_assignments, matchers.HasLength(2))
-        group_assignments = self.assignment_api.list_role_assignments(
+        group_assignments = PROVIDERS.assignment_api.list_role_assignments(
             group_id=group['id'])
         self.assertThat(group_assignments, matchers.HasLength(2))
         # Delete user assignments
-        self.assignment_api.delete_user_assignments(user_id=user['id'])
+        PROVIDERS.assignment_api.delete_user_assignments(user_id=user['id'])
         # Assert only user assignments were deleted
-        user_assignments = self.assignment_api.list_role_assignments(
+        user_assignments = PROVIDERS.assignment_api.list_role_assignments(
             user_id=user['id'])
         self.assertThat(user_assignments, matchers.HasLength(0))
-        group_assignments = self.assignment_api.list_role_assignments(
+        group_assignments = PROVIDERS.assignment_api.list_role_assignments(
             group_id=group['id'])
         self.assertThat(group_assignments, matchers.HasLength(2))
         # Make sure these remaining assignments are group-related
@@ -2420,50 +2552,52 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Create a project
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
         # Create a user
         user = unit.new_user_ref(id=common_id,
                                  domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.driver.create_user(common_id, user)
+        user = PROVIDERS.identity_api.driver.create_user(common_id, user)
         self.assertEqual(common_id, user['id'])
         # Create a group
         group = unit.new_group_ref(id=common_id,
                                    domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.driver.create_group(common_id, group)
+        group = PROVIDERS.identity_api.driver.create_group(common_id, group)
         self.assertEqual(common_id, group['id'])
         # Create four roles
         roles = []
         for _ in range(4):
             role = unit.new_role_ref()
-            roles.append(self.role_api.create_role(role['id'], role))
+            roles.append(PROVIDERS.role_api.create_role(role['id'], role))
         # Assign roles for user
-        self.assignment_api.driver.create_grant(
+        PROVIDERS.assignment_api.driver.create_grant(
             user_id=user['id'], domain_id=CONF.identity.default_domain_id,
             role_id=roles[0]['id'])
-        self.assignment_api.driver.create_grant(user_id=user['id'],
-                                                project_id=project['id'],
-                                                role_id=roles[1]['id'])
+        PROVIDERS.assignment_api.driver.create_grant(
+            user_id=user['id'], project_id=project['id'],
+            role_id=roles[1]['id']
+        )
         # Assign roles for group
-        self.assignment_api.driver.create_grant(
+        PROVIDERS.assignment_api.driver.create_grant(
             group_id=group['id'], domain_id=CONF.identity.default_domain_id,
             role_id=roles[2]['id'])
-        self.assignment_api.driver.create_grant(group_id=group['id'],
-                                                project_id=project['id'],
-                                                role_id=roles[3]['id'])
+        PROVIDERS.assignment_api.driver.create_grant(
+            group_id=group['id'], project_id=project['id'],
+            role_id=roles[3]['id']
+        )
         # Make sure they were assigned
-        user_assignments = self.assignment_api.list_role_assignments(
+        user_assignments = PROVIDERS.assignment_api.list_role_assignments(
             user_id=user['id'])
         self.assertThat(user_assignments, matchers.HasLength(2))
-        group_assignments = self.assignment_api.list_role_assignments(
+        group_assignments = PROVIDERS.assignment_api.list_role_assignments(
             group_id=group['id'])
         self.assertThat(group_assignments, matchers.HasLength(2))
         # Delete group assignments
-        self.assignment_api.delete_group_assignments(group_id=group['id'])
+        PROVIDERS.assignment_api.delete_group_assignments(group_id=group['id'])
         # Assert only group assignments were deleted
-        group_assignments = self.assignment_api.list_role_assignments(
+        group_assignments = PROVIDERS.assignment_api.list_role_assignments(
             group_id=group['id'])
         self.assertThat(group_assignments, matchers.HasLength(0))
-        user_assignments = self.assignment_api.list_role_assignments(
+        user_assignments = PROVIDERS.assignment_api.list_role_assignments(
             user_id=user['id'])
         self.assertThat(user_assignments, matchers.HasLength(2))
         # Make sure these remaining assignments are user-related
@@ -2476,42 +2610,46 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # domains is deleted, the role assignments for the user and the group
         # from the default domain are deleted only on that domain.
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         role = unit.new_role_ref()
-        role = self.role_api.create_role(role['id'], role)
+        role = PROVIDERS.role_api.create_role(role['id'], role)
 
         new_domains = [unit.new_domain_ref(), unit.new_domain_ref()]
         for new_domain in new_domains:
-            self.resource_api.create_domain(new_domain['id'], new_domain)
+            PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
 
-            self.assignment_api.create_grant(group_id=group['id'],
-                                             domain_id=new_domain['id'],
-                                             role_id=role['id'])
-            self.assignment_api.create_grant(user_id=self.user_two['id'],
-                                             domain_id=new_domain['id'],
-                                             role_id=role['id'])
+            PROVIDERS.assignment_api.create_grant(
+                group_id=group['id'], domain_id=new_domain['id'],
+                role_id=role['id']
+            )
+            PROVIDERS.assignment_api.create_grant(
+                user_id=self.user_two['id'], domain_id=new_domain['id'],
+                role_id=role['id']
+            )
 
         # Check there are 4 role assignments for that role
-        role_assignments = self.assignment_api.list_role_assignments(
+        role_assignments = PROVIDERS.assignment_api.list_role_assignments(
             role_id=role['id'])
         self.assertThat(role_assignments, matchers.HasLength(4))
 
         # Delete first new domain and check only 2 assignments were left
-        self.resource_api.update_domain(new_domains[0]['id'],
-                                        {'enabled': False})
-        self.resource_api.delete_domain(new_domains[0]['id'])
+        PROVIDERS.resource_api.update_domain(
+            new_domains[0]['id'], {'enabled': False}
+        )
+        PROVIDERS.resource_api.delete_domain(new_domains[0]['id'])
 
-        role_assignments = self.assignment_api.list_role_assignments(
+        role_assignments = PROVIDERS.assignment_api.list_role_assignments(
             role_id=role['id'])
         self.assertThat(role_assignments, matchers.HasLength(2))
 
         # Delete second new domain and check no assignments were left
-        self.resource_api.update_domain(new_domains[1]['id'],
-                                        {'enabled': False})
-        self.resource_api.delete_domain(new_domains[1]['id'])
+        PROVIDERS.resource_api.update_domain(
+            new_domains[1]['id'], {'enabled': False}
+        )
+        PROVIDERS.resource_api.delete_domain(new_domains[1]['id'])
 
-        role_assignments = self.assignment_api.list_role_assignments(
+        role_assignments = PROVIDERS.assignment_api.list_role_assignments(
             role_id=role['id'])
         self.assertEqual([], role_assignments)
 
@@ -2561,7 +2699,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         """
         # Create a new role to avoid assignments loaded from default fixtures
         role = unit.new_role_ref()
-        role = self.role_api.create_role(role['id'], role)
+        role = PROVIDERS.role_api.create_role(role['id'], role)
 
         # Define the common assignment entity
         assignment_entity = {'role_id': role['id']}
@@ -2573,29 +2711,39 @@ class InheritanceTests(AssignmentTestHelperMixin):
         inherited_assignment_entity['inherited_to_projects'] = 'projects'
 
         # Create direct assignment and check grants
-        self.assignment_api.create_grant(inherited_to_projects=False,
-                                         **assignment_entity)
+        PROVIDERS.assignment_api.create_grant(
+            inherited_to_projects=False, **assignment_entity
+        )
 
-        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
+        grants = PROVIDERS.assignment_api.list_role_assignments(
+            role_id=role['id']
+        )
         self.assertThat(grants, matchers.HasLength(1))
         self.assertIn(direct_assignment_entity, grants)
 
         # Now add inherited assignment and check grants
-        self.assignment_api.create_grant(inherited_to_projects=True,
-                                         **assignment_entity)
+        PROVIDERS.assignment_api.create_grant(
+            inherited_to_projects=True, **assignment_entity
+        )
 
-        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
+        grants = PROVIDERS.assignment_api.list_role_assignments(
+            role_id=role['id']
+        )
         self.assertThat(grants, matchers.HasLength(2))
         self.assertIn(direct_assignment_entity, grants)
         self.assertIn(inherited_assignment_entity, grants)
 
         # Delete both and check grants
-        self.assignment_api.delete_grant(inherited_to_projects=False,
-                                         **assignment_entity)
-        self.assignment_api.delete_grant(inherited_to_projects=True,
-                                         **assignment_entity)
+        PROVIDERS.assignment_api.delete_grant(
+            inherited_to_projects=False, **assignment_entity
+        )
+        PROVIDERS.assignment_api.delete_grant(
+            inherited_to_projects=True, **assignment_entity
+        )
 
-        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
+        grants = PROVIDERS.assignment_api.list_role_assignments(
+            role_id=role['id']
+        )
         self.assertEqual([], grants)
 
     def test_crud_inherited_and_direct_assignment_for_user_on_domain(self):
@@ -2605,7 +2753,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
     def test_crud_inherited_and_direct_assignment_for_group_on_domain(self):
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         self._test_crud_inherited_and_direct_assignment(
             group_id=group['id'], domain_id=CONF.identity.default_domain_id)
@@ -2616,7 +2764,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
     def test_crud_inherited_and_direct_assignment_for_group_on_project(self):
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         self._test_crud_inherited_and_direct_assignment(
             group_id=group['id'], project_id=self.tenant_baz['id'])
@@ -2643,53 +2791,64 @@ class InheritanceTests(AssignmentTestHelperMixin):
         role_list = []
         for _ in range(3):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
 
         # Create the first two roles - the domain one is not inherited
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id']
+        )
 
         # Now get the effective roles for the user and project, this
         # should only include the direct role assignment on the project
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'], project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(1, len(combined_list))
         self.assertIn(role_list[0]['id'], combined_list)
 
         # Now add an inherited role on the domain
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[2]['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain1['id'],
+            role_id=role_list[2]['id'], inherited_to_projects=True
+        )
 
         # Now get the effective roles for the user and project again, this
         # should now include the inherited role on the domain
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'], project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(2, len(combined_list))
         self.assertIn(role_list[0]['id'], combined_list)
         self.assertIn(role_list[2]['id'], combined_list)
 
         # Finally, check that the inherited role does not appear as a valid
         # directly assigned role on the domain itself
-        combined_role_list = self.assignment_api.get_roles_for_user_and_domain(
-            user1['id'], domain1['id'])
+        combined_role_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_domain(
+                user1['id'], domain1['id']
+            )
+        )
         self.assertEqual(1, len(combined_role_list))
         self.assertIn(role_list[1]['id'], combined_role_list)
 
@@ -2750,58 +2909,68 @@ class InheritanceTests(AssignmentTestHelperMixin):
         role_list = []
         for _ in range(4):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         user1 = unit.new_user_ref(domain_id=domain1['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         group1 = unit.new_group_ref(domain_id=domain1['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         group2 = unit.new_group_ref(domain_id=domain1['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group1['id'])
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group2['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=user1['id'],
             project_id=project1['id'])
         self.assertEqual(0, len(roles_ref))
 
         # Create two roles - the domain one is not inherited
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project1['id'],
-                                         role_id=role_list[0]['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[1]['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project1['id'],
+            role_id=role_list[0]['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain1['id'],
+            role_id=role_list[1]['id']
+        )
 
         # Now get the effective roles for the user and project, this
         # should only include the direct role assignment on the project
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'], project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(1, len(combined_list))
         self.assertIn(role_list[0]['id'], combined_list)
 
         # Now add to more group roles, both inherited, to the domain
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[2]['id'],
-                                         inherited_to_projects=True)
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         domain_id=domain1['id'],
-                                         role_id=role_list[3]['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], domain_id=domain1['id'],
+            role_id=role_list[2]['id'], inherited_to_projects=True
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], domain_id=domain1['id'],
+            role_id=role_list[3]['id'], inherited_to_projects=True
+        )
 
         # Now get the effective roles for the user and project again, this
         # should now include the inherited roles on the domain
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'], project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(3, len(combined_list))
         self.assertIn(role_list[0]['id'], combined_list)
         self.assertIn(role_list[2]['id'], combined_list)
@@ -2856,26 +3025,29 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         """
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         user1 = unit.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
 
         # Create 2 grants, one on a project and one inherited grant
         # on the domain
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain['id'],
-                                         role_id=self.role_admin['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain['id'],
+            role_id=self.role_admin['id'], inherited_to_projects=True
+        )
         # Should get back all three projects, one by virtue of the direct
         # grant, plus both projects in the domain
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        user_projects = (
+            PROVIDERS.assignment_api.list_projects_for_user(user1['id'])
+        )
         self.assertEqual(3, len(user_projects))
 
         # TODO(henry-nash): The test above uses list_projects_for_user
@@ -2926,29 +3098,34 @@ class InheritanceTests(AssignmentTestHelperMixin):
         # Enable OS-INHERIT extension
         root_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        root_project = self.resource_api.create_project(root_project['id'],
-                                                        root_project)
+        root_project = PROVIDERS.resource_api.create_project(
+            root_project['id'], root_project
+        )
         leaf_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
             parent_id=root_project['id'])
-        leaf_project = self.resource_api.create_project(leaf_project['id'],
-                                                        leaf_project)
+        leaf_project = PROVIDERS.resource_api.create_project(
+            leaf_project['id'], leaf_project
+        )
 
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
 
         # Grant inherited user role
-        self.assignment_api.create_grant(user_id=user['id'],
-                                         project_id=root_project['id'],
-                                         role_id=self.role_admin['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user['id'], project_id=root_project['id'],
+            role_id=self.role_admin['id'], inherited_to_projects=True
+        )
         # Grant non-inherited user role
-        self.assignment_api.create_grant(user_id=user['id'],
-                                         project_id=root_project['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user['id'], project_id=root_project['id'],
+            role_id=self.role_member['id']
+        )
         # Should get back both projects: because the direct role assignment for
         # the root project and inherited role assignment for leaf project
-        user_projects = self.assignment_api.list_projects_for_user(user['id'])
+        user_projects = (
+            PROVIDERS.assignment_api.list_projects_for_user(user['id'])
+        )
         self.assertEqual(2, len(user_projects))
         self.assertIn(root_project, user_projects)
         self.assertIn(leaf_project, user_projects)
@@ -3000,45 +3177,49 @@ class InheritanceTests(AssignmentTestHelperMixin):
 
         """
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         project3 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project3['id'], project3)
+        PROVIDERS.resource_api.create_project(project3['id'], project3)
         project4 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project4['id'], project4)
+        PROVIDERS.resource_api.create_project(project4['id'], project4)
         user1 = unit.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
-        self.identity_api.add_user_to_group(user1['id'], group1['id'])
+        group1 = PROVIDERS.identity_api.create_group(group1)
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], group1['id'])
 
         # Create 4 grants:
         # - one user grant on a project in domain2
         # - one user grant on a project in the default domain
         # - one inherited user grant on domain
         # - one inherited group grant on domain2
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=project3['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         domain_id=domain['id'],
-                                         role_id=self.role_admin['id'],
-                                         inherited_to_projects=True)
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         domain_id=domain2['id'],
-                                         role_id=self.role_admin['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=project3['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], domain_id=domain['id'],
+            role_id=self.role_admin['id'], inherited_to_projects=True
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], domain_id=domain2['id'],
+            role_id=self.role_admin['id'], inherited_to_projects=True
+        )
         # Should get back all five projects, but without a duplicate for
         # project3 (since it has both a direct user role and an inherited role)
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        user_projects = (
+            PROVIDERS.assignment_api.list_projects_for_user(user1['id'])
+        )
         self.assertEqual(5, len(user_projects))
 
         # TODO(henry-nash): The test above uses list_projects_for_user
@@ -3099,33 +3280,38 @@ class InheritanceTests(AssignmentTestHelperMixin):
         """
         root_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        root_project = self.resource_api.create_project(root_project['id'],
-                                                        root_project)
+        root_project = PROVIDERS.resource_api.create_project(
+            root_project['id'], root_project
+        )
         leaf_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
             parent_id=root_project['id'])
-        leaf_project = self.resource_api.create_project(leaf_project['id'],
-                                                        leaf_project)
+        leaf_project = PROVIDERS.resource_api.create_project(
+            leaf_project['id'], leaf_project
+        )
 
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
 
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
-        self.identity_api.add_user_to_group(user['id'], group['id'])
+        group = PROVIDERS.identity_api.create_group(group)
+        PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
 
         # Grant inherited group role
-        self.assignment_api.create_grant(group_id=group['id'],
-                                         project_id=root_project['id'],
-                                         role_id=self.role_admin['id'],
-                                         inherited_to_projects=True)
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group['id'], project_id=root_project['id'],
+            role_id=self.role_admin['id'], inherited_to_projects=True
+        )
         # Grant non-inherited group role
-        self.assignment_api.create_grant(group_id=group['id'],
-                                         project_id=root_project['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group['id'], project_id=root_project['id'],
+            role_id=self.role_member['id']
+        )
         # Should get back both projects: because the direct role assignment for
         # the root project and inherited role assignment for leaf project
-        user_projects = self.assignment_api.list_projects_for_user(user['id'])
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user['id']
+        )
         self.assertEqual(2, len(user_projects))
         self.assertIn(root_project, user_projects)
         self.assertIn(leaf_project, user_projects)
@@ -3416,7 +3602,7 @@ class InheritanceTests(AssignmentTestHelperMixin):
         # Use assignment plan helper to create all the entities and
         # assignments - then we'll run our own tests using the data
         test_data = self.execute_assignment_plan(test_plan)
-        user_ids = self.assignment_api.list_user_ids_for_project(
+        user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
             test_data['projects'][1]['id'])
         self.assertThat(user_ids, matchers.HasLength(4))
         for x in range(0, 4):
@@ -3468,14 +3654,16 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
 
     def test_implied_role_crd(self):
         prior_role_ref = unit.new_role_ref()
-        self.role_api.create_role(prior_role_ref['id'], prior_role_ref)
+        PROVIDERS.role_api.create_role(prior_role_ref['id'], prior_role_ref)
         implied_role_ref = unit.new_role_ref()
-        self.role_api.create_role(implied_role_ref['id'], implied_role_ref)
+        PROVIDERS.role_api.create_role(
+            implied_role_ref['id'], implied_role_ref
+        )
 
-        self.role_api.create_implied_role(
+        PROVIDERS.role_api.create_implied_role(
             prior_role_ref['id'],
             implied_role_ref['id'])
-        implied_role = self.role_api.get_implied_role(
+        implied_role = PROVIDERS.role_api.get_implied_role(
             prior_role_ref['id'],
             implied_role_ref['id'])
         expected_implied_role_ref = {
@@ -3485,17 +3673,17 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
             expected_implied_role_ref,
             implied_role)
 
-        self.role_api.delete_implied_role(
+        PROVIDERS.role_api.delete_implied_role(
             prior_role_ref['id'],
             implied_role_ref['id'])
         self.assertRaises(exception.ImpliedRoleNotFound,
-                          self.role_api.get_implied_role,
+                          PROVIDERS.role_api.get_implied_role,
                           uuid.uuid4().hex,
                           uuid.uuid4().hex)
 
     def test_delete_implied_role_returns_not_found(self):
         self.assertRaises(exception.ImpliedRoleNotFound,
-                          self.role_api.delete_implied_role,
+                          PROVIDERS.role_api.delete_implied_role,
                           uuid.uuid4().hex,
                           uuid.uuid4().hex)
 
@@ -3594,7 +3782,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
         # We should also be able to get a similar (yet summarized) answer to
         # the above by calling get_roles_for_user_and_project(), which should
         # list the role_ids, yet remove any duplicates
-        role_ids = self.assignment_api.get_roles_for_user_and_project(
+        role_ids = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             test_data['users'][0]['id'], test_data['projects'][0]['id'])
         # We should see 6 entries, not 7, since role index 5 appeared twice in
         # the answer from list_role_assignments
@@ -3715,13 +3903,15 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
 class SystemAssignmentTests(AssignmentTestHelperMixin):
     def test_create_system_grant_for_user(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         role_ref = self._create_role()
 
-        self.assignment_api.create_system_grant_for_user(
+        PROVIDERS.assignment_api.create_system_grant_for_user(
             user_id, role_ref['id']
         )
-        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
+            user_id
+        )
         self.assertEqual(len(system_roles), 1)
         self.assertIsNone(system_roles[0]['domain_id'])
         self.assertEqual(system_roles[0]['id'], role_ref['id'])
@@ -3729,57 +3919,73 @@ class SystemAssignmentTests(AssignmentTestHelperMixin):
 
     def test_list_system_grants_for_user(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         first_role = self._create_role()
         second_role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_user(
+        PROVIDERS.assignment_api.create_system_grant_for_user(
             user_id, first_role['id']
         )
-        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
+            user_id
+        )
         self.assertEqual(len(system_roles), 1)
 
-        self.assignment_api.create_system_grant_for_user(
+        PROVIDERS.assignment_api.create_system_grant_for_user(
             user_id, second_role['id']
         )
-        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
+            user_id
+        )
         self.assertEqual(len(system_roles), 2)
 
     def test_check_system_grant_for_user(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         role = self._create_role()
 
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.check_system_grant_for_user,
+            PROVIDERS.assignment_api.check_system_grant_for_user,
             user_id,
             role['id']
         )
 
-        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
-        self.assignment_api.check_system_grant_for_user(user_id, role['id'])
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user_id, role['id']
+        )
+        PROVIDERS.assignment_api.check_system_grant_for_user(
+            user_id, role['id']
+        )
 
     def test_delete_system_grant_for_user(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
-        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user_id, role['id']
+        )
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
+            user_id
+        )
         self.assertEqual(len(system_roles), 1)
 
-        self.assignment_api.delete_system_grant_for_user(user_id, role['id'])
-        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        PROVIDERS.assignment_api.delete_system_grant_for_user(
+            user_id, role['id']
+        )
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
+            user_id
+        )
         self.assertEqual(len(system_roles), 0)
 
     def test_check_system_grant_for_user_with_invalid_role_fails(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
 
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.check_system_grant_for_user,
+            PROVIDERS.assignment_api.check_system_grant_for_user,
             user_id,
             uuid.uuid4().hex
         )
@@ -3789,65 +3995,71 @@ class SystemAssignmentTests(AssignmentTestHelperMixin):
 
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.check_system_grant_for_user,
+            PROVIDERS.assignment_api.check_system_grant_for_user,
             uuid.uuid4().hex,
             role['id']
         )
 
     def test_delete_system_grant_for_user_with_invalid_role_fails(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user_id, role['id']
+        )
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.delete_system_grant_for_user,
+            PROVIDERS.assignment_api.delete_system_grant_for_user,
             user_id,
             uuid.uuid4().hex
         )
 
     def test_delete_system_grant_for_user_with_invalid_user_fails(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_user(user_id, role['id'])
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user_id, role['id']
+        )
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.delete_system_grant_for_user,
+            PROVIDERS.assignment_api.delete_system_grant_for_user,
             uuid.uuid4().hex,
             role['id']
         )
 
     def test_list_system_grants_for_user_returns_empty_list(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
 
-        system_roles = self.assignment_api.list_system_grants_for_user(user_id)
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
+            user_id
+        )
         self.assertFalse(system_roles)
 
     def test_create_system_grant_for_user_fails_with_domain_role(self):
         user_ref = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_id = self.identity_api.create_user(user_ref)['id']
+        user_id = PROVIDERS.identity_api.create_user(user_ref)['id']
         role = self._create_role(domain_id=CONF.identity.default_domain_id)
 
         self.assertRaises(
             exception.ValidationError,
-            self.assignment_api.create_system_grant_for_user,
+            PROVIDERS.assignment_api.create_system_grant_for_user,
             user_id,
             role['id']
         )
 
     def test_create_system_grant_for_group(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         role_ref = self._create_role()
 
-        self.assignment_api.create_system_grant_for_group(
+        PROVIDERS.assignment_api.create_system_grant_for_group(
             group_id, role_ref['id']
         )
-        system_roles = self.assignment_api.list_system_grants_for_group(
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_group(
             group_id
         )
         self.assertEqual(len(system_roles), 1)
@@ -3857,65 +4069,73 @@ class SystemAssignmentTests(AssignmentTestHelperMixin):
 
     def test_list_system_grants_for_group(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         first_role = self._create_role()
         second_role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_group(
+        PROVIDERS.assignment_api.create_system_grant_for_group(
             group_id, first_role['id']
         )
-        system_roles = self.assignment_api.list_system_grants_for_group(
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_group(
             group_id
         )
         self.assertEqual(len(system_roles), 1)
 
-        self.assignment_api.create_system_grant_for_group(
+        PROVIDERS.assignment_api.create_system_grant_for_group(
             group_id, second_role['id']
         )
-        system_roles = self.assignment_api.list_system_grants_for_group(
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_group(
             group_id
         )
         self.assertEqual(len(system_roles), 2)
 
     def test_check_system_grant_for_group(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         role = self._create_role()
 
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.check_system_grant_for_group,
+            PROVIDERS.assignment_api.check_system_grant_for_group,
             group_id,
             role['id']
         )
 
-        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
-        self.assignment_api.check_system_grant_for_group(group_id, role['id'])
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group_id, role['id']
+        )
+        PROVIDERS.assignment_api.check_system_grant_for_group(
+            group_id, role['id']
+        )
 
     def test_delete_system_grant_for_group(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
-        system_roles = self.assignment_api.list_system_grants_for_group(
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group_id, role['id']
+        )
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_group(
             group_id
         )
         self.assertEqual(len(system_roles), 1)
 
-        self.assignment_api.delete_system_grant_for_group(group_id, role['id'])
-        system_roles = self.assignment_api.list_system_grants_for_group(
+        PROVIDERS.assignment_api.delete_system_grant_for_group(
+            group_id, role['id']
+        )
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_group(
             group_id
         )
         self.assertEqual(len(system_roles), 0)
 
     def test_check_system_grant_for_group_with_invalid_role_fails(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
 
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.check_system_grant_for_group,
+            PROVIDERS.assignment_api.check_system_grant_for_group,
             group_id,
             uuid.uuid4().hex
         )
@@ -3925,54 +4145,58 @@ class SystemAssignmentTests(AssignmentTestHelperMixin):
 
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.check_system_grant_for_group,
+            PROVIDERS.assignment_api.check_system_grant_for_group,
             uuid.uuid4().hex,
             role['id']
         )
 
     def test_delete_system_grant_for_group_with_invalid_role_fails(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group_id, role['id']
+        )
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.delete_system_grant_for_group,
+            PROVIDERS.assignment_api.delete_system_grant_for_group,
             group_id,
             uuid.uuid4().hex
         )
 
     def test_delete_system_grant_for_group_with_invalid_group_fails(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         role = self._create_role()
 
-        self.assignment_api.create_system_grant_for_group(group_id, role['id'])
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group_id, role['id']
+        )
         self.assertRaises(
             exception.RoleAssignmentNotFound,
-            self.assignment_api.delete_system_grant_for_group,
+            PROVIDERS.assignment_api.delete_system_grant_for_group,
             uuid.uuid4().hex,
             role['id']
         )
 
     def test_list_system_grants_for_group_returns_empty_list(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
 
-        system_roles = self.assignment_api.list_system_grants_for_group(
+        system_roles = PROVIDERS.assignment_api.list_system_grants_for_group(
             group_id
         )
         self.assertFalse(system_roles)
 
     def test_create_system_grant_for_group_fails_with_domain_role(self):
         group_ref = unit.new_group_ref(CONF.identity.default_domain_id)
-        group_id = self.identity_api.create_group(group_ref)['id']
+        group_id = PROVIDERS.identity_api.create_group(group_ref)['id']
         role = self._create_role(CONF.identity.default_domain_id)
 
         self.assertRaises(
             exception.ValidationError,
-            self.assignment_api.create_system_grant_for_group,
+            PROVIDERS.assignment_api.create_system_grant_for_group,
             group_id,
             role['id']
         )
