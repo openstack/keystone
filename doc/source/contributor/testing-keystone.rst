@@ -382,7 +382,7 @@ correctness in each step:
     def test_request_unscoped_token(self):
         self._request_unscoped_token()
 
-Notice that the ``test_request_unscoped_token`` test only executes if the the
+Notice that the ``test_request_unscoped_token`` test only executes if the
 ``federation`` feature flag is enabled.
 
 .. NOTE::
