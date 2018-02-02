@@ -7,4 +7,3 @@
 .. rest_expand_all::
 
 .. include:: ksec2-admin.inc
-.. include:: kscrud.inc

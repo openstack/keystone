@@ -1,0 +1,31 @@
+{
+     "access": {
+         "metadata": {
+             "is_admin": 0,
+             "roles": ["9fe2ff9ee4384b1894a90878d3e92bab"]
+         },
+         "serviceCatalog": [],
+         "token": {
+             "audit_ids": ["AVUi_tN8SFWnHYaYpCcMEQ"],
+             "expires": "2018-02-02T21:13:19.000000Z",
+             "id": "gAAAAABadMZfZa_PZNOSi5iQoqPZ1b-VIo2Gnlf4Z_oJotw8qTh1Yv8_CFysOnoxRIrfFI-EcrErdJM2CrP7o6aDNR5AbfnFtSN_zgzzesEWaOaQkoLpk9X1lLada2KcQpWAeNafjNYSiP7JFjW6N4ngAm9U7egUW6MwUPPxi5e8igR5DtNc0FU",
+             "issued_at": "2018-02-02T20:13:19.000000Z",
+             "tenant": {
+                 "description": "description",
+                 "enabled": true,
+                 "id": "6b85a6ff4e0b4040a81708d6e063e4e7",
+                 "name": "BAR",
+                 "tags": []
+             }
+         },
+         "user": {
+             "id": "b245550742cf4c2fb9cf37aa1eda866e",
+             "name": "foo",
+             "roles": [
+                 {"name": "_member_"}
+             ],
+             "roles_links": [],
+             "username": "foo"
+         }
+     }
+}

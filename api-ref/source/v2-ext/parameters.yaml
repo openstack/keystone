@@ -1,44 +1,13 @@
-# variables in header
-Location:
-  format: uri
-  in: header
-  required: false
-  type: string
-
 # variables in path
+credential_id:
+  description: |
+    The credential id.
+  in: path
+  required: true
+  type: string
 credential_type:
   description: |
     The credential type.
-  in: path
-  required: true
-  type: string
-role_id_path:
-  description: |
-    The role ID.
-  in: path
-  required: true
-  type: string
-role_name_path:
-  description: |
-    The role name.
-  in: path
-  required: true
-  type: string
-service_id_path:
-  description: |
-    The service ID.
-  in: path
-  required: true
-  type: string
-service_name_path:
-  description: |
-    The service name.
-  in: path
-  required: true
-  type: string
-tenant_id_path:
-  description: |
-    The tenant ID.
   in: path
   required: true
   type: string
