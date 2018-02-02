@@ -11,8 +11,6 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    v2/index
-    v2-admin/index
     v2-ext/index
     v3/index
     v3-ext/index
