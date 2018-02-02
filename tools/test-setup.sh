@@ -26,6 +26,10 @@ sudo -H mysql -u root -p$DB_ROOT_PW -h localhost -e "
     GRANT ALL PRIVILEGES ON *.*
         TO '$DB_USER'@'%' identified by '$DB_PW' WITH GRANT OPTION;"
 
+# Bump the max_connections limit
+sudo -H mysql -u root -p$DB_ROOT_PW -h localhost -e "
+    SET GLOBAL max_connections = 1024;"
+
 # Now create our database.
 mysql -u $DB_USER -p$DB_PW -h 127.0.0.1 -e "
     SET default_storage_engine=MYISAM;
