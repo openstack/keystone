@@ -18,13 +18,13 @@ Identity API v2.0 and v3 History
 Specifications
 ==============
 
-Keystone implements two major HTTP API versions, along with several API
-extensions that build on top of each core API. The two APIs are specified as
-`Identity API v2.0`_ and `Identity API v3`_. Each API is specified by a single
-source of truth to avoid conflicts between documentation and implementation.
-The original source of truth for the v2.0 API is defined by a set of WADL and
-XSD files. The original source of truth for the v3 API is defined by
-documentation.
+As of the Queens release, Keystone solely implements the `Identity API v3`_.
+Support for `Identity API v2.0`_ has been removed in Queens in favor of
+the `Identity API v3`_.
+
+Identity API v3 is a superset of all the functionality available in the
+Identity API v2.0 and several of its extensions, and provides a much more
+consistent developer experience.
 
 .. _`Identity API v2.0`: https://developer.openstack.org/api-ref/identity/v2/
 .. _`Identity API v3`: https://developer.openstack.org/api-ref/identity/v3/
@@ -46,16 +46,6 @@ Identity API v3 was established to introduce namespacing for users and projects
 by using "domains" as a higher-level container for more flexible identity
 management and fixed a security issue in the v2.0 API (bearer tokens appearing
 in URLs).
-
-Should I use v2.0 or v3?
-========================
-
-Identity API v3.
-
-Identity API v3 is a superset of all the functionality available in v2.0 and
-several of its extensions, and provides a much more consistent developer
-experience to boot. We're also on the road to deprecating, and ultimately
-reducing (or dropping) support for, Identity API v2.0.
 
 How do I migrate from v2.0 to v3?
 =================================
@@ -97,10 +87,10 @@ usually both ``[composite:main]`` and ``[composite:admin]``), for example:
     /v3 = api_v3
     ...
 
-Once your pipeline is configured to expose both v2.0 and v3, you need to ensure
-that you've configured your service catalog in Keystone correctly. The
-simplest, and most ideal, configuration would expose one identity with
-unversioned endpoints (note the lack of ``/v2.0/`` or ``/v3/`` in these URLs):
+Once your pipeline is configured to expose v3, you need to ensure that you've
+configured your service catalog in Keystone correctly. The simplest, and most
+ideal, configuration would expose one identity with unversioned endpoints (note
+the lack of ``/v2.0/`` or ``/v3/`` in these URLs):
 
 - Service (type: ``identity``)
 
@@ -110,6 +100,16 @@ unversioned endpoints (note the lack of ``/v2.0/`` or ``/v3/`` in these URLs):
 If you were to perform a ``GET`` against either of these endpoints, you would
 be greeted by an ``HTTP/1.1 300 Multiple Choices`` response, which newer
 Keystone clients can use to automatically detect available API versions.
+
+.. NOTE::
+
+    Deploying v3 only requires a single application since administrator and
+    end-user operations are handled by the same process, and not separated into
+    two different applications. Depending on how v2.0 was configured, you might
+    be able to decommission one endpoint. Until users are educated about which
+    endpoint to use, the former admin API (e.g.  using port 35357) and the
+    public API (e.g. using port 5000) can run the v3 API simulateously and
+    serve both sets of users.
 
 .. code-block:: bash
 
@@ -233,8 +233,9 @@ merged into one. Instead of isolating functionality into separate applications,
 all functionality was consolidated into a single application. Each v3 endpoint
 or API is protected by policy instead. This makes deployment and management of
 Keystone's infrastructure easier for operators to deploy and for users to
-consume. As a result, Keystone deployments interested in only the v3 API are
-not required to deploy separate ``admin`` and ``public`` endpoints.
+consume. As a result, Keystone deployments are not required to deploy separate
+``admin`` and ``public`` endpoints, especially now that the v2.0 API
+implementation has been removed.
 
 HTTP/1.1 Chunked Encoding
 =========================
