@@ -22,8 +22,7 @@ Setting an account lockout threshold
 The account lockout feature limits the number of incorrect password attempts.
 If a user fails to authenticate after the maximum number of attempts, the
 service disables the user. Users can be re-enabled by explicitly setting the
-enable user attribute with the update user API call, either
-`v2.0`_ or `v3`_.
+enable user attribute with the update user `v3`_ API call.
 
 You set the maximum number of failed authentication attempts by setting
 the ``lockout_failure_attempts``:
@@ -226,7 +225,5 @@ old password.
    expire.
 
 .. _Security Hardening PCI-DSS: https://specs.openstack.org/openstack/keystone-specs/specs/keystone/newton/pci-dss.html
-
-.. _v2.0: https://developer.openstack.org/api-ref/identity/v2-admin/index.html?expanded=update-user-admin-endpoint-detail#update-user-admin-endpoint
 
 .. _v3: https://developer.openstack.org/api-ref/identity/v3/index.html#update-user
