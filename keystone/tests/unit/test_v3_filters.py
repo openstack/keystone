@@ -544,7 +544,7 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         self.get(bad_op_url, expected_status=http_client.BAD_REQUEST)
 
     def test_list_users_by_password_expires_with_bad_timestamp_fails(self):
-        """Ensure a invalid timestamp returns a Bad Request.
+        """Ensure an invalid timestamp returns a Bad Request.
 
         GET /users?password_expires_at={invalid_timestamp}
         GET /users?password_expires_at={operator}:{timestamp}&
