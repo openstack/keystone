@@ -8,7 +8,7 @@ This API provides a list of token revocations. Each event expresses a set of
 criteria which describes a set of tokens that are no longer valid.
 Requires v3.2+ of the Identity API.
 
-What’s New in v1.1
+What's New in v1.1
 ==================
 
 * Use of expires_at has been deprecated in favor of using audit_id and audit_chain_id.

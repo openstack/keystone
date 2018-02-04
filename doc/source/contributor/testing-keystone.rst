@@ -132,7 +132,7 @@ Identity module.
 Testing Schema Migrations
 -------------------------
 
-The application of schema migrations can be tested using SQLAlchemy Migrate’s
+The application of schema migrations can be tested using SQLAlchemy Migrate's
 built-in test runner, one migration at a time.
 
 .. WARNING::
