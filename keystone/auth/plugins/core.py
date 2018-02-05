@@ -113,7 +113,7 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
 
     def _assert_domain_is_enabled(self, domain_ref):
         try:
-            self.resource_api.assert_domain_enabled(
+            PROVIDERS.resource_api.assert_domain_enabled(
                 domain_id=domain_ref['id'],
                 domain=domain_ref)
         except AssertionError as e:
@@ -123,7 +123,7 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
 
     def _assert_user_is_enabled(self, user_ref):
         try:
-            self.identity_api.assert_user_enabled(
+            PROVIDERS.identity_api.assert_user_enabled(
                 user_id=user_ref['id'],
                 user=user_ref)
         except AssertionError as e:
@@ -139,10 +139,10 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                                             target='domain')
         try:
             if domain_name:
-                domain_ref = self.resource_api.get_domain_by_name(
+                domain_ref = PROVIDERS.resource_api.get_domain_by_name(
                     domain_name)
             else:
-                domain_ref = self.resource_api.get_domain(domain_id)
+                domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
             LOG.warning(six.text_type(e))
             raise exception.Unauthorized(e)
@@ -165,11 +165,11 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                     raise exception.ValidationError(attribute='domain',
                                                     target='user')
                 domain_ref = self._lookup_domain(user_info['domain'])
-                user_ref = self.identity_api.get_user_by_name(
+                user_ref = PROVIDERS.identity_api.get_user_by_name(
                     user_name, domain_ref['id'])
             else:
-                user_ref = self.identity_api.get_user(user_id)
-                domain_ref = self.resource_api.get_domain(
+                user_ref = PROVIDERS.identity_api.get_user(user_id)
+                domain_ref = PROVIDERS.resource_api.get_domain(
                     user_ref['domain_id'])
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:

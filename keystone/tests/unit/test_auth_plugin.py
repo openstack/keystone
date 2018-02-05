@@ -190,14 +190,16 @@ class TestMapped(unit.TestCase):
              kwargs) = authenticate.call_args
             self.assertEqual(method_name, auth_payload['protocol'])
 
-    def test_mapped_without_identity_provider_or_protocol(self):
-        test_mapped = mapped.Mapped()
-        test_mapped.resource_api = mock.Mock()
-        test_mapped.federation_api = mock.Mock()
-        test_mapped.identity_api = mock.Mock()
-        test_mapped.assignment_api = mock.Mock()
-        test_mapped.role_api = mock.Mock()
+    @mock.patch('keystone.auth.plugins.mapped.PROVIDERS')
+    def test_mapped_without_identity_provider_or_protocol(self,
+                                                          mock_providers):
+        mock_providers.resource_api = mock.Mock()
+        mock_providers.federation_api = mock.Mock()
+        mock_providers.identity_api = mock.Mock()
+        mock_providers.assignment_api = mock.Mock()
+        mock_providers.role_api = mock.Mock()
 
+        test_mapped = mapped.Mapped()
         request = self.make_request()
 
         auth_payload = {'identity_provider': 'test_provider'}

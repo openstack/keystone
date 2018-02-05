@@ -33,6 +33,7 @@ import six
 
 from keystone.auth import plugins
 from keystone.auth.plugins import base
+from keystone.common import provider_api
 from keystone import exception
 from keystone.i18n import _
 
@@ -40,6 +41,7 @@ from keystone.i18n import _
 METHOD_NAME = 'totp'
 
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def _generate_totp_passcode(secret):
@@ -76,7 +78,7 @@ class TOTP(base.AuthMethodHandler):
         user_info = plugins.TOTPUserInfo.create(auth_payload, METHOD_NAME)
         auth_passcode = auth_payload.get('user').get('passcode')
 
-        credentials = self.credential_api.list_credentials_for_user(
+        credentials = PROVIDERS.credential_api.list_credentials_for_user(
             user_info.user_id, type='totp')
 
         valid_passcode = False
