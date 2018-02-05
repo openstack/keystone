@@ -19,6 +19,7 @@ from keystone.common import driver_hints
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -172,6 +173,8 @@ class ApplicationCredentialTests(object):
                           self.app_cred_api.delete_application_credential,
                           uuid.uuid4().hex)
 
+    @test_utils.wip('Waiting to add cache invalidation from fixing bug '
+                    '1747332')
     def test_deleting_a_user_deletes_application_credentials(self):
         app_cred_1 = self._new_app_cred_data(self.user_foo['id'],
                                              project_id=self.tenant_bar['id'],
@@ -183,6 +186,11 @@ class ApplicationCredentialTests(object):
         self.app_cred_api.create_application_credential(app_cred_2)
         self.assertIn(app_cred_1['id'], self._list_ids(self.user_foo))
         self.assertIn(app_cred_2['id'], self._list_ids(self.user_foo))
+
+        # cache the information
+        self.app_cred_api.get_application_credential(app_cred_1['id'])
+        self.app_cred_api.get_application_credential(app_cred_2['id'])
+
         # This should trigger a notification which should invoke a callback in
         # the application credential Manager to cleanup user_foo's application
         # credentials.
@@ -192,6 +200,16 @@ class ApplicationCredentialTests(object):
             [], self.app_cred_api.list_application_credentials(
                 self.user_foo['id'], hints))
 
+        # the cache information has been invalidated.
+        self.assertRaises(exception.ApplicationCredentialNotFound,
+                          self.app_cred_api.get_application_credential,
+                          app_cred_1['id'])
+        self.assertRaises(exception.ApplicationCredentialNotFound,
+                          self.app_cred_api.get_application_credential,
+                          app_cred_2['id'])
+
+    @test_utils.wip('Waiting to add cache invalidation from fixing bug '
+                    '1747332')
     def test_removing_user_from_project_deletes_application_credentials(self):
         app_cred_proj_A_1 = self._new_app_cred_data(
             self.user_foo['id'], project_id=self.tenant_bar['id'], name='app1')
@@ -209,6 +227,12 @@ class ApplicationCredentialTests(object):
         self.assertIn(app_cred_proj_A_1['id'], self._list_ids(self.user_foo))
         self.assertIn(app_cred_proj_A_2['id'], self._list_ids(self.user_foo))
         self.assertIn(app_cred_proj_B['id'], self._list_ids(self.user_foo))
+
+        # cache the information
+        self.app_cred_api.get_application_credential(app_cred_proj_A_1['id'])
+        self.app_cred_api.get_application_credential(app_cred_proj_A_2['id'])
+        self.app_cred_api.get_application_credential(app_cred_proj_B['id'])
+
         # This should trigger a notification which should invoke a callback in
         # the application credential Manager to cleanup all of user_foo's
         # application credentials on project bar.
@@ -221,6 +245,18 @@ class ApplicationCredentialTests(object):
         self.assertNotIn(app_cred_proj_A_2['id'],
                          self._list_ids(self.user_foo))
         self.assertIn(app_cred_proj_B['id'], self._list_ids(self.user_foo))
+
+        # the cache information has been invalidated only for the deleted
+        # application credential.
+        self.assertRaises(exception.ApplicationCredentialNotFound,
+                          self.app_cred_api.get_application_credential,
+                          app_cred_proj_A_1['id'])
+        self.assertRaises(exception.ApplicationCredentialNotFound,
+                          self.app_cred_api.get_application_credential,
+                          app_cred_proj_A_2['id'])
+        self.assertEqual(app_cred_proj_B['id'],
+                         self.app_cred_api.get_application_credential(
+                             app_cred_proj_B['id'])['id'])
 
     def test_authenticate(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
