@@ -19,10 +19,13 @@ import uuid
 
 from six.moves import http_client
 
+from keystone.common import provider_api
 from keystone.contrib import s3
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class S3ContribCore(test_v3.RestfulTestCase):
@@ -33,7 +36,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
 
         self.cred_blob, self.credential = unit.new_ec2_credential(
             self.user['id'], self.project_id)
-        self.credential_api.create_credential(
+        PROVIDERS.credential_api.create_credential(
             self.credential['id'], self.credential)
 
         self.controller = s3.S3Controller()

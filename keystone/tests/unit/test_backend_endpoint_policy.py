@@ -17,21 +17,30 @@ import uuid
 from six.moves import range
 from testtools import matchers
 
+from keystone.common import provider_api
 from keystone import exception
 from keystone.tests import unit
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class PolicyAssociationTests(object):
 
     def _assert_correct_policy(self, endpoint, policy):
         ref = (
-            self.endpoint_policy_api.get_policy_for_endpoint(endpoint['id']))
+            PROVIDERS.endpoint_policy_api.get_policy_for_endpoint(
+                endpoint['id']
+            )
+        )
         self.assertEqual(policy['id'], ref['id'])
 
     def _assert_correct_endpoints(self, policy, endpoint_list):
         endpoint_id_list = [ep['id'] for ep in endpoint_list]
         endpoints = (
-            self.endpoint_policy_api.list_endpoints_for_policy(policy['id']))
+            PROVIDERS.endpoint_policy_api.list_endpoints_for_policy(
+                policy['id']
+            )
+        )
         self.assertThat(endpoints, matchers.HasLength(len(endpoint_list)))
         for endpoint in endpoints:
             self.assertIn(endpoint['id'], endpoint_id_list)
@@ -57,7 +66,7 @@ class PolicyAssociationTests(object):
                                              region_id=region_id,
                                              service_id=service_id,
                                              url='/url')
-            self.endpoint.append(self.catalog_api.create_endpoint(
+            self.endpoint.append(PROVIDERS.catalog_api.create_endpoint(
                 endpoint['id'], endpoint))
 
         self.policy = []
@@ -68,15 +77,18 @@ class PolicyAssociationTests(object):
         parent_region_id = None
         for i in range(3):
             policy = unit.new_policy_ref()
-            self.policy.append(self.policy_api.create_policy(policy['id'],
-                                                             policy))
+            self.policy.append(
+                PROVIDERS.policy_api.create_policy(policy['id'], policy)
+            )
+
             service = unit.new_service_ref()
-            self.service.append(self.catalog_api.create_service(service['id'],
-                                                                service))
+            self.service.append(
+                PROVIDERS.catalog_api.create_service(service['id'], service)
+            )
             region = unit.new_region_ref(parent_region_id=parent_region_id)
             # Link the regions together as a hierarchy, [0] at the top
             parent_region_id = region['id']
-            self.region.append(self.catalog_api.create_region(region))
+            self.region.append(PROVIDERS.catalog_api.create_region(region))
 
         new_endpoint(self.region[0]['id'], self.service[0]['id'])
         new_endpoint(self.region[0]['id'], self.service[1]['id'])
@@ -86,62 +98,76 @@ class PolicyAssociationTests(object):
         new_endpoint(self.region[2]['id'], self.service[0]['id'])
 
     def test_policy_to_endpoint_association_crud(self):
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], endpoint_id=self.endpoint[0]['id'])
-        self.endpoint_policy_api.check_policy_association(
+        PROVIDERS.endpoint_policy_api.check_policy_association(
             self.policy[0]['id'], endpoint_id=self.endpoint[0]['id'])
-        self.endpoint_policy_api.delete_policy_association(
+        PROVIDERS.endpoint_policy_api.delete_policy_association(
             self.policy[0]['id'], endpoint_id=self.endpoint[0]['id'])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          endpoint_id=self.endpoint[0]['id'])
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            endpoint_id=self.endpoint[0]['id']
+        )
 
     def test_overwriting_policy_to_endpoint_association(self):
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], endpoint_id=self.endpoint[0]['id'])
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[1]['id'], endpoint_id=self.endpoint[0]['id'])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          endpoint_id=self.endpoint[0]['id'])
-        self.endpoint_policy_api.check_policy_association(
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            endpoint_id=self.endpoint[0]['id']
+        )
+        PROVIDERS.endpoint_policy_api.check_policy_association(
             self.policy[1]['id'], endpoint_id=self.endpoint[0]['id'])
 
     def test_invalid_policy_to_endpoint_association(self):
-        self.assertRaises(exception.InvalidPolicyAssociation,
-                          self.endpoint_policy_api.create_policy_association,
-                          self.policy[0]['id'])
-        self.assertRaises(exception.InvalidPolicyAssociation,
-                          self.endpoint_policy_api.create_policy_association,
-                          self.policy[0]['id'],
-                          endpoint_id=self.endpoint[0]['id'],
-                          region_id=self.region[0]['id'])
-        self.assertRaises(exception.InvalidPolicyAssociation,
-                          self.endpoint_policy_api.create_policy_association,
-                          self.policy[0]['id'],
-                          endpoint_id=self.endpoint[0]['id'],
-                          service_id=self.service[0]['id'])
-        self.assertRaises(exception.InvalidPolicyAssociation,
-                          self.endpoint_policy_api.create_policy_association,
-                          self.policy[0]['id'],
-                          region_id=self.region[0]['id'])
+        self.assertRaises(
+            exception.InvalidPolicyAssociation,
+            PROVIDERS.endpoint_policy_api.create_policy_association,
+            self.policy[0]['id']
+        )
+        self.assertRaises(
+            exception.InvalidPolicyAssociation,
+            PROVIDERS.endpoint_policy_api.create_policy_association,
+            self.policy[0]['id'],
+            endpoint_id=self.endpoint[0]['id'],
+            region_id=self.region[0]['id']
+        )
+        self.assertRaises(
+            exception.InvalidPolicyAssociation,
+            PROVIDERS.endpoint_policy_api.create_policy_association,
+            self.policy[0]['id'],
+            endpoint_id=self.endpoint[0]['id'],
+            service_id=self.service[0]['id']
+        )
+        self.assertRaises(
+            exception.InvalidPolicyAssociation,
+            PROVIDERS.endpoint_policy_api.create_policy_association,
+            self.policy[0]['id'],
+            region_id=self.region[0]['id']
+        )
 
     def test_policy_to_explicit_endpoint_association(self):
         # Associate policy 0 with endpoint 0
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], endpoint_id=self.endpoint[0]['id'])
         self._assert_correct_policy(self.endpoint[0], self.policy[0])
         self._assert_correct_endpoints(self.policy[0], [self.endpoint[0]])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.get_policy_for_endpoint,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.get_policy_for_endpoint,
+            uuid.uuid4().hex
+        )
 
     def test_policy_to_service_association(self):
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], service_id=self.service[0]['id'])
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[1]['id'], service_id=self.service[1]['id'])
 
         # Endpoints 0 and 5 are part of service 0
@@ -157,13 +183,13 @@ class PolicyAssociationTests(object):
             self.policy[1], [self.endpoint[1], self.endpoint[2]])
 
     def test_policy_to_region_and_service_association(self):
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], service_id=self.service[0]['id'],
             region_id=self.region[0]['id'])
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[1]['id'], service_id=self.service[1]['id'],
             region_id=self.region[1]['id'])
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[2]['id'], service_id=self.service[2]['id'],
             region_id=self.region[2]['id'])
 
@@ -188,62 +214,74 @@ class PolicyAssociationTests(object):
             self.policy[0], [self.endpoint[0], self.endpoint[5]])
 
     def test_delete_association_by_entity(self):
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], endpoint_id=self.endpoint[0]['id'])
-        self.endpoint_policy_api.delete_association_by_endpoint(
+        PROVIDERS.endpoint_policy_api.delete_association_by_endpoint(
             self.endpoint[0]['id'])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          endpoint_id=self.endpoint[0]['id'])
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            endpoint_id=self.endpoint[0]['id']
+        )
         # Make sure deleting it again is silent - since this method is used
         # in response to notifications by the controller.
-        self.endpoint_policy_api.delete_association_by_endpoint(
+        PROVIDERS.endpoint_policy_api.delete_association_by_endpoint(
             self.endpoint[0]['id'])
 
         # Now try with service - ensure both combined region & service
         # associations and explicit service ones are removed
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], service_id=self.service[0]['id'],
             region_id=self.region[0]['id'])
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[1]['id'], service_id=self.service[0]['id'],
             region_id=self.region[1]['id'])
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], service_id=self.service[0]['id'])
 
-        self.endpoint_policy_api.delete_association_by_service(
+        PROVIDERS.endpoint_policy_api.delete_association_by_service(
             self.service[0]['id'])
 
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          service_id=self.service[0]['id'],
-                          region_id=self.region[0]['id'])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[1]['id'],
-                          service_id=self.service[0]['id'],
-                          region_id=self.region[1]['id'])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          service_id=self.service[0]['id'])
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            service_id=self.service[0]['id'],
+            region_id=self.region[0]['id']
+        )
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[1]['id'],
+            service_id=self.service[0]['id'],
+            region_id=self.region[1]['id']
+        )
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            service_id=self.service[0]['id']
+        )
 
         # Finally, check delete by region
-        self.endpoint_policy_api.create_policy_association(
+        PROVIDERS.endpoint_policy_api.create_policy_association(
             self.policy[0]['id'], service_id=self.service[0]['id'],
             region_id=self.region[0]['id'])
 
-        self.endpoint_policy_api.delete_association_by_region(
+        PROVIDERS.endpoint_policy_api.delete_association_by_region(
             self.region[0]['id'])
 
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          service_id=self.service[0]['id'],
-                          region_id=self.region[0]['id'])
-        self.assertRaises(exception.NotFound,
-                          self.endpoint_policy_api.check_policy_association,
-                          self.policy[0]['id'],
-                          service_id=self.service[0]['id'])
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            service_id=self.service[0]['id'],
+            region_id=self.region[0]['id']
+        )
+        self.assertRaises(
+            exception.NotFound,
+            PROVIDERS.endpoint_policy_api.check_policy_association,
+            self.policy[0]['id'],
+            service_id=self.service[0]['id']
+        )

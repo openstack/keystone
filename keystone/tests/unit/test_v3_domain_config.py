@@ -15,6 +15,7 @@ import uuid
 
 from six.moves import http_client
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
@@ -22,6 +23,7 @@ from keystone.tests.unit import test_v3
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class DomainConfigTestCase(test_v3.RestfulTestCase):
@@ -31,7 +33,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         super(DomainConfigTestCase, self).setUp()
 
         self.domain = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.create_domain(self.domain['id'], self.domain)
         self.config = {'ldap': {'url': uuid.uuid4().hex,
                                 'user_tree_dn': uuid.uuid4().hex},
                        'identity': {'driver': uuid.uuid4().hex}}
@@ -42,7 +44,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             'domain_id': self.domain['id']}
         r = self.put(url, body={'config': self.config},
                      expected_status=http_client.CREATED)
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(self.config, r.result['config'])
         self.assertEqual(self.config, res)
 
@@ -72,7 +74,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_delete_config(self):
         """Call ``DELETE /domains{domain_id}/config``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         self.delete('/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']})
         self.get('/domains/%(domain_id)s/config' % {
@@ -86,7 +90,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         id provided, the request shall be rejected with a response, 404 domain
         not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_domain_id = uuid.uuid4().hex
         self.delete('/domains/%(domain_id)s/config' % {
             'domain_id': invalid_domain_id},
@@ -94,10 +100,12 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_delete_config_by_group(self):
         """Call ``DELETE /domains{domain_id}/config/{group}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         self.delete('/domains/%(domain_id)s/config/ldap' % {
             'domain_id': self.domain['id']})
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertNotIn('ldap', res)
 
     def test_delete_config_by_group_invalid_domain(self):
@@ -107,7 +115,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         invalid domain id provided, the request shall be rejected with a
         response 404 domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_domain_id = uuid.uuid4().hex
         self.delete('/domains/%(domain_id)s/config/ldap' % {
             'domain_id': invalid_domain_id},
@@ -115,7 +125,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_config(self):
         """Call ``GET & HEAD for /domains{domain_id}/config``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         url = '/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']}
         r = self.get(url)
@@ -124,7 +136,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_config_by_group(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         url = '/domains/%(domain_id)s/config/ldap' % {
             'domain_id': self.domain['id']}
         r = self.get(url)
@@ -138,7 +152,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         invalid domain id provided, the request shall be rejected with a
         response 404 domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_domain_id = uuid.uuid4().hex
         url = ('/domains/%(domain_id)s/config/ldap' % {
             'domain_id': invalid_domain_id}
@@ -148,7 +164,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_config_by_option(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}/{option}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         url = '/domains/%(domain_id)s/config/ldap/url' % {
             'domain_id': self.domain['id']}
         r = self.get(url)
@@ -163,7 +181,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         invalid domain id provided, the request shall be rejected with a
         response 404 domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_domain_id = uuid.uuid4().hex
         url = ('/domains/%(domain_id)s/config/ldap/url' % {
             'domain_id': invalid_domain_id}
@@ -196,7 +216,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
     def test_get_head_non_existant_config_group(self):
         """Call ``GET /domains/{domain_id}/config/{group_not_exist}``."""
         config = {'ldap': {'url': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         url = ('/domains/%(domain_id)s/config/identity' % {
             'domain_id': self.domain['id']}
         )
@@ -211,7 +231,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         a response, 404 domain not found.
         """
         config = {'ldap': {'url': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
         url = ('/domains/%(domain_id)s/config/identity' % {
             'domain_id': invalid_domain_id}
@@ -227,7 +247,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         within the group.
         """
         config = {'ldap': {'url': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         url = ('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
             'domain_id': self.domain['id']}
         )
@@ -244,7 +264,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         a response, 404 domain not found.
         """
         config = {'ldap': {'url': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
         url = ('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
             'domain_id': invalid_domain_id}
@@ -254,13 +274,15 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_update_config(self):
         """Call ``PATCH /domains/{domain_id}/config``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         new_config = {'ldap': {'url': uuid.uuid4().hex},
                       'identity': {'driver': uuid.uuid4().hex}}
         r = self.patch('/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']},
             body={'config': new_config})
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         expected_config = copy.deepcopy(self.config)
         expected_config['ldap']['url'] = new_config['ldap']['url']
         expected_config['identity']['driver'] = (
@@ -275,7 +297,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         id provided, the request shall be rejected with a response, 404 domain
         not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         new_config = {'ldap': {'url': uuid.uuid4().hex},
                       'identity': {'driver': uuid.uuid4().hex}}
         invalid_domain_id = uuid.uuid4().hex
@@ -286,13 +310,15 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_update_config_group(self):
         """Call ``PATCH /domains/{domain_id}/config/{group}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         new_config = {'ldap': {'url': uuid.uuid4().hex,
                                'user_filter': uuid.uuid4().hex}}
         r = self.patch('/domains/%(domain_id)s/config/ldap' % {
             'domain_id': self.domain['id']},
             body={'config': new_config})
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         expected_config = copy.deepcopy(self.config)
         expected_config['ldap']['url'] = new_config['ldap']['url']
         expected_config['ldap']['user_filter'] = (
@@ -307,7 +333,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         domain id provided, the request shall be rejected with a response,
         404 domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         new_config = {'ldap': {'url': uuid.uuid4().hex,
                                'user_filter': uuid.uuid4().hex}}
         invalid_domain_id = uuid.uuid4().hex
@@ -318,7 +346,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_update_config_invalid_group(self):
         """Call ``PATCH /domains/{domain_id}/config/{invalid_group}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
 
         # Trying to update a group that is neither whitelisted or sensitive
         # should result in Forbidden.
@@ -332,7 +362,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         # Trying to update a valid group, but one that is not in the current
         # config should result in NotFound
         config = {'ldap': {'suffix': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         new_config = {'identity': {'driver': uuid.uuid4().hex}}
         self.patch('/domains/%(domain_id)s/config/identity' % {
             'domain_id': self.domain['id']},
@@ -346,7 +376,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         and an invalid domain id provided, the request shall be rejected
         with a response, 404 domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_group = uuid.uuid4().hex
         new_config = {invalid_group: {'url': uuid.uuid4().hex,
                                       'user_filter': uuid.uuid4().hex}}
@@ -359,12 +391,14 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_update_config_option(self):
         """Call ``PATCH /domains/{domain_id}/config/{group}/{option}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         new_config = {'url': uuid.uuid4().hex}
         r = self.patch('/domains/%(domain_id)s/config/ldap/url' % {
             'domain_id': self.domain['id']},
             body={'config': new_config})
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         expected_config = copy.deepcopy(self.config)
         expected_config['ldap']['url'] = new_config['url']
         self.assertEqual(expected_config, r.result['config'])
@@ -377,7 +411,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         domain id provided, the request shall be rejected with a response, 404
         domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         new_config = {'url': uuid.uuid4().hex}
         invalid_domain_id = uuid.uuid4().hex
         self.patch('/domains/%(domain_id)s/config/ldap/url' % {
@@ -387,7 +423,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_update_config_invalid_option(self):
         """Call ``PATCH /domains/{domain_id}/config/{group}/{invalid}``."""
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_option = uuid.uuid4().hex
         new_config = {'ldap': {invalid_option: uuid.uuid4().hex}}
         # Trying to update an option that is neither whitelisted or sensitive
@@ -414,7 +452,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         and an invalid domain id provided, the request shall be rejected
         with a response, 404 domain not found.
         """
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         invalid_option = uuid.uuid4().hex
         new_config = {'ldap': {invalid_option: uuid.uuid4().hex}}
         invalid_domain_id = uuid.uuid4().hex
@@ -429,7 +469,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """Call ``GET & HEAD /domains/config/default``."""
         # Create a config that overrides a few of the options so that we can
         # check that only the defaults are returned.
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         url = '/domains/config/default'
         r = self.get(url)
         default_config = r.result['config']
@@ -443,7 +485,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """Call ``GET & HEAD /domains/config/{group}/default``."""
         # Create a config that overrides a few of the options so that we can
         # check that only the defaults are returned.
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         url = '/domains/config/ldap/default'
         r = self.get(url)
         default_config = r.result['config']
@@ -456,7 +500,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """Call ``GET & HEAD /domains/config/{group}/{option}/default``."""
         # Create a config that overrides a few of the options so that we can
         # check that only the defaults are returned.
-        self.domain_config_api.create_config(self.domain['id'], self.config)
+        PROVIDERS.domain_config_api.create_config(
+            self.domain['id'], self.config
+        )
         url = '/domains/config/ldap/url/default'
         r = self.get(url)
         default_config = r.result['config']
@@ -500,13 +546,13 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
         # Create a user in the default domain
         self.non_admin_user = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             CONF.identity.default_domain_id
         )
 
         # Create an admin in the default domain
         self.admin_user = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             CONF.identity.default_domain_id
         )
 
@@ -514,15 +560,15 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.resource_api.create_project(self.project['id'], self.project)
+        PROVIDERS.resource_api.create_project(self.project['id'], self.project)
         self.non_admin_role = unit.new_role_ref(name='not_admin')
-        self.role_api.create_role(
+        PROVIDERS.role_api.create_role(
             self.non_admin_role['id'],
             self.non_admin_role
         )
 
         # Give the non-admin user a role on the project
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.non_admin_user['id'],
             self.project['id'],
             self.role['id']
@@ -530,7 +576,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
         # Give the user the admin role on the project, which is technically
         # `self.role` because RestfulTestCase sets that up for us.
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.admin_user['id'],
             self.project['id'],
             self.role_id
@@ -612,7 +658,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """
         # Create a new domain that is not the default domain
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         # Set the security compliance configuration options
         password_regex = uuid.uuid4().hex
@@ -868,17 +914,17 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """
         # Make a new domain
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         # Create a user in the new domain
-        user = unit.create_user(self.identity_api, domain['id'])
+        user = unit.create_user(PROVIDERS.identity_api, domain['id'])
 
         # Create a project in the new domain
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Give the new user a non-admin role on the project
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user['id'],
             project['id'],
             self.non_admin_role['id']

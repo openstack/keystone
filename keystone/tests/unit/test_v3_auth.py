@@ -71,7 +71,7 @@ class TestMFARules(test_v3.RestfulTestCase):
 
     def _create_totp_cred(self):
         totp_cred = unit.new_totp_credential(self.user_id, self.project_id)
-        self.credential_api.create_credential(uuid.uuid4().hex, totp_cred)
+        PROVIDERS.credential_api.create_credential(uuid.uuid4().hex, totp_cred)
 
         def cleanup(testcase):
             totp_creds = testcase.credential_api.list_credentials_for_user(
@@ -93,7 +93,7 @@ class TestMFARules(test_v3.RestfulTestCase):
         user.pop('password')
         user['options'][ro.MFA_RULES_OPT.option_name] = rule_list
         user['options'][ro.MFA_ENABLED_OPT.option_name] = rules_enabled
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
 
     def test_MFA_single_method_rules_requirements_met_succeeds(self):
         # ensure that a simple password works if a password-only rules exists
@@ -361,7 +361,7 @@ class TokenAPITests(object):
 
     def _create_trust(self, impersonation=False):
         # Create a trustee user
-        trustee_user = unit.create_user(self.identity_api,
+        trustee_user = unit.create_user(PROVIDERS.identity_api,
                                         domain_id=self.domain_id)
         ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
@@ -398,7 +398,7 @@ class TokenAPITests(object):
 
     def _set_user_enabled(self, user, enabled=True):
         user['enabled'] = enabled
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
 
     def _create_project_and_set_as_default_project(self):
         # create a new project
@@ -438,7 +438,7 @@ class TokenAPITests(object):
     def test_create_token_for_user_without_password_fails(self):
         user = unit.new_user_ref(domain_id=self.domain['id'])
         del user['password']  # can't have a password for this test
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
 
         auth_data = self.build_authentication_request(
             user_id=user['id'],
@@ -526,9 +526,9 @@ class TokenAPITests(object):
             self.user['id'], self.domain_id, enable_project=False)
 
         # assign a role to user for the new project
-        self.assignment_api.add_role_to_user_and_project(self.user['id'],
-                                                         project['id'],
-                                                         self.role_id)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user['id'], project['id'], self.role_id
+        )
 
         # attempt to authenticate without requesting a project
         auth_data = self.build_authentication_request(
@@ -546,9 +546,9 @@ class TokenAPITests(object):
             self.user['id'], domain['id'])
 
         # assign a role to user for the new project
-        self.assignment_api.add_role_to_user_and_project(self.user['id'],
-                                                         project['id'],
-                                                         self.role_id)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user['id'], project['id'], self.role_id
+        )
 
         # now disable the project domain
         body = {'domain': {'enabled': False}}
@@ -603,7 +603,7 @@ class TokenAPITests(object):
         self.assertValidUnscopedTokenResponse(r)
         # Disable the user's domain
         self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.update_domain(self.domain['id'], self.domain)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             unscoped_token,
@@ -617,7 +617,7 @@ class TokenAPITests(object):
         self.assertValidUnscopedTokenResponse(r)
         # Change user's password
         self.user['password'] = 'Password1'
-        self.identity_api.update_user(self.user['id'], self.user)
+        PROVIDERS.identity_api.update_user(self.user['id'], self.user)
         # Ensure updating user's password revokes existing user's tokens
         self._validate_token(
             unscoped_token,
@@ -928,10 +928,10 @@ class TokenAPITests(object):
 
     def test_create_domain_token_with_group_role(self):
         group = unit.new_group_ref(domain_id=self.domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         # add user to group
-        self.identity_api.add_user_to_group(self.user['id'], group['id'])
+        PROVIDERS.identity_api.add_user_to_group(self.user['id'], group['id'])
 
         # grant the domain role to group
         path = '/domains/%s/groups/%s/roles/%s' % (
@@ -954,10 +954,10 @@ class TokenAPITests(object):
                                    domain_name_url_safe='off')
         unsafe_name = 'i am not / safe'
         domain = unit.new_domain_ref(name=unsafe_name)
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.create_grant(
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.create_grant(
             role_member['id'],
             user_id=self.user['id'],
             domain_id=domain['id'])
@@ -994,9 +994,10 @@ class TokenAPITests(object):
 
     def test_validate_domain_scoped_token(self):
         # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
         domain_scoped_token = self._get_domain_scoped_token()
         r = self._validate_token(domain_scoped_token)
         self.assertValidDomainScopedTokenResponse(r)
@@ -1007,9 +1008,10 @@ class TokenAPITests(object):
 
     def test_validate_expired_domain_scoped_token_returns_not_found(self):
         # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
         # NOTE(lbragstad): We set token expiration to 10 seconds so that we can
         # use the context manager of freezegun without sqlite issues.
         self.config_fixture.config(group='token',
@@ -1025,9 +1027,10 @@ class TokenAPITests(object):
 
     def test_domain_scoped_token_is_invalid_after_disabling_user(self):
         # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
         domain_scoped_token = self._get_domain_scoped_token()
         # Make sure the token is valid
         r = self._validate_token(domain_scoped_token)
@@ -1042,17 +1045,19 @@ class TokenAPITests(object):
 
     def test_domain_scoped_token_is_invalid_after_deleting_grant(self):
         # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
         domain_scoped_token = self._get_domain_scoped_token()
         # Make sure the token is valid
         r = self._validate_token(domain_scoped_token)
         self.assertValidDomainScopedTokenResponse(r)
         # Delete access to domain
-        self.assignment_api.delete_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             domain_scoped_token,
@@ -1061,16 +1066,17 @@ class TokenAPITests(object):
 
     def test_domain_scoped_token_invalid_after_disabling_domain(self):
         # Grant user access to domain
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
         domain_scoped_token = self._get_domain_scoped_token()
         # Make sure the token is valid
         r = self._validate_token(domain_scoped_token)
         self.assertValidDomainScopedTokenResponse(r)
         # Disable domain
         self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.update_domain(self.domain['id'], self.domain)
         # Ensure validating a token for a disabled domain fails
         self._validate_token(
             domain_scoped_token,
@@ -1188,8 +1194,9 @@ class TokenAPITests(object):
             'enabled': False,
             'interface': 'internal'
         })
-        self.catalog_api.create_endpoint(disabled_endpoint_id,
-                                         disabled_endpoint_ref)
+        PROVIDERS.catalog_api.create_endpoint(
+            disabled_endpoint_id, disabled_endpoint_ref
+        )
 
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -1207,9 +1214,11 @@ class TokenAPITests(object):
         # although the endpoint associated with the service is enabled, the
         # service is disabled
         self.assertTrue(self.endpoint['enabled'])
-        self.catalog_api.update_service(
+        PROVIDERS.catalog_api.update_service(
             self.endpoint['service_id'], {'enabled': False})
-        service = self.catalog_api.get_service(self.endpoint['service_id'])
+        service = PROVIDERS.catalog_api.get_service(
+            self.endpoint['service_id']
+        )
         self.assertFalse(service['enabled'])
 
         auth_data = self.build_authentication_request(
@@ -1222,7 +1231,7 @@ class TokenAPITests(object):
 
     def test_scope_to_project_without_grant_returns_unauthorized(self):
         project = unit.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
@@ -1258,10 +1267,10 @@ class TokenAPITests(object):
         unsafe_name = 'i am not / safe'
         project = unit.new_project_ref(domain_id=test_v3.DEFAULT_DOMAIN_ID,
                                        name=unsafe_name)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user['id'], project['id'], role_member['id'])
 
         auth_data = self.build_authentication_request(
@@ -1294,13 +1303,13 @@ class TokenAPITests(object):
                                    domain_name_url_safe='off')
         unsafe_name = 'i am not / safe'
         domain = unit.new_domain_ref(name=unsafe_name)
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         # Add a (safely named) project to that domain
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.create_grant(
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.create_grant(
             role_member['id'],
             user_id=self.user['id'],
             project_id=project['id'])
@@ -1331,13 +1340,13 @@ class TokenAPITests(object):
     def test_create_project_token_with_same_domain_and_project_name(self):
         """Authenticate to a project with the same name as its domain."""
         domain = unit.new_project_ref(is_domain=True)
-        domain = self.resource_api.create_project(domain['id'], domain)
+        domain = PROVIDERS.resource_api.create_project(domain['id'], domain)
         project = unit.new_project_ref(domain_id=domain['id'],
                                        name=domain['name'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user['id'], project['id'], role_member['id'])
 
         auth_data = self.build_authentication_request(
@@ -1351,10 +1360,10 @@ class TokenAPITests(object):
 
     def test_create_project_token_fails_with_project_acting_as_domain(self):
         domain = unit.new_project_ref(is_domain=True)
-        domain = self.resource_api.create_project(domain['id'], domain)
+        domain = PROVIDERS.resource_api.create_project(domain['id'], domain)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.create_grant(
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.create_grant(
             role_member['id'],
             user_id=self.user['id'],
             domain_id=domain['id'])
@@ -1371,21 +1380,21 @@ class TokenAPITests(object):
     def test_create_project_token_with_disabled_project_domain_fails(self):
         # create a disabled domain
         domain = unit.new_domain_ref()
-        domain = self.resource_api.create_domain(domain['id'], domain)
+        domain = PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         # create a project in the domain
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         # assign some role to self.user for the project in the domain
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user['id'],
             project['id'],
             self.role_id)
 
         # Disable the domain
         domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
 
         # user should not be able to auth with project_id
         auth_data = self.build_authentication_request(
@@ -1424,7 +1433,7 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
         # Update user's password
         self.user['password'] = 'Password1'
-        self.identity_api.update_user(self.user['id'], self.user)
+        PROVIDERS.identity_api.update_user(self.user['id'], self.user)
         # Ensure updating user's password revokes existing tokens
         self._validate_token(
             project_scoped_token,
@@ -1438,7 +1447,7 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
         # Disable project
         self.project['enabled'] = False
-        self.resource_api.update_project(self.project['id'], self.project)
+        PROVIDERS.resource_api.update_project(self.project['id'], self.project)
         # Ensure validating a token for a disabled project fails
         self._validate_token(
             project_scoped_token,
@@ -1452,17 +1461,19 @@ class TokenAPITests(object):
             group='cache',
             enabled=False)
         # Grant user access to project
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         project_id=self.project['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            project_id=self.project['id']
+        )
         project_scoped_token = self._get_project_scoped_token()
         # Make sure the token is valid
         r = self._validate_token(project_scoped_token)
         self.assertValidProjectScopedTokenResponse(r)
         # Delete access to project
-        self.assignment_api.delete_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         project_id=self.project['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            self.role['id'], user_id=self.user['id'],
+            project_id=self.project['id']
+        )
         # Ensure the token has been revoked
         self._validate_token(
             project_scoped_token,
@@ -1535,7 +1546,9 @@ class TokenAPITests(object):
 
         # Disable trustee
         trustee_update_ref = dict(enabled=False)
-        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
+        PROVIDERS.identity_api.update_user(
+            trustee_user['id'], trustee_update_ref
+        )
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
@@ -1545,17 +1558,20 @@ class TokenAPITests(object):
     def test_trust_token_is_invalid_when_trustee_domain_disabled(self):
         # create a new domain with new user in that domain
         new_domain_ref = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain_ref['id'], new_domain_ref)
+        PROVIDERS.resource_api.create_domain(
+            new_domain_ref['id'], new_domain_ref
+        )
 
-        trustee_ref = unit.create_user(self.identity_api,
+        trustee_ref = unit.create_user(PROVIDERS.identity_api,
                                        domain_id=new_domain_ref['id'])
 
         new_project_ref = unit.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(new_project_ref['id'],
-                                         new_project_ref)
+        PROVIDERS.resource_api.create_project(
+            new_project_ref['id'], new_project_ref
+        )
 
         # grant the trustor access to the new project
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             self.role['id'],
             user_id=self.user_id,
             project_id=new_project_ref['id'])
@@ -1598,7 +1614,9 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
         # Change trustee's password
         trustee_update_ref = dict(password='Password1')
-        self.identity_api.update_user(trustee_user['id'], trustee_update_ref)
+        PROVIDERS.identity_api.update_user(
+            trustee_user['id'], trustee_update_ref
+        )
         # Ensure updating trustee's password revokes existing tokens
         self._validate_token(
             trust_scoped_token,
@@ -1614,7 +1632,7 @@ class TokenAPITests(object):
 
         # Disable the trustor
         trustor_update_ref = dict(enabled=False)
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
@@ -1630,7 +1648,7 @@ class TokenAPITests(object):
 
         # Change trustor's password
         trustor_update_ref = dict(password='Password1')
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure updating trustor's password revokes existing user's tokens
         self._validate_token(
             trust_scoped_token,
@@ -1646,10 +1664,10 @@ class TokenAPITests(object):
 
         # Disable trustor's domain
         self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.update_domain(self.domain['id'], self.domain)
 
         trustor_update_ref = dict(password='Password1')
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure updating trustor's password revokes existing user's tokens
         self._validate_token(
             trust_scoped_token,
@@ -1824,9 +1842,10 @@ class TokenAPITests(object):
 
     def test_create_implied_role_shows_in_v3_domain_token(self):
         self.config_fixture.config(group='token', infer_roles=True)
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domain['id']
+        )
 
         self._create_implied_role_shows_in_v3_token(True)
 
@@ -1840,16 +1859,17 @@ class TokenAPITests(object):
         prior = new_role['id']
 
         new_group_ref = unit.new_group_ref(domain_id=self.domain['id'])
-        new_group = self.identity_api.create_group(new_group_ref)
-        self.assignment_api.create_grant(prior,
-                                         group_id=new_group['id'],
-                                         project_id=self.project['id'])
+        new_group = PROVIDERS.identity_api.create_group(new_group_ref)
+        PROVIDERS.assignment_api.create_grant(
+            prior, group_id=new_group['id'], project_id=self.project['id']
+        )
 
         token_roles = self._get_scoped_token_roles(is_domain)
         self.assertEqual(1, len(token_roles))
 
-        self.identity_api.add_user_to_group(self.user['id'],
-                                            new_group['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user['id'], new_group['id']
+        )
 
         token_roles = self._get_scoped_token_roles(is_domain)
         self.assertEqual(2, len(token_roles))
@@ -1960,9 +1980,10 @@ class TokenAPITests(object):
         initial_token_roles = self._get_scoped_token_roles()
 
         new_role = self._create_role(domain_id=self.domain_id)
-        self.assignment_api.create_grant(new_role['id'],
-                                         user_id=self.user['id'],
-                                         project_id=self.project['id'])
+        PROVIDERS.assignment_api.create_grant(
+            new_role['id'], user_id=self.user['id'],
+            project_id=self.project['id']
+        )
         implied = self._create_implied_role(new_role['id'])
 
         token_roles = self._get_scoped_token_roles()
@@ -1976,7 +1997,7 @@ class TokenAPITests(object):
 
     def test_remove_all_roles_from_scope_result_in_404(self):
         # create a new user
-        new_user = unit.create_user(self.identity_api,
+        new_user = unit.create_user(PROVIDERS.identity_api,
                                     domain_id=self.domain['id'])
 
         # give the new user a role on a project
@@ -2067,56 +2088,64 @@ class TokenAPITests(object):
 
         """
         domainA = unit.new_domain_ref()
-        self.resource_api.create_domain(domainA['id'], domainA)
+        PROVIDERS.resource_api.create_domain(domainA['id'], domainA)
         projectA = unit.new_project_ref(domain_id=domainA['id'])
-        self.resource_api.create_project(projectA['id'], projectA)
+        PROVIDERS.resource_api.create_project(projectA['id'], projectA)
 
-        user1 = unit.create_user(self.identity_api, domain_id=domainA['id'])
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domainA['id']
+        )
 
-        user2 = unit.create_user(self.identity_api, domain_id=domainA['id'])
+        user2 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domainA['id']
+        )
 
         group1 = unit.new_group_ref(domain_id=domainA['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
 
         group2 = unit.new_group_ref(domain_id=domainA['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
 
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group1['id'])
-        self.identity_api.add_user_to_group(user2['id'],
-                                            group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user2['id'], group2['id']
+        )
 
         # Now create all the roles and assign them
         role_list = []
         for _ in range(8):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
-        self.assignment_api.create_grant(role_list[0]['id'],
-                                         user_id=user1['id'],
-                                         domain_id=domainA['id'])
-        self.assignment_api.create_grant(role_list[1]['id'],
-                                         user_id=user1['id'],
-                                         project_id=projectA['id'])
-        self.assignment_api.create_grant(role_list[2]['id'],
-                                         user_id=user2['id'],
-                                         domain_id=domainA['id'])
-        self.assignment_api.create_grant(role_list[3]['id'],
-                                         user_id=user2['id'],
-                                         project_id=projectA['id'])
-        self.assignment_api.create_grant(role_list[4]['id'],
-                                         group_id=group1['id'],
-                                         domain_id=domainA['id'])
-        self.assignment_api.create_grant(role_list[5]['id'],
-                                         group_id=group1['id'],
-                                         project_id=projectA['id'])
-        self.assignment_api.create_grant(role_list[6]['id'],
-                                         group_id=group2['id'],
-                                         domain_id=domainA['id'])
-        self.assignment_api.create_grant(role_list[7]['id'],
-                                         group_id=group2['id'],
-                                         project_id=projectA['id'])
+        PROVIDERS.assignment_api.create_grant(
+            role_list[0]['id'], user_id=user1['id'], domain_id=domainA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[1]['id'], user_id=user1['id'], project_id=projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[2]['id'], user_id=user2['id'], domain_id=domainA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[3]['id'], user_id=user2['id'], project_id=projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[4]['id'], group_id=group1['id'], domain_id=domainA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[5]['id'], group_id=group1['id'],
+            project_id=projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[6]['id'], group_id=group2['id'], domain_id=domainA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            role_list[7]['id'], group_id=group2['id'],
+            project_id=projectA['id']
+        )
 
         # First, get a project scoped token - which should
         # contain the direct user role and the one by virtue
@@ -2151,8 +2180,9 @@ class TokenAPITests(object):
         # Finally, add user1 to the 2nd group, and get a new
         # scoped token - the extra role should now be included
         # by virtue of the 2nd group
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group2['id']
+        )
         auth_data = self.build_authentication_request(
             user_id=user1['id'],
             password=user1['password'],
@@ -2171,36 +2201,41 @@ class TokenAPITests(object):
         """Verify getting a token in cross domain group/project roles."""
         # create domain, project and group and grant roles to user
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
-        user_foo = unit.create_user(self.identity_api,
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
+        user_foo = unit.create_user(PROVIDERS.identity_api,
                                     domain_id=test_v3.DEFAULT_DOMAIN_ID)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
         role_admin = unit.new_role_ref()
-        self.role_api.create_role(role_admin['id'], role_admin)
+        PROVIDERS.role_api.create_role(role_admin['id'], role_admin)
         role_foo_domain1 = unit.new_role_ref()
-        self.role_api.create_role(role_foo_domain1['id'], role_foo_domain1)
+        PROVIDERS.role_api.create_role(
+            role_foo_domain1['id'], role_foo_domain1
+        )
         role_group_domain1 = unit.new_role_ref()
-        self.role_api.create_role(role_group_domain1['id'], role_group_domain1)
+        PROVIDERS.role_api.create_role(
+            role_group_domain1['id'], role_group_domain1
+        )
         new_group = unit.new_group_ref(domain_id=domain1['id'])
-        new_group = self.identity_api.create_group(new_group)
-        self.identity_api.add_user_to_group(user_foo['id'],
-                                            new_group['id'])
-        self.assignment_api.create_grant(
+        new_group = PROVIDERS.identity_api.create_group(new_group)
+        PROVIDERS.identity_api.add_user_to_group(
+            user_foo['id'], new_group['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
             user_id=user_foo['id'],
             project_id=project1['id'],
             role_id=role_member['id'])
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             project_id=project1['id'],
             role_id=role_admin['id'])
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=user_foo['id'],
             domain_id=domain1['id'],
             role_id=role_foo_domain1['id'])
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             domain_id=domain1['id'],
             role_id=role_group_domain1['id'])
@@ -2235,7 +2270,9 @@ class TokenAPITests(object):
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
         user = {'name': 'myname@mydivision'}
-        self.identity_api.update_user(self.default_domain_user['id'], user)
+        PROVIDERS.identity_api.update_user(
+            self.default_domain_user['id'], user
+        )
         context, auth_info, auth_context = self.build_external_auth_request(
             user["name"])
         api.authenticate(context, auth_info, auth_context)
@@ -2365,7 +2402,7 @@ class TokenAPITests(object):
 
             # flush the tokens, this will only have an effect on sql
             try:
-                provider_api = self.token_provider_api
+                provider_api = PROVIDERS.token_provider_api
                 provider_api._persistence.flush_expired_tokens()
             except exception.NotImplemented:
                 pass
@@ -2391,7 +2428,7 @@ class TokenDataTests(object):
 
     def test_domain_scoped_token_format(self):
         # ensure the domain scoped token response contains the appropriate data
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             self.role['id'],
             user_id=self.default_domain_user['id'],
             domain_id=self.domain['id'])
@@ -2430,7 +2467,7 @@ class TokenDataTests(object):
 
     def test_extra_data_in_domain_scoped_token_fails_validation(self):
         # ensure domain scoped token response contains the appropriate data
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             self.role['id'],
             user_id=self.default_domain_user['id'],
             domain_id=self.domain['id'])
@@ -2485,10 +2522,11 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def test_rescoped_domain_token_disabled(self):
 
         self.domainA = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainA['id'], self.domainA)
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user['id'],
-                                         domain_id=self.domainA['id'])
+        PROVIDERS.resource_api.create_domain(self.domainA['id'], self.domainA)
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user['id'],
+            domain_id=self.domainA['id']
+        )
         unscoped_token = self.get_requested_token(
             self.build_authentication_request(
                 user_id=self.user['id'],
@@ -2603,7 +2641,7 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
 
         # Disable the trustor
         trustor_update_ref = dict(enabled=False)
-        self.identity_api.update_user(self.user['id'], trustor_update_ref)
+        PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
@@ -2625,17 +2663,18 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         super(TestTokenRevokeSelfAndAdmin, self).load_sample_data()
         # DomainA setup
         self.domainA = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainA['id'], self.domainA)
+        PROVIDERS.resource_api.create_domain(self.domainA['id'], self.domainA)
 
-        self.userAdminA = unit.create_user(self.identity_api,
+        self.userAdminA = unit.create_user(PROVIDERS.identity_api,
                                            domain_id=self.domainA['id'])
 
-        self.userNormalA = unit.create_user(self.identity_api,
+        self.userNormalA = unit.create_user(PROVIDERS.identity_api,
                                             domain_id=self.domainA['id'])
 
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.userAdminA['id'],
-                                         domain_id=self.domainA['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.userAdminA['id'],
+            domain_id=self.domainA['id']
+        )
 
     def _policy_fixture(self):
         return ksfixtures.Policy(unit.dirs.etc('policy.v3cloudsample.json'),
@@ -2720,12 +2759,13 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     def test_adminB_fails_revoking_userA_token(self):
         # DomainB setup
         self.domainB = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainB['id'], self.domainB)
-        userAdminB = unit.create_user(self.identity_api,
+        PROVIDERS.resource_api.create_domain(self.domainB['id'], self.domainB)
+        userAdminB = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainB['id'])
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=userAdminB['id'],
-                                         domain_id=self.domainB['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=userAdminB['id'],
+            domain_id=self.domainB['id']
+        )
 
         user_token = self.get_requested_token(
             self.build_authentication_request(
@@ -2792,60 +2832,72 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # Start by creating a couple of domains and projects
         self.domainA = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainA['id'], self.domainA)
+        PROVIDERS.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainB['id'], self.domainB)
+        PROVIDERS.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.projectA = unit.new_project_ref(domain_id=self.domainA['id'])
-        self.resource_api.create_project(self.projectA['id'], self.projectA)
+        PROVIDERS.resource_api.create_project(
+            self.projectA['id'], self.projectA
+        )
         self.projectB = unit.new_project_ref(domain_id=self.domainA['id'])
-        self.resource_api.create_project(self.projectB['id'], self.projectB)
+        PROVIDERS.resource_api.create_project(
+            self.projectB['id'], self.projectB
+        )
 
         # Now create some users
-        self.user1 = unit.create_user(self.identity_api,
+        self.user1 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainA['id'])
 
-        self.user2 = unit.create_user(self.identity_api,
+        self.user2 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainB['id'])
 
-        self.user3 = unit.create_user(self.identity_api,
+        self.user3 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainB['id'])
 
         self.group1 = unit.new_group_ref(domain_id=self.domainA['id'])
-        self.group1 = self.identity_api.create_group(self.group1)
+        self.group1 = PROVIDERS.identity_api.create_group(self.group1)
 
         self.group2 = unit.new_group_ref(domain_id=self.domainA['id'])
-        self.group2 = self.identity_api.create_group(self.group2)
+        self.group2 = PROVIDERS.identity_api.create_group(self.group2)
 
         self.group3 = unit.new_group_ref(domain_id=self.domainB['id'])
-        self.group3 = self.identity_api.create_group(self.group3)
+        self.group3 = PROVIDERS.identity_api.create_group(self.group3)
 
-        self.identity_api.add_user_to_group(self.user1['id'],
-                                            self.group1['id'])
-        self.identity_api.add_user_to_group(self.user2['id'],
-                                            self.group1['id'])
-        self.identity_api.add_user_to_group(self.user3['id'],
-                                            self.group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user1['id'], self.group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user2['id'], self.group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user3['id'], self.group2['id']
+        )
 
         self.role1 = unit.new_role_ref()
-        self.role_api.create_role(self.role1['id'], self.role1)
+        PROVIDERS.role_api.create_role(self.role1['id'], self.role1)
         self.role2 = unit.new_role_ref()
-        self.role_api.create_role(self.role2['id'], self.role2)
+        PROVIDERS.role_api.create_role(self.role2['id'], self.role2)
 
-        self.assignment_api.create_grant(self.role2['id'],
-                                         user_id=self.user1['id'],
-                                         domain_id=self.domainA['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         user_id=self.user1['id'],
-                                         project_id=self.projectA['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         user_id=self.user2['id'],
-                                         project_id=self.projectA['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         user_id=self.user3['id'],
-                                         project_id=self.projectA['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         group_id=self.group1['id'],
-                                         project_id=self.projectA['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role2['id'], user_id=self.user1['id'],
+            domain_id=self.domainA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], user_id=self.user1['id'],
+            project_id=self.projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], user_id=self.user2['id'],
+            project_id=self.projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], user_id=self.user3['id'],
+            project_id=self.projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], group_id=self.group1['id'],
+            project_id=self.projectA['id']
+        )
 
     def test_unscoped_token_remains_valid_after_role_assignment(self):
         unscoped_token = self.get_requested_token(
@@ -2868,7 +2920,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # create a new role
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
 
         # assign a new role
         self.put(
@@ -2917,27 +2969,34 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
     def role_data_fixtures(self):
         self.projectC = unit.new_project_ref(domain_id=self.domainA['id'])
-        self.resource_api.create_project(self.projectC['id'], self.projectC)
-        self.user4 = unit.create_user(self.identity_api,
+        PROVIDERS.resource_api.create_project(
+            self.projectC['id'], self.projectC
+        )
+        self.user4 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainB['id'])
-        self.user5 = unit.create_user(self.identity_api,
+        self.user5 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainA['id'])
-        self.user6 = unit.create_user(self.identity_api,
+        self.user6 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainA['id'])
-        self.identity_api.add_user_to_group(self.user5['id'],
-                                            self.group1['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         group_id=self.group1['id'],
-                                         project_id=self.projectB['id'])
-        self.assignment_api.create_grant(self.role2['id'],
-                                         user_id=self.user4['id'],
-                                         project_id=self.projectC['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         user_id=self.user6['id'],
-                                         project_id=self.projectA['id'])
-        self.assignment_api.create_grant(self.role1['id'],
-                                         user_id=self.user6['id'],
-                                         domain_id=self.domainA['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user5['id'], self.group1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], group_id=self.group1['id'],
+            project_id=self.projectB['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role2['id'], user_id=self.user4['id'],
+            project_id=self.projectC['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], user_id=self.user6['id'],
+            project_id=self.projectA['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], user_id=self.user6['id'],
+            domain_id=self.domainA['id']
+        )
 
     def test_deleting_role_revokes_token(self):
         """Test deleting a role revokes token.
@@ -3167,12 +3226,14 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                 'group_id': self.group1['id'],
                 'role_id': self.role1['id']})
         self.delete(grant_url)
-        self.assignment_api.delete_grant(role_id=self.role1['id'],
-                                         project_id=self.projectA['id'],
-                                         user_id=self.user1['id'])
-        self.assignment_api.delete_grant(role_id=self.role1['id'],
-                                         project_id=self.projectA['id'],
-                                         user_id=self.user2['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            role_id=self.role1['id'], project_id=self.projectA['id'],
+            user_id=self.user1['id']
+        )
+        PROVIDERS.assignment_api.delete_grant(
+            role_id=self.role1['id'], project_id=self.projectA['id'],
+            user_id=self.user2['id']
+        )
         self.head('/auth/tokens', token=token1,
                   expected_status=http_client.UNAUTHORIZED)
         self.head('/auth/tokens', token=token2,
@@ -3414,9 +3475,10 @@ class TestTokenRevokeByAssignment(TestTokenRevokeById):
         Revoking a group role from one project should not invalidate all group
         users' tokens
         """
-        self.assignment_api.create_grant(self.role1['id'],
-                                         group_id=self.group1['id'],
-                                         project_id=self.projectB['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role1['id'], group_id=self.group1['id'],
+            project_id=self.projectB['id']
+        )
 
         project_token = self.get_requested_token(
             self.build_authentication_request(
@@ -3430,9 +3492,10 @@ class TestTokenRevokeByAssignment(TestTokenRevokeById):
                 password=self.user1['password'],
                 project_id=self.projectA['id']))
 
-        self.assignment_api.delete_grant(self.role1['id'],
-                                         group_id=self.group1['id'],
-                                         project_id=self.projectB['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            self.role1['id'], group_id=self.group1['id'],
+            project_id=self.projectB['id']
+        )
 
         # authorization for the projectA should still succeed
         self.head('/auth/tokens',
@@ -3443,7 +3506,8 @@ class TestTokenRevokeByAssignment(TestTokenRevokeById):
                   headers={'X-Subject-Token': project_token},
                   expected_status=http_client.NOT_FOUND)
         revoked_tokens = [
-            t['id'] for t in self.token_provider_api.list_revoked_tokens()]
+            t['id'] for t in PROVIDERS.token_provider_api.list_revoked_tokens()
+        ]
         # token is in token revocation list
         self.assertIn(project_token, revoked_tokens)
 
@@ -3644,7 +3708,7 @@ class AuthExternalDomainBehavior(object):
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
         user = {'name': 'myname@mydivision'}
-        self.identity_api.update_user(self.user['id'], user)
+        PROVIDERS.identity_api.update_user(self.user['id'], user)
         remote_user = user['name']
         request, auth_info, auth_context = self.build_external_auth_request(
             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
@@ -3714,7 +3778,9 @@ class TestAuthExternalDefaultDomain(object):
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
         user = {'name': 'myname@mydivision'}
-        self.identity_api.update_user(self.default_domain_user['id'], user)
+        PROVIDERS.identity_api.update_user(
+            self.default_domain_user['id'], user
+        )
         remote_user = user['name']
         request, auth_info, auth_context = self.build_external_auth_request(
             remote_user, kerberos=self.kerberos)
@@ -3846,7 +3912,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
     def setUp(self):
         super(TrustAPIBehavior, self).setUp()
         # Create a trustee to delegate stuff to
-        self.trustee_user = unit.create_user(self.identity_api,
+        self.trustee_user = unit.create_user(PROVIDERS.identity_api,
                                              domain_id=self.domain_id)
 
         # trustor->trustee
@@ -3951,11 +4017,12 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
     def test_roles_subset(self):
         # Build second role
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
         # assign a new role to the user
-        self.assignment_api.create_grant(role_id=role['id'],
-                                         user_id=self.user_id,
-                                         project_id=self.project_id)
+        PROVIDERS.assignment_api.create_grant(
+            role_id=role['id'], user_id=self.user_id,
+            project_id=self.project_id
+        )
 
         # Create first trust with extended set of roles
         ref = self.redelegated_trust_ref
@@ -4028,11 +4095,12 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
 
         # Build second trust with a role not in parent's roles
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
         # assign a new role to the user
-        self.assignment_api.create_grant(role_id=role['id'],
-                                         user_id=self.user_id,
-                                         project_id=self.project_id)
+        PROVIDERS.assignment_api.create_grant(
+            role_id=role['id'], user_id=self.user_id,
+            project_id=self.project_id
+        )
 
         # Try to chain a trust with the role not from parent trust
         self.chained_trust_ref['roles'] = [{'id': role['id']}]
@@ -4096,7 +4164,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust_token = self.get_requested_token(auth_data)
 
         # Create second user for redelegation
-        trustee_user_2 = unit.create_user(self.identity_api,
+        trustee_user_2 = unit.create_user(PROVIDERS.identity_api,
                                           domain_id=self.domain_id)
 
         # Trust for redelegation
@@ -4273,7 +4341,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
     def test_trust_deleted_grant(self):
         # create a new role
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
 
         grant_url = (
             '/projects/%(project_id)s/users/%(user_id)s/'
@@ -4318,13 +4386,13 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         """
         # create a sub-trustee user
         sub_trustee_user = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             domain_id=test_v3.DEFAULT_DOMAIN_ID)
         sub_trustee_user_id = sub_trustee_user['id']
 
         # create a new role
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
 
         # assign the new role to trustee
         self.put(
@@ -4414,7 +4482,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
 
     def disable_user(self, user):
         user['enabled'] = False
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
 
     def test_trust_get_token_fails_if_trustor_disabled(self):
         ref = unit.new_trust_ref(
@@ -4613,7 +4681,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
         self.user_list = list()
         self.trust_chain = list()
         for _ in range(3):
-            user = unit.create_user(self.identity_api,
+            user = unit.create_user(PROVIDERS.identity_api,
                                     domain_id=self.domain_id)
             self.user_list.append(user)
 
@@ -4730,7 +4798,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
     def test_trustor_roles_revoked(self):
         self.assert_user_authenticate(self.user_list[0])
 
-        self.assignment_api.remove_role_from_user_and_project(
+        PROVIDERS.assignment_api.remove_role_from_user_and_project(
             self.user_id, self.project_id, self.role_id
         )
 
@@ -4756,7 +4824,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
         disabled = self.user_list[0]
         disabled['enabled'] = False
-        self.identity_api.update_user(disabled['id'], disabled)
+        PROVIDERS.identity_api.update_user(disabled['id'], disabled)
 
         # Bypass policy enforcement
         with mock.patch.object(policy, 'enforce', return_value=True):
@@ -4767,7 +4835,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
     def test_intermediate_user_deleted(self):
         self.assert_user_authenticate(self.user_list[0])
 
-        self.identity_api.delete_user(self.user_list[0]['id'])
+        PROVIDERS.identity_api.delete_user(self.user_list[0]['id'])
 
         # Bypass policy enforcement
         # Delete trustee will invalidate the trust.
@@ -5097,10 +5165,10 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
             project_id=self.project['id'])
 
     def cleanup(self):
-        totp_creds = self.credential_api.list_credentials_for_user(
+        totp_creds = PROVIDERS.credential_api.list_credentials_for_user(
             self.default_domain_user['id'], type='totp')
 
-        other_creds = self.credential_api.list_credentials_for_user(
+        other_creds = PROVIDERS.credential_api.list_credentials_for_user(
             self.default_domain_user['id'], type='other')
 
         for cred in itertools.chain(other_creds, totp_creds):
@@ -5157,10 +5225,12 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self._make_credentials('totp', count=3)
 
         # create a new user and their credentials
-        user = unit.create_user(self.identity_api, domain_id=self.domain_id)
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=user['id'],
-                                         project_id=self.project['id'])
+        user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=user['id'], project_id=self.project['id']
+        )
         creds = self._make_credentials('totp', count=1, user_id=user['id'])
         secret = creds[-1]['blob']
 
@@ -5183,11 +5253,12 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self._make_credentials('totp', count=3)
 
         # create a new user and their credentials
-        new_user = unit.create_user(self.identity_api,
+        new_user = unit.create_user(PROVIDERS.identity_api,
                                     domain_id=self.domain_id)
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=new_user['id'],
-                                         project_id=self.project['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=new_user['id'],
+            project_id=self.project['id']
+        )
         user2_creds = self._make_credentials(
             'totp', count=1, user_id=new_user['id'])
 

@@ -15,10 +15,13 @@
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from six.moves import http_client
 
+from keystone.common import provider_api
 from keystone.contrib.ec2 import controllers
 from keystone.tests import unit
 from keystone.tests.unit import rest
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class EC2ContribCoreV2(rest.RestfulTestCase):
@@ -55,7 +58,7 @@ class EC2ContribCoreV2(rest.RestfulTestCase):
         cred_blob, credential = unit.new_ec2_credential(
             self.user_foo['id'], self.tenant_bar['id'])
 
-        self.credential_api.create_credential(
+        PROVIDERS.credential_api.create_credential(
             credential['id'], credential)
 
         signer = ec2_utils.Ec2Signer(cred_blob['secret'])
@@ -103,7 +106,7 @@ class EC2ContribCoreV2(rest.RestfulTestCase):
         cred_blob, credential = unit.new_ec2_credential(
             self.user_foo['id'], self.tenant_bar['id'])
 
-        self.credential_api.create_credential(
+        PROVIDERS.credential_api.create_credential(
             credential['id'], credential)
 
         signer = ec2_utils.Ec2Signer('totally not the secret')
@@ -133,7 +136,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
 
         self.cred_blob, self.credential = unit.new_ec2_credential(
             self.user['id'], self.project_id)
-        self.credential_api.create_credential(
+        PROVIDERS.credential_api.create_credential(
             self.credential['id'], self.credential)
 
         self.controller = controllers.Ec2ControllerV3

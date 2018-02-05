@@ -19,6 +19,7 @@ from six.moves import http_client
 from six.moves import range
 from testtools import matchers
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
@@ -26,6 +27,7 @@ from keystone.tests.unit import test_v3
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class SystemRoleAssignmentMixin(object):
@@ -68,7 +70,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         super(AssignmentTestCase, self).setUp()
 
         self.group = unit.new_group_ref(domain_id=self.domain_id)
-        self.group = self.identity_api.create_group(self.group)
+        self.group = PROVIDERS.identity_api.create_group(self.group)
         self.group_id = self.group['id']
 
     # Role CRUD tests
@@ -132,7 +134,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
     def test_crud_user_project_role_grants(self):
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
 
         collection_url = (
             '/projects/%(project_id)s/users/%(user_id)s/roles' % {
@@ -338,7 +340,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         """Create a new user and assign user a role on a project."""
         # Create a new user
         new_user = unit.new_user_ref(domain_id=self.domain_id)
-        user_ref = self.identity_api.create_user(new_user)
+        user_ref = PROVIDERS.identity_api.create_user(new_user)
         # Assign the user a role on the project
         collection_url = (
             '/projects/%(project_id)s/users/%(user_id)s/roles' % {
@@ -357,7 +359,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         """Call ``DELETE`` on the user before the role assignment."""
         member_url, user = self._create_new_user_and_assign_role_on_project()
         # Delete the user from identity backend
-        self.identity_api.driver.delete_user(user['id'])
+        PROVIDERS.identity_api.driver.delete_user(user['id'])
         # Clean up the role assignment
         self.delete(member_url)
         # Make sure the role is gone
@@ -367,7 +369,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         """Call ``DELETE`` on the user and check the role assignment."""
         member_url, user = self._create_new_user_and_assign_role_on_project()
         # Delete the user from identity backend
-        self.identity_api.delete_user(user['id'])
+        PROVIDERS.identity_api.delete_user(user['id'])
         # We should get a 404 Not Found when looking for the user in the
         # identity backend because we're not performing a delete operation on
         # the role.
@@ -384,13 +386,15 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         time = datetime.datetime.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             # creates grant from group on project.
-            self.assignment_api.create_grant(role_id=self.role['id'],
-                                             project_id=self.project['id'],
-                                             group_id=self.group['id'])
+            PROVIDERS.assignment_api.create_grant(
+                role_id=self.role['id'], project_id=self.project['id'],
+                group_id=self.group['id']
+            )
 
             # adds user to the group.
-            self.identity_api.add_user_to_group(user_id=self.user['id'],
-                                                group_id=self.group['id'])
+            PROVIDERS.identity_api.add_user_to_group(
+                user_id=self.user['id'], group_id=self.group['id']
+            )
 
             # creates a token for the user
             auth_body = self.build_authentication_request(
@@ -407,13 +411,14 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
             # revokes the grant from group on project.
-            self.assignment_api.delete_grant(role_id=self.role['id'],
-                                             project_id=self.project['id'],
-                                             group_id=self.group['id'])
+            PROVIDERS.assignment_api.delete_grant(
+                role_id=self.role['id'], project_id=self.project['id'],
+                group_id=self.group['id'])
             # revokes the direct role form user on project
-            self.assignment_api.delete_grant(role_id=self.role['id'],
-                                             project_id=self.project['id'],
-                                             user_id=self.user['id'])
+            PROVIDERS.assignment_api.delete_grant(
+                role_id=self.role['id'], project_id=self.project['id'],
+                user_id=self.user['id']
+            )
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
             # validates the same token again; it should not longer be valid.
@@ -424,7 +429,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_delete_grant_from_user_and_project_invalidate_cache(self):
         # create a new project
         new_project = unit.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         collection_url = (
             '/projects/%(project_id)s/users/%(user_id)s/roles' % {
@@ -455,7 +460,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_delete_grant_from_user_and_domain_invalidates_cache(self):
         # create a new domain
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
 
         collection_url = (
             '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
@@ -486,7 +491,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_delete_grant_from_group_and_project_invalidates_cache(self):
         # create a new project
         new_project = unit.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         collection_url = (
             '/projects/%(project_id)s/groups/%(group_id)s/roles' % {
@@ -517,7 +522,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_delete_grant_from_group_and_domain_invalidates_cache(self):
         # create a new domain
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
 
         collection_url = (
             '/domains/%(domain_id)s/groups/%(group_id)s/roles' % {
@@ -578,10 +583,10 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             # user it creates, we also need a new user that will not have any
             # existing assignments
             user1 = unit.new_user_ref(domain_id=self.domain['id'])
-            user1 = self.identity_api.create_user(user1)
+            user1 = PROVIDERS.identity_api.create_user(user1)
 
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
 
             collection_url = '/role_assignments'
             r = self.get(collection_url)
@@ -675,13 +680,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           for each of the group members.
 
         """
-        user1 = unit.create_user(self.identity_api,
+        user1 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=self.domain['id'])
-        user2 = unit.create_user(self.identity_api,
+        user2 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=self.domain['id'])
 
-        self.identity_api.add_user_to_group(user1['id'], self.group['id'])
-        self.identity_api.add_user_to_group(user2['id'], self.group['id'])
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], self.group['id'])
+        PROVIDERS.identity_api.add_user_to_group(user2['id'], self.group['id'])
 
         collection_url = '/role_assignments'
         r = self.get(collection_url)
@@ -744,13 +749,13 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
           know if we are getting effective roles or not
 
         """
-        user1 = unit.create_user(self.identity_api,
+        user1 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=self.domain['id'])
-        user2 = unit.create_user(self.identity_api,
+        user2 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=self.domain['id'])
 
-        self.identity_api.add_user_to_group(user1['id'], self.group['id'])
-        self.identity_api.add_user_to_group(user2['id'], self.group['id'])
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], self.group['id'])
+        PROVIDERS.identity_api.add_user_to_group(user2['id'], self.group['id'])
 
         collection_url = '/role_assignments'
         r = self.get(collection_url, expected_status=http_client.OK)
@@ -832,21 +837,21 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Since the default fixtures already assign some roles to the
         # user it creates, we also need a new user that will not have any
         # existing assignments
-        user1 = unit.create_user(self.identity_api,
+        user1 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=self.domain['id'])
-        user2 = unit.create_user(self.identity_api,
+        user2 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=self.domain['id'])
 
         group1 = unit.new_group_ref(domain_id=self.domain['id'])
-        group1 = self.identity_api.create_group(group1)
-        self.identity_api.add_user_to_group(user1['id'], group1['id'])
-        self.identity_api.add_user_to_group(user2['id'], group1['id'])
+        group1 = PROVIDERS.identity_api.create_group(group1)
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], group1['id'])
+        PROVIDERS.identity_api.add_user_to_group(user2['id'], group1['id'])
         project1 = unit.new_project_ref(domain_id=self.domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         self.role1 = unit.new_role_ref()
-        self.role_api.create_role(self.role1['id'], self.role1)
+        PROVIDERS.role_api.create_role(self.role1['id'], self.role1)
         self.role2 = unit.new_role_ref()
-        self.role_api.create_role(self.role2['id'], self.role2)
+        PROVIDERS.role_api.create_role(self.role2['id'], self.role2)
 
         # Now add one of each of the four types of assignment
 
@@ -1121,8 +1126,9 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
             for i in range(breadth):
                 subprojects.append(unit.new_project_ref(
                     domain_id=self.domain_id, parent_id=parent_id))
-                self.resource_api.create_project(subprojects[-1]['id'],
-                                                 subprojects[-1])
+                PROVIDERS.resource_api.create_project(
+                    subprojects[-1]['id'], subprojects[-1]
+                )
 
             new_parent = subprojects[random.randint(0, breadth - 1)]
             create_project_hierarchy(new_parent['id'], depth - 1)
@@ -1132,12 +1138,12 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         # Create a domain
         self.domain = unit.new_domain_ref()
         self.domain_id = self.domain['id']
-        self.resource_api.create_domain(self.domain_id, self.domain)
+        PROVIDERS.resource_api.create_domain(self.domain_id, self.domain)
 
         # Create a project hierarchy
         self.project = unit.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
-        self.resource_api.create_project(self.project_id, self.project)
+        PROVIDERS.resource_api.create_project(self.project_id, self.project)
 
         # Create a random project hierarchy
         create_project_hierarchy(self.project_id,
@@ -1147,30 +1153,33 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         self.user_ids = []
         for i in range(3):
             user = unit.new_user_ref(domain_id=self.domain_id)
-            user = self.identity_api.create_user(user)
+            user = PROVIDERS.identity_api.create_user(user)
             self.user_ids.append(user['id'])
 
         # Create 3 groups
         self.group_ids = []
         for i in range(3):
             group = unit.new_group_ref(domain_id=self.domain_id)
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             self.group_ids.append(group['id'])
 
             # Put 2 members on each group
-            self.identity_api.add_user_to_group(user_id=self.user_ids[i],
-                                                group_id=group['id'])
-            self.identity_api.add_user_to_group(user_id=self.user_ids[i % 2],
-                                                group_id=group['id'])
+            PROVIDERS.identity_api.add_user_to_group(
+                user_id=self.user_ids[i], group_id=group['id']
+            )
+            PROVIDERS.identity_api.add_user_to_group(
+                user_id=self.user_ids[i % 2], group_id=group['id']
+            )
 
-        self.assignment_api.create_grant(user_id=self.user_id,
-                                         project_id=self.project_id,
-                                         role_id=self.role_id)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=self.user_id, project_id=self.project_id,
+            role_id=self.role_id
+        )
 
         # Create a role
         self.role = unit.new_role_ref()
         self.role_id = self.role['id']
-        self.role_api.create_role(self.role_id, self.role)
+        PROVIDERS.role_api.create_role(self.role_id, self.role)
 
         # Set default user and group to be used on tests
         self.default_user_id = self.user_ids[0]
@@ -1267,7 +1276,7 @@ class RoleAssignmentDirectTestCase(RoleAssignmentBaseTestCase):
         test_assignment = self._set_default_assignment_attributes(**filters)
 
         # Create new role assignment for this test
-        self.assignment_api.create_grant(**test_assignment)
+        PROVIDERS.assignment_api.create_grant(**test_assignment)
 
         # Get expected role assignments
         expected_assignments = self._list_expected_role_assignments(
@@ -1285,7 +1294,7 @@ class RoleAssignmentDirectTestCase(RoleAssignmentBaseTestCase):
             self.assertRoleAssignmentInListResponse(response, assignment)
 
         # Delete created role assignment
-        self.assignment_api.delete_grant(**test_assignment)
+        PROVIDERS.assignment_api.delete_grant(**test_assignment)
 
     def _set_default_assignment_attributes(self, **attribs):
         """Insert default values for missing attributes of role assignment.
@@ -1449,7 +1458,7 @@ class RoleAssignmentEffectiveTestCase(RoleAssignmentInheritedTestCase):
         user_ids = [None]
         if filters.get('group_id'):
             user_ids = [user['id'] for user in
-                        self.identity_api.list_users_in_group(
+                        PROVIDERS.identity_api.list_users_in_group(
                             filters['group_id'])]
         else:
             user_ids = [self.default_user_id]
@@ -1458,11 +1467,11 @@ class RoleAssignmentEffectiveTestCase(RoleAssignmentInheritedTestCase):
         project_ids = [None]
         if filters.get('domain_id'):
             project_ids = [project['id'] for project in
-                           self.resource_api.list_projects_in_domain(
+                           PROVIDERS.resource_api.list_projects_in_domain(
                                filters.pop('domain_id'))]
         else:
             project_ids = [project['id'] for project in
-                           self.resource_api.list_projects_in_subtree(
+                           PROVIDERS.resource_api.list_projects_in_subtree(
                                self.project_id)]
 
         # Compute expected role assignments
@@ -1483,7 +1492,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
     def test_get_token_from_inherited_user_domain_role_grants(self):
         # Create a new user to ensure that no grant is loaded from sample data
-        user = unit.create_user(self.identity_api, domain_id=self.domain_id)
+        user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
 
         # Define domain and project authentication data
         domain_auth_data = self.build_authentication_request(
@@ -1513,7 +1524,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Create inherited role
         inherited_role = unit.new_role_ref(name='inherited')
-        self.role_api.create_role(inherited_role['id'], inherited_role)
+        PROVIDERS.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
         inher_ud_link = self.build_role_assignment_link(
@@ -1543,11 +1554,13 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
     def test_get_token_from_inherited_group_domain_role_grants(self):
         # Create a new group and put a new user in it to
         # ensure that no grant is loaded from sample data
-        user = unit.create_user(self.identity_api, domain_id=self.domain_id)
+        user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
 
         group = unit.new_group_ref(domain_id=self.domain['id'])
-        group = self.identity_api.create_group(group)
-        self.identity_api.add_user_to_group(user['id'], group['id'])
+        group = PROVIDERS.identity_api.create_group(group)
+        PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
 
         # Define domain and project authentication data
         domain_auth_data = self.build_authentication_request(
@@ -1577,7 +1590,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Create inherited role
         inherited_role = unit.new_role_ref(name='inherited')
-        self.role_api.create_role(inherited_role['id'], inherited_role)
+        PROVIDERS.role_api.create_role(inherited_role['id'], inherited_role)
 
         # Grant inherited role for user on domain
         inher_gd_link = self.build_role_assignment_link(
@@ -1609,7 +1622,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         with freezegun.freeze_time(time) as frozen_datetime:
             # Create a new role to avoid assignments loaded from sample data
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
 
             # Define URLs
             direct_url = '%s/users/%s/roles/%s' % (
@@ -1655,11 +1668,11 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         role_list = []
         for _ in range(2):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         # Create a non-inherited role as a spoiler
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             role_list[1]['id'], user_id=self.user['id'],
             domain_id=self.domain_id)
 
@@ -1705,23 +1718,25 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         role_list = []
         for _ in range(4):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domain['id']
+        )
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[1]['id'])
         # ..and one on a different project as a spoiler
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project2['id'], role_list[2]['id'])
 
         # Now create our inherited role on the domain
@@ -1790,12 +1805,14 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         """
         role1 = unit.new_role_ref()
-        self.role_api.create_role(role1['id'], role1)
-        user1 = unit.create_user(self.identity_api, domain_id=self.domain_id)
+        PROVIDERS.role_api.create_role(role1['id'], role1)
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
         group = unit.new_group_ref(domain_id=self.domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
         project1 = unit.new_project_ref(domain_id=self.domain_id)
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
         expected_entity1 = self.build_role_assignment_entity_include_names(
             role_ref=role1,
@@ -1874,13 +1891,13 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
     def test_list_role_assignments_include_names_global_role(self):
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
 
         self._test_list_role_assignments_include_names(role)
 
     def test_list_role_assignments_include_names_domain_role(self):
         role = unit.new_role_ref(domain_id=self.domain['id'])
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
 
         self._test_list_role_assignments_include_names(role)
 
@@ -1898,10 +1915,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         """
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        user = unit.create_user(self.identity_api, domain_id=domain['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user = unit.create_user(PROVIDERS.identity_api, domain_id=domain['id'])
 
         # Create and store expected assignment refs
         assignment = self.build_role_assignment_entity(
@@ -1951,23 +1968,25 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         role_list = []
         for _ in range(4):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domain['id']
+        )
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[1]['id'])
         # ..and one on a different project as a spoiler
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project2['id'], role_list[2]['id'])
 
         # Now create our inherited role on the domain
@@ -2028,30 +2047,36 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         role_list = []
         for _ in range(4):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
-        user2 = unit.create_user(self.identity_api, domain_id=domain['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domain['id']
+        )
+        user2 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domain['id']
+        )
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
-        self.identity_api.add_user_to_group(user1['id'],
-                                            group1['id'])
-        self.identity_api.add_user_to_group(user2['id'],
-                                            group1['id'])
+        group1 = PROVIDERS.identity_api.create_group(group1)
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user2['id'], group1['id']
+        )
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         # Add some roles to the project
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[1]['id'])
         # ..and one on a different project as a spoiler
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project2['id'], role_list[2]['id'])
 
         # Now create our inherited role on the domain
@@ -2124,25 +2149,27 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         role_list = []
         for _ in range(5):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        user1 = unit.create_user(self.identity_api, domain_id=domain['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domain['id']
+        )
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         # Add some spoiler roles to the projects
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project1['id'], role_list[0]['id'])
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user1['id'], project2['id'], role_list[1]['id'])
         # Create a non-inherited role as a spoiler
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             role_list[2]['id'], user_id=user1['id'], domain_id=domain['id'])
 
         # Now create two inherited roles on the domain, one for a user
@@ -2208,14 +2235,16 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         leaf = unit.new_project_ref(domain_id=self.domain['id'],
                                     parent_id=root['id'])
 
-        self.resource_api.create_project(root['id'], root)
-        self.resource_api.create_project(leaf['id'], leaf)
+        PROVIDERS.resource_api.create_project(root['id'], root)
+        PROVIDERS.resource_api.create_project(leaf['id'], leaf)
 
         # Create 'non-inherited' and 'inherited' roles
         non_inherited_role = unit.new_role_ref(name='non-inherited')
-        self.role_api.create_role(non_inherited_role['id'], non_inherited_role)
+        PROVIDERS.role_api.create_role(
+            non_inherited_role['id'], non_inherited_role
+        )
         inherited_role = unit.new_role_ref(name='inherited')
-        self.role_api.create_role(inherited_role['id'], inherited_role)
+        PROVIDERS.role_api.create_role(inherited_role['id'], inherited_role)
 
         return (root['id'], leaf['id'],
                 non_inherited_role['id'], inherited_role['id'])
@@ -2285,8 +2314,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Create group and add user to it
         group = unit.new_group_ref(domain_id=self.domain['id'])
-        group = self.identity_api.create_group(group)
-        self.identity_api.add_user_to_group(self.user['id'], group['id'])
+        group = PROVIDERS.identity_api.create_group(group)
+        PROVIDERS.identity_api.add_user_to_group(self.user['id'], group['id'])
 
         # Define root and leaf projects authentication data
         root_project_auth_data = self.build_authentication_request(
@@ -2545,9 +2574,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                                       parent_id=level2['id'])
         level4 = unit.new_project_ref(domain_id=self.domain['id'],
                                       parent_id=level3['id'])
-        self.resource_api.create_project(level2['id'], level2)
-        self.resource_api.create_project(level3['id'], level3)
-        self.resource_api.create_project(level4['id'], level4)
+        PROVIDERS.resource_api.create_project(level2['id'], level2)
+        PROVIDERS.resource_api.create_project(level3['id'], level3)
+        PROVIDERS.resource_api.create_project(level4['id'], level4)
 
         # Grant non-inherited role to root (as a spoiler) and to
         # the level 1 (leaf) project
@@ -2768,19 +2797,19 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         self.role_list = []
         for _ in range(3):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             self.role_list.append(role)
 
     def _create_test_domain_user_project(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
-        user = unit.create_user(self.identity_api, domain_id=domain['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user = unit.create_user(PROVIDERS.identity_api, domain_id=domain['id'])
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         return domain, user, project
 
     def _assign_top_role_to_user_on_project(self, user, project):
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user['id'], project['id'], self.role_list[0]['id'])
 
     def _build_effective_role_assignments_url(self, user):
@@ -2853,7 +2882,7 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
     def _create_named_role(self, name):
         role = unit.new_role_ref()
         role['name'] = name
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
         return role
 
     def test_root_role_as_implied_role_forbidden(self):
@@ -2901,7 +2930,9 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         self._assign_top_role_to_user_on_project(self.user, self.project)
 
         # Create a trustee and assign the prior role to her
-        trustee = unit.create_user(self.identity_api, domain_id=self.domain_id)
+        trustee = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
         ref = unit.new_trust_ref(
             trustor_user_id=self.user['id'],
             trustee_user_id=trustee['id'],
@@ -2932,13 +2963,15 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         self._create_three_roles()
         # Overwrite the first role with a domain specific role
         role = unit.new_role_ref(domain_id=self.domain_id)
-        self.role_list[0] = self.role_api.create_role(role['id'], role)
+        self.role_list[0] = PROVIDERS.role_api.create_role(role['id'], role)
         self._create_implied_role(self.role_list[0], self.role_list[1])
         self._create_implied_role(self.role_list[1], self.role_list[2])
         self._assign_top_role_to_user_on_project(self.user, self.project)
 
         # Create a trustee and assign the prior role to her
-        trustee = unit.create_user(self.identity_api, domain_id=self.domain_id)
+        trustee = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
         ref = unit.new_trust_ref(
             trustor_user_id=self.user['id'],
             trustee_user_id=trustee['id'],
@@ -2971,14 +3004,16 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
 
     def test_global_role_cannot_imply_domain_specific_role(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         domain_role_ref = unit.new_role_ref(domain_id=domain['id'])
-        domain_role = self.role_api.create_role(domain_role_ref['id'],
-                                                domain_role_ref)
+        domain_role = PROVIDERS.role_api.create_role(
+            domain_role_ref['id'], domain_role_ref
+        )
         global_role_ref = unit.new_role_ref()
-        global_role = self.role_api.create_role(global_role_ref['id'],
-                                                global_role_ref)
+        global_role = PROVIDERS.role_api.create_role(
+            global_role_ref['id'], global_role_ref
+        )
 
         self.put('/roles/%s/implies/%s' % (global_role['id'],
                                            domain_role['id']),
@@ -2997,9 +3032,9 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
 
         super(DomainSpecificRoleTests, self).setUp()
         self.domainA = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainA['id'], self.domainA)
+        PROVIDERS.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainB['id'], self.domainB)
+        PROVIDERS.resource_api.create_domain(self.domainB['id'], self.domainB)
 
         self.global_role1 = create_role()
         self.global_role2 = create_role()
@@ -3057,52 +3092,54 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
         self.assertRoleInListResponse(r, self.domainA_role2)
 
     def test_same_domain_assignment(self):
-        user = unit.create_user(self.identity_api,
+        user = unit.create_user(PROVIDERS.identity_api,
                                 domain_id=self.domainA['id'])
 
         projectA = unit.new_project_ref(domain_id=self.domainA['id'])
-        self.resource_api.create_project(projectA['id'], projectA)
+        PROVIDERS.resource_api.create_project(projectA['id'], projectA)
 
-        self.assignment_api.create_grant(self.domainA_role1['id'],
-                                         user_id=user['id'],
-                                         project_id=projectA['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.domainA_role1['id'], user_id=user['id'],
+            project_id=projectA['id']
+        )
 
     def test_cross_domain_assignment_valid(self):
-        user = unit.create_user(self.identity_api,
+        user = unit.create_user(PROVIDERS.identity_api,
                                 domain_id=self.domainB['id'])
 
         projectA = unit.new_project_ref(domain_id=self.domainA['id'])
-        self.resource_api.create_project(projectA['id'], projectA)
+        PROVIDERS.resource_api.create_project(projectA['id'], projectA)
 
         # Positive: a role on domainA can be assigned to a user from domainB
         # but only for use on a project from domainA
-        self.assignment_api.create_grant(self.domainA_role1['id'],
-                                         user_id=user['id'],
-                                         project_id=projectA['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.domainA_role1['id'], user_id=user['id'],
+            project_id=projectA['id']
+        )
 
     def test_cross_domain_assignment_invalid(self):
-        user = unit.create_user(self.identity_api,
+        user = unit.create_user(PROVIDERS.identity_api,
                                 domain_id=self.domainB['id'])
 
         projectB = unit.new_project_ref(domain_id=self.domainB['id'])
-        self.resource_api.create_project(projectB['id'], projectB)
+        PROVIDERS.resource_api.create_project(projectB['id'], projectB)
 
         # Negative: a role on domainA can be assigned to a user from domainB
         # only for a project from domainA
         self.assertRaises(exception.DomainSpecificRoleMismatch,
-                          self.assignment_api.create_grant,
+                          PROVIDERS.assignment_api.create_grant,
                           self.domainA_role1['id'],
                           user_id=user['id'],
                           project_id=projectB['id'])
 
     def test_cross_domain_implied_roles_authentication(self):
         # Create a user in domainB
-        user = unit.create_user(self.identity_api,
+        user = unit.create_user(PROVIDERS.identity_api,
                                 domain_id=self.domainB['id'])
 
         # Create project in domainA
         projectA = unit.new_project_ref(domain_id=self.domainA['id'])
-        self.resource_api.create_project(projectA['id'], projectA)
+        PROVIDERS.resource_api.create_project(projectA['id'], projectA)
 
         # Now we create an implied rule from a role in domainA to a
         # role in domainB
@@ -3112,13 +3149,14 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
 
         # A role in domainA can be assigned to a user from domainB
         # only for a project from domainA
-        self.assignment_api.create_grant(self.domainA_role1['id'],
-                                         user_id=user['id'],
-                                         project_id=projectA['id'])
+        PROVIDERS.assignment_api.create_grant(
+            self.domainA_role1['id'], user_id=user['id'],
+            project_id=projectA['id']
+        )
 
         # The role assignments should return an empty list since domain roles
         # can only be used to imply another roles
-        assignments = self.assignment_api.list_role_assignments(
+        assignments = PROVIDERS.assignment_api.list_role_assignments(
             user_id=user['id'], effective=True)
         self.assertEqual([], assignments)
 
@@ -3149,23 +3187,25 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
 
         for _ in range(3):
             domain = unit.new_domain_ref()
-            self.resource_api.create_domain(domain['id'], domain)
+            PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
-            user = unit.create_user(self.identity_api, domain_id=domain['id'])
+            user = unit.create_user(
+                PROVIDERS.identity_api, domain_id=domain['id']
+            )
 
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
 
-            self.assignment_api.create_grant(role['id'],
-                                             user_id=user['id'],
-                                             domain_id=domain['id'])
+            PROVIDERS.assignment_api.create_grant(
+                role['id'], user_id=user['id'], domain_id=domain['id']
+            )
 
             project = unit.new_project_ref(domain_id=domain['id'])
-            self.resource_api.create_project(project['id'], project)
+            PROVIDERS.resource_api.create_project(project['id'], project)
 
-            self.assignment_api.create_grant(role['id'],
-                                             user_id=user['id'],
-                                             project_id=project['id'])
+            PROVIDERS.assignment_api.create_grant(
+                role['id'], user_id=user['id'], project_id=project['id']
+            )
 
             auth = self.build_authentication_request(
                 user_id=user['id'],
@@ -3215,7 +3255,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
 
             # disable this one and check again
             project['enabled'] = False
-            self.resource_api.update_project(project['id'], project)
+            PROVIDERS.resource_api.update_project(project['id'], project)
             result = self.get(url, auth=auth)
             projects_result = result.json['projects']
             self.assertEqual(1, len(projects_result))

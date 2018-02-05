@@ -21,6 +21,7 @@ from six.moves import http_client
 import webtest
 
 from keystone.common import authorization
+from keystone.common import provider_api
 from keystone.common import tokenless_auth
 from keystone.common import wsgi
 import keystone.conf
@@ -33,6 +34,7 @@ from keystone.tests.unit import test_backend_sql
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class MiddlewareRequestTestBase(unit.TestCase):
@@ -190,44 +192,45 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         self.domain = unit.new_domain_ref()
         self.domain_id = self.domain['id']
         self.domain_name = self.domain['name']
-        self.resource_api.create_domain(self.domain_id, self.domain)
+        PROVIDERS.resource_api.create_domain(self.domain_id, self.domain)
 
         # 2) Create a project for the user.
         self.project = unit.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
         self.project_name = self.project['name']
 
-        self.resource_api.create_project(self.project_id, self.project)
+        PROVIDERS.resource_api.create_project(self.project_id, self.project)
 
         # 3) Create a user in new domain.
         self.user = unit.new_user_ref(domain_id=self.domain_id,
                                       project_id=self.project_id)
 
-        self.user = self.identity_api.create_user(self.user)
+        self.user = PROVIDERS.identity_api.create_user(self.user)
 
         # Add IDP
         self.idp = self._idp_ref(id=self.idp_id)
-        self.federation_api.create_idp(self.idp['id'],
-                                       self.idp)
+        PROVIDERS.federation_api.create_idp(
+            self.idp['id'], self.idp
+        )
 
         # Add a role
         self.role = unit.new_role_ref()
         self.role_id = self.role['id']
         self.role_name = self.role['name']
-        self.role_api.create_role(self.role_id, self.role)
+        PROVIDERS.role_api.create_role(self.role_id, self.role)
 
         # Add a group
         self.group = unit.new_group_ref(domain_id=self.domain_id)
-        self.group = self.identity_api.create_group(self.group)
+        self.group = PROVIDERS.identity_api.create_group(self.group)
 
         # Assign a role to the user on a project
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=self.user['id'],
             tenant_id=self.project_id,
             role_id=self.role_id)
 
         # Assign a role to the group on a project
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             role_id=self.role_id,
             group_id=self.group['id'],
             project_id=self.project_id)
@@ -235,14 +238,15 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
     def _load_mapping_rules(self, rules):
         # Add a mapping
         self.mapping = self._mapping_ref(rules=rules)
-        self.federation_api.create_mapping(self.mapping['id'],
-                                           self.mapping)
+        PROVIDERS.federation_api.create_mapping(
+            self.mapping['id'], self.mapping
+        )
         # Add protocols
         self.proto_x509 = self._proto_ref(mapping_id=self.mapping['id'])
         self.proto_x509['id'] = self.protocol_id
-        self.federation_api.create_protocol(self.idp['id'],
-                                            self.proto_x509['id'],
-                                            self.proto_x509)
+        PROVIDERS.federation_api.create_protocol(
+            self.idp['id'], self.proto_x509['id'], self.proto_x509
+        )
 
     def _idp_ref(self, id=None):
         idp = {
@@ -543,7 +547,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
 
         self.domain['enabled'] = False
-        self.domain = self.resource_api.update_domain(
+        self.domain = PROVIDERS.resource_api.update_domain(
             self.domain['id'], self.domain)
 
         self._load_mapping_rules(
@@ -561,7 +565,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         env['SSL_CLIENT_DOMAIN_ID'] = self.domain_id
 
         self.user['enabled'] = False
-        self.user = self.identity_api.update_user(self.user['id'], self.user)
+        self.user = PROVIDERS.identity_api.update_user(
+            self.user['id'], self.user
+        )
 
         self._load_mapping_rules(
             mapping_fixtures.MAPPING_WITH_USERNAME_AND_DOMAINID)

@@ -12,11 +12,14 @@
 
 import uuid
 
+from keystone.common import provider_api
 from keystone.common import sql
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.assignment import test_core
 from keystone.tests.unit.backend import core_sql
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class SqlRoleModels(core_sql.BaseBackendSqlModels):
@@ -33,80 +36,80 @@ class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
     def test_create_null_role_name(self):
         role = unit.new_role_ref(name=None)
         self.assertRaises(exception.UnexpectedError,
-                          self.role_api.create_role,
+                          PROVIDERS.role_api.create_role,
                           role['id'],
                           role)
         self.assertRaises(exception.RoleNotFound,
-                          self.role_api.get_role,
+                          PROVIDERS.role_api.get_role,
                           role['id'])
 
     def test_create_duplicate_role_domain_specific_name_fails(self):
         domain = unit.new_domain_ref()
         role1 = unit.new_role_ref(domain_id=domain['id'])
-        self.role_api.create_role(role1['id'], role1)
+        PROVIDERS.role_api.create_role(role1['id'], role1)
         role2 = unit.new_role_ref(name=role1['name'],
                                   domain_id=domain['id'])
         self.assertRaises(exception.Conflict,
-                          self.role_api.create_role,
+                          PROVIDERS.role_api.create_role,
                           role2['id'],
                           role2)
 
     def test_update_domain_id_of_role_fails(self):
         # Create a global role
         role1 = unit.new_role_ref()
-        role1 = self.role_api.create_role(role1['id'], role1)
+        role1 = PROVIDERS.role_api.create_role(role1['id'], role1)
         # Try and update it to be domain specific
         domainA = unit.new_domain_ref()
         role1['domain_id'] = domainA['id']
         self.assertRaises(exception.ValidationError,
-                          self.role_api.update_role,
+                          PROVIDERS.role_api.update_role,
                           role1['id'],
                           role1)
 
         # Create a domain specific role from scratch
         role2 = unit.new_role_ref(domain_id=domainA['id'])
-        self.role_api.create_role(role2['id'], role2)
+        PROVIDERS.role_api.create_role(role2['id'], role2)
         # Try to "move" it to another domain
         domainB = unit.new_domain_ref()
         role2['domain_id'] = domainB['id']
         self.assertRaises(exception.ValidationError,
-                          self.role_api.update_role,
+                          PROVIDERS.role_api.update_role,
                           role2['id'],
                           role2)
         # Now try to make it global
         role2['domain_id'] = None
         self.assertRaises(exception.ValidationError,
-                          self.role_api.update_role,
+                          PROVIDERS.role_api.update_role,
                           role2['id'],
                           role2)
 
     def test_domain_specific_separation(self):
         domain1 = unit.new_domain_ref()
         role1 = unit.new_role_ref(domain_id=domain1['id'])
-        role_ref1 = self.role_api.create_role(role1['id'], role1)
+        role_ref1 = PROVIDERS.role_api.create_role(role1['id'], role1)
         self.assertDictEqual(role1, role_ref1)
         # Check we can have the same named role in a different domain
         domain2 = unit.new_domain_ref()
         role2 = unit.new_role_ref(name=role1['name'], domain_id=domain2['id'])
-        role_ref2 = self.role_api.create_role(role2['id'], role2)
+        role_ref2 = PROVIDERS.role_api.create_role(role2['id'], role2)
         self.assertDictEqual(role2, role_ref2)
         # ...and in fact that you can have the same named role as a global role
         role3 = unit.new_role_ref(name=role1['name'])
-        role_ref3 = self.role_api.create_role(role3['id'], role3)
+        role_ref3 = PROVIDERS.role_api.create_role(role3['id'], role3)
         self.assertDictEqual(role3, role_ref3)
         # Check that updating one doesn't change the others
         role1['name'] = uuid.uuid4().hex
-        self.role_api.update_role(role1['id'], role1)
-        role_ref1 = self.role_api.get_role(role1['id'])
+        PROVIDERS.role_api.update_role(role1['id'], role1)
+        role_ref1 = PROVIDERS.role_api.get_role(role1['id'])
         self.assertDictEqual(role1, role_ref1)
-        role_ref2 = self.role_api.get_role(role2['id'])
+        role_ref2 = PROVIDERS.role_api.get_role(role2['id'])
         self.assertDictEqual(role2, role_ref2)
-        role_ref3 = self.role_api.get_role(role3['id'])
+        role_ref3 = PROVIDERS.role_api.get_role(role3['id'])
         self.assertDictEqual(role3, role_ref3)
         # Check that deleting one of these, doesn't affect the others
-        self.role_api.delete_role(role1['id'])
+        PROVIDERS.role_api.delete_role(role1['id'])
         self.assertRaises(exception.RoleNotFound,
-                          self.role_api.get_role,
+                          PROVIDERS.role_api.get_role,
                           role1['id'])
-        self.role_api.get_role(role2['id'])
-        self.role_api.get_role(role3['id'])
+        PROVIDERS.role_api.get_role(role2['id'])
+        PROVIDERS.role_api.get_role(role3['id'])

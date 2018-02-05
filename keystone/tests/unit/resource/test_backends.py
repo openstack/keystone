@@ -18,6 +18,7 @@ from six.moves import range
 from testtools import matchers
 
 from keystone.common import driver_hints
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
@@ -26,6 +27,7 @@ from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class ResourceTests(object):
@@ -33,16 +35,16 @@ class ResourceTests(object):
     domain_count = len(default_fixtures.DOMAINS)
 
     def test_get_project(self):
-        tenant_ref = self.resource_api.get_project(self.tenant_bar['id'])
+        tenant_ref = PROVIDERS.resource_api.get_project(self.tenant_bar['id'])
         self.assertDictEqual(self.tenant_bar, tenant_ref)
 
     def test_get_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           uuid.uuid4().hex)
 
     def test_get_project_by_name(self):
-        tenant_ref = self.resource_api.get_project_by_name(
+        tenant_ref = PROVIDERS.resource_api.get_project_by_name(
             self.tenant_bar['name'],
             CONF.identity.default_domain_id)
         self.assertDictEqual(self.tenant_bar, tenant_ref)
@@ -52,10 +54,10 @@ class ResourceTests(object):
         """Test get_project_by_name works when the domain_id is None."""
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, is_domain=False)
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project_by_name,
+                          PROVIDERS.resource_api.get_project_by_name,
                           project['name'],
                           None)
 
@@ -64,16 +66,18 @@ class ResourceTests(object):
         # project above.
         project2 = unit.new_project_ref(is_domain=True,
                                         name=project['name'])
-        project2 = self.resource_api.create_project(project2['id'], project2)
+        project2 = PROVIDERS.resource_api.create_project(
+            project2['id'], project2
+        )
 
-        project_ref = self.resource_api.get_project_by_name(
+        project_ref = PROVIDERS.resource_api.get_project_by_name(
             project2['name'], None)
 
         self.assertEqual(project2, project_ref)
 
     def test_get_project_by_name_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project_by_name,
+                          PROVIDERS.resource_api.get_project_by_name,
                           uuid.uuid4().hex,
                           CONF.identity.default_domain_id)
 
@@ -81,10 +85,10 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
-        self.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.create_project(project_id, project)
         project['name'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project_id,
                           project)
 
@@ -92,10 +96,10 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
-        self.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.create_project(project_id, project)
         project['id'] = 'fake2'
         self.assertRaises(exception.Conflict,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project['id'],
                           project)
 
@@ -104,31 +108,32 @@ class ResourceTests(object):
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
         project_name = project['name'] = (project['name'] + '    ')
-        project_returned = self.resource_api.create_project(project_id,
-                                                            project)
+        project_returned = PROVIDERS.resource_api.create_project(
+            project_id, project
+        )
         self.assertEqual(project_id, project_returned['id'])
         self.assertEqual(project_name.strip(), project_returned['name'])
 
     def test_create_duplicate_project_name_in_different_domains(self):
         new_domain = unit.new_domain_ref()
-        self.resource_api.create_domain(new_domain['id'], new_domain)
+        PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
         project1 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         project2 = unit.new_project_ref(name=project1['name'],
                                         domain_id=new_domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
 
     def test_rename_duplicate_project_name_fails(self):
         project1 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         project2 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project1['id'], project1)
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         project2['name'] = project1['name']
         self.assertRaises(exception.Error,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project2['id'],
                           project2)
 
@@ -136,23 +141,27 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         project['id'] = 'fake2'
-        self.resource_api.update_project(project_id, project)
-        project_ref = self.resource_api.get_project(project_id)
+        PROVIDERS.resource_api.update_project(project_id, project)
+        project_ref = PROVIDERS.resource_api.get_project(project_id)
         self.assertEqual(project_id, project_ref['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           'fake2')
 
     def test_update_project_name_with_trailing_whitespace(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
-        project_create = self.resource_api.create_project(project_id, project)
+        project_create = PROVIDERS.resource_api.create_project(
+            project_id, project
+        )
         self.assertEqual(project_id, project_create['id'])
         project_name = project['name'] = (project['name'] + '    ')
-        project_update = self.resource_api.update_project(project_id, project)
+        project_update = PROVIDERS.resource_api.update_project(
+            project_id, project
+        )
         self.assertEqual(project_id, project_update['id'])
         self.assertEqual(project_name.strip(), project_update['name'])
 
@@ -162,13 +171,13 @@ class ResourceTests(object):
 
     def test_update_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           uuid.uuid4().hex,
                           dict())
 
     def test_delete_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.delete_project,
+                          PROVIDERS.resource_api.delete_project,
                           uuid.uuid4().hex)
 
     def test_create_update_delete_unicode_project(self):
@@ -176,75 +185,75 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             name=unicode_project_name,
             domain_id=CONF.identity.default_domain_id)
-        project = self.resource_api.create_project(project['id'], project)
-        self.resource_api.update_project(project['id'], project)
-        self.resource_api.delete_project(project['id'])
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.delete_project(project['id'])
 
     def test_create_project_with_no_enabled_field(self):
         ref = unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
         del ref['enabled']
-        self.resource_api.create_project(ref['id'], ref)
+        PROVIDERS.resource_api.create_project(ref['id'], ref)
 
-        project = self.resource_api.get_project(ref['id'])
+        project = PROVIDERS.resource_api.get_project(ref['id'])
         self.assertIs(project['enabled'], True)
 
     def test_create_project_long_name_fails(self):
         project = unit.new_project_ref(
             name='a' * 65, domain_id=CONF.identity.default_domain_id)
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project['id'],
                           project)
 
     def test_update_project_blank_name_fails(self):
         project = unit.new_project_ref(
             name='fake1', domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         project['name'] = ''
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project['id'],
                           project)
 
     def test_update_project_long_name_fails(self):
         project = unit.new_project_ref(
             name='fake1', domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         project['name'] = 'a' * 65
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project['id'],
                           project)
 
     def test_update_project_invalid_name_fails(self):
         project = unit.new_project_ref(
             name='fake1', domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         project['name'] = None
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project['id'],
                           project)
 
         project['name'] = 123
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project['id'],
                           project)
 
     def test_create_project_invalid_domain_id(self):
         project = unit.new_project_ref(domain_id=uuid.uuid4().hex)
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project['id'],
                           project)
 
     def test_list_domains(self):
         domain1 = unit.new_domain_ref()
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
-        self.resource_api.create_domain(domain2['id'], domain2)
-        domains = self.resource_api.list_domains()
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
+        domains = PROVIDERS.resource_api.list_domains()
         self.assertEqual(3, len(domains))
         domain_ids = []
         for domain in domains:
@@ -254,7 +263,7 @@ class ResourceTests(object):
         self.assertIn(domain2['id'], domain_ids)
 
     def test_list_projects(self):
-        project_refs = self.resource_api.list_projects()
+        project_refs = PROVIDERS.resource_api.list_projects()
         project_count = len(default_fixtures.TENANTS) + self.domain_count
         self.assertEqual(project_count, len(project_refs))
         for project in default_fixtures.TENANTS:
@@ -264,7 +273,7 @@ class ResourceTests(object):
         # Create a project
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Build driver hints with the project's name and inexistent description
         hints = driver_hints.Hints()
@@ -272,7 +281,7 @@ class ResourceTests(object):
         hints.add_filter('description', uuid.uuid4().hex)
 
         # Retrieve projects based on hints and check an empty list is returned
-        projects = self.resource_api.list_projects(hints)
+        projects = PROVIDERS.resource_api.list_projects(hints)
         self.assertEqual([], projects)
 
         # Build correct driver hints
@@ -281,7 +290,7 @@ class ResourceTests(object):
         hints.add_filter('description', project['description'])
 
         # Retrieve projects based on hints
-        projects = self.resource_api.list_projects(hints)
+        projects = PROVIDERS.resource_api.list_projects(hints)
 
         # Check that the returned list contains only the first project
         self.assertEqual(1, len(projects))
@@ -289,7 +298,7 @@ class ResourceTests(object):
 
     def test_list_projects_for_domain(self):
         project_ids = ([x['id'] for x in
-                       self.resource_api.list_projects_in_domain(
+                       PROVIDERS.resource_api.list_projects_in_domain(
                            CONF.identity.default_domain_id)])
         # Only the projects from the default fixtures are expected, since
         # filtering by domain does not include any project that acts as a
@@ -303,20 +312,22 @@ class ResourceTests(object):
 
     @unit.skip_if_no_multiple_domains_support
     def test_list_projects_acting_as_domain(self):
-        initial_domains = self.resource_api.list_domains()
+        initial_domains = PROVIDERS.resource_api.list_domains()
 
         # Creating 5 projects that act as domains
         new_projects_acting_as_domains = []
         for i in range(5):
             project = unit.new_project_ref(is_domain=True)
-            project = self.resource_api.create_project(project['id'], project)
+            project = PROVIDERS.resource_api.create_project(
+                project['id'], project
+            )
             new_projects_acting_as_domains.append(project)
 
         # Creating a few regular project to ensure it doesn't mess with the
         # ones that act as domains
         self._create_projects_hierarchy(hierarchy_size=2)
 
-        projects = self.resource_api.list_projects_acting_as_domain()
+        projects = PROVIDERS.resource_api.list_projects_acting_as_domain()
         expected_number_projects = (
             len(initial_domains) + len(new_projects_acting_as_domains))
         self.assertEqual(expected_number_projects, len(projects))
@@ -328,13 +339,13 @@ class ResourceTests(object):
     @unit.skip_if_no_multiple_domains_support
     def test_list_projects_for_alternate_domain(self):
         domain1 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
         project1 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain1['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         project_ids = ([x['id'] for x in
-                       self.resource_api.list_projects_in_domain(
+                       PROVIDERS.resource_api.list_projects_in_domain(
                            domain1['id'])])
         self.assertEqual(2, len(project_ids))
         self.assertIn(project1['id'], project_ids)
@@ -368,14 +379,16 @@ class ResourceTests(object):
             project = unit.new_project_ref(domain_id=domain_id,
                                            is_domain=is_domain)
         project_id = project['id']
-        project = self.resource_api.create_project(project_id, project)
+        project = PROVIDERS.resource_api.create_project(project_id, project)
 
         projects = [project]
         for i in range(1, hierarchy_size):
             new_project = unit.new_project_ref(parent_id=project_id,
                                                domain_id=domain_id)
 
-            self.resource_api.create_project(new_project['id'], new_project)
+            PROVIDERS.resource_api.create_project(
+                new_project['id'], new_project
+            )
             projects.append(new_project)
             project_id = new_project['id']
 
@@ -384,9 +397,9 @@ class ResourceTests(object):
     @unit.skip_if_no_multiple_domains_support
     def test_create_domain_with_project_api(self):
         project = unit.new_project_ref(is_domain=True)
-        ref = self.resource_api.create_project(project['id'], project)
+        ref = PROVIDERS.resource_api.create_project(project['id'], project)
         self.assertTrue(ref['is_domain'])
-        self.resource_api.get_domain(ref['id'])
+        PROVIDERS.resource_api.get_domain(ref['id'])
 
     @unit.skip_if_no_multiple_domains_support
     def test_project_as_a_domain_uniqueness_constraints(self):
@@ -398,9 +411,11 @@ class ResourceTests(object):
         """
         # Create two projects acting as a domain
         project = unit.new_project_ref(is_domain=True)
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
         project2 = unit.new_project_ref(is_domain=True)
-        project2 = self.resource_api.create_project(project2['id'], project2)
+        project2 = PROVIDERS.resource_api.create_project(
+            project2['id'], project2
+        )
 
         # All projects acting as domains have a null domain_id, so should not
         # be able to create another with the same name but a different
@@ -409,26 +424,26 @@ class ResourceTests(object):
         new_project['id'] = uuid.uuid4().hex
 
         self.assertRaises(exception.Conflict,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           new_project['id'],
                           new_project)
 
         # We also should not be able to update one to have a name clash
         project2['name'] = project['name']
         self.assertRaises(exception.Conflict,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project2['id'],
                           project2)
 
         # But updating it to a unique name is OK
         project2['name'] = uuid.uuid4().hex
-        self.resource_api.update_project(project2['id'], project2)
+        PROVIDERS.resource_api.update_project(project2['id'], project2)
 
         # Finally, it should be OK to create a project with same name as one of
         # these acting as a domain, as long as it is a regular project
         project3 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, name=project2['name'])
-        self.resource_api.create_project(project3['id'], project3)
+        PROVIDERS.resource_api.create_project(project3['id'], project3)
         # In fact, it should be OK to create such a project in the domain which
         # has the matching name.
         # TODO(henry-nash): Once we fully support projects acting as a domain,
@@ -440,13 +455,15 @@ class ResourceTests(object):
     def test_is_domain_sub_project_has_parent_domain_id(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, is_domain=True)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         sub_project = unit.new_project_ref(domain_id=project['id'],
                                            parent_id=project['id'],
                                            is_domain=True)
 
-        ref = self.resource_api.create_project(sub_project['id'], sub_project)
+        ref = PROVIDERS.resource_api.create_project(
+            sub_project['id'], sub_project
+        )
         self.assertTrue(ref['is_domain'])
         self.assertEqual(project['id'], ref['parent_id'])
         self.assertEqual(project['id'], ref['domain_id'])
@@ -455,42 +472,42 @@ class ResourceTests(object):
     def test_delete_domain_with_project_api(self):
         project = unit.new_project_ref(domain_id=None,
                                        is_domain=True)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Check that a corresponding domain was created
-        self.resource_api.get_domain(project['id'])
+        PROVIDERS.resource_api.get_domain(project['id'])
 
         # Try to delete the enabled project that acts as a domain
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.delete_project,
+                          PROVIDERS.resource_api.delete_project,
                           project['id'])
 
         # Disable the project
         project['enabled'] = False
-        self.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
 
         # Successfully delete the project
-        self.resource_api.delete_project(project['id'])
+        PROVIDERS.resource_api.delete_project(project['id'])
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project['id'])
 
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           project['id'])
 
     @unit.skip_if_no_multiple_domains_support
     def test_create_subproject_acting_as_domain_fails(self):
         root_project = unit.new_project_ref(is_domain=True)
-        self.resource_api.create_project(root_project['id'], root_project)
+        PROVIDERS.resource_api.create_project(root_project['id'], root_project)
 
         sub_project = unit.new_project_ref(is_domain=True,
                                            parent_id=root_project['id'])
 
         # Creation of sub projects acting as domains is not allowed yet
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           sub_project['id'], sub_project)
 
     @unit.skip_if_no_multiple_domains_support
@@ -503,7 +520,7 @@ class ResourceTests(object):
                                        is_domain=True)
 
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project['id'], project)
 
     @unit.skip_if_no_multiple_domains_support
@@ -515,7 +532,7 @@ class ResourceTests(object):
                                        parent_id=parent['id'],
                                        is_domain=False)
 
-        ref = self.resource_api.create_project(project['id'], project)
+        ref = PROVIDERS.resource_api.create_project(project['id'], project)
         self.assertFalse(ref['is_domain'])
         self.assertEqual(parent['id'], ref['parent_id'])
         self.assertEqual(parent['id'], ref['domain_id'])
@@ -524,7 +541,7 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         del project['is_domain']
-        ref = self.resource_api.create_project(project['id'], project)
+        ref = PROVIDERS.resource_api.create_project(project['id'], project)
         # The is_domain flag should be False by default
         self.assertFalse(ref['is_domain'])
 
@@ -532,24 +549,26 @@ class ResourceTests(object):
     def test_create_project_passing_is_domain_flag_true(self):
         project = unit.new_project_ref(is_domain=True)
 
-        ref = self.resource_api.create_project(project['id'], project)
+        ref = PROVIDERS.resource_api.create_project(project['id'], project)
         self.assertTrue(ref['is_domain'])
 
     def test_create_project_passing_is_domain_flag_false(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, is_domain=False)
 
-        ref = self.resource_api.create_project(project['id'], project)
+        ref = PROVIDERS.resource_api.create_project(project['id'], project)
         self.assertIs(False, ref['is_domain'])
 
     @test_utils.wip('waiting for support for parent_id to imply domain_id')
     def test_create_project_with_parent_id_and_without_domain_id(self):
         # First create a domain
         project = unit.new_project_ref(is_domain=True)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         # Now create a child by just naming the parent_id
         sub_project = unit.new_project_ref(parent_id=project['id'])
-        ref = self.resource_api.create_project(sub_project['id'], sub_project)
+        ref = PROVIDERS.resource_api.create_project(
+            sub_project['id'], sub_project
+        )
 
         # The domain_id should be set to the parent domain_id
         self.assertEqual(project['domain_id'], ref['domain_id'])
@@ -557,10 +576,12 @@ class ResourceTests(object):
     def test_create_project_with_domain_id_and_without_parent_id(self):
         # First create a domain
         project = unit.new_project_ref(is_domain=True)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         # Now create a child by just naming the domain_id
         sub_project = unit.new_project_ref(domain_id=project['id'])
-        ref = self.resource_api.create_project(sub_project['id'], sub_project)
+        ref = PROVIDERS.resource_api.create_project(
+            sub_project['id'], sub_project
+        )
 
         # The parent_id and domain_id should be set to the id of the project
         # acting as a domain
@@ -570,13 +591,13 @@ class ResourceTests(object):
     def test_create_project_with_domain_id_mismatch_to_parent_domain(self):
         # First create a domain
         project = unit.new_project_ref(is_domain=True)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         # Now try to create a child with the above as its parent, but
         # specifying a different domain.
         sub_project = unit.new_project_ref(
             parent_id=project['id'], domain_id=CONF.identity.default_domain_id)
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           sub_project['id'], sub_project)
 
     def test_check_leaf_projects(self):
@@ -584,16 +605,16 @@ class ResourceTests(object):
         root_project = projects_hierarchy[0]
         leaf_project = projects_hierarchy[1]
 
-        self.assertFalse(self.resource_api.is_leaf_project(
+        self.assertFalse(PROVIDERS.resource_api.is_leaf_project(
             root_project['id']))
-        self.assertTrue(self.resource_api.is_leaf_project(
+        self.assertTrue(PROVIDERS.resource_api.is_leaf_project(
             leaf_project['id']))
 
         # Delete leaf_project
-        self.resource_api.delete_project(leaf_project['id'])
+        PROVIDERS.resource_api.delete_project(leaf_project['id'])
 
         # Now, root_project should be leaf
-        self.assertTrue(self.resource_api.is_leaf_project(
+        self.assertTrue(PROVIDERS.resource_api.is_leaf_project(
             root_project['id']))
 
     def test_list_projects_in_subtree(self):
@@ -604,20 +625,26 @@ class ResourceTests(object):
         project4 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
             parent_id=project2['id'])
-        self.resource_api.create_project(project4['id'], project4)
+        PROVIDERS.resource_api.create_project(project4['id'], project4)
 
-        subtree = self.resource_api.list_projects_in_subtree(project1['id'])
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(
+            project1['id']
+        )
         self.assertEqual(3, len(subtree))
         self.assertIn(project2, subtree)
         self.assertIn(project3, subtree)
         self.assertIn(project4, subtree)
 
-        subtree = self.resource_api.list_projects_in_subtree(project2['id'])
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(
+            project2['id']
+        )
         self.assertEqual(2, len(subtree))
         self.assertIn(project3, subtree)
         self.assertIn(project4, subtree)
 
-        subtree = self.resource_api.list_projects_in_subtree(project3['id'])
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(
+            project3['id']
+        )
         self.assertEqual(0, len(subtree))
 
     def test_get_projects_in_subtree_as_ids_with_large_tree(self):
@@ -661,7 +688,7 @@ class ResourceTests(object):
                         p11['id']: None},
                     p8['id']: None}}}
 
-        prjs_hierarchy = self.resource_api.get_projects_in_subtree_as_ids(
+        prjs_hierarchy = PROVIDERS.resource_api.get_projects_in_subtree_as_ids(
             p1['id'])
 
         self.assertDictEqual(expected_projects, prjs_hierarchy)
@@ -669,21 +696,25 @@ class ResourceTests(object):
     def test_list_projects_in_subtree_with_circular_reference(self):
         project1 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        project1 = self.resource_api.create_project(project1['id'], project1)
+        project1 = PROVIDERS.resource_api.create_project(
+            project1['id'], project1
+        )
 
         project2 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
             parent_id=project1['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
 
         project1['parent_id'] = project2['id']  # Adds cyclic reference
 
         # NOTE(dstanek): The manager does not allow parent_id to be updated.
         # Instead will directly use the driver to create the cyclic
         # reference.
-        self.resource_api.driver.update_project(project1['id'], project1)
+        PROVIDERS.resource_api.driver.update_project(project1['id'], project1)
 
-        subtree = self.resource_api.list_projects_in_subtree(project1['id'])
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(
+            project1['id']
+        )
 
         # NOTE(dstanek): If a cyclic reference is detected the code bails
         # and returns None instead of falling into the infinite
@@ -692,11 +723,11 @@ class ResourceTests(object):
 
     def test_list_projects_in_subtree_invalid_project_id(self):
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.list_projects_in_subtree,
+                          PROVIDERS.resource_api.list_projects_in_subtree,
                           None)
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.list_projects_in_subtree,
+                          PROVIDERS.resource_api.list_projects_in_subtree,
                           uuid.uuid4().hex)
 
     def test_list_project_parents(self):
@@ -707,17 +738,17 @@ class ResourceTests(object):
         project4 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
             parent_id=project2['id'])
-        self.resource_api.create_project(project4['id'], project4)
+        PROVIDERS.resource_api.create_project(project4['id'], project4)
 
-        parents1 = self.resource_api.list_project_parents(project3['id'])
+        parents1 = PROVIDERS.resource_api.list_project_parents(project3['id'])
         self.assertEqual(3, len(parents1))
         self.assertIn(project1, parents1)
         self.assertIn(project2, parents1)
 
-        parents2 = self.resource_api.list_project_parents(project4['id'])
+        parents2 = PROVIDERS.resource_api.list_project_parents(project4['id'])
         self.assertEqual(parents1, parents2)
 
-        parents = self.resource_api.list_project_parents(project1['id'])
+        parents = PROVIDERS.resource_api.list_project_parents(project1['id'])
         # It has the default domain as parent
         self.assertEqual(1, len(parents))
 
@@ -735,11 +766,11 @@ class ResourceTests(object):
         # Store the ref from backend in another variable so we don't bother
         # to remove other attributes that were not originally provided and
         # were set in the manager, like parent_id and domain_id.
-        parent_ref = self.resource_api.update_project(parent['id'],
-                                                      parent,
-                                                      cascade=True)
+        parent_ref = PROVIDERS.resource_api.update_project(
+            parent['id'], parent, cascade=True
+        )
 
-        subtree = self.resource_api.list_projects_in_subtree(parent['id'])
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(parent['id'])
         self.assertEqual(2, len(subtree))
         self.assertFalse(parent_ref['enabled'])
         self.assertFalse(subtree[0]['enabled'])
@@ -747,11 +778,11 @@ class ResourceTests(object):
 
         # Enable parent project enables the whole subtree
         parent['enabled'] = True
-        parent_ref = self.resource_api.update_project(parent['id'],
-                                                      parent,
-                                                      cascade=True)
+        parent_ref = PROVIDERS.resource_api.update_project(
+            parent['id'], parent, cascade=True
+        )
 
-        subtree = self.resource_api.list_projects_in_subtree(parent['id'])
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(parent['id'])
         self.assertEqual(2, len(subtree))
         self.assertTrue(parent_ref['enabled'])
         self.assertTrue(subtree[0]['enabled'])
@@ -763,15 +794,15 @@ class ResourceTests(object):
         parent = projects_hierarchy[1]
 
         grandparent['enabled'] = False
-        self.resource_api.update_project(grandparent['id'],
-                                         grandparent,
-                                         cascade=True)
-        subtree = self.resource_api.list_projects_in_subtree(parent['id'])
+        PROVIDERS.resource_api.update_project(
+            grandparent['id'], grandparent, cascade=True
+        )
+        subtree = PROVIDERS.resource_api.list_projects_in_subtree(parent['id'])
         self.assertFalse(subtree[0]['enabled'])
 
         parent['enabled'] = True
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           parent['id'],
                           parent,
                           cascade=True)
@@ -780,91 +811,91 @@ class ResourceTests(object):
         # Update cascade does not accept any other attribute but 'enabled'
         new_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         new_project['name'] = 'project1'
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           new_project['id'],
                           new_project,
                           cascade=True)
 
     def test_list_project_parents_invalid_project_id(self):
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.list_project_parents,
+                          PROVIDERS.resource_api.list_project_parents,
                           None)
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.list_project_parents,
+                          PROVIDERS.resource_api.list_project_parents,
                           uuid.uuid4().hex)
 
     def test_create_project_doesnt_modify_passed_in_dict(self):
         new_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         original_project = new_project.copy()
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
         self.assertDictEqual(original_project, new_project)
 
     def test_update_project_enable(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertTrue(project_ref['enabled'])
 
         project['enabled'] = False
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertEqual(project['enabled'], project_ref['enabled'])
 
         # If not present, enabled field should not be updated
         del project['enabled']
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertFalse(project_ref['enabled'])
 
         project['enabled'] = True
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertEqual(project['enabled'], project_ref['enabled'])
 
         del project['enabled']
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertTrue(project_ref['enabled'])
 
     def test_create_invalid_domain_fails(self):
         new_group = unit.new_group_ref(domain_id="doesnotexist")
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.create_group,
+                          PROVIDERS.identity_api.create_group,
                           new_group)
         new_user = unit.new_user_ref(domain_id="doesnotexist")
         self.assertRaises(exception.DomainNotFound,
-                          self.identity_api.create_user,
+                          PROVIDERS.identity_api.create_user,
                           new_user)
 
     @unit.skip_if_no_multiple_domains_support
     def test_project_crud(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictContainsSubset(project, project_ref)
 
         project['name'] = uuid.uuid4().hex
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictContainsSubset(project, project_ref)
 
-        self.resource_api.delete_project(project['id'])
+        PROVIDERS.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project['id'])
 
     def test_domain_delete_hierarchy(self):
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         # Creating a root and a leaf project inside the domain
         projects_hierarchy = self._create_projects_hierarchy(
@@ -874,24 +905,24 @@ class ResourceTests(object):
 
         # Disable the domain
         domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
 
         # Delete the domain
-        self.resource_api.delete_domain(domain['id'])
+        PROVIDERS.resource_api.delete_domain(domain['id'])
 
         # Make sure the domain no longer exists
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           domain['id'])
 
         # Make sure the root project no longer exists
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           root_project['id'])
 
         # Make sure the leaf project no longer exists
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           leaf_project['id'])
 
     def test_delete_projects_from_ids(self):
@@ -907,20 +938,20 @@ class ResourceTests(object):
             domain_id=CONF.identity.default_domain_id)
         projects = (project1_ref, project2_ref)
         for project in projects:
-            self.resource_api.create_project(project['id'], project)
+            PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Setting up the ID's list
         projects_ids = [p['id'] for p in projects]
-        self.resource_api.driver.delete_projects_from_ids(projects_ids)
+        PROVIDERS.resource_api.driver.delete_projects_from_ids(projects_ids)
 
         # Ensuring projects no longer exist at backend level
         for project_id in projects_ids:
             self.assertRaises(exception.ProjectNotFound,
-                              self.resource_api.driver.get_project,
+                              PROVIDERS.resource_api.driver.get_project,
                               project_id)
 
         # Passing an empty list is silently ignored
-        self.resource_api.driver.delete_projects_from_ids([])
+        PROVIDERS.resource_api.driver.delete_projects_from_ids([])
 
     def test_delete_projects_from_ids_with_no_existing_project_id(self):
         """Test delete_projects_from_ids issues warning if not found.
@@ -931,21 +962,23 @@ class ResourceTests(object):
         """
         project_ref = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project_ref['id'], project_ref)
+        PROVIDERS.resource_api.create_project(project_ref['id'], project_ref)
 
         # Setting up the ID's list
         projects_ids = (project_ref['id'], uuid.uuid4().hex)
         with mock.patch('keystone.resource.backends.sql.LOG') as mock_log:
-            self.resource_api.delete_projects_from_ids(projects_ids)
+            PROVIDERS.resource_api.delete_projects_from_ids(projects_ids)
             self.assertTrue(mock_log.warning.called)
         # The existing project was deleted.
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.driver.get_project,
+                          PROVIDERS.resource_api.driver.get_project,
                           project_ref['id'])
 
         # Even if we only have one project, and it does not exist, it returns
         # no error.
-        self.resource_api.driver.delete_projects_from_ids([uuid.uuid4().hex])
+        PROVIDERS.resource_api.driver.delete_projects_from_ids(
+            [uuid.uuid4().hex]
+        )
 
     def test_delete_project_cascade(self):
         # create a hierarchy with 3 levels
@@ -957,13 +990,13 @@ class ResourceTests(object):
         # Disabling all projects before attempting to delete
         for project in (project2, project1, root_project):
             project['enabled'] = False
-            self.resource_api.update_project(project['id'], project)
+            PROVIDERS.resource_api.update_project(project['id'], project)
 
-        self.resource_api.delete_project(root_project['id'], cascade=True)
+        PROVIDERS.resource_api.delete_project(root_project['id'], cascade=True)
 
         for project in projects_hierarchy:
             self.assertRaises(exception.ProjectNotFound,
-                              self.resource_api.get_project,
+                              PROVIDERS.resource_api.get_project,
                               project['id'])
 
     def test_delete_large_project_cascade(self):
@@ -990,18 +1023,21 @@ class ResourceTests(object):
         self._create_projects_hierarchy(hierarchy_size=1,
                                         parent_project_id=p3_id)
         # Reverse the hierarchy to disable the leaf first
-        prjs_hierarchy = ([p1] + self.resource_api.list_projects_in_subtree(
-                          p1['id']))[::-1]
+        prjs_hierarchy = (
+            [p1] + PROVIDERS.resource_api.list_projects_in_subtree(
+                p1['id']
+            )
+        )[::-1]
 
         # Disabling all projects before attempting to delete
         for project in prjs_hierarchy:
             project['enabled'] = False
-            self.resource_api.update_project(project['id'], project)
+            PROVIDERS.resource_api.update_project(project['id'], project)
 
-        self.resource_api.delete_project(p1['id'], cascade=True)
+        PROVIDERS.resource_api.delete_project(p1['id'], cascade=True)
         for project in prjs_hierarchy:
             self.assertRaises(exception.ProjectNotFound,
-                              self.resource_api.get_project,
+                              PROVIDERS.resource_api.get_project,
                               project['id'])
 
     def test_cannot_delete_project_cascade_with_enabled_child(self):
@@ -1012,18 +1048,18 @@ class ResourceTests(object):
         project2 = projects_hierarchy[2]
 
         project2['enabled'] = False
-        self.resource_api.update_project(project2['id'], project2)
+        PROVIDERS.resource_api.update_project(project2['id'], project2)
 
         # Cannot cascade delete root_project, since project1 is enabled
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.delete_project,
+                          PROVIDERS.resource_api.delete_project,
                           root_project['id'],
                           cascade=True)
 
         # Ensuring no project was deleted, not even project2
-        self.resource_api.get_project(root_project['id'])
-        self.resource_api.get_project(project1['id'])
-        self.resource_api.get_project(project2['id'])
+        PROVIDERS.resource_api.get_project(root_project['id'])
+        PROVIDERS.resource_api.get_project(project1['id'])
+        PROVIDERS.resource_api.get_project(project2['id'])
 
     def test_hierarchical_projects_crud(self):
         # create a hierarchy with just a root project (which is a leaf as well)
@@ -1037,33 +1073,33 @@ class ResourceTests(object):
 
         # update description from leaf_project
         leaf_project['description'] = 'new description'
-        self.resource_api.update_project(leaf_project['id'], leaf_project)
-        proj_ref = self.resource_api.get_project(leaf_project['id'])
+        PROVIDERS.resource_api.update_project(leaf_project['id'], leaf_project)
+        proj_ref = PROVIDERS.resource_api.get_project(leaf_project['id'])
         self.assertDictEqual(leaf_project, proj_ref)
 
         # update the parent_id is not allowed
         leaf_project['parent_id'] = root_project1['id']
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           leaf_project['id'],
                           leaf_project)
 
         # delete root_project1
-        self.resource_api.delete_project(root_project1['id'])
+        PROVIDERS.resource_api.delete_project(root_project1['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           root_project1['id'])
 
         # delete root_project2 is not allowed since it is not a leaf project
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.delete_project,
+                          PROVIDERS.resource_api.delete_project,
                           root_project2['id'])
 
     def test_create_project_with_invalid_parent(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, parent_id='fake')
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project['id'],
                           project)
 
@@ -1071,15 +1107,15 @@ class ResourceTests(object):
     def test_create_leaf_project_with_different_domain(self):
         root_project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(root_project['id'], root_project)
+        PROVIDERS.resource_api.create_project(root_project['id'], root_project)
 
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         leaf_project = unit.new_project_ref(domain_id=domain['id'],
                                             parent_id=root_project['id'])
 
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           leaf_project['id'],
                           leaf_project)
 
@@ -1088,14 +1124,14 @@ class ResourceTests(object):
         root_project = projects_hierarchy[0]
         leaf_project = projects_hierarchy[1]
 
-        self.resource_api.delete_project(leaf_project['id'])
+        PROVIDERS.resource_api.delete_project(leaf_project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           leaf_project['id'])
 
-        self.resource_api.delete_project(root_project['id'])
+        PROVIDERS.resource_api.delete_project(root_project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           root_project['id'])
 
     def test_delete_hierarchical_not_leaf_project(self):
@@ -1103,7 +1139,7 @@ class ResourceTests(object):
         root_project = projects_hierarchy[0]
 
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.delete_project,
+                          PROVIDERS.resource_api.delete_project,
                           root_project['id'])
 
     def test_update_project_parent(self):
@@ -1118,14 +1154,14 @@ class ResourceTests(object):
         # try to update project3 parent to parent1
         project3['parent_id'] = project1['id']
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project3['id'],
                           project3)
 
     def test_create_project_under_disabled_one(self):
         project1 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, enabled=False)
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
         project2 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
@@ -1134,7 +1170,7 @@ class ResourceTests(object):
         # It's not possible to create a project under a disabled one in the
         # hierarchy
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project2['id'],
                           project2)
 
@@ -1143,9 +1179,9 @@ class ResourceTests(object):
         leaf_project = projects_hierarchy[1]
 
         leaf_project['enabled'] = False
-        self.resource_api.update_project(leaf_project['id'], leaf_project)
+        PROVIDERS.resource_api.update_project(leaf_project['id'], leaf_project)
 
-        project_ref = self.resource_api.get_project(leaf_project['id'])
+        project_ref = PROVIDERS.resource_api.get_project(leaf_project['id'])
         self.assertEqual(leaf_project['enabled'], project_ref['enabled'])
 
     def test_disable_hierarchical_not_leaf_project(self):
@@ -1154,7 +1190,7 @@ class ResourceTests(object):
 
         root_project['enabled'] = False
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           root_project['id'],
                           root_project)
 
@@ -1165,20 +1201,20 @@ class ResourceTests(object):
 
         # Disable leaf and root
         leaf_project['enabled'] = False
-        self.resource_api.update_project(leaf_project['id'], leaf_project)
+        PROVIDERS.resource_api.update_project(leaf_project['id'], leaf_project)
         root_project['enabled'] = False
-        self.resource_api.update_project(root_project['id'], root_project)
+        PROVIDERS.resource_api.update_project(root_project['id'], root_project)
 
         # Try to enable the leaf project, it's not possible since it has
         # a disabled parent
         leaf_project['enabled'] = True
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           leaf_project['id'],
                           leaf_project)
 
     def _get_hierarchy_depth(self, project_id):
-        return len(self.resource_api.list_project_parents(project_id)) + 1
+        return len(PROVIDERS.resource_api.list_project_parents(project_id)) + 1
 
     def test_check_hierarchy_depth(self):
         # Should be allowed to have a hierarchy of the max depth specified
@@ -1196,7 +1232,7 @@ class ResourceTests(object):
             domain_id=CONF.identity.default_domain_id,
             parent_id=leaf_project['id'])
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.create_project,
+                          PROVIDERS.resource_api.create_project,
                           project['id'],
                           project)
 
@@ -1205,13 +1241,13 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         del project['description']
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Add a description attribute.
         project['description'] = uuid.uuid4().hex
-        self.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
 
-        project_ref = self.resource_api.get_project(project['id'])
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictEqual(project, project_ref)
 
     def test_project_update_missing_attrs_with_a_falsey_value(self):
@@ -1219,43 +1255,43 @@ class ResourceTests(object):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
         del project['description']
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Add a description attribute.
         project['description'] = ''
-        self.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
 
-        project_ref = self.resource_api.get_project(project['id'])
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictEqual(project, project_ref)
 
     def test_domain_crud(self):
         domain = unit.new_domain_ref()
-        domain_ref = self.resource_api.create_domain(domain['id'], domain)
+        domain_ref = PROVIDERS.resource_api.create_domain(domain['id'], domain)
         self.assertDictEqual(domain, domain_ref)
-        domain_ref = self.resource_api.get_domain(domain['id'])
+        domain_ref = PROVIDERS.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain, domain_ref)
 
         domain['name'] = uuid.uuid4().hex
-        domain_ref = self.resource_api.update_domain(domain['id'], domain)
+        domain_ref = PROVIDERS.resource_api.update_domain(domain['id'], domain)
         self.assertDictEqual(domain, domain_ref)
-        domain_ref = self.resource_api.get_domain(domain['id'])
+        domain_ref = PROVIDERS.resource_api.get_domain(domain['id'])
         self.assertDictEqual(domain, domain_ref)
 
         # Ensure an 'enabled' domain cannot be deleted
         self.assertRaises(exception.ForbiddenNotSecurity,
-                          self.resource_api.delete_domain,
+                          PROVIDERS.resource_api.delete_domain,
                           domain_id=domain['id'])
 
         # Disable the domain
         domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
 
         # Delete the domain
-        self.resource_api.delete_domain(domain['id'])
+        PROVIDERS.resource_api.delete_domain(domain['id'])
 
         # Make sure the domain no longer exists
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           domain['id'])
 
     @unit.skip_if_no_multiple_domains_support
@@ -1264,42 +1300,46 @@ class ResourceTests(object):
         domain_name = 'test_domain'
         ref = unit.new_domain_ref(name=domain_name)
 
-        lower_case_domain = self.resource_api.create_domain(ref['id'], ref)
+        lower_case_domain = PROVIDERS.resource_api.create_domain(
+            ref['id'], ref
+        )
 
         # assign a new ID to the ref with the same name, but in uppercase
         ref['id'] = uuid.uuid4().hex
         ref['name'] = domain_name.upper()
-        upper_case_domain = self.resource_api.create_domain(ref['id'], ref)
+        upper_case_domain = PROVIDERS.resource_api.create_domain(
+            ref['id'], ref
+        )
 
         # We can get each domain by name
-        lower_case_domain_ref = self.resource_api.get_domain_by_name(
+        lower_case_domain_ref = PROVIDERS.resource_api.get_domain_by_name(
             domain_name)
         self.assertDictEqual(lower_case_domain, lower_case_domain_ref)
 
-        upper_case_domain_ref = self.resource_api.get_domain_by_name(
+        upper_case_domain_ref = PROVIDERS.resource_api.get_domain_by_name(
             domain_name.upper())
         self.assertDictEqual(upper_case_domain, upper_case_domain_ref)
 
     def test_project_attribute_update(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         # pick a key known to be non-existent
         key = 'description'
 
         def assert_key_equals(value):
-            project_ref = self.resource_api.update_project(
+            project_ref = PROVIDERS.resource_api.update_project(
                 project['id'], project)
             self.assertEqual(value, project_ref[key])
-            project_ref = self.resource_api.get_project(project['id'])
+            project_ref = PROVIDERS.resource_api.get_project(project['id'])
             self.assertEqual(value, project_ref[key])
 
         def assert_get_key_is(value):
-            project_ref = self.resource_api.update_project(
+            project_ref = PROVIDERS.resource_api.update_project(
                 project['id'], project)
             self.assertIs(project_ref.get(key), value)
-            project_ref = self.resource_api.get_project(project['id'])
+            project_ref = PROVIDERS.resource_api.get_project(project['id'])
             self.assertIs(project_ref.get(key), value)
 
         # add an attribute that doesn't exist, set it to a falsey value
@@ -1333,12 +1373,12 @@ class ResourceTests(object):
         domain = unit.new_domain_ref()
         domain_id = domain['id']
         domain_name = domain['name']
-        self.resource_api.create_domain(domain_id, domain)
-        domain_ref = self.resource_api.get_domain_by_name(domain_name)
+        PROVIDERS.resource_api.create_domain(domain_id, domain)
+        domain_ref = PROVIDERS.resource_api.get_domain_by_name(domain_name)
         domain_ref['name'] = uuid.uuid4().hex
-        self.resource_api.update_domain(domain_id, domain_ref)
+        PROVIDERS.resource_api.update_domain(domain_id, domain_ref)
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain_by_name,
+                          PROVIDERS.resource_api.get_domain_by_name,
                           domain_name)
 
     @unit.skip_if_cache_disabled('resource')
@@ -1346,59 +1386,67 @@ class ResourceTests(object):
         domain = unit.new_domain_ref()
         domain_id = domain['id']
         # Create Domain
-        self.resource_api.create_domain(domain_id, domain)
-        project_domain_ref = self.resource_api.get_project(domain_id)
-        domain_ref = self.resource_api.get_domain(domain_id)
+        PROVIDERS.resource_api.create_domain(domain_id, domain)
+        project_domain_ref = PROVIDERS.resource_api.get_project(domain_id)
+        domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         updated_project_domain_ref = copy.deepcopy(project_domain_ref)
         updated_project_domain_ref['name'] = uuid.uuid4().hex
         updated_domain_ref = copy.deepcopy(domain_ref)
         updated_domain_ref['name'] = updated_project_domain_ref['name']
         # Update domain, bypassing resource api manager
-        self.resource_api.driver.update_project(domain_id,
-                                                updated_project_domain_ref)
+        PROVIDERS.resource_api.driver.update_project(
+            domain_id, updated_project_domain_ref
+        )
         # Verify get_domain still returns the domain
         self.assertDictContainsSubset(
-            domain_ref, self.resource_api.get_domain(domain_id))
+            domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
         # Invalidate cache
-        self.resource_api.get_domain.invalidate(self.resource_api,
-                                                domain_id)
+        PROVIDERS.resource_api.get_domain.invalidate(
+            PROVIDERS.resource_api, domain_id
+        )
         # Verify get_domain returns the updated domain
         self.assertDictContainsSubset(
-            updated_domain_ref, self.resource_api.get_domain(domain_id))
+            updated_domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
         # Update the domain back to original ref, using the assignment api
         # manager
-        self.resource_api.update_domain(domain_id, domain_ref)
+        PROVIDERS.resource_api.update_domain(domain_id, domain_ref)
         self.assertDictContainsSubset(
-            domain_ref, self.resource_api.get_domain(domain_id))
+            domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
         # Make sure domain is 'disabled', bypass resource api manager
         project_domain_ref_disabled = project_domain_ref.copy()
         project_domain_ref_disabled['enabled'] = False
-        self.resource_api.driver.update_project(domain_id,
-                                                project_domain_ref_disabled)
-        self.resource_api.driver.update_project(domain_id, {'enabled': False})
+        PROVIDERS.resource_api.driver.update_project(
+            domain_id, project_domain_ref_disabled
+        )
+        PROVIDERS.resource_api.driver.update_project(
+            domain_id, {'enabled': False}
+        )
         # Delete domain, bypassing resource api manager
-        self.resource_api.driver.delete_project(domain_id)
+        PROVIDERS.resource_api.driver.delete_project(domain_id)
         # Verify get_domain still returns the domain
         self.assertDictContainsSubset(
-            domain_ref, self.resource_api.get_domain(domain_id))
+            domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
         # Invalidate cache
-        self.resource_api.get_domain.invalidate(self.resource_api,
-                                                domain_id)
+        PROVIDERS.resource_api.get_domain.invalidate(
+            PROVIDERS.resource_api, domain_id
+        )
         # Verify get_domain now raises DomainNotFound
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain, domain_id)
+                          PROVIDERS.resource_api.get_domain, domain_id)
         # Recreate Domain
-        self.resource_api.create_domain(domain_id, domain)
-        self.resource_api.get_domain(domain_id)
+        PROVIDERS.resource_api.create_domain(domain_id, domain)
+        PROVIDERS.resource_api.get_domain(domain_id)
         # Make sure domain is 'disabled', bypass resource api manager
         domain['enabled'] = False
-        self.resource_api.driver.update_project(domain_id, domain)
-        self.resource_api.driver.update_project(domain_id, {'enabled': False})
+        PROVIDERS.resource_api.driver.update_project(domain_id, domain)
+        PROVIDERS.resource_api.driver.update_project(
+            domain_id, {'enabled': False}
+        )
         # Delete domain
-        self.resource_api.delete_domain(domain_id)
+        PROVIDERS.resource_api.delete_domain(domain_id)
         # verify DomainNotFound raised
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           domain_id)
 
     @unit.skip_if_cache_disabled('resource')
@@ -1408,14 +1456,14 @@ class ResourceTests(object):
         project = unit.new_project_ref(domain_id=domain['id'])
         project_id = project['id']
         project_name = project['name']
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         # Create a project
-        self.resource_api.create_project(project_id, project)
-        self.resource_api.get_project_by_name(project_name, domain['id'])
+        PROVIDERS.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.get_project_by_name(project_name, domain['id'])
         project['name'] = uuid.uuid4().hex
-        self.resource_api.update_project(project_id, project)
+        PROVIDERS.resource_api.update_project(project_id, project)
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project_by_name,
+                          PROVIDERS.resource_api.get_project_by_name,
                           project_name,
                           domain['id'])
 
@@ -1425,50 +1473,53 @@ class ResourceTests(object):
         domain = unit.new_domain_ref()
         project = unit.new_project_ref(domain_id=domain['id'])
         project_id = project['id']
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         # Create a project
-        self.resource_api.create_project(project_id, project)
-        self.resource_api.get_project(project_id)
+        PROVIDERS.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.get_project(project_id)
         updated_project = copy.deepcopy(project)
         updated_project['name'] = uuid.uuid4().hex
         # Update project, bypassing resource manager
-        self.resource_api.driver.update_project(project_id,
-                                                updated_project)
+        PROVIDERS.resource_api.driver.update_project(
+            project_id, updated_project
+        )
         # Verify get_project still returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.resource_api.get_project(project_id))
+            project, PROVIDERS.resource_api.get_project(project_id))
         # Invalidate cache
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 project_id)
+        PROVIDERS.resource_api.get_project.invalidate(
+            PROVIDERS.resource_api, project_id
+        )
         # Verify get_project now returns the new project
         self.assertDictContainsSubset(
             updated_project,
-            self.resource_api.get_project(project_id))
+            PROVIDERS.resource_api.get_project(project_id))
         # Update project using the resource_api manager back to original
-        self.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
         # Verify get_project returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.resource_api.get_project(project_id))
+            project, PROVIDERS.resource_api.get_project(project_id))
         # Delete project bypassing resource
-        self.resource_api.driver.delete_project(project_id)
+        PROVIDERS.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
         self.assertDictContainsSubset(
-            project, self.resource_api.get_project(project_id))
+            project, PROVIDERS.resource_api.get_project(project_id))
         # Invalidate cache
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 project_id)
+        PROVIDERS.resource_api.get_project.invalidate(
+            PROVIDERS.resource_api, project_id
+        )
         # Verify ProjectNotFound now raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project_id)
         # recreate project
-        self.resource_api.create_project(project_id, project)
-        self.resource_api.get_project(project_id)
+        PROVIDERS.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.get_project(project_id)
         # delete project
-        self.resource_api.delete_project(project_id)
+        PROVIDERS.resource_api.delete_project(project_id)
         # Verify ProjectNotFound is raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project_id)
 
     @unit.skip_if_no_multiple_domains_support
@@ -1476,25 +1527,25 @@ class ResourceTests(object):
         domain_name = 'default'
 
         domain = unit.new_domain_ref(name=domain_name)
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
-        domain_ref = self.resource_api.get_domain_by_name(domain_name)
+        domain_ref = PROVIDERS.resource_api.get_domain_by_name(domain_name)
         self.assertEqual(domain, domain_ref)
 
     def test_get_not_default_domain_by_name(self):
         domain_name = 'foo'
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain_by_name,
+                          PROVIDERS.resource_api.get_domain_by_name,
                           domain_name)
 
     def test_project_update_and_project_get_return_same_response(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
 
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         updated_project = {'enabled': False}
-        updated_project_ref = self.resource_api.update_project(
+        updated_project_ref = PROVIDERS.resource_api.update_project(
             project['id'], updated_project)
 
         # SQL backend adds 'extra' field
@@ -1502,7 +1553,7 @@ class ResourceTests(object):
 
         self.assertIs(False, updated_project_ref['enabled'])
 
-        project_ref = self.resource_api.get_project(project['id'])
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictEqual(updated_project_ref, project_ref)
 
     def test_delete_project_clears_default_project_id(self):
@@ -1511,15 +1562,15 @@ class ResourceTests(object):
             domain_id=CONF.identity.default_domain_id)
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id,
                                  project_id=project['id'])
-        self.resource_api.create_project(project['id'], project)
-        user = self.identity_api.create_user(user)
-        user = self.identity_api.get_user(user['id'])
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        user = PROVIDERS.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.get_user(user['id'])
 
         # LDAP is read only default_project_id doesn't exist
         if 'default_project_id' in user:
             self.assertIsNotNone(user['default_project_id'])
-            self.resource_api.delete_project(project['id'])
-            user = self.identity_api.get_user(user['id'])
+            PROVIDERS.resource_api.delete_project(project['id'])
+            user = PROVIDERS.identity_api.get_user(user['id'])
             self.assertNotIn('default_project_id', user)
 
     def test_delete_project_with_roles_clears_default_project_id(self):
@@ -1527,15 +1578,15 @@ class ResourceTests(object):
             domain_id=CONF.identity.default_domain_id)
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id,
                                  project_id=project['id'])
-        self.resource_api.create_project(project['id'], project)
-        user = self.identity_api.create_user(user)
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        user = PROVIDERS.identity_api.create_user(user)
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
-        self.assignment_api.create_grant(user_id=user['id'],
-                                         project_id=project['id'],
-                                         role_id=role['id'])
-        self.resource_api.delete_project(project['id'])
-        user = self.identity_api.get_user(user['id'])
+        PROVIDERS.role_api.create_role(role['id'], role)
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user['id'], project_id=project['id'], role_id=role['id']
+        )
+        PROVIDERS.resource_api.delete_project(project['id'])
+        user = PROVIDERS.identity_api.get_user(user['id'])
         self.assertNotIn('default_project_id', user)
 
     def _create_project_and_tags(self, num_of_tags=1):
@@ -1549,92 +1600,104 @@ class ResourceTests(object):
         tags = [uuid.uuid4().hex for i in range(num_of_tags)]
         ref = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id, tags=tags)
-        project = self.resource_api.create_project(ref['id'], ref)
+        project = PROVIDERS.resource_api.create_project(ref['id'], ref)
 
         return project, tags
 
     def test_create_project_with_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
-        tag_ref = self.resource_api.get_project_tag(project['id'], tags[0])
+        tag_ref = PROVIDERS.resource_api.get_project_tag(
+            project['id'], tags[0]
+        )
         self.assertEqual(tags[0], tag_ref)
 
     def test_get_project_contains_tags(self):
         project, _ = self._create_project_and_tags()
         tag = uuid.uuid4().hex
-        self.resource_api.create_project_tag(project['id'], tag)
-        ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.create_project_tag(project['id'], tag)
+        ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertIn(tag, ref['tags'])
 
     def test_list_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=1)
-        tag_ref = self.resource_api.list_project_tags(project['id'])
+        tag_ref = PROVIDERS.resource_api.list_project_tags(project['id'])
         self.assertEqual(tags[0], tag_ref[0])
 
     def test_list_project_tags_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.list_project_tags,
+                          PROVIDERS.resource_api.list_project_tags,
                           uuid.uuid4().hex)
 
     def test_get_project_tag(self):
         project, tags = self._create_project_and_tags()
-        tag_ref = self.resource_api.get_project_tag(project['id'], tags[0])
+        tag_ref = PROVIDERS.resource_api.get_project_tag(
+            project['id'], tags[0]
+        )
         self.assertEqual(tags[0], tag_ref)
 
     def test_create_project_tag_with_trailing_whitespace(self):
         project, _ = self._create_project_and_tags()
         tag = uuid.uuid4().hex + '   '
-        tag_ref = self.resource_api.create_project_tag(project['id'], tag)
+        tag_ref = PROVIDERS.resource_api.create_project_tag(project['id'], tag)
         self.assertEqual(tag.strip(), tag_ref)
 
     def test_create_project_tag_is_case_sensitive(self):
         project, _ = self._create_project_and_tags()
         new_tags = ['aaa', 'AAA']
 
-        ref = self.resource_api.update_project_tags(project['id'], new_tags)
+        ref = PROVIDERS.resource_api.update_project_tags(
+            project['id'], new_tags
+        )
         for tag in new_tags:
             self.assertIn(tag, ref)
 
     def test_update_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=2)
-        project_tag_ref = self.resource_api.list_project_tags(project['id'])
+        project_tag_ref = PROVIDERS.resource_api.list_project_tags(
+            project['id']
+        )
         self.assertEqual(len(project_tag_ref), 2)
 
         # Update project to only have one tag
         tags = ['one']
-        self.resource_api.update_project_tags(project['id'], tags)
-        project_tag_ref = self.resource_api.list_project_tags(project['id'])
+        PROVIDERS.resource_api.update_project_tags(project['id'], tags)
+        project_tag_ref = PROVIDERS.resource_api.list_project_tags(
+            project['id']
+        )
         self.assertEqual(len(project_tag_ref), 1)
 
     def test_update_project_tags_returns_not_found(self):
         _, tags = self._create_project_and_tags(num_of_tags=2)
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.update_project_tags,
+                          PROVIDERS.resource_api.update_project_tags,
                           uuid.uuid4().hex,
                           tags)
 
     def test_delete_tag_from_project(self):
         project, tags = self._create_project_and_tags(num_of_tags=2)
         tag_to_delete = tags[-1]
-        self.resource_api.delete_project_tag(project['id'], tag_to_delete)
-        project_tag_ref = self.resource_api.list_project_tags(
+        PROVIDERS.resource_api.delete_project_tag(project['id'], tag_to_delete)
+        project_tag_ref = PROVIDERS.resource_api.list_project_tags(
             project['id'])
         self.assertEqual(len(project_tag_ref), 1)
         self.assertEqual(project_tag_ref[0], tags[0])
 
     def test_delete_project_tag_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.delete_project_tag,
+                          PROVIDERS.resource_api.delete_project_tag,
                           uuid.uuid4().hex,
                           uuid.uuid4().hex)
 
     def test_delete_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
-        project_tag_ref = self.resource_api.list_project_tags(
+        project_tag_ref = PROVIDERS.resource_api.list_project_tags(
             project['id'])
         self.assertEqual(len(project_tag_ref), 5)
 
-        self.resource_api.update_project_tags(project['id'], [])
-        project_tag_ref = self.resource_api.list_project_tags(project['id'])
+        PROVIDERS.resource_api.update_project_tags(project['id'], [])
+        project_tag_ref = PROVIDERS.resource_api.list_project_tags(
+            project['id']
+        )
         self.assertEqual(project_tag_ref, [])
 
 

@@ -12,10 +12,14 @@
 
 import uuid
 
+from keystone.common import provider_api
+
+PROVIDERS = provider_api.ProviderAPIs
+
 
 class ShadowUsersCoreTests(object):
     def test_shadow_federated_user(self):
-        user = self.identity_api.shadow_federated_user(
+        user = PROVIDERS.identity_api.shadow_federated_user(
             self.federated_user['idp_id'],
             self.federated_user['protocol_id'],
             self.federated_user['unique_id'],
@@ -33,7 +37,7 @@ class ShadowUsersCoreTests(object):
     def test_shadow_existing_federated_user(self):
 
         # introduce the user to keystone for the first time
-        shadow_user1 = self.identity_api.shadow_federated_user(
+        shadow_user1 = PROVIDERS.identity_api.shadow_federated_user(
             self.federated_user['idp_id'],
             self.federated_user['protocol_id'],
             self.federated_user['unique_id'],
@@ -45,7 +49,7 @@ class ShadowUsersCoreTests(object):
         # internally, this operation causes request to the driver. It should
         # not fail.
         self.federated_user['display_name'] = uuid.uuid4().hex
-        shadow_user2 = self.identity_api.shadow_federated_user(
+        shadow_user2 = PROVIDERS.identity_api.shadow_federated_user(
             self.federated_user['idp_id'],
             self.federated_user['protocol_id'],
             self.federated_user['unique_id'],

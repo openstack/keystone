@@ -12,10 +12,13 @@
 
 import uuid
 
+from keystone.common import provider_api
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import mapping_fixtures
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestFederationProtocol(unit.TestCase):
@@ -29,20 +32,21 @@ class TestFederationProtocol(unit.TestCase):
             'enabled': True,
             'description': uuid.uuid4().hex
         }
-        self.federation_api.create_idp(self.idp['id'], self.idp)
+        PROVIDERS.federation_api.create_idp(self.idp['id'], self.idp)
         self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
         self.mapping['id'] = uuid.uuid4().hex
-        self.federation_api.create_mapping(self.mapping['id'],
-                                           self.mapping)
+        PROVIDERS.federation_api.create_mapping(
+            self.mapping['id'], self.mapping
+        )
 
     def test_create_protocol(self):
         protocol = {
             'id': uuid.uuid4().hex,
             'mapping_id': self.mapping['id']
         }
-        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
-                                                           protocol['id'],
-                                                           protocol)
+        protocol_ret = PROVIDERS.federation_api.create_protocol(
+            self.idp['id'], protocol['id'], protocol
+        )
         self.assertEqual(protocol['id'], protocol_ret['id'])
 
     def test_create_protocol_with_invalid_mapping_id(self):
@@ -51,7 +55,7 @@ class TestFederationProtocol(unit.TestCase):
             'mapping_id': uuid.uuid4().hex
         }
         self.assertRaises(exception.ValidationError,
-                          self.federation_api.create_protocol,
+                          PROVIDERS.federation_api.create_protocol,
                           self.idp['id'],
                           protocol['id'],
                           protocol)
@@ -61,17 +65,17 @@ class TestFederationProtocol(unit.TestCase):
             'id': uuid.uuid4().hex,
             'mapping_id': self.mapping['id']
         }
-        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
-                                                           protocol['id'],
-                                                           protocol)
+        protocol_ret = PROVIDERS.federation_api.create_protocol(
+            self.idp['id'], protocol['id'], protocol
+        )
         self.assertEqual(protocol['id'], protocol_ret['id'])
         new_mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
         new_mapping['id'] = uuid.uuid4().hex
-        self.federation_api.create_mapping(new_mapping['id'], new_mapping)
+        PROVIDERS.federation_api.create_mapping(new_mapping['id'], new_mapping)
         protocol['mapping_id'] = new_mapping['id']
-        protocol_ret = self.federation_api.update_protocol(self.idp['id'],
-                                                           protocol['id'],
-                                                           protocol)
+        protocol_ret = PROVIDERS.federation_api.update_protocol(
+            self.idp['id'], protocol['id'], protocol
+        )
         self.assertEqual(protocol['id'], protocol_ret['id'])
         self.assertEqual(new_mapping['id'], protocol_ret['mapping_id'])
 
@@ -80,13 +84,13 @@ class TestFederationProtocol(unit.TestCase):
             'id': uuid.uuid4().hex,
             'mapping_id': self.mapping['id']
         }
-        protocol_ret = self.federation_api.create_protocol(self.idp['id'],
-                                                           protocol['id'],
-                                                           protocol)
+        protocol_ret = PROVIDERS.federation_api.create_protocol(
+            self.idp['id'], protocol['id'], protocol
+        )
         self.assertEqual(protocol['id'], protocol_ret['id'])
         protocol['mapping_id'] = uuid.uuid4().hex
         self.assertRaises(exception.ValidationError,
-                          self.federation_api.update_protocol,
+                          PROVIDERS.federation_api.update_protocol,
                           self.idp['id'],
                           protocol['id'],
                           protocol)

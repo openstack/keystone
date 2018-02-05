@@ -28,6 +28,7 @@ from testtools import matchers
 
 from keystone.common import cache
 from keystone.common import driver_hints
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone import identity
@@ -46,6 +47,7 @@ from keystone.tests.unit.resource import test_backends as resource_tests
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def _assert_backends(testcase, **kwargs):
@@ -331,7 +333,9 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""
-        return self.resource_api.get_domain(CONF.identity.default_domain_id)
+        return PROVIDERS.resource_api.get_domain(
+            CONF.identity.default_domain_id
+        )
 
     def get_config(self, domain_id):
         # Only one conf structure unless we are using separate domain backends
@@ -355,10 +359,10 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
     def get_user_enabled_vals(self, user):
         user_dn = (
-            self.identity_api.driver.user._id_to_dn_string(user['id']))
+            PROVIDERS.identity_api.driver.user._id_to_dn_string(user['id']))
         enabled_attr_name = CONF.ldap.user_enabled_attribute
 
-        ldap_ = self.identity_api.driver.user.get_connection()
+        ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
         res = ldap_.search_s(user_dn,
                              ldap.SCOPE_BASE,
                              u'(sn=%s)' % user['name'])
@@ -375,29 +379,30 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
     def test_configurable_allowed_user_actions(self):
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        self.identity_api.get_user(user['id'])
+        user = PROVIDERS.identity_api.create_user(user)
+        PROVIDERS.identity_api.get_user(user['id'])
 
         user['password'] = u'fäképass2'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
 
         self.assertRaises(exception.Forbidden,
-                          self.identity_api.delete_user,
+                          PROVIDERS.identity_api.delete_user,
                           user['id'])
 
     def test_user_filter(self):
-        user_ref = self.identity_api.get_user(self.user_foo['id'])
+        user_ref = PROVIDERS.identity_api.get_user(self.user_foo['id'])
         self.user_foo.pop('password')
         self.assertDictEqual(self.user_foo, user_ref)
 
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             user_ref['domain_id'])
         driver.user.ldap_filter = '(CN=DOES_NOT_MATCH)'
         # invalidate the cache if the result is cached.
-        self.identity_api.get_user.invalidate(self.identity_api,
-                                              self.user_foo['id'])
+        PROVIDERS.identity_api.get_user.invalidate(
+            PROVIDERS.identity_api, self.user_foo['id']
+        )
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
+                          PROVIDERS.identity_api.get_user,
                           self.user_foo['id'])
 
     def test_list_users_by_name_and_with_filter(self):
@@ -406,10 +411,10 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         hints = driver_hints.Hints()
         hints.add_filter('name', self.user_foo['name'])
         domain_id = self.user_foo['domain_id']
-        driver = self.identity_api._select_identity_driver(domain_id)
+        driver = PROVIDERS.identity_api._select_identity_driver(domain_id)
         driver.user.ldap_filter = ('(|(cn=%s)(cn=%s))' %
                                    (self.user_sna['id'], self.user_two['id']))
-        users = self.identity_api.list_users(
+        users = PROVIDERS.identity_api.list_users(
             domain_scope=self._set_domain_scope(domain_id),
             hints=hints)
         self.assertEqual(0, len(users))
@@ -421,49 +426,49 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         numgroups = 3
         for _ in range(numgroups):
             group = unit.new_group_ref(domain_id=domain['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             group_names.append(group['name'])
         # confirm that the groups can all be listed
-        groups = self.identity_api.list_groups(
+        groups = PROVIDERS.identity_api.list_groups(
             domain_scope=self._set_domain_scope(domain['id']))
         self.assertEqual(numgroups, len(groups))
         # configure the group filter
-        driver = self.identity_api._select_identity_driver(domain['id'])
+        driver = PROVIDERS.identity_api._select_identity_driver(domain['id'])
         driver.group.ldap_filter = ('(|(ou=%s)(ou=%s))' %
                                     tuple(group_names[:2]))
         # confirm that the group filter is working
-        groups = self.identity_api.list_groups(
+        groups = PROVIDERS.identity_api.list_groups(
             domain_scope=self._set_domain_scope(domain['id']))
         self.assertEqual(2, len(groups))
         # confirm that a group is not exposed when it does not match the
         # filter setting in conf even if it is requested by name in group list
         hints = driver_hints.Hints()
         hints.add_filter('name', group_names[2])
-        groups = self.identity_api.list_groups(
+        groups = PROVIDERS.identity_api.list_groups(
             domain_scope=self._set_domain_scope(domain['id']),
             hints=hints)
         self.assertEqual(0, len(groups))
 
     def test_remove_role_grant_from_user_and_project(self):
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
             project_id=self.tenant_baz['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
                           project_id=self.tenant_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
@@ -471,38 +476,39 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
     def test_get_and_remove_role_grant_by_group_and_project(self):
         new_domain = self._get_domain_fixture()
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         new_user = self.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            new_group['id'])
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], new_group['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual([], roles_ref)
         self.assertEqual(0, len(roles_ref))
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertNotEmpty(roles_ref)
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             project_id=self.tenant_bar['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           project_id=self.tenant_bar['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
@@ -514,37 +520,38 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # tests here. This is raised as bug 1373865.
         new_domain = self._get_domain_fixture()
         new_group = unit.new_group_ref(domain_id=new_domain['id'],)
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         new_user = self.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            new_group['id'])
+        new_user = PROVIDERS.identity_api.create_user(new_user)
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], new_group['id']
+        )
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
 
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
-        self.assignment_api.delete_grant(
+        PROVIDERS.assignment_api.delete_grant(
             group_id=new_group['id'],
             domain_id=new_domain['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
-        roles_ref = self.assignment_api.list_grants(
+        roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
             domain_id=new_domain['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.NotFound,
-                          self.assignment_api.delete_grant,
+                          PROVIDERS.assignment_api.delete_grant,
                           group_id=new_group['id'],
                           domain_id=new_domain['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
@@ -552,159 +559,188 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
     def test_list_projects_for_user(self):
         domain = self._get_domain_fixture()
         user1 = self.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        user1 = PROVIDERS.identity_api.create_user(user1)
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertThat(user_projects, matchers.HasLength(0))
 
         # new grant(user1, role_member, tenant_bar)
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
         # new grant(user1, role_member, tenant_baz)
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_baz['id'],
-                                         role_id=self.role_member['id'])
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_baz['id'],
+            role_id=self.role_member['id']
+        )
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertThat(user_projects, matchers.HasLength(2))
 
         # Now, check number of projects through groups
         user2 = self.new_user_ref(domain_id=domain['id'])
-        user2 = self.identity_api.create_user(user2)
+        user2 = PROVIDERS.identity_api.create_user(user2)
 
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
 
-        self.identity_api.add_user_to_group(user2['id'], group1['id'])
+        PROVIDERS.identity_api.add_user_to_group(user2['id'], group1['id'])
 
         # new grant(group1(user2), role_member, tenant_bar)
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
         # new grant(group1(user2), role_member, tenant_baz)
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=self.tenant_baz['id'],
-                                         role_id=self.role_member['id'])
-        user_projects = self.assignment_api.list_projects_for_user(user2['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=self.tenant_baz['id'],
+            role_id=self.role_member['id']
+        )
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user2['id']
+        )
         self.assertThat(user_projects, matchers.HasLength(2))
 
         # new grant(group1(user2), role_other, tenant_bar)
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_other['id'])
-        user_projects = self.assignment_api.list_projects_for_user(user2['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_other['id']
+        )
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user2['id']
+        )
         self.assertThat(user_projects, matchers.HasLength(2))
 
     def test_list_projects_for_user_and_groups(self):
         domain = self._get_domain_fixture()
         # Create user1
         user1 = self.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
 
         # Create new group for user1
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
 
         # Add user1 to group1
-        self.identity_api.add_user_to_group(user1['id'], group1['id'])
+        PROVIDERS.identity_api.add_user_to_group(user1['id'], group1['id'])
 
         # Now, add grant to user1 and group1 in tenant_bar
-        self.assignment_api.create_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(group_id=group1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
 
         # The result is user1 has only one project granted
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertThat(user_projects, matchers.HasLength(1))
 
         # Now, delete user1 grant into tenant_bar and check
-        self.assignment_api.delete_grant(user_id=user1['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.delete_grant(
+            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
 
         # The result is user1 has only one project granted.
         # Granted through group1.
-        user_projects = self.assignment_api.list_projects_for_user(user1['id'])
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
+            user1['id']
+        )
         self.assertThat(user_projects, matchers.HasLength(1))
 
     def test_list_projects_for_user_with_grants(self):
         domain = self._get_domain_fixture()
         new_user = self.new_user_ref(domain_id=domain['id'])
-        new_user = self.identity_api.create_user(new_user)
+        new_user = PROVIDERS.identity_api.create_user(new_user)
 
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         group2 = unit.new_group_ref(domain_id=domain['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
 
         project1 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
 
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            group1['id'])
-        self.identity_api.add_user_to_group(new_user['id'],
-                                            group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], group2['id']
+        )
 
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=self.tenant_bar['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.create_grant(user_id=new_user['id'],
-                                         project_id=project1['id'],
-                                         role_id=self.role_admin['id'])
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         project_id=project2['id'],
-                                         role_id=self.role_admin['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=new_user['id'], project_id=self.tenant_bar['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            user_id=new_user['id'], project_id=project1['id'],
+            role_id=self.role_admin['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], project_id=project2['id'],
+            role_id=self.role_admin['id']
+        )
 
-        user_projects = self.assignment_api.list_projects_for_user(
+        user_projects = PROVIDERS.assignment_api.list_projects_for_user(
             new_user['id'])
         self.assertEqual(3, len(user_projects))
 
     def test_list_role_assignments_unfiltered(self):
         new_domain = self._get_domain_fixture()
         new_user = self.new_user_ref(domain_id=new_domain['id'])
-        new_user = self.identity_api.create_user(new_user)
+        new_user = PROVIDERS.identity_api.create_user(new_user)
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         new_project = unit.new_project_ref(domain_id=new_domain['id'])
-        self.resource_api.create_project(new_project['id'], new_project)
+        PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         # First check how many role grant already exist
-        existing_assignments = len(self.assignment_api.list_role_assignments())
+        existing_assignments = len(
+            PROVIDERS.assignment_api.list_role_assignments()
+        )
 
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=new_user['id'],
             project_id=new_project['id'],
             role_id=default_fixtures.OTHER_ROLE_ID)
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
             project_id=new_project['id'],
             role_id=default_fixtures.ADMIN_ROLE_ID)
 
         # Read back the list of assignments - check it is gone up by 2
-        after_assignments = len(self.assignment_api.list_role_assignments())
+        after_assignments = len(
+            PROVIDERS.assignment_api.list_role_assignments()
+        )
         self.assertEqual(existing_assignments + 2, after_assignments)
 
     def test_list_group_members_when_no_members(self):
         # List group members when there is no member in the group.
         # No exception should be raised.
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         # If this doesn't raise, then the test is successful.
-        self.identity_api.list_users_in_group(group['id'])
+        PROVIDERS.identity_api.list_users_in_group(group['id'])
 
     def test_list_domains(self):
         # We have more domains here than the parent class, check for the
         # correct number of domains for the multildap backend configs
         domain1 = unit.new_domain_ref()
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain1['id'], domain1)
-        self.resource_api.create_domain(domain2['id'], domain2)
-        domains = self.resource_api.list_domains()
+        PROVIDERS.resource_api.create_domain(domain1['id'], domain1)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
+        domains = PROVIDERS.resource_api.list_domains()
         self.assertEqual(7, len(domains))
         domain_ids = []
         for domain in domains:
@@ -715,19 +751,19 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
     def test_authenticate_requires_simple_bind(self):
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
-        self.assignment_api.add_role_to_user_and_project(user['id'],
-                                                         self.tenant_baz['id'],
-                                                         role_member['id'])
-        driver = self.identity_api._select_identity_driver(
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            user['id'], self.tenant_baz['id'], role_member['id']
+        )
+        driver = PROVIDERS.identity_api._select_identity_driver(
             user['domain_id'])
         driver.user.LDAP_USER = None
         driver.user.LDAP_PASSWORD = None
 
         self.assertRaises(AssertionError,
-                          self.identity_api.authenticate,
+                          PROVIDERS.identity_api.authenticate,
                           self.make_request(),
                           user_id=user['id'],
                           password=None)
@@ -738,22 +774,22 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # the LDAP write functionality has been deprecated.
         user_dict = self.new_user_ref(
             domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user_dict)
+        user = PROVIDERS.identity_api.create_user(user_dict)
         args, _kwargs = mock_deprecator.call_args
         self.assertIn("create_user for the LDAP identity backend", args[1])
 
         del user_dict['password']
-        user_ref = self.identity_api.get_user(user['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user['id'])
         user_ref_dict = {x: user_ref[x] for x in user_ref}
         self.assertDictContainsSubset(user_dict, user_ref_dict)
 
         user_dict['password'] = uuid.uuid4().hex
-        self.identity_api.update_user(user['id'], user_dict)
+        PROVIDERS.identity_api.update_user(user['id'], user_dict)
         args, _kwargs = mock_deprecator.call_args
         self.assertIn("update_user for the LDAP identity backend", args[1])
 
         del user_dict['password']
-        user_ref = self.identity_api.get_user(user['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user['id'])
         user_ref_dict = {x: user_ref[x] for x in user_ref}
         self.assertDictContainsSubset(user_dict, user_ref_dict)
 
@@ -767,27 +803,27 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # NOTE(stevemar): As of the Mitaka release, we now check for calls that
         # the LDAP write functionality has been deprecated.
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
         args, _kwargs = mock_deprecator.call_args
         self.assertIn("create_group for the LDAP identity backend", args[1])
 
-        group_ref = self.identity_api.get_group(group['id'])
+        group_ref = PROVIDERS.identity_api.get_group(group['id'])
         self.assertDictEqual(group, group_ref)
         group['description'] = uuid.uuid4().hex
-        self.identity_api.update_group(group['id'], group)
+        PROVIDERS.identity_api.update_group(group['id'], group)
         args, _kwargs = mock_deprecator.call_args
         self.assertIn("update_group for the LDAP identity backend", args[1])
 
-        group_ref = self.identity_api.get_group(group['id'])
+        group_ref = PROVIDERS.identity_api.get_group(group['id'])
         self.assertDictEqual(group, group_ref)
 
     @mock.patch.object(versionutils, 'report_deprecated_feature')
     def test_add_user_group_deprecated(self, mock_deprecator):
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        self.identity_api.add_user_to_group(user['id'], group['id'])
+        user = PROVIDERS.identity_api.create_user(user)
+        PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         args, _kwargs = mock_deprecator.call_args
         self.assertIn("add_user_to_group for the LDAP identity", args[1])
 
@@ -796,53 +832,64 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # Note(knikolla): Since delete logic has been deleted from LDAP,
         # this doesn't test caching on delete.
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
         # cache the result
-        self.identity_api.get_group(group['id'])
+        PROVIDERS.identity_api.get_group(group['id'])
         group['description'] = uuid.uuid4().hex
-        group_ref = self.identity_api.update_group(group['id'], group)
-        self.assertDictContainsSubset(self.identity_api.get_group(group['id']),
-                                      group_ref)
+        group_ref = PROVIDERS.identity_api.update_group(group['id'], group)
+        self.assertDictContainsSubset(
+            PROVIDERS.identity_api.get_group(group['id']), group_ref
+        )
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_get_user(self):
         # Note(knikolla): Since delete logic has been deleted from LDAP,
         # this doesn't test caching on delete.
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        ref = self.identity_api.get_user_by_name(user['name'],
-                                                 user['domain_id'])
+        user = PROVIDERS.identity_api.create_user(user)
+        ref = PROVIDERS.identity_api.get_user_by_name(
+            user['name'], user['domain_id']
+        )
         user['description'] = uuid.uuid4().hex
         # cache the result.
-        self.identity_api.get_user(ref['id'])
+        PROVIDERS.identity_api.get_user(ref['id'])
         # update using identity api and get back updated user.
-        user_updated = self.identity_api.update_user(ref['id'], user)
-        self.assertDictContainsSubset(self.identity_api.get_user(ref['id']),
-                                      user_updated)
+        user_updated = PROVIDERS.identity_api.update_user(ref['id'], user)
         self.assertDictContainsSubset(
-            self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
-            user_updated)
+            PROVIDERS.identity_api.get_user(ref['id']), user_updated
+        )
+        self.assertDictContainsSubset(
+            PROVIDERS.identity_api.get_user_by_name(
+                ref['name'], ref['domain_id']
+            ),
+            user_updated
+        )
 
     @unit.skip_if_cache_disabled('identity')
     def test_cache_layer_get_user_by_name(self):
         # Note(knikolla): Since delete logic has been deleted from LDAP,
         # this doesn't test caching on delete.
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        ref = self.identity_api.get_user_by_name(user['name'],
-                                                 user['domain_id'])
+        user = PROVIDERS.identity_api.create_user(user)
+        ref = PROVIDERS.identity_api.get_user_by_name(
+            user['name'], user['domain_id']
+        )
         user['description'] = uuid.uuid4().hex
-        user_updated = self.identity_api.update_user(ref['id'], user)
-        self.assertDictContainsSubset(self.identity_api.get_user(ref['id']),
-                                      user_updated)
+        user_updated = PROVIDERS.identity_api.update_user(ref['id'], user)
         self.assertDictContainsSubset(
-            self.identity_api.get_user_by_name(ref['name'], ref['domain_id']),
-            user_updated)
+            PROVIDERS.identity_api.get_user(ref['id']), user_updated
+        )
+        self.assertDictContainsSubset(
+            PROVIDERS.identity_api.get_user_by_name(
+                ref['name'], ref['domain_id']
+            ),
+            user_updated
+        )
 
     def test_create_user_none_mapping(self):
         # When create a user where an attribute maps to None, the entry is
         # created without that attribute and it doesn't fail with a TypeError.
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.attribute_ignore = ['enabled', 'email',
                                         'tenants', 'tenantId']
@@ -850,23 +897,23 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
                                  project_id='maps_to_none')
 
         # If this doesn't raise, then the test is successful.
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
 
     def test_unignored_user_none_mapping(self):
         # Ensure that an attribute that maps to None that is not explicitly
         # ignored in configuration is implicitly ignored without triggering
         # an error.
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.attribute_ignore = ['enabled', 'email',
                                         'tenants', 'tenantId']
 
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
-        user_ref = self.identity_api.create_user(user)
+        user_ref = PROVIDERS.identity_api.create_user(user)
 
         # If this doesn't raise, then the test is successful.
-        self.identity_api.get_user(user_ref['id'])
+        PROVIDERS.identity_api.get_user(user_ref['id'])
 
     def test_update_user_name(self):
         """A user's name cannot be changed through the LDAP driver."""
@@ -883,11 +930,11 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         user_id = u'Doe, John'
         user = self.new_user_ref(id=user_id,
                                  domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.driver.create_user(user_id, user)
+        user = PROVIDERS.identity_api.driver.create_user(user_id, user)
 
         # Now we'll use the manager to discover it, which will create a
         # Public ID for it.
-        ref_list = self.identity_api.list_users()
+        ref_list = PROVIDERS.identity_api.list_users()
         public_user_id = None
         for ref in ref_list:
             if ref['name'] == user['name']:
@@ -897,10 +944,10 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # Create a group
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         group_id = group['id']
-        group = self.identity_api.driver.create_group(group_id, group)
+        group = PROVIDERS.identity_api.driver.create_group(group_id, group)
         # Now we'll use the manager to discover it, which will create a
         # Public ID for it.
-        ref_list = self.identity_api.list_groups()
+        ref_list = PROVIDERS.identity_api.list_groups()
         public_group_id = None
         for ref in ref_list:
             if ref['name'] == group['name']:
@@ -908,10 +955,12 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
                 break
 
         # Put the user in the group
-        self.identity_api.add_user_to_group(public_user_id, public_group_id)
+        PROVIDERS.identity_api.add_user_to_group(
+            public_user_id, public_group_id
+        )
 
         # List groups for user.
-        ref_list = self.identity_api.list_groups_for_user(public_user_id)
+        ref_list = PROVIDERS.identity_api.list_groups_for_user(public_user_id)
 
         group['id'] = public_group_id
         self.assertThat(ref_list, matchers.Equals([group]))
@@ -926,11 +975,11 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         user_id = u'Doe, John'
         user = self.new_user_ref(id=user_id,
                                  domain_id=CONF.identity.default_domain_id)
-        self.identity_api.driver.create_user(user_id, user)
+        PROVIDERS.identity_api.driver.create_user(user_id, user)
 
         # Now we'll use the manager to discover it, which will create a
         # Public ID for it.
-        ref_list = self.identity_api.list_users()
+        ref_list = PROVIDERS.identity_api.list_users()
         public_user_id = None
         for ref in ref_list:
             if ref['name'] == user['name']:
@@ -942,12 +991,13 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         role_id = default_fixtures.MEMBER_ROLE_ID
         project_id = self.tenant_baz['id']
 
-        self.assignment_api.create_grant(role_id, user_id=public_user_id,
-                                         project_id=project_id)
+        PROVIDERS.assignment_api.create_grant(
+            role_id, user_id=public_user_id, project_id=project_id
+        )
 
-        role_ref = self.assignment_api.get_grant(role_id,
-                                                 user_id=public_user_id,
-                                                 project_id=project_id)
+        role_ref = PROVIDERS.assignment_api.get_grant(
+            role_id, user_id=public_user_id, project_id=project_id
+        )
 
         self.assertEqual(role_id, role_ref['id'])
 
@@ -962,11 +1012,13 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         self.load_backends()
 
         # Attempt to disable the user.
-        self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.update_user, self.user_foo['id'],
-                          {'enabled': False})
+        self.assertRaises(
+            exception.ForbiddenAction,
+            PROVIDERS.identity_api.update_user, self.user_foo['id'],
+            {'enabled': False}
+        )
 
-        user_info = self.identity_api.get_user(self.user_foo['id'])
+        user_info = PROVIDERS.identity_api.get_user(self.user_foo['id'])
 
         # If 'enabled' is ignored then 'enabled' isn't returned as part of the
         # ref.
@@ -985,14 +1037,14 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # There's no group fixture so create a group.
         new_domain = self._get_domain_fixture()
         new_group = unit.new_group_ref(domain_id=new_domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
 
         # Attempt to disable the group.
         self.assertRaises(exception.ForbiddenAction,
-                          self.identity_api.update_group, new_group['id'],
+                          PROVIDERS.identity_api.update_group, new_group['id'],
                           {'enabled': False})
 
-        group_info = self.identity_api.get_group(new_group['id'])
+        group_info = PROVIDERS.identity_api.get_group(new_group['id'])
 
         # If 'enabled' is ignored then 'enabled' isn't returned as part of the
         # ref.
@@ -1051,7 +1103,7 @@ class LDAPIdentity(BaseLDAPIdentity):
                          identity='ldap')
 
     def test_list_domains(self):
-        domains = self.resource_api.list_domains()
+        domains = PROVIDERS.resource_api.list_domains()
         default_domain = unit.new_domain_ref(
             description=u'The default domain',
             id=CONF.identity.default_domain_id,
@@ -1060,7 +1112,7 @@ class LDAPIdentity(BaseLDAPIdentity):
 
     def test_authenticate_wrong_credentials(self):
         self.assertRaises(exception.LDAPInvalidCredentialsError,
-                          self.identity_api.driver.user.get_connection,
+                          PROVIDERS.identity_api.driver.user.get_connection,
                           user='demo',
                           password='demo',
                           end_user_auth=True)
@@ -1068,16 +1120,16 @@ class LDAPIdentity(BaseLDAPIdentity):
     def test_configurable_allowed_project_actions(self):
         domain = self._get_domain_fixture()
         project = unit.new_project_ref(domain_id=domain['id'])
-        project = self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertEqual(project['id'], project_ref['id'])
 
         project['enabled'] = False
-        self.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
 
-        self.resource_api.delete_project(project['id'])
+        PROVIDERS.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project['id'])
 
     def test_user_enable_attribute_mask(self):
@@ -1088,7 +1140,7 @@ class LDAPIdentity(BaseLDAPIdentity):
 
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
-        user_ref = self.identity_api.create_user(user)
+        user_ref = PROVIDERS.identity_api.create_user(user)
 
         # Use assertIs rather than assertTrue because assertIs will assert the
         # value is a Boolean as expected.
@@ -1098,31 +1150,31 @@ class LDAPIdentity(BaseLDAPIdentity):
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([512], enabled_vals)
 
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         user['enabled'] = False
-        user_ref = self.identity_api.update_user(user_ref['id'], user)
+        user_ref = PROVIDERS.identity_api.update_user(user_ref['id'], user)
         self.assertIs(False, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([514], enabled_vals)
 
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(False, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         user['enabled'] = True
-        user_ref = self.identity_api.update_user(user_ref['id'], user)
+        user_ref = PROVIDERS.identity_api.update_user(user_ref['id'], user)
         self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([512], enabled_vals)
 
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
         self.assertNotIn('enabled_nomask', user_ref)
 
@@ -1141,43 +1193,43 @@ class LDAPIdentity(BaseLDAPIdentity):
 
         # Ensure that the LDAP attribute is False for a newly created
         # enabled user.
-        user_ref = self.identity_api.create_user(user1)
+        user_ref = PROVIDERS.identity_api.create_user(user1)
         self.assertIs(True, user_ref['enabled'])
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([False], enabled_vals)
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
 
         # Ensure that the LDAP attribute is True for a disabled user.
         user1['enabled'] = False
-        user_ref = self.identity_api.update_user(user_ref['id'], user1)
+        user_ref = PROVIDERS.identity_api.update_user(user_ref['id'], user1)
         self.assertIs(False, user_ref['enabled'])
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([True], enabled_vals)
 
         # Enable the user and ensure that the LDAP attribute is True again.
         user1['enabled'] = True
-        user_ref = self.identity_api.update_user(user_ref['id'], user1)
+        user_ref = PROVIDERS.identity_api.update_user(user_ref['id'], user1)
         self.assertIs(True, user_ref['enabled'])
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([False], enabled_vals)
 
         # Ensure that the LDAP attribute is True for a newly created
         # disabled user.
-        user_ref = self.identity_api.create_user(user2)
+        user_ref = PROVIDERS.identity_api.create_user(user2)
         self.assertIs(False, user_ref['enabled'])
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([True], enabled_vals)
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(False, user_ref['enabled'])
 
         # Ensure that the LDAP attribute is inverted for a newly created
         # user when the user_enabled_default setting is used.
-        user_ref = self.identity_api.create_user(user3)
+        user_ref = PROVIDERS.identity_api.create_user(user3)
         self.assertIs(True, user_ref['enabled'])
         enabled_vals = self.get_user_enabled_vals(user_ref)
         self.assertEqual([False], enabled_vals)
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
 
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
@@ -1354,8 +1406,8 @@ class LDAPIdentity(BaseLDAPIdentity):
         user = self.new_user_ref(name='EXTRA_ATTRIBUTES',
                                  password='extra',
                                  domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        dn, attrs = self.identity_api.driver.user._ldap_get(user['id'])
+        user = PROVIDERS.identity_api.create_user(user)
+        dn, attrs = PROVIDERS.identity_api.driver.user._ldap_get(user['id'])
         self.assertThat([user['name']], matchers.Equals(attrs['description']))
 
     def test_user_description_attribute_mapping(self):
@@ -1367,8 +1419,8 @@ class LDAPIdentity(BaseLDAPIdentity):
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id,
                                  displayName=uuid.uuid4().hex)
         description = user['displayName']
-        user = self.identity_api.create_user(user)
-        res = self.identity_api.driver.user.get_all()
+        user = PROVIDERS.identity_api.create_user(user)
+        res = PROVIDERS.identity_api.driver.user.get_all()
 
         new_user = [u for u in res if u['id'] == user['id']][0]
         self.assertThat(new_user['description'], matchers.Equals(description))
@@ -1385,15 +1437,15 @@ class LDAPIdentity(BaseLDAPIdentity):
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id,
                                  description=uuid.uuid4().hex)
         description = user['description']
-        user = self.identity_api.create_user(user)
-        res = self.identity_api.driver.user.get_all()
+        user = PROVIDERS.identity_api.create_user(user)
+        res = PROVIDERS.identity_api.driver.user.get_all()
 
         new_user = [u for u in res if u['id'] == user['id']][0]
         self.assertThat(new_user['description'], matchers.Equals(description))
 
     def test_user_with_missing_id(self):
         # create a user that doesn't have the id attribute
-        ldap_ = self.identity_api.driver.user.get_connection()
+        ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
         # `sn` is used for the attribute in the DN because it's allowed by
         # the entry's objectclasses so that this test could conceivably run in
         # the live tests.
@@ -1408,7 +1460,7 @@ class LDAPIdentity(BaseLDAPIdentity):
         ldap_.add_s(dn, modlist)
 
         # make sure the user doesn't break other users
-        users = self.identity_api.driver.user.get_all()
+        users = PROVIDERS.identity_api.driver.user.get_all()
         self.assertThat(users, matchers.HasLength(len(default_fixtures.USERS)))
 
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
@@ -1423,7 +1475,7 @@ class LDAPIdentity(BaseLDAPIdentity):
                 'cn': ['junk']
             }
         )
-        user = self.identity_api.get_user('junk')
+        user = PROVIDERS.identity_api.get_user('junk')
         self.assertEqual(mock_ldap_get.return_value[1]['sN'][0],
                          user['name'])
         self.assertEqual(mock_ldap_get.return_value[1]['MaIl'][0],
@@ -1433,7 +1485,9 @@ class LDAPIdentity(BaseLDAPIdentity):
         option_list = ['description:name', 'gecos:password',
                        'fake:invalid', 'invalid1', 'invalid2:',
                        'description:name:something']
-        mapping = self.identity_api.driver.user._parse_extra_attrs(option_list)
+        mapping = PROVIDERS.identity_api.driver.user._parse_extra_attrs(
+            option_list
+        )
         expected_dict = {'description': 'name', 'gecos': 'password',
                          'fake': 'invalid', 'invalid2': ''}
         self.assertDictEqual(expected_dict, mapping)
@@ -1441,7 +1495,7 @@ class LDAPIdentity(BaseLDAPIdentity):
     def test_create_domain(self):
         domain = unit.new_domain_ref()
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.create_domain,
+                          PROVIDERS.resource_api.create_domain,
                           domain['id'],
                           domain)
 
@@ -1450,7 +1504,7 @@ class LDAPIdentity(BaseLDAPIdentity):
         # domains are read-only, so case sensitivity isn't an issue
         ref = unit.new_domain_ref()
         self.assertRaises(exception.Forbidden,
-                          self.resource_api.create_domain,
+                          PROVIDERS.resource_api.create_domain,
                           ref['id'],
                           ref)
 
@@ -1473,19 +1527,19 @@ class LDAPIdentity(BaseLDAPIdentity):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
 
-        project = self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
 
         self.assertDictEqual(project, project_ref)
 
         project['description'] = uuid.uuid4().hex
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictEqual(project, project_ref)
 
-        self.resource_api.delete_project(project['id'])
+        PROVIDERS.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project['id'])
 
     @unit.skip_if_cache_disabled('assignment')
@@ -1497,59 +1551,62 @@ class LDAPIdentity(BaseLDAPIdentity):
             domain_id=CONF.identity.default_domain_id)
         project_id = project['id']
         # Create a project
-        project = self.resource_api.create_project(project_id, project)
-        self.resource_api.get_project(project_id)
+        project = PROVIDERS.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.get_project(project_id)
         updated_project = copy.deepcopy(project)
         updated_project['description'] = uuid.uuid4().hex
         # Update project, bypassing resource manager
-        self.resource_api.driver.update_project(project_id,
-                                                updated_project)
+        PROVIDERS.resource_api.driver.update_project(
+            project_id, updated_project
+        )
         # Verify get_project still returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.resource_api.get_project(project_id))
+            project, PROVIDERS.resource_api.get_project(project_id))
         # Invalidate cache
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 project_id)
+        PROVIDERS.resource_api.get_project.invalidate(
+            PROVIDERS.resource_api, project_id
+        )
         # Verify get_project now returns the new project
         self.assertDictContainsSubset(
             updated_project,
-            self.resource_api.get_project(project_id))
+            PROVIDERS.resource_api.get_project(project_id))
         # Update project using the resource_api manager back to original
-        self.resource_api.update_project(project['id'], project)
+        PROVIDERS.resource_api.update_project(project['id'], project)
         # Verify get_project returns the original project_ref
         self.assertDictContainsSubset(
-            project, self.resource_api.get_project(project_id))
+            project, PROVIDERS.resource_api.get_project(project_id))
         # Delete project bypassing resource_api
-        self.resource_api.driver.delete_project(project_id)
+        PROVIDERS.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
         self.assertDictContainsSubset(
-            project, self.resource_api.get_project(project_id))
+            project, PROVIDERS.resource_api.get_project(project_id))
         # Invalidate cache
-        self.resource_api.get_project.invalidate(self.resource_api,
-                                                 project_id)
+        PROVIDERS.resource_api.get_project.invalidate(
+            PROVIDERS.resource_api, project_id
+        )
         # Verify ProjectNotFound now raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project_id)
         # recreate project
-        self.resource_api.create_project(project_id, project)
-        self.resource_api.get_project(project_id)
+        PROVIDERS.resource_api.create_project(project_id, project)
+        PROVIDERS.resource_api.get_project(project_id)
         # delete project
-        self.resource_api.delete_project(project_id)
+        PROVIDERS.resource_api.delete_project(project_id)
         # Verify ProjectNotFound is raised
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project_id)
 
     def test_update_is_domain_field(self):
         domain = self._get_domain_fixture()
         project = unit.new_project_ref(domain_id=domain['id'])
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
 
         # Try to update the is_domain field to True
         project['is_domain'] = True
         self.assertRaises(exception.ValidationError,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project['id'], project)
 
     def test_multi_role_grant_by_user_group_on_project_domain(self):
@@ -1561,20 +1618,20 @@ class LDAPIdentity(BaseLDAPIdentity):
         role_list = []
         for _ in range(2):
             role = unit.new_role_ref()
-            self.role_api.create_role(role['id'], role)
+            PROVIDERS.role_api.create_role(role['id'], role)
             role_list.append(role)
 
         user1 = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         project1 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
 
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=user1['id'],
             tenant_id=project1['id'],
             role_id=role_list[0]['id'])
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=user1['id'],
             tenant_id=project1['id'],
             role_id=role_list[1]['id'])
@@ -1584,9 +1641,11 @@ class LDAPIdentity(BaseLDAPIdentity):
         # and group roles are combined.  Only directly assigned user
         # roles are available, since group grants are not yet supported
 
-        combined_list = self.assignment_api.get_roles_for_user_and_project(
-            user1['id'],
-            project1['id'])
+        combined_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user1['id'], project1['id']
+            )
+        )
         self.assertEqual(2, len(combined_list))
         self.assertIn(role_list[0]['id'], combined_list)
         self.assertIn(role_list[1]['id'], combined_list)
@@ -1595,14 +1654,17 @@ class LDAPIdentity(BaseLDAPIdentity):
         # issue the combined get roles call with benign results, since thus is
         # used in token generation
 
-        combined_role_list = self.assignment_api.get_roles_for_user_and_domain(
-            user1['id'], CONF.identity.default_domain_id)
+        combined_role_list = (
+            PROVIDERS.assignment_api.get_roles_for_user_and_domain(
+                user1['id'], CONF.identity.default_domain_id
+            )
+        )
         self.assertEqual(0, len(combined_role_list))
 
     def test_get_default_domain_by_name(self):
         domain = self._get_domain_fixture()
 
-        domain_ref = self.resource_api.get_domain_by_name(domain['name'])
+        domain_ref = PROVIDERS.resource_api.get_domain_by_name(domain['name'])
         self.assertEqual(domain_ref, domain)
 
     def test_base_ldap_connection_deref_option(self):
@@ -1633,7 +1695,7 @@ class LDAPIdentity(BaseLDAPIdentity):
                          conn.get_option(ldap.OPT_DEREF))
 
     def test_list_users_no_dn(self):
-        users = self.identity_api.list_users()
+        users = PROVIDERS.identity_api.list_users()
         self.assertEqual(len(default_fixtures.USERS), len(users))
         user_ids = set(user['id'] for user in users)
         expected_user_ids = set(getattr(self, 'user_%s' % user['name'])['id']
@@ -1649,10 +1711,10 @@ class LDAPIdentity(BaseLDAPIdentity):
         numgroups = 3
         for _ in range(numgroups):
             group = unit.new_group_ref(domain_id=domain['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             expected_group_ids.append(group['id'])
         # Fetch the test groups and ensure that they don't contain a dn.
-        groups = self.identity_api.list_groups()
+        groups = PROVIDERS.identity_api.list_groups()
         self.assertEqual(numgroups, len(groups))
         group_ids = set(group['id'] for group in groups)
         for group_ref in groups:
@@ -1662,19 +1724,19 @@ class LDAPIdentity(BaseLDAPIdentity):
     def test_list_groups_for_user_no_dn(self):
         # Create a test user.
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
+        user = PROVIDERS.identity_api.create_user(user)
         # Create some test groups and add the test user as a member.
         domain = self._get_domain_fixture()
         expected_group_ids = []
         numgroups = 3
         for _ in range(numgroups):
             group = unit.new_group_ref(domain_id=domain['id'])
-            group = self.identity_api.create_group(group)
+            group = PROVIDERS.identity_api.create_group(group)
             expected_group_ids.append(group['id'])
-            self.identity_api.add_user_to_group(user['id'], group['id'])
+            PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         # Fetch the groups for the test user
         # and ensure they don't contain a dn.
-        groups = self.identity_api.list_groups_for_user(user['id'])
+        groups = PROVIDERS.identity_api.list_groups_for_user(user['id'])
         self.assertEqual(numgroups, len(groups))
         group_ids = set(group['id'] for group in groups)
         for group_ref in groups:
@@ -1682,30 +1744,30 @@ class LDAPIdentity(BaseLDAPIdentity):
         self.assertEqual(set(expected_group_ids), group_ids)
 
     def test_user_id_attribute_in_create(self):
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.id_attr = 'mail'
 
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = self.identity_api.create_user(user)
-        user_ref = self.identity_api.get_user(user['id'])
+        user = PROVIDERS.identity_api.create_user(user)
+        user_ref = PROVIDERS.identity_api.get_user(user['id'])
         # 'email' attribute should've created because it is also being used
         # as user_id
         self.assertEqual(user_ref['id'], user_ref['email'])
 
     def test_user_id_attribute_map(self):
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.id_attr = 'mail'
 
-        user_ref = self.identity_api.get_user(self.user_foo['email'])
+        user_ref = PROVIDERS.identity_api.get_user(self.user_foo['email'])
         # the user_id_attribute map should be honored, which means
         # user_ref['id'] should contains the email attribute
         self.assertEqual(self.user_foo['email'], user_ref['id'])
 
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
     def test_get_id_from_dn_for_multivalued_attribute_id(self, mock_ldap_get):
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.id_attr = 'mail'
 
@@ -1721,7 +1783,7 @@ class LDAPIdentity(BaseLDAPIdentity):
             }
         )
 
-        user_ref = self.identity_api.get_user(email1)
+        user_ref = PROVIDERS.identity_api.get_user(email1)
         # make sure we get the ID from DN (old behavior) if the ID attribute
         # has multiple values
         self.assertEqual('nobodycares', user_ref['id'])
@@ -1742,7 +1804,7 @@ class LDAPIdentity(BaseLDAPIdentity):
 
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
     def test_user_id_not_in_dn(self, mock_ldap_get):
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.id_attr = 'uid'
         driver.user.attribute_mapping['name'] = 'cn'
@@ -1756,13 +1818,13 @@ class LDAPIdentity(BaseLDAPIdentity):
                 'uid': ['crap']
             }
         )
-        user_ref = self.identity_api.get_user('crap')
+        user_ref = PROVIDERS.identity_api.get_user('crap')
         self.assertEqual('crap', user_ref['id'])
         self.assertEqual('junk', user_ref['name'])
 
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
     def test_user_name_in_dn(self, mock_ldap_get):
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.id_attr = 'SAMAccountName'
         driver.user.attribute_mapping['name'] = 'cn'
@@ -1775,7 +1837,7 @@ class LDAPIdentity(BaseLDAPIdentity):
                 'SAMAccountName': ['crap']
             }
         )
-        user_ref = self.identity_api.get_user('crap')
+        user_ref = PROVIDERS.identity_api.get_user('crap')
         self.assertEqual('crap', user_ref['id'])
         self.assertEqual('Foo Bar', user_ref['name'])
 
@@ -1789,12 +1851,12 @@ class LDAPIdentity(BaseLDAPIdentity):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
         with mock.patch.object(
             ldap_identity.Identity, '_disallow_write'
         ) as mocked:
             mocked.side_effect = exception.Forbidden()
-            self.resource_api.delete_project(project['id'])
+            PROVIDERS.resource_api.delete_project(project['id'])
 
         mocked.assert_called_once()
 
@@ -1853,30 +1915,30 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id)
 
-        project = self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
 
-        # self.resource_api.create_project adds an enabled
+        # PROVIDERS.resource_api.create_project adds an enabled
         # key with a value of True when LDAPIdentityEnabledEmulation
         # is used so we now add this expected key to the project dictionary
         project['enabled'] = True
         self.assertDictEqual(project, project_ref)
 
         project['description'] = uuid.uuid4().hex
-        self.resource_api.update_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.update_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictEqual(project, project_ref)
 
-        self.resource_api.delete_project(project['id'])
+        PROVIDERS.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project['id'])
 
     def test_user_auth_emulated(self):
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.enabled_emulation_dn = 'cn=test,dc=test'
-        self.identity_api.authenticate(
+        PROVIDERS.identity_api.authenticate(
             self.make_request(),
             user_id=self.user_foo['id'],
             password=self.user_foo['password'])
@@ -1897,11 +1959,11 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         # Create a user and ensure they are enabled.
         user1 = unit.new_user_ref(enabled=True,
                                   domain_id=CONF.identity.default_domain_id)
-        user_ref = self.identity_api.create_user(user1)
+        user_ref = PROVIDERS.identity_api.create_user(user1)
         self.assertIs(True, user_ref['enabled'])
 
         # Get a user and ensure they are enabled.
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
 
     def test_user_enabled_invert(self):
@@ -1919,39 +1981,39 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
 
         # Ensure that the enabled LDAP attribute is not set for a
         # newly created enabled user.
-        user_ref = self.identity_api.create_user(user1)
+        user_ref = PROVIDERS.identity_api.create_user(user1)
         self.assertIs(True, user_ref['enabled'])
         self.assertIsNone(self.get_user_enabled_vals(user_ref))
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
 
         # Ensure that an enabled LDAP attribute is not set for a disabled user.
         user1['enabled'] = False
-        user_ref = self.identity_api.update_user(user_ref['id'], user1)
+        user_ref = PROVIDERS.identity_api.update_user(user_ref['id'], user1)
         self.assertIs(False, user_ref['enabled'])
         self.assertIsNone(self.get_user_enabled_vals(user_ref))
 
         # Enable the user and ensure that the LDAP enabled
         # attribute is not set.
         user1['enabled'] = True
-        user_ref = self.identity_api.update_user(user_ref['id'], user1)
+        user_ref = PROVIDERS.identity_api.update_user(user_ref['id'], user1)
         self.assertIs(True, user_ref['enabled'])
         self.assertIsNone(self.get_user_enabled_vals(user_ref))
 
         # Ensure that the LDAP enabled attribute is not set for a
         # newly created disabled user.
-        user_ref = self.identity_api.create_user(user2)
+        user_ref = PROVIDERS.identity_api.create_user(user2)
         self.assertIs(False, user_ref['enabled'])
         self.assertIsNone(self.get_user_enabled_vals(user_ref))
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(False, user_ref['enabled'])
 
         # Ensure that the LDAP enabled attribute is not set for a newly created
         # user when the user_enabled_default setting is used.
-        user_ref = self.identity_api.create_user(user3)
+        user_ref = PROVIDERS.identity_api.create_user(user3)
         self.assertIs(True, user_ref['enabled'])
         self.assertIsNone(self.get_user_enabled_vals(user_ref))
-        user_ref = self.identity_api.get_user(user_ref['id'])
+        user_ref = PROVIDERS.identity_api.get_user(user_ref['id'])
         self.assertIs(True, user_ref['enabled'])
 
     def test_user_enabled_invert_default_str_value(self):
@@ -1983,7 +2045,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         # user.
 
         object_id = uuid.uuid4().hex
-        driver = self.identity_api._select_identity_driver(
+        driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
 
         # driver.user is the EnabledEmuMixIn implementation used for this test.
@@ -2029,34 +2091,38 @@ class LDAPPosixGroupsTest(LDAPTestSetup, unit.TestCase):
 
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""
-        return self.resource_api.get_domain(CONF.identity.default_domain_id)
+        return PROVIDERS.resource_api.get_domain(
+            CONF.identity.default_domain_id
+        )
 
     def test_posix_member_id(self):
         domain = self._get_domain_fixture()
         new_group = unit.new_group_ref(domain_id=domain['id'])
-        new_group = self.identity_api.create_group(new_group)
+        new_group = PROVIDERS.identity_api.create_group(new_group)
         # Make sure we get an empty list back on a new group, not an error.
-        user_refs = self.identity_api.list_users_in_group(new_group['id'])
+        user_refs = PROVIDERS.identity_api.list_users_in_group(new_group['id'])
         self.assertEqual([], user_refs)
         # Make sure we get the correct users back once they have been added
         # to the group.
         new_user = unit.new_user_ref(domain_id=domain['id'])
-        new_user = self.identity_api.create_user(new_user)
+        new_user = PROVIDERS.identity_api.create_user(new_user)
 
         # NOTE(amakarov): Create the group directly using LDAP operations
         # rather than going through the manager.
-        group_api = self.identity_api.driver.group
+        group_api = PROVIDERS.identity_api.driver.group
         group_ref = group_api.get(new_group['id'])
         mod = (ldap.MOD_ADD, group_api.member_attribute, new_user['id'])
         conn = group_api.get_connection()
         conn.modify_s(group_ref['dn'], [mod])
 
         # Testing the case "the group contains a user"
-        user_refs = self.identity_api.list_users_in_group(new_group['id'])
+        user_refs = PROVIDERS.identity_api.list_users_in_group(new_group['id'])
         self.assertIn(new_user['id'], (x['id'] for x in user_refs))
 
         # Testing the case "the user is a member of a group"
-        group_refs = self.identity_api.list_groups_for_user(new_user['id'])
+        group_refs = PROVIDERS.identity_api.list_groups_for_user(
+            new_user['id']
+        )
         self.assertIn(new_group['id'], (x['id'] for x in group_refs))
 
 
@@ -2100,32 +2166,32 @@ class LdapIdentityWithMapping(
         """
         initial_mappings = len(mapping_sql.list_id_mappings())
         user1 = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         user2 = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user2 = self.identity_api.create_user(user2)
+        user2 = PROVIDERS.identity_api.create_user(user2)
         mappings = mapping_sql.list_id_mappings()
         self.assertEqual(initial_mappings + 2, len(mappings))
 
         # Now delete the mappings for the two users above
-        self.id_mapping_api.purge_mappings({'public_id': user1['id']})
-        self.id_mapping_api.purge_mappings({'public_id': user2['id']})
+        PROVIDERS.id_mapping_api.purge_mappings({'public_id': user1['id']})
+        PROVIDERS.id_mapping_api.purge_mappings({'public_id': user2['id']})
 
         # We should no longer be able to get these users via their old IDs
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
+                          PROVIDERS.identity_api.get_user,
                           user1['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
+                          PROVIDERS.identity_api.get_user,
                           user2['id'])
 
         # Now enumerate all users...this should re-build the mapping, and
         # we should be able to find the users via their original public IDs.
-        self.identity_api.list_users()
-        self.identity_api.get_user(user1['id'])
-        self.identity_api.get_user(user2['id'])
+        PROVIDERS.identity_api.list_users()
+        PROVIDERS.identity_api.get_user(user1['id'])
+        PROVIDERS.identity_api.get_user(user2['id'])
 
     def test_list_domains(self):
-        domains = self.resource_api.list_domains()
+        domains = PROVIDERS.resource_api.list_domains()
         default_domain = unit.new_domain_ref(
             description=u'The default domain',
             id=CONF.identity.default_domain_id,
@@ -2144,17 +2210,17 @@ class BaseMultiLDAPandSQLIdentity(object):
         users = {}
 
         users['user0'] = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             self.domain_default['id'])
-        self.assignment_api.create_grant(
+        PROVIDERS.assignment_api.create_grant(
             user_id=users['user0']['id'],
             domain_id=self.domain_default['id'],
             role_id=self.role_member['id'])
         for x in range(1, self.domain_count):
             users['user%s' % x] = unit.create_user(
-                self.identity_api,
+                PROVIDERS.identity_api,
                 self.domains['domain%s' % x]['id'])
-            self.assignment_api.create_grant(
+            PROVIDERS.assignment_api.create_grant(
                 user_id=users['user%s' % x]['id'],
                 domain_id=self.domains['domain%s' % x]['id'],
                 role_id=self.role_member['id'])
@@ -2174,14 +2240,14 @@ class BaseMultiLDAPandSQLIdentity(object):
         ended up in the correct backend.
 
         """
-        driver = self.identity_api._select_identity_driver(domain_id)
+        driver = PROVIDERS.identity_api._select_identity_driver(domain_id)
         unused, unused, entity_id = (
-            self.identity_api._get_domain_driver_and_entity_id(
+            PROVIDERS.identity_api._get_domain_driver_and_entity_id(
                 user['id']))
 
         if expected_status == http_client.OK:
             ref = driver.get_user(entity_id)
-            ref = self.identity_api._set_domain_id_and_mapping(
+            ref = PROVIDERS.identity_api._set_domain_id_and_mapping(
                 ref, domain_id, driver, map.EntityType.USER)
             user = user.copy()
             del user['password']
@@ -2199,11 +2265,11 @@ class BaseMultiLDAPandSQLIdentity(object):
 
         def create_domain(domain):
             try:
-                ref = self.resource_api.create_domain(
+                ref = PROVIDERS.resource_api.create_domain(
                     domain['id'], domain)
             except exception.Conflict:
                 ref = (
-                    self.resource_api.get_domain_by_name(domain['name']))
+                    PROVIDERS.resource_api.get_domain_by_name(domain['name']))
             return ref
 
         self.domains = {}
@@ -2218,7 +2284,7 @@ class BaseMultiLDAPandSQLIdentity(object):
 
         for user_num in range(self.domain_count):
             user = 'user%s' % user_num
-            self.identity_api.authenticate(
+            PROVIDERS.identity_api.authenticate(
                 self.make_request(),
                 user_id=users[user]['id'],
                 password=users[user]['password'])
@@ -2291,7 +2357,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
     def get_config(self, domain_id):
         # Get the config for this domain, will return CONF
         # if no specific config defined for this domain
-        return self.identity_api.domain_configs.get_domain_conf(domain_id)
+        return PROVIDERS.identity_api.domain_configs.get_domain_conf(domain_id)
 
     def test_list_users(self):
         _users = self.create_users_across_domains()
@@ -2299,7 +2365,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # Override the standard list users, since we have added an extra user
         # to the default domain, so the number of expected users is one more
         # than in the standard test.
-        users = self.identity_api.list_users(
+        users = PROVIDERS.identity_api.list_users(
             domain_scope=self._set_domain_scope(
                 CONF.identity.default_domain_id))
         self.assertEqual(len(default_fixtures.USERS) + 1, len(users))
@@ -2316,7 +2382,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # passiging hints is important, because if it's not passed, limiting
         # is considered be disabled
         hints = driver_hints.Hints()
-        self.identity_api.list_users(
+        PROVIDERS.identity_api.list_users(
             domain_scope=self.domains['domain2']['id'],
             hints=hints)
         # since list_limit is not specified in keystone.domain2.conf, it should
@@ -2331,7 +2397,7 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         # passiging hints is important, because if it's not passed, limiting
         # is considered to be disabled
         hints = driver_hints.Hints()
-        self.identity_api.list_users(
+        PROVIDERS.identity_api.list_users(
             domain_scope=self.domains['domain1']['id'],
             hints=hints)
         # this should have the list_limit set in Keystone.domain1.conf, which
@@ -2414,14 +2480,14 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
                        self.domains['domain2']['id'],
                        self.domains['domain4']['id']]:
             self.assertThat(
-                self.identity_api.list_users(domain_scope=domain),
+                PROVIDERS.identity_api.list_users(domain_scope=domain),
                 matchers.HasLength(1))
 
         # domain3 had a user created before we switched on
         # multiple backends, plus one created afterwards - and its
         # backend has not changed - so we should find two.
         self.assertThat(
-            self.identity_api.list_users(
+            PROVIDERS.identity_api.list_users(
                 domain_scope=self.domains['domain3']['id']),
             matchers.HasLength(1))
 
@@ -2433,17 +2499,17 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
 
         """
         userA = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             self.domain_default['id'])
         userB = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             self.domains['domain1']['id'])
         userC = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             self.domains['domain3']['id'])
-        self.identity_api.get_user(userA['id'])
-        self.identity_api.get_user(userB['id'])
-        self.identity_api.get_user(userC['id'])
+        PROVIDERS.identity_api.get_user(userA['id'])
+        PROVIDERS.identity_api.get_user(userB['id'])
+        PROVIDERS.identity_api.get_user(userC['id'])
 
     def test_scanning_of_config_dir(self):
         """Test the Manager class scans the config directory.
@@ -2459,22 +2525,22 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         self.assertTrue(CONF.identity.domain_specific_drivers_enabled)
         self.load_backends()
         # Execute any command to trigger the lazy loading of domain configs
-        self.identity_api.list_users(
+        PROVIDERS.identity_api.list_users(
             domain_scope=self.domains['domain1']['id'])
         # ...and now check the domain configs have been set up
-        self.assertIn('default', self.identity_api.domain_configs)
+        self.assertIn('default', PROVIDERS.identity_api.domain_configs)
         self.assertIn(self.domains['domain1']['id'],
-                      self.identity_api.domain_configs)
+                      PROVIDERS.identity_api.domain_configs)
         self.assertIn(self.domains['domain2']['id'],
-                      self.identity_api.domain_configs)
+                      PROVIDERS.identity_api.domain_configs)
         self.assertNotIn(self.domains['domain3']['id'],
-                         self.identity_api.domain_configs)
+                         PROVIDERS.identity_api.domain_configs)
         self.assertNotIn(self.domains['domain4']['id'],
-                         self.identity_api.domain_configs)
+                         PROVIDERS.identity_api.domain_configs)
 
         # Finally check that a domain specific config contains items from both
         # the primary config and the domain specific config
-        conf = self.identity_api.domain_configs.get_domain_conf(
+        conf = PROVIDERS.identity_api.domain_configs.get_domain_conf(
             self.domains['domain1']['id'])
         # This should now be false, as is the default, since this is not
         # set in the standard primary config file
@@ -2485,22 +2551,24 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
     def test_delete_domain_with_user_added(self):
         domain = unit.new_domain_ref()
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_domain(domain['id'], domain)
-        project = self.resource_api.create_project(project['id'], project)
-        project_ref = self.resource_api.get_project(project['id'])
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        project_ref = PROVIDERS.resource_api.get_project(project['id'])
         self.assertDictEqual(project, project_ref)
 
-        self.assignment_api.create_grant(user_id=self.user_foo['id'],
-                                         project_id=project['id'],
-                                         role_id=self.role_member['id'])
-        self.assignment_api.delete_grant(user_id=self.user_foo['id'],
-                                         project_id=project['id'],
-                                         role_id=self.role_member['id'])
+        PROVIDERS.assignment_api.create_grant(
+            user_id=self.user_foo['id'], project_id=project['id'],
+            role_id=self.role_member['id']
+        )
+        PROVIDERS.assignment_api.delete_grant(
+            user_id=self.user_foo['id'], project_id=project['id'],
+            role_id=self.role_member['id']
+        )
         domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
-        self.resource_api.delete_domain(domain['id'])
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
+        PROVIDERS.resource_api.delete_domain(domain['id'])
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           domain['id'])
 
     def test_user_enabled_ignored_disable_error(self):
@@ -2561,8 +2629,8 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        project = self.resource_api.create_project(project['id'], project)
-        self.resource_api.delete_project(project['id'])
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.delete_project(project['id'])
         ldap_mock.assert_called_with(project['id'])
         sql_mock.assert_called_with(project['id'])
 
@@ -2614,12 +2682,15 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
             'identity': {'driver': 'ldap'}
         }
 
-        self.domain_config_api.create_config(CONF.identity.default_domain_id,
-                                             default_config)
-        self.domain_config_api.create_config(self.domains['domain1']['id'],
-                                             domain1_config)
-        self.domain_config_api.create_config(self.domains['domain2']['id'],
-                                             domain2_config)
+        PROVIDERS.domain_config_api.create_config(
+            CONF.identity.default_domain_id, default_config
+        )
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain1']['id'], domain1_config
+        )
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain2']['id'], domain2_config
+        )
 
         self.config_fixture.config(
             group='identity', domain_specific_drivers_enabled=True,
@@ -2639,28 +2710,28 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
             group='identity', domain_configurations_from_database=False)
         self.load_backends()
         new_config = {'ldap': {'url': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
         # Trigger the identity backend to initialise any domain specific
         # configurations
-        self.identity_api.list_users()
+        PROVIDERS.identity_api.list_users()
         # Check that the new config has not been passed to the driver for
         # the default domain.
         default_config = (
-            self.identity_api.domain_configs.get_domain_conf(
+            PROVIDERS.identity_api.domain_configs.get_domain_conf(
                 CONF.identity.default_domain_id))
         self.assertEqual(CONF.ldap.url, default_config.ldap.url)
 
     def test_reloading_domain_config(self):
         """Ensure domain drivers are reloaded on a config modification."""
-        domain_cfgs = self.identity_api.domain_configs
+        domain_cfgs = PROVIDERS.identity_api.domain_configs
 
         # Create a new config for the default domain, hence overwriting the
         # current settings.
         new_config = {
             'ldap': {'url': uuid.uuid4().hex},
             'identity': {'driver': 'ldap'}}
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
         default_config = (
             domain_cfgs.get_domain_conf(CONF.identity.default_domain_id))
@@ -2668,7 +2739,7 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
         # Ensure updating is also honored
         updated_config = {'url': uuid.uuid4().hex}
-        self.domain_config_api.update_config(
+        PROVIDERS.domain_config_api.update_config(
             CONF.identity.default_domain_id, updated_config,
             group='ldap', option='url')
         default_config = (
@@ -2677,7 +2748,9 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
 
         # ...and finally ensure delete causes the driver to get the standard
         # config again.
-        self.domain_config_api.delete_config(CONF.identity.default_domain_id)
+        PROVIDERS.domain_config_api.delete_config(
+            CONF.identity.default_domain_id
+        )
         default_config = (
             domain_cfgs.get_domain_conf(CONF.identity.default_domain_id))
         self.assertEqual(CONF.ldap.url, default_config.ldap.url)
@@ -2685,74 +2758,87 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
     def test_setting_multiple_sql_driver_raises_exception(self):
         """Ensure setting multiple domain specific sql drivers is prevented."""
         new_config = {'identity': {'driver': 'sql'}}
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
-        self.identity_api.domain_configs.get_domain_conf(
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(
             CONF.identity.default_domain_id)
-        self.domain_config_api.create_config(self.domains['domain1']['id'],
-                                             new_config)
-        self.assertRaises(exception.MultipleSQLDriversInConfig,
-                          self.identity_api.domain_configs.get_domain_conf,
-                          self.domains['domain1']['id'])
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain1']['id'], new_config
+        )
+        self.assertRaises(
+            exception.MultipleSQLDriversInConfig,
+            PROVIDERS.identity_api.domain_configs.get_domain_conf,
+            self.domains['domain1']['id']
+        )
 
     def test_same_domain_gets_sql_driver(self):
         """Ensure we can set an SQL driver if we have had it before."""
         new_config = {'identity': {'driver': 'sql'}}
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
-        self.identity_api.domain_configs.get_domain_conf(
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(
             CONF.identity.default_domain_id)
 
         # By using a slightly different config, we cause the driver to be
         # reloaded...and hence check if we can reuse the sql driver
         new_config = {'identity': {'driver': 'sql'},
                       'ldap': {'url': 'fake://memory1'}}
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             CONF.identity.default_domain_id, new_config)
-        self.identity_api.domain_configs.get_domain_conf(
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(
             CONF.identity.default_domain_id)
 
     def test_delete_domain_clears_sql_registration(self):
         """Ensure registration is deleted when a domain is deleted."""
         domain = unit.new_domain_ref()
-        domain = self.resource_api.create_domain(domain['id'], domain)
+        domain = PROVIDERS.resource_api.create_domain(domain['id'], domain)
         new_config = {'identity': {'driver': 'sql'}}
-        self.domain_config_api.create_config(domain['id'], new_config)
-        self.identity_api.domain_configs.get_domain_conf(domain['id'])
+        PROVIDERS.domain_config_api.create_config(domain['id'], new_config)
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(domain['id'])
 
         # First show that trying to set SQL for another driver fails
-        self.domain_config_api.create_config(self.domains['domain1']['id'],
-                                             new_config)
-        self.assertRaises(exception.MultipleSQLDriversInConfig,
-                          self.identity_api.domain_configs.get_domain_conf,
-                          self.domains['domain1']['id'])
-        self.domain_config_api.delete_config(self.domains['domain1']['id'])
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain1']['id'], new_config
+        )
+        self.assertRaises(
+            exception.MultipleSQLDriversInConfig,
+            PROVIDERS.identity_api.domain_configs.get_domain_conf,
+            self.domains['domain1']['id']
+        )
+        PROVIDERS.domain_config_api.delete_config(
+            self.domains['domain1']['id']
+        )
 
         # Now we delete the domain
         domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
-        self.resource_api.delete_domain(domain['id'])
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
+        PROVIDERS.resource_api.delete_domain(domain['id'])
 
         # The registration should now be available
-        self.domain_config_api.create_config(self.domains['domain1']['id'],
-                                             new_config)
-        self.identity_api.domain_configs.get_domain_conf(
-            self.domains['domain1']['id'])
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain1']['id'], new_config
+        )
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(
+            self.domains['domain1']['id']
+        )
 
     def test_orphaned_registration_does_not_prevent_getting_sql_driver(self):
         """Ensure we self heal an orphaned sql registration."""
         domain = unit.new_domain_ref()
-        domain = self.resource_api.create_domain(domain['id'], domain)
+        domain = PROVIDERS.resource_api.create_domain(domain['id'], domain)
         new_config = {'identity': {'driver': 'sql'}}
-        self.domain_config_api.create_config(domain['id'], new_config)
-        self.identity_api.domain_configs.get_domain_conf(domain['id'])
+        PROVIDERS.domain_config_api.create_config(domain['id'], new_config)
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(domain['id'])
 
         # First show that trying to set SQL for another driver fails
-        self.domain_config_api.create_config(self.domains['domain1']['id'],
-                                             new_config)
-        self.assertRaises(exception.MultipleSQLDriversInConfig,
-                          self.identity_api.domain_configs.get_domain_conf,
-                          self.domains['domain1']['id'])
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain1']['id'], new_config
+        )
+        self.assertRaises(
+            exception.MultipleSQLDriversInConfig,
+            PROVIDERS.identity_api.domain_configs.get_domain_conf,
+            self.domains['domain1']['id']
+        )
 
         # Now we delete the domain by using the backend driver directly,
         # which causes the domain to be deleted without any of the cleanup
@@ -2762,15 +2848,16 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
         # should still be able to set another domain to SQL, since we should
         # self heal this issue.
 
-        self.resource_api.driver.delete_project(domain['id'])
+        PROVIDERS.resource_api.driver.delete_project(domain['id'])
         # Invalidate cache (so we will see the domain has gone)
-        self.resource_api.get_domain.invalidate(
-            self.resource_api, domain['id'])
+        PROVIDERS.resource_api.get_domain.invalidate(
+            PROVIDERS.resource_api, domain['id'])
 
         # The registration should now be available
-        self.domain_config_api.create_config(self.domains['domain1']['id'],
-                                             new_config)
-        self.identity_api.domain_configs.get_domain_conf(
+        PROVIDERS.domain_config_api.create_config(
+            self.domains['domain1']['id'], new_config
+        )
+        PROVIDERS.identity_api.domain_configs.get_domain_conf(
             self.domains['domain1']['id'])
 
 
@@ -2831,7 +2918,7 @@ class DomainSpecificLDAPandSQLIdentity(
     def get_config(self, domain_id):
         # Get the config for this domain, will return CONF
         # if no specific config defined for this domain
-        return self.identity_api.domain_configs.get_domain_conf(domain_id)
+        return PROVIDERS.identity_api.domain_configs.get_domain_conf(domain_id)
 
     def test_list_domains(self):
         self.skip_test_overrides('N/A: Not relevant for multi ldap testing')
@@ -2849,7 +2936,7 @@ class DomainSpecificLDAPandSQLIdentity(
         # Override the standard list users, since we have added an extra user
         # to the default domain, so the number of expected users is one more
         # than in the standard test.
-        users = self.identity_api.list_users(
+        users = PROVIDERS.identity_api.list_users(
             domain_scope=self._set_domain_scope(
                 CONF.identity.default_domain_id))
         self.assertEqual(len(default_fixtures.USERS) + 1, len(users))
@@ -2892,7 +2979,7 @@ class DomainSpecificLDAPandSQLIdentity(
         # only see the right number of users in the non-default domain.
 
         self.assertThat(
-            self.identity_api.list_users(
+            PROVIDERS.identity_api.list_users(
                 domain_scope=self.domains['domain1']['id']),
             matchers.HasLength(1))
 
@@ -2902,13 +2989,13 @@ class DomainSpecificLDAPandSQLIdentity(
         # get_domain_mapping_list solves this problem and should be used
         # when multiple users are fetched from domain-specific backend.
         for i in range(5):
-            unit.create_user(self.identity_api,
+            unit.create_user(PROVIDERS.identity_api,
                              domain_id=self.domains['domain1']['id'])
 
-        with mock.patch.multiple(self.id_mapping_api,
+        with mock.patch.multiple(PROVIDERS.id_mapping_api,
                                  get_domain_mapping_list=mock.DEFAULT,
                                  get_id_mapping=mock.DEFAULT) as mocked:
-            self.identity_api.list_users(
+            PROVIDERS.identity_api.list_users(
                 domain_scope=self.domains['domain1']['id'])
             mocked['get_domain_mapping_list'].assert_called()
             mocked['get_id_mapping'].assert_not_called()
@@ -3000,7 +3087,9 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         if domain_id == CONF.identity.default_domain_id:
             return CONF
         else:
-            return self.identity_api.domain_configs.get_domain_conf(domain_id)
+            return PROVIDERS.identity_api.domain_configs.get_domain_conf(
+                domain_id
+            )
 
     def test_default_sql_plus_sql_specific_driver_fails(self):
         # First confirm that if ldap is default driver, domain1 can be
@@ -3009,7 +3098,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         self.config_fixture.config(group='assignment', driver='sql')
         self.load_backends()
         # Make any identity call to initiate the lazy loading of configs
-        self.identity_api.list_users(
+        PROVIDERS.identity_api.list_users(
             domain_scope=CONF.identity.default_domain_id)
         self.assertIsNotNone(self.get_config(self.domains['domain1']['id']))
 
@@ -3020,7 +3109,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         # Make any identity call to initiate the lazy loading of configs, which
         # should fail since we would now have two sql drivers.
         self.assertRaises(exception.MultipleSQLDriversInConfig,
-                          self.identity_api.list_users,
+                          PROVIDERS.identity_api.list_users,
                           domain_scope=CONF.identity.default_domain_id)
 
     def test_multiple_sql_specific_drivers_fails(self):
@@ -3031,7 +3120,7 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         self.domain_count = 3
         self.setup_initial_domains()
         # Make any identity call to initiate the lazy loading of configs
-        self.identity_api.list_users(
+        PROVIDERS.identity_api.list_users(
             domain_scope=CONF.identity.default_domain_id)
         # This will only load domain1, since the domain2 config file is
         # not stored in the same location
@@ -3041,8 +3130,8 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
         # which should fail.
         self.assertRaises(
             exception.MultipleSQLDriversInConfig,
-            self.identity_api.domain_configs._load_config_from_file,
-            self.resource_api,
+            PROVIDERS.identity_api.domain_configs._load_config_from_file,
+            PROVIDERS.resource_api,
             [unit.TESTCONF + '/domain_configs_one_extra_sql/' +
              'keystone.domain2.conf'],
             'domain2')
@@ -3080,13 +3169,14 @@ class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
         super(LDAPMatchingRuleInChainTests, self).setUp()
 
         group = unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
-        self.group = self.identity_api.create_group(group)
+        self.group = PROVIDERS.identity_api.create_group(group)
 
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        self.user = self.identity_api.create_user(user)
+        self.user = PROVIDERS.identity_api.create_user(user)
 
-        self.identity_api.add_user_to_group(self.user['id'],
-                                            self.group['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user['id'], self.group['id']
+        )
 
     def assert_backends(self):
         _assert_backends(self, identity='ldap')
@@ -3108,17 +3198,19 @@ class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
         return config_files
 
     def test_get_group(self):
-        group_ref = self.identity_api.get_group(self.group['id'])
+        group_ref = PROVIDERS.identity_api.get_group(self.group['id'])
         self.assertDictEqual(self.group, group_ref)
 
     def test_list_user_groups(self):
-        self.identity_api.list_groups_for_user(self.user['id'])
+        PROVIDERS.identity_api.list_groups_for_user(self.user['id'])
 
     def test_list_groups_for_user(self):
-        groups_ref = self.identity_api.list_groups_for_user(self.user['id'])
+        groups_ref = PROVIDERS.identity_api.list_groups_for_user(
+            self.user['id']
+        )
         self.assertEqual(0, len(groups_ref))
 
     def test_list_groups(self):
-        groups_refs = self.identity_api.list_groups()
+        groups_refs = PROVIDERS.identity_api.list_groups()
         self.assertEqual(1, len(groups_refs))
         self.assertEqual(self.group['id'], groups_refs[0]['id'])
