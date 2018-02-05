@@ -18,9 +18,12 @@ import uuid
 from six.moves import http_client
 from testtools import matchers
 
+from keystone.common import provider_api
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class CatalogTestCase(test_v3.RestfulTestCase):
@@ -690,7 +693,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
                                     url=url_with_space)
 
         # add the endpoint to the database
-        self.catalog_api.create_endpoint(ref['id'], ref)
+        PROVIDERS.catalog_api.create_endpoint(ref['id'], ref)
 
         # delete the endpoint
         self.delete('/endpoints/%s' % ref['id'])
@@ -825,7 +828,7 @@ class TestCatalogAPISQL(unit.TestCase):
 
         service = unit.new_service_ref()
         self.service_id = service['id']
-        self.catalog_api.create_service(self.service_id, service)
+        PROVIDERS.catalog_api.create_service(self.service_id, service)
 
         self.create_endpoint(service_id=self.service_id)
 
@@ -833,7 +836,7 @@ class TestCatalogAPISQL(unit.TestCase):
         endpoint = unit.new_endpoint_ref(service_id=service_id,
                                          region_id=None, **kwargs)
 
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
         return endpoint
 
     def config_overrides(self):
@@ -847,15 +850,15 @@ class TestCatalogAPISQL(unit.TestCase):
         # filter the catalog by the project or replace the url with a
         # valid project id.
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         # the only endpoint in the catalog is the one created in setUp
-        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertEqual(1, len(catalog[0]['endpoints']))
         # it's also the only endpoint in the backend
-        self.assertEqual(1, len(self.catalog_api.list_endpoints()))
+        self.assertEqual(1, len(PROVIDERS.catalog_api.list_endpoints()))
 
         # create a new, invalid endpoint - malformed type declaration
         self.create_endpoint(self.service_id,
@@ -866,23 +869,23 @@ class TestCatalogAPISQL(unit.TestCase):
                              url='http://keystone/%(you_wont_find_me)s')
 
         # verify that the invalid endpoints don't appear in the catalog
-        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertEqual(1, len(catalog[0]['endpoints']))
         # all three appear in the backend
-        self.assertEqual(3, len(self.catalog_api.list_endpoints()))
+        self.assertEqual(3, len(PROVIDERS.catalog_api.list_endpoints()))
 
         # create another valid endpoint - project_id will be replaced
         self.create_endpoint(self.service_id,
                              url='http://keystone/%(project_id)s')
 
         # there are two valid endpoints, positive check
-        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertThat(catalog[0]['endpoints'], matchers.HasLength(2))
 
         # If the URL has no 'project_id' to substitute, we will skip the
         # endpoint which contains this kind of URL, negative check.
         project_id = None
-        catalog = self.catalog_api.get_v3_catalog(user_id, project_id)
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project_id)
         self.assertThat(catalog[0]['endpoints'], matchers.HasLength(1))
 
     def test_get_catalog_always_returns_service_name(self):
@@ -891,22 +894,22 @@ class TestCatalogAPISQL(unit.TestCase):
         # filter the catalog by the project or replace the url with a
         # valid project id.
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
         # create a service, with a name
         named_svc = unit.new_service_ref()
-        self.catalog_api.create_service(named_svc['id'], named_svc)
+        PROVIDERS.catalog_api.create_service(named_svc['id'], named_svc)
         self.create_endpoint(service_id=named_svc['id'])
 
         # create a service, with no name
         unnamed_svc = unit.new_service_ref(name=None)
         del unnamed_svc['name']
-        self.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
+        PROVIDERS.catalog_api.create_service(unnamed_svc['id'], unnamed_svc)
         self.create_endpoint(service_id=unnamed_svc['id'])
 
-        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project['id'])
 
         named_endpoint = [ep for ep in catalog
                           if ep['type'] == named_svc['type']][0]
@@ -934,46 +937,46 @@ class TestCatalogAPISQLRegions(unit.TestCase):
     def test_get_catalog_returns_proper_endpoints_with_no_region(self):
         service = unit.new_service_ref()
         service_id = service['id']
-        self.catalog_api.create_service(service_id, service)
+        PROVIDERS.catalog_api.create_service(service_id, service)
 
         endpoint = unit.new_endpoint_ref(service_id=service_id,
                                          region_id=None)
         del endpoint['region_id']
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         # create a project since the project should exist if we want to
         # filter the catalog by the project or replace the url with a
         # valid project id.
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
         user_id = uuid.uuid4().hex
-        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertValidCatalogEndpoint(
             catalog[0]['endpoints'][0], ref=endpoint)
 
     def test_get_catalog_returns_proper_endpoints_with_region(self):
         service = unit.new_service_ref()
         service_id = service['id']
-        self.catalog_api.create_service(service_id, service)
+        PROVIDERS.catalog_api.create_service(service_id, service)
 
         endpoint = unit.new_endpoint_ref(service_id=service_id)
         region = unit.new_region_ref(id=endpoint['region_id'])
-        self.catalog_api.create_region(region)
-        self.catalog_api.create_endpoint(endpoint['id'], endpoint)
+        PROVIDERS.catalog_api.create_region(region)
+        PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
-        endpoint = self.catalog_api.get_endpoint(endpoint['id'])
+        endpoint = PROVIDERS.catalog_api.get_endpoint(endpoint['id'])
         user_id = uuid.uuid4().hex
         # create a project since the project should exist if we want to
         # filter the catalog by the project or replace the url with a
         # valid project id.
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         project = unit.new_project_ref(domain_id=domain['id'])
-        self.resource_api.create_project(project['id'], project)
+        PROVIDERS.resource_api.create_project(project['id'], project)
 
-        catalog = self.catalog_api.get_v3_catalog(user_id, project['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(user_id, project['id'])
         self.assertValidCatalogEndpoint(
             catalog[0]['endpoints'][0], ref=endpoint)
 

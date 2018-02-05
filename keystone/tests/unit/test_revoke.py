@@ -18,6 +18,7 @@ import mock
 from oslo_utils import timeutils
 from testtools import matchers
 
+from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -30,6 +31,7 @@ from keystone.token.providers import common
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def _future_time():
@@ -49,27 +51,30 @@ class RevokeTests(object):
 
     def _assertTokenRevoked(self, token_data):
         self.assertRaises(exception.TokenNotFound,
-                          self.revoke_api.check_token,
+                          PROVIDERS.revoke_api.check_token,
                           token=token_data)
 
     def _assertTokenNotRevoked(self, token_data):
-        self.assertIsNone(self.revoke_api.check_token(token_data))
+        self.assertIsNone(PROVIDERS.revoke_api.check_token(token_data))
 
     def test_list(self):
-        self.revoke_api.revoke_by_user(user_id=1)
-        self.assertEqual(1, len(self.revoke_api.list_events()))
+        PROVIDERS.revoke_api.revoke_by_user(user_id=1)
+        self.assertEqual(1, len(PROVIDERS.revoke_api.list_events()))
 
-        self.revoke_api.revoke_by_user(user_id=2)
-        self.assertEqual(2, len(self.revoke_api.list_events()))
+        PROVIDERS.revoke_api.revoke_by_user(user_id=2)
+        self.assertEqual(2, len(PROVIDERS.revoke_api.list_events()))
 
     def test_list_since(self):
-        self.revoke_api.revoke_by_user(user_id=1)
-        self.revoke_api.revoke_by_user(user_id=2)
+        PROVIDERS.revoke_api.revoke_by_user(user_id=1)
+        PROVIDERS.revoke_api.revoke_by_user(user_id=2)
         past = timeutils.utcnow() - datetime.timedelta(seconds=1000)
-        self.assertEqual(2, len(self.revoke_api.list_events(last_fetch=past)))
+        self.assertEqual(
+            2, len(PROVIDERS.revoke_api.list_events(last_fetch=past))
+        )
         future = timeutils.utcnow() + datetime.timedelta(seconds=1000)
-        self.assertEqual(0,
-                         len(self.revoke_api.list_events(last_fetch=future)))
+        self.assertEqual(
+            0, len(PROVIDERS.revoke_api.list_events(last_fetch=future))
+        )
 
     def test_list_revoked_user(self):
         revocation_backend = sql.Revoke()
@@ -80,7 +85,7 @@ class RevokeTests(object):
         # event in the backend.
         first_token = _sample_blank_token()
         first_token['user_id'] = uuid.uuid4().hex
-        self.revoke_api.revoke_by_user(user_id=first_token['user_id'])
+        PROVIDERS.revoke_api.revoke_by_user(user_id=first_token['user_id'])
         self._assertTokenRevoked(first_token)
         self.assertEqual(
             1, len(revocation_backend.list_events(token=first_token))
@@ -92,7 +97,7 @@ class RevokeTests(object):
         # one should match the values of the second token.
         second_token = _sample_blank_token()
         second_token['user_id'] = uuid.uuid4().hex
-        self.revoke_api.revoke_by_user(user_id=second_token['user_id'])
+        PROVIDERS.revoke_api.revoke_by_user(user_id=second_token['user_id'])
         self._assertTokenRevoked(second_token)
         self.assertEqual(
             1, len(revocation_backend.list_events(token=second_token))
@@ -164,7 +169,7 @@ class RevokeTests(object):
         # just revoked.
         first_token = _sample_blank_token()
         first_token['audit_id'] = common.random_urlsafe_str()
-        self.revoke_api.revoke_by_audit_id(
+        PROVIDERS.revoke_api.revoke_by_audit_id(
             audit_id=first_token['audit_id'])
         self._assertTokenRevoked(first_token)
         self.assertEqual(
@@ -175,7 +180,7 @@ class RevokeTests(object):
         # dont both have different populated audit_id fields
         second_token = _sample_blank_token()
         second_token['audit_id'] = common.random_urlsafe_str()
-        self.revoke_api.revoke_by_audit_id(
+        PROVIDERS.revoke_api.revoke_by_audit_id(
             audit_id=second_token['audit_id'])
         self._assertTokenRevoked(second_token)
         self.assertEqual(
@@ -193,8 +198,8 @@ class RevokeTests(object):
     def test_list_revoked_since(self):
         revocation_backend = sql.Revoke()
         token = _sample_blank_token()
-        self.revoke_api.revoke_by_user(user_id=None)
-        self.revoke_api.revoke_by_user(user_id=None)
+        PROVIDERS.revoke_api.revoke_by_user(user_id=None)
+        PROVIDERS.revoke_api.revoke_by_user(user_id=None)
         self.assertEqual(2, len(revocation_backend.list_events(token=token)))
         future = timeutils.utcnow() + datetime.timedelta(seconds=1000)
         token['issued_at'] = future
@@ -210,7 +215,7 @@ class RevokeTests(object):
         first_token['audit_id'] = common.random_urlsafe_str()
         # revoke event and then verify that there is only one revocation
         # and verify the only revoked event is the token
-        self.revoke_api.revoke(revoke_model.RevokeEvent(
+        PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
             user_id=first_token['user_id'],
             project_id=first_token['project_id'],
             audit_id=first_token['audit_id']))
@@ -237,7 +242,7 @@ class RevokeTests(object):
         fourth_token['user_id'] = uuid.uuid4().hex
         fourth_token['project_id'] = uuid.uuid4().hex
         fourth_token['audit_id'] = common.random_urlsafe_str()
-        self.revoke_api.revoke(revoke_model.RevokeEvent(
+        PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
             project_id=fourth_token['project_id'],
             audit_id=fourth_token['audit_id']))
         self._assertTokenRevoked(fourth_token)
@@ -247,7 +252,7 @@ class RevokeTests(object):
     def _user_field_test(self, field_name):
         token = _sample_blank_token()
         token[field_name] = uuid.uuid4().hex
-        self.revoke_api.revoke_by_user(user_id=token[field_name])
+        PROVIDERS.revoke_api.revoke_by_user(user_id=token[field_name])
         self._assertTokenRevoked(token)
         token2 = _sample_blank_token()
         token2[field_name] = uuid.uuid4().hex
@@ -276,7 +281,9 @@ class RevokeTests(object):
         self.assertEqual(
             0, len(revocation_backend.list_events(token=token_data)))
 
-        self.revoke_api.revoke(revoke_model.RevokeEvent(domain_id=domain_id))
+        PROVIDERS.revoke_api.revoke(
+            revoke_model.RevokeEvent(domain_id=domain_id)
+        )
 
         self._assertTokenRevoked(token_data)
         self.assertEqual(
@@ -297,7 +304,7 @@ class RevokeTests(object):
 
         # If revoke a domain, then a token scoped to a project in the domain
         # is revoked.
-        self.revoke_api.revoke(revoke_model.RevokeEvent(
+        PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
             domain_id=token_data['assignment_domain_id']))
 
         self._assertTokenRevoked(token_data)
@@ -317,7 +324,7 @@ class RevokeTests(object):
             0, len(revocation_backend.list_events(token=token_data)))
 
         # If revoke a domain, then a token scoped to the domain is revoked.
-        self.revoke_api.revoke(revoke_model.RevokeEvent(
+        PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
             domain_id=token_data['assignment_domain_id']))
 
         self._assertTokenRevoked(token_data)
@@ -344,7 +351,7 @@ class RevokeTests(object):
             0, len(revocation_backend.list_events(token=second_token)))
 
         # Revoke first_token using user_id and project_id
-        self.revoke_api.revoke_by_user_and_project(
+        PROVIDERS.revoke_api.revoke_by_user_and_project(
             first_token['user_id'], first_token['project_id'])
 
         # Check that only first_token has been revoked.
@@ -361,7 +368,7 @@ class RevokeTests(object):
         # if the token is an original token
         token['audit_id'] = uuid.uuid4().hex
         token['audit_chain_id'] = token['audit_id']
-        self.revoke_api.revoke_by_audit_id(audit_id=token['audit_id'])
+        PROVIDERS.revoke_api.revoke_by_audit_id(audit_id=token['audit_id'])
         self._assertTokenRevoked(token)
 
         token2 = _sample_blank_token()
@@ -384,7 +391,7 @@ class RevokeTests(object):
         self.assertEqual(0, len(revocation_backend.list_events(token=token)))
 
         # Revoked token by audit chain id using the audit_id
-        self.revoke_api.revoke_by_audit_chain_id(audit_id)
+        PROVIDERS.revoke_api.revoke_by_audit_chain_id(audit_id)
         # Check that the token is now revoked
         self._assertTokenRevoked(token)
         self.assertEqual(1, len(revocation_backend.list_events(token=token)))
@@ -406,67 +413,73 @@ class RevokeTests(object):
         token_values = _sample_token_values()
 
         audit_chain_id = uuid.uuid4().hex
-        self.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
+        PROVIDERS.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
         token_values['audit_chain_id'] = audit_chain_id
         self.assertRaises(exception.TokenNotFound,
-                          self.revoke_api.check_token,
+                          PROVIDERS.revoke_api.check_token,
                           token_values)
 
         # Move our clock forward by 2h, build a new token and validate it.
         # 'synchronize' should now be exercised and remove old expired events
         mock_utcnow.return_value = now_plus_2h
-        self.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
+        PROVIDERS.revoke_api.revoke_by_audit_chain_id(audit_chain_id)
         # two hours later, it should still be not found
         self.assertRaises(exception.TokenNotFound,
-                          self.revoke_api.check_token,
+                          PROVIDERS.revoke_api.check_token,
                           token_values)
 
     def test_delete_group_without_role_does_not_revoke_users(self):
         revocation_backend = sql.Revoke()
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         # Create two groups. Group1 will be used to test deleting a group,
         # without role assignments and users in the group, doesn't create
         # revoked events. Group2 will show that deleting a group with role
         # assignment and users in the group does create revoked events
         group1 = unit.new_group_ref(domain_id=domain['id'])
-        group1 = self.identity_api.create_group(group1)
+        group1 = PROVIDERS.identity_api.create_group(group1)
         group2 = unit.new_group_ref(domain_id=domain['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
         role = unit.new_role_ref()
-        self.role_api.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
         user1 = unit.new_user_ref(domain_id=domain['id'])
-        user1 = self.identity_api.create_user(user1)
+        user1 = PROVIDERS.identity_api.create_user(user1)
         user2 = unit.new_user_ref(domain_id=domain['id'])
-        user2 = self.identity_api.create_user(user2)
+        user2 = PROVIDERS.identity_api.create_user(user2)
 
         # Add two users to the group, verify they are added, delete group, and
         # check that the revocaiton events have not been created
-        self.identity_api.add_user_to_group(user_id=user1['id'],
-                                            group_id=group1['id'])
-        self.identity_api.add_user_to_group(user_id=user2['id'],
-                                            group_id=group1['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user_id=user1['id'], group_id=group1['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user_id=user2['id'], group_id=group1['id']
+        )
         self.assertEqual(
-            2, len(self.identity_api.list_users_in_group(group1['id'])))
-        self.identity_api.delete_group(group1['id'])
+            2, len(PROVIDERS.identity_api.list_users_in_group(group1['id'])))
+        PROVIDERS.identity_api.delete_group(group1['id'])
         self.assertEqual(0, len(revocation_backend.list_events()))
 
         # Assign a role to the group, add two users to the group, verify that
         # the role has been assigned to the group, verify the users have been
         # added to the group, delete the group, check that the revocation
         # events have been created
-        self.assignment_api.create_grant(group_id=group2['id'],
-                                         domain_id=domain['id'],
-                                         role_id=role['id'])
-        grants = self.assignment_api.list_role_assignments(role_id=role['id'])
+        PROVIDERS.assignment_api.create_grant(
+            group_id=group2['id'], domain_id=domain['id'], role_id=role['id']
+        )
+        grants = PROVIDERS.assignment_api.list_role_assignments(
+            role_id=role['id']
+        )
         self.assertThat(grants, matchers.HasLength(1))
-        self.identity_api.add_user_to_group(user_id=user1['id'],
-                                            group_id=group2['id'])
-        self.identity_api.add_user_to_group(user_id=user2['id'],
-                                            group_id=group2['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            user_id=user1['id'], group_id=group2['id']
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            user_id=user2['id'], group_id=group2['id']
+        )
         self.assertEqual(
-            2, len(self.identity_api.list_users_in_group(group2['id'])))
-        self.identity_api.delete_group(group2['id'])
+            2, len(PROVIDERS.identity_api.list_users_in_group(group2['id'])))
+        PROVIDERS.identity_api.delete_group(group2['id'])
         self.assertEqual(2, len(revocation_backend.list_events()))
 
 

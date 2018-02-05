@@ -14,11 +14,14 @@ import uuid
 
 from six.moves import range
 
+from keystone.common import provider_api
 from keystone.credential.providers import fernet as credential_provider
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
@@ -46,7 +49,9 @@ class SqlCredential(SqlTests):
         credential = unit.new_credential_ref(user_id=user_id,
                                              extra=uuid.uuid4().hex,
                                              type=uuid.uuid4().hex)
-        self.credential_api.create_credential(credential['id'], credential)
+        PROVIDERS.credential_api.create_credential(
+            credential['id'], credential
+        )
         return credential
 
     def _validate_credential_list(self, retrieved_credentials,
@@ -79,9 +84,9 @@ class SqlCredential(SqlTests):
             self.credentials.append(cred)
 
     def test_backend_credential_sql_hints_none(self):
-        credentials = self.credential_api.list_credentials(hints=None)
+        credentials = PROVIDERS.credential_api.list_credentials(hints=None)
         self._validate_credential_list(credentials, self.user_credentials)
 
     def test_backend_credential_sql_no_hints(self):
-        credentials = self.credential_api.list_credentials()
+        credentials = PROVIDERS.credential_api.list_credentials()
         self._validate_credential_list(credentials, self.user_credentials)

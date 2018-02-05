@@ -50,6 +50,7 @@ from keystone.tests.unit.ksfixtures import ldapdb
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
@@ -396,13 +397,15 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
             if domain == 'domain_default':
                 # Not allowed to delete the default domain, but should at least
                 # delete any domain-specific config for it.
-                self.domain_config_api.delete_config(
+                PROVIDERS.domain_config_api.delete_config(
                     CONF.identity.default_domain_id)
                 continue
             this_domain = self.domains[domain]
             this_domain['enabled'] = False
-            self.resource_api.update_domain(this_domain['id'], this_domain)
-            self.resource_api.delete_domain(this_domain['id'])
+            PROVIDERS.resource_api.update_domain(
+                this_domain['id'], this_domain
+            )
+            PROVIDERS.resource_api.delete_domain(this_domain['id'])
         self.domains = {}
 
     def config(self, config_files):
@@ -412,7 +415,7 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
     def setup_initial_domains(self):
 
         def create_domain(domain):
-            return self.resource_api.create_domain(domain['id'], domain)
+            return PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         self.domains = {}
         self.addCleanup(self.cleanup_domains)
@@ -458,13 +461,13 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
         provider_api.ProviderAPIs._clear_registry_instances()
         cli.DomainConfigUpload.main()
 
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             CONF.identity.default_domain_id)
         self.assertEqual(default_config, res)
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domains['domain1']['id'])
         self.assertEqual(domain1_config, res)
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domains['domain2']['id'])
         self.assertEqual(domain2_config, res)
 
@@ -490,13 +493,13 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
         provider_api.ProviderAPIs._clear_registry_instances()
         cli.DomainConfigUpload.main()
 
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             CONF.identity.default_domain_id)
         self.assertEqual(default_config, res)
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domains['domain1']['id'])
         self.assertEqual({}, res)
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domains['domain2']['id'])
         self.assertEqual({}, res)
 
@@ -506,7 +509,7 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
             'ldap': {'url': uuid.uuid4().hex},
             'identity': {'driver': 'ldap'}
         }
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             CONF.identity.default_domain_id, default_config)
 
         # Now try and upload the settings in the configuration file for the
@@ -523,7 +526,7 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
                                          file_name)}
             mock_print.assert_has_calls([mock.call(error_msg)])
 
-        res = self.domain_config_api.get_config(
+        res = PROVIDERS.domain_config_api.get_config(
             CONF.identity.default_domain_id)
         # The initial config should not have been overwritten
         self.assertEqual(default_config, res)
@@ -724,15 +727,17 @@ class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
         # 3. Execute mapping_populate. It should create id mappings
         # 4. For the same users verify that they have public_id now
         purge_filter = {}
-        self.id_mapping_api.purge_mappings(purge_filter)
+        PROVIDERS.id_mapping_api.purge_mappings(purge_filter)
         hints = None
-        users = self.identity_api.driver.list_users(hints)
+        users = PROVIDERS.identity_api.driver.list_users(hints)
         for user in users:
             local_entity = {
                 'domain_id': CONF.identity.default_domain_id,
                 'local_id': user['id'],
                 'entity_type': identity_mapping.EntityType.USER}
-            self.assertIsNone(self.id_mapping_api.get_public_id(local_entity))
+            self.assertIsNone(
+                PROVIDERS.id_mapping_api.get_public_id(local_entity)
+            )
 
         # backends are loaded again in the command handler
         provider_api.ProviderAPIs._clear_registry_instances()
@@ -744,7 +749,7 @@ class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
                 'local_id': user['id'],
                 'entity_type': identity_mapping.EntityType.USER}
             self.assertIsNotNone(
-                self.id_mapping_api.get_public_id(local_entity))
+                PROVIDERS.id_mapping_api.get_public_id(local_entity))
 
     def test_bad_domain_name(self):
         CONF(args=['mapping_populate', '--domain-name', uuid.uuid4().hex],

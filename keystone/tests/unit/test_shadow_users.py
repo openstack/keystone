@@ -12,10 +12,13 @@
 
 import uuid
 
+from keystone.common import provider_api
 from keystone.tests import unit
 from keystone.tests.unit.identity.shadow_users import test_backend
 from keystone.tests.unit.identity.shadow_users import test_core
 from keystone.tests.unit.ksfixtures import database
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class ShadowUsersTests(unit.TestCase,
@@ -44,9 +47,11 @@ class ShadowUsersTests(unit.TestCase,
             'unique_id': uuid.uuid4().hex,
             'display_name': uuid.uuid4().hex
         }
-        self.federation_api.create_idp(self.idp['id'], self.idp)
-        self.federation_api.create_mapping(self.mapping['id'], self.mapping)
-        self.federation_api.create_protocol(
+        PROVIDERS.federation_api.create_idp(self.idp['id'], self.idp)
+        PROVIDERS.federation_api.create_mapping(
+            self.mapping['id'], self.mapping
+        )
+        PROVIDERS.federation_api.create_protocol(
             self.idp['id'], self.protocol['id'], self.protocol)
         self.domain_id = (
-            self.federation_api.get_idp(self.idp['id'])['domain_id'])
+            PROVIDERS.federation_api.get_idp(self.idp['id'])['domain_id'])

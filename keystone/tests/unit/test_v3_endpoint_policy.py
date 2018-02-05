@@ -15,8 +15,11 @@
 from six.moves import http_client
 from testtools import matchers
 
+from keystone.common import provider_api
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class EndpointPolicyTestCase(test_v3.RestfulTestCase):
@@ -33,15 +36,17 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(EndpointPolicyTestCase, self).setUp()
         self.policy = unit.new_policy_ref()
-        self.policy_api.create_policy(self.policy['id'], self.policy)
+        PROVIDERS.policy_api.create_policy(self.policy['id'], self.policy)
         self.service = unit.new_service_ref()
-        self.catalog_api.create_service(self.service['id'], self.service)
+        PROVIDERS.catalog_api.create_service(self.service['id'], self.service)
         self.endpoint = unit.new_endpoint_ref(self.service['id'], enabled=True,
                                               interface='public',
                                               region_id=self.region_id)
-        self.catalog_api.create_endpoint(self.endpoint['id'], self.endpoint)
+        PROVIDERS.catalog_api.create_endpoint(
+            self.endpoint['id'], self.endpoint
+        )
         self.region = unit.new_region_ref()
-        self.catalog_api.create_region(self.region)
+        PROVIDERS.catalog_api.create_region(self.region)
 
     def assert_head_and_get_return_same_response(self, url, expected_status):
         self.get(url, expected_status=expected_status)

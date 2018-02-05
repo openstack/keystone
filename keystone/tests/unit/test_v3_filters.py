@@ -21,6 +21,7 @@ from oslo_serialization import jsonutils
 from six.moves import http_client
 from six.moves import range
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import filtering
@@ -30,6 +31,7 @@ from keystone.tests.unit import test_v3
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class IdentityTestFilteredCase(filtering.FilterTests,
@@ -63,26 +65,27 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         # Start by creating a few domains
         self._populate_default_domain()
         self.domainA = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainA['id'], self.domainA)
+        PROVIDERS.resource_api.create_domain(self.domainA['id'], self.domainA)
         self.domainB = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domainB['id'], self.domainB)
+        PROVIDERS.resource_api.create_domain(self.domainB['id'], self.domainB)
         self.domainC = unit.new_domain_ref()
         self.domainC['enabled'] = False
-        self.resource_api.create_domain(self.domainC['id'], self.domainC)
+        PROVIDERS.resource_api.create_domain(self.domainC['id'], self.domainC)
 
         # Now create some users, one in domainA and two of them in domainB
-        self.user1 = unit.create_user(self.identity_api,
+        self.user1 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainA['id'])
-        self.user2 = unit.create_user(self.identity_api,
+        self.user2 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainB['id'])
-        self.user3 = unit.create_user(self.identity_api,
+        self.user3 = unit.create_user(PROVIDERS.identity_api,
                                       domain_id=self.domainB['id'])
 
         self.role = unit.new_role_ref()
-        self.role_api.create_role(self.role['id'], self.role)
-        self.assignment_api.create_grant(self.role['id'],
-                                         user_id=self.user1['id'],
-                                         domain_id=self.domainA['id'])
+        PROVIDERS.role_api.create_role(self.role['id'], self.role)
+        PROVIDERS.assignment_api.create_grant(
+            self.role['id'], user_id=self.user1['id'],
+            domain_id=self.domainA['id']
+        )
 
         # A default auth request we can use - un-scoped user token
         self.auth = self.build_authentication_request(
@@ -224,7 +227,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
             self._set_policy({"identity:list_users": []})
             user = self.user1
             user['name'] = '%my%name%'
-            self.identity_api.update_user(user['id'], user)
+            PROVIDERS.identity_api.update_user(user['id'], user)
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
 
@@ -240,23 +243,23 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         # Set up some names that we can filter on
         user = user_list[5]
         user['name'] = 'The'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
         user = user_list[6]
         user['name'] = 'The Ministry'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
         user = user_list[7]
         user['name'] = 'The Ministry of'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
         user = user_list[8]
         user['name'] = 'The Ministry of Silly'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
         user = user_list[9]
         user['name'] = 'The Ministry of Silly Walks'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
         # ...and one for useful case insensitivity testing
         user = user_list[10]
         user['name'] = 'the ministry of silly walks OF'
-        self.identity_api.update_user(user['id'], user)
+        PROVIDERS.identity_api.update_user(user['id'], user)
 
         self._set_policy({"identity:list_users": []})
 
@@ -318,7 +321,7 @@ class IdentityTestFilteredCase(filtering.FilterTests,
         # See if we can add a SQL command...use the group table instead of the
         # user table since 'user' is reserved word for SQLAlchemy.
         group = unit.new_group_ref(domain_id=self.domainB['id'])
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         url_by_name = "/users?name=x'; drop table group"
         r = self.get(url_by_name, auth=self.auth)
@@ -351,14 +354,15 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         """
         self._populate_default_domain()
         self.domain = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.create_domain(self.domain['id'], self.domain)
         self.domain_id = self.domain['id']
         self.project = unit.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
-        self.project = self.resource_api.create_project(self.project_id,
-                                                        self.project)
+        self.project = PROVIDERS.resource_api.create_project(
+            self.project_id, self.project
+        )
         self.group = unit.new_group_ref(domain_id=self.domain_id)
-        self.group = self.identity_api.create_group(self.group)
+        self.group = PROVIDERS.identity_api.create_group(self.group)
         self.group_id = self.group['id']
         # Creates three users each with password expiration offset
         # by one day, starting with the current time frozen.
@@ -366,43 +370,45 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         with freezegun.freeze_time(self.starttime):
             self.config_fixture.config(group='security_compliance',
                                        password_expires_days=1)
-            self.user = unit.create_user(self.identity_api,
+            self.user = unit.create_user(PROVIDERS.identity_api,
                                          domain_id=self.domain_id)
             self.config_fixture.config(group='security_compliance',
                                        password_expires_days=2)
-            self.user2 = unit.create_user(self.identity_api,
+            self.user2 = unit.create_user(PROVIDERS.identity_api,
                                           domain_id=self.domain_id)
             self.config_fixture.config(group='security_compliance',
                                        password_expires_days=3)
-            self.user3 = unit.create_user(self.identity_api,
+            self.user3 = unit.create_user(PROVIDERS.identity_api,
                                           domain_id=self.domain_id)
         self.role = unit.new_role_ref(name='admin')
-        self.role_api.create_role(self.role['id'], self.role)
+        PROVIDERS.role_api.create_role(self.role['id'], self.role)
         self.role_id = self.role['id']
         # Grant admin role to the users created.
-        self.assignment_api.create_grant(self.role_id,
-                                         user_id=self.user['id'],
-                                         domain_id=self.domain_id)
-        self.assignment_api.create_grant(self.role_id,
-                                         user_id=self.user2['id'],
-                                         domain_id=self.domain_id)
-        self.assignment_api.create_grant(self.role_id,
-                                         user_id=self.user3['id'],
-                                         domain_id=self.domain_id)
-        self.assignment_api.create_grant(self.role_id,
-                                         user_id=self.user['id'],
-                                         project_id=self.project_id)
-        self.assignment_api.create_grant(self.role_id,
-                                         user_id=self.user2['id'],
-                                         project_id=self.project_id)
-        self.assignment_api.create_grant(self.role_id,
-                                         user_id=self.user3['id'],
-                                         project_id=self.project_id)
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, user_id=self.user['id'], domain_id=self.domain_id
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, user_id=self.user2['id'], domain_id=self.domain_id
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, user_id=self.user3['id'], domain_id=self.domain_id
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, user_id=self.user['id'], project_id=self.project_id
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, user_id=self.user2['id'], project_id=self.project_id
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, user_id=self.user3['id'], project_id=self.project_id
+        )
         # Add the last two users to the group.
-        self.identity_api.add_user_to_group(self.user2['id'],
-                                            self.group_id)
-        self.identity_api.add_user_to_group(self.user3['id'],
-                                            self.group_id)
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user2['id'], self.group_id
+        )
+        PROVIDERS.identity_api.add_user_to_group(
+            self.user3['id'], self.group_id
+        )
 
     def _list_users_by_password_expires_at(self, time, operator=None):
         """Call `list_users` with `password_expires_at` filter.
@@ -741,16 +747,18 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self.addCleanup(self.clean_up_service)
         for _ in range(10):
             new_entity = unit.new_service_ref()
-            service = self.catalog_api.create_service(new_entity['id'],
-                                                      new_entity)
+            service = PROVIDERS.catalog_api.create_service(
+                new_entity['id'], new_entity
+            )
             self.service_list.append(service)
 
         self.policy_list = []
         self.addCleanup(self.clean_up_policy)
         for _ in range(10):
             new_entity = unit.new_policy_ref()
-            policy = self.policy_api.create_policy(new_entity['id'],
-                                                   new_entity)
+            policy = PROVIDERS.policy_api.create_policy(
+                new_entity['id'], new_entity
+            )
             self.policy_list.append(policy)
 
     def clean_up_entity(self, entity):
@@ -760,12 +768,12 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
     def clean_up_service(self):
         """Clean up service test data from Identity Limit Test Cases."""
         for service in self.service_list:
-            self.catalog_api.delete_service(service['id'])
+            PROVIDERS.catalog_api.delete_service(service['id'])
 
     def clean_up_policy(self):
         """Clean up policy test data from Identity Limit Test Cases."""
         for policy in self.policy_list:
-            self.policy_api.delete_policy(policy['id'])
+            PROVIDERS.policy_api.delete_policy(policy['id'])
 
     def _test_entity_list_limit(self, entity, driver):
         """GET /<entities> (limited).

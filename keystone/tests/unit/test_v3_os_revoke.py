@@ -21,9 +21,12 @@ import six
 from six.moves import http_client
 from testtools import matchers
 
+from keystone.common import provider_api
 from keystone.common import utils
 from keystone.models import revoke_model
 from keystone.tests.unit import test_v3
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def _future_time_string():
@@ -79,7 +82,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample = self._blank_event()
         sample['audit_id'] = six.text_type(audit_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
-        self.revoke_api.revoke_by_audit_id(audit_id)
+        PROVIDERS.revoke_api.revoke_by_audit_id(audit_id)
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
         self.assertEqual(1, len(events))
@@ -90,7 +93,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample = dict()
         sample['project_id'] = six.text_type(project_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
-        self.revoke_api.revoke(
+        PROVIDERS.revoke_api.revoke(
             revoke_model.RevokeEvent(project_id=project_id))
 
         resp = self.get('/OS-REVOKE/events')
@@ -103,7 +106,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample = dict()
         sample['domain_id'] = six.text_type(domain_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
-        self.revoke_api.revoke(
+        PROVIDERS.revoke_api.revoke(
             revoke_model.RevokeEvent(domain_id=domain_id))
 
         resp = self.get('/OS-REVOKE/events')
@@ -125,7 +128,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample = dict()
         sample['domain_id'] = six.text_type(domain_id)
 
-        self.revoke_api.revoke(
+        PROVIDERS.revoke_api.revoke(
             revoke_model.RevokeEvent(domain_id=domain_id))
 
         resp = self.get('/OS-REVOKE/events')
@@ -141,7 +144,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         with freezegun.freeze_time(time) as frozen_datetime:
             revoked_at = timeutils.utcnow()
             # Given or not, `revoked_at` will always be set in the backend.
-            self.revoke_api.revoke(
+            PROVIDERS.revoke_api.revoke(
                 revoke_model.RevokeEvent(revoked_at=revoked_at))
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
@@ -157,7 +160,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         ref = {'description': uuid.uuid4().hex}
         resp = self.post('/OS-OAUTH1/consumers', body={'consumer': ref})
         consumer_id = resp.result['consumer']['id']
-        self.oauth_api.delete_consumer(consumer_id)
+        PROVIDERS.oauth_api.delete_consumer(consumer_id)
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
@@ -194,7 +197,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sql_delete_mock.side_effect = side_effect
 
         try:
-            self.revoke_api.revoke(revoke_model.RevokeEvent(
+            PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
                 user_id=uuid.uuid4().hex))
         finally:
             if side_effect.patched:
