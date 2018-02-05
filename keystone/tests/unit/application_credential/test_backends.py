@@ -19,6 +19,7 @@ from keystone.common import driver_hints
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -150,13 +151,24 @@ class ApplicationCredentialTests(object):
                                                               hints)
         return [ac['id'] for ac in resp]
 
+    @test_utils.wip('Waiting to fix the cache invalidation problem from '
+                    'fixing bug 1746868.')
     def test_delete_application_credential(self):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
                                            project_id=self.tenant_bar['id'])
         self.app_cred_api.create_application_credential(app_cred)
+
+        # cache the information
+        self.app_cred_api.get_application_credential(app_cred['id'])
+
         self.assertIn(app_cred['id'], self._list_ids(self.user_foo))
         self.app_cred_api.delete_application_credential(app_cred['id'])
         self.assertNotIn(app_cred['id'], self._list_ids(self.user_foo))
+
+        # the cache information has been invalidated.
+        self.assertRaises(exception.ApplicationCredentialNotFound,
+                          self.app_cred_api.get_application_credential,
+                          app_cred['id'])
 
     def test_delete_application_credential_not_found(self):
         self.assertRaises(exception.ApplicationCredentialNotFound,
