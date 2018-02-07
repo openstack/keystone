@@ -53,11 +53,11 @@ Install and configure components
 
 .. note::
 
-   This guide uses the Apache HTTP server with ``mod_wsgi`` to serve
-   Identity service requests on ports 5000 and 35357. By default, the
-   keystone service still listens on these ports. The package handles
-   all of the Apache configuration for you (including the activation of
-   the ``mod_wsgi`` apache2 module and keystone configuration in Apache).
+   This guide uses the Apache HTTP server with ``mod_wsgi`` to serve Identity
+   service requests on port 5000. By default, the keystone service still
+   listens on this port. The package handles all of the Apache configuration
+   for you (including the activation of the ``mod_wsgi`` apache2 module and
+   keystone configuration in Apache).
 
 #. Run the following command to install the packages:
 
@@ -121,7 +121,7 @@ Install and configure components
    .. code-block:: console
 
       # keystone-manage bootstrap --bootstrap-password ADMIN_PASS \
-        --bootstrap-admin-url http://controller:35357/v3/ \
+        --bootstrap-admin-url http://controller:5000/v3/ \
         --bootstrap-internal-url http://controller:5000/v3/ \
         --bootstrap-public-url http://controller:5000/v3/ \
         --bootstrap-region-id RegionOne
@@ -163,7 +163,7 @@ Finalize the installation
       $ export OS_PROJECT_NAME=admin
       $ export OS_USER_DOMAIN_NAME=Default
       $ export OS_PROJECT_DOMAIN_NAME=Default
-      $ export OS_AUTH_URL=http://controller:35357/v3
+      $ export OS_AUTH_URL=http://controller:5000/v3
       $ export OS_IDENTITY_API_VERSION=3
 
    .. end
