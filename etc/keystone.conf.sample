@@ -10,10 +10,7 @@
 # represent a user (it has no identity), and carries no explicit authorization
 # (it effectively bypasses most authorization checks). If set to `None`, the
 # value is ignored and the `admin_token` middleware is effectively disabled.
-# However, to completely disable `admin_token` in production (highly
-# recommended, as it presents a security risk), remove
-# `AdminTokenAuthMiddleware` (the `admin_token_auth` filter) from your paste
-# application pipelines (for example, in `keystone-paste.ini`). (string value)
+# (string value)
 #admin_token = <None>
 
 # The base public endpoint URL for Keystone that is advertised to clients
@@ -49,19 +46,33 @@
 # this should be set to 32). (integer value)
 #max_token_size = 255
 
-# Similar to the `[DEFAULT] member_role_name` option, this represents the
-# default role ID used to associate users with their default projects in the v2
-# API. This will be used as the explicit role where one is not specified by the
-# v2 API. You do not need to set this value unless you want keystone to use an
-# existing role with a different ID, other than the arbitrarily defined
-# `_member_` role (in which case, you should set `[DEFAULT] member_role_name`
-# as well). (string value)
+# DEPRECATED: Similar to the `[DEFAULT] member_role_name` option, this
+# represents the default role ID used to associate users with their default
+# projects in the v2 API. This will be used as the explicit role where one is
+# not specified by the v2 API. You do not need to set this value unless you
+# want keystone to use an existing role with a different ID, other than the
+# arbitrarily defined `_member_` role (in which case, you should set `[DEFAULT]
+# member_role_name` as well). (string value)
+# This option is deprecated for removal since Q.
+# Its value may be silently ignored in the future.
+# Reason: This option was used to create a default member role for keystone v2
+# role assignments, but with the removal of the v2 API it is no longer
+# necessary to create this default role. This option is deprecated and will be
+# removed in the S release. If you are depending on having a predictable role
+# name and ID for this member role you will need to update your tooling.
 #member_role_id = 9fe2ff9ee4384b1894a90878d3e92bab
 
-# This is the role name used in combination with the `[DEFAULT] member_role_id`
-# option; see that option for more detail. You do not need to set this option
-# unless you want keystone to use an existing role (in which case, you should
-# set `[DEFAULT] member_role_id` as well). (string value)
+# DEPRECATED: This is the role name used in combination with the `[DEFAULT]
+# member_role_id` option; see that option for more detail. You do not need to
+# set this option unless you want keystone to use an existing role (in which
+# case, you should set `[DEFAULT] member_role_id` as well). (string value)
+# This option is deprecated for removal since Q.
+# Its value may be silently ignored in the future.
+# Reason: This option was used to create a default member role for keystone v2
+# role assignments, but with the removal of the v2 API it is no longer
+# necessary to create this default role. This option is deprecated and will be
+# removed in the S release. If you are depending on having a predictable role
+# name and ID for this member role you will need to update your tooling.
 #member_role_name = _member_
 
 # The value passed as the keyword "rounds" to passlib's encrypt method. This
@@ -416,6 +427,33 @@
 #control_exchange = keystone
 
 
+[application_credential]
+
+#
+# From keystone
+#
+
+# Entry point for the application credential backend driver in the
+# `keystone.application_credential` namespace.  Keystone only provides a `sql`
+# driver, so there is no reason to change this unless you are providing a
+# custom entry point. (string value)
+#driver = sql
+
+# Toggle for application credential caching. This has no effect unless global
+# caching is enabled. (boolean value)
+#caching = true
+
+# Time to cache application credential data in seconds. This has no effect
+# unless global caching is enabled. (integer value)
+#cache_time = <None>
+
+# Maximum number of application credentials a user is permitted to create. A
+# value of -1 means unlimited. If a limit is not set, users are permitted to
+# create application credentials at will, which could lead to bloat in the
+# keystone database or open keystone to a DoS attack. (integer value)
+#user_limit = -1
+
+
 [assignment]
 
 #
@@ -444,7 +482,7 @@
 # both use the REMOTE_USER variable. Since both the mapped and external plugin
 # are being invoked to validate attributes in the request environment, it can
 # cause conflicts. (list value)
-#methods = external,password,token,oauth1,mapped
+#methods = external,password,token,oauth1,mapped,application_credential
 
 # Entry point for the password auth plugin module in the
 # `keystone.auth.password` namespace. You do not need to set this unless you
@@ -478,6 +516,12 @@
 # namespace. You do not need to set this unless you are overriding keystone's
 # own `mapped` authentication plugin. (string value)
 #mapped = <None>
+
+# Entry point for the application_credential auth plugin module in the
+# `keystone.auth.application_credential` namespace. You do not need to set this
+# unless you are overriding keystone's own `application_credential`
+# authentication plugin. (string value)
+#application_credential = <None>
 
 
 [cache]
@@ -613,35 +657,6 @@
 #allow_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token,X-Project-Id,X-Project-Name,X-Project-Domain-Id,X-Project-Domain-Name,X-Domain-Id,X-Domain-Name
 
 
-[cors.subdomain]
-
-#
-# From oslo.middleware
-#
-
-# Indicate whether this resource may be shared with the domain received in the
-# requests "origin" header. Format: "<protocol>://<host>[:<port>]", no trailing
-# slash. Example: https://horizon.example.com (list value)
-#allowed_origin = <None>
-
-# Indicate that the actual request can include user credentials (boolean value)
-#allow_credentials = true
-
-# Indicate which headers are safe to expose to the API. Defaults to HTTP Simple
-# Headers. (list value)
-#expose_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token
-
-# Maximum cache age of CORS preflight requests. (integer value)
-#max_age = 3600
-
-# Indicate which methods can be used during the actual request. (list value)
-#allow_methods = GET,PUT,POST,DELETE,PATCH
-
-# Indicate which header field names may be used during the actual request.
-# (list value)
-#allow_headers = X-Auth-Token,X-Openstack-Request-Id,X-Subject-Token,X-Project-Id,X-Project-Name,X-Project-Domain-Id,X-Project-Domain-Name,X-Domain-Id,X-Domain-Name
-
-
 [credential]
 
 #
@@ -697,6 +712,10 @@
 # by the server configuration, set this to no value. Example: mysql_sql_mode=
 # (string value)
 #mysql_sql_mode = TRADITIONAL
+
+# If True, transparently enables support for handling MySQL Cluster (NDB).
+# (boolean value)
+#mysql_enable_ndb = false
 
 # Timeout before idle SQL connections are reaped. (integer value)
 # Deprecated group/name - [DEFAULT]/sql_idle_timeout
@@ -888,7 +907,7 @@
 #assertion_prefix =
 
 # Value to be used to obtain the entity ID of the Identity Provider from the
-# environment. For `mod_shib`, this would be `Shib-Identity-Provider`. For For
+# environment. For `mod_shib`, this would be `Shib-Identity-Provider`. For
 # `mod_auth_openidc`, this could be `HTTP_OIDC_ISS`. For `mod_auth_mellon`,
 # this could be `MELLON_IDP`. (string value)
 #remote_id_attribute = <None>
@@ -1050,6 +1069,41 @@
 # Maximum number of entities that will be returned in an identity collection.
 # (integer value)
 #list_limit = <None>
+
+# The password hashing algorithm to use for passwords stored within keystone.
+# (string value)
+# Allowed values: bcrypt, scrypt, pbkdf2_sha512
+#password_hash_algorithm = bcrypt
+
+# This option represents a trade off between security and performance. Higher
+# values lead to slower performance, but higher security. Changing this option
+# will only affect newly created passwords as existing password hashes already
+# have a fixed number of rounds applied, so it is safe to tune this option in a
+# running cluster.  The default for bcrypt is 12, must be between 4 and 31,
+# inclusive.  The default for scrypt is 16, must be within `range(1,32)`.  The
+# default for pbkdf_sha512 is 60000, must be within `range(1,1<<32)`  WARNING:
+# If using scrypt, increasing this value increases BOTH time AND memory
+# requirements to hash a password. (integer value)
+#password_hash_rounds = <None>
+
+# Optional block size to pass to scrypt hash function (the `r` parameter).
+# Useful for tuning scrypt to optimal performance for your CPU architecture.
+# This option is only used when the `password_hash_algorithm` option is set to
+# `scrypt`. Defaults to 8. (integer value)
+#scrypt_block_size = <None>
+
+# Optional parallelism to pass to scrypt hash function (the `p` parameter).
+# This option is only used when the `password_hash_algorithm` option is set to
+# `scrypt`. Defaults to 1. (integer value)
+#scrypt_parallelism = <None>
+
+# Number of bytes to use in scrypt and pbkfd2_sha512 hashing salt.  Default for
+# scrypt is 16 bytes. Default for pbkfd2_sha512 is 16 bytes.  Limited to a
+# maximum of 96 bytes due to the size of the column used to store password
+# hashes. (integer value)
+# Minimum value: 0
+# Maximum value: 96
+#salt_bytesize = <None>
 
 
 [identity_mapping]
@@ -2305,10 +2359,15 @@
 # From keystone
 #
 
-# Entry point for the resource driver in the `keystone.resource` namespace.
-# Only a `sql` driver is supplied by keystone. Unless you are writing
-# proprietary drivers for keystone, you do not need to set this option. (string
-# value)
+# DEPRECATED: Entry point for the resource driver in the `keystone.resource`
+# namespace. Only a `sql` driver is supplied by keystone. Unless you are
+# writing proprietary drivers for keystone, you do not need to set this option.
+# (string value)
+# This option is deprecated for removal since P.
+# Its value may be silently ignored in the future.
+# Reason: Non-SQL resource cannot be used with SQL Identity and has been unable
+# to be used since Ocata. SQL Resource backend is a requirement as of Pike.
+# Setting this option no longer has an effect on how Keystone operates.
 #driver = sql
 
 # Toggle for resource caching. This has no effect unless global caching is
@@ -2543,10 +2602,11 @@
 #password_expires_days = <None>
 
 # This controls the number of previous user password iterations to keep in
-# history, in order to enforce that newly created passwords are unique. Setting
-# the value to one (the default) disables this feature. Thus, to enable this
-# feature, values must be greater than 1. This feature depends on the `sql`
-# backend for the `[identity] driver`. (integer value)
+# history, in order to enforce that newly created passwords are unique. The
+# total number which includes the new password should not be greater or equal
+# to this value. Setting the value to one (the default) disables this feature.
+# Thus, to enable this feature, values must be greater than 1. This feature
+# depends on the `sql` backend for the `[identity] driver`. (integer value)
 # Minimum value: 1
 #unique_last_password_count = 1
 
@@ -2821,8 +2881,12 @@
 # From keystone
 #
 
-# Delegation and impersonation features using trusts can be optionally
-# disabled. (boolean value)
+# DEPRECATED: Delegation and impersonation features using trusts can be
+# optionally disabled. (boolean value)
+# This option is deprecated for removal since Q.
+# Its value may be silently ignored in the future.
+# Reason: Disabling the trusts API is deprecated. This option will be removed
+# in the next release and trusts will always be enabled.
 #enabled = true
 
 # Allows authorization to be redelegated from one user to another, effectively
@@ -2839,3 +2903,30 @@
 # Keystone only provides a `sql` driver, so there is no reason to change this
 # unless you are providing a custom entry point. (string value)
 #driver = sql
+
+
+[unified_limit]
+
+#
+# From keystone
+#
+
+# Entry point for the unified limit backend driver in the
+# `keystone.unified_limit` namespace. Keystone only provides a `sql` driver, so
+# there's no reason to change this unless you are providing a custom entry
+# point. (string value)
+#driver = sql
+
+# Toggle for unified limit caching. This has no effect unless global caching is
+# enabled. In a typical deployment, there is no reason to disable this.
+# (boolean value)
+#caching = true
+
+# Time to cache unified limit data, in seconds. This has no effect unless both
+# global caching and `[unified_limit] caching` are enabled. (integer value)
+#cache_time = <None>
+
+# Maximum number of entities that will be returned in a role collection. This
+# may be useful to tune if you have a large number of unified limits in your
+# deployment. (integer value)
+#list_limit = <None>
