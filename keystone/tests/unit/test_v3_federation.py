@@ -44,7 +44,6 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils
 from keystone.token.providers import common as token_common
 
 
@@ -2097,9 +2096,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_CUSTOMER,
             expected_status=http_client.FORBIDDEN)
 
-    @utils.wip('This will fail because of bug #1291157. The token should be '
-               'invalid after deleting the identity provider.')
-    def test_validate_token_after_deleting_idp_fails(self):
+    def test_validate_token_after_deleting_idp_raises_not_found(self):
         token = self.v3_create_token(
             self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN
         )
@@ -2110,13 +2107,14 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         headers = {
             'X-Subject-Token': token_id
         }
-        # FIXME(lbragstad): This should raise a 401 Unauthorized exception
-        # since the identity provider is gone.
+        # NOTE(lbragstad): This raises a 404 NOT FOUND because the identity
+        # provider is no longer present. We raise 404 NOT FOUND when we
+        # validate a token and a project or domain no longer exists.
         self.get(
             '/auth/tokens/',
             token=token_id,
             headers=headers,
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http_client.NOT_FOUND
         )
 
     def test_scope_to_bad_project(self):

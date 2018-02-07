@@ -22,6 +22,7 @@ import keystone.conf
 from keystone import exception
 from keystone.federation import utils
 from keystone.i18n import _
+from keystone import notifications
 
 
 # This is a general cache region for service providers.
@@ -76,6 +77,18 @@ class Manager(manager.Manager):
             if auto_created_domain:
                 self._cleanup_idp_domain(idp['domain_id'])
             raise
+
+    def delete_idp(self, idp_id):
+        self.driver.delete_idp(idp_id)
+        # NOTE(lbragstad): If an identity provider is removed from the system,
+        # then we need to invalidate the token cache. Otherwise it will be
+        # possible for federated tokens to be considered valid after a service
+        # provider removes a federated identity provider resource. The `idp_id`
+        # isn't actually used when invalidating the token cache but we have to
+        # pass something.
+        notifications.Audit.internal(
+            notifications.INVALIDATE_TOKEN_CACHE_DELETED_IDP, idp_id
+        )
 
     def _cleanup_idp_domain(self, domain_id):
         domain = {'enabled': False}
