@@ -67,9 +67,20 @@ class ShadowUsers(base.ShadowUsersDriverBase):
 
     def get_federated_users(self, hints):
         with sql.session_for_read() as session:
-            query = session.query(model.User).outerjoin(model.LocalUser)
+            query = session.query(model.User).outerjoin(
+                model.LocalUser).outerjoin(model.FederatedUser)
             query = query.filter(model.User.id == model.FederatedUser.user_id)
             query = self._update_query_with_federated_statements(hints, query)
+            name_filter = None
+            for filter_ in hints.filters:
+                if filter_['name'] == 'name':
+                    name_filter = filter_
+                    query = query.filter(
+                        model.FederatedUser.display_name == name_filter[
+                            'value'])
+                    break
+            if name_filter:
+                hints.filters.remove(name_filter)
             user_refs = sql.filter_limit_query(model.User, query, hints)
             return [identity_base.filter_user(x.to_dict()) for x in user_refs]
 
