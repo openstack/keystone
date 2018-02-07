@@ -1,7 +1,0 @@
-{
-    "tenant": {
-        "name": "ACME corp",
-        "description": "A description ...",
-        "enabled": true
-    }
-}
