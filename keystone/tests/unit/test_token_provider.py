@@ -16,6 +16,7 @@ import datetime
 
 from oslo_utils import timeutils
 
+from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -26,6 +27,7 @@ from keystone import token
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 FUTURE_DELTA = datetime.timedelta(seconds=CONF.token.expiration)
 CURRENT_DATE = timeutils.utcnow()
@@ -452,13 +454,13 @@ class TestTokenProvider(unit.TestCase):
     def test_get_token_version(self):
         self.assertEqual(
             token.provider.V3,
-            self.token_provider_api.get_token_version(SAMPLE_V3_TOKEN))
+            PROVIDERS.token_provider_api.get_token_version(SAMPLE_V3_TOKEN))
         self.assertEqual(
             token.provider.V3,
-            self.token_provider_api.get_token_version(
+            PROVIDERS.token_provider_api.get_token_version(
                 SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION))
         self.assertRaises(exception.UnsupportedTokenVersionException,
-                          self.token_provider_api.get_token_version,
+                          PROVIDERS.token_provider_api.get_token_version,
                           'bogus')
 
     def test_unsupported_token_provider(self):
@@ -469,16 +471,16 @@ class TestTokenProvider(unit.TestCase):
 
     def test_provider_token_expiration_validation(self):
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api._is_valid_token,
+                          PROVIDERS.token_provider_api._is_valid_token,
                           SAMPLE_V3_TOKEN_EXPIRED)
         self.assertRaises(exception.TokenNotFound,
-                          self.token_provider_api._is_valid_token,
+                          PROVIDERS.token_provider_api._is_valid_token,
                           SAMPLE_MALFORMED_TOKEN)
         self.assertIsNone(
-            self.token_provider_api._is_valid_token(create_v3_token()))
+            PROVIDERS.token_provider_api._is_valid_token(create_v3_token()))
 
     def test_validate_v3_token_with_no_token_raises_token_not_found(self):
         self.assertRaises(
             exception.TokenNotFound,
-            self.token_provider_api.validate_token,
+            PROVIDERS.token_provider_api.validate_token,
             None)

@@ -16,7 +16,10 @@ import uuid
 from oslo_utils import timeutils
 from six.moves import range
 
+from keystone.common import provider_api
 from keystone import exception
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TrustTests(object):
@@ -24,7 +27,7 @@ class TrustTests(object):
         self.trustor = self.user_foo
         self.trustee = self.user_two
         expires_at = datetime.datetime.utcnow().replace(year=2032)
-        trust_data = (self.trust_api.create_trust
+        trust_data = (PROVIDERS.trust_api.create_trust
                       (new_id,
                        {'trustor_user_id': self.trustor['id'],
                         'trustee_user_id': self.user_two['id'],
@@ -42,17 +45,17 @@ class TrustTests(object):
         trust_data = self.create_sample_trust(new_id)
         trust_id = trust_data['id']
         self.assertIsNotNone(trust_data)
-        trust_data = self.trust_api.get_trust(trust_id)
+        trust_data = PROVIDERS.trust_api.get_trust(trust_id)
         self.assertEqual(new_id, trust_data['id'])
-        self.trust_api.delete_trust(trust_id)
+        PROVIDERS.trust_api.delete_trust(trust_id)
         self.assertRaises(exception.TrustNotFound,
-                          self.trust_api.get_trust,
+                          PROVIDERS.trust_api.get_trust,
                           trust_id)
 
     def test_delete_trust_not_found(self):
         trust_id = uuid.uuid4().hex
         self.assertRaises(exception.TrustNotFound,
-                          self.trust_api.delete_trust,
+                          PROVIDERS.trust_api.delete_trust,
                           trust_id)
 
     def test_get_trust(self):
@@ -60,21 +63,22 @@ class TrustTests(object):
         trust_data = self.create_sample_trust(new_id)
         trust_id = trust_data['id']
         self.assertIsNotNone(trust_data)
-        trust_data = self.trust_api.get_trust(trust_id)
+        trust_data = PROVIDERS.trust_api.get_trust(trust_id)
         self.assertEqual(new_id, trust_data['id'])
-        self.trust_api.delete_trust(trust_data['id'])
+        PROVIDERS.trust_api.delete_trust(trust_data['id'])
 
     def test_get_deleted_trust(self):
         new_id = uuid.uuid4().hex
         trust_data = self.create_sample_trust(new_id)
         self.assertIsNotNone(trust_data)
         self.assertIsNone(trust_data['deleted_at'])
-        self.trust_api.delete_trust(new_id)
+        PROVIDERS.trust_api.delete_trust(new_id)
         self.assertRaises(exception.TrustNotFound,
-                          self.trust_api.get_trust,
+                          PROVIDERS.trust_api.get_trust,
                           new_id)
-        deleted_trust = self.trust_api.get_trust(trust_data['id'],
-                                                 deleted=True)
+        deleted_trust = PROVIDERS.trust_api.get_trust(
+            trust_data['id'], deleted=True
+        )
         self.assertEqual(trust_data['id'], deleted_trust['id'])
         self.assertIsNotNone(deleted_trust.get('deleted_at'))
 
@@ -95,25 +99,33 @@ class TrustTests(object):
     def test_list_trust_by_trustee(self):
         for i in range(3):
             self.create_sample_trust(uuid.uuid4().hex)
-        trusts = self.trust_api.list_trusts_for_trustee(self.trustee['id'])
+        trusts = PROVIDERS.trust_api.list_trusts_for_trustee(
+            self.trustee['id']
+        )
         self.assertEqual(3, len(trusts))
         self.assertEqual(trusts[0]["trustee_user_id"], self.trustee['id'])
-        trusts = self.trust_api.list_trusts_for_trustee(self.trustor['id'])
+        trusts = PROVIDERS.trust_api.list_trusts_for_trustee(
+            self.trustor['id']
+        )
         self.assertEqual(0, len(trusts))
 
     def test_list_trust_by_trustor(self):
         for i in range(3):
             self.create_sample_trust(uuid.uuid4().hex)
-        trusts = self.trust_api.list_trusts_for_trustor(self.trustor['id'])
+        trusts = PROVIDERS.trust_api.list_trusts_for_trustor(
+            self.trustor['id']
+        )
         self.assertEqual(3, len(trusts))
         self.assertEqual(trusts[0]["trustor_user_id"], self.trustor['id'])
-        trusts = self.trust_api.list_trusts_for_trustor(self.trustee['id'])
+        trusts = PROVIDERS.trust_api.list_trusts_for_trustor(
+            self.trustee['id']
+        )
         self.assertEqual(0, len(trusts))
 
     def test_list_trusts(self):
         for i in range(3):
             self.create_sample_trust(uuid.uuid4().hex)
-        trusts = self.trust_api.list_trusts()
+        trusts = PROVIDERS.trust_api.list_trusts()
         self.assertEqual(3, len(trusts))
 
     def test_trust_has_remaining_uses_positive(self):
@@ -142,13 +154,13 @@ class TrustTests(object):
         # consume a trust repeatedly until it has no uses anymore
         trust_data = self.create_sample_trust(uuid.uuid4().hex,
                                               remaining_uses=2)
-        self.trust_api.consume_use(trust_data['id'])
-        t = self.trust_api.get_trust(trust_data['id'])
+        PROVIDERS.trust_api.consume_use(trust_data['id'])
+        t = PROVIDERS.trust_api.get_trust(trust_data['id'])
         self.assertEqual(1, t['remaining_uses'])
-        self.trust_api.consume_use(trust_data['id'])
+        PROVIDERS.trust_api.consume_use(trust_data['id'])
         # This was the last use, the trust isn't available anymore
         self.assertRaises(exception.TrustNotFound,
-                          self.trust_api.get_trust,
+                          PROVIDERS.trust_api.get_trust,
                           trust_data['id'])
 
     def test_duplicate_trusts_not_allowed(self):
@@ -164,9 +176,9 @@ class TrustTests(object):
         roles = [{"id": "member"},
                  {"id": "other"},
                  {"id": "browser"}]
-        self.trust_api.create_trust(uuid.uuid4().hex, trust_data, roles)
+        PROVIDERS.trust_api.create_trust(uuid.uuid4().hex, trust_data, roles)
         self.assertRaises(exception.Conflict,
-                          self.trust_api.create_trust,
+                          PROVIDERS.trust_api.create_trust,
                           uuid.uuid4().hex,
                           trust_data,
                           roles)

@@ -17,6 +17,7 @@ import mock
 from oslo_config import cfg
 from testtools import matchers
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
@@ -24,6 +25,7 @@ from keystone.tests.unit.ksfixtures import database
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
@@ -41,17 +43,19 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
             'name': name,
             'description': description,
         }
-        domain = self.resource_api.create_domain(
+        domain = PROVIDERS.resource_api.create_domain(
             CONF.identity.default_domain_id, domain_attrs)
         project1 = unit.new_project_ref(domain_id=domain['id'],
                                         name=uuid.uuid4().hex)
-        self.resource_api.create_project(project1['id'], project1)
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
         project2 = unit.new_project_ref(domain_id=domain['id'],
                                         name=uuid.uuid4().hex)
-        project = self.resource_api.create_project(project2['id'], project2)
+        project = PROVIDERS.resource_api.create_project(
+            project2['id'], project2
+        )
 
         self.assertRaises(exception.Conflict,
-                          self.resource_api.update_project,
+                          PROVIDERS.resource_api.update_project,
                           project['id'], {'name': project1['name']})
 
 
@@ -204,35 +208,35 @@ class DomainConfigTests(object):
 
     def setUp(self):
         self.domain = unit.new_domain_ref()
-        self.resource_api.create_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.create_domain(self.domain['id'], self.domain)
         self.addCleanup(self.clean_up_domain)
 
     def clean_up_domain(self):
         # NOTE(henry-nash): Deleting the domain will also delete any domain
         # configs for this domain.
         self.domain['enabled'] = False
-        self.resource_api.update_domain(self.domain['id'], self.domain)
-        self.resource_api.delete_domain(self.domain['id'])
+        PROVIDERS.resource_api.update_domain(self.domain['id'], self.domain)
+        PROVIDERS.resource_api.delete_domain(self.domain['id'])
         del self.domain
 
     def test_create_domain_config_including_sensitive_option(self):
         config = {'ldap': {'url': uuid.uuid4().hex,
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
 
         # password is sensitive, so check that the whitelisted portion and
         # the sensitive piece have been stored in the appropriate locations.
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         config_whitelisted = copy.deepcopy(config)
         config_whitelisted['ldap'].pop('password')
         self.assertEqual(config_whitelisted, res)
-        res = self.domain_config_api.driver.get_config_option(
+        res = PROVIDERS.domain_config_api.driver.get_config_option(
             self.domain['id'], 'ldap', 'password', sensitive=True)
         self.assertEqual(config['ldap']['password'], res['value'])
 
         # Finally, use the non-public API to get back the whole config
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual(config, res)
 
@@ -241,67 +245,82 @@ class DomainConfigTests(object):
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex},
                   'identity': {'driver': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
 
-        res = self.domain_config_api.get_config(self.domain['id'],
-                                                group='identity')
+        res = PROVIDERS.domain_config_api.get_config(
+            self.domain['id'], group='identity'
+        )
         config_partial = copy.deepcopy(config)
         config_partial.pop('ldap')
         self.assertEqual(config_partial, res)
-        res = self.domain_config_api.get_config(
+        res = PROVIDERS.domain_config_api.get_config(
             self.domain['id'], group='ldap', option='user_tree_dn')
         self.assertEqual({'user_tree_dn': config['ldap']['user_tree_dn']}, res)
         # ...but we should fail to get a sensitive option
-        self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.get_config, self.domain['id'],
-                          group='ldap', option='password')
+        self.assertRaises(
+            exception.DomainConfigNotFound,
+            PROVIDERS.domain_config_api.get_config,
+            self.domain['id'],
+            group='ldap',
+            option='password'
+        )
 
     def test_delete_partial_domain_config(self):
         config = {'ldap': {'url': uuid.uuid4().hex,
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex},
                   'identity': {'driver': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
 
-        self.domain_config_api.delete_config(
+        PROVIDERS.domain_config_api.delete_config(
             self.domain['id'], group='identity')
         config_partial = copy.deepcopy(config)
         config_partial.pop('identity')
         config_partial['ldap'].pop('password')
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(config_partial, res)
 
-        self.domain_config_api.delete_config(
+        PROVIDERS.domain_config_api.delete_config(
             self.domain['id'], group='ldap', option='url')
         config_partial = copy.deepcopy(config_partial)
         config_partial['ldap'].pop('url')
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(config_partial, res)
 
     def test_get_options_not_in_domain_config(self):
-        self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.get_config, self.domain['id'])
+        self.assertRaises(
+            exception.DomainConfigNotFound,
+            PROVIDERS.domain_config_api.get_config,
+            self.domain['id']
+        )
         config = {'ldap': {'url': uuid.uuid4().hex}}
 
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
 
-        self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.get_config, self.domain['id'],
-                          group='identity')
-        self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.get_config, self.domain['id'],
-                          group='ldap', option='user_tree_dn')
+        self.assertRaises(
+            exception.DomainConfigNotFound,
+            PROVIDERS.domain_config_api.get_config,
+            self.domain['id'],
+            group='identity'
+        )
+        self.assertRaises(
+            exception.DomainConfigNotFound,
+            PROVIDERS.domain_config_api.get_config,
+            self.domain['id'],
+            group='ldap',
+            option='user_tree_dn'
+        )
 
     def test_get_sensitive_config(self):
         config = {'ldap': {'url': uuid.uuid4().hex,
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex},
                   'identity': {'driver': uuid.uuid4().hex}}
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual({}, res)
-        self.domain_config_api.create_config(self.domain['id'], config)
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual(config, res)
 
@@ -310,12 +329,12 @@ class DomainConfigTests(object):
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex},
                   'identity': {'driver': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
 
         # Try updating a group
         new_config = {'ldap': {'url': uuid.uuid4().hex,
                                'user_filter': uuid.uuid4().hex}}
-        res = self.domain_config_api.update_config(
+        res = PROVIDERS.domain_config_api.update_config(
             self.domain['id'], new_config, group='ldap')
         expected_config = copy.deepcopy(config)
         expected_config['ldap']['url'] = new_config['ldap']['url']
@@ -323,18 +342,18 @@ class DomainConfigTests(object):
             new_config['ldap']['user_filter'])
         expected_full_config = copy.deepcopy(expected_config)
         expected_config['ldap'].pop('password')
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(expected_config, res)
         # The sensitive option should still exist
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual(expected_full_config, res)
 
         # Try updating a single whitelisted option
-        self.domain_config_api.delete_config(self.domain['id'])
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.delete_config(self.domain['id'])
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         new_config = {'url': uuid.uuid4().hex}
-        res = self.domain_config_api.update_config(
+        res = PROVIDERS.domain_config_api.update_config(
             self.domain['id'], new_config, group='ldap', option='url')
 
         # Make sure whitelisted and full config is updated
@@ -343,27 +362,27 @@ class DomainConfigTests(object):
         expected_full_config = copy.deepcopy(expected_whitelisted_config)
         expected_whitelisted_config['ldap'].pop('password')
         self.assertEqual(expected_whitelisted_config, res)
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(expected_whitelisted_config, res)
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual(expected_full_config, res)
 
         # Try updating a single sensitive option
-        self.domain_config_api.delete_config(self.domain['id'])
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.delete_config(self.domain['id'])
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         new_config = {'password': uuid.uuid4().hex}
-        res = self.domain_config_api.update_config(
+        res = PROVIDERS.domain_config_api.update_config(
             self.domain['id'], new_config, group='ldap', option='password')
         # The whitelisted config should not have changed...
         expected_whitelisted_config = copy.deepcopy(config)
         expected_full_config = copy.deepcopy(config)
         expected_whitelisted_config['ldap'].pop('password')
         self.assertEqual(expected_whitelisted_config, res)
-        res = self.domain_config_api.get_config(self.domain['id'])
+        res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(expected_whitelisted_config, res)
         expected_full_config['ldap']['password'] = new_config['password']
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         # ...but the sensitive piece should have.
         self.assertEqual(expected_full_config, res)
@@ -375,11 +394,11 @@ class DomainConfigTests(object):
                   'identity': {'driver': uuid.uuid4().hex}}
         # An extra group, when specifying one group should fail
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config, group='ldap')
         # An extra option, when specifying one option should fail
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config['ldap'],
                           group='ldap', option='url')
 
@@ -387,25 +406,25 @@ class DomainConfigTests(object):
         # ones that are in the config provided
         config = {'ldap': {'user_tree_dn': uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config, group='identity')
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config['ldap'], group='ldap',
                           option='url')
 
         # Now some valid groups/options, but just not ones that are in the
         # existing config
         config = {'ldap': {'user_tree_dn': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         config_wrong_group = {'identity': {'driver': uuid.uuid4().hex}}
         self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config_wrong_group,
                           group='identity')
         config_wrong_option = {'url': uuid.uuid4().hex}
         self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config_wrong_option,
                           group='ldap', option='url')
 
@@ -413,49 +432,49 @@ class DomainConfigTests(object):
         bad_group = uuid.uuid4().hex
         config = {bad_group: {'user': uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config, group=bad_group,
                           option='user')
         bad_option = uuid.uuid4().hex
         config = {'ldap': {bad_option: uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.update_config,
+                          PROVIDERS.domain_config_api.update_config,
                           self.domain['id'], config, group='ldap',
                           option=bad_option)
 
     def test_create_invalid_domain_config(self):
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.create_config,
+                          PROVIDERS.domain_config_api.create_config,
                           self.domain['id'], {})
         config = {uuid.uuid4().hex: uuid.uuid4().hex}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.create_config,
+                          PROVIDERS.domain_config_api.create_config,
                           self.domain['id'], config)
         config = {uuid.uuid4().hex: {uuid.uuid4().hex: uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.create_config,
+                          PROVIDERS.domain_config_api.create_config,
                           self.domain['id'], config)
         config = {'ldap': {uuid.uuid4().hex: uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.create_config,
+                          PROVIDERS.domain_config_api.create_config,
                           self.domain['id'], config)
         # Try an option that IS in the standard conf, but neither whitelisted
         # or marked as sensitive
         config = {'identity': {'user_tree_dn': uuid.uuid4().hex}}
         self.assertRaises(exception.InvalidDomainConfig,
-                          self.domain_config_api.create_config,
+                          PROVIDERS.domain_config_api.create_config,
                           self.domain['id'], config)
 
     def test_delete_invalid_partial_domain_config(self):
         config = {'ldap': {'url': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         # Try deleting a group not in the config
         self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.delete_config,
+                          PROVIDERS.domain_config_api.delete_config,
                           self.domain['id'], group='identity')
         # Try deleting an option not in the config
         self.assertRaises(exception.DomainConfigNotFound,
-                          self.domain_config_api.delete_config,
+                          PROVIDERS.domain_config_api.delete_config,
                           self.domain['id'],
                           group='ldap', option='user_tree_dn')
 
@@ -466,11 +485,11 @@ class DomainConfigTests(object):
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex},
                   'identity': {'driver': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
 
         # Read back the config with the internal method and ensure that the
         # substitution has taken place.
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         expected_url = (
             config['ldap']['url'] % {'password': config['ldap']['password']})
@@ -490,12 +509,15 @@ class DomainConfigTests(object):
                                'my_url/%(password)',
                                'my_url/%(password)d']:
             invalid_option_config['ldap']['url'] = invalid_option
-            self.domain_config_api.create_config(
+            PROVIDERS.domain_config_api.create_config(
                 self.domain['id'], invalid_option_config)
 
             with mock.patch('keystone.resource.core.LOG', mock_log):
-                res = self.domain_config_api.get_config_with_sensitive_info(
-                    self.domain['id'])
+                res = (
+                    PROVIDERS.domain_config_api.get_config_with_sensitive_info(
+                        self.domain['id']
+                    )
+                )
             mock_log.warning.assert_any_call(mock.ANY, mock.ANY)
             self.assertEqual(
                 invalid_option_config['ldap']['url'], res['ldap']['url'])
@@ -510,11 +532,11 @@ class DomainConfigTests(object):
                      'password': uuid.uuid4().hex},
             'identity': {'driver': uuid.uuid4().hex}}
 
-        self.domain_config_api.create_config(
+        PROVIDERS.domain_config_api.create_config(
             self.domain['id'], escaped_option_config)
 
         with mock.patch('keystone.resource.core.LOG', mock_log):
-            res = self.domain_config_api.get_config_with_sensitive_info(
+            res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
                 self.domain['id'])
         self.assertFalse(mock_log.warn.called)
         # The escaping '%' should have been removed
@@ -526,100 +548,100 @@ class DomainConfigTests(object):
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex},
                   'identity': {'driver': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(self.domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         # cache the result
-        res = self.domain_config_api.get_config_with_sensitive_info(
+        res = PROVIDERS.domain_config_api.get_config_with_sensitive_info(
             self.domain['id'])
         self.assertEqual(config, res)
 
         # delete, bypassing domain config manager api
-        self.domain_config_api.delete_config_options(self.domain['id'])
+        PROVIDERS.domain_config_api.delete_config_options(self.domain['id'])
 
         self.assertDictEqual(
-            res, self.domain_config_api.get_config_with_sensitive_info(
+            res, PROVIDERS.domain_config_api.get_config_with_sensitive_info(
                 self.domain['id']))
-        self.domain_config_api.get_config_with_sensitive_info.invalidate(
-            self.domain_config_api, self.domain['id'])
+        PROVIDERS.domain_config_api.get_config_with_sensitive_info.invalidate(
+            PROVIDERS.domain_config_api, self.domain['id'])
         self.assertDictEqual(
             {},
-            self.domain_config_api.get_config_with_sensitive_info(
+            PROVIDERS.domain_config_api.get_config_with_sensitive_info(
                 self.domain['id']))
 
     def test_delete_domain_deletes_configs(self):
         """Test domain deletion clears the domain configs."""
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         config = {'ldap': {'url': uuid.uuid4().hex,
                            'user_tree_dn': uuid.uuid4().hex,
                            'password': uuid.uuid4().hex}}
-        self.domain_config_api.create_config(domain['id'], config)
+        PROVIDERS.domain_config_api.create_config(domain['id'], config)
 
         # Now delete the domain
         domain['enabled'] = False
-        self.resource_api.update_domain(domain['id'], domain)
-        self.resource_api.delete_domain(domain['id'])
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
+        PROVIDERS.resource_api.delete_domain(domain['id'])
 
         # Check domain configs have also been deleted
         self.assertRaises(
             exception.DomainConfigNotFound,
-            self.domain_config_api.get_config,
+            PROVIDERS.domain_config_api.get_config,
             domain['id'])
 
         # The get_config_with_sensitive_info does not throw an exception if
         # the config is empty, it just returns an empty dict
         self.assertDictEqual(
             {},
-            self.domain_config_api.get_config_with_sensitive_info(
+            PROVIDERS.domain_config_api.get_config_with_sensitive_info(
                 domain['id']))
 
     def test_config_registration(self):
         type = uuid.uuid4().hex
-        self.domain_config_api.obtain_registration(
+        PROVIDERS.domain_config_api.obtain_registration(
             self.domain['id'], type)
-        self.domain_config_api.release_registration(
+        PROVIDERS.domain_config_api.release_registration(
             self.domain['id'], type=type)
 
         # Make sure that once someone has it, nobody else can get it.
         # This includes the domain who already has it.
-        self.domain_config_api.obtain_registration(
+        PROVIDERS.domain_config_api.obtain_registration(
             self.domain['id'], type)
         self.assertFalse(
-            self.domain_config_api.obtain_registration(
+            PROVIDERS.domain_config_api.obtain_registration(
                 self.domain['id'], type))
 
         # Make sure we can read who does have it
         self.assertEqual(
             self.domain['id'],
-            self.domain_config_api.read_registration(type))
+            PROVIDERS.domain_config_api.read_registration(type))
 
         # Make sure releasing it is silent if the domain specified doesn't
         # have the registration
         domain2 = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
-        self.resource_api.create_domain(domain2['id'], domain2)
-        self.domain_config_api.release_registration(
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.domain_config_api.release_registration(
             domain2['id'], type=type)
 
         # If nobody has the type registered, then trying to read it should
         # raise ConfigRegistrationNotFound
-        self.domain_config_api.release_registration(
+        PROVIDERS.domain_config_api.release_registration(
             self.domain['id'], type=type)
         self.assertRaises(exception.ConfigRegistrationNotFound,
-                          self.domain_config_api.read_registration,
+                          PROVIDERS.domain_config_api.read_registration,
                           type)
 
         # Finally check multiple registrations are cleared if you free the
         # registration without specifying the type
         type2 = uuid.uuid4().hex
-        self.domain_config_api.obtain_registration(
+        PROVIDERS.domain_config_api.obtain_registration(
             self.domain['id'], type)
-        self.domain_config_api.obtain_registration(
+        PROVIDERS.domain_config_api.obtain_registration(
             self.domain['id'], type2)
-        self.domain_config_api.release_registration(self.domain['id'])
+        PROVIDERS.domain_config_api.release_registration(self.domain['id'])
         self.assertRaises(exception.ConfigRegistrationNotFound,
-                          self.domain_config_api.read_registration,
+                          PROVIDERS.domain_config_api.read_registration,
                           type)
         self.assertRaises(exception.ConfigRegistrationNotFound,
-                          self.domain_config_api.read_registration,
+                          PROVIDERS.domain_config_api.read_registration,
                           type2)
 
     def test_option_dict_fails_when_group_is_none(self):
@@ -627,7 +649,7 @@ class DomainConfigTests(object):
         option = 'bar'
         self.assertRaises(
             cfg.NoSuchOptError,
-            self.domain_config_api._option_dict,
+            PROVIDERS.domain_config_api._option_dict,
             group,
             option
         )
@@ -642,7 +664,7 @@ class DomainConfigTests(object):
             'option': 'password_regex',
             'value': regex
         }
-        option_dict = self.domain_config_api._option_dict(
+        option_dict = PROVIDERS.domain_config_api._option_dict(
             'security_compliance', 'password_regex'
         )
         self.assertEqual(option_dict, expected_dict)

@@ -24,6 +24,7 @@ import webtest
 from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
+from keystone.common import provider_api
 from keystone.common.validation import validators
 from keystone import exception
 from keystone import middleware
@@ -32,6 +33,7 @@ from keystone.tests import unit
 from keystone.tests.unit import rest
 
 
+PROVIDERS = provider_api.ProviderAPIs
 DEFAULT_DOMAIN_ID = 'default'
 
 TIME_FORMAT = unit.TIME_FORMAT
@@ -215,26 +217,27 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
     def _populate_default_domain(self):
         try:
-            self.resource_api.get_domain(DEFAULT_DOMAIN_ID)
+            PROVIDERS.resource_api.get_domain(DEFAULT_DOMAIN_ID)
         except exception.DomainNotFound:
             domain = unit.new_domain_ref(
                 description=(u'The default domain'),
                 id=DEFAULT_DOMAIN_ID,
                 name=u'Default')
-            self.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
+            PROVIDERS.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
 
     def load_sample_data(self, create_region_and_endpoints=True):
         self._populate_default_domain()
         self.domain = unit.new_domain_ref()
         self.domain_id = self.domain['id']
-        self.resource_api.create_domain(self.domain_id, self.domain)
+        PROVIDERS.resource_api.create_domain(self.domain_id, self.domain)
 
         self.project = unit.new_project_ref(domain_id=self.domain_id)
         self.project_id = self.project['id']
-        self.project = self.resource_api.create_project(self.project_id,
-                                                        self.project)
+        self.project = PROVIDERS.resource_api.create_project(
+            self.project_id, self.project
+        )
 
-        self.user = unit.create_user(self.identity_api,
+        self.user = unit.create_user(PROVIDERS.identity_api,
                                      domain_id=self.domain_id)
         self.user_id = self.user['id']
 
@@ -242,32 +245,33 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.default_domain_project = unit.new_project_ref(
             domain_id=DEFAULT_DOMAIN_ID)
         self.default_domain_project['id'] = self.default_domain_project_id
-        self.resource_api.create_project(self.default_domain_project_id,
-                                         self.default_domain_project)
+        PROVIDERS.resource_api.create_project(
+            self.default_domain_project_id, self.default_domain_project
+        )
 
         self.default_domain_user = unit.create_user(
-            self.identity_api,
+            PROVIDERS.identity_api,
             domain_id=DEFAULT_DOMAIN_ID)
         self.default_domain_user_id = self.default_domain_user['id']
 
         # create & grant policy.json's default role for admin_required
         self.role = unit.new_role_ref(name='admin')
         self.role_id = self.role['id']
-        self.role_api.create_role(self.role_id, self.role)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.role_api.create_role(self.role_id, self.role)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_id, self.project_id, self.role_id)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.default_domain_user_id, self.default_domain_project_id,
             self.role_id)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.default_domain_user_id, self.project_id,
             self.role_id)
 
         # Create "req_admin" user for simulating a real user instead of the
         # admin_token_auth middleware
-        self.user_reqadmin = unit.create_user(self.identity_api,
+        self.user_reqadmin = unit.create_user(PROVIDERS.identity_api,
                                               DEFAULT_DOMAIN_ID)
-        self.assignment_api.add_role_to_user_and_project(
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
             self.user_reqadmin['id'],
             self.default_domain_project_id,
             self.role_id)
@@ -275,19 +279,21 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         if create_region_and_endpoints:
             self.region = unit.new_region_ref()
             self.region_id = self.region['id']
-            self.catalog_api.create_region(self.region)
+            PROVIDERS.catalog_api.create_region(self.region)
 
             self.service = unit.new_service_ref()
             self.service_id = self.service['id']
-            self.catalog_api.create_service(self.service_id,
-                                            self.service.copy())
+            PROVIDERS.catalog_api.create_service(
+                self.service_id, self.service.copy()
+            )
 
             self.endpoint = unit.new_endpoint_ref(service_id=self.service_id,
                                                   interface='public',
                                                   region_id=self.region_id)
             self.endpoint_id = self.endpoint['id']
-            self.catalog_api.create_endpoint(self.endpoint_id,
-                                             self.endpoint.copy())
+            PROVIDERS.catalog_api.create_endpoint(
+                self.endpoint_id, self.endpoint.copy()
+            )
             # The server adds 'enabled' and defaults to True.
             self.endpoint['enabled'] = True
 
@@ -1484,7 +1490,7 @@ class AssignmentTestMixin(object):
         entity = {'links': {}}
         attributes_for_links = {}
         if project_ref:
-            dmn_name = self.resource_api.get_domain(
+            dmn_name = PROVIDERS.resource_api.get_domain(
                 project_ref['domain_id'])['name']
 
             entity['scope'] = {'project': {
@@ -1499,7 +1505,7 @@ class AssignmentTestMixin(object):
                                           'name': domain_ref['name']}}
             attributes_for_links['domain_id'] = domain_ref['id']
         if user_ref:
-            dmn_name = self.resource_api.get_domain(
+            dmn_name = PROVIDERS.resource_api.get_domain(
                 user_ref['domain_id'])['name']
             entity['user'] = {'id': user_ref['id'],
                               'name': user_ref['name'],
@@ -1507,7 +1513,7 @@ class AssignmentTestMixin(object):
                                          'name': dmn_name}}
             attributes_for_links['user_id'] = user_ref['id']
         else:
-            dmn_name = self.resource_api.get_domain(
+            dmn_name = PROVIDERS.resource_api.get_domain(
                 group_ref['domain_id'])['name']
             entity['group'] = {'id': group_ref['id'],
                                'name': group_ref['name'],
@@ -1520,7 +1526,7 @@ class AssignmentTestMixin(object):
             entity['role'] = {'id': role_ref['id'],
                               'name': role_ref['name']}
             if role_ref['domain_id']:
-                dmn_name = self.resource_api.get_domain(
+                dmn_name = PROVIDERS.resource_api.get_domain(
                     role_ref['domain_id'])['name']
                 entity['role']['domain'] = {'id': role_ref['domain_id'],
                                             'name': dmn_name}

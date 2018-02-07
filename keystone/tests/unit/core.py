@@ -74,6 +74,7 @@ def _calc_tmpdir():
 TMPDIR = _calc_tmpdir()
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 log.register_options(CONF)
 
 IN_MEM_DB_CONN_STRING = 'sqlite://'
@@ -737,20 +738,20 @@ class TestCase(BaseTestCase):
             hasattr(self, 'assignment_api') and
                 hasattr(self, 'resource_api')):
             for domain in fixtures.DOMAINS:
-                rv = self.resource_api.create_domain(domain['id'], domain)
+                rv = PROVIDERS.resource_api.create_domain(domain['id'], domain)
                 attrname = 'domain_%s' % domain['id']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
 
             for tenant in fixtures.TENANTS:
                 tenant_attr_name = 'tenant_%s' % tenant['name'].lower()
-                rv = self.resource_api.create_project(
+                rv = PROVIDERS.resource_api.create_project(
                     tenant['id'], tenant)
                 setattr(self, tenant_attr_name, rv)
                 fixtures_to_cleanup.append(tenant_attr_name)
 
             for role in fixtures.ROLES:
-                rv = self.role_api.create_role(role['id'], role)
+                rv = PROVIDERS.role_api.create_role(role['id'], role)
                 attrname = 'role_%s' % role['name']
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
@@ -760,7 +761,7 @@ class TestCase(BaseTestCase):
                 tenants = user_copy.pop('tenants')
 
                 # For users, the manager layer will generate the ID
-                user_copy = self.identity_api.create_user(user_copy)
+                user_copy = PROVIDERS.identity_api.create_user(user_copy)
                 # Our tests expect that the password is still in the user
                 # record so that they can reference it, so put it back into
                 # the dict returned.
@@ -768,7 +769,7 @@ class TestCase(BaseTestCase):
 
                 # fixtures.ROLES[2] is the _member_ role.
                 for tenant_id in tenants:
-                    self.assignment_api.add_role_to_user_and_project(
+                    PROVIDERS.assignment_api.add_role_to_user_and_project(
                         user_copy['id'], tenant_id, fixtures.ROLES[2]['id'])
 
                 # Use the ID from the fixture as the attribute name, so
@@ -783,7 +784,7 @@ class TestCase(BaseTestCase):
                 user = role_assignment['user']
                 tenant_id = role_assignment['tenant_id']
                 user_id = getattr(self, 'user_%s' % user)['id']
-                self.assignment_api.add_role_to_user_and_project(
+                PROVIDERS.assignment_api.add_role_to_user_and_project(
                     user_id, tenant_id, role_id)
 
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))

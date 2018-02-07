@@ -14,6 +14,7 @@ import ldap
 
 
 from keystone.common import cache
+from keystone.common import provider_api
 import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
@@ -22,6 +23,7 @@ from keystone.tests.unit.ksfixtures import ldapdb
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def create_group_container(identity_api):
@@ -45,7 +47,9 @@ class BaseBackendLdapCommon(object):
 
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""
-        return self.resource_api.get_domain(CONF.identity.default_domain_id)
+        return PROVIDERS.resource_api.get_domain(
+            CONF.identity.default_domain_id
+        )
 
     def get_config(self, domain_id):
         # Only one conf structure unless we are using separate domain backends
@@ -62,10 +66,13 @@ class BaseBackendLdapCommon(object):
 
     def get_user_enabled_vals(self, user):
             user_dn = (
-                self.identity_api.driver.user._id_to_dn_string(user['id']))
+                PROVIDERS.identity_api.driver.user._id_to_dn_string(
+                    user['id']
+                )
+            )
             enabled_attr_name = CONF.ldap.user_enabled_attribute
 
-            ldap_ = self.identity_api.driver.user.get_connection()
+            ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
             res = ldap_.search_s(user_dn,
                                  ldap.SCOPE_BASE,
                                  u'(sn=%s)' % user['name'])
@@ -87,7 +94,7 @@ class BaseBackendLdap(object):
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
-        create_group_container(self.identity_api)
+        create_group_container(PROVIDERS.identity_api)
         super(BaseBackendLdap, self).load_fixtures(fixtures)
 
 

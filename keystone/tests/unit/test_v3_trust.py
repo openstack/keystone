@@ -37,7 +37,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
     def setUp(self):
         super(TestTrustOperations, self).setUp()
         # create a trustee to delegate stuff to
-        self.trustee_user = unit.create_user(self.identity_api,
+        self.trustee_user = unit.create_user(PROVIDERS.identity_api,
                                              domain_id=self.domain_id)
         self.trustee_user_id = self.trustee_user['id']
 
@@ -417,7 +417,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # create third-party user, which will be trustee in trust created from
         # redelegated trust
-        third_party_trustee = unit.create_user(self.identity_api,
+        third_party_trustee = unit.create_user(PROVIDERS.identity_api,
                                                domain_id=self.domain_id)
         third_party_trustee_id = third_party_trustee['id']
 
@@ -461,7 +461,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             expected_status=http_client.NOT_FOUND)
 
         # create another user as the new trustee
-        trustee_user = unit.create_user(self.identity_api,
+        trustee_user = unit.create_user(PROVIDERS.identity_api,
                                         domain_id=self.domain_id)
         trustee_user_id = trustee_user['id']
         # create the trust again
@@ -479,7 +479,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # call the backend method directly to bypass authentication since the
         # user has been deleted.
         self.assertRaises(exception.TrustNotFound,
-                          self.trust_api.get_trust,
+                          PROVIDERS.trust_api.get_trust,
                           trust['id'])
 
     def test_trust_deleted_when_project_deleted(self):
@@ -506,7 +506,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # call the backend method directly to bypass authentication since the
         # user no longer has the assignment on the project.
         self.assertRaises(exception.TrustNotFound,
-                          self.trust_api.get_trust,
+                          PROVIDERS.trust_api.get_trust,
                           trust['id'])
 
 

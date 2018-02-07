@@ -18,6 +18,7 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 from six.moves import http_client
 
 from keystone.common import context
+from keystone.common import provider_api
 from keystone.common import request
 from keystone.common import utils
 from keystone.contrib.ec2 import controllers
@@ -30,6 +31,7 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_v3 as rest
 
 CRED_TYPE_EC2 = controllers.CRED_TYPE_EC2
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class V2CredentialEc2TestCase(rest.RestfulTestCase):
@@ -52,7 +54,7 @@ class V2CredentialEc2TestCase(rest.RestfulTestCase):
             user_id=self.user_id,
             project_id=self.project_id)
         non_ec2_cred['id'] = cred_id
-        self.credential_api.create_credential(cred_id, non_ec2_cred)
+        PROVIDERS.credential_api.create_credential(cred_id, non_ec2_cred)
 
         # if access_key is not found, ec2 controller raises Unauthorized
         # exception
@@ -87,8 +89,9 @@ class V2CredentialEc2TestCase(rest.RestfulTestCase):
             user_id=self.user_id,
             project_id=self.project_id)
         non_ec2_cred['type'] = uuid.uuid4().hex
-        self.credential_api.create_credential(non_ec2_cred['id'],
-                                              non_ec2_cred)
+        PROVIDERS.credential_api.create_credential(
+            non_ec2_cred['id'], non_ec2_cred
+        )
         r = self.public_request(method='GET', token=self.get_scoped_token(),
                                 path=uri)
         cred_list_2 = r.result['credentials']

@@ -16,10 +16,12 @@ import uuid
 
 from six.moves import range
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 
 
+PROVIDERS = provider_api.ProviderAPIs
 CONF = keystone.conf.CONF
 
 
@@ -51,11 +53,13 @@ class FilterTests(object):
         one.
 
         """
-        f = getattr(self.identity_api, 'create_%s' % entity_type, None)
+        f = getattr(PROVIDERS.identity_api, 'create_%s' % entity_type, None)
         if f is None:
-            f = getattr(self.resource_api, 'create_%s' % entity_type, None)
+            f = getattr(
+                PROVIDERS.resource_api, 'create_%s' % entity_type, None
+            )
         if f is None:
-            f = getattr(self.assignment_api, 'create_%s' % entity_type)
+            f = getattr(PROVIDERS.assignment_api, 'create_%s' % entity_type)
         return f
 
     def _delete_entity(self, entity_type):
@@ -66,11 +70,13 @@ class FilterTests(object):
         one.
 
         """
-        f = getattr(self.identity_api, 'delete_%s' % entity_type, None)
+        f = getattr(PROVIDERS.identity_api, 'delete_%s' % entity_type, None)
         if f is None:
-            f = getattr(self.resource_api, 'delete_%s' % entity_type, None)
+            f = getattr(
+                PROVIDERS.resource_api, 'delete_%s' % entity_type, None
+            )
         if f is None:
-            f = getattr(self.assignment_api, 'delete_%s' % entity_type)
+            f = getattr(PROVIDERS.assignment_api, 'delete_%s' % entity_type)
         return f
 
     def _list_entities(self, entity_type):
@@ -81,11 +87,11 @@ class FilterTests(object):
         one.
 
         """
-        f = getattr(self.identity_api, 'list_%ss' % entity_type, None)
+        f = getattr(PROVIDERS.identity_api, 'list_%ss' % entity_type, None)
         if f is None:
-            f = getattr(self.resource_api, 'list_%ss' % entity_type, None)
+            f = getattr(PROVIDERS.resource_api, 'list_%ss' % entity_type, None)
         if f is None:
-            f = getattr(self.assignment_api, 'list_%ss' % entity_type)
+            f = getattr(PROVIDERS.assignment_api, 'list_%ss' % entity_type)
         return f
 
     def _create_one_entity(self, entity_type, domain_id, name):

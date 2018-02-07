@@ -18,12 +18,14 @@ import mock
 from six.moves import zip
 
 from keystone.catalog.backends import base as catalog_base
+from keystone.common import provider_api
 from keystone.tests import unit
 from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
+PROVIDERS = provider_api.ProviderAPIs
 BROKEN_WRITE_FUNCTIONALITY_MSG = ("Templated backend doesn't correctly "
                                   "implement write operations")
 
@@ -63,7 +65,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
             template_file=unit.dirs.tests('default_catalog.templates'))
 
     def test_get_catalog(self):
-        catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
+        catalog_ref = PROVIDERS.catalog_api.get_catalog('foo', 'bar')
         self.assertDictEqual(self.DEFAULT_FIXTURE, catalog_ref)
 
     # NOTE(lbragstad): This test is skipped because the catalog is being
@@ -71,14 +73,14 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     @unit.skip_if_cache_is_enabled('catalog')
     def test_catalog_ignored_malformed_urls(self):
         # both endpoints are in the catalog
-        catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
+        catalog_ref = PROVIDERS.catalog_api.get_catalog('foo', 'bar')
         self.assertEqual(2, len(catalog_ref['RegionOne']))
 
-        region = self.catalog_api.driver.templates['RegionOne']
+        region = PROVIDERS.catalog_api.driver.templates['RegionOne']
         region['compute']['adminURL'] = 'http://localhost:8774/v1.1/$(tenant)s'
 
         # the malformed one has been removed
-        catalog_ref = self.catalog_api.get_catalog('foo', 'bar')
+        catalog_ref = PROVIDERS.catalog_api.get_catalog('foo', 'bar')
         self.assertEqual(1, len(catalog_ref['RegionOne']))
 
     def test_get_v3_catalog_endpoint_disabled(self):
@@ -97,7 +99,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     def test_get_v3_catalog(self):
         user_id = uuid.uuid4().hex
         project_id = uuid.uuid4().hex
-        catalog_ref = self.catalog_api.get_v3_catalog(user_id, project_id)
+        catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(user_id, project_id)
         exp_catalog = [
             {'endpoints': [
                 {'interface': 'admin',
@@ -132,7 +134,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         project_id = None
         # If the URL has no 'project_id' to substitute, we will skip the
         # endpoint which contains this kind of URL.
-        catalog_ref = self.catalog_api.get_v3_catalog(user_id, project_id)
+        catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(user_id, project_id)
         exp_catalog = [
             {'endpoints': [],
              'type': 'compute',
@@ -161,7 +163,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
 
     def test_list_services_with_hints(self):
         hints = {}
-        services = self.catalog_api.list_services(hints=hints)
+        services = PROVIDERS.catalog_api.list_services(hints=hints)
         exp_services = [
             {'type': 'compute',
              'description': '',
@@ -252,7 +254,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         expected_urls = set(['http://localhost:$(public_port)s/v3',
                              'http://localhost:$(admin_port)s/v3',
                              'http://localhost:8774/v1.1/$(tenant_id)s'])
-        endpoints = self.catalog_api.list_endpoints()
+        endpoints = PROVIDERS.catalog_api.list_endpoints()
         self.assertEqual(expected_urls, set(e['url'] for e in endpoints))
 
     @unit.skip_if_cache_disabled('catalog')
@@ -262,17 +264,17 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     def test_delete_endpoint_group_association_by_project(self):
         # Deleting endpoint group association is not supported by the templated
         # driver, but it should be silent about it and not raise an error.
-        self.catalog_api.delete_endpoint_group_association_by_project(
+        PROVIDERS.catalog_api.delete_endpoint_group_association_by_project(
             uuid.uuid4().hex)
 
     def test_delete_association_by_endpoint(self):
         # Deleting endpoint association is not supported by the templated
         # driver, but it should be silent about it and not raise an error.
-        self.catalog_api.delete_association_by_endpoint(
+        PROVIDERS.catalog_api.delete_association_by_endpoint(
             uuid.uuid4().hex)
 
     def test_delete_association_by_project(self):
         # Deleting endpoint association is not supported by the templated
         # driver, but it should be silent about it and not raise an error.
-        self.catalog_api.delete_association_by_project(
+        PROVIDERS.catalog_api.delete_association_by_project(
             uuid.uuid4().hex)

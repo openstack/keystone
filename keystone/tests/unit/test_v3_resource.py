@@ -16,6 +16,7 @@ from six.moves import http_client
 from six.moves import range
 from testtools import matchers
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
@@ -26,6 +27,7 @@ from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class ResourceTestCase(test_v3.RestfulTestCase,
@@ -225,21 +227,21 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         """Call ``PATCH /domains/{domain_id}`` (set enabled=False)."""
         # Create a 2nd set of entities in a 2nd domain
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
 
         project2 = unit.new_project_ref(domain_id=domain2['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
 
-        user2 = unit.create_user(self.identity_api,
+        user2 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=domain2['id'],
                                  project_id=project2['id'])
 
         role_member = unit.new_role_ref()
-        self.role_api.create_role(role_member['id'], role_member)
+        PROVIDERS.role_api.create_role(role_member['id'], role_member)
 
-        self.assignment_api.add_role_to_user_and_project(user2['id'],
-                                                         project2['id'],
-                                                         role_member['id'])
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            user2['id'], project2['id'], role_member['id']
+        )
 
         # First check a user in that domain can authenticate..
         auth_data = self.build_authentication_request(
@@ -300,30 +302,35 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         """
         # Create a group and a credential in the main domain
         group = unit.new_group_ref(domain_id=self.domain_id)
-        group = self.identity_api.create_group(group)
+        group = PROVIDERS.identity_api.create_group(group)
 
         credential = unit.new_credential_ref(user_id=self.user['id'],
                                              project_id=self.project_id)
-        self.credential_api.create_credential(credential['id'], credential)
+        PROVIDERS.credential_api.create_credential(
+            credential['id'], credential
+        )
 
         # Create a 2nd set of entities in a 2nd domain
         domain2 = unit.new_domain_ref()
-        self.resource_api.create_domain(domain2['id'], domain2)
+        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
 
         project2 = unit.new_project_ref(domain_id=domain2['id'])
-        project2 = self.resource_api.create_project(project2['id'], project2)
+        project2 = PROVIDERS.resource_api.create_project(
+            project2['id'], project2
+        )
 
         user2 = unit.new_user_ref(domain_id=domain2['id'],
                                   project_id=project2['id'])
-        user2 = self.identity_api.create_user(user2)
+        user2 = PROVIDERS.identity_api.create_user(user2)
 
         group2 = unit.new_group_ref(domain_id=domain2['id'])
-        group2 = self.identity_api.create_group(group2)
+        group2 = PROVIDERS.identity_api.create_group(group2)
 
         credential2 = unit.new_credential_ref(user_id=user2['id'],
                                               project_id=project2['id'])
-        self.credential_api.create_credential(credential2['id'],
-                                              credential2)
+        PROVIDERS.credential_api.create_credential(
+            credential2['id'], credential2
+        )
 
         # Now disable the new domain and delete it
         domain2['enabled'] = False
@@ -335,32 +342,32 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         # Check all the domain2 relevant entities are gone
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           domain2['id'])
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           project2['id'])
         self.assertRaises(exception.GroupNotFound,
-                          self.identity_api.get_group,
+                          PROVIDERS.identity_api.get_group,
                           group2['id'])
         self.assertRaises(exception.UserNotFound,
-                          self.identity_api.get_user,
+                          PROVIDERS.identity_api.get_user,
                           user2['id'])
         self.assertRaises(exception.CredentialNotFound,
-                          self.credential_api.get_credential,
+                          PROVIDERS.credential_api.get_credential,
                           credential2['id'])
 
         # ...and that all self.domain entities are still here
-        r = self.resource_api.get_domain(self.domain['id'])
+        r = PROVIDERS.resource_api.get_domain(self.domain['id'])
         self.assertDictEqual(self.domain, r)
-        r = self.resource_api.get_project(self.project['id'])
+        r = PROVIDERS.resource_api.get_project(self.project['id'])
         self.assertDictEqual(self.project, r)
-        r = self.identity_api.get_group(group['id'])
+        r = PROVIDERS.identity_api.get_group(group['id'])
         self.assertDictEqual(group, r)
-        r = self.identity_api.get_user(self.user['id'])
+        r = PROVIDERS.identity_api.get_user(self.user['id'])
         self.user.pop('password')
         self.assertDictEqual(self.user, r)
-        r = self.credential_api.get_credential(credential['id'])
+        r = PROVIDERS.credential_api.get_credential(credential['id'])
         self.assertDictEqual(credential, r)
 
     def test_delete_domain_deletes_is_domain_project(self):
@@ -404,9 +411,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         """
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
-        user2 = unit.create_user(self.identity_api,
+        user2 = unit.create_user(PROVIDERS.identity_api,
                                  domain_id=domain['id'])
 
         # build a request body
@@ -439,16 +446,17 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     def test_delete_domain_hierarchy(self):
         """Call ``DELETE /domains/{domain_id}``."""
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         root_project = unit.new_project_ref(domain_id=domain['id'])
-        root_project = self.resource_api.create_project(root_project['id'],
-                                                        root_project)
+        root_project = PROVIDERS.resource_api.create_project(
+            root_project['id'], root_project
+        )
 
         leaf_project = unit.new_project_ref(
             domain_id=domain['id'],
             parent_id=root_project['id'])
-        self.resource_api.create_project(leaf_project['id'], leaf_project)
+        PROVIDERS.resource_api.create_project(leaf_project['id'], leaf_project)
 
         # Need to disable it first.
         self.patch('/domains/%(domain_id)s' % {
@@ -460,15 +468,15 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 'domain_id': domain['id']})
 
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.get_domain,
+                          PROVIDERS.resource_api.get_domain,
                           domain['id'])
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           root_project['id'])
 
         self.assertRaises(exception.ProjectNotFound,
-                          self.resource_api.get_project,
+                          PROVIDERS.resource_api.get_project,
                           leaf_project['id'])
 
     def test_forbid_operations_on_federated_domain(self):
@@ -488,26 +496,26 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         for domain in create_domains():
             self.assertRaises(
-                AssertionError, self.resource_api.create_domain,
+                AssertionError, PROVIDERS.resource_api.create_domain,
                 domain['id'], domain)
             self.assertRaises(
-                AssertionError, self.resource_api.update_domain,
+                AssertionError, PROVIDERS.resource_api.update_domain,
                 domain['id'], domain)
             self.assertRaises(
-                exception.DomainNotFound, self.resource_api.delete_domain,
+                exception.DomainNotFound, PROVIDERS.resource_api.delete_domain,
                 domain['id'])
 
             # swap 'name' with 'id' and try again, expecting the request to
             # gracefully fail
             domain['id'], domain['name'] = domain['name'], domain['id']
             self.assertRaises(
-                AssertionError, self.resource_api.create_domain,
+                AssertionError, PROVIDERS.resource_api.create_domain,
                 domain['id'], domain)
             self.assertRaises(
-                AssertionError, self.resource_api.update_domain,
+                AssertionError, PROVIDERS.resource_api.update_domain,
                 domain['id'], domain)
             self.assertRaises(
-                exception.DomainNotFound, self.resource_api.delete_domain,
+                exception.DomainNotFound, PROVIDERS.resource_api.delete_domain,
                 domain['id'])
 
     def test_forbid_operations_on_defined_federated_domain(self):
@@ -521,13 +529,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                                    federated_domain_name=non_default_name)
         domain = unit.new_domain_ref(name=non_default_name)
         self.assertRaises(AssertionError,
-                          self.resource_api.create_domain,
+                          PROVIDERS.resource_api.create_domain,
                           domain['id'], domain)
         self.assertRaises(exception.DomainNotFound,
-                          self.resource_api.delete_domain,
+                          PROVIDERS.resource_api.delete_domain,
                           domain['id'])
         self.assertRaises(AssertionError,
-                          self.resource_api.update_domain,
+                          PROVIDERS.resource_api.update_domain,
                           domain['id'], domain)
 
     # Project CRUD tests
@@ -1053,10 +1061,10 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         # Add some more projects acting as domains
         new_is_domain_project = unit.new_project_ref(is_domain=True)
-        new_is_domain_project = self.resource_api.create_project(
+        new_is_domain_project = PROVIDERS.resource_api.create_project(
             new_is_domain_project['id'], new_is_domain_project)
         new_is_domain_project2 = unit.new_project_ref(is_domain=True)
-        new_is_domain_project2 = self.resource_api.create_project(
+        new_is_domain_project2 = PROVIDERS.resource_api.create_project(
             new_is_domain_project2['id'], new_is_domain_project2)
         number_is_domain_true = initial_number_is_domain_true + 2
 
@@ -1070,7 +1078,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         # Now add a regular project
         new_regular_project = unit.new_project_ref(domain_id=self.domain_id)
-        new_regular_project = self.resource_api.create_project(
+        new_regular_project = PROVIDERS.resource_api.create_project(
             new_regular_project['id'], new_regular_project)
         number_is_domain_false = initial_number_is_domain_false + 1
 
@@ -1094,7 +1102,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
 
         # Make sure we have at least one project acting as a domain
         new_is_domain_project = unit.new_project_ref(is_domain=True)
-        new_is_domain_project = self.resource_api.create_project(
+        new_is_domain_project = PROVIDERS.resource_api.create_project(
             new_is_domain_project['id'], new_is_domain_project)
 
         r = self.get('/projects', expected_status=200)
@@ -1327,7 +1335,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         update the `domain_id` of a project fails.
         """
         project = unit.new_project_ref(domain_id=self.domain['id'])
-        project = self.resource_api.create_project(project['id'], project)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
         project['domain_id'] = CONF.identity.default_domain_id
         self.patch('/projects/%(project_id)s' % {
             'project_id': project['id']},
@@ -1395,17 +1403,21 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         """
         credential = unit.new_credential_ref(user_id=self.user['id'],
                                              project_id=self.project_id)
-        self.credential_api.create_credential(credential['id'], credential)
+        PROVIDERS.credential_api.create_credential(
+            credential['id'], credential
+        )
 
         # First check the credential for this project is present
-        r = self.credential_api.get_credential(credential['id'])
+        r = PROVIDERS.credential_api.get_credential(credential['id'])
         self.assertDictEqual(credential, r)
         # Create a second credential with a different project
         project2 = unit.new_project_ref(domain_id=self.domain['id'])
-        self.resource_api.create_project(project2['id'], project2)
+        PROVIDERS.resource_api.create_project(project2['id'], project2)
         credential2 = unit.new_credential_ref(user_id=self.user['id'],
                                               project_id=project2['id'])
-        self.credential_api.create_credential(credential2['id'], credential2)
+        PROVIDERS.credential_api.create_credential(
+            credential2['id'], credential2
+        )
 
         # Now delete the project
         self.delete(
@@ -1415,10 +1427,10 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         # Deleting the project should have deleted any credentials
         # that reference this project
         self.assertRaises(exception.CredentialNotFound,
-                          self.credential_api.get_credential,
+                          PROVIDERS.credential_api.get_credential,
                           credential_id=credential['id'])
         # But the credential for project2 is unaffected
-        r = self.credential_api.get_credential(credential2['id'])
+        r = PROVIDERS.credential_api.get_credential(credential2['id'])
         self.assertDictEqual(credential2, r)
 
     def test_delete_not_leaf_project(self):

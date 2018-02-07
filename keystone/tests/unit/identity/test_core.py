@@ -19,6 +19,7 @@ import uuid
 import mock
 from oslo_config import fixture as config_fixture
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone import identity
@@ -27,6 +28,7 @@ from keystone.tests.unit.ksfixtures import database
 
 
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestDomainConfigs(unit.BaseTestCase):
@@ -139,18 +141,18 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         self.config_fixture.config(domain_configurations_from_database=True,
                                    group='identity')
         domain = unit.new_domain_ref()
-        self.resource_api.create_domain(domain['id'], domain)
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
         # Override two config options for our domain
         conf = {'ldap': {'url': uuid.uuid4().hex,
                          'suffix': uuid.uuid4().hex,
                          'use_tls': True},
                 'identity': {
                     'driver': 'ldap'}}
-        self.domain_config_api.create_config(domain['id'], conf)
+        PROVIDERS.domain_config_api.create_config(domain['id'], conf)
         fake_standard_driver = None
         domain_config = identity.DomainConfigs()
         domain_config.setup_domain_drivers(fake_standard_driver,
-                                           self.resource_api)
+                                           PROVIDERS.resource_api)
         # Make sure our two overrides are in place, and others are not affected
         res = domain_config.get_domain_conf(domain['id'])
         self.assertEqual(conf['ldap']['url'], res.ldap.url)
@@ -170,7 +172,7 @@ class TestDatabaseDomainConfigs(unit.TestCase):
 
         domain_config = identity.DomainConfigs()
         domain_config.setup_domain_drivers(fake_standard_driver,
-                                           self.resource_api)
+                                           PROVIDERS.resource_api)
         res = domain_config.get_domain_conf(domain['id'])
         self.assertEqual(CONF.ldap.url, res.ldap.url)
         self.assertEqual(CONF.ldap.suffix, res.ldap.suffix)
