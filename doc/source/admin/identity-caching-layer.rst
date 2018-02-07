@@ -118,7 +118,6 @@ Here is a list of actions that are affected by the cached time:
 * getting a new token
 * revoking tokens
 * validating tokens
-* checking v2 tokens
 * checking v3 tokens
 
 The delete token API calls invalidate the cache for the tokens being

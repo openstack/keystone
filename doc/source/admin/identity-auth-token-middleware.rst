@@ -30,7 +30,7 @@ And set the following values in ``nova.conf`` as follows:
    auth_strategy=keystone
 
    [keystone_authtoken]
-   auth_uri = http://controller:5000/v2.0
+   auth_uri = http://controller:5000/v3
    identity_uri = http://controller:35357
    admin_user = admin
    admin_password = SuperSekretPassword
@@ -55,7 +55,7 @@ This sample paste config filter makes use of the ``admin_user`` and
 
    [filter:authtoken]
    paste.filter_factory = keystonemiddleware.auth_token:filter_factory
-   auth_uri = http://controller:5000/v2.0
+   auth_uri = http://controller:5000/v3
    identity_uri = http://controller:35357
    auth_token = 012345SECRET99TOKEN012345
    admin_user = admin

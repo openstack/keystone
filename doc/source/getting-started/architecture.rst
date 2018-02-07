@@ -62,15 +62,14 @@ Resource
 
 The Resource service provides data about `projects` and `domains`.
 
-Projects (Tenants)
-^^^^^^^^^^^^^^^^^^
+Projects
+^^^^^^^^
 
-``Projects`` (known as ``Tenants`` in v2.0) represent the base unit of
-``ownership`` in OpenStack, in that all resources in OpenStack should be owned
-by a specific project. A project itself must be owned by a specific domain, and
-hence all project names are **not** globally unique, but unique to their
-domain. If the domain for a project is not specified, then it is added to the
-default domain.
+``Projects`` represent the base unit of ``ownership`` in OpenStack, in that all
+resources in OpenStack should be owned by a specific project. A project itself
+must be owned by a specific domain, and hence all project names are **not**
+globally unique, but unique to their domain. If the domain for a project is not
+specified, then it is added to the default domain.
 
 Domains
 ^^^^^^^
@@ -276,9 +275,9 @@ interpolation)
 .. code-block:: ini
 
     [DEFAULT]
-    catalog.RegionOne.identity.publicURL = http://localhost:$(public_port)s/v2.0
-    catalog.RegionOne.identity.adminURL = http://localhost:$(public_port)s/v2.0
-    catalog.RegionOne.identity.internalURL = http://localhost:$(public_port)s/v2.0
+    catalog.RegionOne.identity.publicURL = http://localhost:$(public_port)s/v3
+    catalog.RegionOne.identity.adminURL = http://localhost:$(public_port)s/v3
+    catalog.RegionOne.identity.internalURL = http://localhost:$(public_port)s/v3
     catalog.RegionOne.identity.name = 'Identity Service'
 
 
