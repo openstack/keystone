@@ -28,31 +28,12 @@ import hmac
 import six
 from six.moves import http_client
 
-from keystone.common import extension
 from keystone.common import json_home
 from keystone.common import utils
 from keystone.common import wsgi
 from keystone.contrib.ec2 import controllers
 from keystone import exception
 from keystone.i18n import _
-
-
-EXTENSION_DATA = {
-    'name': 'OpenStack S3 API',
-    'namespace': 'https://docs.openstack.org/identity/api/ext/'
-                 's3tokens/v1.0',
-    'alias': 's3tokens',
-    'updated': '2013-07-07T12:00:0-00:00',
-    'description': 'OpenStack S3 API.',
-    'links': [
-        {
-            'rel': 'describedby',
-            'type': 'text/html',
-            'href': 'https://developer.openstack.org/'
-                    'api-ref-identity-v2-ext.html',
-        }
-    ]}
-extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 
 class S3Extension(wsgi.V3ExtensionRouter):

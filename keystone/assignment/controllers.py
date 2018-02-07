@@ -20,7 +20,6 @@ import functools
 from oslo_log import log
 
 from keystone.assignment import schema
-from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import provider_api
 from keystone.common import validation
@@ -33,32 +32,6 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
-
-
-class TenantAssignment(controller.V2Controller):
-    """The V2 Project APIs that are processing assignments."""
-
-    @controller.v2_auth_deprecated
-    def get_projects_for_token(self, request, **kw):
-        """Get valid tenants for token based on token used to authenticate.
-
-        Pulls the token from the context, validates it and gets the valid
-        tenants for the user in the token.
-
-        Doesn't care about token scopedness.
-
-        """
-        token_ref = authorization.get_token_ref(request.context_dict)
-
-        tenant_refs = (
-            PROVIDERS.assignment_api.list_projects_for_user(token_ref.user_id))
-        tenant_refs = [self.v3_to_v2_project(ref) for ref in tenant_refs
-                       if ref['domain_id'] == CONF.identity.default_domain_id]
-        params = {
-            'limit': request.params.get('limit'),
-            'marker': request.params.get('marker'),
-        }
-        return self.format_project_list(tenant_refs, **params)
 
 
 class ProjectAssignmentV3(controller.V3Controller):

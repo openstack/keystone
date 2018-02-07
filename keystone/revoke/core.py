@@ -13,7 +13,6 @@
 """Main entry point into the Revoke service."""
 
 from keystone.common import cache
-from keystone.common import extension
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
@@ -23,25 +22,6 @@ from keystone import notifications
 
 
 CONF = keystone.conf.CONF
-
-
-EXTENSION_DATA = {
-    'name': 'OpenStack Revoke API',
-    'namespace': 'https://docs.openstack.org/identity/api/ext/'
-                 'OS-REVOKE/v1.0',
-    'alias': 'OS-REVOKE',
-    'updated': '2014-02-24T20:51:0-00:00',
-    'description': 'OpenStack revoked token reporting mechanism.',
-    'links': [
-        {
-            'rel': 'describedby',
-            'type': 'text/html',
-            'href': 'https://developer.openstack.org/'
-                    'api-ref-identity-v3-ext.html',
-        }
-    ]}
-extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
-extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 # This builds a discrete cache region dedicated to revoke events. The API can
 # return a filtered list based upon last fetchtime. This is deprecated but

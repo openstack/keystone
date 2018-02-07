@@ -15,7 +15,6 @@
 import uuid
 
 from keystone.common import cache
-from keystone.common import extension
 from keystone.common import manager
 from keystone.common import provider_api
 import keystone.conf
@@ -30,20 +29,6 @@ MEMOIZE = cache.get_memoization_decorator(group='federation')
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
-EXTENSION_DATA = {
-    'name': 'OpenStack Federation APIs',
-    'namespace': 'https://docs.openstack.org/identity/api/ext/'
-                 'OS-FEDERATION/v1.0',
-    'alias': 'OS-FEDERATION',
-    'updated': '2013-12-17T12:00:0-00:00',
-    'description': 'OpenStack Identity Providers Mechanism.',
-    'links': [{
-        'rel': 'describedby',
-        'type': 'text/html',
-        'href': 'https://developer.openstack.org/api-ref-identity-v3-ext.html',
-    }]}
-extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
-extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 
 class Manager(manager.Manager):

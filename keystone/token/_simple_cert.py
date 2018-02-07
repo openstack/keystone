@@ -17,7 +17,6 @@ import functools
 import webob
 
 from keystone.common import controller
-from keystone.common import extension
 from keystone.common import json_home
 from keystone.common import wsgi
 import keystone.conf
@@ -25,23 +24,6 @@ from keystone import exception
 
 
 CONF = keystone.conf.CONF
-EXTENSION_DATA = {
-    'name': 'OpenStack Simple Certificate API',
-    'namespace': 'https://docs.openstack.org/identity/api/ext/'
-                 'OS-SIMPLE-CERT/v1.0',
-    'alias': 'OS-SIMPLE-CERT',
-    'updated': '2014-01-20T12:00:0-00:00',
-    'description': 'OpenStack simple certificate retrieval extension',
-    'links': [
-        {
-            'rel': 'describedby',
-            'type': 'text/html',
-            'href': 'https://developer.openstack.org/'
-                    'api-ref-identity-v2-ext.html',
-        }
-    ]}
-extension.register_admin_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
-extension.register_public_extension(EXTENSION_DATA['alias'], EXTENSION_DATA)
 
 build_resource_relation = functools.partial(
     json_home.build_v3_extension_resource_relation,
