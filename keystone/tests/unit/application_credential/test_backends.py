@@ -19,7 +19,6 @@ from keystone.common import driver_hints
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -173,8 +172,6 @@ class ApplicationCredentialTests(object):
                           self.app_cred_api.delete_application_credential,
                           uuid.uuid4().hex)
 
-    @test_utils.wip('Waiting to add cache invalidation from fixing bug '
-                    '1747332')
     def test_deleting_a_user_deletes_application_credentials(self):
         app_cred_1 = self._new_app_cred_data(self.user_foo['id'],
                                              project_id=self.tenant_bar['id'],
@@ -208,8 +205,6 @@ class ApplicationCredentialTests(object):
                           self.app_cred_api.get_application_credential,
                           app_cred_2['id'])
 
-    @test_utils.wip('Waiting to add cache invalidation from fixing bug '
-                    '1747332')
     def test_removing_user_from_project_deletes_application_credentials(self):
         app_cred_proj_A_1 = self._new_app_cred_data(
             self.user_foo['id'], project_id=self.tenant_bar['id'], name='app1')
