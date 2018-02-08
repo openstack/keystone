@@ -5,13 +5,15 @@ Register a service provider
 
 .. rest_method::  PUT /v3/OS-FEDERATION/service_providers/{id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
+Create a service provider entity.
 
-Normal response codes: 201
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Request
 -------
 
+Parameters
+~~~~~~~~~~
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
    - auth_url: auth_url
@@ -20,14 +22,17 @@ Request
    - id: id_path
    - sp_url: sp_url
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: federation/service-provider/samples/register-request.json
    :language: javascript
 
 Response
 --------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
@@ -39,8 +44,15 @@ Response
    - relay_state_prefix: relay_state_prefix
    - sp_url: sp_url
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 201
+
+Example
+~~~~~~~
 
 .. literalinclude:: federation/service-provider/samples/register-response.json
    :language: javascript
@@ -51,36 +63,49 @@ List service providers
 
 .. rest_method::  GET /v3/OS-FEDERATION/service_providers
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_providers``
+List all service providers.
 
-Normal response codes: 200
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_providers``
 
 Response
 --------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
    - links: links_collection
    - service_providers: service_providers
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~
 
 .. literalinclude:: federation/service-provider/samples/list-response.json
    :language: javascript
 
 
-Get Service Provider
+Get service provider
 ====================
 
 .. rest_method::  GET /v3/OS-FEDERATION/service_providers/{id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
+Get a specific service provider reference.
 
-Normal response codes: 200
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
@@ -88,6 +113,9 @@ Request
 
 Response
 --------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
@@ -99,41 +127,63 @@ Response
    - relay_state_prefix: relay_state_prefix
    - sp_url: sp_url
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~
 
 .. literalinclude:: federation/service-provider/samples/get-response.json
    :language: javascript
 
 
-Delete Service Provider
+Delete service provider
 =======================
 
 .. rest_method::  DELETE /v3/OS-FEDERATION/service_providers/{id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
+Delete a service provider.
 
-Normal response codes: 204
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~~
 
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
    - id: id_path
 
+Response
+--------
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 204
 
 Update service provider
 =======================
 
 .. rest_method::  PATCH /v3/OS-FEDERATION/service_providers/{id}
 
-Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
+Update a service provider's attributes.
 
-Normal response codes: 200
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-FEDERATION/1.0/rel/service_provider``
 
 Request
 -------
+
+Parameters
+~~~~~~~~~~
 
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
@@ -143,8 +193,8 @@ Request
    - enabled: enabled
    - sp_url: sp_url
 
-Request Example
----------------
+Example
+~~~~~~~
 
 .. literalinclude:: federation/service-provider/samples/update-request.json
    :language: javascript
@@ -152,6 +202,9 @@ Request Example
 Response
 --------
 
+Parameters
+~~~~~~~~~~
+
 .. rest_parameters:: federation/service-provider/parameters.yaml
 
    - auth_url: auth_url
@@ -162,8 +215,15 @@ Response
    - relay_state_prefix: relay_state_prefix
    - sp_url: sp_url
 
-Response Example
-----------------
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success ../v3/status.yaml
+
+   - 200
+
+Example
+~~~~~~~~
 
 .. literalinclude:: federation/service-provider/samples/update-response.json
    :language: javascript
