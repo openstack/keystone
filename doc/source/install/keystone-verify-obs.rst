@@ -21,7 +21,7 @@ services.
 
    .. code-block:: console
 
-      $ openstack --os-auth-url http://controller:35357/v3 \
+      $ openstack --os-auth-url http://controller:5000/v3 \
         --os-project-domain-name Default --os-user-domain-name Default \
         --os-project-name admin --os-username admin token issue
 
@@ -64,9 +64,3 @@ services.
       +------------+-----------------------------------------------------------------+
 
    .. end
-
-   .. note::
-
-      This command uses the password for the ``demo``
-      user and API port 5000 which only allows regular (non-admin)
-      access to the Identity service API.
