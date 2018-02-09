@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-01-09 19:58+0000\n"
+"POT-Creation-Date: 2018-02-08 23:48+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -631,9 +631,6 @@ msgstr "请指定域或项目"
 
 msgid "Specify one of user or group"
 msgstr "请指定用户或组"
-
-msgid "Tenant name cannot contain reserved characters."
-msgstr "租户名称不能包含保留字符。"
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
