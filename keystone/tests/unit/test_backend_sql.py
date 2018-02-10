@@ -12,11 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
-import functools
 import uuid
 
-import freezegun
 import mock
 from oslo_db import exception as db_exception
 from oslo_db import options
@@ -43,9 +40,7 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.limit import test_backends as limit_tests
 from keystone.tests.unit.policy import test_backends as policy_tests
 from keystone.tests.unit.resource import test_backends as resource_tests
-from keystone.tests.unit.token import test_backends as token_tests
 from keystone.tests.unit.trust import test_backends as trust_tests
-from keystone.token.persistence.backends import sql as token_sql
 from keystone.trust.backends import sql as trust_sql
 
 
@@ -745,132 +740,6 @@ class SqlTrust(SqlTests, trust_tests.TrustTests):
             self.assertEqual(trust_ref.expires_at, trust_ref.expires_at_int)
 
 
-class SqlToken(SqlTests, token_tests.TokenTests):
-    def test_token_revocation_list_uses_right_columns(self):
-        # This query used to be heavy with too many columns. We want
-        # to make sure it is only running with the minimum columns
-        # necessary.
-
-        expected_query_args = (token_sql.TokenModel.id,
-                               token_sql.TokenModel.expires,
-                               token_sql.TokenModel.extra,)
-
-        with mock.patch.object(token_sql, 'sql') as mock_sql:
-            tok = token_sql.Token()
-            tok.list_revoked_tokens()
-
-        mock_query = mock_sql.session_for_read().__enter__().query
-        mock_query.assert_called_with(*expected_query_args)
-
-    def test_flush_expired_tokens_batch(self):
-        # TODO(dstanek): This test should be rewritten to be less
-        # brittle. The code will likely need to be changed first. I
-        # just copied the spirit of the existing test when I rewrote
-        # mox -> mock. These tests are brittle because they have the
-        # call structure for SQLAlchemy encoded in them.
-
-        # test sqlite dialect
-        with mock.patch.object(token_sql, 'sql') as mock_sql:
-            mock_sql.get_session().bind.dialect.name = 'sqlite'
-            tok = token_sql.Token()
-            tok.flush_expired_tokens()
-
-        filter_mock = mock_sql.get_session().query().filter()
-        self.assertFalse(filter_mock.limit.called)
-        self.assertTrue(filter_mock.delete.called_once)
-
-    def test_flush_expired_tokens_batch_mysql(self):
-        # test mysql dialect, we don't need to test IBM DB SA separately, since
-        # other tests below test the differences between how they use the batch
-        # strategy
-        with mock.patch.object(token_sql, 'sql') as mock_sql:
-            mock_sql.session_for_write().__enter__(
-            ).query().filter().delete.return_value = 0
-
-            mock_sql.session_for_write().__enter__(
-            ).bind.dialect.name = 'mysql'
-
-            tok = token_sql.Token()
-            expiry_mock = mock.Mock()
-            ITERS = [1, 2, 3]
-            expiry_mock.return_value = iter(ITERS)
-            token_sql._expiry_range_batched = expiry_mock
-            tok.flush_expired_tokens()
-
-            # The expiry strategy is only invoked once, the other calls are via
-            # the yield return.
-            self.assertEqual(1, expiry_mock.call_count)
-
-            mock_delete = mock_sql.session_for_write().__enter__(
-            ).query().filter().delete
-
-            self.assertThat(mock_delete.call_args_list,
-                            matchers.HasLength(len(ITERS)))
-
-    def test_expiry_range_batched(self):
-        upper_bound_mock = mock.Mock(side_effect=[1, "final value"])
-        sess_mock = mock.Mock()
-        query_mock = sess_mock.query().filter().order_by().offset().limit()
-        query_mock.one.side_effect = [['test'], sql.NotFound()]
-        for i, x in enumerate(token_sql._expiry_range_batched(sess_mock,
-                                                              upper_bound_mock,
-                                                              batch_size=50)):
-            if i == 0:
-                # The first time the batch iterator returns, it should return
-                # the first result that comes back from the database.
-                self.assertEqual('test', x)
-            elif i == 1:
-                # The second time, the database range function should return
-                # nothing, so the batch iterator returns the result of the
-                # upper_bound function
-                self.assertEqual("final value", x)
-            else:
-                self.fail("range batch function returned more than twice")
-
-    def test_expiry_range_strategy_sqlite(self):
-        tok = token_sql.Token()
-        sqlite_strategy = tok._expiry_range_strategy('sqlite')
-        self.assertEqual(token_sql._expiry_range_all, sqlite_strategy)
-
-    def test_expiry_range_strategy_ibm_db_sa(self):
-        tok = token_sql.Token()
-        db2_strategy = tok._expiry_range_strategy('ibm_db_sa')
-        self.assertIsInstance(db2_strategy, functools.partial)
-        self.assertEqual(token_sql._expiry_range_batched, db2_strategy.func)
-        self.assertEqual({'batch_size': 100}, db2_strategy.keywords)
-
-    def test_expiry_range_strategy_mysql(self):
-        tok = token_sql.Token()
-        mysql_strategy = tok._expiry_range_strategy('mysql')
-        self.assertIsInstance(mysql_strategy, functools.partial)
-        self.assertEqual(token_sql._expiry_range_batched, mysql_strategy.func)
-        self.assertEqual({'batch_size': 1000}, mysql_strategy.keywords)
-
-    def test_expiry_range_with_allow_expired(self):
-        window_secs = 200
-        self.config_fixture.config(group='token',
-                                   allow_expired_window=window_secs)
-
-        tok = token_sql.Token()
-        time = datetime.datetime.utcnow()
-
-        with freezegun.freeze_time(time):
-            # unknown strategy just ensures we are getting the dumbest strategy
-            # that will remove everything in one go
-            strategy = tok._expiry_range_strategy('unkown')
-            upper_bound_func = token_sql._expiry_upper_bound_func
-
-            # session is ignored for dumb strategy
-            expiry_times = list(strategy(session=None,
-                                         upper_bound_func=upper_bound_func))
-
-            # basically just ensure that we are removing things in the past
-            delta = datetime.timedelta(seconds=window_secs)
-            previous_time = datetime.datetime.utcnow() - delta
-
-        self.assertEqual([previous_time], expiry_times)
-
-
 class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
 
     _legacy_endpoint_id_in_endpoint = True
@@ -1045,24 +914,6 @@ class SqlInheritance(SqlTests, assignment_tests.InheritanceTests):
 
 class SqlImpliedRoles(SqlTests, assignment_tests.ImpliedRoleTests):
     pass
-
-
-class SqlTokenCacheInvalidationWithUUID(SqlTests,
-                                        token_tests.TokenCacheInvalidation):
-    def setUp(self):
-        super(SqlTokenCacheInvalidationWithUUID, self).setUp()
-        self._create_test_data()
-
-    def config_overrides(self):
-        super(SqlTokenCacheInvalidationWithUUID, self).config_overrides()
-        # NOTE(lbragstad): The TokenCacheInvalidation tests are coded to work
-        # against a persistent token backend. Only run these with token
-        # providers that issue persistent tokens.
-        self.config_fixture.config(group='token', provider='uuid')
-
-
-# NOTE(lbragstad): The Fernet token provider doesn't persist tokens in a
-# backend, so running the TokenCacheInvalidation tests here doesn't make sense.
 
 
 class SqlFilterTests(SqlTests, identity_tests.FilterTests):

@@ -26,7 +26,6 @@ from keystone import policy
 from keystone import resource
 from keystone import revoke
 from keystone import token
-from keystone.token import persistence
 from keystone import trust
 
 
@@ -49,8 +48,7 @@ def load_backends():
                 identity.Manager, identity.ShadowUsersManager,
                 limit.Manager, oauth1.Manager, policy.Manager,
                 resource.Manager, revoke.Manager, assignment.RoleManager,
-                trust.Manager, token.provider.Manager,
-                persistence.PersistenceManager]
+                trust.Manager, token.provider.Manager]
 
     drivers = {d._provides_api: d() for d in managers}
 

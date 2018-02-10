@@ -662,13 +662,6 @@ class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
         self.skipTest('Fernet tokens are never persisted in the backend.')
 
 
-class UUIDAuthTokenTests(AuthTokenTests, OAuthFlowTests):
-
-    def config_overrides(self):
-        super(UUIDAuthTokenTests, self).config_overrides()
-        self.config_fixture.config(group='token', provider='uuid')
-
-
 class MaliciousOAuth1Tests(OAuth1Tests):
 
     def _switch_baseurl_scheme(self):
