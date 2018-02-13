@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1748970 <https://bugs.launchpad.net/keystone/+bug/1748970>`_]
+    A bug was introduced in Queens that resulted in system role assignments
+    being returned when querying the role assignments API for a specific role.
+    The issue is fixed and the list of roles returned from
+    ``GET /v3/role_assignments?role.id={role_id}`` respects system role
+    assignments.
