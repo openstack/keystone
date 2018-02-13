@@ -24,6 +24,7 @@ import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -364,6 +365,30 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.delete(member_url)
         # Make sure the role is gone
         self.head(member_url, expected_status=http_client.NOT_FOUND)
+
+    @test_utils.wip("Waiting for a fix to bug #1749264")
+    def test_delete_user_before_removing_system_assignments_succeeds(self):
+        system_role = self._create_new_role()
+        user = self._create_user()
+        path = (
+            '/system/users/%(user_id)s/roles/%(role_id)s' %
+            {'user_id': user['id'], 'role_id': system_role}
+        )
+        self.put(path)
+
+        response = self.get('/role_assignments')
+        number_of_assignments = len(response.json_body['role_assignments'])
+
+        path = '/users/%(user_id)s' % {'user_id': user['id']}
+        self.delete(path)
+
+        # The user with the system role assignment is a new user and only has
+        # one role on the system. We should expect one less role assignment in
+        # the list.
+        response = self.get('/role_assignments')
+        self.assertValidRoleAssignmentListResponse(
+            response, expected_length=number_of_assignments - 1
+        )
 
     def test_delete_user_and_check_role_assignment_fails(self):
         """Call ``DELETE`` on the user and check the role assignment."""
