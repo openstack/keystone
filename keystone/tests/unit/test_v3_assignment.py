@@ -24,7 +24,6 @@ import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -426,7 +425,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             self.head('/auth/tokens', token=token,
                       expected_status=http_client.UNAUTHORIZED)
 
-    @test_utils.wip("Waiting on a fix for bug #1749267")
     def test_delete_group_before_removing_system_assignments_succeeds(self):
         system_role = self._create_new_role()
         group = self._create_group()

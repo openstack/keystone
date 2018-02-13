@@ -1038,6 +1038,17 @@ class Manager(manager.Manager):
             role_assign_list.append(new_assign)
         return role_assign_list
 
+    def delete_group_assignments(self, group_id):
+        # FIXME(lbragstad): This should be refactored in the Rocky release so
+        # that we can pass the group_id to the system assignment backend like
+        # we do with the project and domain assignment backend. Holding off on
+        # this because it will require an interface change to the backend,
+        # making it harder to backport for Queens RC.
+        self.driver.delete_group_assignments(group_id)
+        system_assignments = self.list_system_grants_for_group(group_id)
+        for assignment in system_assignments:
+            self.delete_system_grant_for_group(group_id, assignment['id'])
+
     def delete_tokens_for_role_assignments(self, role_id):
         assignments = self.list_role_assignments(role_id=role_id)
 
