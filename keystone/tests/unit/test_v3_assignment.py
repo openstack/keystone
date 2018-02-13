@@ -24,6 +24,7 @@ import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -424,6 +425,30 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             # validates the same token again; it should not longer be valid.
             self.head('/auth/tokens', token=token,
                       expected_status=http_client.UNAUTHORIZED)
+
+    @test_utils.wip("Waiting on a fix for bug #1749267")
+    def test_delete_group_before_removing_system_assignments_succeeds(self):
+        system_role = self._create_new_role()
+        group = self._create_group()
+        path = (
+            '/system/groups/%(group_id)s/roles/%(role_id)s' %
+            {'group_id': group['id'], 'role_id': system_role}
+        )
+        self.put(path)
+
+        response = self.get('/role_assignments')
+        number_of_assignments = len(response.json_body['role_assignments'])
+
+        path = '/groups/%(group_id)s' % {'group_id': group['id']}
+        self.delete(path)
+
+        # The group with the system role assignment is a new group and only has
+        # one role on the system. We should expect one less role assignment in
+        # the list.
+        response = self.get('/role_assignments')
+        self.assertValidRoleAssignmentListResponse(
+            response, expected_length=number_of_assignments - 1
+        )
 
     @unit.skip_if_cache_disabled('assignment')
     def test_delete_grant_from_user_and_project_invalidate_cache(self):
