@@ -3616,7 +3616,6 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
         ) % {'project_id': self.project_id}
         self.get(path, expected_status=http_client.BAD_REQUEST)
 
-    @test_utils.wip("Waiting on fix for bug #1748970")
     def test_query_for_role_id_does_not_return_system_user_roles(self):
         system_role_id = self._create_new_role()
 
@@ -3627,12 +3626,8 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
         }
         self.put(member_url)
 
-        # The user has a role on the system and on a project, but self.role_id
-        # is only given to the user on the project. If we ask for role
-        # assignments matching that role for that specific user, we should only
-        # get one back. Instead, we get two back because the role assignment
-        # API isn't filtering out system role assignments when queried for a
-        # specific role.
+        # Make sure we only get one role assignment back since the system role
+        # assignment shouldn't be returned.
         path = (
             '/role_assignments?role.id=%(role_id)s&user.id=%(user_id)s'
         ) % {'role_id': self.role_id, 'user_id': self.user['id']}
@@ -3909,7 +3904,6 @@ class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=0)
 
-    @test_utils.wip("Waiting on fix for bug #1748970")
     def test_query_for_role_id_does_not_return_system_group_roles(self):
         system_role_id = self._create_new_role()
         group = self._create_group()
@@ -3930,12 +3924,8 @@ class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
         )
         self.put(member_url)
 
-        # The group has a role on the system and on a project, but self.role_id
-        # is only given to the group on the project. If we ask for role
-        # assignments matching that role for that specific group, we should
-        # only get one back. Instead, we get two back because the role
-        # assignment API isn't filtering out system role assignments when
-        # queried for a specific role.
+        # Make sure we only get one role assignment back since the system role
+        # assignment shouldn't be returned.
         path = (
             '/role_assignments?role.id=%(role_id)s&group.id=%(group_id)s'
         ) % {'role_id': self.role_id, 'group_id': group['id']}

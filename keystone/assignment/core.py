@@ -899,6 +899,10 @@ class Manager(manager.Manager):
                     a['system'] = {'all': True}
                     system_assignments.append(a)
 
+            for i, assignment in enumerate(system_assignments):
+                if role_id and role_id != assignment['role_id']:
+                    system_assignments.pop(i)
+
         assignments = []
         for assignment in itertools.chain(
                 project_and_domain_assignments, system_assignments):
