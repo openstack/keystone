@@ -53,23 +53,6 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class CliTestCase(unit.SQLDriverOverrides, unit.TestCase):
-    def config_files(self):
-        config_files = super(CliTestCase, self).config_files()
-        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
-        return config_files
-
-    def test_token_flush(self):
-        self.useFixture(database.Database())
-        self.load_backends()
-        # NOTE(morgan): we are testing a direct instantiation of the
-        # persistence manager for flushing. We should clear this out so we
-        # don't error. CLI should never impact a running service
-        # and should never actually lock the registry for dependencies.
-        provider_api.ProviderAPIs._clear_registry_instances()
-        cli.TokenFlush.main()
-
-
 class CliNoConfigTestCase(unit.BaseTestCase):
 
     def setUp(self):

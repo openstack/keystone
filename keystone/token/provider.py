@@ -267,67 +267,73 @@ class Manager(manager.Manager):
         self.invalidate_individual_token_cache(token_id)
 
     def list_revoked_tokens(self):
-        return self._persistence.list_revoked_tokens()
+        # FIXME(lbragstad): In the future, the token providers are going to be
+        # responsible for handling persistence if they require it (e.g. token
+        # providers not doing some sort of authenticated encryption strategy).
+        # When that happens, we could still expose this API by checking an
+        # interface on the provider can calling it if available. For now, this
+        # will return a valid response, but it will just be an empty list. See
+        # http://paste.openstack.org/raw/670196/ for and example using
+        # keystoneclient.common.cms to verify the response.
+        return []
 
+    # FIXME(lbragstad): This callback doesn't have anything to do with
+    # persistence anymore now that the sql token driver has been removed. We
+    # should rename this to be more accurate since it's only used to invalidate
+    # the token cache region.
     def _trust_deleted_event_callback(self, service, resource_type, operation,
                                       payload):
-        if CONF.token.revoke_by_id:
-            trust_id = payload['resource_info']
-            trust = PROVIDERS.trust_api.get_trust(trust_id, deleted=True)
-            self._persistence.delete_tokens(user_id=trust['trustor_user_id'],
-                                            trust_id=trust_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()
 
+    # FIXME(lbragstad): This callback doesn't have anything to do with
+    # persistence anymore now that the sql token driver has been removed. We
+    # should rename this to be more accurate since it's only used to invalidate
+    # the token cache region.
     def _delete_user_tokens_callback(self, service, resource_type, operation,
                                      payload):
-        if CONF.token.revoke_by_id:
-            user_id = payload['resource_info']
-            self._persistence.delete_tokens_for_user(user_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()
 
+    # FIXME(lbragstad): This callback doesn't have anything to do with
+    # persistence anymore now that the sql token driver has been removed. We
+    # should rename this to be more accurate since it's only used to invalidate
+    # the token cache region.
     def _delete_domain_tokens_callback(self, service, resource_type,
                                        operation, payload):
-        if CONF.token.revoke_by_id:
-            domain_id = payload['resource_info']
-            self._persistence.delete_tokens_for_domain(domain_id=domain_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()
 
+    # FIXME(lbragstad): This callback doesn't have anything to do with
+    # persistence anymore now that the sql token driver has been removed. We
+    # should rename this to be more accurate since it's only used to invalidate
+    # the token cache region.
     def _delete_user_project_tokens_callback(self, service, resource_type,
                                              operation, payload):
-        if CONF.token.revoke_by_id:
-            user_id = payload['resource_info']['user_id']
-            project_id = payload['resource_info']['project_id']
-            self._persistence.delete_tokens_for_user(user_id=user_id,
-                                                     project_id=project_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()
 
+    # FIXME(lbragstad): This callback doesn't have anything to do with
+    # persistence anymore now that the sql token driver has been removed. We
+    # should rename this to be more accurate since it's only used to invalidate
+    # the token cache region.
     def _delete_project_tokens_callback(self, service, resource_type,
                                         operation, payload):
-        if CONF.token.revoke_by_id:
-            project_id = payload['resource_info']
-            self._persistence.delete_tokens_for_users(
-                PROVIDERS.assignment_api.list_user_ids_for_project(project_id),
-                project_id=project_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()
 
+    # FIXME(lbragstad): This callback doesn't have anything to do with
+    # persistence anymore now that the sql token driver has been removed. We
+    # should rename this to be more accurate since it's only used to invalidate
+    # the token cache region.
     def _delete_user_oauth_consumer_tokens_callback(self, service,
                                                     resource_type, operation,
                                                     payload):
-        if CONF.token.revoke_by_id:
-            user_id = payload['resource_info']['user_id']
-            consumer_id = payload['resource_info']['consumer_id']
-            self._persistence.delete_tokens(user_id=user_id,
-                                            consumer_id=consumer_id)
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): preserving behavior
             TOKENS_REGION.invalidate()

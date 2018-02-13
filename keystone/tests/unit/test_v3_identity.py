@@ -517,10 +517,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertRaises(exception.CredentialNotFound,
                           PROVIDERS.credential_api.get_credential,
                           self.credential['id'])
-        # And the no tokens we remain valid
-        tokens = PROVIDERS.token_provider_api._persistence._list_tokens(
-            self.user['id'])
-        self.assertEqual(0, len(tokens))
         # But the credential for user2 is unaffected
         r = PROVIDERS.credential_api.get_credential(credential2['id'])
         self.assertDictEqual(credential2, r)

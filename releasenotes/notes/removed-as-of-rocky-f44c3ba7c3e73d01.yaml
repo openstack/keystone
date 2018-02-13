@@ -1,0 +1,6 @@
+---
+other:
+  - |
+    [`blueprint removed-as-of-rocky <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-rocky>`_]
+    The ``sql`` token driver and ``uuid`` token providers have been removed
+    in favor of the ``fernet`` token provider.

@@ -2400,13 +2400,6 @@ class TokenAPITests(object):
             frozen_datetime.tick(delta=datetime.timedelta(seconds=12))
             self._validate_token(token, expected_status=http_client.NOT_FOUND)
 
-            # flush the tokens, this will only have an effect on sql
-            try:
-                provider_api = PROVIDERS.token_provider_api
-                provider_api._persistence.flush_expired_tokens()
-            except exception.NotImplemented:
-                pass
-
             # but if we pass allow_expired it validates
             self._validate_token(token, allow_expired=True)
 
@@ -2541,25 +2534,6 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
                 token=domain_scoped_token,
                 project_id=self.project_id),
             expected_status=http_client.FORBIDDEN)
-
-
-class TestUUIDTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
-                        TokenDataTests):
-    def config_overrides(self):
-        super(TestUUIDTokenAPIs, self).config_overrides()
-        self.config_fixture.config(group='token', provider='uuid')
-
-    def setUp(self):
-        super(TestUUIDTokenAPIs, self).setUp()
-        self.doSetUp()
-
-    def test_v3_token_id(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'])
-        resp = self.v3_create_token(auth_data)
-        token_data = resp.result
-        self.assertIn('expires_at', token_data['token'])
 
 
 class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
@@ -3460,58 +3434,6 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                   expected_status=http_client.OK)
 
 
-class TestTokenRevokeByAssignment(TestTokenRevokeById):
-
-    def config_overrides(self):
-        super(TestTokenRevokeById, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='uuid',
-            revoke_by_id=True)
-
-    def test_removing_role_assignment_keeps_other_project_token_groups(self):
-        """Test assignment isolation.
-
-        Revoking a group role from one project should not invalidate all group
-        users' tokens
-        """
-        PROVIDERS.assignment_api.create_grant(
-            self.role1['id'], group_id=self.group1['id'],
-            project_id=self.projectB['id']
-        )
-
-        project_token = self.get_requested_token(
-            self.build_authentication_request(
-                user_id=self.user1['id'],
-                password=self.user1['password'],
-                project_id=self.projectB['id']))
-
-        other_project_token = self.get_requested_token(
-            self.build_authentication_request(
-                user_id=self.user1['id'],
-                password=self.user1['password'],
-                project_id=self.projectA['id']))
-
-        PROVIDERS.assignment_api.delete_grant(
-            self.role1['id'], group_id=self.group1['id'],
-            project_id=self.projectB['id']
-        )
-
-        # authorization for the projectA should still succeed
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': other_project_token},
-                  expected_status=http_client.OK)
-        # while token for the projectB should not
-        self.head('/auth/tokens',
-                  headers={'X-Subject-Token': project_token},
-                  expected_status=http_client.NOT_FOUND)
-        revoked_tokens = [
-            t['id'] for t in PROVIDERS.token_provider_api.list_revoked_tokens()
-        ]
-        # token is in token revocation list
-        self.assertIn(project_token, revoked_tokens)
-
-
 class TestTokenRevokeApi(TestTokenRevokeById):
     """Test token revocation on the v3 Identity API."""
 
@@ -3743,19 +3665,6 @@ class AuthExternalDomainBehavior(object):
         self.assertEqual(self.user['name'], token['bind']['kerberos'])
 
 
-class TestAuthExternalDomainBehaviorWithUUID(AuthExternalDomainBehavior,
-                                             test_v3.RestfulTestCase):
-    def config_overrides(self):
-        super(TestAuthExternalDomainBehaviorWithUUID, self).config_overrides()
-        self.kerberos = False
-        self.auth_plugin_config_override(external='Domain')
-        self.config_fixture.config(group='token', provider='uuid')
-
-
-# NOTE(lbragstad): The Fernet token provider doesn't support bind
-# authentication so we don't inhereit TestAuthExternalDomain here to test it.
-
-
 class TestAuthExternalDefaultDomain(object):
     content_type = 'json'
 
@@ -3812,29 +3721,6 @@ class TestAuthExternalDefaultDomain(object):
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertEqual(self.default_domain_user['name'],
                          token['bind']['kerberos'])
-
-
-class UUIDAuthExternalDefaultDomain(TestAuthExternalDefaultDomain,
-                                    test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(UUIDAuthExternalDefaultDomain, self).config_overrides()
-        self.config_fixture.config(group='token', provider='uuid')
-
-
-class UUIDAuthKerberos(AuthExternalDomainBehavior, test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(UUIDAuthKerberos, self).config_overrides()
-        self.kerberos = True
-        self.config_fixture.config(group='token', provider='uuid')
-        self.auth_plugin_config_override(
-            methods=['kerberos', 'password', 'token'])
-
-
-# NOTE(lbragstad): The Fernet token provider doesn't support bind
-# authentication so we don't inherit AuthExternalDomainBehavior here to test
-# it.
 
 
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
@@ -5378,18 +5264,6 @@ class TestFetchRevocationList(object):
         }
 
         self.assertEqual({'revoked': [exp_token_revoke_data]}, res.json)
-
-
-class UUIDFetchRevocationList(TestFetchRevocationList,
-                              test_v3.RestfulTestCase):
-
-    def config_overrides(self):
-        super(UUIDFetchRevocationList, self).config_overrides()
-        self.config_fixture.config(group='token', provider='uuid')
-
-
-# NOTE(lbragstad): The Fernet token provider doesn't use Revocation lists so
-# don't inherit TestFetchRevocationList here to test it.
 
 
 class ApplicationCredentialAuth(test_v3.RestfulTestCase):

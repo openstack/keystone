@@ -483,15 +483,6 @@ class RevokeTests(object):
         self.assertEqual(2, len(revocation_backend.list_events()))
 
 
-class UUIDSqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
-    def config_overrides(self):
-        super(UUIDSqlRevokeTests, self).config_overrides()
-        self.config_fixture.config(
-            group='token',
-            provider='uuid',
-            revoke_by_id=False)
-
-
 class FernetSqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
     def config_overrides(self):
         super(FernetSqlRevokeTests, self).config_overrides()

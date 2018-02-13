@@ -20,16 +20,7 @@ You can register your own token provider by configuring the following property:
   entry point for the token provider in the ``keystone.token.provider``
   namespace.
 
-Each token format uses different technologies to achieve various performance,
-scaling, and architectural requirements. The Identity service includes
-``fernet``, ``pkiz``, ``pki``, and ``uuid`` token providers.
-
-Below is the detailed list of the token formats:
-
-UUID
- ``uuid`` tokens must be persisted (using the back end specified in the
- ``[token] driver`` option), but do not require any extra configuration
- or setup.
+Below is the detailed list of the token formats supported by keystone.:
 
 Fernet
  ``fernet`` tokens do not need to be persisted at all, but require that you run
@@ -38,6 +29,5 @@ Fernet
 
 .. warning::
 
-    UUID and Fernet tokens are both bearer tokens. They
-    must be protected from unnecessary disclosure to prevent unauthorized
-    access.
+    Fernet tokens are bearer tokens. They must be protected from unnecessary
+    disclosure to prevent unauthorized access.
