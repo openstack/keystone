@@ -70,24 +70,24 @@ class Manager(manager.Manager):
         # provider (token_provider_api) manager to listen for trust deletions.
         callbacks = {
             notifications.ACTIONS.deleted: [
-                ['OS-TRUST:trust', self._trust_deleted_event_callback],
-                ['user', self._delete_user_tokens_callback],
-                ['domain', self._delete_domain_tokens_callback],
+                ['OS-TRUST:trust', self._drop_token_cache],
+                ['user', self._drop_token_cache],
+                ['domain', self._drop_token_cache],
             ],
             notifications.ACTIONS.disabled: [
-                ['user', self._delete_user_tokens_callback],
-                ['domain', self._delete_domain_tokens_callback],
-                ['project', self._delete_project_tokens_callback],
+                ['user', self._drop_token_cache],
+                ['domain', self._drop_token_cache],
+                ['project', self._drop_token_cache],
             ],
             notifications.ACTIONS.internal: [
                 [notifications.INVALIDATE_USER_TOKEN_PERSISTENCE,
-                    self._delete_user_tokens_callback],
+                    self._drop_token_cache],
                 [notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE,
-                    self._delete_user_project_tokens_callback],
+                    self._drop_token_cache],
                 [notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
-                    self._delete_user_oauth_consumer_tokens_callback],
+                    self._drop_token_cache],
                 [notifications.INVALIDATE_TOKEN_CACHE_DELETED_IDP,
-                    self._invalidate_token_cache_from_deleted_idp_callback],
+                    self._drop_token_cache],
             ]
         }
 
@@ -95,6 +95,16 @@ class Manager(manager.Manager):
             for resource_type, callback_fns in cb_info:
                 notifications.register_event_callback(event, resource_type,
                                                       callback_fns)
+
+    def _drop_token_cache(self, service, resource_type, operation, payload):
+        """Invalidate the entire token cache.
+
+        This is a handy private utility method that should be used when
+        consuming notifications that signal invalidating the token cache.
+
+        """
+        if CONF.token.cache_on_issue:
+            TOKENS_REGION.invalidate()
 
     def check_revocation_v3(self, token):
         try:
@@ -218,77 +228,3 @@ class Manager(manager.Manager):
         # http://paste.openstack.org/raw/670196/ for and example using
         # keystoneclient.common.cms to verify the response.
         return []
-
-    # FIXME(lbragstad): This callback doesn't have anything to do with
-    # persistence anymore now that the sql token driver has been removed. We
-    # should rename this to be more accurate since it's only used to invalidate
-    # the token cache region.
-    def _trust_deleted_event_callback(self, service, resource_type, operation,
-                                      payload):
-        if CONF.token.cache_on_issue:
-            # NOTE(amakarov): preserving behavior
-            TOKENS_REGION.invalidate()
-
-    # FIXME(lbragstad): This callback doesn't have anything to do with
-    # persistence anymore now that the sql token driver has been removed. We
-    # should rename this to be more accurate since it's only used to invalidate
-    # the token cache region.
-    def _delete_user_tokens_callback(self, service, resource_type, operation,
-                                     payload):
-        if CONF.token.cache_on_issue:
-            # NOTE(amakarov): preserving behavior
-            TOKENS_REGION.invalidate()
-
-    # FIXME(lbragstad): This callback doesn't have anything to do with
-    # persistence anymore now that the sql token driver has been removed. We
-    # should rename this to be more accurate since it's only used to invalidate
-    # the token cache region.
-    def _delete_domain_tokens_callback(self, service, resource_type,
-                                       operation, payload):
-        if CONF.token.cache_on_issue:
-            # NOTE(amakarov): preserving behavior
-            TOKENS_REGION.invalidate()
-
-    # FIXME(lbragstad): This callback doesn't have anything to do with
-    # persistence anymore now that the sql token driver has been removed. We
-    # should rename this to be more accurate since it's only used to invalidate
-    # the token cache region.
-    def _delete_user_project_tokens_callback(self, service, resource_type,
-                                             operation, payload):
-        if CONF.token.cache_on_issue:
-            # NOTE(amakarov): preserving behavior
-            TOKENS_REGION.invalidate()
-
-    # FIXME(lbragstad): This callback doesn't have anything to do with
-    # persistence anymore now that the sql token driver has been removed. We
-    # should rename this to be more accurate since it's only used to invalidate
-    # the token cache region.
-    def _delete_project_tokens_callback(self, service, resource_type,
-                                        operation, payload):
-        if CONF.token.cache_on_issue:
-            # NOTE(amakarov): preserving behavior
-            TOKENS_REGION.invalidate()
-
-    # FIXME(lbragstad): This callback doesn't have anything to do with
-    # persistence anymore now that the sql token driver has been removed. We
-    # should rename this to be more accurate since it's only used to invalidate
-    # the token cache region.
-    def _delete_user_oauth_consumer_tokens_callback(self, service,
-                                                    resource_type, operation,
-                                                    payload):
-        if CONF.token.cache_on_issue:
-            # NOTE(amakarov): preserving behavior
-            TOKENS_REGION.invalidate()
-
-    def _invalidate_token_cache_from_deleted_idp_callback(self,
-                                                          service,
-                                                          resource_type,
-                                                          operation, payload):
-        """Callback to invalidate the token cache after deleting an idp.
-
-        While this callback doesn't use the information about the deleted
-        identity provider to invalidate the cache, the method name and payload
-        are emitted when logging at the DEBUG level.
-
-        """
-        TOKENS_REGION.invalidate()
