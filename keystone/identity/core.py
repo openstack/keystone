@@ -1128,7 +1128,14 @@ class Manager(manager.Manager):
         enabled_change = ((user.get('enabled') is False) and
                           user['enabled'] != old_user_ref.get('enabled'))
         if enabled_change or user.get('password') is not None:
-            self.emit_invalidate_user_token_persistence(user_id)
+            self._persist_revocation_event_for_user(user_id)
+            reason = (
+                'Invalidating the token cache because user %(user_id)s was '
+                'enabled or disabled. Authorization will be calculated and '
+                'enforced accordingly the next time they authenticate or '
+                'validate a token.' % {'user_id': user_id}
+            )
+            notifications.invalidate_token_cache_notification(reason)
 
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
@@ -1231,8 +1238,8 @@ class Manager(manager.Manager):
         # assignment for the group then we do not need to revoke all the users
         # tokens and can just delete the group.
         if roles:
-            for uid in user_ids:
-                self.emit_invalidate_user_token_persistence(uid)
+            for user_id in user_ids:
+                self._persist_revocation_event_for_user(user_id)
 
         # Invalidate user role assignments cache region, as it may be caching
         # role assignments expanded from the specified group to its users
@@ -1281,7 +1288,7 @@ class Manager(manager.Manager):
             user_entity_id, user_driver, group_entity_id, group_driver)
 
         group_driver.remove_user_from_group(user_entity_id, group_entity_id)
-        self.emit_invalidate_user_token_persistence(user_id)
+        self._persist_revocation_event_for_user(user_id)
 
         # Invalidate user role assignments cache region, as it may be caching
         # role assignments expanded from this group to this user
@@ -1289,31 +1296,17 @@ class Manager(manager.Manager):
         notifications.Audit.removed_from(self._GROUP, group_id, self._USER,
                                          user_id, initiator)
 
-    def emit_invalidate_user_token_persistence(self, user_id):
-        """Emit a notification to the callback system to revoke user tokens.
+    def _persist_revocation_event_for_user(self, user_id):
+        """Emit a notification to invoke a revocation event callback.
 
-        This method and associated callback listener removes the need for
-        making a direct call to another manager to delete and revoke tokens.
+        Fire off an internal notification that will be consumed by the
+        revocation API to store a revocation record for a specific user.
 
         :param user_id: user identifier
         :type user_id: string
         """
         notifications.Audit.internal(
-            notifications.INVALIDATE_USER_TOKEN_PERSISTENCE, user_id
-        )
-
-    def emit_invalidate_grant_token_persistence(self, user_project):
-        """Emit a notification to the callback system to revoke grant tokens.
-
-        This method and associated callback listener removes the need for
-        making a direct call to another manager to delete and revoke tokens.
-
-        :param user_project: {'user_id': user_id, 'project_id': project_id}
-        :type user_project: dict
-        """
-        notifications.Audit.internal(
-            notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE,
-            user_project
+            notifications.PERSIST_REVOCATION_EVENT_FOR_USER, user_id
         )
 
     @domains_configured
@@ -1408,7 +1401,7 @@ class Manager(manager.Manager):
             raise
 
         notifications.Audit.updated(self._USER, user_id, initiator)
-        self.emit_invalidate_user_token_persistence(user_id)
+        self._persist_revocation_event_for_user(user_id)
 
     @MEMOIZE
     def _shadow_nonlocal_user(self, user):

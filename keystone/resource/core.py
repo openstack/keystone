@@ -427,16 +427,6 @@ class Manager(manager.Manager):
 
         return ret
 
-    def _pre_delete_cleanup_project(self, project_id):
-        project_user_ids = (
-            PROVIDERS.assignment_api.list_user_ids_for_project(project_id))
-        for user_id in project_user_ids:
-            payload = {'user_id': user_id, 'project_id': project_id}
-            notifications.Audit.internal(
-                notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE,
-                payload
-            )
-
     def _post_delete_cleanup_project(self, project_id, project,
                                      initiator=None):
         try:
@@ -501,16 +491,20 @@ class Manager(manager.Manager):
             project_list = subtree_list + [project]
             projects_ids = [x['id'] for x in project_list]
 
-            for prj in project_list:
-                self._pre_delete_cleanup_project(prj['id'])
             ret = self.driver.delete_projects_from_ids(projects_ids)
             for prj in project_list:
                 self._post_delete_cleanup_project(prj['id'], prj, initiator)
         else:
-            self._pre_delete_cleanup_project(project_id)
             ret = self.driver.delete_project(project_id)
             self._post_delete_cleanup_project(project_id, project, initiator)
 
+        reason = (
+            'The token cache is being invalidate because project '
+            '%(project_id)s was deleted. Authorization will be recalculated '
+            'and enforced accordingly the next time users authenticate or '
+            'validate a token.' % {'project_id': project_id}
+        )
+        notifications.invalidate_token_cache_notification(reason)
         return ret
 
     def _filter_projects_list(self, projects_list, user_id):

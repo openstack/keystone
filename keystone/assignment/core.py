@@ -93,6 +93,23 @@ class Manager(manager.Manager):
         # Use set() to process the list to remove any duplicates
         return list(set([x['user_id'] for x in assignment_list]))
 
+    def _send_app_cred_notification_for_role_removal(self, role_id):
+        """Delete all application credential for a specific role.
+
+        :param role_id: role identifier
+        :type role_id: string
+        """
+        assignments = self.list_role_assignments(role_id=role_id)
+        for assignment in assignments:
+            if 'user_id' in assignment and 'project_id' in assignment:
+                payload = {
+                    'user_id': assignment['user_id'],
+                    'project_id': assignment['project_id']
+                }
+                notifications.Audit.internal(
+                    notifications.REMOVE_APP_CREDS_FOR_USER, payload
+                )
+
     @MEMOIZE_COMPUTED_ASSIGNMENTS
     def get_roles_for_user_and_project(self, user_id, tenant_id):
         """Get the roles associated with a user within given project.
@@ -241,32 +258,45 @@ class Manager(manager.Manager):
 
         self.driver.remove_role_from_user_and_project(user_id, project_id,
                                                       role_id)
-        if project_id:
-            self._emit_invalidate_grant_token_persistence(user_id, project_id)
-        else:
-            PROVIDERS.identity_api.emit_invalidate_user_token_persistence(
-                user_id)
+        payload = {'user_id': user_id, 'project_id': project_id}
+        notifications.Audit.internal(
+            notifications.REMOVE_APP_CREDS_FOR_USER,
+            payload
+        )
+        self._invalidate_token_cache(
+            role_id, group_id, user_id, project_id, domain_id
+        )
 
     def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
         self._remove_role_from_user_and_project_adapter(
             role_id, user_id=user_id, project_id=tenant_id)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
-    def _emit_invalidate_user_token_persistence(self, user_id):
-        PROVIDERS.identity_api.emit_invalidate_user_token_persistence(user_id)
+    def _invalidate_token_cache(self, role_id, group_id, user_id, project_id,
+                                domain_id):
+        if group_id:
+            actor_type = 'group'
+            actor_id = group_id
+        elif user_id:
+            actor_type = 'user'
+            actor_id = user_id
 
-        # NOTE(lbragstad): The previous notification decorator behavior didn't
-        # send the notification unless the operation was successful. We
-        # maintain that behavior here by calling to the notification module
-        # after the call to emit invalid user tokens.
-        notifications.Audit.internal(
-            notifications.INVALIDATE_USER_TOKEN_PERSISTENCE, user_id
-        )
+        if domain_id:
+            target_type = 'domain'
+            target_id = domain_id
+        elif project_id:
+            target_type = 'project'
+            target_id = project_id
 
-    def _emit_invalidate_grant_token_persistence(self, user_id, project_id):
-        PROVIDERS.identity_api.emit_invalidate_grant_token_persistence(
-            {'user_id': user_id, 'project_id': project_id}
+        reason = (
+            'Invalidating the token cache because role %(role_id)s was '
+            'removed from %(actor_type)s %(actor_id)s on %(target_type)s '
+            '%(target_id)s.' %
+            {'role_id': role_id, 'actor_type': actor_type,
+             'actor_id': actor_id, 'target_type': target_type,
+             'target_id': target_id}
         )
+        notifications.invalidate_token_cache_notification(reason)
 
     @notifications.role_assignment('created')
     def create_grant(self, role_id, user_id=None, group_id=None,
@@ -318,10 +348,6 @@ class Manager(manager.Manager):
         )
         return PROVIDERS.role_api.list_roles_from_ids(grant_ids)
 
-    def _emit_revoke_user_grant(self, role_id, user_id, domain_id, project_id,
-                                inherited_to_projects, context):
-        self._emit_invalidate_grant_token_persistence(user_id, project_id)
-
     @notifications.role_assignment('deleted')
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
@@ -337,9 +363,9 @@ class Manager(manager.Manager):
                 project_id=project_id,
                 inherited_to_projects=inherited_to_projects
             )
-            self._emit_revoke_user_grant(
-                role_id, user_id, domain_id, project_id,
-                inherited_to_projects, context)
+            self._invalidate_token_cache(
+                role_id, group_id, user_id, project_id, domain_id
+            )
         else:
             try:
                 # check if role exists on the group before revoke
@@ -349,13 +375,9 @@ class Manager(manager.Manager):
                     inherited_to_projects=inherited_to_projects
                 )
                 if CONF.token.revoke_by_id:
-                    # NOTE(morganfainberg): The user ids are the important part
-                    # for invalidating tokens below, so extract them here.
-                    for user in PROVIDERS.identity_api.list_users_in_group(
-                            group_id):
-                        self._emit_revoke_user_grant(
-                            role_id, user['id'], domain_id, project_id,
-                            inherited_to_projects, context)
+                    self._invalidate_token_cache(
+                        role_id, group_id, user_id, project_id, domain_id
+                    )
             except exception.GroupNotFound:
                 LOG.debug('Group %s not found, no tokens to invalidate.',
                           group_id)
@@ -1053,75 +1075,6 @@ class Manager(manager.Manager):
         for assignment in system_assignments:
             self.delete_system_grant_for_group(group_id, assignment['id'])
 
-    def delete_tokens_for_role_assignments(self, role_id):
-        assignments = self.list_role_assignments(role_id=role_id)
-
-        # Iterate over the assignments for this role and build the list of
-        # user or user+project IDs for the tokens we need to delete
-        user_ids = set()
-        user_and_project_ids = list()
-        for assignment in assignments:
-            # If we have a project assignment, then record both the user and
-            # project IDs so we can target the right token to delete. If it is
-            # a domain assignment, we might as well kill all the tokens for
-            # the user, since in the vast majority of cases all the tokens
-            # for a user will be within one domain anyway, so not worth
-            # trying to delete tokens for each project in the domain. If the
-            # assignment is a system assignment, invalidate all tokens from the
-            # cache. A future patch may optimize this to only remove specific
-            # system-scoped tokens from the cache.
-            if 'user_id' in assignment:
-                if 'project_id' in assignment:
-                    user_and_project_ids.append(
-                        (assignment['user_id'], assignment['project_id']))
-                elif 'domain_id' or 'system' in assignment:
-                    self._emit_invalidate_user_token_persistence(
-                        assignment['user_id'])
-            elif 'group_id' in assignment:
-                # Add in any users for this group, being tolerant of any
-                # cross-driver database integrity errors.
-                try:
-                    users = PROVIDERS.identity_api.list_users_in_group(
-                        assignment['group_id'])
-                except exception.GroupNotFound:
-                    # Ignore it, but log a debug message
-                    if 'project_id' in assignment:
-                        target = _('Project (%s)') % assignment['project_id']
-                    elif 'domain_id' in assignment:
-                        target = _('Domain (%s)') % assignment['domain_id']
-                    else:
-                        target = _('Unknown Target')
-                    msg = ('Group (%(group)s), referenced in assignment '
-                           'for %(target)s, not found - ignoring.')
-                    LOG.debug(msg, {'group': assignment['group_id'],
-                                    'target': target})
-                    continue
-
-                if 'project_id' in assignment:
-                    for user in users:
-                        user_and_project_ids.append(
-                            (user['id'], assignment['project_id']))
-                elif 'domain_id' or 'system' in assignment:
-                    for user in users:
-                        self._emit_invalidate_user_token_persistence(
-                            user['id'])
-
-        # Now process the built up lists.  Before issuing calls to delete any
-        # tokens, let's try and minimize the number of calls by pruning out
-        # any user+project deletions where a general token deletion for that
-        # same user is also planned.
-        user_and_project_ids_to_action = []
-        for user_and_project_id in user_and_project_ids:
-            if user_and_project_id[0] not in user_ids:
-                user_and_project_ids_to_action.append(user_and_project_id)
-
-        for user_id, project_id in user_and_project_ids_to_action:
-            payload = {'user_id': user_id, 'project_id': project_id}
-            notifications.Audit.internal(
-                notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE,
-                payload
-            )
-
     def delete_user_assignments(self, user_id):
         # FIXME(lbragstad): This should be refactored in the Rocky release so
         # that we can pass the user_id to the system assignment backend like we
@@ -1355,11 +1308,20 @@ class RoleManager(manager.Manager):
         return ret
 
     def delete_role(self, role_id, initiator=None):
-        PROVIDERS.assignment_api.delete_tokens_for_role_assignments(role_id)
         PROVIDERS.assignment_api.delete_role_assignments(role_id)
+        PROVIDERS.assignment_api._send_app_cred_notification_for_role_removal(
+            role_id
+        )
         self.driver.delete_role(role_id)
         notifications.Audit.deleted(self._ROLE, role_id, initiator)
         self.get_role.invalidate(self, role_id)
+        reason = (
+            'Invalidating the token cache because role %(role_id)s has been '
+            'removed. Role assignments for users will be recalculated and '
+            'enforced accordingly the next time they authenticate or validate '
+            'a token' % {'role_id': role_id}
+        )
+        notifications.invalidate_token_cache_notification(reason)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     # TODO(ayoung): Add notification
