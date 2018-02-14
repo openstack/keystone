@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [`bug 1749267 <https://bugs.launchpad.net/keystone/+bug/1749267>`_]
+    A group's system role assignments are removed when the group is deleted.
