@@ -62,8 +62,6 @@ class Manager(manager.Manager):
 
     V3 = V3
     VERSIONS = VERSIONS
-    INVALIDATE_PROJECT_TOKEN_PERSISTENCE = 'invalidate_project_tokens'
-    INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
     _persistence_manager = None
 
     def __init__(self):
