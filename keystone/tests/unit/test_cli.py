@@ -114,6 +114,13 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 project['id']))
         self.assertIs(1, len(role_list))
         self.assertEqual(role_list[0], role['id'])
+        system_roles = (
+            bootstrap.assignment_manager.list_system_grants_for_user(
+                user['id']
+            )
+        )
+        self.assertIs(1, len(system_roles))
+        self.assertEqual(system_roles[0]['id'], role['id'])
         # NOTE(morganfainberg): Pass an empty context, it isn't used by
         # `authenticate` method.
         bootstrap.identity_manager.authenticate(
