@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The token provider API has removed the ``needs_persistence`` property from
+    the abstract interface. Token providers are expected to handle persistence
+    requirement if needed. This will require out-of-tree token providers to
+    remove the unused property and handle token storage.

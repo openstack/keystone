@@ -44,10 +44,6 @@ class Provider(common.BaseProvider):
 
         self.token_formatter = tf.TokenFormatter()
 
-    def needs_persistence(self):
-        """Should the token be written to a backend."""
-        return False
-
     def issue_token(self, *args, **kwargs):
         token_id, token_data = super(Provider, self).issue_token(
             *args, **kwargs)

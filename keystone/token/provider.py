@@ -15,11 +15,9 @@
 """Token provider interface."""
 
 import datetime
-import sys
 
 from oslo_log import log
 from oslo_utils import timeutils
-import six
 
 from keystone.common import cache
 from keystone.common import manager
@@ -62,7 +60,6 @@ class Manager(manager.Manager):
 
     V3 = V3
     VERSIONS = VERSIONS
-    _persistence_manager = None
 
     def __init__(self):
         super(Manager, self).__init__(CONF.token.provider)
@@ -99,35 +96,6 @@ class Manager(manager.Manager):
                 notifications.register_event_callback(event, resource_type,
                                                       callback_fns)
 
-    @property
-    def _needs_persistence(self):
-        return self.driver.needs_persistence()
-
-    @property
-    def _persistence(self):
-        # NOTE(morganfainberg): This should not be handled via __init__ to
-        # avoid dependency injection oddities circular dependencies (where
-        # the provider manager requires the token persistence manager, which
-        # requires the token provider manager).
-        if self._persistence_manager is None:
-            self._persistence_manager = self._token_persistence_manager
-        return self._persistence_manager
-
-    def _create_token(self, token_id, token_data):
-        try:
-            if isinstance(token_data['expires'], six.string_types):
-                token_data['expires'] = timeutils.normalize_time(
-                    timeutils.parse_isotime(token_data['expires']))
-            self._persistence.create_token(token_id, token_data)
-        except Exception:
-            exc_info = sys.exc_info()
-            # an identical token may have been created already.
-            # if so, return the token_data as it is also identical
-            try:
-                self._persistence.get_token(token_id)
-            except exception.TokenNotFound:
-                six.reraise(*exc_info)
-
     def check_revocation_v3(self, token):
         try:
             token_data = token['token']
@@ -144,15 +112,6 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(_('No token in the request'))
 
         try:
-            # NOTE(lbragstad): Only go to persistent storage if we have a token
-            # to fetch from the backend (the driver persists the token).
-            # Otherwise the information about the token must be in the token
-            # id.
-            if self._needs_persistence:
-                token_ref = self._persistence.get_token(token_id)
-                # Overload the token_id variable to be a token reference
-                # instead.
-                token_id = token_ref
             token_ref = self._validate_token(token_id)
             self._is_valid_token(token_ref, window_seconds=window_seconds)
             return token_ref
@@ -207,18 +166,6 @@ class Manager(manager.Manager):
             app_cred_id=app_cred_id, include_catalog=include_catalog,
             parent_audit_id=parent_audit_id)
 
-        if self._needs_persistence:
-            data = dict(key=token_id,
-                        id=token_id,
-                        expires=token_data['token']['expires_at'],
-                        user=token_data['token']['user'],
-                        tenant=token_data['token'].get('project'),
-                        is_domain=is_domain,
-                        token_data=token_data,
-                        trust_id=trust['id'] if trust else None,
-                        token_version=self.V3)
-            self._create_token(token_id, data)
-
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): here and above TOKENS_REGION is to be passed
             # to serve as required positional "self" argument. It's ignored,
@@ -254,9 +201,6 @@ class Manager(manager.Manager):
             )
         else:
             PROVIDERS.revoke_api.revoke_by_audit_id(token_ref.audit_id)
-
-        if CONF.token.revoke_by_id and self._needs_persistence:
-            self._persistence.delete_token(token_id=token_id)
 
         # FIXME(morganfainberg): Does this cache actually need to be
         # invalidated? We maintain a cached revocation list, which should be

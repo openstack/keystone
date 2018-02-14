@@ -641,78 +641,45 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
         return token_ref
 
     def validate_token(self, token_id):
-        if self.needs_persistence():
-            token_ref = token_id
-            token_data = token_ref.get('token_data')
-            user_id = token_ref['user_id']
-            methods = token_data['token']['methods']
-            bind = token_data['token'].get('bind')
-            issued_at = token_data['token']['issued_at']
-            expires_at = token_data['token']['expires_at']
-            audit_ids = token_data['token'].get('audit_ids')
-            system = token_data['token'].get('system', {}).get('all')
-            if system:
-                system = 'all'
-            domain_id = token_data['token'].get('domain', {}).get('id')
-            project_id = token_data['token'].get('project', {}).get('id')
-            access_token = None
-            if token_data['token'].get('OS-OAUTH1'):
-                access_token = {
-                    'id': token_data['token'].get('OS-OAUTH1', {}).get(
-                        'access_token_id'
-                    ),
-                    'consumer_id': token_data['token'].get(
-                        'OS-OAUTH1', {}
-                    ).get('consumer_id')
-                }
-            trust_ref = None
-            trust_id = token_ref.get('trust_id')
-            if trust_id:
-                trust_ref = PROVIDERS.trust_api.get_trust(trust_id)
-            token_dict = None
-            if token_data['token']['user'].get(
-                    federation_constants.FEDERATION):
-                token_dict = {'user': token_ref['user']}
-        else:
-            try:
-                (user_id, methods, audit_ids, system, domain_id,
-                    project_id, trust_id, federated_info, access_token_id,
-                    issued_at, expires_at) = (
-                        self.token_formatter.validate_token(token_id))
-            except exception.ValidationError as e:
-                raise exception.TokenNotFound(e)
+        try:
+            (user_id, methods, audit_ids, system, domain_id,
+                project_id, trust_id, federated_info, access_token_id,
+                issued_at, expires_at) = (
+                    self.token_formatter.validate_token(token_id))
+        except exception.ValidationError as e:
+            raise exception.TokenNotFound(e)
 
-            bind = None
-            token_dict = None
-            trust_ref = None
-            if federated_info:
-                # NOTE(lbragstad): We need to rebuild information about the
-                # federated token as well as the federated token roles. This is
-                # because when we validate a non-persistent token, we don't
-                # have a token reference to pull the federated token
-                # information out of.  As a result, we have to extract it from
-                # the token itself and rebuild the federated context. These
-                # private methods currently live in the
-                # keystone.token.providers.fernet.Provider() class.
-                token_dict = self._rebuild_federated_info(
-                    federated_info, user_id
+        bind = None
+        token_dict = None
+        trust_ref = None
+        if federated_info:
+            # NOTE(lbragstad): We need to rebuild information about the
+            # federated token as well as the federated token roles. This is
+            # because when we validate a non-persistent token, we don't
+            # have a token reference to pull the federated token
+            # information out of.  As a result, we have to extract it from
+            # the token itself and rebuild the federated context. These
+            # private methods currently live in the
+            # keystone.token.providers.fernet.Provider() class.
+            token_dict = self._rebuild_federated_info(
+                federated_info, user_id
+            )
+            if project_id or domain_id:
+                self._rebuild_federated_token_roles(
+                    token_dict,
+                    federated_info,
+                    user_id,
+                    project_id,
+                    domain_id
                 )
-                if project_id or domain_id:
-                    self._rebuild_federated_token_roles(
-                        token_dict,
-                        federated_info,
-                        user_id,
-                        project_id,
-                        domain_id
-                    )
-            if trust_id:
-                trust_ref = PROVIDERS.trust_api.get_trust(trust_id)
+        if trust_id:
+            trust_ref = PROVIDERS.trust_api.get_trust(trust_id)
 
-            access_token = None
-            if access_token_id:
-                access_token = PROVIDERS.oauth_api.get_access_token(
-                    access_token_id
-                )
+        access_token = None
+        if access_token_id:
+            access_token = PROVIDERS.oauth_api.get_access_token(
+                access_token_id
+            )
 
         return self.v3_token_data_helper.get_token_data(
             user_id,

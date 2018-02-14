@@ -24,16 +24,6 @@ class Provider(object):
     """Interface description for a Token provider."""
 
     @abc.abstractmethod
-    def needs_persistence(self):
-        """Determine if the token should be persisted.
-
-        If the token provider requires that the token be persisted to a
-        backend this should return True, otherwise return False.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
     def get_token_version(self, token_data):
         """Return the version of the given token data.
 
