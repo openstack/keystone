@@ -1107,6 +1107,17 @@ class Manager(manager.Manager):
                 payload
             )
 
+    def delete_user_assignments(self, user_id):
+        # FIXME(lbragstad): This should be refactored in the Rocky release so
+        # that we can pass the user_id to the system assignment backend like we
+        # do with the project and domain assignment backend. Holding off on
+        # this because it will require an interface change to the backend,
+        # making it harder to backport for Queens RC.
+        self.driver.delete_user_assignments(user_id)
+        system_assignments = self.list_system_grants_for_user(user_id)
+        for assignment in system_assignments:
+            self.delete_system_grant_for_user(user_id, assignment['id'])
+
     def check_system_grant_for_user(self, user_id, role_id):
         """Check if a user has a specific role on the system.
 

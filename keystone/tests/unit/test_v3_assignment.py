@@ -24,7 +24,6 @@ import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -366,7 +365,6 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Make sure the role is gone
         self.head(member_url, expected_status=http_client.NOT_FOUND)
 
-    @test_utils.wip("Waiting for a fix to bug #1749264")
     def test_delete_user_before_removing_system_assignments_succeeds(self):
         system_role = self._create_new_role()
         user = self._create_user()

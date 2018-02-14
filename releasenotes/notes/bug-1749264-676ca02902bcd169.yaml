@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1749264 <https://bugs.launchpad.net/keystone/+bug/1749264>`_]
+    A user's system role assignment will be removed when the user is deleted.
+
