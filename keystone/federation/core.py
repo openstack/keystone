@@ -68,12 +68,14 @@ class Manager(manager.Manager):
         # NOTE(lbragstad): If an identity provider is removed from the system,
         # then we need to invalidate the token cache. Otherwise it will be
         # possible for federated tokens to be considered valid after a service
-        # provider removes a federated identity provider resource. The `idp_id`
-        # isn't actually used when invalidating the token cache but we have to
-        # pass something.
-        notifications.Audit.internal(
-            notifications.INVALIDATE_TOKEN_CACHE_DELETED_IDP, idp_id
+        # provider removes a federated identity provider resource.
+        reason = (
+            'The token cache is being invalidated because identity provider '
+            '%(idp_id)s has been deleted. Authorization for federated users '
+            'will be recalculated and enforced accordingly the next time '
+            'they authenticate or validate a token.' % {'idp_id': idp_id}
         )
+        notifications.invalidate_token_cache_notification(reason)
 
     def _cleanup_idp_domain(self, domain_id):
         domain = {'enabled': False}

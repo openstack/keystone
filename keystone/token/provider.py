@@ -80,10 +80,6 @@ class Manager(manager.Manager):
                 ['project', self._drop_token_cache],
             ],
             notifications.ACTIONS.internal: [
-                [notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
-                    self._drop_token_cache],
-                [notifications.INVALIDATE_TOKEN_CACHE_DELETED_IDP,
-                    self._drop_token_cache],
                 [notifications.INVALIDATE_TOKEN_CACHE,
                     self._drop_token_cache],
             ]
