@@ -291,14 +291,3 @@ class Manager(manager.Manager):
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
         self.invalidate_individual_token_cache(token_id)
-
-    def list_revoked_tokens(self):
-        # FIXME(lbragstad): In the future, the token providers are going to be
-        # responsible for handling persistence if they require it (e.g. token
-        # providers not doing some sort of authenticated encryption strategy).
-        # When that happens, we could still expose this API by checking an
-        # interface on the provider can calling it if available. For now, this
-        # will return a valid response, but it will just be an empty list. See
-        # http://paste.openstack.org/raw/670196/ for and example using
-        # keystoneclient.common.cms to verify the response.
-        return []

@@ -3437,6 +3437,19 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         self.head('/auth/tokens/OS-PKI/revoked',
                   expected_status=http_client.GONE)
 
+    def test_revoke_by_id_true_returns_forbidden(self):
+        self.config_fixture.config(
+            group='token',
+            revoke_by_id=True)
+        self.get(
+            '/auth/tokens/OS-PKI/revoked',
+            expected_status=http_client.FORBIDDEN
+        )
+        self.head(
+            '/auth/tokens/OS-PKI/revoked',
+            expected_status=http_client.FORBIDDEN
+        )
+
     def test_list_delete_project_shows_in_event_list(self):
         self.role_data_fixtures()
         events = self.get('/OS-REVOKE/events').json_body['events']

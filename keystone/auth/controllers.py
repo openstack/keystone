@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneclient.common import cms
 from oslo_log import log
-from oslo_serialization import jsonutils
 import six
 
 from keystone.auth import core
@@ -22,7 +20,6 @@ from keystone.auth import schema
 from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import provider_api
-from keystone.common import utils
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
@@ -296,33 +293,16 @@ class Auth(controller.V3Controller):
 
         return render_token_data_response(token.id, token_reference)
 
-    @controller.protected()
     def revocation_list(self, request):
         if not CONF.token.revoke_by_id:
             raise exception.Gone()
-
-        audit_id_only = 'audit_id_only' in request.params
-
-        tokens = PROVIDERS.token_provider_api.list_revoked_tokens()
-
-        for t in tokens:
-            expires = t['expires']
-            if not (expires and isinstance(expires, six.text_type)):
-                t['expires'] = utils.isotime(expires)
-            if audit_id_only:
-                t.pop('id', None)
-        data = {'revoked': tokens}
-
-        if audit_id_only:
-            # No need to obfuscate if no token IDs.
-            return data
-
-        json_data = jsonutils.dumps(data)
-        signed_text = cms.cms_sign_text(json_data,
-                                        CONF.signing.certfile,
-                                        CONF.signing.keyfile)
-
-        return {'signed': signed_text}
+        # NOTE(lbragstad): This API is deprecated and isn't supported. Keystone
+        # also doesn't store tokens, so returning a list of revoked tokens
+        # would require keystone to write invalid tokens to disk, which defeats
+        # the purpose. Return a 403 instead of removing the API all together.
+        # The alternative would be to return a signed response of just an empty
+        # list.
+        raise exception.Forbidden()
 
     def _combine_lists_uniquely(self, a, b):
         # it's most likely that only one of these will be filled so avoid
