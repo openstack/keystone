@@ -1,24 +1,69 @@
 # Sungjin Kang <gang.sungjin@gmail.com>, 2017. #zanata
+# Ian Y. Choi <ianyrchoi@gmail.com>, 2018. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone Release Notes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-09 18:02+0000\n"
+"POT-Creation-Date: 2018-02-15 06:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-02-07 12:46+0000\n"
-"Last-Translator: Sungjin Kang <gang.sungjin@gmail.com>\n"
+"PO-Revision-Date: 2018-02-14 07:39+0000\n"
+"Last-Translator: Ian Y. Choi <ianyrchoi@gmail.com>\n"
 "Language-Team: Korean (South Korea)\n"
 "Language: ko-KR\n"
 "X-Generator: Zanata 3.9.6\n"
 "Plural-Forms: nplurals=1; plural=0\n"
+
+msgid "'/' and ',' are not allowed to be in a tag"
+msgstr "'/' 및 ',' 는 태그 내에서 허용하지 않습니다"
+
+msgid ""
+"**Experimental** - Domain specific configuration options can be stored in "
+"SQL instead of configuration files, using the new REST APIs."
+msgstr ""
+"**실험적 기능** - 도메인에 특화된 구성 옵션을 구성 파일 대신 SQL에 새로운 "
+"REST API를 사용하여 저장 가능합니다."
+
+msgid ""
+"**Experimental** - Keystone now supports tokenless authorization with X.509 "
+"SSL client certificate."
+msgstr ""
+"**실험적 기능** - Keystone이 이제 X.509 SSL 클라이언트 인증서를 사용한 토큰"
+"이 없는 인증 방식 (tokenless authorization)을 지원합니다."
 
 msgid "10.0.0"
 msgstr "10.0.0"
 
 msgid "10.0.1"
 msgstr "10.0.1"
+
+msgid "10.0.3"
+msgstr "10.0.3"
+
+msgid "11.0.0"
+msgstr "11.0.0"
+
+msgid "11.0.1"
+msgstr "11.0.1"
+
+msgid "11.0.3"
+msgstr "11.0.3"
+
+msgid "12.0.0"
+msgstr "12.0.0"
+
+msgid "13.0.0.0b1"
+msgstr "13.0.0.0b1"
+
+msgid "13.0.0.0b2"
+msgstr "13.0.0.0b2"
+
+msgid "13.0.0.0b3"
+msgstr "13.0.0.0b3"
+
+msgid "13.0.0.0rc1"
+msgstr "13.0.0.0rc1"
 
 msgid "8.0.1"
 msgstr "8.0.1"
@@ -34,6 +79,9 @@ msgstr "9.2.0"
 
 msgid "Bug Fixes"
 msgstr "버그 수정"
+
+msgid "Critical Issues"
+msgstr "치명적인 이슈"
 
 msgid "Current Series Release Notes"
 msgstr "현재 시리즈 릴리즈 노트"
@@ -63,8 +111,17 @@ msgstr "새로운 기능"
 msgid "Newton Series Release Notes"
 msgstr "Newton 시리즈 릴리즈 노트"
 
+msgid "Ocata Series Release Notes"
+msgstr "Ocata 시리즈 릴리즈 노트"
+
 msgid "Other Notes"
 msgstr "기타 기능"
+
+msgid "Pike Series Release Notes"
+msgstr "Pike 시리즈 릴리즈 노트"
+
+msgid "Queens Series Release Notes"
+msgstr "Queens 시리즈 릴리즈 노트"
 
 msgid "Security Issues"
 msgstr "보안 이슈"

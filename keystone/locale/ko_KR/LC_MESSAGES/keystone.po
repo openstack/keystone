@@ -6,16 +6,17 @@
 # Sungjin Kang <potopro@gmail.com>, 2013
 # Sungjin Kang <potopro@gmail.com>, 2013
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
+# Ian Y. Choi <ianyrchoi@gmail.com>, 2018. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-08 23:48+0000\n"
+"POT-Creation-Date: 2018-02-15 06:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-04-07 06:27+0000\n"
-"Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
+"PO-Revision-Date: 2018-02-14 07:35+0000\n"
+"Last-Translator: Ian Y. Choi <ianyrchoi@gmail.com>\n"
 "Language: ko-KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -144,6 +145,10 @@ msgstr "사용자 ID를 변경할 수 없음"
 
 msgid "Cannot change user name"
 msgstr "사용자 이름을 변경할 수 없음"
+
+#, python-format
+msgid "Cannot create an endpoint with an invalid URL: %(url)s."
+msgstr "올바르지 않은 URL을 사용하여 엔드포인트를 작성할 수 없음: %(url)s."
 
 msgid "Cannot delete a domain that is enabled, please disable it first."
 msgstr ""
@@ -379,6 +384,16 @@ msgid ""
 msgstr ""
 "예상 서명 인증서를 서버에서 사용할 수 없습니다. 키스톤 구성을 확인하십시오."
 
+#, python-format
+msgid ""
+"Expecting to find %(attribute)s in %(target)s. The server could not comply "
+"with the request since it is either malformed or otherwise incorrect. The "
+"client is assumed to be in error."
+msgstr ""
+"%(target)s에 %(attribute)s이(가) 있어야 합니다- 서버의 형식이나 다른 항목이 "
+"올바르지 않기 때문에 서버가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태"
+"로 간주됩니다."
+
 msgid "Failed to validate token"
 msgstr "토큰을 유효성 검증하지 못했음"
 
@@ -570,6 +585,10 @@ msgstr ""
 "도메인 특정 구성에 대해 %(group)s 그룹의 %(option)s 옵션이 지원되지않음"
 
 #, python-format
+msgid "Password validation error: %(detail)s."
+msgstr "확인 오류 발생: %(detail)s."
+
+#, python-format
 msgid "Project (%s)"
 msgstr "프로젝트(%s)"
 
@@ -658,6 +677,14 @@ msgstr "도메인 또는 프로젝트 중 하나 지정"
 
 msgid "Specify one of user or group"
 msgstr "사용자 또는 그룹 중 하나 지정"
+
+#, python-format
+msgid ""
+"String length exceeded. The length of string '%(string)s' exceeds the limit "
+"of column %(type)s(CHAR(%(length)d))."
+msgstr ""
+"문자열 길이 제한을 초과하였습니다. '%(string)s' 문자열 길이가 열의 한도 "
+"%(type)s(CHAR(%(length)d))을(를) 초과하였습니다."
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
