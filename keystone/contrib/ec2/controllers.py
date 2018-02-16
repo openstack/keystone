@@ -296,9 +296,11 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
 
         method_names = ['ec2credential']
 
-        token_id, token_data = self.token_provider_api.issue_token(
-            user_ref['id'], method_names, project_id=project_ref['id'])
-        return self.render_token_data_response(token_id, token_data)
+        token = self.token_provider_api.issue_token(
+            user_ref['id'], method_names, project_id=project_ref['id']
+        )
+        token_reference = controller.render_token_response_from_model(token)
+        return self.render_token_data_response(token.id, token_reference)
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
     def ec2_get_credential(self, request, user_id, credential_id):

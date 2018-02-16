@@ -24,66 +24,44 @@ class Provider(object):
     """Interface description for a Token provider."""
 
     @abc.abstractmethod
-    def get_token_version(self, token_data):
-        """Return the version of the given token data.
+    def validate_token(self, token_id):
+        """Validate a given token by its ID and return the token_data.
 
-        If the given token data is unrecognizable,
-        UnsupportedTokenVersionException is raised.
+        :param token_id: the unique ID of the token
+        :type token_id: str
+        :returns: token data as a tuple in the form of:
 
-        :param token_data: token_data
-        :type token_data: dict
-        :returns: token version string
-        :raises keystone.exception.UnsupportedTokenVersionException:
-            If the token version is not expected.
-        """
-        raise exception.NotImplemented()  # pragma: no cover
+        (user_id, methods, audit_ids, system, domain_id, project_id,
+         trust_id, federated_group_ids, identity_provider_id, protocol_id,
+         access_token_id, app_cred_id, issued_at, expires_at)
 
-    @abc.abstractmethod
-    def issue_token(self, user_id, method_names, expires_at=None,
-                    project_id=None, domain_id=None, auth_context=None,
-                    trust=None, include_catalog=True, parent_audit_id=None):
-        """Issue a V3 Token.
+        ``user_id`` is the unique ID of the user as a string
+        ``methods`` a list of authentication methods used to obtain the token
+        ``audit_ids`` a list of audit IDs for the token
+        ``system`` a dictionary containing system scope if system-scoped
+        ``domain_id`` the unique ID of the domain if domain-scoped
+        ``project_id`` the unique ID of the project if project-scoped
+        ``trust_id`` the unique identifier of the trust if trust-scoped
+        ``federated_group_ids`` list of federated group IDs
+        ``identity_provider_id`` unique ID of the user's identity provider
+        ``protocol_id`` unique ID of the protocol used to obtain the token
+        ``access_token_id`` the unique ID of the access_token for OAuth1 tokens
+        ``app_cred_id`` the unique ID of the application credential
+        ``issued_at`` a datetime object of when the token was minted
+        ``expires_at`` a datetime object of when the token expires
 
-        :param user_id: identity of the user
-        :type user_id: string
-        :param method_names: names of authentication methods
-        :type method_names: list
-        :param expires_at: optional time the token will expire
-        :type expires_at: string
-        :param project_id: optional project identity
-        :type project_id: string
-        :param domain_id: optional domain identity
-        :type domain_id: string
-        :param auth_context: optional context from the authorization plugins
-        :type auth_context: dict
-        :param trust: optional trust reference
-        :type trust: dict
-        :param include_catalog: optional, include the catalog in token data
-        :type include_catalog: boolean
-        :param parent_audit_id: optional, the audit id of the parent token
-        :type parent_audit_id: string
-        :returns: (token_id, token_data)
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
-    @abc.abstractmethod
-    def validate_token(self, token_ref):
-        """Validate the given V3 token and return the token_data.
-
-        :param token_ref: the token reference
-        :type token_ref: dict
-        :returns: token data
         :raises keystone.exception.TokenNotFound: If the token doesn't exist.
         """
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def _get_token_id(self, token_data):
-        """Generate the token_id based upon the data in token_data.
+    def generate_id_and_issued_at(self, token):
+        """Generate a token based on the information provided.
 
-        :param token_data: token information
-        :type token_data: dict
-        :returns: token identifier
-        :rtype: six.text_type
+        :param token: A token object containing information about the
+                      authorization context of the request.
+        :type token: `keystone.models.token.TokenModel`
+        :returns: tuple containing an ID for the token and the issued at time
+                  of the token (token_id, issued_at).
         """
         raise exception.NotImplemented()  # pragma: no cover

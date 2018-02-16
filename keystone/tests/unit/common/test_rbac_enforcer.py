@@ -25,7 +25,6 @@ from keystone.common import context
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone import exception
-from keystone.models import token_model
 from keystone.tests import unit
 from keystone.tests.unit import rest
 
@@ -236,19 +235,14 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
 
             c.get('/v3', headers={'X-Auth-Token': token_id,
                                   'X-Subject-Token': token_id})
-            token_ref = token_model.KeystoneToken(
-                token_id=token_id,
-                token_data=PROVIDER_APIS.token_provider_api.validate_token(
-                    token_id
-                )
-            )
+            token = PROVIDER_APIS.token_provider_api.validate_token(token_id)
             subj_token_data = (
                 self.enforcer._extract_subject_token_target_data())
             subj_token_data = subj_token_data['token']
-            self.assertEqual(token_ref.user_id, subj_token_data['user_id'])
+            self.assertEqual(token.user_id, subj_token_data['user_id'])
             self.assertIn('user', subj_token_data)
             self.assertIn('domain', subj_token_data['user'])
-            self.assertEqual(token_ref.user_domain_id,
+            self.assertEqual(token.user_domain['id'],
                              subj_token_data['user']['domain']['id'])
 
     def test_extract_filter_data(self):

@@ -15,6 +15,7 @@ from oslo_log import log
 
 from keystone.common import authorization
 from keystone.common import context
+from keystone.common import controller
 from keystone.common import provider_api
 from keystone.common import tokenless_auth
 from keystone.common import wsgi
@@ -43,7 +44,8 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
 
     def fetch_token(self, token, **kwargs):
         try:
-            return self.token_provider_api.validate_token(token)
+            token_model = self.token_provider_api.validate_token(token)
+            return controller.render_token_response_from_model(token_model)
         except exception.TokenNotFound:
             raise auth_token.InvalidToken(_('Could not find token'))
 

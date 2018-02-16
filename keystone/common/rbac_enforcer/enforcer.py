@@ -25,7 +25,6 @@ from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
-from keystone.models import token_model
 
 
 CONF = keystone.conf.CONF
@@ -189,16 +188,15 @@ class RBACEnforcer(object):
                 default=False))
             if allow_expired:
                 window_seconds = CONF.token.allow_expired_window
-            token_ref = token_model.KeystoneToken(
-                token_id=subject_token,
-                token_data=PROVIDER_APIS.token_provider_api.validate_token(
-                    subject_token,
-                    window_seconds=window_seconds))
+            token = PROVIDER_APIS.token_provider_api.validate_token(
+                subject_token,
+                window_seconds=window_seconds
+            )
             # TODO(morgan): Expand extracted data from the subject token.
             ret_dict[target] = {}
-            ret_dict[target]['user_id'] = token_ref.user_id
+            ret_dict[target]['user_id'] = token.user_id
             try:
-                user_domain_id = token_ref.user_domain_id
+                user_domain_id = token.user_domain_id
             except exception.UnexpectedError:
                 user_domain_id = None
             if user_domain_id:

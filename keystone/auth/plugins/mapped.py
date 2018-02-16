@@ -72,14 +72,16 @@ class Mapped(base.AuthMethodHandler):
                                         response_data=response_data)
 
 
-def handle_scoped_token(request, token_ref, federation_api, identity_api):
+def handle_scoped_token(request, token, federation_api, identity_api):
     response_data = {}
-    utils.validate_expiration(token_ref)
-    token_audit_id = token_ref.audit_id
-    identity_provider = token_ref.federation_idp_id
-    protocol = token_ref.federation_protocol_id
-    user_id = token_ref.user_id
-    group_ids = token_ref.federation_group_ids
+    utils.validate_expiration(token)
+    token_audit_id = token.audit_id
+    identity_provider = token.identity_provider_id
+    protocol = token.protocol_id
+    user_id = token.user_id
+    group_ids = []
+    for group_dict in token.federated_groups:
+        group_ids.append(group_dict['id'])
     send_notification = functools.partial(
         notifications.send_saml_audit_notification, 'authenticate',
         request, user_id, group_ids, identity_provider, protocol,

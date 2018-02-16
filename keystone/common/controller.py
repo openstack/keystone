@@ -31,6 +31,7 @@ from keystone.i18n import _
 
 LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 def protected(callback=None):
@@ -120,6 +121,139 @@ def protected_wrapper(self, f, check_function, request, filter_attr,
     if (filter_attr):
         prep_info['filter_attr'] = filter_attr
     check_function(self, request, prep_info, *args, **kwargs)
+
+
+# FIXME(lbragstad): Find a better home for this... I put there here since it's
+# needed across a couple different controller (keystone/auth/controllers.py and
+# keystone/contrib/ec2/controllers.py both need it). This is technically an
+# opinion of how a token should look according to the V3 API contract. My
+# thought was to try and work this into a view of a token associated to the V3
+# controller logic somewhere.
+def render_token_response_from_model(token, include_catalog=True):
+    token_reference = {
+        'token': {
+            'methods': token.methods,
+            'user': {
+                'domain': {
+                    'id': token.user_domain['id'],
+                    'name': token.user_domain['name']
+                },
+                'id': token.user_id,
+                'name': token.user['name'],
+                'password_expires_at': token.user[
+                    'password_expires_at'
+                ]
+            },
+            'audit_ids': token.audit_ids,
+            'expires_at': token.expires_at,
+            'issued_at': token.issued_at,
+        }
+    }
+    if token.system_scoped:
+        token_reference['token']['roles'] = token.roles
+        token_reference['token']['system'] = {'all': True}
+    elif token.domain_scoped:
+        token_reference['token']['domain'] = {
+            'id': token.domain['id'],
+            'name': token.domain['name']
+        }
+        token_reference['token']['roles'] = token.roles
+    elif token.trust_scoped:
+        token_reference['token']['OS-TRUST:trust'] = {
+            'id': token.trust_id,
+            'trustor_user': {'id': token.trustor['id']},
+            'trustee_user': {'id': token.trustee['id']},
+            'impersonation': token.trust['impersonation']
+        }
+        token_reference['token']['project'] = {
+            'domain': {
+                'id': token.project_domain['id'],
+                'name': token.project_domain['name']
+            },
+            'id': token.trust_project['id'],
+            'name': token.trust_project['name']
+        }
+        if token.trust.get('impersonation'):
+            trustor_domain = PROVIDERS.resource_api.get_domain(
+                token.trustor['domain_id']
+            )
+            token_reference['token']['user'] = {
+                'domain': {
+                    'id': trustor_domain['id'],
+                    'name': trustor_domain['name']
+                },
+                'id': token.trustor['id'],
+                'name': token.trustor['name'],
+                'password_expires_at': token.trustor[
+                    'password_expires_at'
+                ]
+            }
+        token_reference['token']['roles'] = token.roles
+    elif token.project_scoped:
+        token_reference['token']['project'] = {
+            'domain': {
+                'id': token.project_domain['id'],
+                'name': token.project_domain['name']
+            },
+            'id': token.project['id'],
+            'name': token.project['name']
+        }
+        token_reference['token']['is_domain'] = token.project.get(
+            'is_domain', False
+        )
+        token_reference['token']['roles'] = token.roles
+        ap_name = CONF.resource.admin_project_name
+        ap_domain_name = CONF.resource.admin_project_domain_name
+        if ap_name and ap_domain_name:
+            is_ap = (
+                token.project['name'] == ap_name and
+                ap_domain_name == token.project_domain['name']
+            )
+            token_reference['token']['is_admin_project'] = is_ap
+    if include_catalog and not token.unscoped:
+        user_id = token.user_id
+        if token.trust_id:
+            user_id = token.trust['trustor_user_id']
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
+            user_id, token.project_id
+        )
+        token_reference['token']['catalog'] = catalog
+    sps = PROVIDERS.federation_api.get_enabled_service_providers()
+    if sps:
+        token_reference['token']['service_providers'] = sps
+    if token.is_federated:
+        PROVIDERS.federation_api.get_idp(token.identity_provider_id)
+        federated_dict = {}
+        federated_dict['groups'] = token.federated_groups
+        federated_dict['identity_provider'] = {
+            'id': token.identity_provider_id
+        }
+        federated_dict['protocol'] = {'id': token.protocol_id}
+        token_reference['token']['user']['OS-FEDERATION'] = (
+            federated_dict
+        )
+        token_reference['token']['user']['domain'] = {
+            'id': 'Federated', 'name': 'Federated'
+        }
+        del token_reference['token']['user']['password_expires_at']
+    if token.access_token_id:
+        token_reference['token']['OS-OAUTH1'] = {
+            'access_token_id': token.access_token_id,
+            'consumer_id': token.access_token['consumer_id']
+        }
+    if token.application_credential_id:
+        key = 'application_credential'
+        token_reference['token'][key] = {}
+        token_reference['token'][key]['id'] = (
+            token.application_credential['id']
+        )
+        token_reference['token'][key]['name'] = (
+            token.application_credential['name']
+        )
+        restricted = not token.application_credential['unrestricted']
+        token_reference['token'][key]['restricted'] = restricted
+
+    return token_reference
 
 
 class V3Controller(provider_api.ProviderAPIMixin, wsgi.Application):

@@ -79,25 +79,20 @@ class TestValidate(unit.TestCase):
         user_ref = PROVIDERS.identity_api.create_user(user_ref)
 
         method_names = ['password']
-        token_id, token_data_ = PROVIDERS.token_provider_api.issue_token(
+        token = PROVIDERS.token_provider_api.issue_token(
             user_ref['id'], method_names)
 
-        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
-        token = token_data['token']
-        self.assertIsInstance(token['audit_ids'], list)
-        self.assertIsInstance(token['expires_at'], str)
-        self.assertIsInstance(token['issued_at'], str)
-        self.assertEqual(method_names, token['methods'])
-        exp_user_info = {
-            'id': user_ref['id'],
-            'name': user_ref['name'],
-            'domain': {
-                'id': domain_ref['id'],
-                'name': domain_ref['name'],
-            },
-            'password_expires_at': user_ref['password_expires_at']
-        }
-        self.assertEqual(exp_user_info, token['user'])
+        token = PROVIDERS.token_provider_api.validate_token(token.id)
+        self.assertIsInstance(token.audit_ids, list)
+        self.assertIsInstance(token.expires_at, str)
+        self.assertIsInstance(token.issued_at, str)
+        self.assertEqual(method_names, token.methods)
+        self.assertEqual(user_ref['id'], token.user_id)
+        self.assertEqual(user_ref['name'], token.user['name'])
+        self.assertDictEqual(domain_ref, token.user_domain)
+        self.assertEqual(
+            user_ref['password_expires_at'], token.user['password_expires_at']
+        )
 
     def test_validate_v3_token_federated_info(self):
         # Check the user fields in the token result when use validate_v3_token
@@ -130,23 +125,18 @@ class TestValidate(unit.TestCase):
             federation_constants.PROTOCOL: protocol,
         }
         auth_context = auth.core.AuthContext(**auth_context_params)
-        token_id, token_data_ = PROVIDERS.token_provider_api.issue_token(
+        token = PROVIDERS.token_provider_api.issue_token(
             user_ref['id'], method_names, auth_context=auth_context)
 
-        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
-        token = token_data['token']
-        exp_user_info = {
-            'id': user_ref['id'],
-            'name': user_ref['name'],
-            'domain': {'id': CONF.federation.federated_domain_name,
-                       'name': CONF.federation.federated_domain_name, },
-            federation_constants.FEDERATION: {
-                'groups': [{'id': group_id} for group_id in group_ids],
-                'identity_provider': {'id': idp_id, },
-                'protocol': {'id': protocol, },
-            },
-        }
-        self.assertDictEqual(exp_user_info, token['user'])
+        token = PROVIDERS.token_provider_api.validate_token(token.id)
+
+        self.assertEqual(user_ref['id'], token.user_id)
+        self.assertEqual(user_ref['name'], token.user['name'])
+        self.assertDictEqual(domain_ref, token.user_domain)
+        exp_group_ids = [{'id': group_id} for group_id in group_ids]
+        self.assertEqual(exp_group_ids, token.federated_groups)
+        self.assertEqual(idp_id, token.identity_provider_id)
+        self.assertEqual(protocol, token.protocol_id)
 
     def test_validate_v3_token_trust(self):
         # Check the trust fields in the token result when use validate_v3_token
@@ -190,19 +180,15 @@ class TestValidate(unit.TestCase):
 
         method_names = ['password']
 
-        token_id, token_data_ = PROVIDERS.token_provider_api.issue_token(
+        token = PROVIDERS.token_provider_api.issue_token(
             user_ref['id'], method_names, project_id=project_ref['id'],
-            trust=trust_ref)
+            trust_id=trust_ref['id'])
 
-        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
-        token = token_data['token']
-        exp_trust_info = {
-            'id': trust_ref['id'],
-            'impersonation': False,
-            'trustee_user': {'id': user_ref['id'], },
-            'trustor_user': {'id': trustor_user_ref['id'], },
-        }
-        self.assertEqual(exp_trust_info, token['OS-TRUST:trust'])
+        token = PROVIDERS.token_provider_api.validate_token(token.id)
+        self.assertEqual(trust_ref['id'], token.trust_id)
+        self.assertFalse(token.trust['impersonation'])
+        self.assertEqual(user_ref['id'], token.trustee['id'])
+        self.assertEqual(trustor_user_ref['id'], token.trustor['id'])
 
     def test_validate_v3_token_validation_error_exc(self):
         # When the token format isn't recognized, TokenNotFound is raised.
@@ -303,10 +289,10 @@ class TestPayloads(unit.TestCase):
         self.assertEqual(expected_time_str, actual_time_str)
 
     def _test_payload(self, payload_class, exp_user_id=None, exp_methods=None,
-                      exp_system=None, exp_project_id=None,
-                      exp_domain_id=None, exp_trust_id=None,
-                      exp_federated_info=None, exp_access_token_id=None,
-                      exp_app_cred_id=None):
+                      exp_system=None, exp_project_id=None, exp_domain_id=None,
+                      exp_trust_id=None, exp_federated_group_ids=None,
+                      exp_identity_provider_id=None, exp_protocol_id=None,
+                      exp_access_token_id=None, exp_app_cred_id=None):
         exp_user_id = exp_user_id or uuid.uuid4().hex
         exp_methods = exp_methods or ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
@@ -315,11 +301,12 @@ class TestPayloads(unit.TestCase):
         payload = payload_class.assemble(
             exp_user_id, exp_methods, exp_system, exp_project_id,
             exp_domain_id, exp_expires_at, exp_audit_ids, exp_trust_id,
-            exp_federated_info, exp_access_token_id, exp_app_cred_id)
+            exp_federated_group_ids, exp_identity_provider_id, exp_protocol_id,
+            exp_access_token_id, exp_app_cred_id)
 
         (user_id, methods, system, project_id,
          domain_id, expires_at, audit_ids,
-         trust_id, federated_info,
+         trust_id, federated_group_ids, identity_provider_id, protocol_id,
          access_token_id, app_cred_id) = payload_class.disassemble(payload)
 
         self.assertEqual(exp_user_id, user_id)
@@ -329,14 +316,12 @@ class TestPayloads(unit.TestCase):
         self.assertEqual(exp_system, system)
         self.assertEqual(exp_project_id, project_id)
         self.assertEqual(exp_domain_id, domain_id)
+        self.assertEqual(exp_federated_group_ids, federated_group_ids)
+        self.assertEqual(exp_identity_provider_id, identity_provider_id)
+        self.assertEqual(exp_protocol_id, protocol_id)
         self.assertEqual(exp_trust_id, trust_id)
         self.assertEqual(exp_access_token_id, access_token_id)
         self.assertEqual(exp_app_cred_id, app_cred_id)
-
-        if exp_federated_info:
-            self.assertDictEqual(exp_federated_info, federated_info)
-        else:
-            self.assertIsNone(federated_info)
 
     def test_unscoped_payload(self):
         self._test_payload(token_formatters.UnscopedPayload)
@@ -403,13 +388,15 @@ class TestPayloads(unit.TestCase):
                            exp_trust_id=uuid.uuid4().hex)
 
     def _test_federated_payload_with_ids(self, exp_user_id, exp_group_id):
-        exp_federated_info = {'group_ids': [{'id': exp_group_id}],
-                              'idp_id': uuid.uuid4().hex,
-                              'protocol_id': uuid.uuid4().hex}
+        exp_federated_group_ids = [{'id': exp_group_id}]
+        exp_idp_id = uuid.uuid4().hex
+        exp_protocol_id = uuid.uuid4().hex
 
         self._test_payload(token_formatters.FederatedUnscopedPayload,
                            exp_user_id=exp_user_id,
-                           exp_federated_info=exp_federated_info)
+                           exp_federated_group_ids=exp_federated_group_ids,
+                           exp_identity_provider_id=exp_idp_id,
+                           exp_protocol_id=exp_protocol_id)
 
     def test_federated_payload_with_non_uuid_ids(self):
         self._test_federated_payload_with_ids('someNonUuidUserId',
@@ -420,26 +407,30 @@ class TestPayloads(unit.TestCase):
                                               '0123456789abcdef')
 
     def test_federated_project_scoped_payload(self):
-        exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
-                              'idp_id': uuid.uuid4().hex,
-                              'protocol_id': uuid.uuid4().hex}
+        exp_federated_group_ids = [{'id': 'someNonUuidGroupId'}]
+        exp_idp_id = uuid.uuid4().hex
+        exp_protocol_id = uuid.uuid4().hex
 
         self._test_payload(token_formatters.FederatedProjectScopedPayload,
                            exp_user_id='someNonUuidUserId',
                            exp_methods=['token'],
                            exp_project_id=uuid.uuid4().hex,
-                           exp_federated_info=exp_federated_info)
+                           exp_federated_group_ids=exp_federated_group_ids,
+                           exp_identity_provider_id=exp_idp_id,
+                           exp_protocol_id=exp_protocol_id)
 
     def test_federated_domain_scoped_payload(self):
-        exp_federated_info = {'group_ids': [{'id': 'someNonUuidGroupId'}],
-                              'idp_id': uuid.uuid4().hex,
-                              'protocol_id': uuid.uuid4().hex}
+        exp_federated_group_ids = [{'id': 'someNonUuidGroupId'}]
+        exp_idp_id = uuid.uuid4().hex
+        exp_protocol_id = uuid.uuid4().hex
 
         self._test_payload(token_formatters.FederatedDomainScopedPayload,
                            exp_user_id='someNonUuidUserId',
                            exp_methods=['token'],
                            exp_domain_id=uuid.uuid4().hex,
-                           exp_federated_info=exp_federated_info)
+                           exp_federated_group_ids=exp_federated_group_ids,
+                           exp_identity_provider_id=exp_idp_id,
+                           exp_protocol_id=exp_protocol_id)
 
     def test_oauth_scoped_payload(self):
         self._test_payload(token_formatters.OauthScopedPayload,

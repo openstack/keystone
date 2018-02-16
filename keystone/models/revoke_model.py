@@ -204,9 +204,9 @@ def matches(event, token_values):
     return True
 
 
-def build_token_values(token_data):
+def build_token_values(token):
 
-    token_expires_at = timeutils.parse_isotime(token_data['expires_at'])
+    token_expires_at = timeutils.parse_isotime(token.expires_at)
 
     # Trim off the microseconds because the revocation event only has
     # expirations accurate to the second.
@@ -215,60 +215,54 @@ def build_token_values(token_data):
     token_values = {
         'expires_at': timeutils.normalize_time(token_expires_at),
         'issued_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token_data['issued_at'])),
-        'audit_id': token_data.get('audit_ids', [None])[0],
-        'audit_chain_id': token_data.get('audit_ids', [None])[-1],
+            timeutils.parse_isotime(token.issued_at)),
+        'audit_id': token.audit_id,
+        'audit_chain_id': token.parent_audit_id,
     }
 
-    user = token_data.get('user')
-    if user is not None:
-        token_values['user_id'] = user['id']
+    if token.user_id is not None:
+        token_values['user_id'] = token.user_id
         # Federated users do not have a domain, be defensive and get the user
         # domain set to None in the federated user case.
-        token_values['identity_domain_id'] = user.get('domain', {}).get('id')
+        token_values['identity_domain_id'] = token.user_domain['id']
     else:
         token_values['user_id'] = None
         token_values['identity_domain_id'] = None
 
-    project = token_data.get('project', token_data.get('tenant'))
-    if project is not None:
-        token_values['project_id'] = project['id']
+    if token.project_id is not None:
+        token_values['project_id'] = token.project_id
         # The domain_id of projects acting as domains is None
-        token_values['assignment_domain_id'] = (
-            project['domain']['id'] if project['domain'] else None)
+        token_values['assignment_domain_id'] = token.project_domain['id']
     else:
         token_values['project_id'] = None
 
-        domain = token_data.get('domain')
-        if domain is not None:
-            token_values['assignment_domain_id'] = domain['id']
-        else:
-            token_values['assignment_domain_id'] = None
+    if token.domain_id is not None:
+        token_values['assignment_domain_id'] = token.domain_id
+    else:
+        token_values['assignment_domain_id'] = None
 
     role_list = []
-    roles = token_data.get('roles')
-    if roles is not None:
-        for role in roles:
+    if token.roles is not None:
+        for role in token.roles:
             role_list.append(role['id'])
     token_values['roles'] = role_list
 
-    trust = token_data.get('OS-TRUST:trust')
-    if trust is None:
+    if token.trust_scoped:
+        token_values['trust_id'] = token.trust['id']
+        token_values['trustor_id'] = token.trustor['id']
+        token_values['trustee_id'] = token.trustee['id']
+    else:
         token_values['trust_id'] = None
         token_values['trustor_id'] = None
         token_values['trustee_id'] = None
-    else:
-        token_values['trust_id'] = trust['id']
-        token_values['trustor_id'] = trust['trustor_user']['id']
-        token_values['trustee_id'] = trust['trustee_user']['id']
 
-    oauth1 = token_data.get('OS-OAUTH1')
-    if oauth1 is None:
+    if token.oauth_scoped:
+        token_values['consumer_id'] = token.access_token['consumer_id']
+        token_values['access_token_id'] = token.access_token['id']
+    else:
         token_values['consumer_id'] = None
         token_values['access_token_id'] = None
-    else:
-        token_values['consumer_id'] = oauth1['consumer_id']
-        token_values['access_token_id'] = oauth1['access_token_id']
+
     return token_values
 
 

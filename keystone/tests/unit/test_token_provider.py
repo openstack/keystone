@@ -20,6 +20,7 @@ from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
+from keystone.models import token_model
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
@@ -451,18 +452,6 @@ class TestTokenProvider(unit.TestCase):
         )
         self.load_backends()
 
-    def test_get_token_version(self):
-        self.assertEqual(
-            token.provider.V3,
-            PROVIDERS.token_provider_api.get_token_version(SAMPLE_V3_TOKEN))
-        self.assertEqual(
-            token.provider.V3,
-            PROVIDERS.token_provider_api.get_token_version(
-                SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION))
-        self.assertRaises(exception.UnsupportedTokenVersionException,
-                          PROVIDERS.token_provider_api.get_token_version,
-                          'bogus')
-
     def test_unsupported_token_provider(self):
         self.config_fixture.config(group='token',
                                    provider='MyProvider')
@@ -470,14 +459,18 @@ class TestTokenProvider(unit.TestCase):
                           token.provider.Manager)
 
     def test_provider_token_expiration_validation(self):
+        token = token_model.TokenModel()
+        token.issued_at = "2013-05-21T00:02:43.941473Z"
+        token.expires_at = utils.isotime(CURRENT_DATE)
+
         self.assertRaises(exception.TokenNotFound,
                           PROVIDERS.token_provider_api._is_valid_token,
-                          SAMPLE_V3_TOKEN_EXPIRED)
-        self.assertRaises(exception.TokenNotFound,
-                          PROVIDERS.token_provider_api._is_valid_token,
-                          SAMPLE_MALFORMED_TOKEN)
-        self.assertIsNone(
-            PROVIDERS.token_provider_api._is_valid_token(create_v3_token()))
+                          token)
+
+        token = token_model.TokenModel()
+        token.issued_at = "2013-05-21T00:02:43.941473Z"
+        token.expires_at = utils.isotime(timeutils.utcnow() + FUTURE_DELTA)
+        self.assertIsNone(PROVIDERS.token_provider_api._is_valid_token(token))
 
     def test_validate_v3_token_with_no_token_raises_token_not_found(self):
         self.assertRaises(

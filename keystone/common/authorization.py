@@ -22,7 +22,6 @@ from keystone.common.policies import base as pol_base
 from keystone.common import utils
 from keystone import conf
 from keystone import exception
-from keystone.models import token_model
 
 
 # Header used to transmit the auth token
@@ -90,17 +89,14 @@ def _handle_subject_token_id(self, request, policy_dict):
     if request.subject_token is not None:
         window_seconds = token_validation_window(request)
 
-        token_ref = token_model.KeystoneToken(
-            token_id=request.subject_token,
-            token_data=self.token_provider_api.validate_token(
-                request.subject_token,
-                window_seconds=window_seconds))
+        token = self.token_provider_api.validate_token(
+            request.subject_token, window_seconds=window_seconds
+        )
         policy_dict.setdefault('target', {})
         policy_dict['target'].setdefault(self.member_name, {})
-        policy_dict['target'][self.member_name]['user_id'] = (
-            token_ref.user_id)
+        policy_dict['target'][self.member_name]['user_id'] = (token.user_id)
         try:
-            user_domain_id = token_ref.user_domain_id
+            user_domain_id = token.user_domain['id']
         except exception.UnexpectedError:
             user_domain_id = None
         if user_domain_id:
