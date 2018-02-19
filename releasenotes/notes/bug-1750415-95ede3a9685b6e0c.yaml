@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1750415 <https://bugs.launchpad.net/keystone/+bug/1750415>`_]
+    Fixes an implementation fault in application credentials where the
+    application credential reference was not populated in the token data,
+    causing problems with the token validation when caching was disabled.
