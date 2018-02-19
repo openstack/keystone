@@ -57,9 +57,7 @@ class Manager(manager.Manager):
             self._delete_app_creds_on_user_delete_callback)
         notifications.register_event_callback(
             notifications.ACTIONS.internal,
-            # This notification is emitted when a role assignment is removed,
-            # we can take advantage of it even though we're not a token.
-            notifications.INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE,
+            notifications.REMOVE_APP_CREDS_FOR_USER,
             self._delete_app_creds_on_assignment_removal)
 
     def _delete_app_creds_on_user_delete_callback(

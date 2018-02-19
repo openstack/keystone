@@ -76,8 +76,9 @@ CONF = keystone.conf.CONF
 
 # NOTE(morganfainberg): Special case notifications that are only used
 # internally for handling token persistence token deletions
-INVALIDATE_USER_TOKEN_PERSISTENCE = 'invalidate_user_tokens'
-INVALIDATE_USER_PROJECT_TOKEN_PERSISTENCE = 'invalidate_user_project_tokens'
+INVALIDATE_TOKEN_CACHE = 'invalidate_token_cache'
+PERSIST_REVOCATION_EVENT_FOR_USER = 'persist_revocation_event_for_user'
+REMOVE_APP_CREDS_FOR_USER = 'remove_application_credentials_for_user'
 INVALIDATE_USER_OAUTH_CONSUMER_TOKENS = 'invalidate_user_consumer_tokens'
 INVALIDATE_TOKEN_CACHE_DELETED_IDP = 'invalidate_token_cache_from_deleted_idp'
 DOMAIN_DELETED = 'domain_deleted'
@@ -178,6 +179,32 @@ class Audit(object):
         public = False
         cls._emit(ACTIONS.internal, resource_type, resource_id, initiator,
                   public, reason)
+
+
+def invalidate_token_cache_notification(reason):
+    """A specific notification for invalidating the token cache.
+
+    :param reason: The specific reason why the token cache is being
+                   invalidated.
+    :type reason: string
+
+    """
+    # Since keystone does a lot of work in the authentication and validation
+    # process to make sure the authorization context for the user is
+    # update-to-date, invalidating the token cache is a somewhat common
+    # operation. It's done across various subsystems when role assignments
+    # change, users are disabled, identity providers deleted or disabled, etc..
+    # This notification is meant to make the process of invalidating the token
+    # cache DRY, instead of have each subsystem implement their own token cache
+    # invalidation strategy or callbacks.
+    LOG.debug(reason)
+    resource_id = None
+    initiator = None
+    public = False
+    Audit._emit(
+        ACTIONS.internal, INVALIDATE_TOKEN_CACHE, resource_id, initiator,
+        public, reason=reason
+    )
 
 
 def _get_callback_info(callback):

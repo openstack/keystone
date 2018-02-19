@@ -88,7 +88,7 @@ class Manager(manager.Manager):
                 ['user', self._user_callback]
             ],
             notifications.ACTIONS.internal: [
-                [notifications.INVALIDATE_USER_TOKEN_PERSISTENCE,
+                [notifications.PERSIST_REVOCATION_EVENT_FOR_USER,
                  self._user_callback],
             ]
         }
