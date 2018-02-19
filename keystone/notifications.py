@@ -79,8 +79,6 @@ CONF = keystone.conf.CONF
 INVALIDATE_TOKEN_CACHE = 'invalidate_token_cache'
 PERSIST_REVOCATION_EVENT_FOR_USER = 'persist_revocation_event_for_user'
 REMOVE_APP_CREDS_FOR_USER = 'remove_application_credentials_for_user'
-INVALIDATE_USER_OAUTH_CONSUMER_TOKENS = 'invalidate_user_consumer_tokens'
-INVALIDATE_TOKEN_CACHE_DELETED_IDP = 'invalidate_token_cache_from_deleted_idp'
 DOMAIN_DELETED = 'domain_deleted'
 
 

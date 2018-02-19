@@ -39,17 +39,6 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-def _emit_user_oauth_consumer_token_invalidate(payload):
-    # This is a special case notification that expect the payload to be a dict
-    # containing the user_id and the consumer_id. This is so that the token
-    # provider can invalidate any tokens in the token persistence if
-    # token persistence is enabled
-    notifications.Audit.internal(
-        notifications.INVALIDATE_USER_OAUTH_CONSUMER_TOKENS,
-        payload,
-    )
-
-
 class ConsumerCrudV3(controller.V3Controller):
     collection_name = 'consumers'
     member_name = 'consumer'
@@ -93,10 +82,14 @@ class ConsumerCrudV3(controller.V3Controller):
 
     @controller.protected()
     def delete_consumer(self, request, consumer_id):
-        user_token_ref = authorization.get_token_ref(request.context_dict)
-        payload = {'user_id': user_token_ref.user_id,
-                   'consumer_id': consumer_id}
-        _emit_user_oauth_consumer_token_invalidate(payload)
+        reason = (
+            'Invalidating token cache because consumer %(consumer_id)s has '
+            'been deleted. Authorization for users with OAuth tokens will be '
+            'recalculated and enforced accordingly the next time they '
+            'authenticate or validate a token.' %
+            {'consumer_id': consumer_id}
+        )
+        notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_consumer(
             consumer_id, initiator=request.audit_initiator
         )
@@ -140,9 +133,14 @@ class AccessTokenCrudV3(controller.V3Controller):
     @controller.protected()
     def delete_access_token(self, request, user_id, access_token_id):
         access_token = PROVIDERS.oauth_api.get_access_token(access_token_id)
-        consumer_id = access_token['consumer_id']
-        payload = {'user_id': user_id, 'consumer_id': consumer_id}
-        _emit_user_oauth_consumer_token_invalidate(payload)
+        reason = (
+            'Invalidating the token cache because an access token for '
+            'consumer %(consumer_id)s has been deleted. Authorization for '
+            'users with OAuth tokens will be recalculated and enforced '
+            'accordingly the next time they authenticate or validate a '
+            'token.' % {'consumer_id': access_token['consumer_id']}
+        )
+        notifications.invalidate_token_cache_notification(reason)
         return PROVIDERS.oauth_api.delete_access_token(
             user_id, access_token_id, initiator=request.audit_initiator
         )
