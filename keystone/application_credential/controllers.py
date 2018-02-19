@@ -86,7 +86,8 @@ class ApplicationCredentialV3(controller.V3Controller):
     def _check_unrestricted(self, token):
         auth_methods = token['methods']
         if 'application_credential' in auth_methods:
-            if token.token_data['token']['application_credential_restricted']:
+            td = token.token_data['token']
+            if td['application_credential']['restricted']:
                 action = _("Using method 'application_credential' is not "
                            "allowed for managing additional application "
                            "credentials.")

@@ -488,12 +488,15 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             LOG.error(msg)
             raise exception.UnexpectedError(msg)
 
-    def _populate_app_cred_restrictions(self, token_data, app_cred_id):
+    def _populate_app_cred(self, token_data, app_cred_id):
         if app_cred_id:
             app_cred_api = PROVIDERS.application_credential_api
             app_cred = app_cred_api.get_application_credential(app_cred_id)
             restricted = not app_cred['unrestricted']
-            token_data['application_credential_restricted'] = restricted
+            token_data['application_credential'] = {}
+            token_data['application_credential']['id'] = app_cred['id']
+            token_data['application_credential']['name'] = app_cred['name']
+            token_data['application_credential']['restricted'] = restricted
 
     def get_token_data(self, user_id, method_names, system=None,
                        domain_id=None, project_id=None, expires=None,
@@ -528,7 +531,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
         self._populate_token_dates(token_data, expires=expires,
                                    issued_at=issued_at)
         self._populate_oauth_section(token_data, access_token)
-        self._populate_app_cred_restrictions(token_data, app_cred_id)
+        self._populate_app_cred(token_data, app_cred_id)
         return {'token': token_data}
 
 
@@ -669,6 +672,8 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
             trust_id = token_ref.get('trust_id')
             if trust_id:
                 trust_ref = PROVIDERS.trust_api.get_trust(trust_id)
+            app_cred_id = token_data['token'].get(
+                'application_credential', {}).get('id')
             token_dict = None
             if token_data['token']['user'].get(
                     federation_constants.FEDERATION):
@@ -677,7 +682,7 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
             try:
                 (user_id, methods, audit_ids, system, domain_id,
                     project_id, trust_id, federated_info, access_token_id,
-                    issued_at, expires_at) = (
+                    app_cred_id, issued_at, expires_at) = (
                         self.token_formatter.validate_token(token_id))
             except exception.ValidationError as e:
                 raise exception.TokenNotFound(e)
@@ -726,4 +731,5 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
             token=token_dict,
             bind=bind,
             access_token=access_token,
-            audit_info=audit_ids)
+            audit_info=audit_ids,
+            app_cred_id=app_cred_id)
