@@ -205,8 +205,10 @@ class SqlMigrateBase(test_base.DbTestCase):
         # modules have the same name (001_awesome.py).
         self.addCleanup(script.PythonScript.clear)
 
-        # Set keystone's connection URL to be the test engine's url.
-        database.initialize_sql_session(self.engine.url)
+        # NOTE(dstanek): SQLAlchemy's migrate makes some assumptions in the
+        # SQLite driver about the lack of foreign key enforcement.
+        database.initialize_sql_session(self.engine.url,
+                                        enforce_sqlite_fks=False)
 
         # Override keystone's context manager to be oslo.db's global context
         # manager.

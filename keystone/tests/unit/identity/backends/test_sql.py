@@ -30,8 +30,10 @@ class TestIdentityDriver(db_test.DbTestCase,
     def setUp(self):
         super(TestIdentityDriver, self).setUp()
 
-        # Set keystone's connection URL to be the test engine's url.
-        database.initialize_sql_session(self.engine.url)
+        # Set keystone's connection URL to be the test engine's url. Close
+        # sqlite FK to avoid conflicting with sql upgrade test.
+        database.initialize_sql_session(self.engine.url,
+                                        enforce_sqlite_fks=False)
 
         # Override keystone's context manager to be oslo.db's global context
         # manager.

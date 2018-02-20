@@ -48,6 +48,7 @@ import keystone.conf
 from keystone import exception
 from keystone.identity.backends.ldap import common as ks_ldap
 from keystone import notifications
+from keystone.resource.backends import base as resource_base
 from keystone.tests.unit import ksfixtures
 from keystone.version import controllers
 from keystone.version import service
@@ -721,7 +722,7 @@ class TestCase(BaseTestCase):
         provider_api.ProviderAPIs._clear_registry_instances()
         self.useFixture(ksfixtures.BackendLoader(self))
 
-    def load_fixtures(self, fixtures):
+    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
         """Hacky basic and naive fixture loading based on a python module.
 
         Expects that the various APIs into the various services are already
@@ -737,6 +738,12 @@ class TestCase(BaseTestCase):
         if (hasattr(self, 'identity_api') and
             hasattr(self, 'assignment_api') and
                 hasattr(self, 'resource_api')):
+            # TODO(wxy): Once all test enable FKs, remove
+            # ``enable_sqlite_foreign_key`` and create the root domain by
+            # default.
+            if enable_sqlite_foreign_key:
+                self.resource_api.create_domain(resource_base.NULL_DOMAIN_ID,
+                                                fixtures.ROOT_DOMAIN)
             for domain in fixtures.DOMAINS:
                 rv = PROVIDERS.resource_api.create_domain(domain['id'], domain)
                 attrname = 'domain_%s' % domain['id']
