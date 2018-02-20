@@ -5300,6 +5300,27 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
         self.v3_create_token(auth_data, expected_status=http_client.CREATED)
 
+    def test_validate_application_credential_token_populates_restricted(self):
+        self.config_fixture.config(group='token', cache_on_issue=False)
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        auth_response = self.v3_create_token(
+            auth_data, expected_status=http_client.CREATED)
+        self.assertTrue(
+            auth_response.json['token']['application_credential']['restricted']
+        )
+        token_id = auth_response.headers.get('X-Subject-Token')
+        headers = {'X-Auth-Token': token_id, 'X-Subject-Token': token_id}
+        validate_response = self.get(
+            '/auth/tokens', headers=headers
+        ).json_body
+        self.assertTrue(
+            validate_response['token']['application_credential']['restricted']
+        )
+
     def test_valid_application_credential_with_name_succeeds(self):
         app_cred = self._make_app_cred()
         app_cred_ref = self.app_cred_api.create_application_credential(

@@ -166,6 +166,8 @@ class Provider(common.BaseProvider):
         access_token_id = token_data['token'].get('OS-OAUTH1', {}).get(
             'access_token_id')
         federated_info = self._build_federated_info(token_data)
+        app_cred_id = token_data['token'].get('application_credential',
+                                              {}).get('id')
 
         return self.token_formatter.create_token(
             user_id,
@@ -177,7 +179,8 @@ class Provider(common.BaseProvider):
             project_id=project_id,
             trust_id=trust_id,
             federated_info=federated_info,
-            access_token_id=access_token_id
+            access_token_id=access_token_id,
+            app_cred_id=app_cred_id
         )
 
     @property
