@@ -31,6 +31,8 @@ What's New in Version 3.10
 ==========================
 
 - Introduction of the Application Credentials API.
+- Introduction of an experimental Unified Limits API.
+- Ability to grant system role assignments and obtain system-scoped tokens.
 
 =========================
 What's New in Version 3.9
