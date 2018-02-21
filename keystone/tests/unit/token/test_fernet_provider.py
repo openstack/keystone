@@ -634,6 +634,24 @@ class TestFernetKeyRotation(unit.TestCase):
         # Assert that the key repository is now expanded.
         self.assertEqual(self.key_repository_size, 3)
 
+    def test_rotation_empty_file(self):
+        active_keys = 2
+        self.assertRepositoryState(expected_size=active_keys)
+        empty_file = os.path.join(CONF.fernet_tokens.key_repository, '2')
+        with open(empty_file, 'w'):
+            pass
+        key_utils = token_utils.TokenUtils(
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
+        )
+        # Rotate the keys to overwrite the empty file
+        key_utils.rotate_keys()
+        self.assertTrue(os.path.isfile(empty_file))
+        keys = key_utils.load_keys()
+        self.assertEqual(3, len(keys))
+        self.assertTrue(os.path.getsize(empty_file) > 0)
+
     def test_non_numeric_files(self):
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '99.bak')
         with open(evil_file, 'w'):
@@ -664,6 +682,19 @@ class TestLoadKeys(unit.TestCase):
     def test_non_numeric_files(self):
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '~1')
         with open(evil_file, 'w'):
+            pass
+        key_utils = token_utils.TokenUtils(
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
+        )
+        keys = key_utils.load_keys()
+        self.assertEqual(2, len(keys))
+        self.assertValidFernetKeys(keys)
+
+    def test_empty_files(self):
+        empty_file = os.path.join(CONF.fernet_tokens.key_repository, '2')
+        with open(empty_file, 'w'):
             pass
         key_utils = token_utils.TokenUtils(
             CONF.fernet_tokens.key_repository,
