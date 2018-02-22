@@ -392,7 +392,7 @@ class GrantAssignmentV3(controller.V3Controller):
     def _check_grant_protection(self, request, protection, role_id=None,
                                 user_id=None, group_id=None,
                                 domain_id=None, project_id=None,
-                                allow_no_user=False):
+                                allow_non_existing=False):
         """Check protection for role grant APIs.
 
         The policy rule might want to inspect attributes of any of the entities
@@ -407,10 +407,14 @@ class GrantAssignmentV3(controller.V3Controller):
             try:
                 ref['user'] = PROVIDERS.identity_api.get_user(user_id)
             except exception.UserNotFound:
-                if not allow_no_user:
+                if not allow_non_existing:
                     raise
         else:
-            ref['group'] = PROVIDERS.identity_api.get_group(group_id)
+            try:
+                ref['group'] = PROVIDERS.identity_api.get_group(group_id)
+            except exception.GroupNotFound:
+                if not allow_non_existing:
+                    raise
 
         # NOTE(lbragstad): This if/else check will need to be expanded in the
         # future to handle system hierarchies if that is implemented.
@@ -465,7 +469,7 @@ class GrantAssignmentV3(controller.V3Controller):
     # from the backend in the event the user was removed prior to the role
     # assignment being removed.
     @controller.protected(callback=functools.partial(
-        _check_grant_protection, allow_no_user=True))
+        _check_grant_protection, allow_non_existing=True))
     def revoke_grant(self, request, role_id, user_id=None,
                      group_id=None, domain_id=None, project_id=None):
         """Revoke a role from user/group on either a domain or project."""
@@ -513,7 +517,7 @@ class GrantAssignmentV3(controller.V3Controller):
         PROVIDERS.assignment_api.create_system_grant_for_user(user_id, role_id)
 
     @controller.protected(callback=functools.partial(
-        _check_grant_protection, allow_no_user=True))
+        _check_grant_protection, allow_non_existing=True))
     def revoke_system_grant_for_user(self, request, role_id, user_id):
         """Revoke a role from user on the system.
 

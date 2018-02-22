@@ -365,6 +365,37 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Make sure the role is gone
         self.head(member_url, expected_status=http_client.NOT_FOUND)
 
+    def test_delete_group_before_removing_role_assignment_succeeds(self):
+        # Disable the cache so that we perform a fresh check of the identity
+        # backend when attempting to remove the role assignment.
+        self.config_fixture.config(group='cache', enabled=False)
+
+        # Create a new group
+        group = unit.new_group_ref(domain_id=self.domain_id)
+        group_ref = PROVIDERS.identity_api.create_group(group)
+
+        # Assign the user a role on the project
+        collection_url = (
+            '/projects/%(project_id)s/groups/%(group_id)s/roles' % {
+                'project_id': self.project_id,
+                'group_id': group_ref['id']})
+        member_url = ('%(collection_url)s/%(role_id)s' % {
+            'collection_url': collection_url,
+            'role_id': self.role_id})
+        self.put(member_url)
+
+        # Check the user has the role assigned
+        self.head(member_url)
+        self.get(member_url, expected_status=http_client.NO_CONTENT)
+
+        # Simulate removing the group via LDAP by directly removing it from the
+        # identity backend.
+        PROVIDERS.identity_api.driver.delete_group(group_ref['id'])
+
+        # Ensure we can clean up the role assignment even though the group
+        # doesn't exist
+        self.delete(member_url)
+
     def test_delete_user_before_removing_system_assignments_succeeds(self):
         system_role = self._create_new_role()
         user = self._create_user()
