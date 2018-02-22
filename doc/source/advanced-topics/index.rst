@@ -6,4 +6,3 @@ Advanced Topics
    :maxdepth: 1
 
    configure_tokenless_x509.rst
-   external-auth.rst
