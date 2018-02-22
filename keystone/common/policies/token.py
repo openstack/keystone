@@ -44,18 +44,7 @@ token_policies = [
         # scope_types=['system', 'project'],
         description='Validate a token.',
         operations=[{'path': '/v3/auth/tokens',
-                     'method': 'GET'},
-                    {'path': '/v2.0/tokens/{token_id}',
                      'method': 'GET'}]),
-    policy.DocumentedRuleDefault(
-        name=base.IDENTITY % 'validate_token_head',
-        check_str=base.RULE_SERVICE_OR_ADMIN,
-        # FIXME(lbragstad): See the comment above about why this is commented
-        # out.
-        # scope_types=['system', 'project'],
-        description='Validate a token.',
-        operations=[{'path': '/v2.0/tokens/{token_id}',
-                     'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_token',
         check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT,
