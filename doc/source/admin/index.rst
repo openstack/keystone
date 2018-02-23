@@ -42,3 +42,4 @@ command-line client.
    health-check-middleware.rst
    oauth1.rst
    service-catalog.rst
+   endpoint-policy.rst
