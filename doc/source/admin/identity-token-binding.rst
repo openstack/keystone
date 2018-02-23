@@ -62,3 +62,6 @@ option to one of these modes:
 
        [token]
        enforce_token_bind = x509
+
+*Do not* set ``enforce_token_bind = named`` as there is not an authentication
+mechanism called ``named``.
