@@ -44,3 +44,4 @@ command-line client.
    service-catalog.rst
    endpoint-policy.rst
    event_notifications.rst
+   auth-totp.rst
