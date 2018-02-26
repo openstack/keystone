@@ -596,7 +596,7 @@ credentials_links:
   type: object
 default_limit:
   description: |
-    The defalut limit for the registered limit.
+    The default limit for the registered limit.
   in: body
   required: true
   type: integer
