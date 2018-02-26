@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-01-09 19:58+0000\n"
+"POT-Creation-Date: 2018-02-24 08:29+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -189,10 +189,6 @@ msgid ""
 msgstr ""
 "'enable' özniteliği yapılandırma tarafından göz ardı edilen bir öğe "
 "kapatılıyor."
-
-#, python-format
-msgid "Domain (%s)"
-msgstr "Alan (%s)"
 
 #, python-format
 msgid "Domain cannot be named %s"
@@ -428,10 +424,6 @@ msgstr ""
 "%(group)s grubundaki %(option)s seçeneği alana özel yapılandırmalarda "
 "desteklenmiyor"
 
-#, python-format
-msgid "Project (%s)"
-msgstr "Proje (%s)"
-
 msgid "Project field is required and cannot be empty."
 msgstr "Proje alanı gerekli ve boş olamaz."
 
@@ -659,9 +651,6 @@ msgstr "Beklenmedik atama türüyle karşılaşıldı, %s"
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
 msgstr "JSON Home yanıtı için beklenmedik durum istendi, %s"
-
-msgid "Unknown Target"
-msgstr "Bilinmeyen Hedef"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"

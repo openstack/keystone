@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-15 06:52+0000\n"
+"POT-Creation-Date: 2018-02-24 08:29+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -283,10 +283,6 @@ msgstr ""
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr "구성에서 'enable' 속성이 있는 엔티티의 사용 안함 설정을 무시합니다."
-
-#, python-format
-msgid "Domain (%s)"
-msgstr "도메인(%s)"
 
 #, python-format
 msgid "Domain cannot be named %s"
@@ -588,10 +584,6 @@ msgstr ""
 msgid "Password validation error: %(detail)s."
 msgstr "확인 오류 발생: %(detail)s."
 
-#, python-format
-msgid "Project (%s)"
-msgstr "프로젝트(%s)"
-
 msgid "Project field is required and cannot be empty."
 msgstr "프로젝트 필드는 필수이므로 비어 있어서는 안 됩니다. "
 
@@ -840,9 +832,6 @@ msgstr "예상치 못한 지정 유형 발생, %s"
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
 msgstr "JSON 홈 응답에 대해 예상치 못한 상태가 요청됨. %s"
-
-msgid "Unknown Target"
-msgstr "알 수 없는 대상"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"

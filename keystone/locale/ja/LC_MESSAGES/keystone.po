@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-08 23:48+0000\n"
+"POT-Creation-Date: 2018-02-24 08:29+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -299,10 +299,6 @@ msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
 "「enable」属性が設定によって無視されているエンティティーを無効化中です。"
-
-#, python-format
-msgid "Domain (%s)"
-msgstr "ドメイン (%s)"
 
 #, python-format
 msgid "Domain cannot be named %s"
@@ -606,10 +602,6 @@ msgstr ""
 "ドメイン固有の設定ではグループ %(group)s のオプション %(option)s はサポートさ"
 "れていません"
 
-#, python-format
-msgid "Project (%s)"
-msgstr "プロジェクト (%s)"
-
 msgid "Project field is required and cannot be empty."
 msgstr "プロジェクトフィールドは必須であり、空にできません。"
 
@@ -862,9 +854,6 @@ msgstr "予期しない割り当てタイプが検出されました。%s"
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
 msgstr "JSON Home 応答に対して予期しない状況が要求されました。%s"
-
-msgid "Unknown Target"
-msgstr "不明なターゲット"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"

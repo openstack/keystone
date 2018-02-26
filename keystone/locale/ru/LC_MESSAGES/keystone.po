@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-08 23:48+0000\n"
+"POT-Creation-Date: 2018-02-24 08:29+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -297,10 +297,6 @@ msgid ""
 msgstr ""
 "Отключение сущности, при котором атрибут 'enable' в конфигурации "
 "игнорируется."
-
-#, python-format
-msgid "Domain (%s)"
-msgstr "Домен (%s)"
 
 #, python-format
 msgid "Domain cannot be named %s"
@@ -600,10 +596,6 @@ msgstr ""
 "Параметр %(option)s в группе %(group)s не поддерживается для определенных "
 "конфигураций домена"
 
-#, python-format
-msgid "Project (%s)"
-msgstr "Проект (%s)"
-
 msgid "Project field is required and cannot be empty."
 msgstr "Поле проекта является обязательным и не может быть пустым."
 
@@ -857,9 +849,6 @@ msgstr "Обнаружен непредвиденный тип назначен�
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
 msgstr "Запрошено неожиданное состояние для ответа JSON Home, %s"
-
-msgid "Unknown Target"
-msgstr "Неизвестный целевой объект"
 
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
