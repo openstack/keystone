@@ -42,13 +42,6 @@ PROVIDERS = provider_api.ProviderAPIs
 class TestFernetTokenProvider(unit.TestCase):
     def setUp(self):
         super(TestFernetTokenProvider, self).setUp()
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
         self.provider = fernet.Provider()
 
     def test_supports_bind_authentication_returns_false(self):
@@ -74,13 +67,6 @@ class TestFernetTokenProvider(unit.TestCase):
 class TestValidate(unit.TestCase):
     def setUp(self):
         super(TestValidate, self).setUp()
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
         self.useFixture(database.Database())
         self.load_backends()
 
@@ -239,16 +225,6 @@ class TestValidate(unit.TestCase):
 
 
 class TestTokenFormatter(unit.TestCase):
-    def setUp(self):
-        super(TestTokenFormatter, self).setUp()
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
-
     def test_restore_padding(self):
         # 'a' will result in '==' padding, 'aa' will result in '=' padding, and
         # 'aaa' will result in no padding.
@@ -624,15 +600,6 @@ class TestFernetKeyRotation(unit.TestCase):
                 self.assertEqual(exp_keys, self.keys)
 
     def test_rotation_disk_write_fail(self):
-        # Init the key repository
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
-
         # Make sure that the init key repository contains 2 keys
         self.assertRepositoryState(expected_size=2)
 
@@ -668,13 +635,6 @@ class TestFernetKeyRotation(unit.TestCase):
         self.assertEqual(self.key_repository_size, 3)
 
     def test_non_numeric_files(self):
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '99.bak')
         with open(evil_file, 'w'):
             pass
@@ -702,13 +662,6 @@ class TestLoadKeys(unit.TestCase):
             self.assertIsInstance(key, str)
 
     def test_non_numeric_files(self):
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
-            )
-        )
         evil_file = os.path.join(CONF.fernet_tokens.key_repository, '~1')
         with open(evil_file, 'w'):
             pass
