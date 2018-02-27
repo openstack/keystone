@@ -39,3 +39,4 @@ command-line client.
    token-provider.rst
    federated-identity.rst
    identity-credential-encryption.rst
+   endpoint-filtering.rst
