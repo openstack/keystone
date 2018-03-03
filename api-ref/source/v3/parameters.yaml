@@ -1496,7 +1496,7 @@ resource_limit:
     The override limit.
   in: body
   required: true
-  type: array
+  type: integer
 resource_name:
   description: |
     The resource name.
