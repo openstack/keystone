@@ -78,7 +78,7 @@ def load_driver(namespace, driver_name, *args):
         return driver_manager.driver
     except stevedore.exception.NoMatches:
         msg = (_('Unable to find %(name)r driver in %(namespace)r.'))
-        raise ImportError(msg, {'name': driver_name, 'namespace': namespace})
+        raise ImportError(msg % {'name': driver_name, 'namespace': namespace})
 
 
 class _TraceMeta(type):
