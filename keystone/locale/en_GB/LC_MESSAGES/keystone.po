@@ -1,0 +1,1714 @@
+# Translations template for keystone.
+# Copyright (C) 2015 OpenStack Foundation
+# This file is distributed under the same license as the keystone project.
+#
+# Translators:
+# Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
+# Andi Chandler <andi@gowling.com>, 2017. #zanata
+# Andi Chandler <andi@gowling.com>, 2018. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: keystone VERSION\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2018-03-04 19:11+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-02-18 01:14+0000\n"
+"Last-Translator: Andi Chandler <andi@gowling.com>\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.0\n"
+"X-Generator: Zanata 4.3.3\n"
+"Language-Team: English (United Kingdom)\n"
+
+#, python-format
+msgid ""
+"\n"
+"WARNING: %s"
+msgstr ""
+"\n"
+"WARNING: %s"
+
+#, python-format
+msgid "%(detail)s"
+msgstr "%(detail)s"
+
+#, python-format
+msgid ""
+"%(entity)s name cannot contain the following reserved characters: %(chars)s"
+msgstr ""
+"%(entity)s name cannot contain the following reserved characters: %(chars)s"
+
+#, python-format
+msgid ""
+"%(event)s is not a valid notification event, must be one of: %(actions)s"
+msgstr ""
+"%(event)s is not a valid notification event, must be one of: %(actions)s"
+
+#, python-format
+msgid "%(host)s is not a trusted dashboard host"
+msgstr "%(host)s is not a trusted dashboard host"
+
+#, python-format
+msgid ""
+"%(key_repo)s does not contain keys, use keystone-manage fernet_setup to "
+"create Fernet keys."
+msgstr ""
+"%(key_repo)s does not contain keys, use keystone-manage fernet_setup to "
+"create Fernet keys."
+
+#, python-format
+msgid "%(key_repo)s does not exist"
+msgstr "%(key_repo)s does not exist"
+
+#, python-format
+msgid "%(message)s %(amendment)s"
+msgstr "%(message)s %(amendment)s"
+
+#, python-format
+msgid ""
+"%(mod_name)s doesn't provide database migrations. The migration repository "
+"path at %(path)s doesn't exist or isn't a directory."
+msgstr ""
+"%(mod_name)s doesn't provide database migrations. The migration repository "
+"path at %(path)s doesn't exist or isn't a directory."
+
+#, python-format
+msgid "%(prior_role_id)s does not imply %(implied_role_id)s."
+msgstr "%(prior_role_id)s does not imply %(implied_role_id)s."
+
+#, python-format
+msgid "%(property_name)s cannot be less than %(min_length)s characters."
+msgstr "%(property_name)s cannot be less than %(min_length)s characters."
+
+#, python-format
+msgid "%(property_name)s is not a %(display_expected_type)s"
+msgstr "%(property_name)s is not a %(display_expected_type)s"
+
+#, python-format
+msgid "%(property_name)s should not be greater than %(max_length)s characters."
+msgstr ""
+"%(property_name)s should not be greater than %(max_length)s characters."
+
+#, python-format
+msgid "%(role_id)s cannot be an implied roles."
+msgstr "%(role_id)s cannot be an implied roles."
+
+#, python-format
+msgid "%s cannot be empty."
+msgstr "%s cannot be empty."
+
+#, python-format
+msgid "%s field is required and cannot be empty"
+msgstr "%s field is required and cannot be empty"
+
+#, python-format
+msgid "%s field(s) cannot be empty"
+msgstr "%s field(s) cannot be empty"
+
+#, python-format
+msgid ""
+"%s for the LDAP identity backend has been deprecated in the Mitaka release "
+"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
+"release."
+msgstr ""
+"%s for the LDAP identity backend has been deprecated in the Mitaka release "
+"in favour of read-only identity LDAP access. It will be removed in the \"O\" "
+"release."
+
+#, python-format
+msgid "(%(url)s): The resource could not be found."
+msgstr "(%(url)s): The resource could not be found."
+
+msgid "(Disable insecure_debug mode to suppress these details.)"
+msgstr "(Disable insecure_debug mode to suppress these details.)"
+
+msgid "--all option cannot be mixed with other options"
+msgstr "--all option cannot be mixed with other options"
+
+msgid "A project-scoped token is required to produce a service catalog."
+msgstr "A project-scoped token is required to produce a service catalogue."
+
+msgid "Access token is expired"
+msgstr "Access token is expired"
+
+msgid "Access token not found"
+msgstr "Access token not found"
+
+msgid "Additional authentications steps required."
+msgstr "Additional authentications steps required."
+
+msgid ""
+"All extensions have been moved into keystone core and as such its migrations "
+"are maintained by the main keystone database control. Use the command: "
+"keystone-manage db_sync"
+msgstr ""
+"All extensions have been moved into Keystone core and as such its migrations "
+"are maintained by the main Keystone database control. Use the command: "
+"keystone-manage db_sync"
+
+msgid ""
+"An authenticated call was made and there is no request.context. This means "
+"the auth_context middleware is not in place. You must have this middleware "
+"in your pipeline to perform authenticated calls"
+msgstr ""
+"An authenticated call was made and there is no request.context. This means "
+"the auth_context middleware is not in place. You must have this middleware "
+"in your pipeline to perform authenticated calls"
+
+msgid "An unexpected error occurred when retrieving domain configs"
+msgstr "An unexpected error occurred when retrieving domain configs"
+
+#, python-format
+msgid "An unexpected error occurred when trying to store %s"
+msgstr "An unexpected error occurred when trying to store %s"
+
+msgid ""
+"An unexpected error prevented the server from accessing encrypted "
+"credentials."
+msgstr ""
+"An unexpected error prevented the server from accessing encrypted "
+"credentials."
+
+msgid "An unexpected error prevented the server from fulfilling your request."
+msgstr "An unexpected error prevented the server from fulfilling your request."
+
+#, python-format
+msgid ""
+"An unexpected error prevented the server from fulfilling your request: "
+"%(exception)s."
+msgstr ""
+"An unexpected error prevented the server from fulfilling your request: "
+"%(exception)s."
+
+msgid "At least one option must be provided"
+msgstr "At least one option must be provided"
+
+msgid "At least one option must be provided, use either --all or --domain-name"
+msgstr ""
+"At least one option must be provided, use either --all or --domain-name"
+
+msgid "At least one role should be specified"
+msgstr "At least one role should be specified"
+
+msgid "Attempted to authenticate with an unsupported method."
+msgstr "Attempted to authenticate with an unsupported method."
+
+msgid "Auth Method Plugins are not loaded."
+msgstr "Auth Method Plugins are not loaded."
+
+msgid "Authentication plugin error."
+msgstr "Authentication plugin error."
+
+msgid "Cannot Authenticate due to internal error."
+msgstr "Cannot Authenticate due to internal error."
+
+msgid "Cannot authorize a request token with a token issued via delegation."
+msgstr "Cannot authorise a request token with a token issued via delegation."
+
+#, python-format
+msgid "Cannot change %(option_name)s %(attr)s"
+msgstr "Cannot change %(option_name)s %(attr)s"
+
+msgid "Cannot change Domain ID"
+msgstr "Cannot change Domain ID"
+
+msgid "Cannot change user ID"
+msgstr "Cannot change user ID"
+
+msgid "Cannot change user name"
+msgstr "Cannot change user name"
+
+msgid "Cannot create an application credential for another user"
+msgstr "Cannot create an application credential for another user"
+
+#, python-format
+msgid "Cannot create an endpoint with an invalid URL: %(url)s."
+msgstr "Cannot create an endpoint with an invalid URL: %(url)s."
+
+#, python-format
+msgid ""
+"Cannot create project, since it specifies its domain_id %(domain_id)s, but "
+"specifies a parent in a different domain (%(parent_domain_id)s)."
+msgstr ""
+"Cannot create project, since it specifies its domain_id %(domain_id)s, but "
+"specifies a parent in a different domain (%(parent_domain_id)s)."
+
+#, python-format
+msgid ""
+"Cannot create project, the parent (%(parent_id)s) is acting as a domain, but "
+"this project's domain id (%(domain_id)s) does not match the parent's id."
+msgstr ""
+"Cannot create project, the parent (%(parent_id)s) is acting as a domain, but "
+"this project's domain id (%(domain_id)s) does not match the parent's id."
+
+msgid "Cannot delete a domain that is enabled, please disable it first."
+msgstr "Cannot delete a domain that is enabled, please disable it first."
+
+#, python-format
+msgid ""
+"Cannot delete project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr ""
+"Cannot delete project %(project_id)s since its subtree contains enabled "
+"projects."
+
+#, python-format
+msgid ""
+"Cannot delete the project %s since it is not a leaf in the hierarchy. Use "
+"the cascade option if you want to delete a whole subtree."
+msgstr ""
+"Cannot delete the project %s since it is not a leaf in the hierarchy. Use "
+"the cascade option if you want to delete a whole subtree."
+
+#, python-format
+msgid ""
+"Cannot disable project %(project_id)s since its subtree contains enabled "
+"projects."
+msgstr ""
+"Cannot disable project %(project_id)s since its subtree contains enabled "
+"projects."
+
+#, python-format
+msgid "Cannot enable project %s since it has disabled parents"
+msgstr "Cannot enable project %s since it has disabled parents"
+
+msgid "Cannot list assignments sourced from groups and filtered by user ID."
+msgstr "Cannot list assignments sourced from groups and filtered by user ID."
+
+msgid "Cannot list request tokens with a token issued via delegation."
+msgstr "Cannot list request tokens with a token issued via delegation."
+
+msgid "Cannot list trusts for another user"
+msgstr "Cannot list trusts for another user"
+
+#, python-format
+msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
+msgstr "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
+
+#, python-format
+msgid "Cannot remove role that has not been granted, %s"
+msgstr "Cannot remove role that has not been granted, %s"
+
+msgid ""
+"Cannot truncate a driver call without hints list as first parameter after "
+"self "
+msgstr ""
+"Cannot truncate a driver call without hints list as first parameter after "
+"self "
+
+msgid ""
+"Cannot use parents_as_list and parents_as_ids query params at the same time."
+msgstr ""
+"Cannot use parents_as_list and parents_as_ids query params at the same time."
+
+msgid ""
+"Cannot use subtree_as_list and subtree_as_ids query params at the same time."
+msgstr ""
+"Cannot use subtree_as_list and subtree_as_ids query params at the same time."
+
+msgid "Cascade update is only allowed for enabled attribute."
+msgstr "Cascade update is only allowed for enabled attribute."
+
+msgid ""
+"Combining effective and group filter will always result in an empty list."
+msgstr ""
+"Combining effective and group filter will always result in an empty list."
+
+msgid ""
+"Combining effective, domain and inherited filters will always result in an "
+"empty list."
+msgstr ""
+"Combining effective, domain and inherited filters will always result in an "
+"empty list."
+
+#, python-format
+msgid "Config API entity at /domains/%s/config"
+msgstr "Config API entity at /domains/%s/config"
+
+#, python-format
+msgid "Conflict occurred attempting to store %(type)s - %(details)s."
+msgstr "Conflict occurred attempting to store %(type)s - %(details)s."
+
+#, python-format
+msgid "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
+msgstr "Conflicting region IDs specified: \"%(url_id)s\" != \"%(ref_id)s\""
+
+msgid "Consumer not found"
+msgstr "Consumer not found"
+
+#, python-format
+msgid ""
+"Could not determine Identity Provider ID. The configuration option "
+"%(issuer_attribute)s was not found in the request environment."
+msgstr ""
+"Could not determine Identity Provider ID. The configuration option "
+"%(issuer_attribute)s was not found in the request environment."
+
+#, python-format
+msgid ""
+"Could not find %(group_or_option)s in domain configuration for domain "
+"%(domain_id)s."
+msgstr ""
+"Could not find %(group_or_option)s in domain configuration for domain "
+"%(domain_id)s."
+
+#, python-format
+msgid "Could not find Application Credential: %(application_credential_id)s."
+msgstr "Could not find Application Credential: %(application_credential_id)s."
+
+#, python-format
+msgid "Could not find Endpoint Group: %(endpoint_group_id)s."
+msgstr "Could not find Endpoint Group: %(endpoint_group_id)s."
+
+msgid "Could not find Identity Provider identifier in environment"
+msgstr "Could not find Identity Provider identifier in environment"
+
+#, python-format
+msgid "Could not find Identity Provider: %(idp_id)s."
+msgstr "Could not find Identity Provider: %(idp_id)s."
+
+#, python-format
+msgid "Could not find Service Provider: %(sp_id)s."
+msgstr "Could not find Service Provider: %(sp_id)s."
+
+#, python-format
+msgid "Could not find credential: %(credential_id)s."
+msgstr "Could not find credential: %(credential_id)s."
+
+#, python-format
+msgid "Could not find domain: %(domain_id)s."
+msgstr "Could not find domain: %(domain_id)s."
+
+#, python-format
+msgid "Could not find endpoint: %(endpoint_id)s."
+msgstr "Could not find endpoint: %(endpoint_id)s."
+
+#, python-format
+msgid ""
+"Could not find federated protocol %(protocol_id)s for Identity Provider: "
+"%(idp_id)s."
+msgstr ""
+"Could not find federated protocol %(protocol_id)s for Identity Provider: "
+"%(idp_id)s."
+
+#, python-format
+msgid "Could not find group: %(group_id)s."
+msgstr "Could not find group: %(group_id)s."
+
+#, python-format
+msgid "Could not find limit for %(id)s."
+msgstr "Could not find limit for %(id)s."
+
+#, python-format
+msgid "Could not find mapping: %(mapping_id)s."
+msgstr "Could not find mapping: %(mapping_id)s."
+
+msgid "Could not find policy association."
+msgstr "Could not find policy association."
+
+#, python-format
+msgid "Could not find policy: %(policy_id)s."
+msgstr "Could not find policy: %(policy_id)s."
+
+#, python-format
+msgid "Could not find project tag: %(project_tag)s."
+msgstr "Could not find project tag: %(project_tag)s."
+
+#, python-format
+msgid "Could not find project: %(project_id)s."
+msgstr "Could not find project: %(project_id)s."
+
+#, python-format
+msgid "Could not find region: %(region_id)s."
+msgstr "Could not find region: %(region_id)s."
+
+#, python-format
+msgid "Could not find registered limit for %(id)s."
+msgstr "Could not find registered limit for %(id)s."
+
+#, python-format
+msgid ""
+"Could not find role assignment with role: %(role_id)s, user or group: "
+"%(actor_id)s, project, domain, or system: %(target_id)s."
+msgstr ""
+"Could not find role assignment with role: %(role_id)s, user or group: "
+"%(actor_id)s, project, domain, or system: %(target_id)s."
+
+#, python-format
+msgid "Could not find role: %(role_id)s."
+msgstr "Could not find role: %(role_id)s."
+
+#, python-format
+msgid "Could not find service: %(service_id)s."
+msgstr "Could not find service: %(service_id)s."
+
+msgid "Could not find token"
+msgstr "Could not find token"
+
+#, python-format
+msgid "Could not find token: %(token_id)s."
+msgstr "Could not find token: %(token_id)s."
+
+#, python-format
+msgid "Could not find trust: %(trust_id)s."
+msgstr "Could not find trust: %(trust_id)s."
+
+#, python-format
+msgid "Could not find user: %(user_id)s."
+msgstr "Could not find user: %(user_id)s."
+
+#, python-format
+msgid "Could not find version: %(version)s."
+msgstr "Could not find version: %(version)s."
+
+#, python-format
+msgid "Could not find: %(target)s."
+msgstr "Could not find: %(target)s."
+
+msgid ""
+"Could not map any federated user properties to identity values. Check debug "
+"logs or the mapping used for additional details."
+msgstr ""
+"Could not map any federated user properties to identity values. Check debug "
+"logs or the mapping used for additional details."
+
+msgid ""
+"Could not map user while setting ephemeral user identity. Either mapping "
+"rules must specify user id/name or REMOTE_USER environment variable must be "
+"set."
+msgstr ""
+"Could not map user while setting ephemeral user identity. Either mapping "
+"rules must specify user id/name or REMOTE_USER environment variable must be "
+"set."
+
+msgid "Could not validate the access token"
+msgstr "Could not validate the access token"
+
+#, python-format
+msgid "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
+msgstr "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
+
+msgid "Credential belongs to another user"
+msgstr "Credential belongs to another user"
+
+msgid "Credential could not be decrypted. Please contact the administrator"
+msgstr "Credential could not be decrypted. Please contact the administrator"
+
+#, python-format
+msgid "Credential could not be encrypted: %s"
+msgstr "Credential could not be encrypted: %s"
+
+msgid "Credential signature mismatch"
+msgstr "Credential signature mismatch"
+
+#, python-format
+msgid ""
+"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
+"of its entrypoint from %(namespace)r and may be removed in N."
+msgstr ""
+"Direct import of auth plugin %(name)r is deprecated as of Liberty in favour "
+"of its entrypoint from %(namespace)r and may be removed in N."
+
+msgid ""
+"Disabling an entity where the 'enable' attribute is ignored by configuration."
+msgstr ""
+"Disabling an entity where the 'enable' attribute is ignored by configuration."
+
+#, python-format
+msgid "Domain cannot be named %s"
+msgstr "Domain cannot be named %s"
+
+#, python-format
+msgid "Domain cannot have ID %s"
+msgstr "Domain cannot have ID %s"
+
+#, python-format
+msgid "Domain is disabled: %s"
+msgstr "Domain is disabled: %s"
+
+msgid "Domain name cannot contain reserved characters."
+msgstr "Domain name cannot contain reserved characters."
+
+#, python-format
+msgid ""
+"Domain: %(domain)s already has a configuration defined - ignoring file: "
+"%(file)s."
+msgstr ""
+"Domain: %(domain)s already has a configuration defined - ignoring file: "
+"%(file)s."
+
+#, python-format
+msgid "Duplicate ID, %s."
+msgstr "Duplicate ID, %s."
+
+msgid "Duplicate entry"
+msgstr "Duplicate entry"
+
+#, python-format
+msgid "Duplicate entry at domain ID %s"
+msgstr "Duplicate entry at domain ID %s"
+
+#, python-format
+msgid "Duplicate entry found with %(field)s %(name)s"
+msgstr "Duplicate entry found with %(field)s %(name)s"
+
+#, python-format
+msgid ""
+"Duplicate entry found with %(field)s %(name)s at domain ID %(domain_id)s"
+msgstr ""
+"Duplicate entry found with %(field)s %(name)s at domain ID %(domain_id)s"
+
+#, python-format
+msgid "Duplicate entry: %s"
+msgstr "Duplicate entry: %s"
+
+#, python-format
+msgid "Duplicate name, %s."
+msgstr "Duplicate name, %s."
+
+#, python-format
+msgid "Duplicate remote ID: %s"
+msgstr "Duplicate remote ID: %s"
+
+msgid "EC2 access key not found."
+msgstr "EC2 access key not found."
+
+msgid "EC2 signature not supplied."
+msgstr "EC2 signature not supplied."
+
+msgid ""
+"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
+msgstr ""
+"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
+
+#, python-format
+msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
+msgstr "Endpoint %(endpoint_id)s not found in project %(project_id)s"
+
+msgid "Endpoint Group Project Association not found"
+msgstr "Endpoint Group Project Association not found"
+
+msgid "Ensure configuration option idp_entity_id is set."
+msgstr "Ensure configuration option idp_entity_id is set."
+
+msgid "Ensure configuration option idp_sso_endpoint is set."
+msgstr "Ensure configuration option idp_sso_endpoint is set."
+
+#, python-format
+msgid "Error authenticating with application credential: %(detail)s"
+msgstr "Error authenticating with application credential: %(detail)s"
+
+#, python-format
+msgid ""
+"Error parsing configuration file for domain: %(domain)s, file: %(file)s."
+msgstr ""
+"Error parsing configuration file for domain: %(domain)s, file: %(file)s."
+
+#, python-format
+msgid "Error when changing user password: %s"
+msgstr "Error when changing user password: %s"
+
+#, python-format
+msgid "Error while opening file %(path)s: %(err)s"
+msgstr "Error while opening file %(path)s: %(err)s"
+
+#, python-format
+msgid "Error while parsing rules %(path)s: %(err)s"
+msgstr "Error while parsing rules %(path)s: %(err)s"
+
+#, python-format
+msgid "Error while reading metadata file: %(reason)s."
+msgstr "Error while reading metadata file: %(reason)s."
+
+#, python-format
+msgid ""
+"Exceeded attempts to register domain %(domain)s to use the SQL driver, the "
+"last domain that appears to have had it is %(last_domain)s, giving up"
+msgstr ""
+"Exceeded attempts to register domain %(domain)s to use the SQL driver, the "
+"last domain that appears to have had it is %(last_domain)s, giving up"
+
+#, python-format
+msgid "Expected boolean value, got %r"
+msgstr "Expected boolean value, got %r"
+
+#, python-format
+msgid "Expected dict or list: %s"
+msgstr "Expected dict or list: %s"
+
+msgid ""
+"Expected signing certificates are not available on the server. Please check "
+"Keystone configuration."
+msgstr ""
+"Expected signing certificates are not available on the server. Please check "
+"Keystone configuration."
+
+#, python-format
+msgid ""
+"Expecting to find %(attribute)s in %(target)s. The server could not comply "
+"with the request since it is either malformed or otherwise incorrect. The "
+"client is assumed to be in error."
+msgstr ""
+"Expecting to find %(attribute)s in %(target)s. The server could not comply "
+"with the request since it is either malformed or otherwise incorrect. The "
+"client is assumed to be in error."
+
+msgid "Failed to validate token"
+msgstr "Failed to validate token"
+
+msgid "Federation token is expired"
+msgstr "Federation token is expired"
+
+#, python-format
+msgid ""
+"Field \"remaining_uses\" is set to %(value)s while it must not be set in "
+"order to redelegate a trust"
+msgstr ""
+"Field \"remaining_uses\" is set to %(value)s while it must not be set in "
+"order to redelegate a trust"
+
+msgid "Found invalid token: scoped to both project and domain."
+msgstr "Found invalid token: scoped to both project and domain."
+
+msgid "Global role cannot imply a domain-specific role"
+msgstr "Global role cannot imply a domain-specific role"
+
+#, python-format
+msgid "Group %(group)s is not supported for domain specific configurations"
+msgstr "Group %(group)s is not supported for domain specific configurations"
+
+#, python-format
+msgid ""
+"Group %(group_id)s returned by mapping %(mapping_id)s was not found in the "
+"backend."
+msgstr ""
+"Group %(group_id)s returned by mapping %(mapping_id)s was not found in the "
+"backend."
+
+#, python-format
+msgid ""
+"Group membership across backend boundaries is not allowed. Group in question "
+"is %(group_id)s, user is %(user_id)s."
+msgstr ""
+"Group membership across backend boundaries is not allowed. Group in question "
+"is %(group_id)s, user is %(user_id)s."
+
+#, python-format
+msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
+msgstr "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
+
+#, python-format
+msgid "Identity Provider %(idp)s is disabled"
+msgstr "Identity Provider %(idp)s is disabled"
+
+#, python-format
+msgid ""
+"Impersonation is not allowed because redelegated trust does not specify "
+"impersonation. Redelegated trust id: %s"
+msgstr ""
+"Impersonation is not allowed because redelegated trust does not specify "
+"impersonation. Redelegated trust id: %s"
+
+msgid ""
+"Incoming identity provider identifier not included among the accepted "
+"identifiers."
+msgstr ""
+"Incoming identity provider identifier not included among the accepted "
+"identifiers."
+
+#, python-format
+msgid ""
+"Insufficient auth methods received for %(user_id)s. Auth Methods Provided: "
+"%(methods)s."
+msgstr ""
+"Insufficient auth methods received for %(user_id)s. Auth Methods Provided: "
+"%(methods)s."
+
+msgid "Invalid EC2 signature."
+msgstr "Invalid EC2 signature."
+
+#, python-format
+msgid "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
+msgstr "Invalid LDAP TLS certs option: %(option)s. Choose one of: %(options)s"
+
+#, python-format
+msgid "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
+msgstr "Invalid LDAP TLS_AVAIL option: %s. TLS not available"
+
+#, python-format
+msgid "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
+msgstr "Invalid LDAP deref option: %(option)s. Choose one of: %(options)s"
+
+#, python-format
+msgid "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
+msgstr "Invalid LDAP scope: %(scope)s. Choose one of: %(options)s"
+
+msgid "Invalid TLS / LDAPS combination"
+msgstr "Invalid TLS / LDAPS combination"
+
+msgid "Invalid application credential ID or secret"
+msgstr "Invalid application credential ID or secret"
+
+#, python-format
+msgid "Invalid application credential: %(detail)s"
+msgstr "Invalid application credential: %(detail)s"
+
+#, python-format
+msgid "Invalid audit info data type: %(data)s (%(type)s)"
+msgstr "Invalid audit info data type: %(data)s (%(type)s)"
+
+msgid "Invalid blob in credential"
+msgstr "Invalid blob in credential"
+
+msgid ""
+"Invalid data type, must be a list of lists comprised of strings. Sub-lists "
+"may not be duplicated. Strings in sub-lists may not be duplicated."
+msgstr ""
+"Invalid data type, must be a list of lists comprised of strings. Sub-lists "
+"may not be duplicated. Strings in sub-lists may not be duplicated."
+
+#, python-format
+msgid "Invalid domain name: %(domain)s"
+msgstr "Invalid domain name: %(domain)s"
+
+#, python-format
+msgid ""
+"Invalid domain name: %(domain)s found in config file name: %(file)s - "
+"ignoring this file."
+msgstr ""
+"Invalid domain name: %(domain)s found in config file name: %(file)s - "
+"ignoring this file."
+
+#, python-format
+msgid "Invalid domain specific configuration: %(reason)s."
+msgstr "Invalid domain specific configuration: %(reason)s."
+
+#, python-format
+msgid "Invalid input for field '%(path)s': %(message)s"
+msgstr "Invalid input for field '%(path)s': %(message)s"
+
+msgid ""
+"Invalid input for field identity/password/user/domain: id or name must be "
+"present."
+msgstr ""
+"Invalid input for field identity/password/user/domain: id or name must be "
+"present."
+
+msgid ""
+"Invalid input for field identity/password/user: id or name must be present."
+msgstr ""
+"Invalid input for field identity/password/user: id or name must be present."
+
+msgid "Invalid input for field scope/domain: id or name must be present."
+msgstr "Invalid input for field scope/domain: id or name must be present."
+
+msgid ""
+"Invalid input for field scope/project/domain: id or name must be present."
+msgstr ""
+"Invalid input for field scope/project/domain: id or name must be present."
+
+msgid "Invalid input for field scope/project: id or name must be present."
+msgstr "Invalid input for field scope/project: id or name must be present."
+
+#, python-format
+msgid "Invalid mapping id: %s"
+msgstr "Invalid mapping id: %s"
+
+#, python-format
+msgid ""
+"Invalid mix of entities for policy association: only Endpoint, Service, or "
+"Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
+"%(service_id)s, Region: %(region_id)s."
+msgstr ""
+"Invalid mix of entities for policy association: only Endpoint, Service, or "
+"Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
+"%(service_id)s, Region: %(region_id)s."
+
+#, python-format
+msgid ""
+"Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
+"be specified."
+msgstr ""
+"Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
+"be specified."
+
+msgid "Invalid signature"
+msgstr "Invalid signature"
+
+msgid "Invalid signature."
+msgstr "Invalid signature."
+
+msgid "Invalid user / password"
+msgstr "Invalid user / password"
+
+msgid "Invalid username or TOTP passcode"
+msgstr "Invalid username or TOTP passcode"
+
+msgid "Invalid username or password"
+msgstr "Invalid username or password"
+
+msgid "Kerberos credentials do not match those in bind"
+msgstr "Kerberos credentials do not match those in bind"
+
+msgid "Kerberos credentials required and not present"
+msgstr "Kerberos credentials required and not present"
+
+msgid "LDAP does not support write operations"
+msgstr "LDAP does not support write operations"
+
+msgid ""
+"Length of transformable resource id > 64, which is max allowed characters"
+msgstr ""
+"Length of transformable resource id > 64, which is max allowed characters"
+
+#, python-format
+msgid ""
+"Local section in mapping %(mapping_id)s refers to a remote match that "
+"doesn't exist (e.g. {0} in a local section)."
+msgstr ""
+"Local section in mapping %(mapping_id)s refers to a remote match that "
+"doesn't exist (e.g. {0} in a local section)."
+
+#, python-format
+msgid "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
+msgstr "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
+
+#, python-format
+msgid "Max hierarchy depth reached for %s branch."
+msgstr "Max hierarchy depth reached for %s branch."
+
+#, python-format
+msgid "Member %(member)s is already a member of group %(group)s"
+msgstr "Member %(member)s is already a member of group %(group)s"
+
+#, python-format
+msgid "Method not callable: %s"
+msgstr "Method not callable: %s"
+
+msgid "Missing entity ID from environment"
+msgstr "Missing entity ID from environment"
+
+msgid ""
+"Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting "
+"this parameter is advised."
+msgstr ""
+"Modifying \"redelegation_count\" upon redelegation is forbidden. Omitting "
+"this parameter is advised."
+
+msgid "Multiple domains are not supported"
+msgstr "Multiple domains are not supported"
+
+msgid "Must specify either domain or project"
+msgstr "Must specify either domain or project"
+
+#, python-format
+msgid "Named bind mode %(name)s not in bind information"
+msgstr "Named bind mode %(name)s not in bind information"
+
+msgid "Neither Project Domain ID nor Project Domain Name was provided."
+msgstr "Neither Project Domain ID nor Project Domain Name was provided."
+
+msgid ""
+"No Authorization headers found, cannot proceed with OAuth related calls. If "
+"running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
+msgstr ""
+"No Authorisation headers found, cannot proceed with OAuth related calls. If "
+"running under HTTPd or Apache, ensure WSGIPassAuthorization is set to On."
+
+msgid "No authenticated user"
+msgstr "No authenticated user"
+
+msgid "No bind information present in token."
+msgstr "No bind information present in token."
+
+msgid "No domain information specified as part of list request"
+msgstr "No domain information specified as part of list request"
+
+msgid ""
+"No encryption keys found; run keystone-manage fernet_setup to bootstrap one."
+msgstr ""
+"No encryption keys found; run keystone-manage fernet_setup to bootstrap one."
+
+msgid "No options specified"
+msgstr "No options specified"
+
+#, python-format
+msgid "No policy is associated with endpoint %(endpoint_id)s."
+msgstr "No policy is associated with endpoint %(endpoint_id)s."
+
+#, python-format
+msgid "No remaining uses for trust: %(trust_id)s."
+msgstr "No remaining uses for trust: %(trust_id)s."
+
+msgid "No token in the request"
+msgstr "No token in the request"
+
+msgid "Non-default domain is not supported"
+msgstr "Non-default domain is not supported"
+
+msgid ""
+"Number of User/Group entities returned by LDAP exceeded size limit. Contact "
+"your LDAP administrator."
+msgstr ""
+"Number of User/Group entities returned by LDAP exceeded size limit. Contact "
+"your LDAP administrator."
+
+msgid "One of the trust agents is disabled or deleted"
+msgstr "One of the trust agents is disabled or deleted"
+
+msgid "Only admin or trustor can delete a trust"
+msgstr "Only admin or trustor can delete a trust"
+
+#, python-format
+msgid ""
+"Option %(option)s found with no group specified while checking domain "
+"configuration request"
+msgstr ""
+"Option %(option)s found with no group specified while checking domain "
+"configuration request"
+
+#, python-format
+msgid ""
+"Option %(option)s in group %(group)s is not supported for domain specific "
+"configurations"
+msgstr ""
+"Option %(option)s in group %(group)s is not supported for domain specific "
+"configurations"
+
+#, python-format
+msgid "Option %(option_id)s already defined in %(registry)s."
+msgstr "Option %(option_id)s already defined in %(registry)s."
+
+#, python-format
+msgid "Option %(option_name)s already defined in %(registry)s"
+msgstr "Option %(option_name)s already defined in %(registry)s"
+
+#, python-format
+msgid "Password Hash Algorithm %s not found"
+msgstr "Password Hash Algorithm %s not found"
+
+msgid "Password must be a string type"
+msgstr "Password must be a string type"
+
+#, python-format
+msgid "Password validation error: %(detail)s."
+msgstr "Password validation error: %(detail)s."
+
+msgid "Programming Error: Invalid arguments supplied to build scope."
+msgstr "Programming Error: Invalid arguments supplied to build scope."
+
+msgid "Programming Error: value to be stored must be a datetime object."
+msgstr "Programming Error: value to be stored must be a datetime object."
+
+#, python-format
+msgid ""
+"Project %(project_id)s must be in the same domain as the role %(role_id)s "
+"being assigned."
+msgstr ""
+"Project %(project_id)s must be in the same domain as the role %(role_id)s "
+"being assigned."
+
+msgid "Project field is required and cannot be empty."
+msgstr "Project field is required and cannot be empty."
+
+#, python-format
+msgid "Project is disabled: %s"
+msgstr "Project is disabled: %s"
+
+msgid "Project name cannot contain reserved characters."
+msgstr "Project name cannot contain reserved characters."
+
+msgid "Provided consumer does not exist."
+msgstr "Provided consumer does not exist."
+
+msgid "Provided consumer key does not match stored consumer key."
+msgstr "Provided consumer key does not match stored consumer key."
+
+msgid "Provided verifier does not match stored verifier"
+msgstr "Provided verifier does not match stored verifier"
+
+msgid "Query string is not UTF-8 encoded"
+msgstr "Query string is not UTF-8 encoded"
+
+msgid ""
+"Reading security compliance information for any domain other than the "
+"default domain is not allowed or supported."
+msgstr ""
+"Reading security compliance information for any domain other than the "
+"default domain is not allowed or supported."
+
+msgid ""
+"Reading security compliance values other than password_regex and "
+"password_regex_description is not allowed."
+msgstr ""
+"Reading security compliance values other than password_regex and "
+"password_regex_description is not allowed."
+
+#, python-format
+msgid ""
+"Reading the default for option %(option)s in group %(group)s is not supported"
+msgstr ""
+"Reading the default for option %(option)s in group %(group)s is not supported"
+
+msgid "Redelegation allowed for delegated by trust only"
+msgstr "Redelegation allowed for delegated by trust only"
+
+#, python-format
+msgid ""
+"Remaining redelegation depth of %(redelegation_depth)d out of allowed range "
+"of [0..%(max_count)d]"
+msgstr ""
+"Remaining re-delegation depth of %(redelegation_depth)d out of allowed range "
+"of [0..%(max_count)d]"
+
+msgid "Request Token does not have an authorizing user id."
+msgstr "Request Token does not have an authorising user id."
+
+#, python-format
+msgid ""
+"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
+"server could not comply with the request because the attribute size is "
+"invalid (too large). The client is assumed to be in error."
+msgstr ""
+"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
+"server could not comply with the request because the attribute size is "
+"invalid (too large). The client is assumed to be in error."
+
+msgid "Request must have an origin query parameter"
+msgstr "Request must have an origin query parameter"
+
+msgid "Request token is expired"
+msgstr "Request token is expired"
+
+msgid "Request token not found"
+msgstr "Request token not found"
+
+msgid "Requested expiration time is more than redelegated trust can provide"
+msgstr "Requested expiration time is more than redelegated trust can provide"
+
+#, python-format
+msgid ""
+"Requested redelegation depth of %(requested_count)d is greater than allowed "
+"%(max_count)d"
+msgstr ""
+"Requested redelegation depth of %(requested_count)d is greater than allowed "
+"%(max_count)d"
+
+msgid "Requested user has no relation to this trust"
+msgstr "Requested user has no relation to this trust"
+
+#, python-format
+msgid "Role %s is not defined"
+msgstr "Role %s is not defined"
+
+msgid "Scoping to both domain and project is not allowed"
+msgstr "Scoping to both domain and project is not allowed"
+
+msgid "Scoping to both domain and system is not allowed"
+msgstr "Scoping to both domain and system is not allowed"
+
+msgid "Scoping to both domain and trust is not allowed"
+msgstr "Scoping to both domain and trust is not allowed"
+
+msgid "Scoping to both project and system is not allowed"
+msgstr "Scoping to both project and system is not allowed"
+
+msgid "Scoping to both project and trust is not allowed"
+msgstr "Scoping to both project and trust is not allowed"
+
+#, python-format
+msgid "Service Provider %(sp)s is disabled"
+msgstr "Service Provider %(sp)s is disabled"
+
+msgid "Some of requested roles are not in redelegated trust"
+msgstr "Some of requested roles are not in redelegated trust"
+
+msgid "Specify a domain or project, not both"
+msgstr "Specify a domain or project, not both"
+
+msgid "Specify a user or group, not both"
+msgstr "Specify a user or group, not both"
+
+msgid "Specify one of domain or project"
+msgstr "Specify one of domain or project"
+
+msgid "Specify one of user or group"
+msgstr "Specify one of user or group"
+
+msgid "Specify system or domain, not both"
+msgstr "Specify system or domain, not both"
+
+msgid "Specify system or project, not both"
+msgstr "Specify system or project, not both"
+
+#, python-format
+msgid ""
+"String length exceeded. The length of string '%(string)s' exceeds the limit "
+"of column %(type)s(CHAR(%(length)d))."
+msgstr ""
+"String length exceeded. The length of string '%(string)s' exceeds the limit "
+"of column %(type)s(CHAR(%(length)d))."
+
+msgid ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+msgstr ""
+"The 'expires_at' must not be before now. The server could not comply with "
+"the request since it is either malformed or otherwise incorrect. The client "
+"is assumed to be in error."
+
+msgid "The --all option cannot be used with the --domain-name option"
+msgstr "The --all option cannot be used with the --domain-name option"
+
+#, python-format
+msgid "The Keystone configuration file %(config_file)s could not be found."
+msgstr "The Keystone configuration file %(config_file)s could not be found."
+
+#, python-format
+msgid ""
+"The Keystone domain-specific configuration has specified more than one SQL "
+"driver (only one is permitted): %(source)s."
+msgstr ""
+"The Keystone domain-specific configuration has specified more than one SQL "
+"driver (only one is permitted): %(source)s."
+
+#, python-format
+msgid "The account is disabled for user: %(user_id)s."
+msgstr "The account is disabled for user: %(user_id)s."
+
+#, python-format
+msgid "The account is locked for user: %(user_id)s."
+msgstr "The account is locked for user: %(user_id)s."
+
+msgid "The action you have requested has not been implemented."
+msgstr "The action you have requested has not been implemented."
+
+msgid "The authenticated project should match the project_id"
+msgstr "The authenticated project should match the project_id"
+
+msgid "The authenticated user should match the trustor"
+msgstr "The authenticated user should match the trustor"
+
+msgid "The configured token provider does not support bind authentication."
+msgstr "The configured token provider does not support bind authentication."
+
+#, python-format
+msgid ""
+"The given operator %(_op)s is not valid. It must be one of the following: "
+"'eq', 'neq', 'lt', 'lte', 'gt', or 'gte'."
+msgstr ""
+"The given operator %(_op)s is not valid. It must be one of the following: "
+"'eq', 'neq', 'lt', 'lte', 'gt', or 'gte'."
+
+#, python-format
+msgid ""
+"The new password cannot be identical to a previous password. The total "
+"number whichincludes the new password must be unique is %(unique_count)s."
+msgstr ""
+"The new password cannot be identical to a previous password. The total "
+"number which includes the new password must be unique is %(unique_count)s."
+
+#, python-format
+msgid "The password does not match the requirements: %(detail)s."
+msgstr "The password does not match the requirements: %(detail)s."
+
+#, python-format
+msgid "The password is expired and needs to be changed for user: %(user_id)s."
+msgstr "The password is expired and needs to be changed for user: %(user_id)s."
+
+#, python-format
+msgid ""
+"The password length must be less than or equal to %(size)i. The server could "
+"not comply with the request because the password is invalid."
+msgstr ""
+"The password length must be less than or equal to %(size)i. The server could "
+"not comply with the request because the password is invalid."
+
+msgid "The request you have made requires authentication."
+msgstr "The request you have made requires authentication."
+
+msgid ""
+"The revoke call must not have both domain_id and project_id. This is a bug "
+"in the Keystone server. The current request is aborted."
+msgstr ""
+"The revoke call must not have both domain_id and project_id. This is a bug "
+"in the Keystone server. The current request is aborted."
+
+msgid "The service you have requested is no longer available on this server."
+msgstr "The service you have requested is no longer available on this server."
+
+#, python-format
+msgid ""
+"The specified parent region %(parent_region_id)s would create a circular "
+"region hierarchy."
+msgstr ""
+"The specified parent region %(parent_region_id)s would create a circular "
+"region hierarchy."
+
+#, python-format
+msgid ""
+"The value of group %(group)s specified in the config should be a dictionary "
+"of options"
+msgstr ""
+"The value of group %(group)s specified in the config should be a dictionary "
+"of options"
+
+#, python-format
+msgid ""
+"There are multiple %(resource)s entities named '%(name)s'. Please use ID "
+"instead of names to resolve the ambiguity."
+msgstr ""
+"There are multiple %(resource)s entities named '%(name)s'. Please use ID "
+"instead of names to resolve the ambiguity."
+
+#, python-format
+msgid "This is not a recognized Fernet payload version: %s"
+msgstr "This is not a recognised Fernet payload version: %s"
+
+#, python-format
+msgid "This is not a recognized Fernet token %s"
+msgstr "This is not a recognised Fernet token %s"
+
+msgid ""
+"Timestamp not in expected format. The server could not comply with the "
+"request since it is either malformed or otherwise incorrect. The client is "
+"assumed to be in error."
+msgstr ""
+"Timestamp not in expected format. The server could not comply with the "
+"request since it is either malformed or otherwise incorrect. The client is "
+"assumed to be in error."
+
+msgid "Token belongs to another user"
+msgstr "Token belongs to another user"
+
+msgid "Token is absent"
+msgstr "Token is absent"
+
+msgid "Token version is unrecognizable or unsupported."
+msgstr "Token version is unrecognisable or unsupported."
+
+msgid "Trustee domain is disabled."
+msgstr "Trustee domain is disabled."
+
+msgid "Trustee has no delegated roles."
+msgstr "Trustee has no delegated roles."
+
+msgid "Trustor domain is disabled."
+msgstr "Trustor domain is disabled."
+
+msgid "Trustor is disabled."
+msgstr "Trustor is disabled."
+
+#, python-format
+msgid ""
+"Trying to update group %(group)s, so that, and only that, group must be "
+"specified in the config"
+msgstr ""
+"Trying to update group %(group)s, so that, and only that, group must be "
+"specified in the config"
+
+#, python-format
+msgid ""
+"Trying to update option %(option)s in group %(group)s, but config provided "
+"contains option %(option_other)s instead"
+msgstr ""
+"Trying to update option %(option)s in group %(group)s, but config provided "
+"contains option %(option_other)s instead"
+
+#, python-format
+msgid ""
+"Trying to update option %(option)s in group %(group)s, so that, and only "
+"that, option must be specified  in the config"
+msgstr ""
+"Trying to update option %(option)s in group %(group)s, so that, and only "
+"that, option must be specified  in the config"
+
+msgid ""
+"Unable to access the keystone database, please check it is configured "
+"correctly."
+msgstr ""
+"Unable to access the keystone database, please check it is configured "
+"correctly."
+
+msgid ""
+"Unable to authenticate against Identity backend - Invalid username or "
+"password"
+msgstr ""
+"Unable to authenticate against Identity backend - Invalid username or "
+"password"
+
+#, python-format
+msgid "Unable to consume trust %(trust_id)s. Unable to acquire lock."
+msgstr "Unable to consume trust %(trust_id)s. Unable to acquire lock."
+
+msgid "Unable to create a limit that has no corresponding registered limit."
+msgstr "Unable to create a limit that has no corresponding registered limit."
+
+#, python-format
+msgid ""
+"Unable to create additional application credentials, maximum of %(limit)d "
+"already exceeded for user."
+msgstr ""
+"Unable to create additional application credentials, maximum of %(limit)d "
+"already exceeded for user."
+
+#, python-format
+msgid ""
+"Unable to delete region %(region_id)s because it or its child regions have "
+"associated endpoints."
+msgstr ""
+"Unable to delete region %(region_id)s because it or its child regions have "
+"associated endpoints."
+
+msgid "Unable to downgrade schema"
+msgstr "Unable to downgrade schema"
+
+#, python-format
+msgid "Unable to establish a connection to LDAP Server (%(url)s)."
+msgstr "Unable to establish a connection to LDAP Server (%(url)s)."
+
+#, python-format
+msgid "Unable to find %(name)r driver in %(namespace)r."
+msgstr "Unable to find %(name)r driver in %(namespace)r."
+
+#, python-format
+msgid "Unable to locate domain config directory: %s"
+msgstr "Unable to locate domain config directory: %s"
+
+#, python-format
+msgid "Unable to lookup user %s"
+msgstr "Unable to lookup user %s"
+
+#, python-format
+msgid ""
+"Unable to reconcile identity attribute %(attribute)s as it has conflicting "
+"values %(new)s and %(old)s"
+msgstr ""
+"Unable to reconcile identity attribute %(attribute)s as it has conflicting "
+"values %(new)s and %(old)s"
+
+msgid ""
+"Unable to rotate credential keys because not all credentials are encrypted "
+"with the primary key. Please make sure all credentials have been encrypted "
+"with the primary key using `keystone-manage credential_migrate`."
+msgstr ""
+"Unable to rotate credential keys because not all credentials are encrypted "
+"with the primary key. Please make sure all credentials have been encrypted "
+"with the primary key using `keystone-manage credential_migrate`."
+
+#, python-format
+msgid ""
+"Unable to sign SAML assertion. It is likely that this server does not have "
+"xmlsec1 installed or this is the result of misconfiguration. Reason "
+"%(reason)s."
+msgstr ""
+"Unable to sign SAML assertion. It is likely that this server does not have "
+"xmlsec1 installed or this is the result of misconfiguration. Reason "
+"%(reason)s."
+
+#, python-format
+msgid ""
+"Unable to update or delete registered limit %(id)s because there are project "
+"limits associated with it."
+msgstr ""
+"Unable to update or delete registered limit %(id)s because there are project "
+"limits associated with it."
+
+msgid ""
+"Unable to update the registered limits because there are project limits "
+"associated with it."
+msgstr ""
+"Unable to update the registered limits because there are project limits "
+"associated with it."
+
+msgid "Unable to validate Federation tokens using the version v2.0 API."
+msgstr "Unable to validate Federation tokens using the version v2.0 API."
+
+msgid "Unable to validate password due to invalid configuration"
+msgstr "Unable to validate password due to invalid configuration"
+
+#, python-format
+msgid "Unable to validate token because domain %(id)s is disabled"
+msgstr "Unable to validate token because domain %(id)s is disabled"
+
+#, python-format
+msgid "Unable to validate token because project %(id)s is disabled"
+msgstr "Unable to validate token because project %(id)s is disabled"
+
+#, python-format
+msgid "Unexpected assignment type encountered, %s"
+msgstr "Unexpected assignment type encountered, %s"
+
+#, python-format
+msgid ""
+"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
+"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s."
+msgstr ""
+"Unexpected combination of grant attributes - User: %(user_id)s, Group: "
+"%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s."
+
+#, python-format
+msgid "Unexpected status requested for JSON Home response, %s"
+msgstr "Unexpected status requested for JSON Home response, %s"
+
+#, python-format
+msgid "Unknown domain '%(name)s' specified by --domain-name"
+msgstr "Unknown domain '%(name)s' specified by --domain-name"
+
+msgid "Unknown parameters found, please provide only oauth parameters."
+msgstr "Unknown parameters found, please provide only oauth parameters."
+
+#, python-format
+msgid "Unregistered dependency: %(name)s for %(targets)s"
+msgstr "Unregistered dependency: %(name)s for %(targets)s"
+
+#, python-format
+msgid "Unsupported password hashing algorithm ident: %s"
+msgstr "Unsupported password hashing algorithm ident: %s"
+
+msgid "Update of `domain_id` is not allowed."
+msgstr "Update of `domain_id` is not allowed."
+
+msgid "Update of `is_domain` is not allowed."
+msgstr "Update of `is_domain` is not allowed."
+
+msgid "Update of `parent_id` is not allowed."
+msgstr "Update of `parent_id` is not allowed."
+
+msgid "Use a project scoped token when attempting to create a SAML assertion"
+msgstr "Use a project scoped token when attempting to create a SAML assertion"
+
+#, python-format
+msgid "User %(user_id)s has no access to domain %(domain_id)s"
+msgstr "User %(user_id)s has no access to domain %(domain_id)s"
+
+#, python-format
+msgid "User %(user_id)s has no access to project %(project_id)s"
+msgstr "User %(user_id)s has no access to project %(project_id)s"
+
+#, python-format
+msgid "User %(user_id)s has no access to the system"
+msgstr "User %(user_id)s has no access to the system"
+
+#, python-format
+msgid "User %(user_id)s is already a member of group %(group_id)s"
+msgstr "User %(user_id)s is already a member of group %(group_id)s"
+
+#, python-format
+msgid "User '%(user_id)s' not found in group '%(group_id)s'"
+msgstr "User '%(user_id)s' not found in group '%(group_id)s'"
+
+msgid "User IDs do not match"
+msgstr "User IDs do not match"
+
+msgid ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+msgstr ""
+"User auth cannot be built due to missing either user id, or user name with "
+"domain id, or user name with domain name."
+
+#, python-format
+msgid "User is disabled: %s"
+msgstr "User is disabled: %s"
+
+msgid "User is not a trustee."
+msgstr "User is not a trustee."
+
+msgid "User not found by auth plugin; authentication failed"
+msgstr "User not found by auth plugin; authentication failed"
+
+msgid "User not valid for tenant."
+msgstr "User not valid for tenant."
+
+#, python-format
+msgid "User type %s not supported"
+msgstr "User type %s not supported"
+
+#, python-format
+msgid "User's default project ID cannot be a domain ID: %s"
+msgstr "User's default project ID cannot be a domain ID: %s"
+
+msgid ""
+"Using OAuth-scoped token to create another token. Create a new OAuth-scoped "
+"token instead"
+msgstr ""
+"Using OAuth-scoped token to create another token. Create a new OAuth-scoped "
+"token instead"
+
+msgid ""
+"Using a system-scoped token to create a project-scoped or domain-scoped "
+"token is not allowed."
+msgstr ""
+"Using a system-scoped token to create a project-scoped or domain-scoped "
+"token is not allowed."
+
+msgid ""
+"Using method 'application_credential' is not allowed for managing additional "
+"application credentials."
+msgstr ""
+"Using method 'application_credential' is not allowed for managing additional "
+"application credentials."
+
+msgid ""
+"Using method 'application_credential' is not allowed for managing trusts."
+msgstr ""
+"Using method 'application_credential' is not allowed for managing trusts."
+
+msgid ""
+"Using trust-scoped token to create another token. Create a new trust-scoped "
+"token instead"
+msgstr ""
+"Using trust-scoped token to create another token. Create a new trust-scoped "
+"token instead"
+
+#, python-format
+msgid "Validation failed with errors: %(error)s, detail message is: %(desc)s."
+msgstr "Validation failed with errors: %(error)s, detail message is: %(desc)s."
+
+msgid "You are not authorized to perform the requested action."
+msgstr "You are not authorised to perform the requested action."
+
+#, python-format
+msgid "You are not authorized to perform the requested action: %(action)s."
+msgstr "You are not authorised to perform the requested action: %(action)s."
+
+#, python-format
+msgid ""
+"You cannot change your password at this time due to the minimum password "
+"age. Once you change your password, it must be used for %(min_age_days)d "
+"day(s) before it can be changed. Please try again in %(days_left)d day(s) or "
+"contact your administrator to reset your password."
+msgstr ""
+"You cannot change your password at this time due to the minimum password "
+"age. Once you change your password, it must be used for %(min_age_days)d "
+"day(s) before it can be changed. Please try again in %(days_left)d day(s) or "
+"contact your administrator to reset your password."
+
+msgid ""
+"You have tried to create a resource using the admin token. As this token is "
+"not within a domain you must explicitly include a domain for this resource "
+"to belong to."
+msgstr ""
+"You have tried to create a resource using the admin token. As this token is "
+"not within a domain you must explicitly include a domain for this resource "
+"to belong to."
+
+#, python-format
+msgid "`option_id` must be 4 characters in length. Got %r"
+msgstr "`option_id` must be 4 characters in length. Got %r"
+
+#, python-format
+msgid "`option_id` must be a string, got %r"
+msgstr "`option_id` must be a string, got %r"
+
+#, python-format
+msgid "`option_name` must be a string. Got %r"
+msgstr "`option_name` must be a string. Got %r"
+
+msgid "any options"
+msgstr "any options"
+
+#, python-format
+msgid ""
+"assertion file %(pathname)s at line %(line_num)d expected 'key: value' but "
+"found '%(line)s' see help for file format"
+msgstr ""
+"assertion file %(pathname)s at line %(line_num)d expected 'key: value' but "
+"found '%(line)s' see help for file format"
+
+msgid "auth_context did not decode anything useful"
+msgstr "auth_context did not decode anything useful"
+
+msgid "auth_type is not Negotiate"
+msgstr "auth_type is not Negotiate"
+
+msgid "authorizing user does not have role required"
+msgstr "authorising user does not have role required"
+
+#, python-format
+msgid "cannot create a project in a branch containing a disabled project: %s"
+msgstr "cannot create a project in a branch containing a disabled project: %s"
+
+#, python-format
+msgid ""
+"cannot delete an enabled project acting as a domain. Please disable the "
+"project %s first."
+msgstr ""
+"cannot delete an enabled project acting as a domain. Please disable the "
+"project %s first."
+
+#, python-format
+msgid "group %(group)s"
+msgstr "group %(group)s"
+
+#, python-format
+msgid "invalid date format %s"
+msgstr "invalid date format %s"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects acting as domains with the same "
+"name: %s"
+msgstr ""
+"it is not permitted to have two projects acting as domains with the same "
+"name: %s"
+
+#, python-format
+msgid ""
+"it is not permitted to have two projects with the same name in the same "
+"domain : %s"
+msgstr ""
+"it is not permitted to have two projects with the same name in the same "
+"domain : %s"
+
+msgid "only root projects are allowed to act as domains."
+msgstr "only root projects are allowed to act as domains."
+
+#, python-format
+msgid "option %(option)s in group %(group)s"
+msgstr "option %(option)s in group %(group)s"
+
+msgid "remaining_uses must be a positive integer or null."
+msgstr "remaining_uses must be a positive integer or null."
+
+msgid "remaining_uses must not be set if redelegation is allowed"
+msgstr "remaining_uses must not be set if redelegation is allowed"
+
+#, python-format
+msgid ""
+"request to update group %(group)s, but config provided contains group "
+"%(group_other)s instead"
+msgstr ""
+"request to update group %(group)s, but config provided contains group "
+"%(group_other)s instead"
+
+msgid "rescope a scoped token"
+msgstr "rescope a scoped token"
+
+#, python-format
+msgid ""
+"role: %(role_name)s must be within the same domain as the identity provider: "
+"%(identity_provider)s."
+msgstr ""
+"role: %(role_name)s must be within the same domain as the identity provider: "
+"%(identity_provider)s."
+
+msgid "scope.project.id must be specified if include_subtree is also specified"
+msgstr ""
+"scope.project.id must be specified if include_subtree is also specified"
+
+#, python-format
+msgid "tls_cacertdir %s not found or is not a directory"
+msgstr "tls_cacertdir %s not found or is not a directory"
+
+#, python-format
+msgid "tls_cacertfile %s not found or is not a file"
+msgstr "tls_cacertfile %s not found or is not a file"
+
+#, python-format
+msgid "token reference must be a KeystoneToken type, got: %s"
+msgstr "token reference must be a KeystoneToken type, got: %s"
