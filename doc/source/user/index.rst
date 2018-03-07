@@ -26,4 +26,5 @@ An end user can find the specific API documentation here, `OpenStack's Identity 
     :maxdepth: 1
 
     application_credentials.rst
+    json_home.rst
     ../api_curl_examples.rst
