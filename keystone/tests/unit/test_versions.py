@@ -365,8 +365,8 @@ V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('implied_roles'): {
         'href-template': '/roles/{prior_role_id}/implies',
         'href-vars': {
-            'prior_role_id': json_home.Parameters.ROLE_ID},
-        'hints': {'status': 'experimental'}},
+            'prior_role_id': json_home.Parameters.ROLE_ID}
+    },
     json_home.build_v3_resource_relation('implied_role'): {
         'href-template':
         '/roles/{prior_role_id}/implies/{implied_role_id}',
@@ -374,10 +374,10 @@ V3_JSON_HOME_RESOURCES = {
             'prior_role_id': json_home.Parameters.ROLE_ID,
             'implied_role_id': json_home.Parameters.ROLE_ID,
         },
-        'hints': {'status': 'experimental'}},
+    },
     json_home.build_v3_resource_relation('role_inferences'): {
         'href': '/role_inferences',
-        'hints': {'status': 'experimental'}},
+    },
     json_home.build_v3_resource_relation('role_assignments'): {
         'href': '/role_assignments'},
     json_home.build_v3_resource_relation('roles'): {'href': '/roles'},

@@ -1,0 +1,7 @@
+---
+other:
+  - |
+    The `implied roles API <https://developer.openstack.org/api-ref/identity/v3/index.html#roles>`_
+    has been marked as stable. This API was originally implemented in Mitaka
+    and marked as experimental. There haven't been any backwards incompatible
+    updates since then. As a result, the API is being marked as stable.
