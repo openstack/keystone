@@ -49,14 +49,15 @@ projects, users, and roles.
    .. end
 
 #. Regular (non-admin) tasks should use an unprivileged project and user.
-   As an example, this guide creates the ``demo`` project and user.
+   As an example, this guide creates the ``myproject`` project and ``myuser``
+   user.
 
-   * Create the ``demo`` project:
+   * Create the ``myproject`` project:
 
      .. code-block:: console
 
         $ openstack project create --domain default \
-          --description "Demo Project" demo
+          --description "Demo Project" myproject
 
         +-------------+----------------------------------+
         | Field       | Value                            |
@@ -66,7 +67,7 @@ projects, users, and roles.
         | enabled     | True                             |
         | id          | 231ad6e7ebba47d6a1e57e1cc07ae446 |
         | is_domain   | False                            |
-        | name        | demo                             |
+        | name        | myproject                        |
         | parent_id   | default                          |
         +-------------+----------------------------------+
 
@@ -77,12 +78,12 @@ projects, users, and roles.
          Do not repeat this step when creating additional users for this
          project.
 
-   * Create the ``demo`` user:
+   * Create the ``myuser`` user:
 
      .. code-block:: console
 
         $ openstack user create --domain default \
-          --password-prompt demo
+          --password-prompt myuser
 
         User Password:
         Repeat User Password:
@@ -92,34 +93,34 @@ projects, users, and roles.
         | domain_id           | default                          |
         | enabled             | True                             |
         | id                  | aeda23aa78f44e859900e22c24817832 |
-        | name                | demo                             |
+        | name                | myuser                           |
         | options             | {}                               |
         | password_expires_at | None                             |
         +---------------------+----------------------------------+
 
      .. end
 
-   * Create the ``user`` role:
+   * Create the ``myrole`` role:
 
      .. code-block:: console
 
-        $ openstack role create user
+        $ openstack role create myrole
 
         +-----------+----------------------------------+
         | Field     | Value                            |
         +-----------+----------------------------------+
         | domain_id | None                             |
         | id        | 997ce8d05fc143ac97d83fdfb5998552 |
-        | name      | user                             |
+        | name      | myrole                           |
         +-----------+----------------------------------+
 
      .. end
 
-   * Add the ``user`` role to the ``demo`` project and user:
+   * Add the ``myrole`` role to the ``myproject`` project and ``myuser`` user:
 
      .. code-block:: console
 
-        $ openstack role add --project demo --user demo user
+        $ openstack role add --project myproject --user myuser myrole
 
      .. end
 
