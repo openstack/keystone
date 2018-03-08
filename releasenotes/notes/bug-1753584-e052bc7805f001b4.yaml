@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1753584 <https://bugs.launchpad.net/keystone/+bug/1753584>`_]
+    Fix formatting of ImportError when using a driver not found in the list
+    of token providers.
