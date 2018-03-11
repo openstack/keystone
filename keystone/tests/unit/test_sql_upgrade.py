@@ -49,8 +49,10 @@ from migrate.versioning import repository
 from migrate.versioning import script
 import mock
 from oslo_db import exception as db_exception
-from oslo_db.sqlalchemy import test_base
+from oslo_db.sqlalchemy import enginefacade
+from oslo_db.sqlalchemy import test_fixtures as db_fixtures
 from oslo_log import log
+from oslotest import base as test_base
 import pytz
 from sqlalchemy.engine import reflection
 import sqlalchemy.exc
@@ -196,9 +198,12 @@ class SqlUpgradeGetInitVersionTests(unit.TestCase):
             self.assertEqual(initial_version, version)
 
 
-class SqlMigrateBase(test_base.DbTestCase):
+class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
+                     test_base.BaseTestCase):
     def setUp(self):
         super(SqlMigrateBase, self).setUp()
+        self.engine = enginefacade.writer.get_engine()
+        self.sessionmaker = enginefacade.writer.get_sessionmaker()
 
         # NOTE(dstanek): Clear out sqlalchemy-migrate's script cache to allow
         # us to have multiple repos (expand, migrate, contract) where the
@@ -1497,11 +1502,11 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
 
 
 class MySQLOpportunisticUpgradeTestCase(SqlLegacyRepoUpgradeTests):
-    FIXTURE = test_base.MySQLOpportunisticFixture
+    FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticUpgradeTestCase(SqlLegacyRepoUpgradeTests):
-    FIXTURE = test_base.PostgreSQLOpportunisticFixture
+    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
 class SqlExpandSchemaUpgradeTests(SqlMigrateBase):
@@ -1520,12 +1525,12 @@ class SqlExpandSchemaUpgradeTests(SqlMigrateBase):
 
 class MySQLOpportunisticExpandSchemaUpgradeTestCase(
         SqlExpandSchemaUpgradeTests):
-    FIXTURE = test_base.MySQLOpportunisticFixture
+    FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticExpandSchemaUpgradeTestCase(
         SqlExpandSchemaUpgradeTests):
-    FIXTURE = test_base.PostgreSQLOpportunisticFixture
+    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
 class SqlDataMigrationUpgradeTests(SqlMigrateBase):
@@ -1545,12 +1550,12 @@ class SqlDataMigrationUpgradeTests(SqlMigrateBase):
 
 class MySQLOpportunisticDataMigrationUpgradeTestCase(
         SqlDataMigrationUpgradeTests):
-    FIXTURE = test_base.MySQLOpportunisticFixture
+    FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticDataMigrationUpgradeTestCase(
         SqlDataMigrationUpgradeTests):
-    FIXTURE = test_base.PostgreSQLOpportunisticFixture
+    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
 class SqlContractSchemaUpgradeTests(SqlMigrateBase, unit.TestCase):
@@ -1579,12 +1584,12 @@ class SqlContractSchemaUpgradeTests(SqlMigrateBase, unit.TestCase):
 
 class MySQLOpportunisticContractSchemaUpgradeTestCase(
         SqlContractSchemaUpgradeTests):
-    FIXTURE = test_base.MySQLOpportunisticFixture
+    FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticContractSchemaUpgradeTestCase(
         SqlContractSchemaUpgradeTests):
-    FIXTURE = test_base.PostgreSQLOpportunisticFixture
+    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
 class VersionTests(SqlMigrateBase):
@@ -2927,8 +2932,8 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
 
 
 class MySQLOpportunisticFullMigration(FullMigration):
-    FIXTURE = test_base.MySQLOpportunisticFixture
+    FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticFullMigration(FullMigration):
-    FIXTURE = test_base.PostgreSQLOpportunisticFixture
+    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
