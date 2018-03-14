@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1756190 <https://bugs.launchpad.net/keystone/+bug/1756190>`_]
+    When filtering projects based on tags, the filtering will now be performed
+    by matching a subset containing the given tags against projects, rather
+    than exact matching. Providing more tags when performing a search will
+    yield more exact results while less will return any projects that match
+    the given tags but could contain other tags as well.
