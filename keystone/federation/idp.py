@@ -382,6 +382,38 @@ class SAMLGenerator(object):
         return signature
 
 
+def _verify_assertion_binary_is_installed():
+    """Make sure the specified xmlsec binary is installed.
+
+    If the binary specified in configuration isn't installed, make sure we
+    leave some sort of useful error message for operators since the absense of
+    it is going to throw an HTTP 500.
+
+    """
+    try:
+        # `check_output` just returns the output of whatever is passed in
+        # (hence the name). We don't really care about where the location of
+        # the binary exists, though. We just want to make sure it's actually
+        # installed and if an `CalledProcessError` isn't thrown, it is.
+        subprocess.check_output(  # nosec : The contents of this command are
+                                  # coming from either the default
+                                  # configuration value for
+                                  # CONF.saml.xmlsec1_binary or an operator
+                                  # supplied location for that binary. In
+                                  # either case, it is safe to assume this
+                                  # input is coming from a trusted source and
+                                  # not a possible attacker (over the API).
+            ['/usr/bin/which', CONF.saml.xmlsec1_binary]
+        )
+    except subprocess.CalledProcessError:
+        msg = (
+            'Unable to locate %(binary)s binary on the system. Check to make '
+            'sure it is installed.' % {'binary': CONF.saml.xmlsec1_binary}
+        )
+        LOG.error(msg)
+        raise exception.SAMLSigningError(reason=msg)
+
+
 def _sign_assertion(assertion):
     """Sign a SAML assertion.
 
@@ -415,6 +447,13 @@ def _sign_assertion(assertion):
         'idp_public_key': CONF.saml.certfile,
         'idp_private_key': CONF.saml.keyfile,
     }
+
+    # Verify that the binary used to create the assertion actually exists on
+    # the system. If it doesn't, log a warning for operators to go and install
+    # it. Requests for assertions will fail with HTTP 500s until the package is
+    # installed, so providing something useful in the logs is about the best we
+    # can do.
+    _verify_assertion_binary_is_installed()
 
     command_list = [
         CONF.saml.xmlsec1_binary, '--sign', '--privkey-pem', certificates,
