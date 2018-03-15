@@ -137,13 +137,6 @@ Parameters
 Response
 --------
 
-Parameters
-~~~~~~~~~~
-
-.. rest_parameters:: parameters.yaml
-
-   - tags: response_body_project_tags_required
-
 Status Codes
 ~~~~~~~~~~~~
 
