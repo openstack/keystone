@@ -9,7 +9,8 @@
             "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
             "project_id": "3a705b9f56bb439381b43c4fe59dccce",
             "id": "25a04c7a065c430590881c646cdcdd58",
-            "resource_limit": 10
+            "resource_limit": 10,
+            "description": "Number of volumes for project 3a705b9f56bb439381b43c4fe59dccce"
         },
         {
             "resource_name": "snapshot",
@@ -20,7 +21,8 @@
             "service_id": "9408080f1970482aa0e38bc2d4ea34b7",
             "project_id": "3a705b9f56bb439381b43c4fe59dccce",
             "id": "3229b3849f584faea483d6851f7aab05",
-            "resource_limit": 5
+            "resource_limit": 5,
+            "description": ""
         }
     ]
 }

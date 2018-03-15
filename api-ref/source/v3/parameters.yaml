@@ -626,6 +626,18 @@ default_project_id_update_body:
   in: body
   required: false
   type: string
+description_limit_request_body:
+  description: |
+    The limit description.
+  in: body
+  required: false
+  type: string
+description_limit_response_body:
+  description: |
+    The limit description.
+  in: body
+  required: true
+  type: string
 description_region_request_body:
   description: |
     The region description.
@@ -635,6 +647,18 @@ description_region_request_body:
 description_region_response_body:
   description: |
     The region description.
+  in: body
+  required: true
+  type: string
+description_registered_limit_request_body:
+  description: |
+    The registered limit description.
+  in: body
+  required: false
+  type: string
+description_registered_limit_response_body:
+  description: |
+    The registered limit description.
   in: body
   required: true
   type: string

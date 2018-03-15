@@ -53,7 +53,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'region_id', 'resource_name',
-                    'default_limit']:
+                    'default_limit', 'description']:
             self.assertEqual(registered_limits[0][key], ref[key])
 
     def test_create_registered_limit_without_region(self):
@@ -66,6 +66,20 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         for key in ['service_id', 'resource_name', 'default_limit']:
             self.assertEqual(registered_limits[0][key], ref[key])
         self.assertIsNone(registered_limits[0].get('region_id'))
+
+    def test_create_registered_without_description(self):
+        ref = unit.new_registered_limit_ref(service_id=self.service_id,
+                                            region_id=self.region_id)
+        ref.pop('description')
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref]},
+            expected_status=http_client.CREATED)
+        registered_limits = r.result['registered_limits']
+        for key in ['service_id', 'region_id', 'resource_name',
+                    'default_limit']:
+            self.assertEqual(registered_limits[0][key], ref[key])
+        self.assertIsNone(registered_limits[0]['description'])
 
     def test_create_multi_registered_limit(self):
         ref1 = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -141,7 +155,8 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             'service_id': self.service_id2,
             'region_id': self.region_id2,
             'resource_name': 'snapshot',
-            'default_limit': 5
+            'default_limit': 5,
+            'description': 'test description'
         }
         r = self.put(
             '/registered_limits',
@@ -153,6 +168,37 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.assertEqual(new_registered_limits['region_id'], self.region_id2)
         self.assertEqual(new_registered_limits['resource_name'], 'snapshot')
         self.assertEqual(new_registered_limits['default_limit'], 5)
+        self.assertEqual(new_registered_limits['description'],
+                         'test description')
+
+    def test_update_registered_limit_description(self):
+        ref = unit.new_registered_limit_ref(service_id=self.service_id,
+                                            region_id=self.region_id,
+                                            resource_name='volume',
+                                            default_limit=10)
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref]},
+            expected_status=http_client.CREATED)
+        update_ref = {
+            'id': r.result['registered_limits'][0]['id'],
+            'description': 'test description'
+        }
+        r = self.put(
+            '/registered_limits',
+            body={'registered_limits': [update_ref]},
+            expected_status=http_client.OK)
+        new_registered_limits = r.result['registered_limits'][0]
+        self.assertEqual(new_registered_limits['description'],
+                         'test description')
+
+        update_ref['description'] = ''
+        r = self.put(
+            '/registered_limits',
+            body={'registered_limits': [update_ref]},
+            expected_status=http_client.OK)
+        new_registered_limits = r.result['registered_limits'][0]
+        self.assertEqual(new_registered_limits['description'], '')
 
     def test_update_multi_registered_limit(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -213,8 +259,10 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
                                                     resource_name=123)
         update_ref4 = unit.new_registered_limit_ref(id=uuid.uuid4().hex,
                                                     region_id='fake_region')
+        update_ref5 = unit.new_registered_limit_ref(id=uuid.uuid4().hex,
+                                                    description=123)
         for input_limit in [update_ref1, update_ref2, update_ref3,
-                            update_ref4]:
+                            update_ref4, update_ref5]:
             self.put(
                 '/registered_limits',
                 body={'registered_limits': [input_limit]},
@@ -325,7 +373,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.OK)
         registered_limit = r.result['registered_limit']
         for key in ['service_id', 'region_id', 'resource_name',
-                    'default_limit']:
+                    'default_limit', 'description']:
             self.assertEqual(registered_limit[key], ref1[key])
 
     def test_delete_registered_limit(self):
@@ -420,7 +468,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         self. assertIsNotNone(limits[0]['id'])
         self. assertIsNotNone(limits[0]['project_id'])
         for key in ['service_id', 'region_id', 'resource_name',
-                    'resource_limit']:
+                    'resource_limit', 'description']:
             self.assertEqual(limits[0][key], ref[key])
 
     def test_create_limit_without_region(self):
@@ -438,6 +486,25 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         for key in ['service_id', 'resource_name', 'resource_limit']:
             self.assertEqual(limits[0][key], ref[key])
         self.assertIsNone(limits[0].get('region_id'))
+
+    def test_create_limit_without_description(self):
+        ref = unit.new_limit_ref(project_id=self.project_id,
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume')
+        ref.pop('description')
+        r = self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+        limits = r.result['limits']
+
+        self. assertIsNotNone(limits[0]['id'])
+        self. assertIsNotNone(limits[0]['project_id'])
+        for key in ['service_id', 'region_id', 'resource_name',
+                    'resource_limit']:
+            self.assertEqual(limits[0][key], ref[key])
+        self.assertIsNone(limits[0]['description'])
 
     def test_create_multi_limit(self):
         ref1 = unit.new_limit_ref(project_id=self.project_id,
@@ -535,7 +602,8 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.CREATED)
         update_ref = {
             'id': r.result['limits'][0]['id'],
-            'resource_limit': 5
+            'resource_limit': 5,
+            'description': 'test description'
         }
         r = self.put(
             '/limits',
@@ -544,6 +612,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         new_limits = r.result['limits'][0]
 
         self.assertEqual(new_limits['resource_limit'], 5)
+        self.assertEqual(new_limits['description'], 'test description')
 
     def test_update_multi_limit(self):
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -687,7 +756,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
                      expected_status=http_client.OK)
         limit = r.result['limit']
         for key in ['service_id', 'region_id', 'resource_name',
-                    'resource_limit']:
+                    'resource_limit', 'description']:
             self.assertEqual(limit[key], ref1[key])
 
     def test_delete_limit(self):
