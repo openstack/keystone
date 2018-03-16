@@ -38,27 +38,21 @@ Managing Application Credentials
 
 Create an application credential using python-keystoneclient:
 
-.. code-block:: python
+.. code-block:: console
 
-   >>> keystone = client.Client(session=mysession)
-   >>> app_cred = keystone.application_credentials.create(
-   ...     name='monitoring'
-   ... )
-   >>> pprint.pprint(app_cred.to_dict())
-   {u'description': None,
-    u'expires_at': None,
-    u'id': u'aa809205ed614a0e854bac92c0768bb9',
-    u'links': {u'self': u'http://192.168.122.247/identity/v3/users/1d1b5c244ee64c6e9356947322570120/application_credentials/aa809205ed614a0e854bac92c0768bb9'},
-    u'name': u'monitoring',
-    u'project_id': u'73cd55a3f3f7446d8256889339e7f02f',
-    u'roles': [{u'domain_id': None,
-                u'id': u'cdfd5fd0b0844bfa81b177a986e31063',
-                u'name': u'Member'},
-               {u'domain_id': None,
-                u'id': u'e82e7f3ad839443ab4d1ead88a8c267d',
-                u'name': u'anotherrole'}],
-    u'secret': u'oKce6DOC_WcZoE13l3eXspfxhjO0VlO2n5SG_XNdXVZTDZVFF163a5p03pei56DhJxkd62x-zX-hEQ8VyWmYnA',
-    u'unrestricted': False}
+   $ openstack application credential create monitoring
+   +--------------+----------------------------------------------------------------------------------------+
+   | Field        | Value                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
+   | description  | None                                                                                   |
+   | expires_at   | None                                                                                   |
+   | id           | 26bb287fd56a41f8a577c47f79221187                                                       |
+   | name         | monitoring                                                                             |
+   | project_id   | e99b6f4b9bf84a9da27e20c9cbfe887a                                                       |
+   | roles        | Member anotherrole                                                                     |
+   | secret       | PJXxBFGPOLwdl3PA6tSivJT9S4RpWhLcNZH2gXzCoxX1C2cnZsj2_Xmfw-LE7Wc-NwuJEYoHcG0gQ5bjWwe-bg |
+   | unrestricted | False                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
 
 The only required parameter is a name. The application credential is created for
 the project to which the user is currently scoped with the same role assignments
@@ -66,28 +60,21 @@ the user has on that project. Keystone will automatically generate a secret
 string that will be revealed once at creation time. You can also provide your
 own secret, if desired:
 
-.. code-block:: python
+.. code-block:: console
 
-   >>> keystone = client.Client(session=mysession)
-   >>> app_cred = keystone.application_credentials.create(
-   ...     name='monitoring',
-   ...     secret='securesecret'
-   ... )
-   >>> pprint.pprint(app_cred.to_dict())
-   {u'description': None,
-    u'expires_at': None,
-    u'id': u'63022d09c923497887f44d33b1ab61e8',
-    u'links': {u'self': u'http://192.168.122.247/identity/v3/users/1d1b5c244ee64c6e9356947322570120/application_credentials/63022d09c923497887f44d33b1ab61e8'},
-    u'name': u'monitoring',
-    u'project_id': u'73cd55a3f3f7446d8256889339e7f02f',
-    u'roles': [{u'domain_id': None,
-                u'id': u'e82e7f3ad839443ab4d1ead88a8c267d',
-                u'name': u'anotherrole'},
-               {u'domain_id': None,
-                u'id': u'cdfd5fd0b0844bfa81b177a986e31063',
-                u'name': u'Member'}],
-    u'secret': u'securesecret',
-    u'unrestricted': False}
+   $ openstack application credential create monitoring --secret securesecret
+   +--------------+----------------------------------+
+   | Field        | Value                            |
+   +--------------+----------------------------------+
+   | description  | None                             |
+   | expires_at   | None                             |
+   | id           | bc257241e21747768c83fb9806af392d |
+   | name         | monitoring                       |
+   | project_id   | e99b6f4b9bf84a9da27e20c9cbfe887a |
+   | roles        | Member anotherrole               |
+   | secret       | securesecret                     |
+   | unrestricted | False                            |
+   +--------------+----------------------------------+
 
 The secret is hashed before it is stored, so the original secret is not
 retrievable after creation. If the secret is lost, a new application credential
@@ -115,49 +102,39 @@ read-only role assignment on that project yourself before you can delegate it to
 the application credential. Removing a user's role assignment on a project will
 invalidate the user's application credentials for that project.
 
-.. code-block:: python
+.. code-block:: console
 
-   >>> app_cred = keystone.application_credentials.create(
-   ...     name='monitoring',
-   ...     roles=[{'name': 'Member'}]
-   ... )
-   >>> pprint.pprint(app_cred.to_dict())
-   {u'description': None,
-    u'expires_at': None,
-    u'id': u'7f293ac53f4e47a6826dc42f6a6a66d9',
-    u'links': {u'self': u'http://192.168.122.247/identity/v3/users/1d1b5c244ee64c6e9356947322570120/application_credentials/7f293ac53f4e47a6826dc42f6a6a66d9'},
-    u'name': u'monitoring',
-    u'project_id': u'73cd55a3f3f7446d8256889339e7f02f',
-    u'roles': [{u'domain_id': None,
-                u'id': u'cdfd5fd0b0844bfa81b177a986e31063',
-                u'name': u'Member'}],
-    u'secret': u'6Oq8MrvaaeNb3GRBX79Svj1ALgAJwwbr9ECQYOyTWUidg8yDOgvJL4Yvtnm3p17XND8sYaQVYQPR-M8WdrbPbg',
-    u'unrestricted': False}
+   $ openstack application credential create monitoring --role Member
+   +--------------+----------------------------------------------------------------------------------------+
+   | Field        | Value                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
+   | description  | None                                                                                   |
+   | expires_at   | None                                                                                   |
+   | id           | 5d04e42491a54e83b313aa2625709411                                                       |
+   | name         | monitoring                                                                             |
+   | project_id   | e99b6f4b9bf84a9da27e20c9cbfe887a                                                       |
+   | roles        | Member                                                                                 |
+   | secret       | vALEOMENxB_QaKFZOA2XOd7stwrhTlqPKrOdrXXM5BORss9u3O6GT-w_HYCPaZbtg96sDPCdtzVARZLpgUOY_g |
+   | unrestricted | False                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
 
 You can provide an expiration date for application credentials:
 
-.. code-block:: python
+.. code-block:: console
 
-   >>> expires = datetime.datetime.utcnow() + datetime.timedelta(days=365)
-   >>> app_cred = keystone.application_credentials.create(
-   ...     name='monitoring',
-   ...     expires_at=expires
-   ... )
-   >>> pprint.pprint(app_cred.to_dict())
-   {u'description': None,
-    u'expires_at': u'2019-02-12T20:52:43.895274',
-    u'id': u'888c5b30428349d7af19d0e9e05229fd',
-    u'links': {u'self': u'http://192.168.122.247/identity/v3/users/1d1b5c244ee64c6e9356947322570120/application_credentials/888c5b30428349d7af19d0e9e05229fd'},
-    u'name': u'monitoring',
-    u'project_id': u'73cd55a3f3f7446d8256889339e7f02f',
-    u'roles': [{u'domain_id': None,
-                u'id': u'e82e7f3ad839443ab4d1ead88a8c267d',
-                u'name': u'anotherrole'},
-               {u'domain_id': None,
-                u'id': u'cdfd5fd0b0844bfa81b177a986e31063',
-                u'name': u'Member'}],
-    u'secret': u'PXyLkmBSz9TbCS4G32kNqQIFpnJx2euFR7RIBmM5g97ZhH8KvECEmCU1BIdmD8NuKrUfh77nugwKjlUbP1mD6g',
-    u'unrestricted': False}
+   $ openstack application credential create monitoring --expiration '2019-02-12T20:52:43'
+   +--------------+----------------------------------------------------------------------------------------+
+   | Field        | Value                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
+   | description  | None                                                                                   |
+   | expires_at   | 2019-02-12T20:52:43.000000                                                             |
+   | id           | 4ea8c4a84f7b4c65a3d84460be9cd1f7                                                       |
+   | name         | monitoring                                                                             |
+   | project_id   | e99b6f4b9bf84a9da27e20c9cbfe887a                                                       |
+   | roles        | Member anotherrole                                                                     |
+   | secret       | _My16dlySn6jr7pGvBxjcMrmPA0MCpYlkKWs3gpY3-Ybk05yt2Hh83uMdTLPWlFeh8lOXajIAVHrQaBQ06iz5Q |
+   | unrestricted | False                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
 
 By default, application credentials are restricted from creating or deleting
 other application credentials and from creating or deleting trusts. If your
@@ -170,28 +147,21 @@ involved, you can disable this protection:
    safeguard to prevent a compromised application credential from regenerating
    itself. Disabling this restriction poses an inherent added risk.
 
-.. code-block:: python
+.. code-block:: console
 
-   >>> keystone = client.Client(session=mysession)
-   >>> app_cred = keystone.application_credentials.create(
-   ...     name='monitoring',
-   ...     unrestricted=True
-   ... )
-   >>> pprint.pprint(app_cred.to_dict())
-   {u'description': None,
-    u'expires_at': None,
-    u'id': u'aa809205ed614a0e854bac92c0768bb9',
-    u'links': {u'self': u'http://192.168.122.247/identity/v3/users/1d1b5c244ee64c6e9356947322570120/application_credentials/aa809205ed614a0e854bac92c0768bb9'},
-    u'name': u'monitoring',
-    u'project_id': u'73cd55a3f3f7446d8256889339e7f02f',
-    u'roles': [{u'domain_id': None,
-                u'id': u'cdfd5fd0b0844bfa81b177a986e31063',
-                u'name': u'Member'},
-               {u'domain_id': None,
-                u'id': u'e82e7f3ad839443ab4d1ead88a8c267d',
-                u'name': u'anotherrole'}],
-    u'secret': u'oKce6DOC_WcZoE13l3eXspfxhjO0VlO2n5SG_XNdXVZTDZVFF163a5p03pei56DhJxkd62x-zX-hEQ8VyWmYnA',
-    u'unrestricted': True}
+   $ openstack application credential create monitoring --unrestricted
+   +--------------+----------------------------------------------------------------------------------------+
+   | Field        | Value                                                                                  |
+   +--------------+----------------------------------------------------------------------------------------+
+   | description  | None                                                                                   |
+   | expires_at   | None                                                                                   |
+   | id           | 0a0372dbedfb4e82ab66449c3316ef1e                                                       |
+   | name         | monitoring                                                                             |
+   | project_id   | e99b6f4b9bf84a9da27e20c9cbfe887a                                                       |
+   | roles        | Member anotherrole                                                                     |
+   | secret       | ArOy6DYcLeLTRlTmfvF1TH1QmRzYbmD91cbVPOHL3ckyRaLXlaq5pTGJqvCvqg6leEvTI1SQeX3QK-3iwmdPxg |
+   | unrestricted | True                                                                                   |
+   +--------------+----------------------------------------------------------------------------------------+
 
 Using Application Credentials
 =============================
