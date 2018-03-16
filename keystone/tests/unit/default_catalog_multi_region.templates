@@ -1,0 +1,27 @@
+# config for templated.Catalog, using camelCase because I don't want to do
+# translations for keystone compat
+catalog.RegionOne.identity.publicURL = http://region-one:$(public_port)s/v3
+catalog.RegionOne.identity.adminURL = http://region-one:$(admin_port)s/v3
+catalog.RegionOne.identity.internalURL = http://region-one:$(admin_port)s/v3
+catalog.RegionOne.identity.name = 'Identity Service'
+catalog.RegionOne.identity.id = 1
+
+# fake compute service for now to help novaclient tests work
+catalog.RegionOne.compute.publicURL = http://region-one:8774/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.adminURL = http://region-one:8774/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.internalURL = http://region-one:8774/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.name = 'Compute Service'
+catalog.RegionOne.compute.id = 2
+
+# second region for multi-region testing
+catalog.RegionTwo.identity.publicURL = http://region-two:$(public_port)s/v3
+catalog.RegionTwo.identity.adminURL = http://region-two:$(admin_port)s/v3
+catalog.RegionTwo.identity.internalURL = http://region-two:$(admin_port)s/v3
+catalog.RegionTwo.identity.name = 'Identity Service'
+catalog.RegionTwo.identity.id = 1
+
+catalog.RegionTwo.compute.publicURL = http://region-two:8774/v1.1/$(tenant_id)s
+catalog.RegionTwo.compute.adminURL = http://region-two:8774/v1.1/$(tenant_id)s
+catalog.RegionTwo.compute.internalURL = http://region-two:8774/v1.1/$(tenant_id)s
+catalog.RegionTwo.compute.name = 'Compute Service'
+catalog.RegionTwo.compute.id = 2

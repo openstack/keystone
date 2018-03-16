@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1703666 <https://bugs.launchpad.net/keystone/+bug/1703666>`_]
+    Fixing multi-region support for the templated v3 catalog by making sure
+    that the catalog contains only one definition per endpoint, and that
+    each region is listed under that endpoint. Previously each region
+    and endpoint would have had its own definition.
