@@ -62,7 +62,6 @@ class Routers(wsgi.RoutersBase):
             path='/roles/{prior_role_id}/implies',
             rel=json_home.build_v3_resource_relation('implied_roles'),
             get_head_action='list_implied_roles',
-            status=json_home.Status.EXPERIMENTAL,
             path_vars={
                 'prior_role_id': json_home.Parameters.ROLE_ID,
             }
@@ -76,7 +75,6 @@ class Routers(wsgi.RoutersBase):
             head_action='check_implied_role',
             get_action='get_implied_role',
             rel=json_home.build_v3_resource_relation('implied_role'),
-            status=json_home.Status.EXPERIMENTAL,
             path_vars={
                 'prior_role_id': json_home.Parameters.ROLE_ID,
                 'implied_role_id': json_home.Parameters.ROLE_ID
@@ -87,7 +85,6 @@ class Routers(wsgi.RoutersBase):
             path='/role_inferences',
             get_head_action='list_role_inference_rules',
             rel=json_home.build_v3_resource_relation('role_inferences'),
-            status=json_home.Status.EXPERIMENTAL,
             path_vars={}
         )
 
