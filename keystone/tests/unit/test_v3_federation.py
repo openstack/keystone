@@ -3740,12 +3740,13 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
     def test_assertion_using_explicit_namespace_prefixes(self):
         def mocked_subprocess_check_output(*popenargs, **kwargs):
             # the last option is the assertion file to be signed
-            filename = popenargs[0][-1]
-            with open(filename, 'r') as f:
-                assertion_content = f.read()
-            # since we are not testing the signature itself, we can return
-            # the assertion as is without signing it
-            return assertion_content
+            if popenargs[0] != ['/usr/bin/which', CONF.saml.xmlsec1_binary]:
+                filename = popenargs[0][-1]
+                with open(filename, 'r') as f:
+                    assertion_content = f.read()
+                # since we are not testing the signature itself, we can return
+                # the assertion as is without signing it
+                return assertion_content
 
         with mock.patch.object(subprocess, 'check_output',
                                side_effect=mocked_subprocess_check_output):
@@ -4026,37 +4027,46 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
         create_class_mock.assert_called_with(saml.Assertion, 'fakeoutput')
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
-    @mock.patch.object(subprocess, 'check_output')
-    def test_sign_assertion_exc(self, check_output_mock,
-                                write_to_tempfile_mock):
+    def test_sign_assertion_exc(self, write_to_tempfile_mock):
         # If the command fails the command output is logged.
-
-        write_to_tempfile_mock.return_value = 'tmp_path'
-
         sample_returncode = 1
         sample_output = self.getUniqueString()
-        check_output_mock.side_effect = subprocess.CalledProcessError(
-            returncode=sample_returncode, cmd=CONF.saml.xmlsec1_binary,
-            output=sample_output)
+        write_to_tempfile_mock.return_value = 'tmp_path'
 
-        logger_fixture = self.useFixture(fixtures.LoggerFixture())
-        self.assertRaises(exception.SAMLSigningError,
-                          keystone_idp._sign_assertion,
-                          self.signed_assertion)
-        # The function __str__ in subprocess.CalledProcessError is different
-        # between py3.6 and lower python version.
-        expected_log = (
-            "Error when signing assertion, reason: Command '%s' returned "
-            "non-zero exit status %s\.? %s\n" %
-            (CONF.saml.xmlsec1_binary, sample_returncode, sample_output))
+        def side_effect(*args, **kwargs):
+            if args[0] == ['/usr/bin/which', CONF.saml.xmlsec1_binary]:
+                return '/usr/bin/xmlsec1\n'
+            else:
+                raise subprocess.CalledProcessError(
+                    returncode=sample_returncode, cmd=CONF.saml.xmlsec1_binary,
+                    output=sample_output
+                )
 
-        self.assertRegex(logger_fixture.output,
-                         re.compile(r'%s' % expected_log))
+        with mock.patch.object(subprocess, 'check_output',
+                               side_effect=side_effect):
+            logger_fixture = self.useFixture(fixtures.LoggerFixture())
+            self.assertRaises(
+                exception.SAMLSigningError,
+                keystone_idp._sign_assertion,
+                self.signed_assertion
+            )
+
+            # The function __str__ in subprocess.CalledProcessError is
+            # different between py3.6 and lower python version.
+            expected_log = (
+                "Error when signing assertion, reason: Command '%s' returned "
+                "non-zero exit status %s\.? %s\n" %
+                (CONF.saml.xmlsec1_binary, sample_returncode, sample_output))
+            self.assertRegex(logger_fixture.output,
+                             re.compile(r'%s' % expected_log))
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
-    def test_sign_assertion_fileutils_exc(self, write_to_tempfile_mock):
+    @mock.patch.object(subprocess, 'check_output')
+    def test_sign_assertion_fileutils_exc(self, check_output_mock,
+                                          write_to_tempfile_mock):
         exception_msg = 'fake'
         write_to_tempfile_mock.side_effect = Exception(exception_msg)
+        check_output_mock.return_value = '/usr/bin/xmlsec1'
 
         logger_fixture = self.useFixture(fixtures.LoggerFixture())
         self.assertRaises(exception.SAMLSigningError,
@@ -4065,6 +4075,22 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
         expected_log = (
             'Error when signing assertion, reason: %s\n' % exception_msg)
         self.assertEqual(expected_log, logger_fixture.output)
+
+    def test_sign_assertion_logs_message_if_xmlsec1_is_not_installed(self):
+        with mock.patch.object(subprocess, 'check_output') as co_mock:
+            co_mock.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=CONF.saml.xmlsec1_binary,
+            )
+            logger_fixture = self.useFixture(fixtures.LoggerFixture())
+            self.assertRaises(
+                exception.SAMLSigningError,
+                keystone_idp._sign_assertion,
+                self.signed_assertion
+            )
+
+            expected_log = ('Unable to locate xmlsec1 binary on the system. '
+                            'Check to make sure it is installed.\n')
+            self.assertEqual(expected_log, logger_fixture.output)
 
 
 class IdPMetadataGenerationTests(test_v3.RestfulTestCase):
