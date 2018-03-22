@@ -47,13 +47,10 @@ class AuthMethodHandler(provider_api.ProviderAPIMixin, object):
         in case authentication is for re-scoping. For example, if the
         authentication is for re-scoping, plugin must append the previous
         method names into ``method_names``; NOTE: This behavior is exclusive
-        to the re-scope type action. Also, plugin may add any additional
-        information into ``extras``. Anything in ``extras`` will be conveyed in
-        the token's ``extras`` attribute. Here's an example of
-        ``response_data`` on successful authentication::
+        to the re-scope type action. Here's an example of ``response_data`` on
+        successful authentication::
 
             {
-                "extras": {},
                 "methods": [
                     "password",
                     "token"
