@@ -23,9 +23,10 @@ class ShadowUsersCoreTests(object):
             self.federated_user['idp_id'],
             self.federated_user['protocol_id'],
             self.federated_user['unique_id'],
-            self.federated_user['display_name'])
+            self.federated_user['display_name'],
+            self.email)
         self.assertIsNotNone(user['id'])
-        self.assertEqual(6, len(user.keys()))
+        self.assertEqual(7, len(user.keys()))
         self.assertIsNotNone(user['name'])
         self.assertIsNone(user['password_expires_at'])
         self.assertIsNotNone(user['domain_id'])
@@ -33,6 +34,7 @@ class ShadowUsersCoreTests(object):
         # equal True. assertTrue should not be used, because it converts
         # the passed value to bool().
         self.assertEqual(True, user['enabled'])
+        self.assertIsNotNone(user['email'])
 
     def test_shadow_existing_federated_user(self):
 

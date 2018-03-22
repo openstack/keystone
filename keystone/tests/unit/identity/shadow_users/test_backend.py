@@ -83,6 +83,11 @@ class ShadowUsersBackendTests(object):
             self.domain_id, self.federated_user)
         self.assertEqual(user['domain_id'], self.domain_id)
 
+    def test_create_federated_user_email(self):
+        user = PROVIDERS.shadow_users_api.create_federated_user(
+            self.domain_id, self.federated_user, self.email)
+        self.assertEqual(user['email'], self.email)
+
     def test_get_federated_user(self):
         user_dict_create = PROVIDERS.shadow_users_api.create_federated_user(
             self.domain_id, self.federated_user)

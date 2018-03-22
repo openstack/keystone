@@ -29,12 +29,14 @@ CONF = cfg.CONF
 
 class ShadowUsers(base.ShadowUsersDriverBase):
     @sql.handle_conflicts(conflict_type='federated_user')
-    def create_federated_user(self, domain_id, federated_dict):
+    def create_federated_user(self, domain_id, federated_dict, email=None):
         user = {
             'id': uuid.uuid4().hex,
             'domain_id': domain_id,
             'enabled': True
         }
+        if email:
+            user['email'] = email
         with sql.session_for_write() as session:
             federated_ref = model.FederatedUser.from_dict(federated_dict)
             user_ref = model.User.from_dict(user)

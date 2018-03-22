@@ -237,9 +237,11 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
             unique_id, display_name = (
                 get_user_unique_id_and_display_name(request, mapped_properties)
             )
+            email = mapped_properties['user'].get('email')
             user = identity_api.shadow_federated_user(identity_provider,
                                                       protocol, unique_id,
-                                                      display_name)
+                                                      display_name,
+                                                      email)
 
             if 'projects' in mapped_properties:
                 idp_domain_id = federation_api.get_idp(
