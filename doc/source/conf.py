@@ -45,8 +45,7 @@ sys.path.insert(0, os.path.abspath('./'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.coverage',
+extensions = ['sphinx.ext.coverage',
               'sphinx.ext.viewcode',
               'oslo_config.sphinxconfiggen',
               'oslo_config.sphinxext',
@@ -54,7 +53,17 @@ extensions = ['sphinx.ext.autodoc',
               'openstackdocstheme',
               'oslo_policy.sphinxext',
               'ext.support_matrix',
+              'sphinxcontrib.apidoc',
               ]
+
+# sphinxcontrib.apidoc options
+apidoc_module_dir = '../../keystone'
+apidoc_output_dir = 'api'
+apidoc_excluded_paths = [
+    'tests/*',
+    'tests',
+    'test']
+apidoc_separate_modules = True
 
 config_generator_config_file = '../../config-generator/keystone.conf'
 sample_config_basename = '_static/keystone'
