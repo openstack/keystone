@@ -51,13 +51,6 @@ Install and configure components
 
 .. include:: shared/note_configuration_vary_by_distribution.rst
 
-.. note::
-
-   This guide uses the Apache HTTP server with ``mod_wsgi`` to serve
-   Identity service requests on ports 5000 and 35357. By default, the
-   keystone service still listens on these ports. Therefore, this guide
-   manually disables the keystone service.
-
 #. Run the following command to install the packages:
 
    .. code-block:: console
@@ -117,10 +110,17 @@ Install and configure components
 
 5. Bootstrap the Identity service:
 
+   .. note::
+
+      Before the Queens release, keystone needed to be run on two separate ports to
+      accomodate the Identity v2 API which ran a separate admin-only service
+      commonly on port 35357. With the removal of the v2 API, keystone can be run
+      on the same port for all interfaces.
+
    .. code-block:: console
 
       # keystone-manage bootstrap --bootstrap-password ADMIN_PASS \
-        --bootstrap-admin-url http://controller:35357/v3/ \
+        --bootstrap-admin-url http://controller:5000/v3/ \
         --bootstrap-internal-url http://controller:5000/v3/ \
         --bootstrap-public-url http://controller:5000/v3/ \
         --bootstrap-region-id RegionOne
