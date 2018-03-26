@@ -130,9 +130,11 @@
         - keystone-dsvm-functional-v3-only
         - keystone-dsvm-py35-functional-v3-only
         - openstack-ansible-keystone-rolling-upgrade
+        - openstack-tox-lower-constraints
     gate:
       jobs:
         - keystone-dsvm-functional
+        - openstack-tox-lower-constraints
     experimental:
       jobs:
         - keystone-tox-patch_cover
