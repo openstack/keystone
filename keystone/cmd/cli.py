@@ -663,6 +663,67 @@ class FernetRotate(BasePermissionsSetup):
             tutils.rotate_keys(keystone_user_id, keystone_group_id)
 
 
+class TokenSetup(BasePermissionsSetup):
+    """Setup a key repository for tokens.
+
+    This also creates a primary key used for both creating and validating
+    tokens. To improve security, you should rotate your keys (using
+    keystone-manage token_rotate, for example).
+
+    """
+
+    name = 'token_setup'
+
+    @classmethod
+    def main(cls):
+        tutils = token_utils.TokenUtils(
+            # TODO(gagehugo) Change this to CONF.token
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
+        )
+
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        tutils.create_key_directory(keystone_user_id, keystone_group_id)
+        if tutils.validate_key_repository(requires_write=True):
+            tutils.initialize_key_repository(
+                keystone_user_id, keystone_group_id)
+
+
+class TokenRotate(BasePermissionsSetup):
+    """Rotate token encryption keys.
+
+    This assumes you have already run keystone-manage token_setup.
+
+    A new primary key is placed into rotation, which is used for new tokens.
+    The old primary key is demoted to secondary, which can then still be used
+    for validating tokens. Excess secondary keys (beyond [token]
+    max_active_keys) are revoked. Revoked keys are permanently deleted. A new
+    staged key will be created and used to validate tokens. The next time key
+    rotation takes place, the staged key will be put into rotation as the
+    primary key.
+
+    Rotating keys too frequently, or with [token] max_active_keys set
+    too low, will cause tokens to become invalid prior to their expiration.
+
+    """
+
+    name = 'token_rotate'
+
+    @classmethod
+    def main(cls):
+        tutils = token_utils.TokenUtils(
+            # TODO(gagehugo) Change this to CONF.token
+            CONF.fernet_tokens.key_repository,
+            CONF.fernet_tokens.max_active_keys,
+            'fernet_tokens'
+        )
+
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        if tutils.validate_key_repository(requires_write=True):
+            tutils.rotate_keys(keystone_user_id, keystone_group_id)
+
+
 class CredentialSetup(BasePermissionsSetup):
     """Setup a Fernet key repository for credential encryption.
 
@@ -1317,6 +1378,8 @@ CMDS = [
     MappingEngineTester,
     SamlIdentityProviderMetadata,
     TokenFlush,
+    TokenRotate,
+    TokenSetup
 ]
 
 
