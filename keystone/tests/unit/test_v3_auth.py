@@ -3671,8 +3671,7 @@ class TestAuthExternalDefaultDomain(object):
     def config_overrides(self):
         super(TestAuthExternalDefaultDomain, self).config_overrides()
         self.kerberos = False
-        self.auth_plugin_config_override(
-            external='keystone.auth.plugins.external.DefaultDomain')
+        self.auth_plugin_config_override(external='DefaultDomain')
 
     def test_remote_user_with_default_domain(self):
         api = auth.controllers.Auth()
