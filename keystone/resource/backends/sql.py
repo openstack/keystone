@@ -177,14 +177,17 @@ class Resource(base.ResourceDriverBase):
         with sql.session_for_read() as session:
             query = session.query(ProjectTag)
             if 'tags' in filters.keys():
-                filtered_ids += self._filter_ids_by_sorted_tags(
+                filtered_ids += self._filter_ids_by_tags(
                     query, filters['tags'].split(','))
             if 'tags-any' in filters.keys():
                 any_tags = filters['tags-any'].split(',')
                 subq = query.filter(ProjectTag.name.in_(any_tags))
-                filtered_ids += [ptag['project_id'] for ptag in subq]
+                any_tags = [ptag['project_id'] for ptag in subq]
+                if 'tags' in filters.keys():
+                    any_tags = set(any_tags) & set(filtered_ids)
+                filtered_ids = any_tags
             if 'not-tags' in filters.keys():
-                blacklist_ids = self._filter_ids_by_sorted_tags(
+                blacklist_ids = self._filter_ids_by_tags(
                     query, filters['not-tags'].split(','))
                 filtered_ids = self._filter_not_tags(session,
                                                      filtered_ids,
@@ -206,15 +209,14 @@ class Resource(base.ResourceDriverBase):
             return [project_ref.to_dict() for project_ref in query.all()
                     if not self._is_hidden_ref(project_ref)]
 
-    def _filter_ids_by_sorted_tags(self, query, tags):
+    def _filter_ids_by_tags(self, query, tags):
         filtered_ids = []
-        sorted_tags = sorted(tags)
-        subq = query.filter(ProjectTag.name.in_(sorted_tags))
+        subq = query.filter(ProjectTag.name.in_(tags))
         for ptag in subq:
             subq_tags = query.filter(ProjectTag.project_id ==
                                      ptag['project_id'])
             result = map(lambda x: x['name'], subq_tags.all())
-            if sorted(result) == sorted_tags:
+            if set(tags) <= set(result):
                 filtered_ids.append(ptag['project_id'])
         return filtered_ids
 

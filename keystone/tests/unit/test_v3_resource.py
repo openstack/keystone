@@ -740,10 +740,14 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     def test_list_projects_filtering_by_tags_any(self):
         """Call ``GET /projects?tags-any={tags}``."""
         project, tags = self._create_project_and_tags(num_of_tags=2)
+        project1, tags1 = self._create_project_and_tags(num_of_tags=2)
+        tag_string = tags[0] + ',' + tags1[0]
         resp = self.get('/projects?tags-any=%(values)s' % {
-            'values': tags[0]})
+            'values': tag_string})
+        pids = [p['id'] for p in resp.result['projects']]
         self.assertValidProjectListResponse(resp)
-        self.assertEqual(project['id'], resp.result['projects'][0]['id'])
+        self.assertIn(project['id'], pids)
+        self.assertIn(project1['id'], pids)
 
     def test_list_projects_filtering_by_not_tags(self):
         """Call ``GET /projects?not-tags={tags}``."""
@@ -753,11 +757,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         resp = self.get('/projects?not-tags=%(values)s' % {
             'values': tag_string})
         self.assertValidProjectListResponse(resp)
-        project_ids = []
-        for project in resp.result['projects']:
-            project_ids.append(project['id'])
-        self.assertNotIn(project1['id'], project_ids)
-        self.assertIn(project2['id'], project_ids)
+        pids = [p['id'] for p in resp.result['projects']]
+        self.assertNotIn(project1['id'], pids)
+        self.assertIn(project2['id'], pids)
 
     def test_list_projects_filtering_by_not_tags_any(self):
         """Call ``GET /projects?not-tags-any={tags}``."""
@@ -768,25 +770,30 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         resp = self.get('/projects?not-tags-any=%(values)s' % {
             'values': tag_string})
         self.assertValidProjectListResponse(resp)
-        project_ids = []
-        for project in resp.result['projects']:
-            project_ids.append(project['id'])
-        self.assertNotIn(project1['id'], project_ids)
-        self.assertNotIn(project2['id'], project_ids)
-        self.assertIn(project3['id'], project_ids)
+        pids = [p['id'] for p in resp.result['projects']]
+        self.assertNotIn(project1['id'], pids)
+        self.assertNotIn(project2['id'], pids)
+        self.assertIn(project3['id'], pids)
 
     def test_list_projects_filtering_multiple_tag_filters(self):
         """Call ``GET /projects?tags={tags}&tags-any={tags}``."""
-        project1, tags1 = self._create_project_and_tags()
+        project1, tags1 = self._create_project_and_tags(num_of_tags=2)
         project2, tags2 = self._create_project_and_tags(num_of_tags=2)
+        project3, tags3 = self._create_project_and_tags(num_of_tags=2)
+        tags1_query = ','.join(tags1)
+        resp = self.patch('/projects/%(project_id)s' %
+                          {'project_id': project3['id']},
+                          body={'project': {'tags': tags1}})
+        tags1.append(tags2[0])
+        resp = self.patch('/projects/%(project_id)s' %
+                          {'project_id': project1['id']},
+                          body={'project': {'tags': tags1}})
         url = '/projects?tags=%(value1)s&tags-any=%(value2)s'
-        resp = self.get(url % {'value1': tags1[0],
-                               'value2': tags2[0]})
+        resp = self.get(url % {'value1': tags1_query,
+                               'value2': ','.join(tags2)})
         self.assertValidProjectListResponse(resp)
-        pids = [project1['id'], project2['id']]
-        self.assertEqual(len(resp.result['projects']), 2)
-        for p in resp.result['projects']:
-            self.assertIn(p['id'], pids)
+        self.assertEqual(len(resp.result['projects']), 1)
+        self.assertIn(project1['id'], resp.result['projects'][0]['id'])
 
     def test_list_projects_filtering_multiple_any_tag_filters(self):
         """Call ``GET /projects?tags-any={tags}&not-tags-any={tags}``."""
