@@ -86,7 +86,8 @@ def convert_integer_to_method_list(method_int):
         # should have a list of integers that correspond to indexes in our
         # method_map and we can reinflate the methods that the original
         # method_int represents.
-        if (method_int / m_int) == 1:
+        result = int(method_int / m_int)
+        if result == 1:
             confirmed_methods.append(m_int)
             method_int = method_int - m_int
 
