@@ -1412,13 +1412,14 @@ class Manager(manager.Manager):
 
     @MEMOIZE
     def shadow_federated_user(self, idp_id, protocol_id, unique_id,
-                              display_name):
+                              display_name, email=None):
         """Map a federated user to a user.
 
         :param idp_id: identity provider id
         :param protocol_id: protocol id
         :param unique_id: unique id for the user within the IdP
         :param display_name: user's display name
+        :param email: user's email
 
         :returns: dictionary of the mapped User entity
         """
@@ -1428,6 +1429,10 @@ class Manager(manager.Manager):
                 idp_id, protocol_id, unique_id, display_name)
             user_dict = PROVIDERS.shadow_users_api.get_federated_user(
                 idp_id, protocol_id, unique_id)
+            if email:
+                user_ref = {"email": email}
+                self.update_user(user_dict['id'], user_ref)
+                user_dict.update({"email": email})
         except exception.UserNotFound:
             idp = PROVIDERS.federation_api.get_idp(idp_id)
             federated_dict = {
@@ -1438,7 +1443,7 @@ class Manager(manager.Manager):
             }
             user_dict = (
                 PROVIDERS.shadow_users_api.create_federated_user(
-                    idp['domain_id'], federated_dict
+                    idp['domain_id'], federated_dict, email=email
                 )
             )
         PROVIDERS.shadow_users_api.set_last_active_at(user_dict['id'])
