@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1759289 <https://bugs.launchpad.net/keystone/+bug/1759289>`_]
+    The ``keystone-manage token_flush`` command no longer establishes a
+    connection to a database, or persistence backend. It's usage should be
+    removed if you're using a supported non-persistent token format. If you're
+    relying on external token providers that write tokens to disk and would
+    like to maintain this functionality, please consider porting it to a
+    separate tool.

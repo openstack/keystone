@@ -39,7 +39,6 @@ from keystone.federation import idp
 from keystone.federation import utils as mapping_engine
 from keystone.i18n import _
 from keystone.server import backends
-from keystone import token
 
 
 CONF = keystone.conf.CONF
@@ -886,15 +885,14 @@ class TokenFlush(BaseApp):
 
     @classmethod
     def main(cls):
-        token_manager = token.persistence.PersistenceManager()
-        try:
-            token_manager.flush_expired_tokens()
-        except exception.NotImplemented:
-            # NOTE(ravelar159): Stop NotImplemented from unsupported token
-            # driver when using token_flush and print out warning instead
-            LOG.warning('Token driver %s does not support token_flush. '
-                        'The token_flush command had no effect.',
-                        CONF.token.driver)
+        LOG.warning(
+            'This command is deprecated and no longer needed with the '
+            'development of non-persistent token formats. It will be removed '
+            'in Stein. It is recommended that you remove usage of this '
+            'command or integrate it\'s functionality into a separate tool if '
+            'you are using an out-of-tree provider that relies on persistent '
+            'token storage.'
+        )
 
 
 class MappingPurge(BaseApp):
