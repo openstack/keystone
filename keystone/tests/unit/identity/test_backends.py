@@ -472,7 +472,26 @@ class IdentityTests(object):
                              comparator='equals')
         return hints
 
+    def _build_fed_resource(self):
+        # create one test mapping, two idps and two protocols for federation
+        # test.
+        new_mapping = unit.new_mapping_ref()
+        PROVIDERS.federation_api.create_mapping(new_mapping['id'], new_mapping)
+        for idp_id, protocol_id in [('ORG_IDP', 'saml2'),
+                                    ('myidp', 'mapped')]:
+            new_idp = unit.new_identity_provider_ref(idp_id=idp_id,
+                                                     domain_id='default')
+            new_protocol = unit.new_protocol_ref(protocol_id=protocol_id,
+                                                 idp_id=idp_id,
+                                                 mapping_id=new_mapping['id'])
+
+            PROVIDERS.federation_api.create_idp(new_idp['id'], new_idp)
+            PROVIDERS.federation_api.create_protocol(new_idp['id'],
+                                                     new_protocol['id'],
+                                                     new_protocol)
+
     def _test_list_users_with_attribute(self, filters, fed_dict):
+        self._build_fed_resource()
         domain = self._get_domain_fixture()
         # Call list_users while no match exists for the federated user
         hints = driver_hints.Hints()
@@ -556,6 +575,7 @@ class IdentityTests(object):
         self._test_list_users_with_attribute(filters, federated_dict)
 
     def test_list_users_with_name(self):
+        self._build_fed_resource()
         federated_dict_1 = unit.new_federated_user_ref(
             display_name='test1@federation.org')
         federated_dict_2 = unit.new_federated_user_ref(
@@ -1122,10 +1142,6 @@ class IdentityTests(object):
                 PROVIDERS.resource_api.update_domain(
                     domain['id'], {'enabled': False})
                 PROVIDERS.resource_api.delete_domain(domain['id'])
-
-        PROVIDERS.resource_api.create_domain(
-            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN
-        )
 
         self.domain_list = []
         create_domains(6)
