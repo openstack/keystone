@@ -80,6 +80,10 @@ Install and configure components
         Comment out or remove any other ``connection`` options in the
         ``[database]`` section.
 
+     .. note::
+
+        The host, ``controller`` in this example, must be resolvable.
+
    * In the ``[token]`` section, configure the Fernet token provider:
 
      .. path /etc/keystone/keystone.conf
