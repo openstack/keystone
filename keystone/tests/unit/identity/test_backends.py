@@ -24,7 +24,6 @@ from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import filtering
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -1107,8 +1106,6 @@ class IdentityTests(object):
                         matchers.StartsWith('domaingroup1'))
 
     @unit.skip_if_no_multiple_domains_support
-    @test_utils.wip('The root domain throws off the limit count by one',
-                    bug='#1760521')
     def test_list_limit_for_domains(self):
         def create_domains(count):
             for _ in range(count):
