@@ -20,6 +20,7 @@ from testtools import matchers
 
 from keystone.common import provider_api
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import test_v3
 
@@ -832,6 +833,9 @@ class TestCatalogAPISQL(unit.TestCase):
 
         self.create_endpoint(service_id=self.service_id)
 
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
+
     def create_endpoint(self, service_id, **kwargs):
         endpoint = unit.new_endpoint_ref(service_id=service_id,
                                          region_id=None, **kwargs)
@@ -929,6 +933,8 @@ class TestCatalogAPISQLRegions(unit.TestCase):
         super(TestCatalogAPISQLRegions, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
 
     def config_overrides(self):
         super(TestCatalogAPISQLRegions, self).config_overrides()
@@ -998,7 +1004,7 @@ class TestCatalogAPITemplatedProject(test_v3.RestfulTestCase):
         super(TestCatalogAPITemplatedProject, self).config_overrides()
         self.config_fixture.config(group='catalog', driver='templated')
 
-    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
+    def load_fixtures(self, fixtures):
         self.load_sample_data(create_region_and_endpoints=False)
 
     def test_project_delete(self):

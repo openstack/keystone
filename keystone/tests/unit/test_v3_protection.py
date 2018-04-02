@@ -64,7 +64,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
             user_id=self.user1['id'],
             password=self.user1['password'])
 
-    def load_sample_data(self, enable_sqlite_foreign_key=False):
+    def load_sample_data(self):
         self._populate_default_domain()
 
         # Start by creating a couple of domains
@@ -395,7 +395,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 class IdentityTestPolicySample(test_v3.RestfulTestCase):
     """Test policy enforcement of the policy.json file."""
 
-    def load_sample_data(self, enable_sqlite_foreign_key=False):
+    def load_sample_data(self):
         self._populate_default_domain()
 
         self.just_a_user = unit.create_user(
@@ -687,7 +687,7 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             )
         )
 
-    def load_sample_data(self, enable_sqlite_foreign_key=False):
+    def load_sample_data(self):
         # Start by creating a couple of domains
         self._populate_default_domain()
         self.domainA = unit.new_domain_ref()

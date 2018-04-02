@@ -28,6 +28,7 @@ import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.token import provider
@@ -57,6 +58,8 @@ class TestValidate(unit.TestCase):
         super(TestValidate, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
 
     def config_overrides(self):
         super(TestValidate, self).config_overrides()

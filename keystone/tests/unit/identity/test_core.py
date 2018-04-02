@@ -24,6 +24,7 @@ import keystone.conf
 from keystone import exception
 from keystone import identity
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
@@ -133,6 +134,8 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         super(TestDatabaseDomainConfigs, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
 
     def test_domain_config_in_database_disabled_by_default(self):
         self.assertFalse(CONF.identity.domain_configurations_from_database)

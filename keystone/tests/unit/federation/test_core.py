@@ -15,6 +15,7 @@ import uuid
 from keystone.common import provider_api
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import mapping_fixtures
 
@@ -27,6 +28,8 @@ class TestFederationProtocol(unit.TestCase):
         super(TestFederationProtocol, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
         self.idp = {
             'id': uuid.uuid4().hex,
             'enabled': True,

@@ -52,16 +52,14 @@ class RestfulTestCase(unit.TestCase):
     # default content type to test
     content_type = 'json'
 
-    def setUp(self, enable_sqlite_foreign_key=False):
+    def setUp(self):
         super(RestfulTestCase, self).setUp()
 
         self.auth_plugin_config_override()
 
-        self.useFixture(database.Database(
-            enable_sqlite_foreign_key=enable_sqlite_foreign_key))
+        self.useFixture(database.Database())
         self.load_backends()
-        self.load_fixtures(default_fixtures,
-                           enable_sqlite_foreign_key=enable_sqlite_foreign_key)
+        self.load_fixtures(default_fixtures)
 
         self.public_app = webtest.TestApp(
             self.loadapp(name='public'))

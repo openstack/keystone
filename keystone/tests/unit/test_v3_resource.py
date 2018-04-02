@@ -35,7 +35,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     """Test domains and projects."""
 
     def setUp(self):
-        super(ResourceTestCase, self).setUp(enable_sqlite_foreign_key=True)
+        super(ResourceTestCase, self).setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,

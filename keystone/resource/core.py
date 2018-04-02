@@ -102,7 +102,8 @@ class Manager(manager.Manager):
             was not satisfied.
         """
         if (not PROVIDERS.identity_api.multiple_domains_supported and
-                project_ref['id'] != CONF.identity.default_domain_id):
+                project_ref['id'] != CONF.identity.default_domain_id and
+                project_ref['id'] != base.NULL_DOMAIN_ID):
             raise exception.ValidationError(
                 message=_('Multiple domains are not supported'))
 
