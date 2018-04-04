@@ -128,7 +128,7 @@ Install and configure components
    .. note::
 
       Before the Queens release, keystone needed to be run on two separate ports to
-      accomodate the Identity v2 API which ran a separate admin-only service
+      accommodate the Identity v2 API which ran a separate admin-only service
       commonly on port 35357. With the removal of the v2 API, keystone can be run
       on the same port for all interfaces.
 
