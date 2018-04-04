@@ -21,6 +21,7 @@ projects, users, and roles.
       | enabled     | True                             |
       | id          | 2f4f80574fd84fe6ba9067228ae0a50c |
       | name        | example                          |
+      | tags        | []                               |
       +-------------+----------------------------------+
 
    .. end
@@ -44,6 +45,7 @@ projects, users, and roles.
       | is_domain   | False                            |
       | name        | service                          |
       | parent_id   | default                          |
+      | tags        | []                               |
       +-------------+----------------------------------+
 
    .. end
@@ -69,6 +71,7 @@ projects, users, and roles.
         | is_domain   | False                            |
         | name        | myproject                        |
         | parent_id   | default                          |
+        | tags        | []                               |
         +-------------+----------------------------------+
 
      .. end
