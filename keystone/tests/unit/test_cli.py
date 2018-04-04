@@ -101,21 +101,21 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def _do_test_bootstrap(self, bootstrap):
         bootstrap.do_bootstrap()
-        project = bootstrap.resource_manager.get_project_by_name(
+        project = PROVIDERS.resource_api.get_project_by_name(
             bootstrap.project_name,
             'default')
-        user = bootstrap.identity_manager.get_user_by_name(
+        user = PROVIDERS.identity_api.get_user_by_name(
             bootstrap.username,
             'default')
-        role = bootstrap.role_manager.get_role(bootstrap.role_id)
+        role = PROVIDERS.role_api.get_role(bootstrap.role_id)
         role_list = (
-            bootstrap.assignment_manager.get_roles_for_user_and_project(
+            PROVIDERS.assignment_api.get_roles_for_user_and_project(
                 user['id'],
                 project['id']))
         self.assertIs(1, len(role_list))
         self.assertEqual(role_list[0], role['id'])
         system_roles = (
-            bootstrap.assignment_manager.list_system_grants_for_user(
+            PROVIDERS.assignment_api.list_system_grants_for_user(
                 user['id']
             )
         )
@@ -123,17 +123,17 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self.assertEqual(system_roles[0]['id'], role['id'])
         # NOTE(morganfainberg): Pass an empty context, it isn't used by
         # `authenticate` method.
-        bootstrap.identity_manager.authenticate(
+        PROVIDERS.identity_api.authenticate(
             self.make_request(),
             user['id'],
             bootstrap.password)
 
         if bootstrap.region_id:
-            region = bootstrap.catalog_manager.get_region(bootstrap.region_id)
+            region = PROVIDERS.catalog_api.get_region(bootstrap.region_id)
             self.assertEqual(self.region_id, region['id'])
 
         if bootstrap.service_id:
-            svc = bootstrap.catalog_manager.get_service(bootstrap.service_id)
+            svc = PROVIDERS.catalog_api.get_service(bootstrap.service_id)
             self.assertEqual(self.service_name, svc['name'])
 
             self.assertEqual(set(['admin', 'public', 'internal']),
@@ -145,7 +145,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
             for interface, url in urls.items():
                 endpoint_id = bootstrap.endpoints[interface]
-                endpoint = bootstrap.catalog_manager.get_endpoint(endpoint_id)
+                endpoint = PROVIDERS.catalog_api.get_endpoint(endpoint_id)
 
                 self.assertEqual(self.region_id, endpoint['region_id'])
                 self.assertEqual(url, endpoint['url'])
@@ -226,10 +226,10 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self._do_test_bootstrap(bootstrap)
 
         # Completely lock the user out.
-        user_id = bootstrap.identity_manager.get_user_by_name(
+        user_id = PROVIDERS.identity_api.get_user_by_name(
             bootstrap.username,
             'default')['id']
-        bootstrap.identity_manager.update_user(
+        PROVIDERS.identity_api.update_user(
             user_id,
             {'enabled': False,
              'password': uuid.uuid4().hex})
@@ -238,7 +238,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self._do_test_bootstrap(bootstrap)
 
         # Sanity check that the original password works again.
-        bootstrap.identity_manager.authenticate(
+        PROVIDERS.identity_api.authenticate(
             self.make_request(),
             user_id,
             bootstrap.password)
@@ -296,68 +296,68 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
     def test_assignment_created_with_user_exists(self):
         # test assignment can be created if user already exists.
         bootstrap = cli.BootStrap()
-        bootstrap.resource_manager.create_domain(self.default_domain['id'],
-                                                 self.default_domain)
+        PROVIDERS.resource_api.create_domain(self.default_domain['id'],
+                                             self.default_domain)
         user_ref = unit.new_user_ref(self.default_domain['id'],
                                      name=self.username,
                                      password=self.password)
-        bootstrap.identity_manager.create_user(user_ref)
+        PROVIDERS.identity_api.create_user(user_ref)
+
         self._do_test_bootstrap(bootstrap)
 
     def test_assignment_created_with_project_exists(self):
         # test assignment can be created if project already exists.
         bootstrap = cli.BootStrap()
-        bootstrap.resource_manager.create_domain(self.default_domain['id'],
-                                                 self.default_domain)
+        PROVIDERS.resource_api.create_domain(self.default_domain['id'],
+                                             self.default_domain)
         project_ref = unit.new_project_ref(self.default_domain['id'],
                                            name=self.project_name)
-        bootstrap.resource_manager.create_project(project_ref['id'],
-                                                  project_ref)
+        PROVIDERS.resource_api.create_project(project_ref['id'], project_ref)
         self._do_test_bootstrap(bootstrap)
 
     def test_assignment_created_with_role_exists(self):
         # test assignment can be created if role already exists.
         bootstrap = cli.BootStrap()
-        bootstrap.resource_manager.create_domain(self.default_domain['id'],
-                                                 self.default_domain)
+        PROVIDERS.resource_api.create_domain(self.default_domain['id'],
+                                             self.default_domain)
         role = unit.new_role_ref(name=self.role_name)
-        bootstrap.role_manager.create_role(role['id'], role)
+        PROVIDERS.role_api.create_role(role['id'], role)
         self._do_test_bootstrap(bootstrap)
 
     def test_assignment_created_with_region_exists(self):
         # test assignment can be created if region already exists.
         bootstrap = cli.BootStrap()
-        bootstrap.resource_manager.create_domain(self.default_domain['id'],
-                                                 self.default_domain)
+        PROVIDERS.resource_api.create_domain(self.default_domain['id'],
+                                             self.default_domain)
         region = unit.new_region_ref(id=self.region_id)
-        bootstrap.catalog_manager.create_region(region)
+        PROVIDERS.catalog_api.create_region(region)
         self._do_test_bootstrap(bootstrap)
 
     def test_endpoints_created_with_service_exists(self):
         # test assignment can be created if service already exists.
         bootstrap = cli.BootStrap()
-        bootstrap.resource_manager.create_domain(self.default_domain['id'],
-                                                 self.default_domain)
+        PROVIDERS.resource_api.create_domain(self.default_domain['id'],
+                                             self.default_domain)
         service = unit.new_service_ref(name=self.service_name)
-        bootstrap.catalog_manager.create_service(service['id'], service)
+        PROVIDERS.catalog_api.create_service(service['id'], service)
         self._do_test_bootstrap(bootstrap)
 
     def test_endpoints_created_with_endpoint_exists(self):
-        # test assignment can be created if endpoint already exists.
         bootstrap = cli.BootStrap()
-        bootstrap.resource_manager.create_domain(self.default_domain['id'],
-                                                 self.default_domain)
+        # test assignment can be created if endpoint already exists.
+        PROVIDERS.resource_api.create_domain(self.default_domain['id'],
+                                             self.default_domain)
         service = unit.new_service_ref(name=self.service_name)
-        bootstrap.catalog_manager.create_service(service['id'], service)
+        PROVIDERS.catalog_api.create_service(service['id'], service)
 
         region = unit.new_region_ref(id=self.region_id)
-        bootstrap.catalog_manager.create_region(region)
+        PROVIDERS.catalog_api.create_region(region)
 
         endpoint = unit.new_endpoint_ref(interface='public',
                                          service_id=service['id'],
                                          url=self.public_url,
                                          region_id=self.region_id)
-        bootstrap.catalog_manager.create_endpoint(endpoint['id'], endpoint)
+        PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         self._do_test_bootstrap(bootstrap)
 

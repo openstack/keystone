@@ -26,6 +26,7 @@ from oslo_log import log
 from oslo_serialization import jsonutils
 import pbr.version
 
+from keystone.cmd import bootstrap
 from keystone.cmd import doctor
 from keystone.common import driver_hints
 from keystone.common import sql
@@ -62,20 +63,7 @@ class BootStrap(BaseApp):
     name = "bootstrap"
 
     def __init__(self):
-        self.load_backends()
-        self.project_id = uuid.uuid4().hex
-        self.role_id = uuid.uuid4().hex
-        self.service_id = None
-        self.service_name = None
-        self.username = None
-        self.project_name = None
-        self.role_name = None
-        self.password = None
-        self.public_url = None
-        self.internal_url = None
-        self.admin_url = None
-        self.region_id = None
-        self.endpoints = {}
+        self.bootstrapper = bootstrap.Bootstrapper()
 
     @classmethod
     def add_argument_parser(cls, subparsers):
@@ -124,15 +112,14 @@ class BootStrap(BaseApp):
                                   'process.'))
         return parser
 
-    def load_backends(self):
-        drivers = backends.load_backends()
-        self.resource_manager = drivers['resource_api']
-        self.identity_manager = drivers['identity_api']
-        self.assignment_manager = drivers['assignment_api']
-        self.catalog_manager = drivers['catalog_api']
-        self.role_manager = drivers['role_api']
+    def do_bootstrap(self):
+        """Perform the bootstrap actions.
 
-    def _get_config(self):
+        Create bootstrap user, project, and role so that CMS, humans, or
+        scripts can continue to perform initial setup (domains, projects,
+        services, endpoints, etc) of Keystone when standing up a new
+        deployment.
+        """
         self.username = (
             os.environ.get('OS_BOOTSTRAP_USERNAME') or
             CONF.command.bootstrap_username)
@@ -160,236 +147,28 @@ class BootStrap(BaseApp):
         self.region_id = (
             os.environ.get('OS_BOOTSTRAP_REGION_ID') or
             CONF.command.bootstrap_region_id)
-
-    def do_bootstrap(self):
-        """Perform the bootstrap actions.
-
-        Create bootstrap user, project, and role so that CMS, humans, or
-        scripts can continue to perform initial setup (domains, projects,
-        services, endpoints, etc) of Keystone when standing up a new
-        deployment.
-        """
-        self._get_config()
+        self.service_id = None
+        self.endpoints = None
 
         if self.password is None:
             print(_('Either --bootstrap-password argument or '
                     'OS_BOOTSTRAP_PASSWORD must be set.'))
             raise ValueError
 
-        # NOTE(morganfainberg): Ensure the default domain is in-fact created
-        default_domain = {
-            'id': CONF.identity.default_domain_id,
-            'name': 'Default',
-            'enabled': True,
-            'description': 'The default domain'
-        }
-        try:
-            self.resource_manager.create_domain(
-                domain_id=default_domain['id'],
-                domain=default_domain)
-            LOG.info('Created domain %s', default_domain['id'])
-        except exception.Conflict:
-            # NOTE(morganfainberg): Domain already exists, continue on.
-            LOG.info('Domain %s already exists, skipping creation.',
-                     default_domain['id'])
+        self.bootstrapper.admin_password = self.password
+        self.bootstrapper.admin_username = self.username
+        self.bootstrapper.project_name = self.project_name
+        self.bootstrapper.admin_role_name = self.role_name
+        self.bootstrapper.service_name = self.service_name
+        self.bootstrapper.service_id = self.service_id
+        self.bootstrapper.admin_url = self.admin_url
+        self.bootstrapper.public_url = self.public_url
+        self.bootstrapper.internal_url = self.internal_url
+        self.bootstrapper.region_id = self.region_id
 
-        try:
-            self.resource_manager.create_project(
-                project_id=self.project_id,
-                project={'enabled': True,
-                         'id': self.project_id,
-                         'domain_id': default_domain['id'],
-                         'description': 'Bootstrap project for initializing '
-                                        'the cloud.',
-                         'name': self.project_name}
-            )
-            LOG.info('Created project %s', self.project_name)
-        except exception.Conflict:
-            LOG.info('Project %s already exists, skipping creation.',
-                     self.project_name)
-            project = self.resource_manager.get_project_by_name(
-                self.project_name, default_domain['id'])
-            self.project_id = project['id']
-
-        # NOTE(morganfainberg): Do not create the user if it already exists.
-        try:
-            user = self.identity_manager.get_user_by_name(self.username,
-                                                          default_domain['id'])
-            LOG.info('User %s already exists, skipping creation.',
-                     self.username)
-
-            # If the user is not enabled, re-enable them. This also helps
-            # provide some useful logging output later.
-            update = {}
-            enabled = user['enabled']
-            if not enabled:
-                update['enabled'] = True
-
-            try:
-                self.identity_manager.driver.authenticate(
-                    user['id'], self.password
-                )
-            except AssertionError:
-                # This means that authentication failed and that we need to
-                # update the user's password. This is going to persist a
-                # revocation event that will make all previous tokens for the
-                # user invalid, which is OK because it falls within the scope
-                # of revocation. If a password changes, we shouldn't be able to
-                # use tokens obtained with an old password.
-                update['password'] = self.password
-
-            # Only make a call to update the user if the password has changed
-            # or the user was previously disabled. This allows bootstrap to act
-            # as a recovery tool, without having to create a new user.
-            if update:
-                user = self.identity_manager.update_user(user['id'], update)
-                LOG.info('Reset password for user %s.', self.username)
-                if not enabled and user['enabled']:
-                    # Although we always try to enable the user, this log
-                    # message only makes sense if we know that the user was
-                    # previously disabled.
-                    LOG.info('Enabled user %s.', self.username)
-        except exception.UserNotFound:
-            user = self.identity_manager.create_user(
-                user_ref={'name': self.username,
-                          'enabled': True,
-                          'domain_id': default_domain['id'],
-                          'password': self.password
-                          }
-            )
-            LOG.info('Created user %s', self.username)
-
-        # NOTE(morganfainberg): Do not create the role if it already exists.
-        try:
-            self.role_manager.create_role(
-                role_id=self.role_id,
-                role={'name': self.role_name,
-                      'id': self.role_id},
-            )
-            LOG.info('Created role %s', self.role_name)
-        except exception.Conflict:
-            LOG.info('Role %s exists, skipping creation.', self.role_name)
-            # NOTE(davechen): There is no backend method to get the role
-            # by name, so build the hints to list the roles and filter by
-            # name instead.
-            hints = driver_hints.Hints()
-            hints.add_filter('name', self.role_name)
-            role = self.role_manager.list_roles(hints)
-            self.role_id = role[0]['id']
-
-        # NOTE(morganfainberg): Handle the case that the role assignment has
-        # already occurred.
-        try:
-            self.assignment_manager.add_role_to_user_and_project(
-                user_id=user['id'],
-                tenant_id=self.project_id,
-                role_id=self.role_id
-            )
-            LOG.info('Granted %(role)s on %(project)s to user'
-                     ' %(username)s.',
-                     {'role': self.role_name,
-                      'project': self.project_name,
-                      'username': self.username})
-        except exception.Conflict:
-            LOG.info('User %(username)s already has %(role)s on '
-                     '%(project)s.',
-                     {'username': self.username,
-                      'role': self.role_name,
-                      'project': self.project_name})
-
-        # NOTE(lbragstad): We need to make sure a user has at least one role on
-        # the system. Otherwise it's possible for administrators to lock
-        # themselves out of system-level APIs in their deployment. This is
-        # considered backwards compatible because even if the assignment
-        # exists, it needs to be enabled through oslo.policy configuration
-        # options to be enforced.
-        try:
-            self.assignment_manager.create_system_grant_for_user(
-                user['id'], self.role_id
-            )
-            LOG.info('Granted %(role)s on the system to user'
-                     ' %(username)s.',
-                     {'role': self.role_name,
-                      'username': self.username})
-        except exception.Conflict:
-            LOG.info('User %(username)s already has %(role)s on '
-                     'the system.',
-                     {'username': self.username,
-                      'role': self.role_name})
-
-        if self.region_id:
-            try:
-                self.catalog_manager.create_region(
-                    region_ref={'id': self.region_id}
-                )
-                LOG.info('Created region %s', self.region_id)
-            except exception.Conflict:
-                LOG.info('Region %s exists, skipping creation.',
-                         self.region_id)
-
-        if self.public_url or self.admin_url or self.internal_url:
-            hints = driver_hints.Hints()
-            hints.add_filter('type', 'identity')
-            services = self.catalog_manager.list_services(hints)
-
-            if services:
-                service_ref = services[0]
-
-                hints = driver_hints.Hints()
-                hints.add_filter('service_id', service_ref['id'])
-                if self.region_id:
-                    hints.add_filter('region_id', self.region_id)
-
-                endpoints = self.catalog_manager.list_endpoints(hints)
-            else:
-                service_ref = {'id': uuid.uuid4().hex,
-                               'name': self.service_name,
-                               'type': 'identity',
-                               'enabled': True}
-
-                self.catalog_manager.create_service(
-                    service_id=service_ref['id'],
-                    service_ref=service_ref)
-
-                endpoints = []
-
-            self.service_id = service_ref['id']
-
-            available_interfaces = {e['interface']: e for e in endpoints}
-            expected_endpoints = {'public': self.public_url,
-                                  'internal': self.internal_url,
-                                  'admin': self.admin_url}
-
-            for interface, url in expected_endpoints.items():
-                if not url:
-                    # not specified to bootstrap command
-                    continue
-
-                try:
-                    endpoint_ref = available_interfaces[interface]
-                except KeyError:
-                    endpoint_ref = {'id': uuid.uuid4().hex,
-                                    'interface': interface,
-                                    'url': url,
-                                    'service_id': self.service_id,
-                                    'enabled': True}
-
-                    if self.region_id:
-                        endpoint_ref['region_id'] = self.region_id
-
-                    self.catalog_manager.create_endpoint(
-                        endpoint_id=endpoint_ref['id'],
-                        endpoint_ref=endpoint_ref)
-
-                    LOG.info('Created %(interface)s endpoint %(url)s',
-                             {'interface': interface, 'url': url})
-                else:
-                    # NOTE(jamielennox): electing not to update existing
-                    # endpoints here. There may be call to do so in future.
-                    LOG.info('Skipping %s endpoint as already created',
-                             interface)
-
-                self.endpoints[interface] = endpoint_ref['id']
+        self.bootstrapper.bootstrap()
+        self.role_id = self.bootstrapper.admin_role_id
+        self.project_id = self.bootstrapper.project_id
 
     @classmethod
     def main(cls):
