@@ -11,16 +11,25 @@
 # under the License.
 
 import copy
+import datetime
 import uuid
 
 from oslo_utils import timeutils
 from six.moves import range
 
+from keystone.common import provider_api
+from keystone.common import utils as ks_utils
+import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.models import token_model
+from keystone.tests.unit import base_classes
 from keystone.tests.unit import core
 from keystone.tests.unit import test_token_provider
+from keystone.token.providers import common as provider_common
+
+CONF = keystone.conf.CONF
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestKeystoneTokenModel(core.TestCase):
@@ -168,3 +177,411 @@ class TestKeystoneTokenModel(core.TestCase):
 
         token_data['is_admin_project'] = False
         self.assertFalse(token_data.is_admin_project)
+
+
+class TokenModelTests(base_classes.TestCaseWithBootstrap):
+
+    def setUp(self):
+        super(TokenModelTests, self).setUp()
+        self.admin_user_id = self.bootstrapper.admin_user_id
+        self.admin_username = self.bootstrapper.admin_username
+        self.admin_password = self.bootstrapper.admin_password
+        self.project_id = self.bootstrapper.project_id
+        self.project_name = self.bootstrapper.project_name
+        self.admin_role_id = self.bootstrapper.admin_role_id
+        self.member_role_id = self.bootstrapper.member_role_id
+        self.reader_role_id = self.bootstrapper.reader_role_id
+
+        self.token_id = uuid.uuid4().hex
+        issued_at = datetime.datetime.utcnow()
+        self.issued_at = ks_utils.isotime(at=issued_at, subsecond=True)
+
+    def assertTokenContainsRole(self, token, role):
+        """Ensure a role reference exists in a token's roles.
+
+        :param token: instance of ``keystone.models.token_model.TokenModel``
+        :param role: a dictionary reference of the expected role
+        """
+        self.assertIn(role, token.roles)
+
+    def test_audit_id_attributes(self):
+        token = token_model.TokenModel()
+        audit_id = provider_common.random_urlsafe_str()
+        token.audit_id = audit_id
+
+        self.assertTrue(len(token.audit_ids) == 1)
+
+        parent_audit_id = provider_common.random_urlsafe_str()
+        token.parent_audit_id = parent_audit_id
+
+        self.assertTrue(len(token.audit_ids) == 2)
+
+        self.assertEqual(audit_id, token.audit_ids[0])
+        self.assertEqual(parent_audit_id, token.audit_ids[-1])
+
+    def test_token_model_user_attributes(self):
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.user_domain_id = token.user['domain_id']
+
+        self.assertEqual(self.admin_user_id, token.user_id)
+        self.assertIsNotNone(token.user)
+        self.assertIsNotNone(token.user_domain)
+        self.assertEqual(self.admin_username, token.user['name'])
+        self.assertEqual(CONF.identity.default_domain_id, token.user_domain_id)
+        self.assertEqual(
+            CONF.identity.default_domain_id, token.user_domain['id']
+        )
+
+    def test_mint_unscoped_token(self):
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+
+        token.mint(self.token_id, self.issued_at)
+
+        self.assertTrue(token.unscoped)
+        self.assertTrue(len(token.roles) == 0)
+
+    def test_mint_system_scoped_token(self):
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.system = {'all': True}
+
+        token.mint(self.token_id, self.issued_at)
+
+        self.assertTrue(token.system_scoped)
+        self.assertFalse(token.domain_scoped)
+        self.assertFalse(token.project_scoped)
+        self.assertFalse(token.trust_scoped)
+        self.assertFalse(token.unscoped)
+
+        self.assertIsNotNone(token.system)
+        self.assertTrue(len(token.roles) == 1)
+        admin_role = {'id': self.admin_role_id, 'name': 'admin'}
+        self.assertTokenContainsRole(token, admin_role)
+
+    def test_mint_system_scoped_token_with_multiple_roles(self):
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.system = {'all': True}
+
+        self.assertTrue(token.system_scoped)
+        self.assertFalse(token.domain_scoped)
+        self.assertFalse(token.project_scoped)
+        self.assertFalse(token.trust_scoped)
+        self.assertFalse(token.unscoped)
+
+        role = core.new_role_ref()
+        PROVIDERS.role_api.create_role(role['id'], role)
+        role.pop('domain_id')
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.admin_user_id, role['id']
+        )
+
+        self.assertIsNotNone(token.system)
+        self.assertTrue(len(token.roles) == 2)
+        admin_role = {'id': self.admin_role_id, 'name': 'admin'}
+        self.assertTokenContainsRole(token, admin_role)
+        self.assertTokenContainsRole(token, role)
+
+    def test_mint_system_scoped_token_without_roles_fails(self):
+        user = core.new_user_ref(CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+
+        token = token_model.TokenModel()
+        token.user_id = user['id']
+        token.system = 'all'
+        token.audit_id = provider_common.random_urlsafe_str()
+
+        self.assertRaises(
+            exception.Unauthorized, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_system_token_with_effective_role_assignment(self):
+        user = core.new_user_ref(CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+
+        group = core.new_group_ref(CONF.identity.default_domain_id)
+        group = PROVIDERS.identity_api.create_group(group)
+
+        PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
+
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group['id'], self.admin_role_id
+        )
+
+        token = token_model.TokenModel()
+        token.user_id = user['id']
+        token.system = 'all'
+
+        token.mint(self.token_id, self.issued_at)
+
+        exp_role = {'id': self.admin_role_id, 'name': 'admin'}
+        self.assertTokenContainsRole(token, exp_role)
+
+    def test_mint_domain_scoped_token(self):
+        PROVIDERS.assignment_api.create_grant(
+            self.admin_role_id, user_id=self.admin_user_id,
+            domain_id=CONF.identity.default_domain_id
+        )
+
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.domain_id = CONF.identity.default_domain_id
+
+        token.mint(self.token_id, self.issued_at)
+
+        self.assertTrue(token.domain_scoped)
+        self.assertFalse(token.system_scoped)
+        self.assertFalse(token.project_scoped)
+        self.assertFalse(token.trust_scoped)
+        self.assertFalse(token.unscoped)
+
+        self.assertIsNotNone(token.domain)
+        exp_domain = PROVIDERS.resource_api.get_domain(
+            CONF.identity.default_domain_id
+        )
+        self.assertEqual(exp_domain['id'], token.domain_id)
+        self.assertEqual(exp_domain['name'], token.domain['name'])
+
+        self.assertTrue(len(token.roles) == 3)
+        exp_roles = [
+            {'id': self.admin_role_id, 'name': 'admin'},
+            {'id': self.member_role_id, 'name': 'member'},
+            {'id': self.reader_role_id, 'name': 'reader'}
+        ]
+        for role in exp_roles:
+            self.assertTokenContainsRole(token, role)
+
+    def test_mint_domain_scoped_token_fails_without_roles(self):
+        user = core.new_user_ref(CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+
+        token = token_model.TokenModel()
+        token.user_id = user['id']
+        token.domain_id = CONF.identity.default_domain_id
+        token.audit_id = provider_common.random_urlsafe_str()
+
+        self.assertRaises(
+            exception.Unauthorized, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_project_scoped_token(self):
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.project_id = self.project_id
+
+        token.mint(self.token_id, self.issued_at)
+
+        self.assertTrue(token.project_scoped)
+        self.assertFalse(token.system_scoped)
+        self.assertFalse(token.domain_scoped)
+        self.assertFalse(token.trust_scoped)
+        self.assertFalse(token.unscoped)
+
+        self.assertIsNotNone(token.project)
+        self.assertEqual(self.project_name, token.project['name'])
+
+        self.assertTrue(len(token.roles) == 3)
+        exp_roles = [
+            {'id': self.admin_role_id, 'name': 'admin'},
+            {'id': self.member_role_id, 'name': 'member'},
+            {'id': self.reader_role_id, 'name': 'reader'}
+        ]
+        for role in exp_roles:
+            self.assertTokenContainsRole(token, role)
+
+    def test_mint_project_scoped_token_fails_without_roles(self):
+        user = core.new_user_ref(CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+
+        token = token_model.TokenModel()
+        token.user_id = user['id']
+        token.project_id = self.project_id
+        token.audit_id = provider_common.random_urlsafe_str()
+
+        self.assertRaises(
+            exception.Unauthorized, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_project_scoped_token_fails_when_project_is_disabled(self):
+        PROVIDERS.resource_api.update_project(
+            self.project_id, {'enabled': False}
+        )
+
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.project_id = self.project_id
+        token.audit_id = provider_common.random_urlsafe_str()
+
+        self.assertRaises(
+            exception.ProjectNotFound, token.mint, self.token_id,
+            self.issued_at
+        )
+
+    def test_mint_project_scoped_token_fails_when_domain_is_disabled(self):
+        project = PROVIDERS.resource_api.get_project(self.project_id)
+        PROVIDERS.resource_api.update_domain(
+            project['domain_id'], {'enabled': False}
+        )
+
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.project_id = self.project_id
+        token.audit_id = provider_common.random_urlsafe_str()
+
+        self.assertRaises(
+            exception.DomainNotFound, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_application_credential_token(self):
+        app_cred = {
+            'id': uuid.uuid4().hex,
+            'name': 'monitoring-application',
+            'user_id': self.admin_user_id,
+            'roles': [{'id': self.admin_role_id}],
+            'project_id': self.project_id,
+            'secret': uuid.uuid4().hex
+        }
+
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred
+        )
+
+        token = token_model.TokenModel()
+        token.user_id = self.admin_user_id
+        token.application_credential_id = app_cred['id']
+        token.project_id = self.project_id
+
+        token.mint(self.token_id, self.issued_at)
+        self.assertIsNotNone(token.application_credential_id)
+        self.assertIsNotNone(token.application_credential)
+        exp_role = {'id': self.admin_role_id, 'name': 'admin'}
+        self.assertTokenContainsRole(token, exp_role)
+
+
+class TrustScopedTokenModelTests(TokenModelTests):
+
+    def setUp(self):
+        super(TrustScopedTokenModelTests, self).setUp()
+
+        trustor_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, core.new_domain_ref()
+        )
+        trustee_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, core.new_domain_ref()
+        )
+
+        self.trustor = PROVIDERS.identity_api.create_user(
+            core.new_user_ref(trustor_domain['id'])
+        )
+        self.trustee = PROVIDERS.identity_api.create_user(
+            core.new_user_ref(trustee_domain['id'])
+        )
+
+        PROVIDERS.assignment_api.create_grant(
+            self.admin_role_id, user_id=self.trustor['id'],
+            project_id=self.project_id
+        )
+
+    def test_mint_trust_scoped_token(self):
+        roles = [{'id': self.admin_role_id}]
+        trust = core.new_trust_ref(
+            self.trustor['id'], self.trustee['id'], project_id=self.project_id
+        )
+        trust = PROVIDERS.trust_api.create_trust(trust['id'], trust, roles)
+
+        token = token_model.TokenModel()
+        token.trust_id = trust['id']
+        token.user_id = self.trustee['id']
+
+        token.mint(self.token_id, self.issued_at)
+
+        self.assertEqual(self.trustee['id'], token.user_id)
+        self.assertEqual(self.trustee['id'], token.trustee['id'])
+        self.assertEqual(self.trustor['id'], token.trustor['id'])
+        self.assertEqual(self.project_id, token.trust_project['id'])
+        self.assertEqual(
+            CONF.identity.default_domain_id, token.trust_project_domain['id']
+        )
+        # NOTE(lbragstad): The domain key here should be removed once
+        # https://bugs.launchpad.net/keystone/+bug/1763510 is fixed.
+        exp_role = {
+            'id': self.admin_role_id, 'name': 'admin', 'domain_id': None
+        }
+        self.assertTokenContainsRole(token, exp_role)
+
+    def test_mint_trust_scoped_token_fails_when_trustee_domain_disabled(self):
+        roles = [{'id': self.admin_role_id}]
+        trust = core.new_trust_ref(
+            self.trustor['id'], self.trustee['id'], project_id=self.project_id
+        )
+        trust = PROVIDERS.trust_api.create_trust(trust['id'], trust, roles)
+
+        PROVIDERS.resource_api.update_domain(
+            self.trustee['domain_id'], {'enabled': False}
+        )
+
+        token = token_model.TokenModel()
+        token.trust_id = trust['id']
+        token.user_id = self.trustee['id']
+
+        self.assertRaises(
+            exception.TokenNotFound, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_trust_scoped_token_fails_when_trustor_domain_disabled(self):
+        roles = [{'id': self.admin_role_id}]
+        trust = core.new_trust_ref(
+            self.trustor['id'], self.trustee['id'], project_id=self.project_id
+        )
+        trust = PROVIDERS.trust_api.create_trust(trust['id'], trust, roles)
+
+        PROVIDERS.resource_api.update_domain(
+            self.trustor['domain_id'], {'enabled': False}
+        )
+
+        token = token_model.TokenModel()
+        token.trust_id = trust['id']
+        token.user_id = self.trustee['id']
+
+        self.assertRaises(
+            exception.TokenNotFound, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_trust_scoped_token_fails_when_trustor_is_disabled(self):
+        roles = [{'id': self.admin_role_id}]
+        trust = core.new_trust_ref(
+            self.trustor['id'], self.trustee['id'], project_id=self.project_id
+        )
+        trust = PROVIDERS.trust_api.create_trust(trust['id'], trust, roles)
+
+        PROVIDERS.identity_api.update_user(
+            self.trustor['id'], {'enabled': False}
+        )
+
+        token = token_model.TokenModel()
+        token.trust_id = trust['id']
+        token.user_id = self.trustee['id']
+
+        self.assertRaises(
+            exception.Forbidden, token.mint, self.token_id, self.issued_at
+        )
+
+    def test_mint_trust_scoped_token_with_mismatching_users_fails(self):
+        user = core.new_user_ref(CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+
+        roles = [{'id': self.admin_role_id}]
+        trust = core.new_trust_ref(
+            self.trustor['id'], self.trustee['id'], project_id=self.project_id
+        )
+        trust = PROVIDERS.trust_api.create_trust(trust['id'], trust, roles)
+
+        token = token_model.TokenModel()
+        token.trust_id = trust['id']
+        token.user_id = user['id']
+
+        self.assertRaises(
+            exception.Forbidden, token.mint, self.token_id, self.issued_at
+        )
