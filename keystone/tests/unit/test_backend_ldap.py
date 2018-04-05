@@ -3044,6 +3044,12 @@ class DomainSpecificLDAPandSQLIdentity(
         self.skip_test_overrides(
             'Restricted multi LDAP class does not support multiple domains')
 
+    def test_list_limit_for_domains(self):
+        # With this restricted multi LDAP class, tests that use multiple
+        # domains and identity, are still not supported
+        self.skip_test_overrides(
+            'Restricted multi LDAP class does not support multiple domains')
+
 
 class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
     """Class to test simplest use of domain-specific SQL driver.
