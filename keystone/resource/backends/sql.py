@@ -81,9 +81,9 @@ class Resource(base.ResourceDriverBase):
                 f['value'] = base.NULL_DOMAIN_ID
         with sql.session_for_read() as session:
             query = session.query(Project)
+            query = query.filter(Project.id != base.NULL_DOMAIN_ID)
             project_refs = sql.filter_limit_query(Project, query, hints)
-            return [project_ref.to_dict() for project_ref in project_refs
-                    if not self._is_hidden_ref(project_ref)]
+            return [project_ref.to_dict() for project_ref in project_refs]
 
     def list_projects_from_ids(self, ids):
         if not ids:

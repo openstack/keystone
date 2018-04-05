@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1760521 <https://bugs.launchpad.net/keystone/+bug/1760521>`_]
+    Fixed the bug that the result count for ``domain list`` may lack one if
+    the config option ``list_limit`` in [resource] is set.
