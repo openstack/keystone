@@ -459,6 +459,25 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             password=new_password)
         self.v3_create_token(new_password_auth)
 
+    def test_admin_password_reset_with_password_lock(self):
+        # create user
+        user_ref = unit.create_user(PROVIDERS.identity_api,
+                                    domain_id=self.domain['id'])
+        lock_pw_opt = options.LOCK_PASSWORD_OPT.option_name
+        update_user_body = {'user': {'options': {lock_pw_opt: True}}}
+        self.patch('/users/%s' % user_ref['id'], body=update_user_body)
+
+        # administrative password reset
+        new_password = uuid.uuid4().hex
+        r = self.patch('/users/%s' % user_ref['id'],
+                       body={'user': {'password': new_password}})
+        self.assertValidUserResponse(r, user_ref)
+        # authenticate with new password
+        new_password_auth = self.build_authentication_request(
+            user_id=user_ref['id'],
+            password=new_password)
+        self.v3_create_token(new_password_auth)
+
     def test_update_user_domain_id(self):
         """Call ``PATCH /users/{user_id}`` with domain_id.
 
@@ -768,6 +787,59 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
             self.change_password(password=uuid.uuid4().hex,
                                  original_password=new_password,
                                  expected_status=http_client.NO_CONTENT)
+
+    def test_changing_password_with_password_lock(self):
+        password = uuid.uuid4().hex
+        ref = unit.new_user_ref(domain_id=self.domain_id, password=password)
+        response = self.post('/users', body={'user': ref})
+        user_id = response.json_body['user']['id']
+
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_datetime:
+            # Lock the user's password
+            lock_pw_opt = options.LOCK_PASSWORD_OPT.option_name
+            user_patch = {'user': {'options': {lock_pw_opt: True}}}
+            self.patch('/users/%s' % user_id, body=user_patch)
+
+            # Fail, password is locked
+            new_password = uuid.uuid4().hex
+            body = {
+                'user': {
+                    'original_password': password,
+                    'password': new_password
+                }
+            }
+            path = '/users/%s/password' % user_id
+            self.post(path, body=body, expected_status=http_client.BAD_REQUEST)
+
+            # Unlock the password, and change should work
+            user_patch['user']['options'][lock_pw_opt] = False
+            self.patch('/users/%s' % user_id, body=user_patch)
+
+            path = '/users/%s/password' % user_id
+            self.post(path, body=body, expected_status=http_client.NO_CONTENT)
+
+            frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
+
+            auth_data = self.build_authentication_request(
+                user_id=user_id,
+                password=new_password
+            )
+            self.v3_create_token(
+                auth_data, expected_status=http_client.CREATED
+            )
+
+            path = '/users/%s' % user_id
+            user = self.get(path).json_body['user']
+            self.assertIn(lock_pw_opt, user['options'])
+            self.assertFalse(user['options'][lock_pw_opt])
+
+            # Completely unset the option from the user's reference
+            user_patch['user']['options'][lock_pw_opt] = None
+            self.patch('/users/%s' % user_id, body=user_patch)
+            path = '/users/%s' % user_id
+            user = self.get(path).json_body['user']
+            self.assertNotIn(lock_pw_opt, user['options'])
 
     def test_changing_password_with_missing_original_password_fails(self):
         r = self.change_password(password=uuid.uuid4().hex,

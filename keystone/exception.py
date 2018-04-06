@@ -119,6 +119,13 @@ class PasswordAgeValidationError(PasswordValidationError):
                        "reset your password.")
 
 
+class PasswordSelfServiceDisabled(PasswordValidationError):
+    message_format = _("You cannot change your password at this time due "
+                       "to password policy disallowing password changes. "
+                       "Please contact your administrator to reset your "
+                       "password.")
+
+
 class SchemaValidationError(ValidationError):
     # NOTE(lbragstad): For whole OpenStack message consistency, this error
     # message has been written in a format consistent with WSME.

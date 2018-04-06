@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1755874 <https://bugs.launchpad.net/keystone/+bug/1755874>`_]
+    Users now can have the resource option ``lock_password`` set which prevents
+    the user from utilizing the self-service password change API. Valid
+    values are ``True``, ``False``, or "None" (where ``None`` clears the
+    option).
+
