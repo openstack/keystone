@@ -4,3 +4,8 @@ other:
     [`blueprint removed-as-of-rocky <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-rocky>`_]
     The ``sql`` token driver and ``uuid`` token providers have been removed
     in favor of the ``fernet`` token provider.
+  - >
+    [`blueprint removed-as-of-rocky <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-rocky>`_]
+    Removed support for direct import of authentication drivers. If you're
+    using full path names for authentication methods in configuration, please
+    update your configuration to use the corresponding namespaces.

@@ -15,6 +15,7 @@
 import uuid
 
 import mock
+import stevedore
 
 from keystone import auth
 from keystone.auth.plugins import base
@@ -26,10 +27,6 @@ from keystone.tests.unit.ksfixtures import auth_plugins
 
 # for testing purposes only
 METHOD_NAME = 'simple_challenge_response'
-METHOD_OPTS = {
-    METHOD_NAME:
-        'keystone.tests.unit.test_auth_plugin.SimpleChallengeResponse',
-}
 EXPECTED_RESPONSE = uuid.uuid4().hex
 DEMO_USER_ID = uuid.uuid4().hex
 
@@ -66,11 +63,19 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
                           auth.core.AuthInfo.create,
                           auth_data)
 
-    def test_addition_auth_steps(self):
+    @mock.patch.object(auth.core, '_get_auth_driver_manager')
+    def test_addition_auth_steps(self, stevedore_mock):
+        simple_challenge_plugin = SimpleChallengeResponse()
+        extension = stevedore.extension.Extension(
+            name='simple_challenge', entry_point=None, plugin=None,
+            obj=simple_challenge_plugin
+        )
+        test_manager = stevedore.DriverManager.make_test_instance(extension)
+        stevedore_mock.return_value = test_manager
+
         self.useFixture(
             auth_plugins.ConfigAuthPlugins(self.config_fixture,
-                                           methods=[METHOD_NAME],
-                                           **METHOD_OPTS))
+                                           methods=[METHOD_NAME]))
         self.useFixture(auth_plugins.LoadAuthPlugins(METHOD_NAME))
 
         auth_data = {'methods': [METHOD_NAME]}

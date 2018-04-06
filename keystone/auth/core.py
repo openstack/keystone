@@ -14,8 +14,6 @@ from functools import partial
 import sys
 
 from oslo_log import log
-from oslo_log import versionutils
-from oslo_utils import importutils
 import six
 import stevedore
 
@@ -37,28 +35,15 @@ AUTH_METHODS = {}
 AUTH_PLUGINS_LOADED = False
 
 
+def _get_auth_driver_manager(namespace, plugin_name):
+    return stevedore.DriverManager(namespace, plugin_name, invoke_on_load=True)
+
+
 def load_auth_method(method):
     plugin_name = CONF.auth.get(method) or 'default'
     namespace = 'keystone.auth.%s' % method
-    try:
-        driver_manager = stevedore.DriverManager(namespace, plugin_name,
-                                                 invoke_on_load=True)
-        return driver_manager.driver
-    except RuntimeError:
-        LOG.debug('Failed to load the %s driver (%s) using stevedore, will '
-                  'attempt to load using import_object instead.',
-                  method, plugin_name)
-
-    driver = importutils.import_object(plugin_name)
-
-    msg = (_(
-        'Direct import of auth plugin %(name)r is deprecated as of Liberty in '
-        'favor of its entrypoint from %(namespace)r and may be removed in '
-        'N.') %
-        {'name': plugin_name, 'namespace': namespace})
-    versionutils.report_deprecated_feature(LOG, msg)
-
-    return driver
+    driver_manager = _get_auth_driver_manager(namespace, plugin_name)
+    return driver_manager.driver
 
 
 def load_auth_methods():
