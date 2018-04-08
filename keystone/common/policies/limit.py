@@ -47,12 +47,12 @@ limit_policies = [
         operations=[{'path': '/v3/limits',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
-        name=base.IDENTITY % 'update_limits',
+        name=base.IDENTITY % 'update_limit',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system'],
-        description='Update limits.',
+        description='Update limit.',
         operations=[{'path': '/v3/limits/{limit_id}',
-                     'method': 'PUT'}]),
+                     'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_limit',
         check_str=base.RULE_ADMIN_REQUIRED,

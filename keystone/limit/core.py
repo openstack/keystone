@@ -61,13 +61,13 @@ class Manager(manager.Manager):
             self._assert_resource_exist(registered_limit, 'registered_limit')
         return self.driver.create_registered_limits(registered_limits)
 
-    def update_registered_limits(self, registered_limits):
-        for registered_limit in registered_limits:
-            self._assert_resource_exist(registered_limit, 'registered_limit')
-        self.driver.update_registered_limits(registered_limits)
-        for registered_limit in registered_limits:
-            self.get_registered_limit.invalidate(self, registered_limit['id'])
-        return self.list_registered_limits()
+    def update_registered_limit(self, registered_limit_id, registered_limit):
+        self._assert_resource_exist(registered_limit, 'registered_limit')
+        updated_registered_limit = self.driver.update_registered_limit(
+            registered_limit_id, registered_limit)
+        self.get_registered_limit.invalidate(self,
+                                             updated_registered_limit['id'])
+        return updated_registered_limit
 
     @manager.response_truncated
     def list_registered_limits(self, hints=None):
@@ -87,13 +87,11 @@ class Manager(manager.Manager):
             self._assert_resource_exist(limit, 'limit')
         return self.driver.create_limits(limits)
 
-    def update_limits(self, limits):
-        for limit in limits:
-            self._assert_resource_exist(limit, 'limit')
-        self.driver.update_limits(limits)
-        for limit in limits:
-            self.get_limit.invalidate(self, limit['id'])
-        return self.list_limits()
+    def update_limit(self, limit_id, limit):
+        self._assert_resource_exist(limit, 'limit')
+        updated_limit = self.driver.update_limit(limit_id, limit)
+        self.get_limit.invalidate(self, updated_limit['id'])
+        return updated_limit
 
     @manager.response_truncated
     def list_limits(self, hints=None):

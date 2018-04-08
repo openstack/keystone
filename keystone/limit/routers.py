@@ -26,7 +26,6 @@ class Routers(wsgi.RoutersBase):
             mapper, controllers.RegisteredLimitV3(),
             path='/registered_limits',
             post_action='create_registered_limits',
-            put_action='update_registered_limits',
             get_head_action='list_registered_limits',
             status=json_home.Status.EXPERIMENTAL,
             rel=json_home.build_v3_resource_relation('registered_limits')
@@ -36,6 +35,7 @@ class Routers(wsgi.RoutersBase):
             mapper, controllers.RegisteredLimitV3(),
             path='/registered_limits/{registered_limit_id}',
             get_head_action='get_registered_limit',
+            patch_action='update_registered_limit',
             delete_action='delete_registered_limit',
             status=json_home.Status.EXPERIMENTAL,
             rel=json_home.build_v3_resource_relation('registered_limits'),
@@ -48,7 +48,6 @@ class Routers(wsgi.RoutersBase):
             mapper, controllers.LimitV3(),
             path='/limits',
             post_action='create_limits',
-            put_action='update_limits',
             get_head_action='list_limits',
             status=json_home.Status.EXPERIMENTAL,
             rel=json_home.build_v3_resource_relation('limits')
@@ -58,6 +57,7 @@ class Routers(wsgi.RoutersBase):
             mapper, controllers.LimitV3(),
             path='/limits/{limit_id}',
             get_head_action='get_limit',
+            patch_action='update_limit',
             delete_action='delete_limit',
             status=json_home.Status.EXPERIMENTAL,
             rel=json_home.build_v3_resource_relation('limits'),
