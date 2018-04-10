@@ -20,7 +20,7 @@ is_multiple_choices = testtools.matchers.Equals(
     requests.status_codes.codes.multiple_choices)
 is_ok = testtools.matchers.Equals(requests.status_codes.codes.ok)
 
-versions = ('v2.0', 'v3')
+versions = ['v3']
 
 
 class TestServerRunning(functests.BaseTestCase):
