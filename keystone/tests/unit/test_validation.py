@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import uuid
 
 from keystone.application_credential import schema as app_cred_schema
@@ -107,6 +108,43 @@ _VALID_FILTERS = [{'interface': 'admin'},
 _INVALID_FILTERS = ['some string', 1, 0, True, False]
 
 _INVALID_NAMES = [True, 24, ' ', '']
+
+
+class CommonValidationTestCase(unit.BaseTestCase):
+
+    def test_nullable_type_only(self):
+        bool_without_enum = copy.deepcopy(parameter_types.boolean)
+        bool_without_enum.pop('enum')
+        schema_type_only = {
+            'type': 'object',
+            'properties': {'test': validation.nullable(bool_without_enum)},
+            'additionalProperties': False,
+            'required': ['test']}
+
+        # Null should be in the types
+        self.assertIn('null', schema_type_only['properties']['test']['type'])
+        # No Enum, and nullable should not have added it.
+        self.assertNotIn('enum', schema_type_only['properties']['test'].keys())
+        validator = validators.SchemaValidator(schema_type_only)
+        reqs_to_validate = [{'test': val} for val in [True, False, None]]
+        for req in reqs_to_validate:
+            validator.validate(req)
+
+    def test_nullable_with_enum(self):
+        schema_with_enum = {
+            'type': 'object',
+            'properties': {
+                'test': validation.nullable(parameter_types.boolean)},
+            'additionalProperties': False,
+            'required': ['test']}
+
+        # Null should be in enum and type
+        self.assertIn('null', schema_with_enum['properties']['test']['type'])
+        self.assertIn(None, schema_with_enum['properties']['test']['enum'])
+        validator = validators.SchemaValidator(schema_with_enum)
+        reqs_to_validate = [{'test': val} for val in [True, False, None]]
+        for req in reqs_to_validate:
+            validator.validate(req)
 
 
 class EntityValidationTestCase(unit.BaseTestCase):
@@ -1945,9 +1983,7 @@ class UserValidationTestCase(unit.BaseTestCase):
                 ro.IGNORE_CHANGE_PASSWORD_OPT.option_name: None
             }
         }
-        self.assertRaises(exception.SchemaValidationError,
-                          self.create_user_validator.validate,
-                          request_to_validate)
+        self.create_user_validator.validate(request_to_validate)
 
     def test_user_update_with_options_change_password_required(self):
         request_to_validate = {
