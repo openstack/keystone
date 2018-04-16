@@ -46,6 +46,20 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def generate_token_schema(self, system_scoped=False, domain_scoped=False,
                               project_scoped=False):
         """Return a dictionary of token properties to validate against."""
+        ROLES_SCHEMA = {
+            'type': 'array',
+            'items': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'string', },
+                    'name': {'type': 'string', },
+                },
+                'required': ['id', 'name', ],
+                'additionalProperties': False,
+            },
+            'minItems': 1,
+        }
+
         properties = {
             'audit_ids': {
                 'type': 'array',
@@ -111,34 +125,10 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                     'all': {'type': 'boolean'}
                 }
             }
-            properties['roles'] = {
-                'type': 'array',
-                'items': {
-                    'type': 'object',
-                    'properties': {
-                        'id': {'type': 'string', },
-                        'name': {'type': 'string', },
-                    },
-                    'required': ['id', 'name', ],
-                    'additionalProperties': False,
-                },
-                'minItems': 1,
-            }
+            properties['roles'] = ROLES_SCHEMA
         elif domain_scoped:
             properties['catalog'] = {'type': 'array'}
-            properties['roles'] = {
-                'type': 'array',
-                'items': {
-                    'type': 'object',
-                    'properties': {
-                        'id': {'type': 'string', },
-                        'name': {'type': 'string', },
-                    },
-                    'required': ['id', 'name', ],
-                    'additionalProperties': False,
-                },
-                'minItems': 1,
-            }
+            properties['roles'] = ROLES_SCHEMA
             properties['domain'] = {
                 'type': 'object',
                 'required': ['id', 'name'],
@@ -151,7 +141,12 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         elif project_scoped:
             properties['is_admin_project'] = {'type': 'boolean'}
             properties['catalog'] = {'type': 'array'}
-            properties['roles'] = {'type': 'array'}
+            # FIXME(lbragstad): Remove this in favor of the predefined
+            # ROLES_SCHEMA dictionary once bug 1763510 is fixed.
+            ROLES_SCHEMA['items']['properties']['domain_id'] = {
+                'type': ['null', 'string', ],
+            }
+            properties['roles'] = ROLES_SCHEMA
             properties['is_domain'] = {'type': 'boolean'}
             properties['project'] = {
                 'type': ['object'],
