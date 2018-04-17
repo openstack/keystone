@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    [`bug 1760205 <https://bugs.launchpad.net/keystone/+bug/1760205>`_]
+    When deleting a shadow user, the related cache info is not invalidated so
+    that Keystone will raise 404 UserNotFound error when authenticating with
+    the previous federation info. This bug has been fixed now.
+
+other:
+  - |
+    A new interface called `list_federated_users_info` is added to shadow
+    backend. It's used to get the shadow user information internally. If you
+    are maintaining any out-tree shadow backends, please implement this
+    function for them as well.
