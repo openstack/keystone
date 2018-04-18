@@ -12,10 +12,13 @@
 # under the License.
 
 from keystone.common import controller
+from keystone.common import provider_api
 from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
 from keystone.limit import schema
+
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class RegisteredLimitV3(controller.V3Controller):
@@ -83,7 +86,7 @@ class LimitV3(controller.V3Controller):
         validation.lazy_validate(schema.limit_create, limits)
         limits = [self._assign_unique_id(self._normalize_dict(limit))
                   for limit in limits]
-        refs = self.unified_limit_api.create_limits(limits)
+        refs = PROVIDERS.unified_limit_api.create_limits(limits)
         refs = LimitV3.wrap_collection(request.context_dict, refs)
         refs.pop("links")
         return refs
@@ -91,7 +94,7 @@ class LimitV3(controller.V3Controller):
     @controller.protected()
     def update_limits(self, request, limits):
         validation.lazy_validate(schema.limit_update, limits)
-        refs = self.unified_limit_api.update_limits(
+        refs = PROVIDERS.unified_limit_api.update_limits(
             [self._normalize_dict(limit) for limit in limits])
         refs = LimitV3.wrap_collection(request.context_dict, refs)
         refs.pop("links")
@@ -107,12 +110,12 @@ class LimitV3(controller.V3Controller):
             project_id = context.project_id
             if project_id:
                 hints.add_filter('project_id', project_id)
-        refs = self.unified_limit_api.list_limits(hints)
+        refs = PROVIDERS.unified_limit_api.list_limits(hints)
         return LimitV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.protected()
     def get_limit(self, request, limit_id):
-        ref = self.unified_limit_api.get_limit(limit_id)
+        ref = PROVIDERS.unified_limit_api.get_limit(limit_id)
         # TODO(wxy): Add system-scope check. If the request is system-scoped,
         # it can get any limits.
         context = request.context
@@ -127,4 +130,4 @@ class LimitV3(controller.V3Controller):
 
     @controller.protected()
     def delete_limit(self, request, limit_id):
-        return self.unified_limit_api.delete_limit(limit_id)
+        return PROVIDERS.unified_limit_api.delete_limit(limit_id)
