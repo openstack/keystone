@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1763824 <https://bugs.launchpad.net/keystone/+bug/1763824>`_]
+    JSON Schema implementation ``nullable`` in keystone.common.validation now
+    properly adds ``None`` to the enum if the enum exists.
