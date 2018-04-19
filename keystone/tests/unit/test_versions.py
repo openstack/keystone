@@ -623,6 +623,10 @@ V3_JSON_HOME_RESOURCES = {
         },
         'hints': {'status': 'experimental'}
     },
+    json_home.build_v3_resource_relation('limit_model'): {
+        'href': '/limits/model',
+        'hints': {'status': 'experimental'}
+    },
     json_home.build_v3_resource_relation('application_credential'): {
         'href-template': APPLICATION_CREDENTIAL,
         'href-vars': {

@@ -55,6 +55,14 @@ class Routers(wsgi.RoutersBase):
 
         self._add_resource(
             mapper, controllers.LimitV3(),
+            path='/limits/model',
+            get_head_action='get_limit_model',
+            status=json_home.Status.EXPERIMENTAL,
+            rel=json_home.build_v3_resource_relation('limit_model')
+        )
+
+        self._add_resource(
+            mapper, controllers.LimitV3(),
             path='/limits/{limit_id}',
             get_head_action='get_limit',
             patch_action='update_limit',

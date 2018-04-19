@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1765193 <https://bugs.launchpad.net/keystone/+bug/1765193>`_]
+    The unified limit API now exposes a deployment's configured enforcement
+    model via the ``GET /limits/model`` endpoint.

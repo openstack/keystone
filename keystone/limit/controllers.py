@@ -80,6 +80,11 @@ class LimitV3(controller.V3Controller):
         self.get_member_from_driver = self.unified_limit_api.get_limit
 
     @controller.protected()
+    def get_limit_model(self, request):
+        model = PROVIDERS.unified_limit_api.get_model()
+        return {'model': model}
+
+    @controller.protected()
     def create_limits(self, request, limits):
         validation.lazy_validate(schema.limit_create, limits)
         limits = [self._assign_unique_id(self._normalize_dict(limit))

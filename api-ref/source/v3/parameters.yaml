@@ -1132,6 +1132,22 @@ limit_id:
   in: body
   required: true
   type: string
+limit_model_description_required_response_body:
+  description: A short description of the enforcement model used
+  in: body
+  required: true
+  type: string
+limit_model_name_required_response_body:
+  description: The name of the enforcement model
+  in: body
+  required: true
+  type: string
+limit_model_required_response_body:
+  description: A model object describing the configured enforcement model used
+    by the deployment.
+  in: body
+  required: true
+  type: object
 limits:
   description: |
     A list of ``limits`` objects

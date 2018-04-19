@@ -306,6 +306,46 @@ Status Codes
    - 404
 
 
+Get Enforcement Model
+=====================
+
+.. rest_method::  GET /v3/limits/model
+
+Return the configured limit enforcement model.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/limit_model``
+
+Response
+--------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - model: limit_model_required_response_body
+   - name: limit_model_name_required_response_body
+   - description: limit_model_description_required_response_body
+
+Status Codes
+~~~~~~~~~~~~
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 403
+
+Flat Enforcement Example
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/admin/limit-flat-model-response.json
+   :language: javascript
+
+
 List Limits
 ===========
 

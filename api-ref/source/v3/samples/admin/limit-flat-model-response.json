@@ -1,0 +1,6 @@
+{
+    "model": {
+        "description": "Limit enforcement and validation does not take project hierarchy into consideration.",
+        "name": "flat"
+    }
+}
