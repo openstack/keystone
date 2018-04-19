@@ -47,6 +47,17 @@ be useful to tune if you have a large number of unified limits in your
 deployment.
 """))
 
+enforcement_model = cfg.StrOpt(
+    'enforcement_model',
+    default='flat',
+    choices=['flat'],
+    help=utils.fmt("""
+The enforcement model to use when validating limits associated to projects.
+Enforcement models will behave differently depending on the existing limits,
+which may result in backwards incompatible changes if a model is switched in a
+running deployment.
+"""))
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -54,6 +65,7 @@ ALL_OPTS = [
     caching,
     cache_time,
     list_limit,
+    enforcement_model,
 ]
 
 
