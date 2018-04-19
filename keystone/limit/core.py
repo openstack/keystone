@@ -18,6 +18,7 @@ from keystone.common import manager
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
+from keystone.limit import models
 
 
 CONF = keystone.conf.CONF
@@ -34,6 +35,10 @@ class Manager(manager.Manager):
     def __init__(self):
         unified_limit_driver = CONF.unified_limit.driver
         super(Manager, self).__init__(unified_limit_driver)
+
+        self.enforcement_model = models.get_enforcement_model_from_config(
+            CONF.unified_limit.enforcement_model
+        )
 
     def _assert_resource_exist(self, unified_limit, target):
         try:
@@ -55,6 +60,13 @@ class Manager(manager.Manager):
         except exception.ProjectNotFound:
             raise exception.ValidationError(attribute='project_id',
                                             target=target)
+
+    def get_model(self):
+        """Return information of the configured enforcement model."""
+        return {
+            'name': self.enforcement_model.name,
+            'description': self.enforcement_model.description
+        }
 
     def create_registered_limits(self, registered_limits):
         for registered_limit in registered_limits:
