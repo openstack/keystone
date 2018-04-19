@@ -16,6 +16,15 @@ from keystone.common.policies import base
 
 limit_policies = [
     policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'get_limit_model',
+        check_str='',
+        scope_types=['system', 'project'],
+        description='Get limit enforcement model.',
+        operations=[{'path': '/v3/limits/model',
+                     'method': 'GET'},
+                    {'path': '/v3/limits/model',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_limit',
         check_str='',
         # Getting a single limit or listing all limits should be information

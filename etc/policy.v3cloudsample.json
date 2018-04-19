@@ -34,6 +34,7 @@
     "identity:update_registered_limit": "rule:admin_required",
     "identity:delete_registered_limit": "rule:admin_required",
 
+    "identity:get_limit_model": "",
     "identity:get_limit": "",
     "identity:list_limits": "",
     "identity:create_limits": "rule:admin_required",
