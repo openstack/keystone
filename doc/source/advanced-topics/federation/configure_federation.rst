@@ -123,7 +123,7 @@ You may be interested in more information on `group management
 and `role assignments
 <https://developer.openstack.org/api-ref/identity/v3/#assign-role-to-group-on-project>`_,
 both of which are exposed to the CLI via `python-openstackclient
-<https://pypi.python.org/pypi/python-openstackclient/>`_.
+<https://pypi.org/project/python-openstackclient/>`_.
 
 For example, create a new domain and project like this:
 

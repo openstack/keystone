@@ -140,7 +140,7 @@ contribute!
 Adopting `python-keystoneclient`_ should be the easiest way to migrate to
 Identity API v3.
 
-.. _`python-keystoneclient`: https://pypi.python.org/pypi/python-keystoneclient/
+.. _`python-keystoneclient`: https://pypi.org/project/python-keystoneclient/
 
 I have a non-Python client
 --------------------------

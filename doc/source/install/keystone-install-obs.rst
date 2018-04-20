@@ -22,7 +22,7 @@ create a database.
 .. note::
 
    Before you begin, ensure you have the most recent version of
-   ``python-pyasn1`` `installed <https://pypi.python.org/pypi/pyasn1>`_.
+   ``python-pyasn1`` `installed <https://pypi.org/project/pyasn1>`_.
 
 #. Use the database access client to connect to the database
    server as the ``root`` user:
