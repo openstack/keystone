@@ -224,6 +224,29 @@ old password.
    Otherwise, users would not be able to change their passwords before they
    expire.
 
+Prevent Self-Service Password Changes
+-------------------------------------
+
+If there exists a user who should not be able to change her own password via
+the keystone password change API, keystone supports setting that user's option
+``lock_password`` to ``True`` via the user update API
+(``PATCH /v3/users/{user_id}``):
+
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "lock_password": True
+           }
+       }
+   }
+
+The ``lock_password`` user-option is typically used in the case where passwords
+are managed externally to keystone. The ``lock_password`` option can be set to
+``True``, ``False``, or ``None``; if the option is set to ``None``, it is
+removed from the user's data structure.
+
 .. _Security Hardening PCI-DSS: https://specs.openstack.org/openstack/keystone-specs/specs/keystone/newton/pci-dss.html
 
 .. _v3: https://developer.openstack.org/api-ref/identity/v3/index.html#update-user

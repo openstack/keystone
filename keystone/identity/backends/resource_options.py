@@ -76,6 +76,12 @@ IGNORE_LOCKOUT_ATTEMPT_OPT = (
         option_name='ignore_lockout_failure_attempts',
         validator=resource_options.boolean_validator,
         json_schema_validation=parameter_types.boolean))
+LOCK_PASSWORD_OPT = (
+    resource_options.ResourceOption(
+        option_id='1003',
+        option_name='lock_password',
+        validator=resource_options.boolean_validator,
+        json_schema_validation=parameter_types.boolean))
 MFA_RULES_OPT = (
     resource_options.ResourceOption(
         option_id='MFAR',
@@ -112,6 +118,7 @@ def register_user_options():
         IGNORE_CHANGE_PASSWORD_OPT,
         IGNORE_PASSWORD_EXPIRY_OPT,
         IGNORE_LOCKOUT_ATTEMPT_OPT,
+        LOCK_PASSWORD_OPT,
         MFA_RULES_OPT,
         MFA_ENABLED_OPT,
     ]:
