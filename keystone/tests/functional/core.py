@@ -24,7 +24,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
 
     def setUp(self):
         self.ADMIN_URL = os.environ.get('KSTEST_ADMIN_URL',
-                                        'http://localhost:35357')
+                                        'http://localhost:5000')
         self.PUBLIC_URL = os.environ.get('KSTEST_PUBLIC_URL',
                                          'http://localhost:5000')
         self.admin = {
@@ -40,6 +40,8 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
         }
 
         self.project_id = os.environ.get('KSTEST_PROJECT_ID')
+        self.project_name = os.environ.get('KSTEST_PROJECT_NAME')
+        self.project_domain_id = os.environ.get('KSTEST_PROJECT_DOMAIN_ID')
 
         super(BaseTestCase, self).setUp()
 
@@ -59,7 +61,8 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
         """
         body = self.build_authentication_request(
             username=user['name'], user_domain_name=user['domain_id'],
-            password=user['password'], project_id=self.project_id)
+            password=user['password'], project_name=self.project_name,
+            project_domain_id=self.project_domain_id)
         return requests.post(self.PUBLIC_URL + '/v3/auth/tokens',
                              headers=self.request_headers,
                              json=body)
