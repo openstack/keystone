@@ -46,7 +46,7 @@ In your services configuration file, look for a section like this:
 
    [keystone_authtoken]
    signing_dir = /var/cache/glance/api
-   auth_uri = http://controller:5000/v2.0
+   www_authenticate_uri = http://controller:5000/v2.0
    identity_uri = http://controller:35357
    admin_tenant_name = service
    admin_user = glance
