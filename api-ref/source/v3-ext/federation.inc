@@ -77,7 +77,8 @@ Optional attributes:
   The ID of the domain that is associated with the IdP.
 
   If a value is not specified by the client, the service will automatically
-  create a domain and associate it to the IdP.
+  create a domain and associate it to the IdP. The ``domain_id`` is not unique
+  so that users can link multiple IdPs to one domain.
 
 - ``description`` (string)
 
