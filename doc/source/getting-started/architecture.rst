@@ -127,13 +127,6 @@ Catalog
 The Catalog service provides an endpoint registry used for endpoint discovery.
 
 
-Policy
-------
-
-The Policy service provides a rule-based authorization engine and the
-associated rule management interface.
-
-
 Application Construction
 ========================
 
