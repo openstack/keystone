@@ -148,7 +148,7 @@ I have a non-Python client
 You'll likely need to heavily reference our `API documentation`_ to port your
 application to Identity API v3.
 
-.. _`API documentation`: https://git.openstack.org/cgit/openstack-attic/identity-api/tree/v3/src/markdown/identity-api-v3.md
+.. _`API documentation`: https://developer.openstack.org/api-ref/identity/v3/
 
 The most common operation would be password-based authentication including a
 tenant name (i.e. project name) to specify an authorization scope. In Identity
