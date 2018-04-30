@@ -170,3 +170,10 @@ class ShadowUsers(base.ShadowUsersDriverBase):
         if not user_ref:
             raise exception.UserNotFound(user_id=user_id)
         return user_ref
+
+    def list_federated_users_info(self, hints=None):
+        with sql.session_for_read() as session:
+            query = session.query(model.FederatedUser)
+            fed_user_refs = sql.filter_limit_query(model.FederatedUser, query,
+                                                   hints)
+            return [x.to_dict() for x in fed_user_refs]

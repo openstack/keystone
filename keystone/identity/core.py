@@ -1147,11 +1147,22 @@ class Manager(manager.Manager):
             self._get_domain_driver_and_entity_id(user_id))
         # Get user details to invalidate the cache.
         user_old = self.get_user(user_id)
+
+        hints = driver_hints.Hints()
+        hints.add_filter('user_id', user_id)
+        fed_users = PROVIDERS.shadow_users_api.list_federated_users_info(hints)
+
         driver.delete_user(entity_id)
         PROVIDERS.assignment_api.delete_user_assignments(user_id)
         self.get_user.invalidate(self, user_id)
         self.get_user_by_name.invalidate(self, user_old['name'],
                                          user_old['domain_id'])
+        for fed_user in fed_users:
+            self.shadow_federated_user.invalidate(
+                self, fed_user['idp_id'], fed_user['protocol_id'],
+                fed_user['unique_id'], fed_user['display_name'],
+                user_old.get('extra', {}).get('email'))
+
         PROVIDERS.credential_api.delete_credentials_for_user(user_id)
         PROVIDERS.id_mapping_api.delete_id_mapping(user_id)
         notifications.Audit.deleted(self._USER, user_id, initiator)
