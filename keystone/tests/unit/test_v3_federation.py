@@ -13,6 +13,7 @@
 import copy
 import os
 import random
+import re
 import subprocess
 from testtools import matchers
 import uuid
@@ -4042,11 +4043,15 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
         self.assertRaises(exception.SAMLSigningError,
                           keystone_idp._sign_assertion,
                           self.signed_assertion)
+        # The function __str__ in subprocess.CalledProcessError is different
+        # between py3.6 and lower python version.
         expected_log = (
             "Error when signing assertion, reason: Command '%s' returned "
-            "non-zero exit status %s %s\n" %
+            "non-zero exit status %s\.? %s\n" %
             (CONF.saml.xmlsec1_binary, sample_returncode, sample_output))
-        self.assertEqual(expected_log, logger_fixture.output)
+
+        self.assertRegex(logger_fixture.output,
+                         re.compile(r'%s' % expected_log))
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
     def test_sign_assertion_fileutils_exc(self, write_to_tempfile_mock):
