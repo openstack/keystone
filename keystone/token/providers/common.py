@@ -637,12 +637,6 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
 
         return token_data
 
-    def _verify_token_ref(self, token_ref):
-        """Verify and return the given token_ref."""
-        if not token_ref:
-            raise exception.Unauthorized(_('Token is absent'))
-        return token_ref
-
     def validate_token(self, token_id):
         try:
             (user_id, methods, audit_ids, system, domain_id,
