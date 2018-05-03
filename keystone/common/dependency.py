@@ -14,12 +14,9 @@
 
 """This module provides support for dependency injection.
 
-Providers are registered via the ``@provider()`` decorator, and dependencies on
-them are registered with ``@requires()``. Providers are available to their
-consumers via an attribute. See the documentation for the individual functions
-for more detail.
-
-See also:
+WARNING: Use the ``keystone.common.provider_api`` module instead. This module
+is going away in favor of an implementation that is better about following the
+dependency injection model:
 
     https://en.wikipedia.org/wiki/Dependency_injection
 
@@ -51,20 +48,6 @@ class UnresolvableDependencyException(Exception):
         msg = _('Unregistered dependency: %(name)s for %(targets)s') % {
             'name': name, 'targets': targets}
         super(UnresolvableDependencyException, self).__init__(msg)
-
-
-def provider(name):
-    """Deprecated, does nothing."""
-    def wrapper(cls):
-        return cls
-    return wrapper
-
-
-def requires(*dependencies):
-    """Deprecated, does nothing."""
-    def wrapped(cls):
-        return cls
-    return wrapped
 
 
 def resolve_future_dependencies(__provider_name=None):
