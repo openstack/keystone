@@ -741,31 +741,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
         return token
 
-    def assertEqualTokens(self, a, b):
-        """Assert that two tokens are equal.
-
-        Compare two tokens except for their ids. This also truncates
-        the time in the comparison.
-        """
-        def normalize(token):
-            del token['token']['expires_at']
-            del token['token']['issued_at']
-            return token
-
-        a_expires_at = self.assertValidISO8601ExtendedFormatDatetime(
-            a['token']['expires_at'])
-        b_expires_at = self.assertValidISO8601ExtendedFormatDatetime(
-            b['token']['expires_at'])
-        self.assertCloseEnoughForGovernmentWork(a_expires_at, b_expires_at)
-
-        a_issued_at = self.assertValidISO8601ExtendedFormatDatetime(
-            a['token']['issued_at'])
-        b_issued_at = self.assertValidISO8601ExtendedFormatDatetime(
-            b['token']['issued_at'])
-        self.assertCloseEnoughForGovernmentWork(a_issued_at, b_issued_at)
-
-        return self.assertDictEqual(normalize(a), normalize(b))
-
     # catalog validation
 
     def assertValidCatalogResponse(self, resp, *args, **kwargs):
@@ -1248,18 +1223,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                                 'links', 'relay_state_prefix', 'sp_url'])
         for attribute in attributes:
             self.assertIsNotNone(entity.get(attribute))
-
-    def assertValidServiceProviderListResponse(self, resp, *args, **kwargs):
-        if kwargs.get('keys_to_check') is None:
-            kwargs['keys_to_check'] = ['auth_url', 'id', 'enabled',
-                                       'description', 'relay_state_prefix',
-                                       'sp_url']
-        return self.assertValidListResponse(
-            resp,
-            'service_providers',
-            self.assertValidServiceProvider,
-            *args,
-            **kwargs)
 
     def build_external_auth_request(self, remote_user,
                                     remote_domain=None, auth_data=None,
