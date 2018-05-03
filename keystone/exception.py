@@ -162,16 +162,6 @@ class StringLengthExceeded(ValidationError):
                        " of column %(type)s(CHAR(%(length)d)).")
 
 
-class ValidationSizeError(Error):
-    message_format = _("Request attribute %(attribute)s must be"
-                       " less than or equal to %(size)i. The server"
-                       " could not comply with the request because"
-                       " the attribute size is invalid (too large)."
-                       " The client is assumed to be in error.")
-    code = int(http_client.BAD_REQUEST)
-    title = http_client.responses[http_client.BAD_REQUEST]
-
-
 class AmbiguityError(ValidationError):
     message_format = _("There are multiple %(resource)s entities named"
                        " '%(name)s'. Please use ID instead of names to"
