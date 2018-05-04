@@ -351,7 +351,8 @@ class FederatedUser(sql.ModelBase, sql.ModelDictMixin):
         sql.UniqueConstraint('idp_id', 'protocol_id', 'unique_id'),
         sqlalchemy.ForeignKeyConstraint(['protocol_id', 'idp_id'],
                                         ['federation_protocol.id',
-                                         'federation_protocol.idp_id'])
+                                         'federation_protocol.idp_id'],
+                                        ondelete='CASCADE')
     )
 
 
