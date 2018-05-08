@@ -59,8 +59,7 @@ class Manager(manager.Manager):
     def create_registered_limits(self, registered_limits):
         for registered_limit in registered_limits:
             self._assert_resource_exist(registered_limit, 'registered_limit')
-        self.driver.create_registered_limits(registered_limits)
-        return self.list_registered_limits()
+        return self.driver.create_registered_limits(registered_limits)
 
     def update_registered_limits(self, registered_limits):
         for registered_limit in registered_limits:
@@ -86,8 +85,7 @@ class Manager(manager.Manager):
     def create_limits(self, limits):
         for limit in limits:
             self._assert_resource_exist(limit, 'limit')
-        self.driver.create_limits(limits)
-        return self.list_limits()
+        return self.driver.create_limits(limits)
 
     def update_limits(self, limits):
         for limit in limits:

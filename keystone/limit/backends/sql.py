@@ -135,11 +135,14 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
     @sql.handle_conflicts(conflict_type='registered_limit')
     def create_registered_limits(self, registered_limits):
         with sql.session_for_write() as session:
+            new_registered_limits = []
             for registered_limit in registered_limits:
                 if registered_limit.get('region_id') is None:
                     self._check_unified_limit_without_region(registered_limit)
                 ref = RegisteredLimitModel.from_dict(registered_limit)
                 session.add(ref)
+                new_registered_limits.append(ref.to_dict())
+            return new_registered_limits
 
     @sql.handle_conflicts(conflict_type='registered_limit')
     def update_registered_limits(self, registered_limits):
@@ -206,12 +209,15 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
     def create_limits(self, limits):
         try:
             with sql.session_for_write() as session:
+                new_limits = []
                 for limit in limits:
                     if limit.get('region_id') is None:
                         self._check_unified_limit_without_region(
                             limit, is_registered_limit=False)
                     ref = LimitModel.from_dict(limit)
                     session.add(ref)
+                    new_limits.append(ref.to_dict())
+                return new_limits
         except db_exception.DBReferenceError:
             raise exception.NoLimitReference()
 

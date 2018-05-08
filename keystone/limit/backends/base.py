@@ -39,7 +39,7 @@ class UnifiedLimitDriverBase(object):
         :param registered_limits: a list of dictionaries representing limits to
                                   create.
 
-        :returns: all the registered limits.
+        :returns: all the newly created registered limits.
         :raises keystone.exception.Conflict: If a duplicate registered limit
             exists.
 
@@ -106,7 +106,7 @@ class UnifiedLimitDriverBase(object):
 
         :param limits: a list of dictionaries representing limits to create.
 
-        :returns: all the limits.
+        :returns: all the newly created limits.
         :raises keystone.exception.Conflict: If a duplicate limit exists.
         :raises keystone.exception.NoLimitReference: If no reference registered
             limit exists.

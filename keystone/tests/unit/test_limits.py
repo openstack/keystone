@@ -84,6 +84,26 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.assertEqual(registered_limits[0]['region_id'], ref1['region_id'])
         self.assertIsNone(registered_limits[1].get('region_id'))
 
+    def test_create_registered_limit_return_count(self):
+        ref1 = unit.new_registered_limit_ref(service_id=self.service_id,
+                                             region_id=self.region_id)
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref1]},
+            expected_status=http_client.CREATED)
+        registered_limits = r.result['registered_limits']
+        self.assertEqual(1, len(registered_limits))
+
+        ref2 = unit.new_registered_limit_ref(service_id=self.service_id2,
+                                             region_id=self.region_id2)
+        ref3 = unit.new_registered_limit_ref(service_id=self.service_id2)
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref2, ref3]},
+            expected_status=http_client.CREATED)
+        registered_limits = r.result['registered_limits']
+        self.assertEqual(2, len(registered_limits))
+
     def test_create_registered_limit_with_invalid_input(self):
         ref1 = unit.new_registered_limit_ref()
         ref2 = unit.new_registered_limit_ref(default_limit='not_int')
@@ -437,6 +457,33 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(limits[1][key], ref2[key])
         self.assertEqual(limits[0]['region_id'], ref1['region_id'])
         self.assertIsNone(limits[1].get('region_id'))
+
+    def test_create_limit_return_count(self):
+        ref1 = unit.new_limit_ref(project_id=self.project_id,
+                                  service_id=self.service_id,
+                                  region_id=self.region_id,
+                                  resource_name='volume')
+        r = self.post(
+            '/limits',
+            body={'limits': [ref1]},
+            expected_status=http_client.CREATED)
+        limits = r.result['limits']
+        self.assertEqual(1, len(limits))
+
+        ref2 = unit.new_limit_ref(project_id=self.project_id,
+                                  service_id=self.service_id,
+                                  region_id=self.region_id,
+                                  resource_name='snapshot')
+        ref3 = unit.new_limit_ref(project_id=self.project_id,
+                                  service_id=self.service_id,
+                                  region_id=self.region_id,
+                                  resource_name='backup')
+        r = self.post(
+            '/limits',
+            body={'limits': [ref2, ref3]},
+            expected_status=http_client.CREATED)
+        limits = r.result['limits']
+        self.assertEqual(2, len(limits))
 
     def test_create_limit_with_invalid_input(self):
         ref1 = unit.new_limit_ref(project_id=self.project_id,
