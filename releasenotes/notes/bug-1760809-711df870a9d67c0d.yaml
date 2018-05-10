@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1760809 <https://bugs.launchpad.net/keystone/+bug/1760809>`_]
+    Identity providers registered to domains will now be cleaned up when the
+    domain is deleted.
