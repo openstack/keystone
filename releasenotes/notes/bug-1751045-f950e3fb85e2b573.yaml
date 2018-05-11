@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1751045 <https://bugs.launchpad.net/keystone/+bug/1751045>`_]
+    It is now possible to clean up role assignments for groups that don't exist
+    in the identity backend. This is relevant to deployments that are backed by
+    LDAP and groups are removed directly by LDAP and not through keystone.
