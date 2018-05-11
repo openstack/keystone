@@ -40,3 +40,4 @@ command-line client.
    federated-identity.rst
    identity-credential-encryption.rst
    endpoint-filtering.rst
+   health-check-middleware.rst
