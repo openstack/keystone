@@ -520,7 +520,7 @@ class LocalizedResponseTest(unit.TestCase):
         # If Accept-Language is a supported language, best_match_language()
         # returns it.
 
-        language = uuid.uuid4().hex
+        language = 'bogus'
         mock_gal.return_value = [language]
 
         req = webob.Request.blank('/', headers={'Accept-Language': language})
@@ -551,7 +551,7 @@ class LocalizedResponseTest(unit.TestCase):
         # and an exception is raised by the application that is translatable
         # then the response will have the translated message.
 
-        language = uuid.uuid4().hex
+        language = 'bogus'
         mock_gal.return_value = [language]
 
         # The arguments for the xlated message format have to match the args
