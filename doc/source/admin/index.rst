@@ -41,3 +41,4 @@ command-line client.
    identity-credential-encryption.rst
    endpoint-filtering.rst
    health-check-middleware.rst
+   oauth1.rst
