@@ -883,5 +883,4 @@ class SQLDriverOverrides(object):
         self.config_fixture.config(group='catalog', driver='sql')
         self.config_fixture.config(group='identity', driver='sql')
         self.config_fixture.config(group='policy', driver='sql')
-        self.config_fixture.config(group='token', driver='sql')
         self.config_fixture.config(group='trust', driver='sql')

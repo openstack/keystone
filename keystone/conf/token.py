@@ -53,10 +53,10 @@ expiration = cfg.IntOpt(
 The amount of time that a token should remain valid (in seconds). Drastically
 reducing this value may break "long-running" operations that involve multiple
 services to coordinate together, and will force users to authenticate with
-keystone more frequently. Drastically increasing this value will increase load
-on the `[token] driver`, as more tokens will be simultaneously valid. Keystone
-tokens are also bearer tokens, so a shorter duration will also reduce the
-potential security impact of a compromised token.
+keystone more frequently. Drastically increasing this value will increase the
+number of tokens that will be simultaneously valid. Keystone tokens are also
+bearer tokens, so a shorter duration will also reduce the potential security
+impact of a compromised token.
 """))
 
 provider = cfg.StrOpt(
@@ -65,25 +65,10 @@ provider = cfg.StrOpt(
     help=utils.fmt("""
 Entry point for the token provider in the `keystone.token.provider` namespace.
 The token provider controls the token construction, validation, and revocation
-operations. Keystone includes `fernet` and `uuid` token
-providers. `uuid` tokens must be persisted (using the backend specified in the
-`[token] driver` option), but do not require any extra configuration or setup.
+operations. Keystone includes `fernet` token provider.
 `fernet` tokens do not need to be persisted at all, but require that you run
 `keystone-manage fernet_setup` (also see the `keystone-manage fernet_rotate`
 command).
-"""))
-
-driver = cfg.StrOpt(
-    'driver',
-    default='sql',
-    deprecated_since=versionutils.deprecated.PIKE,
-    deprecated_for_removal=True,
-    help=utils.fmt("""
-Entry point for the token persistence backend driver in the
-`keystone.token.persistence` namespace. Keystone provides the `sql`
-driver.  The `sql` option (default) depends on the options in your
-`[database]` section. If you're using the `fernet` `[token] provider`, this
-backend will not be utilized to persist tokens at all.
 """))
 
 caching = cfg.BoolOpt(
@@ -160,7 +145,6 @@ ALL_OPTS = [
     enforce_token_bind,
     expiration,
     provider,
-    driver,
     caching,
     cache_time,
     revoke_by_id,
