@@ -209,20 +209,6 @@ class UtilsTestCase(unit.BaseTestCase):
         self.assertFalse(common_utils.auth_str_equal('aaaaa', 'a'))
         self.assertFalse(common_utils.auth_str_equal('ABC123', 'abc123'))
 
-    def test_unixtime(self):
-        global TZ
-
-        @utils.timezone
-        def _test_unixtime():
-            epoch = common_utils.unixtime(dt)
-            self.assertEqual(epoch, epoch_ans, "TZ=%s" % TZ)
-
-        dt = datetime.datetime(1970, 1, 2, 3, 4, 56, 0)
-        epoch_ans = 56 + 4 * 60 + 3 * 3600 + 86400
-        for d in ['+0', '-11', '-8', '-5', '+5', '+8', '+14']:
-            TZ = 'UTC' + d
-            _test_unixtime()
-
     def test_url_safe_check(self):
         base_str = 'i am safe'
         self.assertFalse(common_utils.is_not_url_safe(base_str))
