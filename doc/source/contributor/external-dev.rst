@@ -23,3 +23,4 @@ External Developers
 
    services.rst
    developing-drivers.rst
+   service-catalog.rst
