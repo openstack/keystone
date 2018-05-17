@@ -1,0 +1,7 @@
+---
+features:
+  - >
+    [`bug 1754185 <https://bugs.launchpad.net/keystone/+bug/1754185>`_]
+    Registered limits and project limits now support an optional, nullable
+    property called `description`. Users can create/update a registered limit
+    or project limit with `description` now.

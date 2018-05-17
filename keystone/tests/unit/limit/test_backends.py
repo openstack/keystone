@@ -28,7 +28,8 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume', default_limit=10, id=uuid.uuid4().hex,
+            description='test description')
         reg_limits = PROVIDERS.unified_limit_api.create_registered_limits(
             [registered_limit_1])
         self.assertDictEqual(registered_limit_1, reg_limits[0])
@@ -110,6 +111,26 @@ class RegisteredLimitTests(object):
         self.assertRaises(exception.ValidationError,
                           PROVIDERS.unified_limit_api.create_registered_limits,
                           [registered_limit_1])
+
+    def test_create_registered_limit_description_none(self):
+        registered_limit = unit.new_registered_limit_ref(
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', default_limit=10, id=uuid.uuid4().hex,
+            description=None)
+        res = PROVIDERS.unified_limit_api.create_registered_limits(
+            [registered_limit])
+        self.assertIsNone(res[0]['description'])
+
+    def test_create_registered_limit_without_description(self):
+        registered_limit = unit.new_registered_limit_ref(
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+        registered_limit.pop('description')
+        res = PROVIDERS.unified_limit_api.create_registered_limits(
+            [registered_limit])
+        self.assertIsNone(res[0]['description'])
 
     def test_update_registered_limit(self):
         # create two registered limits
@@ -380,7 +401,8 @@ class LimitTests(object):
             project_id=self.tenant_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            description='test description')
         limits = PROVIDERS.unified_limit_api.create_limits([limit_1])
         self.assertDictEqual(limit_1, limits[0])
 
@@ -451,6 +473,26 @@ class LimitTests(object):
         self.assertRaises(exception.NoLimitReference,
                           PROVIDERS.unified_limit_api.create_limits,
                           [limit_1])
+
+    def test_create_limit_description_none(self):
+        limit = unit.new_limit_ref(
+            project_id=self.tenant_bar['id'],
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            description=None)
+        res = PROVIDERS.unified_limit_api.create_limits([limit])
+        self.assertIsNone(res[0]['description'])
+
+    def test_create_limit_without_description(self):
+        limit = unit.new_limit_ref(
+            project_id=self.tenant_bar['id'],
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+        limit.pop('description')
+        res = PROVIDERS.unified_limit_api.create_limits([limit])
+        self.assertIsNone(res[0]['description'])
 
     def test_update_limits(self):
         # create two limits

@@ -48,6 +48,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - default_limit: default_limit
+   - description: description_registered_limit_response_body
    - links: link_response_body
 
 
@@ -93,6 +94,7 @@ Parameters
    - region_id: region_id_request_body
    - resource_name: resource_name
    - default_limit: default_limit
+   - description: description_registered_limit_request_body
 
 Examples
 ~~~~~~~~
@@ -116,6 +118,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - default_limit: default_limit
+   - description: description_registered_limit_response_body
    - links: link_response_body
 
 Status Codes
@@ -164,6 +167,7 @@ Parameters
    - region_id: region_id_request_body
    - resource_name: resource_name
    - default_limit: default_limit
+   - description: description_registered_limit_request_body
 
 Example
 ~~~~~~~
@@ -185,6 +189,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - default_limit: default_limit
+   - description: description_registered_limit_response_body
    - links: link_response_body
 
 
@@ -243,6 +248,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - default_limit: default_limit
+   - description: description_registered_limit_response_body
    - links: link_response_body
 
 Status Codes
@@ -339,6 +345,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - resource_limit: resource_limit
+   - description: description_limit_response_body
    - links: link_response_body
 
 
@@ -383,6 +390,7 @@ Parameters
    - region_id: region_id_request_body
    - resource_name: resource_name
    - resource_limit: resource_limit
+   - description: description_limit_request_body
 
 Examples
 ~~~~~~~~
@@ -406,6 +414,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - resource_limit: resource_limit
+   - description: description_limit_response_body
    - links: link_response_body
 
 Status Codes
@@ -451,6 +460,7 @@ Parameters
 
    - limits: limits
    - resource_limit: resource_limit
+   - description: description_limit_request_body
 
 Example
 ~~~~~~~
@@ -472,6 +482,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - resource_limit: resource_limit
+   - description: description_limit_response_body
    - links: link_response_body
 
 
@@ -531,6 +542,7 @@ Parameters
    - region_id: region_id_response_body
    - resource_name: resource_name
    - resource_limit: resource_limit
+   - description: description_limit_response_body
    - links: link_response_body
 
 Status Codes

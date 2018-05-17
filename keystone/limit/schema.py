@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.common import validation
 from keystone.common.validation import parameter_types
 
 _registered_limit_create_properties = {
@@ -24,7 +25,8 @@ _registered_limit_create_properties = {
     },
     'default_limit': {
         'type': 'integer'
-    }
+    },
+    'description': validation.nullable(parameter_types.description)
 }
 
 _registered_limit_create = {
@@ -51,7 +53,8 @@ _registered_limit_update_properties = {
     },
     'default_limit': {
         'type': 'integer'
-    }
+    },
+    'description': validation.nullable(parameter_types.description)
 }
 
 _registered_limit_update = {
@@ -78,7 +81,8 @@ _limit_create_properties = {
     },
     'resource_limit': {
         'type': 'integer'
-    }
+    },
+    'description': validation.nullable(parameter_types.description)
 }
 
 
@@ -99,14 +103,15 @@ _limit_update_properties = {
     'id': parameter_types.id_string,
     'resource_limit': {
         'type': 'integer'
-    }
+    },
+    'description': validation.nullable(parameter_types.description)
 }
 
 _limit_update = {
     'type': 'object',
     'properties': _limit_update_properties,
     'additionalProperties': False,
-    'required': ['id', 'resource_limit']
+    'required': ['id', ]
 }
 
 limit_update = {

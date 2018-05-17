@@ -32,7 +32,8 @@ class RegisteredLimitModel(sql.ModelBase, sql.ModelDictMixin):
         'service_id',
         'region_id',
         'resource_name',
-        'default_limit'
+        'default_limit',
+        'description'
     ]
 
     id = sql.Column(sql.String(length=64), primary_key=True)
@@ -42,6 +43,7 @@ class RegisteredLimitModel(sql.ModelBase, sql.ModelDictMixin):
                            sql.ForeignKey('region.id'), nullable=True)
     resource_name = sql.Column(sql.String(255))
     default_limit = sql.Column(sql.Integer, nullable=False)
+    description = sql.Column(sql.Text())
 
     __table_args__ = (
         sqlalchemy.UniqueConstraint('service_id',
@@ -57,7 +59,8 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
         'service_id',
         'region_id',
         'resource_name',
-        'resource_limit'
+        'resource_limit',
+        'description'
     ]
 
     id = sql.Column(sql.String(length=64), primary_key=True)
@@ -67,6 +70,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
     region_id = sql.Column(sql.String(64), nullable=True)
     resource_name = sql.Column(sql.String(255))
     resource_limit = sql.Column(sql.Integer, nullable=False)
+    description = sql.Column(sql.Text())
 
     __table_args__ = (
         sqlalchemy.ForeignKeyConstraint(['service_id',
@@ -227,9 +231,10 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
             for limit in limits:
                 ref = self._get_limit(session, limit['id'])
                 old_dict = ref.to_dict()
-                old_dict['resource_limit'] = limit['resource_limit']
+                old_dict.update(limit)
                 new_limit = LimitModel.from_dict(old_dict)
                 ref.resource_limit = new_limit.resource_limit
+                ref.description = new_limit.description
 
     @driver_hints.truncated
     def list_limits(self, hints):
