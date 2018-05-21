@@ -45,6 +45,7 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 from keystone.token.providers import common as token_common
 
 
@@ -993,6 +994,9 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         # since it wasn't auto-generated
         self.assertIsNotNone(PROVIDERS.resource_api.get_domain(domain['id']))
 
+    @test_utils.wip("Keystone never supported IdP:domain = 1:1. This test "
+                    "should be fixed to make sure IdP:domain is n:1",
+                    bug='1760843')
     def test_create_idp_domain_id_unique_constraint(self):
         # create domain and add domain_id to keys to check
         domain = unit.new_domain_ref()
