@@ -1106,6 +1106,12 @@ issued_at:
   in: body
   required: true
   type: string
+limit:
+  description: |
+    A ``limit`` object, containing the following:
+  in: body
+  required: true
+  type: array
 limit_id:
   description: |
     The limit ID.
