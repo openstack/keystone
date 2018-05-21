@@ -45,7 +45,6 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 from keystone.token.providers import common as token_common
 
 
@@ -994,10 +993,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         # since it wasn't auto-generated
         self.assertIsNotNone(PROVIDERS.resource_api.get_domain(domain['id']))
 
-    @test_utils.wip("Keystone never supported IdP:domain = 1:1. This test "
-                    "should be fixed to make sure IdP:domain is n:1",
-                    bug='1760843')
-    def test_create_idp_domain_id_unique_constraint(self):
+    def test_create_multi_idp_to_one_domain(self):
         # create domain and add domain_id to keys to check
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
@@ -1007,8 +1003,8 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         body = self.default_body.copy()
         body['description'] = uuid.uuid4().hex
         body['domain_id'] = domain['id']
-        resp = self._create_default_idp(body=body)
-        self.assertValidResponse(resp, 'identity_provider', dummy_validator,
+        idp1 = self._create_default_idp(body=body)
+        self.assertValidResponse(idp1, 'identity_provider', dummy_validator,
                                  keys_to_check=keys_to_check,
                                  ref=body)
         # create a 2nd idp with the same domain_id
@@ -1016,11 +1012,14 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         body = self.default_body.copy()
         body['description'] = uuid.uuid4().hex
         body['domain_id'] = domain['id']
-        resp = self.put(url, body={'identity_provider': body},
-                        expected_status=http_client.CONFLICT)
-        resp_data = jsonutils.loads(resp.body)
-        self.assertIn('Duplicate entry',
-                      resp_data.get('error', {}).get('message'))
+        idp2 = self.put(url, body={'identity_provider': body},
+                        expected_status=http_client.CREATED)
+        self.assertValidResponse(idp2, 'identity_provider', dummy_validator,
+                                 keys_to_check=keys_to_check,
+                                 ref=body)
+
+        self.assertEqual(idp1.result['identity_provider']['domain_id'],
+                         idp2.result['identity_provider']['domain_id'])
 
     def test_cannot_update_idp_domain(self):
         # create new idp
