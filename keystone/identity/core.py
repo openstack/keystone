@@ -671,7 +671,7 @@ class Manager(manager.Manager):
         # fetch all mappings for the domain, lookup the user at the map built
         # at previous step and replace his id.
         domain_mappings = PROVIDERS.id_mapping_api.get_domain_mapping_list(
-            domain_id)
+            domain_id, entity_type=entity_type)
         for _mapping in domain_mappings:
             idx = (_mapping.local_id, _mapping.entity_type, _mapping.domain_id)
             try:
