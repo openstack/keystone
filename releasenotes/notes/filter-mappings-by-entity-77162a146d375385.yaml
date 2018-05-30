@@ -1,0 +1,11 @@
+---
+upgrade:
+  - |
+    As a performance improvement, the base mapping driver's method
+    ``get_domain_mapping_list`` now accepts an optional named argument
+    ``entity_type`` that can be used to get the mappings for a given
+    entity type only.
+    As this new call signature is already used in the ``identity.core``
+    module, authors/maintainers of out-of-tree custom mapping drivers
+    are expected to update their implementations of ``get_domain_mapping_list``
+    method accordingly.
