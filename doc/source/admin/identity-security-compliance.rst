@@ -237,7 +237,7 @@ the keystone password change API, keystone supports setting that user's option
    {
        "user": {
            "options": {
-               "lock_password": True
+               "lock_password": true
            }
        }
    }
