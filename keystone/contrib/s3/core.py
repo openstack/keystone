@@ -36,8 +36,11 @@ from keystone import exception
 from keystone.i18n import _
 
 
-class S3Extension(wsgi.V3ExtensionRouter):
-    def add_routes(self, mapper):
+class S3Extension(wsgi.RoutersBase):
+
+    _path_prefixes = ('s3tokens',)
+
+    def append_v3_routers(self, mapper, routers):
         controller = S3Controller()
         # validation
         self._add_resource(

@@ -30,6 +30,8 @@ TRUST_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
 
 class Routers(wsgi.RoutersBase):
 
+    _path_prefixes = ('OS-TRUST',)
+
     def append_v3_routers(self, mapper, routers):
         trust_controller = controllers.TrustV3()
 

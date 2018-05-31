@@ -39,6 +39,9 @@ class Public(wsgi.ComposableRouter):
 
 class Routers(wsgi.RoutersBase):
 
+    _path_prefixes = ('users', 'roles', 'role_inferences', 'projects',
+                      'domains', 'system', 'role_assignments', 'OS-INHERIT')
+
     def append_v3_routers(self, mapper, routers):
 
         project_controller = controllers.ProjectAssignmentV3()

@@ -16,7 +16,6 @@ import functools
 import sys
 
 from oslo_log import log
-from paste import deploy
 import routes
 
 from keystone.application_credential import routers as app_cred_routers
@@ -34,6 +33,8 @@ from keystone.oauth1 import routers as oauth1_routers
 from keystone.policy import routers as policy_routers
 from keystone.resource import routers as resource_routers
 from keystone.revoke import routers as revoke_routers
+from keystone.server import flask as keystone_flask
+from keystone.server.flask import application
 from keystone.token import _simple_cert as simple_cert_ext
 from keystone.trust import routers as trust_routers
 from keystone.version import controllers
@@ -44,11 +45,12 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-def loadapp(conf, name):
+def loadapp(name):
     # NOTE(blk-u): Save the application being loaded in the controllers module.
     # This is similar to how public_app_factory() and v3_app_factory()
     # register the version with the controllers module.
-    controllers.latest_app = deploy.loadapp(conf, name=name)
+    controllers.latest_app = keystone_flask.setup_app_middleware(
+        application.application_factory(name))
     return controllers.latest_app
 
 

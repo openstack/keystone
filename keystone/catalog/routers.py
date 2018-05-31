@@ -72,6 +72,8 @@ class Routers(wsgi.RoutersBase):
     PATH_ENDPOINT_GROUP_PROJECTS = PATH_ENDPOINT_GROUPS + (
         '/projects/{project_id}')
 
+    _path_prefixes = (PATH_PREFIX, 'regions', 'endpoints', 'services')
+
     def append_v3_routers(self, mapper, routers):
         regions_controller = controllers.RegionV3()
         endpoint_filter_controller = controllers.EndpointFilterV3Controller()

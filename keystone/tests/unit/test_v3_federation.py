@@ -1595,7 +1595,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         deleted.
 
         """
-        url = self.base_url(suffix='/%(idp_id)s/'
+        url = self.base_url(suffix='%(idp_id)s/'
                                    'protocols/%(protocol_id)s')
         resp, idp_id, proto = self._assign_protocol_to_idp(
             expected_status=http_client.CREATED)

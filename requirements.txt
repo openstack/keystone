@@ -11,6 +11,7 @@ WebOb>=1.7.1 # MIT
 PasteDeploy>=1.5.0 # MIT
 Paste>=2.0.2 # MIT
 Routes>=2.3.1 # MIT
+Flask!=0.11,<1.0  # BSD
 cryptography>=2.1 # BSD/Apache-2.0
 six>=1.10.0 # MIT
 SQLAlchemy!=1.1.5,!=1.1.6,!=1.1.7,!=1.1.8,>=1.0.10 # MIT

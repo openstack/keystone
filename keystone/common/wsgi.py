@@ -321,6 +321,12 @@ class Application(BaseApplication):
 
     @classmethod
     def base_url(cls, context, endpoint_type):
+        # NOTE(morgan): endpoint type must be "admin" or "public" to lookup
+        # the relevant value from the config options. Make the error clearer
+        # if we somehow got here with a different endpoint type.
+        if endpoint_type not in ('admin', 'public'):
+            raise ValueError('PROGRAMMING ERROR: Endpoint type must be '
+                             '"admin" or "public".')
         url = CONF['%s_endpoint' % endpoint_type]
 
         if url:
@@ -386,7 +392,7 @@ class Middleware(Application):
             return cls(app)
         return _factory
 
-    def __init__(self, application):
+    def __init__(self, application, conf=None):
         super(Middleware, self).__init__()
         self.application = application
 

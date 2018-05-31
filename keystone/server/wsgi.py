@@ -27,6 +27,7 @@ from keystone.common import profiler
 import keystone.conf
 from keystone import exception
 from keystone.server import common
+from keystone.server import flask as keystone_flask
 from keystone.version import service as keystone_service
 
 
@@ -125,10 +126,10 @@ def _get_config_files(env=None):
 
 
 def initialize_admin_application():
-    return initialize_application(name='admin',
-                                  config_files=_get_config_files())
+    return keystone_flask.initialize_application(
+        name='admin', config_files=_get_config_files())
 
 
 def initialize_public_application():
-    return initialize_application(name='main',
-                                  config_files=_get_config_files())
+    return keystone_flask.initialize_application(
+        name='public', config_files=_get_config_files())

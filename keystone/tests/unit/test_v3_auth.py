@@ -3740,6 +3740,11 @@ class TestAuthJSONExternal(test_v3.RestfulTestCase):
 
 
 class TestTrustOptional(test_v3.RestfulTestCase):
+    def setUp(self):
+        super(TestTrustOptional, self).setUp()
+        # TODO(morgan): remove this test case, trusts are not optional.
+        self.skipTest('Trusts are no longer optional.')
+
     def config_overrides(self):
         super(TestTrustOptional, self).config_overrides()
         self.config_fixture.config(group='trust', enabled=False)
