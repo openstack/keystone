@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1728907 <https://bugs.launchpad.net/keystone/+bug/1728907>`_]
+    In some rare cases, an empty key file can get created within the fernet
+    key repository. When keystone tries to load the keys from disk, it will
+    fail with an invalid fernet key ValueError. Keystone now handles empty
+    key files when loading and rotating keys. If an empty file exists, it
+    will be ignored when loaded, reported as a warning in the log, and
+    overwritten with a valid key upon rotation.
