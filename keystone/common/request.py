@@ -70,6 +70,10 @@ class Request(webob.Request):
             context['is_admin_project'] = self.context.is_admin_project
 
         context.setdefault('is_admin', False)
+        context['token_id'] = self.auth_token
+        if self.subject_token:
+            context['subject_token_id'] = self.subject_token
+
         return context
 
     @property
@@ -118,6 +122,14 @@ class Request(webob.Request):
             initiator.domain_id = self.context.domain_id
 
         return initiator
+
+    @property
+    def auth_token(self):
+        return self.headers.get(authorization.AUTH_TOKEN_HEADER, None)
+
+    @property
+    def subject_token(self):
+        return self.headers.get(authorization.SUBJECT_TOKEN_HEADER, None)
 
     auth_type = environ_getter('AUTH_TYPE', None)
     remote_domain = environ_getter('REMOTE_DOMAIN', None)
