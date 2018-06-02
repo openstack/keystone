@@ -497,11 +497,9 @@ class AuthTokenTests(object):
         r = self.patch('/users/%(user_id)s' % {
             'user_id': self.user['id']},
             body={'user': user})
-
-        headers = {'X-Subject-Token': self.keystone_token_id,
-                   'X-Auth-Token': self.keystone_token_id}
-        self.admin_request(path='/auth/tokens', headers=headers,
-                           method='GET', expected_status=http_client.NOT_FOUND)
+        headers = {'X-Subject-Token': self.keystone_token_id}
+        self.get(path='/auth/tokens', token=self.get_admin_token(),
+                 headers=headers, expected_status=http_client.NOT_FOUND)
 
     def test_deleting_project_also_invalidates_tokens(self):
         self.test_oauth_flow()
