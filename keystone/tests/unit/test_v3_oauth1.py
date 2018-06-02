@@ -899,8 +899,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'name': 'fake_name'}]}
-        self.admin_request(path=url, method='PUT',
-                           body=body, expected_status=http_client.NOT_FOUND)
+        self.put(path=url, body=body, expected_status=http_client.NOT_FOUND)
 
     def test_no_authorizing_user_id(self):
         consumer = self._create_single_consumer()
