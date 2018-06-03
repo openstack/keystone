@@ -10,60 +10,67 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-ProviderAPIs = None
 
+class ProviderAPIRegistry(object):
+    __shared_object_state = {}
+    __registry = {}
+    __iter__ = __registry.__iter__
+    __getitem__ = __registry.__getitem__
+    locked = False
 
-def _create_provider_api_instance():
-    class _ProviderAPIs(object):
+    def __init__(self):
+        # NOTE(morgan): This rebinds __dict__ and allows all instances of
+        # the provider API to share a common state. Any changes except
+        # rebinding __dict__ will maintain the same state stored on the class
+        # not the instance. This design pattern is preferable to
+        # full singletons where state sharing is the important "feature"
+        # derived from the "singleton"
+        #
+        # Use "super" to bypass the __setattr__ preventing changes to the
+        # object itself.
+        super(ProviderAPIRegistry, self).__setattr__(
+            '__dict__', self.__shared_object_state)
 
-        def __init__(self):
-            self.__registry = {}
-            self.__locked = False
+    def __getattr__(self, item):
+        """Do attr lookup."""
+        try:
+            return self.__registry[item]
+        except KeyError:
+            raise AttributeError(
+                "'ProviderAPIs' has no attribute %s" % item)
 
-            self.__iter__ = self.__registry.__iter__
-            self.__getitem__ = self.__registry.__getitem__
+    def __setattr__(self, key, value):
+        """Do not allow setting values on the registry object."""
+        raise RuntimeError('Programming Error: You may not set values on the '
+                           'ProviderAPIRegistry objects.')
 
-        def __getattr__(self, item):
-            """Do attr lookup."""
-            try:
-                return self.__registry[item]
-            except KeyError:
-                raise AttributeError(
-                    "'ProviderAPIs' has no attribute %s" % item)
+    def _register_provider_api(self, name, obj):
+        """Register an instance of a class as a provider api."""
+        if name == 'driver':
+            raise ValueError('A provider may not be named "driver".')
 
-        def _register_provider_api(self, name, obj):
-            """Register an instance of a class as a provider api."""
-            if name == 'driver':
-                raise ValueError('A provider may not be named "driver".')
+        if self.locked:
+            raise RuntimeError(
+                'Programming Error: The provider api registry has been '
+                'locked (post configuration). Ensure all provider api '
+                'managers are instantiated before locking.')
 
-            if self.__locked:
-                raise RuntimeError(
-                    'Programming Error: The provider api registry has been '
-                    'locked (post configuration). Ensure all provider api '
-                    'managers are instantiated before locking.')
+        if name in self.__registry:
+            raise DuplicateProviderError(
+                '`%(name)s` has already been registered as an api '
+                'provider by `%(prov)r`' % {'name': name,
+                                            'prov': self.__registry[name]})
+        self.__registry[name] = obj
 
-            if name in self.__registry:
-                raise DuplicateProviderError(
-                    '`%(name)s` has already been registered as an api '
-                    'provider by `%(prov)r`' % {'name': name,
-                                                'prov': self.__registry[name]})
-            self.__registry[name] = obj
+    def _clear_registry_instances(self):
+        """ONLY USED FOR TESTING."""
+        self.__registry.clear()
+        # Use super to allow setting around class implementation of __setattr__
+        super(ProviderAPIRegistry, self).__setattr__('locked', False)
 
-        def _clear_registry_instances(self):
-            """ONLY USED FOR TESTING."""
-            self.__registry.clear()
-            self.__locked = False
-
-        def lock_provider_registry(self):
-            self.__locked = True
-
-    global ProviderAPIs
-    if ProviderAPIs is None:
-        ProviderAPIs = _ProviderAPIs()
-    else:
-        raise RuntimeError('Programming Error: ProviderAPIs object cannot be '
-                           'instatiated more than one time. It is meant to '
-                           'act as a singleton.')
+    def lock_provider_registry(self):
+        # Use super to allow setting around class implementation of __setattr__
+        super(ProviderAPIRegistry, self).__setattr__('locked', True)
 
 
 class DuplicateProviderError(Exception):
@@ -84,4 +91,4 @@ class ProviderAPIMixin(object):
             return self.__getattribute__(item)
 
 
-_create_provider_api_instance()
+ProviderAPIs = ProviderAPIRegistry()
