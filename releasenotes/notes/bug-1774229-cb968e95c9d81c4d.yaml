@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1774229 <https://bugs.launchpad.net/keystone/+bug/1774229>`_]
+    The API reference for token management now includes more specific examples
+    for different token scopes.

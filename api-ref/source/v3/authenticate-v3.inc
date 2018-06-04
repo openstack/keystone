@@ -180,11 +180,13 @@ Password authentication with scoped authorization
 
 .. rest_method::  POST /v3/auth/tokens
 
-Authenticates an identity and generates a token. Uses the password authentication method and scopes authorization to a project or domain.
+Authenticates an identity and generates a token. Uses the password
+authentication method and scopes authorization to a project, domain, or the
+system.
 
-The request body must include a payload that specifies the
-``password`` authentication method, the credentials, and the
-``project`` or ``domain`` authorization scope.
+The request body must include a payload that specifies the ``password``
+authentication method which includes the credentials in addition to a
+``project``, ``domain``, or ``system`` authorization scope.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
 
@@ -206,10 +208,34 @@ Parameters
    - identity: identity
    - methods: auth_methods_passwd
 
-Example
-~~~~~~~
+System-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ./samples/admin/auth-password-project-scoped-request.json
+.. literalinclude:: ./samples/auth/requests/system-password.json
+   :language: javascript
+
+Domain-Scoped with Domain ID Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/domain-id-password.json
+   :language: javascript
+
+Domain-Scoped with Domain Name Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/domain-name-password.json
+   :language: javascript
+
+Project-Scoped with Project ID Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/project-id-password.json
+   :language: javascript
+
+Project-Scoped with Project Name Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/project-name-password.json
    :language: javascript
 
 Response
@@ -221,7 +247,6 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
-   - domain: domain
    - region_id: region_id_required
    - methods: auth_methods_passwd
    - roles: roles
@@ -229,8 +254,9 @@ Parameters
    - region: endpoint_region
    - token: token
    - expires_at: expires_at
-   - project: project
-   - system: system
+   - system: system_scope_response_body_optional
+   - domain: domain_scope_response_body_optional
+   - project: project_scope_response_body_optional
    - issued_at: issued_at
    - catalog: catalog
    - user: user
@@ -260,12 +286,23 @@ Status Codes
    - 415
    - 503
 
-Example
-~~~~~~~
+System-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ./samples/admin/auth-password-project-scoped-response.json
+.. literalinclude:: ./samples/auth/responses/system-scoped-password.json
    :language: javascript
 
+Domain-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/domain-scoped-password.json
+   :language: javascript
+
+Project-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/project-scoped-password.json
+   :language: javascript
 
 Password authentication with explicit unscoped authorization
 ============================================================
@@ -422,10 +459,12 @@ Token authentication with scoped authorization
 
 .. rest_method::  POST /v3/auth/tokens
 
-Authenticates an identity and generates a token. Uses the token authentication method and scopes authorization to a project or domain.
+Authenticates an identity and generates a token. Uses the token authentication
+method and scopes authorization to a project, domain, or the system.
 
-In the request body, provide the token ID and the ``project`` or
-``domain`` authorization scope.
+The request body must include a payload that specifies the ``token``
+authentication method which includes the token in addition to a ``project``,
+``domain``, or ``system`` authorization scope.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/auth_tokens``
 
@@ -446,10 +485,34 @@ Parameters
    - id: auth_token_id
    - identity: identity
 
-Example
-~~~~~~~
+System-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ./samples/admin/auth-token-scoped-request.json
+.. literalinclude:: ./samples/auth/requests/system-token.json
+   :language: javascript
+
+Domain-Scoped with Domain ID Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/domain-id-token.json
+   :language: javascript
+
+Domain-Scoped with Domain Name Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/domain-name-token.json
+   :language: javascript
+
+Project-Scoped with Project ID Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/project-id-token.json
+   :language: javascript
+
+Project-Scoped with Project Name Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/requests/project-name-token.json
    :language: javascript
 
 Response
@@ -461,6 +524,25 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
+   - region_id: region_id_required
+   - methods: auth_methods_passwd
+   - roles: roles
+   - url: endpoint_url
+   - region: endpoint_region
+   - token: token
+   - expires_at: expires_at
+   - system: system_scope_response_body_optional
+   - domain: domain_scope_response_body_optional
+   - project: project_scope_response_body_optional
+   - issued_at: issued_at
+   - catalog: catalog
+   - user: user
+   - audit_ids: audit_ids
+   - interface: endpoint_interface
+   - endpoints: endpoints
+   - type: endpoint_type
+   - id: user_id
+   - name: user_name
 
 Status Codes
 ~~~~~~~~~~~~
@@ -481,12 +563,23 @@ Status Codes
    - 415
    - 503
 
-Example
-~~~~~~~
+System-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ./samples/admin/auth-token-scoped-response.json
+.. literalinclude:: ./samples/auth/responses/system-scoped-token.json
    :language: javascript
 
+Domain-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/domain-scoped-token.json
+   :language: javascript
+
+Project-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/project-scoped-token.json
+   :language: javascript
 
 Token authentication with explicit unscoped authorization
 =========================================================
@@ -596,14 +689,15 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
-   - domain: domain
    - methods: auth_methods
    - links: domain_link_response_body
    - user: user
    - token: token
    - expires_at: expires_at
-   - project: project
-   - catalog: catalog
+   - catalog: catalog_response_body_optional
+   - system: system_scope_response_body_optional
+   - domain: domain_scope_response_body_optional
+   - project: project_scope_response_body_optional
    - roles: roles
    - audit_ids: audit_ids
    - issued_at: issued_at
@@ -627,12 +721,29 @@ Status Codes
    - 413
    - 503
 
-Example
-~~~~~~~
+Unscoped Example
+~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ./samples/admin/auth-token-unscoped-response.json
+.. literalinclude:: ./samples/auth/responses/unscoped-password.json
    :language: javascript
 
+System-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/system-scoped-password.json
+   :language: javascript
+
+Domain-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/domain-scoped-password.json
+   :language: javascript
+
+Project-Scoped Example
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./samples/auth/responses/project-scoped-password.json
+   :language: javascript
 
 Check token
 ===========

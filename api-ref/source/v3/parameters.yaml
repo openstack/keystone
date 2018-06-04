@@ -526,6 +526,12 @@ catalog:
   in: body
   required: true
   type: array
+catalog_response_body_optional:
+  description: |
+    A ``catalog`` object.
+  in: body
+  required: false
+  type: array
 credential:
   description: |
     A ``credential`` object.
@@ -767,6 +773,14 @@ domain_name_update_request_body:
   in: body
   required: false
   type: string
+domain_scope_response_body_optional:
+  description: |
+    A ``domain`` object including the ``id`` and ``name`` representing the
+    domain the token is scoped to. This is only included in tokens that are
+    scoped to a domain.
+  in: body
+  required: false
+  type: object
 domain_url:
   description: |
     The LDAP URL.
@@ -1369,6 +1383,14 @@ project_parent_id_response_body:
   required: true
   type: string
   min_version: 3.4
+project_scope_response_body_optional:
+  description: |
+    A ``project`` object including the ``id``, ``name`` and ``domain`` object
+    representing the project the token is scoped to. This is only included in
+    tokens that are scoped to a project.
+  in: body
+  required: false
+  type: object
 project_tags_request_body:
   description: |
     A list of simple strings assigned to a project.
@@ -1664,16 +1686,15 @@ roles:
   type: array
 scope_string:
   description: |
-    The authorization scope, including the system (Since v3.10), a
-    project, or a domain (Since v3.4). If both a domain and a project
-    are specified, an HTTP ``400 Bad Request`` will be returned, as a
-    token cannot be simultaneously scoped to both a project
-    and a domain. An ID is sufficient to uniquely identify
-    a project but if a project is specified by name, then
-    the domain of the project must also be specified in order
-    to uniquely identify the project by name. A domain scope may be
-    specified by either the domain's ID or name with
-    equivalent results.
+    The authorization scope, including the system (Since v3.10), a project, or
+    a domain (Since v3.4). If multiple scopes are specified in the same request
+    (e.g. ``project`` and ``domain`` or ``domain`` and ``system``) an HTTP
+    ``400 Bad Request`` will be returned, as a token cannot be simultaneously
+    scoped to multiple authorization targets. An ID is sufficient to uniquely
+    identify a project but if a project is specified by name, then the domain
+    of the project must also be specified in order to uniquely identify the
+    project by name. A domain scope may be specified by either the domain's ID
+    or name with equivalent results.
   in: body
   required: false
   type: string
@@ -1780,6 +1801,15 @@ system_roles_response_body:
   in: body
   required: true
   type: array
+system_scope_response_body_optional:
+  description: |
+    A ``system`` object containing information about which parts of the system
+    the token is scoped to. If the token is scoped to the entire deployment
+    system, the ``system`` object will consist of ``{"all": true}``. This is
+    only included in tokens that are scoped to the system.
+  in: body
+  required: false
+  type: object
 system_scope_string:
   description: |
     Authorization scope specific to the deployment system (Since v3.10).
