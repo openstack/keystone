@@ -513,10 +513,9 @@ class AuthTokenTests(object):
         r = self.delete('/projects/%(project_id)s' % {
             'project_id': self.project_id})
 
-        headers = {'X-Subject-Token': self.keystone_token_id,
-                   'X-Auth-Token': self.keystone_token_id}
-        self.admin_request(path='/auth/tokens', headers=headers,
-                           method='GET', expected_status=http_client.NOT_FOUND)
+        headers = {'X-Subject-Token': self.keystone_token_id}
+        self.get(path='/auth/tokens', token=self.get_admin_token(),
+                 headers=headers, expected_status=http_client.NOT_FOUND)
 
     def test_token_chaining_is_not_allowed(self):
         self.test_oauth_flow()
