@@ -167,6 +167,8 @@ class BootStrap(BaseApp):
         self.bootstrapper.region_id = self.region_id
 
         self.bootstrapper.bootstrap()
+        self.reader_role_id = self.bootstrapper.reader_role_id
+        self.member_role_id = self.bootstrapper.member_role_id
         self.role_id = self.bootstrapper.admin_role_id
         self.project_id = self.bootstrapper.project_id
 

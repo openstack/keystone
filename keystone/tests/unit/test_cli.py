@@ -107,20 +107,24 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         user = PROVIDERS.identity_api.get_user_by_name(
             bootstrap.username,
             'default')
-        role = PROVIDERS.role_api.get_role(bootstrap.role_id)
+        admin_role = PROVIDERS.role_api.get_role(bootstrap.role_id)
+        reader_role = PROVIDERS.role_api.get_role(bootstrap.reader_role_id)
+        member_role = PROVIDERS.role_api.get_role(bootstrap.member_role_id)
         role_list = (
             PROVIDERS.assignment_api.get_roles_for_user_and_project(
                 user['id'],
                 project['id']))
-        self.assertIs(1, len(role_list))
-        self.assertEqual(role_list[0], role['id'])
+        self.assertIs(3, len(role_list))
+        self.assertIn(admin_role['id'], role_list)
+        self.assertIn(reader_role['id'], role_list)
+        self.assertIn(member_role['id'], role_list)
         system_roles = (
             PROVIDERS.assignment_api.list_system_grants_for_user(
                 user['id']
             )
         )
         self.assertIs(1, len(system_roles))
-        self.assertEqual(system_roles[0]['id'], role['id'])
+        self.assertEqual(system_roles[0]['id'], admin_role['id'])
         # NOTE(morganfainberg): Pass an empty context, it isn't used by
         # `authenticate` method.
         PROVIDERS.identity_api.authenticate(

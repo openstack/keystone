@@ -1,0 +1,15 @@
+---
+features:
+  - |
+      [`blueprint basic-default-roles  <https://blueprints.launchpad.net/keystone/+spec/basic-default-roles>`_]
+      Support has been added for deploying two new roles during the bootstrap
+      process, `reader` and `member`, in addition to the `admin` role.
+upgrades:
+  - |
+      If the bootstrap process is re-run, and a `reader`, `member`, or `admin`
+      role already exists, a role implication chain will be created: `admin`
+      implies `member` implies `reader`. If you do not want these role
+      implications either skip running bootstrap or delete them after it has
+      completed execution. See
+      [`blueprint basic-default-roles  <https://blueprints.launchpad.net/keystone/+spec/basic-default-roles>`_]
+      for more details.
