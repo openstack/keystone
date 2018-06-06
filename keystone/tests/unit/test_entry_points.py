@@ -26,7 +26,6 @@ class TestEntryPoints(test.TestCase):
             'json_body',
             'request_id',
             'sizelimit',
-            'token_auth',
             'url_normalize',
         ]
 

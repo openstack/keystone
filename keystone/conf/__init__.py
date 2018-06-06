@@ -36,7 +36,6 @@ from keystone.conf import identity_mapping
 from keystone.conf import ldap
 from keystone.conf import memcache
 from keystone.conf import oauth1
-from keystone.conf import paste_deploy
 from keystone.conf import policy
 from keystone.conf import resource
 from keystone.conf import revoke
@@ -72,7 +71,6 @@ conf_modules = [
     ldap,
     memcache,
     oauth1,
-    paste_deploy,
     policy,
     resource,
     revoke,

@@ -136,27 +136,7 @@ class BaseApplication(object):
 
     @classmethod
     def factory(cls, global_config, **local_config):
-        """Used for paste app factories in paste.deploy config files.
-
-        Any local configuration (that is, values under the [app:APPNAME]
-        section of the paste config) will be passed into the `__init__` method
-        as kwargs.
-
-        A hypothetical configuration would look like:
-
-            [app:wadl]
-            latest_version = 1.3
-            paste.app_factory = keystone.fancy_api:Wadl.factory
-
-        which would result in a call to the `Wadl` class as
-
-            import keystone.fancy_api
-            keystone.fancy_api.Wadl(latest_version='1.3')
-
-        You could of course re-implement the `factory` method in subclasses,
-        but using the kwarg passing it shouldn't be necessary.
-
-        """
+        """Used for loading in middleware (holdover from paste.deploy)."""
         return cls(**local_config)
 
     def __call__(self, environ, start_response):
@@ -193,6 +173,11 @@ class BaseApplication(object):
 
         See the end of http://pythonpaste.org/webob/modules/dec.html
         for more info.
+
+        NOTE: this is now strictly used in conversion from old wsgi
+        implementation to flask. Once the flask implementation is complete,
+        the __call__ will not be needed as the flask app will handle
+        dispatching and __call__.
 
         """
         raise NotImplementedError('You must implement __call__')
@@ -566,27 +551,7 @@ class ExtensionRouter(Router):
 
     @classmethod
     def factory(cls, global_config, **local_config):
-        """Used for paste app factories in paste.deploy config files.
-
-        Any local configuration (that is, values under the [filter:APPNAME]
-        section of the paste config) will be passed into the `__init__` method
-        as kwargs.
-
-        A hypothetical configuration would look like:
-
-            [filter:analytics]
-            redis_host = 127.0.0.1
-            paste.filter_factory = keystone.analytics:Analytics.factory
-
-        which would result in a call to the `Analytics` class as
-
-            import keystone.analytics
-            keystone.analytics.Analytics(app, redis_host='127.0.0.1')
-
-        You could of course re-implement the `factory` method in subclasses,
-        but using the kwarg passing it shouldn't be necessary.
-
-        """
+        """Used for loading in middleware (holdover from paste.deploy)."""
         def _factory(app):
             conf = global_config.copy()
             conf.update(local_config)

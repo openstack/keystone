@@ -34,7 +34,6 @@ from oslo_context import fixture as oslo_ctx_fixture
 from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
-from paste.deploy import loadwsgi
 import six
 from sqlalchemy import exc
 import testtools
@@ -110,26 +109,6 @@ class dirs(object):
     @staticmethod
     def tests_conf(*p):
         return os.path.join(TESTCONF, *p)
-
-
-class EggLoader(loadwsgi.EggLoader):
-    _basket = {}
-
-    def find_egg_entry_point(self, object_type, name=None):
-        egg_key = '%s:%s' % (object_type, name)
-        egg_ep = self._basket.get(egg_key)
-        if not egg_ep:
-            egg_ep = super(EggLoader, self).find_egg_entry_point(
-                object_type, name=name)
-            self._basket[egg_key] = egg_ep
-        return egg_ep
-
-
-# NOTE(dstanek): class paths were removed from the keystone-paste.ini in
-# favor of using entry points. This caused tests to slow to a crawl
-# since we reload the application object for each RESTful test. This
-# monkey-patching adds caching to paste deploy's egg lookup.
-loadwsgi.EggLoader = EggLoader
 
 
 @atexit.register
@@ -797,15 +776,6 @@ class TestCase(BaseTestCase):
                     user_id, tenant_id, role_id)
 
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
-
-    def _paste_config(self, config):
-        if not config.startswith('config:'):
-            test_path = os.path.join(TESTSDIR, config)
-            etc_path = os.path.join(ROOTDIR, 'etc', config)
-            for path in [test_path, etc_path]:
-                if os.path.exists('%s-paste.ini' % path):
-                    return 'config:%s-paste.ini' % path
-        return config
 
     def loadapp(self, name='public'):
         return service.loadapp(name=name)
