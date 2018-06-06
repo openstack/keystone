@@ -90,7 +90,19 @@ def setup_app_middleware(application):
     # explicitly; reverse order to ensure the first element in _APP_MIDDLEWARE
     # processes the request first.
 
-    for mw in reversed(_APP_MIDDLEWARE):
+    MW = _APP_MIDDLEWARE
+
+    # Add in optional (config-based) middleware
+    # NOTE(morgan): Each of these may need to be in a specific location
+    # within the pipeline therefore cannot be magically appended/prepended
+    if CONF.wsgi.debug_middleware:
+        # Add in the Debug Middleware
+        MW = (_Middleware(namespace='keystone.server_middleware',
+                          ep='debug',
+                          conf={}),) + _APP_MIDDLEWARE
+
+    # Apply the middleware to the application.
+    for mw in reversed(MW):
         # TODO(morgan): Explore moving this to ExtensionManager, but we
         # want to be super careful about what middleware we load and in
         # what order. DriverManager gives us that capability and only loads
