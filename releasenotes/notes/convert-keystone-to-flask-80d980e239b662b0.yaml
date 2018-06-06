@@ -1,0 +1,45 @@
+---
+prelude: >
+    Keystone has historically used a custom rolled WSGI framework based loosely
+    on [`webob <https://github.com/Pylons/webob>`_] which was in turn loaded
+    by the [`pythonpaste library <https://paste.readthedocs.io/en/latest/>`_].
+    The Keystone team has been planning to move away from the home-rolled
+    solution and to a common framework for a number of release cycles. As of
+    the Rocky release Keystone is moving to the ``Flask`` framework.
+upgrade:
+  - >
+    Keystone no longer is loaded via ``paste.deploy`` and instead directly
+    loads the ``Flask`` based application. If a deployment is relying on the
+    entry-point generated wsgi files, it is important to get the newest ones.
+    These new files have minor changes to support the new loading mechanisms.
+    The files will be auto-generated via ``PBR`` and setup. The ``paste.ini``
+    file will now be ignored, but will remain on disk until the ``Stein``
+    release to ensure deployment tools are not inadvertently broken. The
+    ``paste.ini`` file will have a comment added to indicate it is ignored.
+  - >
+    With the change to not load via ``paste.deploy`` it is no longer possible
+    to remove any elements from the pipeline that keystone relies on. This
+    includes former extensions (``S3``, ``EC2``) or middleware. If these APIs
+    must be disabled, it is recommended to utilize policy to deny access.
+  - >
+    With the change to not load via ``paste.deploy`` it is no longer possible
+    to inject custom middleware into the pipeline directly, it is recommended
+    to wrap the entire stack if custom middleware is needed outside of what
+    Keystone relies on. It is also possible to change/modify requests and
+    responses via a smart proxy layer (e.g. ``HAProxy``).
+security:
+  - |
+    It is no longer possible to, via the ``paste.ini`` file to inject
+    middleware into the running keystone application. This reduces the
+    attack surface area. While this is not a huge reduction in surface area, it
+    is one less potential place that malicious code could be loaded. Malicious
+    middleware historically could collect information and/or modify the
+    requests and responses from Keystone.
+other:
+  - |
+    [`#openstack-tc IRC log <http://eavesdrop.openstack.org/irclogs/%23openstack-tc/%23openstack-tc.2018-06-04.log.html#t2018-06-04T18:13:18>`_]
+    With Technical Comittee consensus the Keystone team is not wiring up the
+    reminents of the V2.0 API that was maintained strictly due to a failure
+    to copy/paste a direct deprecation notice on the controllers even though
+    the V2.0 API was deprecated in its entirety. This should have no meaningful
+    impact on any user as the APIs (``ec2token``) have a v3 equivalent
