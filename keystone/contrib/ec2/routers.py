@@ -24,39 +24,6 @@ build_resource_relation = functools.partial(
     extension_version='1.0')
 
 
-class Ec2Extension(wsgi.ExtensionRouter):
-    def add_routes(self, mapper):
-        ec2_controller = controllers.Ec2Controller()
-        # validation
-        mapper.connect(
-            '/ec2tokens',
-            controller=ec2_controller,
-            action='authenticate',
-            conditions=dict(method=['POST']))
-
-        # crud
-        mapper.connect(
-            '/users/{user_id}/credentials/OS-EC2',
-            controller=ec2_controller,
-            action='create_credential',
-            conditions=dict(method=['POST']))
-        mapper.connect(
-            '/users/{user_id}/credentials/OS-EC2',
-            controller=ec2_controller,
-            action='get_credentials',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users/{user_id}/credentials/OS-EC2/{credential_id}',
-            controller=ec2_controller,
-            action='get_credential',
-            conditions=dict(method=['GET']))
-        mapper.connect(
-            '/users/{user_id}/credentials/OS-EC2/{credential_id}',
-            controller=ec2_controller,
-            action='delete_credential',
-            conditions=dict(method=['DELETE']))
-
-
 class Routers(wsgi.RoutersBase):
 
     _path_prefixes = ('ec2tokens', 'users')

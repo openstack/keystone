@@ -282,14 +282,6 @@ class ApplicationTest(BaseWSGITest):
         resp = req.get_response(FakeApp())
         self.assertEqual(b"http://foo:1234/identity", resp.body)
 
-        # make sure version portion of the SCRIPT_NAME, '/v2.0',  is stripped
-        # from base url
-        req = self._make_request(url='/')
-        req.environ.update({'HTTP_HOST': 'foo:80',
-                            'SCRIPT_NAME': '/bar/identity/v2.0'})
-        resp = req.get_response(FakeApp())
-        self.assertEqual(b"http://foo/bar/identity", resp.body)
-
         # make sure version portion of the SCRIPT_NAME, '/v3' is stripped from
         # base url
         req = self._make_request(url='/')

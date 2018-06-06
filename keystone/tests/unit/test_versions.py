@@ -29,39 +29,6 @@ from keystone.tests.unit import utils
 from keystone.version import controllers
 
 
-v2_MEDIA_TYPES = [
-    {
-        "base": "application/json",
-        "type": "application/"
-                "vnd.openstack.identity-v2.0+json"
-    }
-]
-
-v2_HTML_DESCRIPTION = {
-    "rel": "describedby",
-    "type": "text/html",
-    "href": "https://docs.openstack.org/"
-}
-
-
-v2_EXPECTED_RESPONSE = {
-    "id": "v2.0",
-    "status": "deprecated",
-    "updated": "2016-08-04T00:00:00Z",
-    "links": [
-        {
-            "rel": "self",
-            "href": "",     # Will get filled in after initialization
-        },
-        v2_HTML_DESCRIPTION
-    ],
-    "media-types": v2_MEDIA_TYPES
-}
-
-v2_VERSION_RESPONSE = {
-    "version": v2_EXPECTED_RESPONSE
-}
-
 v3_MEDIA_TYPES = [
     {
         "base": "application/json",
@@ -745,11 +712,6 @@ class VersionTestCase(unit.TestCase):
             if version['id'].startswith('v3'):
                 self._paste_in_port(
                     version, 'http://localhost:%s/v3/' % self.public_port)
-            elif version['id'] == 'v2.0':
-                # TODO(morgan): remove this if block in future patch,
-                # v2.0 has been removed.
-                self._paste_in_port(
-                    version, 'http://localhost:%s/v2.0/' % self.public_port)
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_admin_versions(self):
@@ -762,11 +724,6 @@ class VersionTestCase(unit.TestCase):
             if version['id'].startswith('v3'):
                 self._paste_in_port(
                     version, 'http://localhost:%s/v3/' % self.admin_port)
-            elif version['id'] == 'v2.0':
-                # TODO(morgan): remove this if block in future patch,
-                # v2.0 has been removed.
-                self._paste_in_port(
-                    version, 'http://localhost:%s/v2.0/' % self.admin_port)
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_use_site_url_if_endpoint_unset(self):
@@ -783,49 +740,7 @@ class VersionTestCase(unit.TestCase):
                 if version['id'].startswith('v3'):
                     self._paste_in_port(
                         version, 'http://localhost/v3/')
-                elif version['id'] == 'v2.0':
-                    # TODO(morgan): remove this if block in future patch,
-                    # v2.0 has been removed.
-                    self._paste_in_port(
-                        version, 'http://localhost/v2.0/')
             self.assertThat(data, _VersionsEqual(expected))
-
-    def test_public_version_v2(self):
-        # TODO(morgan): Remove this test in a future patch.
-        self.skipTest('Test is not Valid, v2.0 has been removed.')
-        client = TestClient(self.public_app)
-        resp = client.get('/v2.0/')
-        self.assertEqual(http_client.OK, resp.status_int)
-        data = jsonutils.loads(resp.body)
-        expected = v2_VERSION_RESPONSE
-        self._paste_in_port(expected['version'],
-                            'http://localhost:%s/v2.0/' % self.public_port)
-        self.assertEqual(expected, data)
-
-    def test_admin_version_v2(self):
-        # TODO(morgan): Remove this test in a future patch.
-        self.skipTest('Test is not Valid, v2.0 has been removed.')
-        client = TestClient(self.admin_app)
-        resp = client.get('/v2.0/')
-        self.assertEqual(http_client.OK, resp.status_int)
-        data = jsonutils.loads(resp.body)
-        expected = v2_VERSION_RESPONSE
-        self._paste_in_port(expected['version'],
-                            'http://localhost:%s/v2.0/' % self.admin_port)
-        self.assertEqual(expected, data)
-
-    def test_use_site_url_if_endpoint_unset_v2(self):
-        # TODO(morgan): Remove this test in a future patch.
-        self.skipTest('Test is not Valid, v2.0 has been removed.')
-        self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
-        for app in (self.public_app, self.admin_app):
-            client = TestClient(app)
-            resp = client.get('/v2.0/')
-            self.assertEqual(http_client.OK, resp.status_int)
-            data = jsonutils.loads(resp.body)
-            expected = v2_VERSION_RESPONSE
-            self._paste_in_port(expected['version'], 'http://localhost/v2.0/')
-            self.assertEqual(data, expected)
 
     def test_public_version_v3(self):
         client = TestClient(self.public_app)
@@ -892,38 +807,6 @@ class VersionTestCase(unit.TestCase):
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         self.assertEqual(v3_only_response, data)
-
-    def test_v3_disabled(self):
-        # TODO(morgan): Remove this test in a future patch.
-        self.skipTest('Test is not Valid, v2.0 has been removed.')
-        client = TestClient(self.public_app)
-        # request to /v3 should fail
-        resp = client.get('/v3/')
-        self.assertEqual(http_client.NOT_FOUND, resp.status_int)
-
-        # request to /v2.0 should pass
-        resp = client.get('/v2.0/')
-        self.assertEqual(http_client.OK, resp.status_int)
-        data = jsonutils.loads(resp.body)
-        expected = v2_VERSION_RESPONSE
-        self._paste_in_port(expected['version'],
-                            'http://localhost:%s/v2.0/' % self.public_port)
-        self.assertEqual(expected, data)
-
-        # only v2 information should be displayed by requests to /
-        v2_only_response = {
-            "versions": {
-                "values": [
-                    v2_EXPECTED_RESPONSE
-                ]
-            }
-        }
-        self._paste_in_port(v2_only_response['versions']['values'][0],
-                            'http://localhost:%s/v2.0/' % self.public_port)
-        resp = client.get('/')
-        self.assertEqual(300, resp.status_int)
-        data = jsonutils.loads(resp.body)
-        self.assertEqual(v2_only_response, data)
 
     def _test_json_home(self, path, exp_json_home_data):
         client = TestClient(self.public_app)
@@ -1052,11 +935,6 @@ class VersionSingleAppTestCase(unit.TestCase):
             if version['id'].startswith('v3'):
                 self._paste_in_port(
                     version, 'http://localhost:%s/v3/' % app_port())
-            elif version['id'] == 'v2.0':
-                # TODO(morgan): remove this if block in future patch,
-                # v2.0 has been removed.
-                self._paste_in_port(
-                    version, 'http://localhost:%s/v2.0/' % app_port())
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_public(self):
@@ -1087,8 +965,6 @@ class VersionBehindSslTestCase(unit.TestCase):
         for version in expected['versions']['values']:
             if version['id'].startswith('v3'):
                 self._paste_in_port(version, host + 'v3/')
-            elif version['id'] == 'v2.0':
-                self._paste_in_port(version, host + 'v2.0/')
         return expected
 
     def test_versions_without_headers(self):

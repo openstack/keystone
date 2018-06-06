@@ -41,19 +41,19 @@ SAMPLE_V3_TOKEN = {
                         "id": "02850c5d1d094887bdc46e81e1e15dc7",
                         "interface": "admin",
                         "region": "RegionOne",
-                        "url": "http://localhost:35357/v2.0"
+                        "url": "http://localhost:35357/v3"
                     },
                     {
                         "id": "446e244b75034a9ab4b0811e82d0b7c8",
                         "interface": "internal",
                         "region": "RegionOne",
-                        "url": "http://localhost:5000/v2.0"
+                        "url": "http://localhost:5000/v3"
                     },
                     {
                         "id": "47fa3d9f499240abb5dfcf2668f168cd",
                         "interface": "public",
                         "region": "RegionOne",
-                        "url": "http://localhost:5000/v2.0"
+                        "url": "http://localhost:5000/v3"
                     }
                 ],
                 "id": "26d7541715a44a4d9adad96f9872b633",
@@ -231,19 +231,19 @@ SAMPLE_V3_TOKEN_WITH_EMBEDED_VERSION = {
                         "id": "02850c5d1d094887bdc46e81e1e15dc7",
                         "interface": "admin",
                         "region": "RegionOne",
-                        "url": "http://localhost:35357/v2.0"
+                        "url": "http://localhost:35357/v3"
                     },
                     {
                         "id": "446e244b75034a9ab4b0811e82d0b7c8",
                         "interface": "internal",
                         "region": "RegionOne",
-                        "url": "http://localhost:5000/v2.0"
+                        "url": "http://localhost:5000/v3"
                     },
                     {
                         "id": "47fa3d9f499240abb5dfcf2668f168cd",
                         "interface": "public",
                         "region": "RegionOne",
-                        "url": "http://localhost:5000/v2.0"
+                        "url": "http://localhost:5000/v3"
                     }
                 ],
                 "id": "26d7541715a44a4d9adad96f9872b633",

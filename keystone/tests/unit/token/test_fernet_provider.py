@@ -56,6 +56,8 @@ class TestFernetTokenProvider(unit.TestCase):
         self.assertIn(token_id, u'%s' % e)
 
     def test_invalid_v2_token_raises_token_not_found(self):
+        # NOTE(morgan): Kept for regression testing, should not be deleted
+        # even though it references V2.0
         token_id = uuid.uuid4().hex
         e = self.assertRaises(
             exception.TokenNotFound,

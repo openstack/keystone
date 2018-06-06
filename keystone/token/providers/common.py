@@ -545,12 +545,6 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
             if 'token_version' in token_data:
                 if token_data['token_version'] in token_model.VERSIONS:
                     return token_data['token_version']
-            # FIXME(morganfainberg): deprecate the following logic in future
-            # revisions. It is better to just specify the token_version in
-            # the token_data itself. This way we can support future versions
-            # that might have the same fields.
-            if 'access' in token_data:
-                return token_model.V2
             if 'token' in token_data and 'methods' in token_data['token']:
                 return token_model.V3
         raise exception.UnsupportedTokenVersionException()
