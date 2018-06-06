@@ -19,6 +19,8 @@ class Routers(wsgi.RoutersBase):
 
     PATH_PREFIX = '/OS-REVOKE'
 
+    _path_prefixes = ('OS-REVOKE',)
+
     def append_v3_routers(self, mapper, routers):
         revoke_controller = controllers.RevokeController()
         self._add_resource(

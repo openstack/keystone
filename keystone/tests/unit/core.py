@@ -807,8 +807,8 @@ class TestCase(BaseTestCase):
                     return 'config:%s-paste.ini' % path
         return config
 
-    def loadapp(self, config, name='main'):
-        return service.loadapp(self._paste_config(config), name=name)
+    def loadapp(self, name='public'):
+        return service.loadapp(name=name)
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
         """Assert that two datetimes are nearly equal within a small delta.

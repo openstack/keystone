@@ -21,6 +21,8 @@ from keystone.identity import controllers
 
 class Routers(wsgi.RoutersBase):
 
+    _path_prefixes = ('users', 'groups')
+
     def append_v3_routers(self, mapper, routers):
         user_controller = controllers.UserV3()
         routers.append(

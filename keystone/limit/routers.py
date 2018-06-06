@@ -18,6 +18,7 @@ from keystone.limit import controllers
 
 
 class Routers(wsgi.RoutersBase):
+    _path_prefixes = ('registered_limits', 'limits')
 
     def append_v3_routers(self, mapper, routers):
 

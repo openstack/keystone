@@ -48,6 +48,8 @@ class V2CredentialEc2TestCase(rest.RestfulTestCase):
         return '/v2.0/users/%s/credentials/OS-EC2' % self.user_id
 
     def test_ec2_cannot_get_non_ec2_credential(self):
+        # TODO(morgan): remove this test class, V2 has been removed.
+        self.skipTest('V2.0 has been removed, remove the whole test class.')
         access_key = uuid.uuid4().hex
         cred_id = utils.hash_access_key(access_key)
         non_ec2_cred = unit.new_credential_ref(
@@ -77,6 +79,8 @@ class V2CredentialEc2TestCase(rest.RestfulTestCase):
         self.assertEqual(int(resp['error']['code']), r.status_code)
 
     def test_ec2_list_credentials(self):
+        # TODO(morgan): remove this test class, V2 has been removed.
+        self.skipTest('V2.0 has been removed, remove the whole test class.')
         self._get_ec2_cred()
         uri = self._get_ec2_cred_uri()
         r = self.public_request(method='GET', token=self.get_scoped_token(),
@@ -103,6 +107,8 @@ class V2CredentialEc2TestCase(rest.RestfulTestCase):
 class V2CredentialEc2Controller(unit.TestCase):
     def setUp(self):
         super(V2CredentialEc2Controller, self).setUp()
+        # TODO(morgan): remove the whole test case/class, v2.0 is dead.
+        self.skipTest('V2.0 has been removed, test case is not valid.')
         self.useFixture(database.Database())
         self.useFixture(
             ksfixtures.KeyRepository(

@@ -28,6 +28,7 @@ APP_CRED_RESOURCE_PATH = (
 
 
 class Routers(wsgi.RoutersBase):
+    _path_prefixes = (APP_CRED_COLLECTION_PATH, 'users',)
 
     def append_v3_routers(self, mapper, routers):
         app_cred_controller = controllers.ApplicationCredentialV3()

@@ -32,6 +32,8 @@ build_resource_relation = functools.partial(
 
 class Routers(wsgi.RoutersBase):
 
+    _path_prefixes = ('OS-SIMPLE-CERT',)
+
     def _construct_url(self, suffix):
         return "/OS-SIMPLE-CERT/%s" % suffix
 

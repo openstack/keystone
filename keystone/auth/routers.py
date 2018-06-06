@@ -19,6 +19,8 @@ from keystone.common import wsgi
 
 class Routers(wsgi.RoutersBase):
 
+    _path_prefixes = ('auth',)
+
     def append_v3_routers(self, mapper, routers):
         auth_controller = controllers.Auth()
 

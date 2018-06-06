@@ -25,6 +25,11 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class EC2ContribCoreV2(rest.RestfulTestCase):
+    def setUp(self):
+        super(EC2ContribCoreV2, self).setUp()
+        # TODO(morgan): remove test class, v2.0 has been deleted
+        self.skipTest('V2.0 has been deleted, test is nolonger valid')
+
     def config_overrides(self):
         super(EC2ContribCoreV2, self).config_overrides()
 

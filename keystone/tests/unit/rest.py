@@ -64,10 +64,10 @@ class RestfulTestCase(unit.TestCase):
                            enable_sqlite_foreign_key=enable_sqlite_foreign_key)
 
         self.public_app = webtest.TestApp(
-            self.loadapp(app_conf, name='main'))
+            self.loadapp(name='public'))
         self.addCleanup(delattr, self, 'public_app')
         self.admin_app = webtest.TestApp(
-            self.loadapp(app_conf, name='admin'))
+            self.loadapp(name='admin'))
         self.addCleanup(delattr, self, 'admin_app')
 
     def auth_plugin_config_override(self, methods=None, **method_classes):

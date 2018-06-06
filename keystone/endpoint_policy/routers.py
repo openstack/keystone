@@ -28,6 +28,8 @@ class Routers(wsgi.RoutersBase):
 
     PATH_PREFIX = '/OS-ENDPOINT-POLICY'
 
+    _path_prefixes = ('OS-ENDPOINT-POLICY',)
+
     def append_v3_routers(self, mapper, routers):
         endpoint_policy_controller = controllers.EndpointPolicyV3Controller()
 

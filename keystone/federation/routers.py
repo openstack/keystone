@@ -105,6 +105,8 @@ class Routers(wsgi.RoutersBase):
 
     """
 
+    _path_prefixes = ('auth', 'OS-FEDERATION')
+
     def _construct_url(self, suffix):
         return "/OS-FEDERATION/%s" % suffix
 

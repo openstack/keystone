@@ -23,6 +23,8 @@ from keystone.resource import controllers
 
 class Routers(wsgi.RoutersBase):
 
+    _path_prefixes = ('domains', 'projects')
+
     def append_v3_routers(self, mapper, routers):
         routers.append(
             router.Router(controllers.DomainV3(),

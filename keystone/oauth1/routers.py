@@ -63,6 +63,8 @@ class Routers(wsgi.RoutersBase):
 
     """
 
+    _path_prefixes = ('users', 'OS-OAUTH1')
+
     def append_v3_routers(self, mapper, routers):
         consumer_controller = controllers.ConsumerCrudV3()
         access_token_controller = controllers.AccessTokenCrudV3()
