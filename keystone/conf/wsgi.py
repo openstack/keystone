@@ -22,7 +22,12 @@ debug_middlware = cfg.BoolOpt(
 If set to true, this enables the oslo debug middleware in Keystone. This
 Middleware prints a lot of information about the request and the response. It
 is useful for getting information about the data on the wire (decoded) and
-passed to the WSGI application pipeline.
+passed to the WSGI application pipeline. This middleware has no effect on
+the "debug" setting in the [DEFAULT] section of the config file or setting
+Keystone's log-level to "DEBUG"; it is specific to debugging the WSGI data
+as it enters and leaves Keystone (specific request-related data). This option
+is used for introspection on the request and response data between the web
+server (apache, nginx, etc) and Keystone.
 
 This middleware is inserted as the first element in the middleware chain
 and will show the data closest to the wire.
