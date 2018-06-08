@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import copy
 
 from keystone.common import cache
 from keystone.common import driver_hints
@@ -18,8 +19,7 @@ from keystone.common import manager
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
-from keystone.limit import models
-
+from keystone.limit.models import base
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -36,9 +36,8 @@ class Manager(manager.Manager):
         unified_limit_driver = CONF.unified_limit.driver
         super(Manager, self).__init__(unified_limit_driver)
 
-        self.enforcement_model = models.get_enforcement_model_from_config(
-            CONF.unified_limit.enforcement_model
-        )
+        self.enforcement_model = base.load_driver(
+            CONF.unified_limit.enforcement_model)
 
     def _assert_resource_exist(self, unified_limit, target):
         try:
@@ -64,8 +63,8 @@ class Manager(manager.Manager):
     def get_model(self):
         """Return information of the configured enforcement model."""
         return {
-            'name': self.enforcement_model.name,
-            'description': self.enforcement_model.description
+            'name': self.enforcement_model.NAME,
+            'description': self.enforcement_model.DESCRIPTION
         }
 
     def create_registered_limits(self, registered_limits):
@@ -97,10 +96,14 @@ class Manager(manager.Manager):
     def create_limits(self, limits):
         for limit in limits:
             self._assert_resource_exist(limit, 'limit')
+        self.enforcement_model.check_limit(copy.deepcopy(limits))
         return self.driver.create_limits(limits)
 
     def update_limit(self, limit_id, limit):
         self._assert_resource_exist(limit, 'limit')
+        limit_ref = self.get_limit(limit_id)
+        limit_ref.update(limit)
+        self.enforcement_model.check_limit(copy.deepcopy([limit_ref]))
         updated_limit = self.driver.update_limit(limit_id, limit)
         self.get_limit.invalidate(self, updated_limit['id'])
         return updated_limit

@@ -10,13 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.limit.models import base
 
-# TODO(lbragstad): This should inherit from an abstract interface so that we
-# ensure all models implement the same things.
-class Model(object):
 
-    name = 'flat'
-    description = (
+class FlatModel(base.ModelBase):
+
+    NAME = 'flat'
+    DESCRIPTION = (
         'Limit enforcement and validation does not take project hierarchy '
         'into consideration.'
     )
+    MAX_PROJECT_TREE_DEPTH = None
+
+    def check_limit(self, limits):
+        # Flat limit model is not hierarchical, so don't need to check the
+        # value.
+        return
