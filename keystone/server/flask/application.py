@@ -126,10 +126,9 @@ class KeystoneDispatcherMiddleware(werkzeug.wsgi.DispatcherMiddleware):
                     # legacy and only applies to the "apps" that make up each
                     # keystone subsystem.
                     #
-                    # [OPINION] All subsystems should have been built
-                    # as "separate" wsgi apps and dispatched this way. It would
-                    # have eliminated a ton of "cross-talk" that has bitten us
-                    # in the past.
+                    # This middleware is only used in support of the transition
+                    # process from webob and home-rolled WSGI framework to
+                    # Flask
                     if script.rindex('/') > 0:
                         script, last_element = script.rsplit('/', 1)
                         last_element = '/%s' % last_element
