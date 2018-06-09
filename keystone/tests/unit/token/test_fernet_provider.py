@@ -47,17 +47,7 @@ class TestFernetTokenProvider(unit.TestCase):
     def test_supports_bind_authentication_returns_false(self):
         self.assertFalse(self.provider._supports_bind_authentication)
 
-    def test_invalid_v3_token_raises_token_not_found(self):
-        token_id = uuid.uuid4().hex
-        e = self.assertRaises(
-            exception.TokenNotFound,
-            self.provider.validate_token,
-            token_id)
-        self.assertIn(token_id, u'%s' % e)
-
-    def test_invalid_v2_token_raises_token_not_found(self):
-        # NOTE(morgan): Kept for regression testing, should not be deleted
-        # even though it references V2.0
+    def test_invalid_token_raises_token_not_found(self):
         token_id = uuid.uuid4().hex
         e = self.assertRaises(
             exception.TokenNotFound,
