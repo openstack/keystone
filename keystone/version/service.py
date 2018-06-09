@@ -12,33 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import functools
-import sys
-
 from oslo_log import log
-import routes
 
-from keystone.application_credential import routers as app_cred_routers
-from keystone.assignment import routers as assignment_routers
-from keystone.auth import routers as auth_routers
-from keystone.catalog import routers as catalog_routers
-from keystone.common import wsgi
 import keystone.conf
-from keystone.credential import routers as credential_routers
-from keystone.endpoint_policy import routers as endpoint_policy_routers
-from keystone.federation import routers as federation_routers
-from keystone.identity import routers as identity_routers
-from keystone.limit import routers as limit_routers
-from keystone.oauth1 import routers as oauth1_routers
-from keystone.policy import routers as policy_routers
-from keystone.resource import routers as resource_routers
-from keystone.revoke import routers as revoke_routers
 from keystone.server import flask as keystone_flask
 from keystone.server.flask import application
-from keystone.token import _simple_cert as simple_cert_ext
-from keystone.trust import routers as trust_routers
 from keystone.version import controllers
-from keystone.version import routers
 
 
 CONF = keystone.conf.CONF
@@ -52,107 +31,3 @@ def loadapp(name):
     controllers.latest_app = keystone_flask.setup_app_middleware(
         application.application_factory(name))
     return controllers.latest_app
-
-
-def fail_gracefully(f):
-    """Log exceptions and aborts."""
-    @functools.wraps(f)
-    def wrapper(*args, **kw):
-        try:
-            return f(*args, **kw)
-        except Exception as e:
-            LOG.debug(e, exc_info=True)
-
-            # exception message is printed to all logs
-            LOG.critical(e)
-            sys.exit(1)
-
-    return wrapper
-
-
-def warn_local_conf(f):
-    @functools.wraps(f)
-    def wrapper(*args, **local_conf):
-        if local_conf:
-            LOG.warning("'local conf' from PasteDeploy INI is being ignored.")
-        return f(*args, **local_conf)
-    return wrapper
-
-
-@fail_gracefully
-@warn_local_conf
-def public_app_factory(global_conf, **local_conf):
-    controllers.register_version('v2.0')
-    # NOTE(lbragstad): Only wire up the v2.0 version controller. We should keep
-    # this here because we still support the ec2tokens API on the v2.0 path
-    # until T. Once that is removed, we can remove the rest of the v2.0 routers
-    # and whatnot. The ec2token controller is actually wired up by the paste
-    # pipeline.
-    return wsgi.ComposingRouter(routes.Mapper(), [routers.VersionV2('public')])
-
-
-@fail_gracefully
-@warn_local_conf
-def admin_app_factory(global_conf, **local_conf):
-    controllers.register_version('v2.0')
-    # NOTE(lbragstad): Only wire up the v2.0 version controller. We should keep
-    # this here because we still support the ec2tokens API on the v2.0 path
-    # until T. Once that is removed, we can remove the rest of the v2.0 routers
-    # and whatnot. The ec2token controller is actually wired up by the paste
-    # pipeline.
-    return wsgi.ComposingRouter(routes.Mapper(), [routers.VersionV2('admin')])
-
-
-@fail_gracefully
-@warn_local_conf
-def public_version_app_factory(global_conf, **local_conf):
-    return wsgi.ComposingRouter(routes.Mapper(),
-                                [routers.Versions('public')])
-
-
-@fail_gracefully
-@warn_local_conf
-def admin_version_app_factory(global_conf, **local_conf):
-    return wsgi.ComposingRouter(routes.Mapper(),
-                                [routers.Versions('admin')])
-
-
-@fail_gracefully
-@warn_local_conf
-def v3_app_factory(global_conf, **local_conf):
-    controllers.register_version('v3')
-    mapper = routes.Mapper()
-    sub_routers = []
-    _routers = []
-
-    # NOTE(dstanek): Routers should be ordered by their frequency of use in
-    # a live system. This is due to the routes implementation. The most
-    # frequently used routers should appear first.
-    all_api_routers = [auth_routers,
-                       assignment_routers,
-                       catalog_routers,
-                       credential_routers,
-                       identity_routers,
-                       app_cred_routers,
-                       limit_routers,
-                       policy_routers,
-                       resource_routers,
-                       revoke_routers,
-                       federation_routers,
-                       oauth1_routers,
-                       endpoint_policy_routers,
-                       # TODO(morganfainberg): Remove the simple_cert router
-                       # when PKI and PKIZ tokens are removed.
-                       simple_cert_ext]
-
-    if CONF.trust.enabled:
-        all_api_routers.append(trust_routers)
-
-    for api_routers in all_api_routers:
-        routers_instance = api_routers.Routers()
-        _routers.append(routers_instance)
-        routers_instance.append_v3_routers(mapper, sub_routers)
-
-    # Add in the v3 version api
-    sub_routers.append(routers.VersionV3('public', _routers))
-    return wsgi.ComposingRouter(mapper, sub_routers)

@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_log import log
-from oslo_log import versionutils
 from oslo_serialization import jsonutils
 
 from keystone.common import wsgi
@@ -21,25 +20,6 @@ from keystone import exception
 
 
 LOG = log.getLogger(__name__)
-
-
-class TokenAuthMiddleware(wsgi.Middleware):
-
-    @versionutils.deprecated(
-        as_of=versionutils.deprecated.ROCKY,
-        what='TokenAuthMiddleware in the paste-ini pipeline.',
-        remove_in=+2)
-    def __init__(self, *args, **kwargs):
-        super(TokenAuthMiddleware, self).__init__(*args, **kwargs)
-
-        LOG.warning('The token_auth middleware functionality has been '
-                    'merged into the main auth middleware '
-                    '(keystone.middleware.auth.AuthContextMiddleware). '
-                    'The [filter:token_auth] block will need to be'
-                    'removed from your paste ini file. Failure to'
-                    'remove these elements from your paste ini file will '
-                    'result in keystone to no longer start/run when the '
-                    '`token_auth` is removed in the Stein release.')
 
 
 class JsonBodyMiddleware(wsgi.Middleware):

@@ -9,6 +9,5 @@ found below:
 .. toctree::
 
    keystone-conf.rst
-   keystone-paste-ini.rst
    logging-conf.rst
    policy-yaml.rst
