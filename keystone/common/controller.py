@@ -33,30 +33,6 @@ LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 
 
-def v2_ec2_deprecated(f):
-    @six.wraps(f)
-    def wrapper(*args, **kwargs):
-        deprecated = versionutils.deprecated(
-            what=f.__name__ + ' of the v2 EC2 APIs',
-            as_of=versionutils.deprecated.MITAKA,
-            in_favor_of=('a similar function in the v3 Credential APIs'),
-            remove_in=+7)
-        return deprecated(f)
-    return wrapper()
-
-
-def v2_auth_deprecated(f):
-    @six.wraps(f)
-    def wrapper(*args, **kwargs):
-        deprecated = versionutils.deprecated(
-            what=f.__name__ + ' of the v2 Authentication APIs',
-            as_of=versionutils.deprecated.MITAKA,
-            in_favor_of=('a similar function in the v3 Authentication APIs'),
-            remove_in=+7)
-        return deprecated(f)
-    return wrapper()
-
-
 def protected(callback=None):
     """Wrap API calls with role based access controls (RBAC).
 
@@ -144,77 +120,6 @@ def protected_wrapper(self, f, check_function, request, filter_attr,
     if (filter_attr):
         prep_info['filter_attr'] = filter_attr
     check_function(self, request, prep_info, *args, **kwargs)
-
-
-class V2Controller(provider_api.ProviderAPIMixin, wsgi.Application):
-    """Base controller class for Identity API v2."""
-
-    @staticmethod
-    def v3_to_v2_user(ref):
-        """Convert a user_ref from v3 to v2 compatible.
-
-        * v2.0 users are not domain aware, and should have domain_id removed
-        * v2.0 users expect the use of tenantId instead of default_project_id
-        * v2.0 users have a username attribute
-        * v2.0 remove password_expires_at
-
-        If ref is a list type, we will iterate through each element and do the
-        conversion.
-        """
-        def _format_default_project_id(ref):
-            """Convert default_project_id to tenantId for v2 calls."""
-            default_project_id = ref.pop('default_project_id', None)
-            if default_project_id is not None:
-                ref['tenantId'] = default_project_id
-            elif 'tenantId' in ref:
-                # NOTE(morganfainberg): To avoid v2.0 confusion if somehow a
-                # tenantId property sneaks its way into the extra blob on the
-                # user, we remove it here.  If default_project_id is set, we
-                # would override it in either case.
-                del ref['tenantId']
-
-        def _normalize_and_filter_user_properties(ref):
-            _format_default_project_id(ref)
-            ref.pop('password_expires_at', None)
-            ref.pop('domain', None)
-            ref.pop('domain_id', None)
-            if 'username' not in ref and 'name' in ref:
-                ref['username'] = ref['name']
-            return ref
-
-        if isinstance(ref, dict):
-            return _normalize_and_filter_user_properties(ref)
-        elif isinstance(ref, list):
-            return [_normalize_and_filter_user_properties(x) for x in ref]
-        else:
-            raise ValueError(_('Expected dict or list: %s') % type(ref))
-
-    @staticmethod
-    def v3_to_v2_project(ref):
-        """Convert a project_ref from v3 to v2.
-
-        * v2.0 projects are not domain aware, and should have domain_id removed
-        * v2.0 projects are not hierarchy aware, and should have parent_id
-          removed
-
-        This method should only be applied to project_refs being returned from
-        the v2.0 controller(s).
-
-        If ref is a list type, we will iterate through each element and do the
-        conversion.
-        """
-        def _filter_project_properties(ref):
-            ref.pop('domain_id', None)
-            ref.pop('parent_id', None)
-            ref.pop('is_domain', None)
-            return ref
-
-        if isinstance(ref, dict):
-            return _filter_project_properties(ref)
-        elif isinstance(ref, list):
-            return [_filter_project_properties(x) for x in ref]
-        else:
-            raise ValueError(_('Expected dict or list: %s') % type(ref))
 
 
 class V3Controller(provider_api.ProviderAPIMixin, wsgi.Application):

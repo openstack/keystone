@@ -179,15 +179,6 @@ class Version(wsgi.Application):
                 }
             })
 
-    def get_version_v2(self, request):
-        versions = self._get_versions_list(request.context_dict)
-        if 'v2.0' in _VERSIONS:
-            return wsgi.render_response(body={
-                'version': versions['v2.0']
-            })
-        else:
-            raise exception.VersionNotFound(version='v2.0')
-
     def _get_json_home_v3(self):
 
         def all_resources():
