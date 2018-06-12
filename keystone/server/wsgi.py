@@ -20,11 +20,11 @@ from keystone.server.flask import core as flask_core
 # import core and call it directly, eventually keystone_flask will not
 # export all the symbols from keystone.flask.core only specific ones that
 # are meant for public consumption
-def initialize_admin_application():
-    return keystone_flask.initialize_application(
-        name='admin', config_files=flask_core._get_config_files())
-
-
 def initialize_public_application():
     return keystone_flask.initialize_application(
         name='public', config_files=flask_core._get_config_files())
+
+
+# Keystone does not differentiate between "admin" and public with the removal
+# of V2.0
+initialize_admin_application = initialize_public_application

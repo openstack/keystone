@@ -305,14 +305,8 @@ class Application(BaseApplication):
             raise exception.ValidationError(message=msg)
 
     @classmethod
-    def base_url(cls, context, endpoint_type):
-        # NOTE(morgan): endpoint type must be "admin" or "public" to lookup
-        # the relevant value from the config options. Make the error clearer
-        # if we somehow got here with a different endpoint type.
-        if endpoint_type not in ('admin', 'public'):
-            raise ValueError('PROGRAMMING ERROR: Endpoint type must be '
-                             '"admin" or "public".')
-        url = CONF['%s_endpoint' % endpoint_type]
+    def base_url(cls, context, endpoint_type=None):
+        url = CONF['public_endpoint']
 
         if url:
             substitutions = dict(
@@ -764,7 +758,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
             local_context = {'environment': request.environ}
         elif context and 'environment' in context:
             local_context = {'environment': context['environment']}
-        url = Application.base_url(local_context, 'public')
+        url = Application.base_url(local_context)
 
         headers.append(('WWW-Authenticate', 'Keystone uri="%s"' % url))
     return render_response(status=(error.code, error.title),

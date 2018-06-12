@@ -57,6 +57,12 @@ infer (`/prefix/v3`), or if the endpoint should be found on a different host.
 
 admin_endpoint = cfg.URIOpt(
     'admin_endpoint',
+    deprecated_since=versionutils.deprecated.ROCKY,
+    deprecated_for_removal=True,
+    deprecated_reason=utils.fmt("""
+With the removal of the 2.0 API keystone does not distinguish between admin
+and public endpoints.
+"""),
     help=utils.fmt("""
 The base admin endpoint URL for Keystone that is advertised to clients (NOTE:
 this does NOT affect how Keystone listens for connections). Defaults to the
