@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_serialization import jsonutils
 
 from keystone import exception
 from keystone.i18n import _
@@ -78,6 +79,36 @@ class Status(object):
 
         raise exception.Error(message=_(
             'Unexpected status requested for JSON Home response, %s') % status)
+
+
+class JsonHomeResources(object):
+    """JSON Home resource data."""
+
+    __resources = {}
+    __serialized_resource_data = None
+
+    @classmethod
+    def _reset(cls):
+        # NOTE(morgan): this will reset all json home resource definitions.
+        # This is only used for testing.
+        cls.__resources.clear()
+        cls.__serialized_resource_data = None
+
+    @classmethod
+    def append_resource(cls, rel, data):
+        cls.__resources[rel] = data
+        cls.__serialized_resource_data = None
+
+    @classmethod
+    def resources(cls):
+        # NOTE(morgan): We use a serialized form of the resource data to
+        # ensure that the raw data is not changed by processing, this method
+        # simply populates the serialized store if it is not already populated.
+        # Any changes to this class storage object will result in clearing
+        # the serialized data value.
+        if cls.__serialized_resource_data is None:
+            cls.__serialized_resource_data = jsonutils.dumps(cls.__resources)
+        return {'resources': jsonutils.loads(cls.__serialized_resource_data)}
 
 
 def translate_urls(json_home, new_prefix):

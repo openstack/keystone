@@ -68,6 +68,7 @@ class Router(wsgi.ComposableRouter):
             self.collection_key)
         rel_data = {'href': collection_path, }
         self._resource_descriptions.append((collection_rel, rel_data))
+        json_home.JsonHomeResources.append_resource(collection_rel, rel_data)
 
         if self._is_entity_implemented:
             entity_rel = json_home.build_v3_resource_relation(self.key)
@@ -80,3 +81,5 @@ class Router(wsgi.ComposableRouter):
                 },
             }
             self._resource_descriptions.append((entity_rel, entity_rel_data))
+            json_home.JsonHomeResources.append_resource(
+                entity_rel, entity_rel_data)

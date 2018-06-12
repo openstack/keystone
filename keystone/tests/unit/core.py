@@ -40,6 +40,7 @@ import testtools
 from testtools import testcase
 
 from keystone.common import context
+from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import request
 from keystone.common import sql
@@ -684,6 +685,9 @@ class TestCase(BaseTestCase):
         # Clear the registry of providers so that providers from previous
         # tests aren't used.
         self.addCleanup(provider_api.ProviderAPIs._clear_registry_instances)
+
+        # Clear the registry of JSON Home Resources
+        self.addCleanup(json_home.JsonHomeResources._reset)
 
         # Ensure Notification subscriptions and resource types are empty
         self.addCleanup(notifications.clear_subscribers)

@@ -12,9 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_serialization import jsonutils
 from six.moves import http_client
-import webob
 
 from keystone.common import extension
 from keystone.common import json_home
@@ -39,11 +37,7 @@ def request_v3_json_home(new_prefix):
     if 'v3' not in _VERSIONS:
         # No V3 support, so return an empty JSON Home document.
         return {'resources': {}}
-
-    req = webob.Request.blank(
-        '/v3', headers={'Accept': 'application/json-home'})
-    v3_json_home_str = req.get_response(latest_app).body
-    v3_json_home = jsonutils.loads(v3_json_home_str)
+    v3_json_home = json_home.JsonHomeResources.resources()
     json_home.translate_urls(v3_json_home, new_prefix)
 
     return v3_json_home
@@ -180,15 +174,7 @@ class Version(wsgi.Application):
             })
 
     def _get_json_home_v3(self):
-
-        def all_resources():
-            for router in self._routers:
-                for resource in router.v3_resources:
-                    yield resource
-
-        return {
-            'resources': dict(all_resources())
-        }
+        return json_home.JsonHomeResources.resources()
 
     def get_version_v3(self, request):
         versions = self._get_versions_list(request.context_dict)

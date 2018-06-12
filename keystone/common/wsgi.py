@@ -623,6 +623,7 @@ class RoutersBase(object):
         json_home.Status.update_resource_data(resource_data, status)
 
         self.v3_resources.append((rel, resource_data))
+        json_home.JsonHomeResources.append_resource(rel, resource_data)
 
 
 class V3ExtensionRouter(ExtensionRouter, RoutersBase):
