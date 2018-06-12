@@ -39,6 +39,7 @@ from sqlalchemy import exc
 import testtools
 from testtools import testcase
 
+import keystone.api
 from keystone.common import context
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -49,9 +50,8 @@ from keystone import exception
 from keystone.identity.backends.ldap import common as ks_ldap
 from keystone import notifications
 from keystone.resource.backends import base as resource_base
+from keystone.server import flask as keystone_flask
 from keystone.tests.unit import ksfixtures
-from keystone.version import controllers
-from keystone.version import service
 
 
 keystone.conf.configure()
@@ -693,7 +693,7 @@ class TestCase(BaseTestCase):
         self.addCleanup(notifications.clear_subscribers)
         self.addCleanup(notifications.reset_notifier)
 
-        self.addCleanup(setattr, controllers, '_VERSIONS', [])
+        self.addCleanup(setattr, keystone.api.discovery, '_VERSIONS', [])
 
     def config(self, config_files):
         sql.initialize()
@@ -782,7 +782,9 @@ class TestCase(BaseTestCase):
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 
     def loadapp(self, name='public'):
-        return service.loadapp(name=name)
+        app = keystone_flask.application.application_factory(name)
+        app.config.update(PROPAGATE_EXCEPTIONS=True, testing=True)
+        return keystone_flask.setup_app_middleware(app)
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
         """Assert that two datetimes are nearly equal within a small delta.

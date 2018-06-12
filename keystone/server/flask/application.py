@@ -23,7 +23,7 @@ from oslo_middleware import healthcheck
 import routes
 import werkzeug.wsgi
 
-
+import keystone.api
 from keystone.application_credential import routers as app_cred_routers
 from keystone.assignment import routers as assignment_routers
 from keystone.auth import routers as auth_routers
@@ -42,8 +42,6 @@ from keystone.resource import routers as resource_routers
 from keystone.revoke import routers as revoke_routers
 from keystone.token import _simple_cert as simple_cert_ext
 from keystone.trust import routers as trust_routers
-from keystone.version import controllers as version_controllers
-from keystone.version import routers as version_routers
 
 
 LOG = log.getLogger(__name__)
@@ -105,72 +103,53 @@ class KeystoneDispatcherMiddleware(werkzeug.wsgi.DispatcherMiddleware):
     a non-native flask Mapper.
     """
 
+    @property
+    def config(self):
+        return self.app.config
+
     def __call__(self, environ, start_response):
         script = environ.get('PATH_INFO', '')
         original_script_name = environ.get('SCRIPT_NAME', '')
         last_element = ''
         path_info = ''
-        # NOTE(morgan): Special Case root documents per version, these *are*
-        # special and should never fall through to the legacy dispatcher, they
-        # must be handled by the version dispatchers.
-        if script not in ('/v3', '/', '/v2.0'):
-            while '/' in script:
-                if script in self.mounts:
-                    LOG.debug('Dispatching request to legacy mapper: %s',
-                              script)
-                    app = self.mounts[script]
-                    # NOTE(morgan): Simply because we're doing something "odd"
-                    # here and internally routing magically to another "wsgi"
-                    # router even though we're already deep in the stack we
-                    # need to re-add the last element pulled off. This is 100%
-                    # legacy and only applies to the "apps" that make up each
-                    # keystone subsystem.
-                    #
-                    # This middleware is only used in support of the transition
-                    # process from webob and home-rolled WSGI framework to
-                    # Flask
-                    if script.rindex('/') > 0:
-                        script, last_element = script.rsplit('/', 1)
-                        last_element = '/%s' % last_element
-                    environ['SCRIPT_NAME'] = original_script_name + script
-                    # Ensure there is only 1 slash between these items, the
-                    # mapper gets horribly confused if we have // in there,
-                    # which occasionally. As this is temporary to dispatch
-                    # to the Legacy mapper, fix the string until we no longer
-                    # need this logic.
-                    environ['PATH_INFO'] = '%s/%s' % (last_element.rstrip('/'),
-                                                      path_info.strip('/'))
-                    break
-                script, last_item = script.rsplit('/', 1)
-                path_info = '/%s%s' % (last_item, path_info)
-            else:
-                app = self.mounts.get(script, self.app)
-                if app != self.app:
-                    LOG.debug('Dispatching (fallthrough) request to legacy '
-                              'mapper: %s', script)
-                else:
-                    LOG.debug('Dispatching back to Flask native app.')
+        while '/' in script:
+            if script in self.mounts:
+                LOG.debug('Dispatching request to legacy mapper: %s',
+                          script)
+                app = self.mounts[script]
+                # NOTE(morgan): Simply because we're doing something "odd"
+                # here and internally routing magically to another "wsgi"
+                # router even though we're already deep in the stack we
+                # need to re-add the last element pulled off. This is 100%
+                # legacy and only applies to the "apps" that make up each
+                # keystone subsystem.
+                #
+                # This middleware is only used in support of the transition
+                # process from webob and home-rolled WSGI framework to
+                # Flask
+                if script.rindex('/') > 0:
+                    script, last_element = script.rsplit('/', 1)
+                    last_element = '/%s' % last_element
                 environ['SCRIPT_NAME'] = original_script_name + script
-                environ['PATH_INFO'] = path_info
+                # Ensure there is only 1 slash between these items, the
+                # mapper gets horribly confused if we have // in there,
+                # which occasionally. As this is temporary to dispatch
+                # to the Legacy mapper, fix the string until we no longer
+                # need this logic.
+                environ['PATH_INFO'] = '%s/%s' % (last_element.rstrip('/'),
+                                                  path_info.strip('/'))
+                break
+            script, last_item = script.rsplit('/', 1)
+            path_info = '/%s%s' % (last_item, path_info)
         else:
-            # Special casing for version discovery docs.
-            # REMOVE THIS SPECIAL CASE WHEN VERSION DISCOVERY GOES FLASK NATIVE
             app = self.mounts.get(script, self.app)
-            if script == '/':
-                # ROOT Version Discovery Doc
-                LOG.debug('Dispatching to legacy root mapper for root version '
-                          'discovery document: `%s`', script)
-                environ['SCRIPT_NAME'] = '/'
-                environ['PATH_INFO'] = '/'
-            elif script == '/v3':
-                LOG.debug('Dispatching to legacy mapper for v3 version '
-                          'discovery document: `%s`', script)
-                # V3 Version Discovery Doc
-                environ['SCRIPT_NAME'] = '/v3'
-                environ['PATH_INFO'] = '/'
+            if app != self.app:
+                LOG.debug('Dispatching (fallthrough) request to legacy '
+                          'mapper: %s', script)
             else:
-                LOG.debug('Dispatching to flask native app for version '
-                          'discovery document: `%s`', script)
+                LOG.debug('Dispatching back to Flask native app.')
+            environ['SCRIPT_NAME'] = original_script_name + script
+            environ['PATH_INFO'] = path_info
 
         # NOTE(morgan): remove extra trailing slashes so the mapper can do the
         # right thing and get the requests mapped to the right place. For
@@ -183,6 +162,18 @@ class KeystoneDispatcherMiddleware(werkzeug.wsgi.DispatcherMiddleware):
         return app(environ, start_response)
 
 
+class _ComposibleRouterStub(keystone_wsgi.ComposableRouter):
+    def __init__(self, routers):
+        self._routers = routers
+
+
+def _add_vary_x_auth_token_header(response):
+    # Add the expected Vary Header, this is run after every request in the
+    # response-phase
+    response.headers['Vary'] = 'X-Auth-Token'
+    return response
+
+
 @fail_gracefully
 def application_factory(name='public'):
     if name not in ('admin', 'public'):
@@ -192,6 +183,12 @@ def application_factory(name='public'):
     # NOTE(morgan): The Flask App actually dispatches nothing until we migrate
     # some routers to Flask-Blueprints, it is simply a placeholder.
     app = flask.Flask(name)
+    app.after_request(_add_vary_x_auth_token_header)
+
+    # NOTE(morgan): Configure the Flask Environment for our needs.
+    app.config.update(
+        # We want to bubble up Flask Exceptions (for now)
+        PROPAGATE_EXCEPTIONS=True)
 
     # TODO(morgan): Convert Subsystems over to Flask-Native, for now, we simply
     # dispatch to another "application" [e.g "keystone"]
@@ -215,28 +212,23 @@ def application_factory(name='public'):
         _routers.append(routers_instance)
         routers_instance.append_v3_routers(mapper, sub_routers)
 
-    # Add in the v3 version api
-    sub_routers.append(version_routers.VersionV3('public', _routers))
-    version_controllers.register_version('v3')
+    # TODO(morgan): Remove "API version registration". For now this is kept
+    # for ease of conversion (minimal changes)
+    keystone.api.discovery.register_version('v3')
+
+    # NOTE(morgan): We add in all the keystone.api blueprints here, this
+    # replaces (as they are implemented) the legacy dispatcher work.
+    for api in keystone.api.__apis__:
+        for api_bp in api.APIs:
+            api_bp.instantiate_and_register_to_app(app)
+
+    # Build and construct the dispatching for the Legacy dispatching model
+    sub_routers.append(_ComposibleRouterStub(_routers))
     legacy_dispatcher = keystone_wsgi.ComposingRouter(mapper, sub_routers)
 
     for pfx in itertools.chain(*[rtr.Routers._path_prefixes for
                                  rtr in ALL_API_ROUTERS]):
         dispatch_map['/v3/%s' % pfx] = legacy_dispatcher
-
-    # NOTE(morgan) Move the version routers to Flask Native First! It will
-    # not work well due to how the dispatcher works unless this is first,
-    # otherwise nothing falls through to the native flask app.
-    dispatch_map['/v3'] = legacy_dispatcher
-
-    # NOTE(morgan): The Root Version Discovery Document is special and needs
-    # it's own mapper/router since the v3 one assumes it owns the root due
-    # to legacy paste-isms where /v3 would be routed to APP=/v3, PATH=/
-    root_version_disc_mapper = routes.Mapper()
-    root_version_disc_router = version_routers.Versions(name)
-    root_dispatcher = keystone_wsgi.ComposingRouter(
-        root_version_disc_mapper, [root_version_disc_router])
-    dispatch_map['/'] = root_dispatcher
 
     application = KeystoneDispatcherMiddleware(
         app,

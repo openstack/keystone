@@ -119,4 +119,4 @@ class APIBase(object):
         explicitly via normal instantiation where more values may be passed
         via :meth:`__init__`.
         """
-        flask_app.register(cls())
+        flask_app.register_blueprint(cls().blueprint)
