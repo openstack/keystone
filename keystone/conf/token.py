@@ -114,6 +114,14 @@ request for a scoped token to avoid re-scoping altogether.
 infer_roles = cfg.BoolOpt(
     'infer_roles',
     default=True,
+    deprecated_since=versionutils.deprecated.ROCKY,
+    deprecated_reason=utils.fmt("""
+Default roles depend on a chain of implied role assignments. Ex: an admin user
+will also have the reader and member role. By ensuring that all these roles
+will always appear on the token validation response, we can improve the
+simplicity and readability of policy files.
+"""),
+    deprecated_for_removal=True,
     help=utils.fmt("""
 This controls whether roles should be included with tokens that are not
 directly assigned to the token's scope, but are instead linked implicitly to
