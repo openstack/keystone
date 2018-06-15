@@ -304,8 +304,8 @@ While it is expected that any "real" deployment at a large company will manage
 their users and groups in their existing user systems, a variety of CRUD
 operations are provided for the sake of development and testing.
 
-CRUD is treated as an extension or additional feature to the core feature set
-in that it is not required that a backend support it. It is expected that
+CRUD is treated as an extension or additional feature to the core feature set,
+in that a backend is not required to support it. It is expected that
 backends for services that don't support the CRUD operations will raise a
 :mod:`keystone.exception.NotImplemented`.
 
