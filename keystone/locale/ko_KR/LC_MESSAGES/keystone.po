@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-27 13:35+0000\n"
+"POT-Creation-Date: 2018-06-16 01:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -266,19 +266,8 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "액세스 토큰을 유효성 검증할 수 없음"
 
-msgid "Credential belongs to another user"
-msgstr "신임 정보가 다른 사용자에 속함"
-
 msgid "Credential signature mismatch"
 msgstr "자격 증명 서명 불일치"
-
-#, python-format
-msgid ""
-"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
-"of its entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"Liberty에서 %(namespace)r의 입력점을 사용하기 위해 인증 플러그인 %(name)r의 "
-"직접 가져오기는 더 이상 사용되지 않으므로, N에서 제거될 수 있습니다."
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -560,9 +549,6 @@ msgstr "엔드포인트 %(endpoint_id)s과(와) 연관된 정책이 없습니다
 msgid "No token in the request"
 msgstr "요청에 토큰이 없음"
 
-msgid "Non-default domain is not supported"
-msgstr "기본이 아닌 도메인은 지원되지 않음"
-
 msgid "One of the trust agents is disabled or deleted"
 msgstr "신뢰 에이전트 중 하나가 사용 안함으로 설정되었거나 삭제됨"
 
@@ -612,16 +598,6 @@ msgid ""
 msgstr ""
 "%(redelegation_depth)d의 나머지 재위임 깊이가 허용 범위 [0..%(max_count)d]을"
 "(를) 벗어남"
-
-#, python-format
-msgid ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
-"server could not comply with the request because the attribute size is "
-"invalid (too large). The client is assumed to be in error."
-msgstr ""
-"요청 속성 %(attribute)s이(가) %(size)i 이하여야 합니다. 속성 크기가 올바르지 "
-"않기 때문에(너무 큼) 서버가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태"
-"로 간주됩니다."
 
 msgid "Request must have an origin query parameter"
 msgstr "요청에는 원본 조회 매개변수가 있어야 함"
@@ -756,9 +732,6 @@ msgid ""
 msgstr ""
 "시간소인이 예상된 형식이 아닙니다. 잘못 구성되었거나 올바르지 않으므로 서버"
 "가 요청을 준수할 수 없습니다. 클라이언트가 오류 상태로 간주됩니다."
-
-msgid "Token belongs to another user"
-msgstr "토큰이 다른 사용자에 속함"
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "토큰 버전이 인식되지 않거나 지원되지 않습니다. "

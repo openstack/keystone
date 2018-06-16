@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-27 13:35+0000\n"
+"POT-Creation-Date: 2018-06-16 01:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -282,20 +282,8 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "Não foi possível validar o token de acesso"
 
-msgid "Credential belongs to another user"
-msgstr "A credencial pertence à outro usuário"
-
 msgid "Credential signature mismatch"
 msgstr "Incompatibilidade de assinatura de credencial"
-
-#, python-format
-msgid ""
-"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
-"of its entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"A importação direta de um plug-in de autoria %(name)r foi descontinuada a "
-"partir do Liberty a favor de seu ponto de entrada de %(namespace)r e pode "
-"ser removida no N."
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -578,9 +566,6 @@ msgstr "Nenhuma política associada ao terminal %(endpoint_id)s."
 msgid "No token in the request"
 msgstr "Não existe token na solicitação."
 
-msgid "Non-default domain is not supported"
-msgstr "O domínio não padrão não é suportado"
-
 msgid "One of the trust agents is disabled or deleted"
 msgstr "Um dos agentes de confiança está desativado ou excluído"
 
@@ -629,16 +614,6 @@ msgid ""
 msgstr ""
 "Profundidade da redelegação restante do %(redelegation_depth)d fora do "
 "intervalo permitido de [0..%(max_count)d]"
-
-#, python-format
-msgid ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
-"server could not comply with the request because the attribute size is "
-"invalid (too large). The client is assumed to be in error."
-msgstr ""
-"Atributo de requisição %(attribute)s deve ser menor ou igual a %(size)i. O "
-"servidor não pôde atender a requisição porque o tamanho do atributo é "
-"inválido (muito grande). Assume-se que o cliente está em erro."
 
 msgid "Request must have an origin query parameter"
 msgstr "A solicitação deve ter um parâmetro de consulta de origem"
@@ -775,9 +750,6 @@ msgstr ""
 "A data não está no formato especificado. O servidor não pôde realizar a "
 "requisição pois ela está mal formada ou incorreta. Assume-se que o cliente "
 "está com erro."
-
-msgid "Token belongs to another user"
-msgstr "O token pertence à outro usuário"
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "A versão de Token é irreconhecida ou não suportada"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-27 13:35+0000\n"
+"POT-Creation-Date: 2018-06-16 01:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -244,19 +244,8 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "無法驗證存取記號"
 
-msgid "Credential belongs to another user"
-msgstr "認證屬於另一個使用者"
-
 msgid "Credential signature mismatch"
 msgstr "認證簽章不符"
-
-#, python-format
-msgid ""
-"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
-"of its entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"不建議直接匯入鑑別外掛程式 %(name)r，因為 Liberty 支援它在 %(namespace)r 中的"
-"進入點且可能在 N 中予以移除。"
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -507,9 +496,6 @@ msgstr "沒有原則與端點 %(endpoint_id)s 相關聯。"
 msgid "No token in the request"
 msgstr "要求中沒有記號"
 
-msgid "Non-default domain is not supported"
-msgstr "不支援非預設網域"
-
 msgid "One of the trust agents is disabled or deleted"
 msgstr "已停用或刪除其中一個信任代理程式"
 
@@ -552,15 +538,6 @@ msgid ""
 "of [0..%(max_count)d]"
 msgstr ""
 "剩餘的重新委派深度 %(redelegation_depth)d 超出容許的範圍 [0..%(max_count)d]"
-
-#, python-format
-msgid ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
-"server could not comply with the request because the attribute size is "
-"invalid (too large). The client is assumed to be in error."
-msgstr ""
-"要求屬性 %(attribute)s 必須少於或等於 %(size)i。伺服器無法遵守要求，因為屬性"
-"大小無效（太大）。系統會假定用戶端處於錯誤狀態。"
 
 msgid "Request must have an origin query parameter"
 msgstr "要求必須具有原始查詢參數"
@@ -682,9 +659,6 @@ msgid ""
 msgstr ""
 "時間戳記的格式不符合預期。伺服器無法遵守要求，因為它的格式不正確。系統會假定"
 "用戶端處於錯誤狀態。"
-
-msgid "Token belongs to another user"
-msgstr "記號屬於另一個使用者"
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "無法辨識或不支援記號版本。"
