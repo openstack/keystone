@@ -377,3 +377,66 @@ Remove a role from a user-project pair:
       $ openstack role list --user USER_NAME --project TENANT_ID
 
    If the role was removed, the command output omits the removed role.
+
+Creating implied roles
+----------------------
+
+It is possible to build role hierarchies by having roles imply other roles.
+These are called implied roles, or role inference rules.
+
+To illustrate the capability, let's have the ``admin`` role imply the
+``Member`` role. In this example, if a user was assigned the prior role,
+which in this case is the ``admin`` role, they would also get the ``Member``
+role that it implies.
+
+.. code-block:: console
+
+    $ openstack implied role create admin --implied-role Member
+    +------------+----------------------------------+
+    | Field      | Value                            |
+    +------------+----------------------------------+
+    | implies    | 71ccc37d41c8491c975ae72676db687f |
+    | prior_role | 29c09e68e6f741afa952a837e29c700b |
+    +------------+----------------------------------+
+
+.. note::
+
+    Role implications only go one way, from a "prior" role to an "implied"
+    role. Therefore assigning a user the ``Member`` will not grant them the
+    ``admin`` role.
+
+This makes it easy to break up large roles into smaller pieces, allowing for
+fine grained permissions, while still having an easy way to assign all the
+pieces as if they were a single one. For example, you can have a ``Member``
+role imply ``compute_member``, ``network_member``, and ``volume_member``,
+and then assign either the full-blown ``Member`` role to users or any one of
+the subsets.
+
+Listing implied roles
+---------------------
+
+To list implied roles:
+
+.. code-block:: console
+
+    $ openstack implied role list
+    +----------------------------------+-----------------+----------------------------------+-------------------+
+    | Prior Role ID                    | Prior Role Name | Implied Role ID                  | Implied Role Name |
+    +----------------------------------+-----------------+----------------------------------+-------------------+
+    | 29c09e68e6f741afa952a837e29c700b | admin           | 71ccc37d41c8491c975ae72676db687f | Member            |
+    +----------------------------------+-----------------+----------------------------------+-------------------+
+
+Deleting implied roles
+----------------------
+
+To delete a role inference rule:
+
+.. code-block:: console
+
+    $ openstack implied role delete admin --implied-role Member
+
+.. note::
+
+    Deleting an implied role removes the role inference rule. It does not
+    delete the prior or implied role. Therefore if a user was assigned the
+    prior role, they will no longer have the roles that it implied.
