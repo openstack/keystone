@@ -459,11 +459,6 @@ class V3Controller(provider_api.ProviderAPIMixin, wsgi.Application):
             ref['domain_id'] = self._get_domain_id_from_token(request)
         return ref
 
-    @staticmethod
-    def filter_domain_id(ref):
-        """Override v2 filter to let domain_id out for v3 calls."""
-        return ref
-
     def check_protection(self, request, prep_info, target_attr=None):
         """Provide call protection for complex target attributes.
 
