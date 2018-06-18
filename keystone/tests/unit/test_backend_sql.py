@@ -1193,5 +1193,9 @@ class SqlLimit(SqlTests, limit_tests.LimitTests):
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', default_limit=10, id=uuid.uuid4().hex)
+        registered_limit_3 = unit.new_registered_limit_ref(
+            service_id=self.service_one['id'],
+            region_id=self.region_two['id'],
+            resource_name='backup', default_limit=10, id=uuid.uuid4().hex)
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2, registered_limit_3])
