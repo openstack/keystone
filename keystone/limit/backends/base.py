@@ -47,13 +47,13 @@ class UnifiedLimitDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def update_registered_limits(self, registered_limits):
+    def update_registered_limit(self, registered_limit_id, registered_limit):
         """Update existing registered limits.
 
-        :param registered_limits: a list of dictionaries representing limits to
-                                  update.
-
-        :returns: all the registered limits.
+        :param registered_limit_id: the id of the registered limit.
+        :param registered_limit: a dict containing the registered limit
+                                 attributes to update.
+        :returns: the updated registered limit.
         :raises keystone.exception.RegisteredLimitNotFound: If registered limit
             doesn't exist.
         :raises keystone.exception.Conflict: If update to a duplicate
@@ -115,12 +115,13 @@ class UnifiedLimitDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def update_limits(self, limits):
+    def update_limit(self, limit_id, limit):
         """Update existing limits.
 
-        :param limits: a list of dictionaries representing limits to update.
+        :param limit_id: the id of the limit.
+        :param limit: a dict containing the limit attributes to update.
 
-        :returns: all the limits.
+        :returns: the updated limit.
         :raises keystone.exception.LimitNotFound: If limit doesn't
             exist.
         :raises keystone.exception.Conflict: If update to a duplicate limit.

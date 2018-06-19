@@ -149,34 +149,23 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
             return new_registered_limits
 
     @sql.handle_conflicts(conflict_type='registered_limit')
-    def update_registered_limits(self, registered_limits):
+    def update_registered_limit(self, registered_limit_id, registered_limit):
         try:
             with sql.session_for_write() as session:
-                for registered_limit in registered_limits:
-                    ref = self._get_registered_limit(session,
-                                                     registered_limit['id'])
-                    if not ref.region_id:
-                        self._check_referenced_limit_without_region(ref)
-                    old_dict = ref.to_dict()
-                    old_dict.update(registered_limit)
-                    new_registered_limit = RegisteredLimitModel.from_dict(
-                        old_dict)
-                    for attr in RegisteredLimitModel.attributes:
-                        if attr != 'id':
-                            setattr(ref, attr, getattr(new_registered_limit,
-                                                       attr))
-        except db_exception.DBReferenceError as e:
-            try:
-                reg_id = e.inner_exception.params['registered_limit_id']
-            except (TypeError, KeyError):
-                # TODO(wxy): For SQLite, the registered_limit_id is not
-                # contained in the error message. We should find a way to
-                # handle it, maybe to improve the message in oslo.db.
-                error_message = _("Unable to update the registered limits "
-                                  "because there are project limits "
-                                  "associated with it.")
-                raise exception.RegisteredLimitError(message=error_message)
-            raise exception.RegisteredLimitError(id=reg_id)
+                ref = self._get_registered_limit(session, registered_limit_id)
+                if not ref.region_id:
+                    self._check_referenced_limit_without_region(ref)
+                old_dict = ref.to_dict()
+                old_dict.update(registered_limit)
+                new_registered_limit = RegisteredLimitModel.from_dict(
+                    old_dict)
+                for attr in registered_limit:
+                    if attr != 'id':
+                        setattr(ref, attr, getattr(new_registered_limit,
+                                                   attr))
+                return ref.to_dict()
+        except db_exception.DBReferenceError:
+            raise exception.RegisteredLimitError(id=registered_limit_id)
 
     @driver_hints.truncated
     def list_registered_limits(self, hints):
@@ -226,15 +215,15 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
             raise exception.NoLimitReference()
 
     @sql.handle_conflicts(conflict_type='limit')
-    def update_limits(self, limits):
+    def update_limit(self, limit_id, limit):
         with sql.session_for_write() as session:
-            for limit in limits:
-                ref = self._get_limit(session, limit['id'])
-                old_dict = ref.to_dict()
-                old_dict.update(limit)
-                new_limit = LimitModel.from_dict(old_dict)
-                ref.resource_limit = new_limit.resource_limit
-                ref.description = new_limit.description
+            ref = self._get_limit(session, limit_id)
+            old_dict = ref.to_dict()
+            old_dict.update(limit)
+            new_limit = LimitModel.from_dict(old_dict)
+            ref.resource_limit = new_limit.resource_limit
+            ref.description = new_limit.description
+            return ref.to_dict()
 
     @driver_hints.truncated
     def list_limits(self, hints):

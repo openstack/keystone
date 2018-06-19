@@ -15,7 +15,7 @@
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 
-_registered_limit_create_properties = {
+_registered_limit_properties = {
     'service_id': parameter_types.id_string,
     'region_id': {
         'type': 'string'
@@ -31,7 +31,7 @@ _registered_limit_create_properties = {
 
 _registered_limit_create = {
     'type': 'object',
-    'properties': _registered_limit_create_properties,
+    'properties': _registered_limit_properties,
     'additionalProperties': False,
     'required': ['service_id', 'resource_name', 'default_limit']
 }
@@ -41,33 +41,10 @@ registered_limit_create = {
     'items': _registered_limit_create,
     'minItems': 1
 }
-
-_registered_limit_update_properties = {
-    'id': parameter_types.id_string,
-    'service_id': parameter_types.id_string,
-    'region_id': {
-        'type': 'string'
-    },
-    'resource_name': {
-        'type': 'string'
-    },
-    'default_limit': {
-        'type': 'integer'
-    },
-    'description': validation.nullable(parameter_types.description)
-}
-
-_registered_limit_update = {
-    'type': 'object',
-    'properties': _registered_limit_update_properties,
-    'additionalProperties': False,
-    'required': ['id', ]
-}
-
 registered_limit_update = {
-    'type': 'array',
-    'items': _registered_limit_update,
-    'minItems': 1
+    'type': 'object',
+    'properties': _registered_limit_properties,
+    'additionalProperties': False,
 }
 
 _limit_create_properties = {
@@ -85,7 +62,6 @@ _limit_create_properties = {
     'description': validation.nullable(parameter_types.description)
 }
 
-
 _limit_create = {
     'type': 'object',
     'properties': _limit_create_properties,
@@ -100,22 +76,14 @@ limit_create = {
 }
 
 _limit_update_properties = {
-    'id': parameter_types.id_string,
     'resource_limit': {
         'type': 'integer'
     },
     'description': validation.nullable(parameter_types.description)
 }
 
-_limit_update = {
+limit_update = {
     'type': 'object',
     'properties': _limit_update_properties,
-    'additionalProperties': False,
-    'required': ['id', ]
-}
-
-limit_update = {
-    'type': 'array',
-    'items': _limit_update,
-    'minItems': 1
+    'additionalProperties': False
 }

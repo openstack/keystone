@@ -145,16 +145,18 @@ class RegisteredLimitTests(object):
         PROVIDERS.unified_limit_api.create_registered_limits(
             [registered_limit_1, registered_limit_2])
 
-        # update one, return all registered_limits
+        expect_region = 'region_two'
         registered_limit_update = {'id': registered_limit_1['id'],
-                                   'region_id': 'region_two'}
-        res = PROVIDERS.unified_limit_api.update_registered_limits(
-            [registered_limit_update])
-        for re in res:
-            if re['id'] == registered_limit_1['id']:
-                self.assertEqual('region_two', re['region_id'])
-            if re['id'] == registered_limit_2['id']:
-                self.assertDictEqual(registered_limit_2, re)
+                                   'region_id': expect_region}
+        res = PROVIDERS.unified_limit_api.update_registered_limit(
+            registered_limit_1['id'], registered_limit_update)
+        self.assertEqual(expect_region, res['region_id'])
+
+        # 'id' can be omitted in the update body
+        registered_limit_update = {'region_id': expect_region}
+        res = PROVIDERS.unified_limit_api.update_registered_limit(
+            registered_limit_2['id'], registered_limit_update)
+        self.assertEqual(expect_region, res['region_id'])
 
     def test_update_registered_limit_invalid_input_return_bad_request(self):
         registered_limit_1 = unit.new_registered_limit_ref(
@@ -167,14 +169,14 @@ class RegisteredLimitTests(object):
         update_ref = {'id': registered_limit_1['id'],
                       'service_id': uuid.uuid4().hex}
         self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.update_registered_limits,
-                          [update_ref])
+                          PROVIDERS.unified_limit_api.update_registered_limit,
+                          registered_limit_1['id'], update_ref)
 
         update_ref = {'id': registered_limit_1['id'],
                       'region_id': 'fake_id'}
         self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.update_registered_limits,
-                          [update_ref])
+                          PROVIDERS.unified_limit_api.update_registered_limit,
+                          registered_limit_1['id'], update_ref)
 
     def test_update_registered_limit_duplicate(self):
         registered_limit_1 = unit.new_registered_limit_ref(
@@ -193,8 +195,8 @@ class RegisteredLimitTests(object):
                       'region_id': self.region_two['id'],
                       'resource_name': 'snapshot'}
         self.assertRaises(exception.Conflict,
-                          PROVIDERS.unified_limit_api.update_registered_limits,
-                          [update_ref])
+                          PROVIDERS.unified_limit_api.update_registered_limit,
+                          registered_limit_1['id'], update_ref)
 
     @test_utils.wip("Skipped until Bug 1744195 is resolved")
     def test_update_registered_limit_when_reference_limit_exist(self):
@@ -215,8 +217,8 @@ class RegisteredLimitTests(object):
                                    'region_id': 'region_two'}
 
         self.assertRaises(exception.RegisteredLimitError,
-                          PROVIDERS.unified_limit_api.update_registered_limits,
-                          [registered_limit_update])
+                          PROVIDERS.unified_limit_api.update_registered_limit,
+                          registered_limit_1['id'], registered_limit_update)
 
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
@@ -233,8 +235,8 @@ class RegisteredLimitTests(object):
                                    'region_id': 'region_two'}
 
         self.assertRaises(exception.RegisteredLimitError,
-                          PROVIDERS.unified_limit_api.update_registered_limits,
-                          [registered_limit_update])
+                          PROVIDERS.unified_limit_api.update_registered_limit,
+                          registered_limit_2['id'], registered_limit_update)
 
     def test_list_registered_limits(self):
         # create two registered limits
@@ -494,7 +496,7 @@ class LimitTests(object):
         res = PROVIDERS.unified_limit_api.create_limits([limit])
         self.assertIsNone(res[0]['description'])
 
-    def test_update_limits(self):
+    def test_update_limit(self):
         # create two limits
         limit_1 = unit.new_limit_ref(
             project_id=self.tenant_bar['id'],
@@ -508,15 +510,18 @@ class LimitTests(object):
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
-        # update one, return all limits
+        expect_limit = 8
         limit_update = {'id': limit_1['id'],
-                        'resource_limit': 8}
-        res = PROVIDERS.unified_limit_api.update_limits([limit_update])
-        for re in res:
-            if re['id'] == limit_1['id']:
-                self.assertEqual(8, re['resource_limit'])
-            if re['id'] == limit_2['id']:
-                self.assertDictEqual(limit_2, re)
+                        'resource_limit': expect_limit}
+        res = PROVIDERS.unified_limit_api.update_limit(limit_1['id'],
+                                                       limit_update)
+        self.assertEqual(expect_limit, res['resource_limit'])
+
+        # 'id' can be omitted in the update body
+        limit_update = {'resource_limit': expect_limit}
+        res = PROVIDERS.unified_limit_api.update_limit(limit_2['id'],
+                                                       limit_update)
+        self.assertEqual(expect_limit, res['resource_limit'])
 
     def test_list_limits(self):
         # create two limits
