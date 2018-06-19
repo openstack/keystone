@@ -373,5 +373,7 @@ def get_user_unique_id_and_display_name(request, mapped_properties):
     elif not user_id:
         user_id = user_name
 
+    if user_name:
+        user['name'] = user_name
     user['id'] = parse.quote(user_id)
     return (user['id'], user['name'])
