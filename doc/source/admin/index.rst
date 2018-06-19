@@ -21,6 +21,7 @@ command-line client.
    identity-certificates-for-pki.rst
    identity-domain-specific-config.rst
    identity-url-safe-naming.rst
+   identity-case-insensitive.rst
    identity-external-authentication.rst
    identity-integrate-with-ldap.rst
    identity-upgrading.rst
