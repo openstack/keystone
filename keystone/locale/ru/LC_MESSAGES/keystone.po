@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-02-24 08:29+0000\n"
+"POT-Creation-Date: 2018-06-16 01:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,7 +22,7 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 "Generated-By: Babel 2.0\n"
-"X-Generator: Zanata 3.9.6\n"
+"X-Generator: Zanata 4.3.3\n"
 "Language-Team: Russian\n"
 
 #, python-format
@@ -277,20 +277,8 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "Не удалось проверить ключ доступа"
 
-msgid "Credential belongs to another user"
-msgstr "Разрешение принадлежит другому пользователю"
-
 msgid "Credential signature mismatch"
 msgstr "Несовпадение подписи идентификационных данных"
-
-#, python-format
-msgid ""
-"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
-"of its entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"Прямой импорт модуля идентификации %(name)r устарел в Liberty и может быть "
-"удален в выпуске N. Вместо этого используется его точка входа из "
-"%(namespace)r."
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -574,9 +562,6 @@ msgstr "С конечной точкой %(endpoint_id)s не связано н�
 msgid "No token in the request"
 msgstr "В запросе отсутствует маркер"
 
-msgid "Non-default domain is not supported"
-msgstr "Домен, отличный от применяемого по умолчанию, не поддерживается"
-
 msgid "One of the trust agents is disabled or deleted"
 msgstr "Один из доверенных агентов отключен или удален"
 
@@ -626,17 +611,6 @@ msgid ""
 msgstr ""
 "Оставшаяся глубина изменения делегирования %(redelegation_depth)d выходит за "
 "пределы разрешенного диапазона [0..%(max_count)d]"
-
-#, python-format
-msgid ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
-"server could not comply with the request because the attribute size is "
-"invalid (too large). The client is assumed to be in error."
-msgstr ""
-"Атрибут запроса %(attribute)s не может быть больше %(size)i. Серверу не "
-"удалось удовлетворить запрос, поскольку размер атрибута является "
-"недопустимым (слишком большой). Предположительно, клиент находится в "
-"состоянии ошибки."
 
 msgid "Request must have an origin query parameter"
 msgstr "Запрос должен содержать параметр origin"
@@ -772,9 +746,6 @@ msgid ""
 msgstr ""
 "Метка в неожиданном формате. Сервер не может выполнить запрос, поскольку он "
 "либо искажен или неправилен. Клиент, как предполагается, является ошибочным."
-
-msgid "Token belongs to another user"
-msgstr "Маркер принадлежит другому пользователю"
 
 msgid "Token version is unrecognizable or unsupported."
 msgstr "Версия маркера не распознана либо не поддерживается."

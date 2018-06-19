@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-03-04 19:11+0000\n"
+"POT-Creation-Date: 2018-06-16 01:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-02-18 01:14+0000\n"
+"PO-Revision-Date: 2018-06-15 05:24+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -490,9 +490,6 @@ msgstr "Could not validate the access token"
 msgid "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
 msgstr "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
 
-msgid "Credential belongs to another user"
-msgstr "Credential belongs to another user"
-
 msgid "Credential could not be decrypted. Please contact the administrator"
 msgstr "Credential could not be decrypted. Please contact the administrator"
 
@@ -502,14 +499,6 @@ msgstr "Credential could not be encrypted: %s"
 
 msgid "Credential signature mismatch"
 msgstr "Credential signature mismatch"
-
-#, python-format
-msgid ""
-"Direct import of auth plugin %(name)r is deprecated as of Liberty in favor "
-"of its entrypoint from %(namespace)r and may be removed in N."
-msgstr ""
-"Direct import of auth plugin %(name)r is deprecated as of Liberty in favour "
-"of its entrypoint from %(namespace)r and may be removed in N."
 
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
@@ -945,9 +934,6 @@ msgstr "No remaining uses for trust: %(trust_id)s."
 msgid "No token in the request"
 msgstr "No token in the request"
 
-msgid "Non-default domain is not supported"
-msgstr "Non-default domain is not supported"
-
 msgid ""
 "Number of User/Group entities returned by LDAP exceeded size limit. Contact "
 "your LDAP administrator."
@@ -1065,16 +1051,6 @@ msgstr ""
 
 msgid "Request Token does not have an authorizing user id."
 msgstr "Request Token does not have an authorising user id."
-
-#, python-format
-msgid ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
-"server could not comply with the request because the attribute size is "
-"invalid (too large). The client is assumed to be in error."
-msgstr ""
-"Request attribute %(attribute)s must be less than or equal to %(size)i. The "
-"server could not comply with the request because the attribute size is "
-"invalid (too large). The client is assumed to be in error."
 
 msgid "Request must have an origin query parameter"
 msgstr "Request must have an origin query parameter"
@@ -1281,12 +1257,6 @@ msgstr ""
 "request since it is either malformed or otherwise incorrect. The client is "
 "assumed to be in error."
 
-msgid "Token belongs to another user"
-msgstr "Token belongs to another user"
-
-msgid "Token is absent"
-msgstr "Token is absent"
-
 msgid "Token version is unrecognizable or unsupported."
 msgstr "Token version is unrecognisable or unsupported."
 
@@ -1423,9 +1393,6 @@ msgid ""
 msgstr ""
 "Unable to update the registered limits because there are project limits "
 "associated with it."
-
-msgid "Unable to validate Federation tokens using the version v2.0 API."
-msgstr "Unable to validate Federation tokens using the version v2.0 API."
 
 msgid "Unable to validate password due to invalid configuration"
 msgstr "Unable to validate password due to invalid configuration"
@@ -1575,6 +1542,15 @@ msgstr "You are not authorised to perform the requested action."
 #, python-format
 msgid "You are not authorized to perform the requested action: %(action)s."
 msgstr "You are not authorised to perform the requested action: %(action)s."
+
+msgid ""
+"You cannot change your password at this time due to password policy "
+"disallowing password changes. Please contact your administrator to reset "
+"your password."
+msgstr ""
+"You cannot change your password at this time due to password policy "
+"disallowing password changes. Please contact your administrator to reset "
+"your password."
 
 #, python-format
 msgid ""
