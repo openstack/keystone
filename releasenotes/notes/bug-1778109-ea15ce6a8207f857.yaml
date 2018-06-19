@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1778109 <https://bugs.launchpad.net/keystone/+bug/1778109>`_]
+    Previously the token data for a trust-scoped token may have contained
+    duplicate roles, when implied roles were present. This is no longer the
+    case, for the sake of accuracy and to prevent the breaking of applications
+    which may consume this role list.

@@ -44,7 +44,6 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -3944,12 +3943,6 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         role_id_set2 = set(r['id'] for r in trust2['roles'])
         self.assertThat(role_id_set1, matchers.GreaterThan(role_id_set2))
 
-    @test_utils.wip(
-        "Waiting on fix for duplicate role names in token data when trust has "
-        "implied roles",
-        expected_exception=matchers.MismatchError,
-        bug="#1778109"
-    )
     def test_trust_with_implied_roles(self):
         # Create some roles
         role1 = unit.new_role_ref()
