@@ -670,7 +670,7 @@ description_registered_limit_response_body:
   type: string
 domain:
   description: |
-    A ``domain`` object, containing:
+    A ``domain`` object
   in: body
   required: true
   type: object
@@ -797,7 +797,7 @@ domain_user_tree_dn:
   type: string
 domains:
   description: |
-    A list of ``domain`` objects, each containing:
+    A list of ``domain`` objects
   in: body
   required: true
   type: array
@@ -963,7 +963,7 @@ extra_request_body:
   type: string
 group:
   description: |
-    A ``group`` object, containing:
+    A ``group`` object
   in: body
   required: true
   type: object
@@ -1042,7 +1042,7 @@ group_name_update_request_body:
   type: string
 groups:
   description: |
-    A list of ``group`` objects, each containing:
+    A list of ``group`` objects
   in: body
   required: true
   type: array
@@ -1122,7 +1122,7 @@ issued_at:
   type: string
 limit:
   description: |
-    A ``limit`` object, containing the following:
+    A ``limit`` object
   in: body
   required: true
   type: array
@@ -1134,7 +1134,7 @@ limit_id:
   type: string
 limits:
   description: |
-    A list of ``limits`` objects, each containing:
+    A list of ``limits`` objects
   in: body
   required: true
   type: array
@@ -1262,7 +1262,7 @@ prior_role_body:
   type: object
 project:
   description: |
-    A ``project`` object, containing:
+    A ``project`` object
   in: body
   required: true
   type: object
@@ -1406,7 +1406,7 @@ project_tags_request_body:
   type: array
 projects:
   description: |
-    A list of ``project`` objects, each containing:
+    A list of ``project`` objects
   in: body
   required: true
   type: array
@@ -1439,19 +1439,19 @@ region_id_response_body:
   type: string
 region_object:
   description: |
-    A ``region`` object, containing the following:
+    A ``region`` object
   in: body
   required: true
   type: object
 regions_object:
   description: |
-    A list of ``region`` object, each containing the following:
+    A list of ``region`` object
   in: body
   required: true
   type: array
 registered_limit:
   description: |
-    A ``registered_limit`` objects, containing the following:
+    A ``registered_limit`` objects
   in: body
   required: true
   type: array
@@ -1463,7 +1463,7 @@ registered_limit_id:
   type: string
 registered_limits:
   description: |
-    A list of ``registered_limits`` objects, each containing:
+    A list of ``registered_limits`` objects
   in: body
   required: true
   type: array
@@ -1631,7 +1631,7 @@ response_body_system_required:
   type: array
 role:
   description: |
-    A ``role`` object, containing:
+    A ``role`` object
   in: body
   required: true
   type: object
@@ -1686,7 +1686,7 @@ role_name_update_body:
   type: string
 roles:
   description: |
-    A list of ``role`` objects, each containing:
+    A list of ``role`` objects
   in: body
   required: true
   type: array
@@ -1894,7 +1894,7 @@ user_name_update_body:
   type: string
 user_object:
   description: |
-    A ``user`` object, containing:
+    A ``user`` object
   in: body
   required: true
   type: object
@@ -1918,7 +1918,7 @@ users:
   type: array
 users_object:
   description: |
-    A list of ``user`` object, each containing:
+    A list of ``user`` objects
   in: body
   required: true
   type: array
