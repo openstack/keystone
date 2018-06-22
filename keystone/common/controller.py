@@ -538,12 +538,12 @@ class V3Controller(provider_api.ProviderAPIMixin, wsgi.Application):
         if domain_id:
             return domain_id
 
-        token_ref = authorization.get_token_ref(request.context_dict)
+        token = authorization.get_token_ref(request.context_dict)
 
-        if token_ref.domain_scoped:
-            return token_ref.domain_id
-        elif token_ref.project_scoped:
-            return token_ref.project_domain_id
+        if token.domain_scoped:
+            return token.domain_id
+        elif token.project_scoped:
+            return token.project_domain['id']
         else:
             msg = _('No domain information specified as part of list request')
             LOG.warning(msg)

@@ -162,11 +162,11 @@ def check_policy(controller, request, action,
 
 
 def get_token_ref(context):
-    """Retrieve KeystoneToken object from the auth context and returns it.
+    """Retrieve TokenModel object from the auth context and returns it.
 
     :param dict context: The request context.
     :raises keystone.exception.Unauthorized: If auth context cannot be found.
-    :returns: The KeystoneToken object.
+    :returns: The TokenModel object.
     """
     try:
         # Retrieve the auth context that was prepared by AuthContextMiddleware.

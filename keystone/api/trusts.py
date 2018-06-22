@@ -95,10 +95,8 @@ class TrustResource(ks_flask.ResourceBase):
 
     def _check_unrestricted(self):
         token = self.auth_context['token']
-        auth_methods = token['methods']
-        if 'application_credential' in auth_methods:
-            td = token.token_data['token']
-            if td['application_credential']['restricted']:
+        if 'application_credential' in token.methods:
+            if not token.application_credential['unrestricted']:
                 action = _("Using method 'application_credential' is not "
                            "allowed for managing trusts.")
                 raise exception.ForbiddenAction(action=action)
