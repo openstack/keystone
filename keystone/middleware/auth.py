@@ -39,10 +39,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
     kwargs_to_fetch_token = True
 
     def __init__(self, app):
-        bind = CONF.token.enforce_token_bind
-        super(AuthContextMiddleware, self).__init__(app,
-                                                    log=LOG,
-                                                    enforce_token_bind=bind)
+        super(AuthContextMiddleware, self).__init__(app, log=LOG)
 
     def fetch_token(self, token, **kwargs):
         try:

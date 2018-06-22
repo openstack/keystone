@@ -18,7 +18,6 @@ import six
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
 from keystone.common import provider_api
-from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -102,8 +101,6 @@ def token_authenticate(request, token_ref):
             if token_ref.project_scoped or token_ref.domain_scoped:
                 raise exception.ForbiddenAction(
                     action=_('rescope a scoped token'))
-
-        wsgi.validate_token_bind(request.context_dict, token_ref)
 
         # New tokens maintain the audit_id of the original token in the
         # chain (if possible) as the second element in the audit data
