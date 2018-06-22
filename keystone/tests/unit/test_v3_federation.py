@@ -33,11 +33,13 @@ if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
 
 from keystone.auth import controllers as auth_controllers
+from keystone.common import controller
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.federation import controllers as federation_controllers
 from keystone.federation import idp as keystone_idp
+from keystone.models import token_model
 from keystone import notifications
 from keystone.tests import unit
 from keystone.tests.unit import core
@@ -45,7 +47,6 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
-from keystone.token.providers import common as token_common
 
 
 CONF = keystone.conf.CONF
@@ -4741,8 +4742,6 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
         PROVIDERS.federation_api.create_sp(self.SP3, sp)
         self.sp_gamma = {self.SP3: sp}
 
-        self.token_v3_helper = token_common.V3TokenDataHelper()
-
     def sp_response(self, id, ref):
         ref.pop('enabled')
         ref.pop('description')
@@ -4774,7 +4773,10 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
 
     def test_service_providers_in_token(self):
         """Check if service providers are listed in service catalog."""
-        token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
+        model = token_model.TokenModel()
+        model.user_id = self.user_id
+        model.methods = ['password']
+        token = controller.render_token_response_from_model(model)
         ref = {}
         for r in (self.sp_alpha, self.sp_beta, self.sp_gamma):
             ref.update(r)
@@ -4791,7 +4793,10 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
         sp_ref = {'enabled': False}
         PROVIDERS.federation_api.update_sp(self.SP1, sp_ref)
 
-        token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
+        model = token_model.TokenModel()
+        model.user_id = self.user_id
+        model.methods = ['password']
+        token = controller.render_token_response_from_model(model)
         ref = {}
         for r in (self.sp_beta, self.sp_gamma):
             ref.update(r)
@@ -4808,7 +4813,10 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
         for sp in (self.SP1, self.SP2, self.SP3):
             PROVIDERS.federation_api.update_sp(sp, sp_ref)
 
-        token = self.token_v3_helper.get_token_data(self.user_id, ['password'])
+        model = token_model.TokenModel()
+        model.user_id = self.user_id
+        model.methods = ['password']
+        token = controller.render_token_response_from_model(model)
         self.assertNotIn('service_providers', token['token'],
                          message=('Expected Service Catalog not to have '
                                   'service_providers'))

@@ -27,7 +27,7 @@ from keystone.revoke.backends import sql
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_backend_sql
-from keystone.token.providers import common
+from keystone.token import provider
 
 
 CONF = keystone.conf.CONF
@@ -168,7 +168,7 @@ class RevokeTests(object):
         # check to make sure that list_events matches the token to the event we
         # just revoked.
         first_token = _sample_blank_token()
-        first_token['audit_id'] = common.random_urlsafe_str()
+        first_token['audit_id'] = provider.random_urlsafe_str()
         PROVIDERS.revoke_api.revoke_by_audit_id(
             audit_id=first_token['audit_id'])
         self._assertTokenRevoked(first_token)
@@ -179,7 +179,7 @@ class RevokeTests(object):
         # sure that list events only finds 1 match since there are 2 and they
         # dont both have different populated audit_id fields
         second_token = _sample_blank_token()
-        second_token['audit_id'] = common.random_urlsafe_str()
+        second_token['audit_id'] = provider.random_urlsafe_str()
         PROVIDERS.revoke_api.revoke_by_audit_id(
             audit_id=second_token['audit_id'])
         self._assertTokenRevoked(second_token)
@@ -212,7 +212,7 @@ class RevokeTests(object):
         first_token = _sample_blank_token()
         first_token['user_id'] = uuid.uuid4().hex
         first_token['project_id'] = uuid.uuid4().hex
-        first_token['audit_id'] = common.random_urlsafe_str()
+        first_token['audit_id'] = provider.random_urlsafe_str()
         # revoke event and then verify that there is only one revocation
         # and verify the only revoked event is the token
         PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
@@ -241,7 +241,7 @@ class RevokeTests(object):
         fourth_token = _sample_blank_token()
         fourth_token['user_id'] = uuid.uuid4().hex
         fourth_token['project_id'] = uuid.uuid4().hex
-        fourth_token['audit_id'] = common.random_urlsafe_str()
+        fourth_token['audit_id'] = provider.random_urlsafe_str()
         PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
             project_id=fourth_token['project_id'],
             audit_id=fourth_token['audit_id']))
@@ -380,7 +380,7 @@ class RevokeTests(object):
         revocation_backend = sql.Revoke()
 
         # Create our first token with audit_id
-        audit_id = common.build_audit_info(parent_audit_id=None)[0]
+        audit_id = provider.random_urlsafe_str()
         token = _sample_blank_token()
         # Audit ID and Audit Chain ID are populated with the same value
         # if the token is an original token

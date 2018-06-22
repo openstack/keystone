@@ -15,6 +15,7 @@
 import datetime
 
 from oslo_utils import timeutils
+from six.moves import urllib
 
 from keystone.common import provider_api
 from keystone.common import utils
@@ -25,6 +26,7 @@ from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
+from keystone.token import provider
 
 
 CONF = keystone.conf.CONF
@@ -451,6 +453,10 @@ class TestTokenProvider(unit.TestCase):
             )
         )
         self.load_backends()
+
+    def test_strings_are_url_safe(self):
+        s = provider.random_urlsafe_str()
+        self.assertEqual(s, urllib.parse.quote_plus(s))
 
     def test_unsupported_token_provider(self):
         self.config_fixture.config(group='token',

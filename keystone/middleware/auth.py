@@ -25,7 +25,6 @@ from keystone.federation import constants as federation_constants
 from keystone.federation import utils
 from keystone.i18n import _
 from keystone.models import token_model
-from keystone.token.providers import common
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
@@ -83,12 +82,11 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
             auth_context['roles'] = user_ref['roles']
         else:
             # it's the local user, so token data is needed.
-            token_helper = common.V3TokenDataHelper()
-            token_data = token_helper.get_token_data(
-                user_id=user_ref['id'],
-                method_names=[CONF.tokenless_auth.protocol],
-                domain_id=domain_id,
-                project_id=project_id)
+            token = token_model.TokenModel()
+            token.user_id = user_ref['id']
+            token.methods = [CONF.tokenless_auth.protocol]
+            token.domain_id = domain_id
+            token.project_id = project_id
 
             auth_context = {'user_id': user_ref['id']}
             auth_context['is_delegated_auth'] = False
@@ -96,8 +94,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
                 auth_context['domain_id'] = domain_id
             if project_id:
                 auth_context['project_id'] = project_id
-            auth_context['roles'] = [role['name'] for role
-                                     in token_data['token']['roles']]
+            auth_context['roles'] = [role['name'] for role in token.roles]
         return auth_context
 
     def _validate_trusted_issuer(self, request):
