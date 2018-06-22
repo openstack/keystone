@@ -44,6 +44,7 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -3942,6 +3943,52 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         role_id_set1 = set(r['id'] for r in trust['roles'])
         role_id_set2 = set(r['id'] for r in trust2['roles'])
         self.assertThat(role_id_set1, matchers.GreaterThan(role_id_set2))
+
+    @test_utils.wip(
+        "Waiting on fix for duplicate role names in token data when trust has "
+        "implied roles",
+        expected_exception=matchers.MismatchError,
+        bug="#1778109"
+    )
+    def test_trust_with_implied_roles(self):
+        # Create some roles
+        role1 = unit.new_role_ref()
+        PROVIDERS.role_api.create_role(role1['id'], role1)
+        role2 = unit.new_role_ref()
+        PROVIDERS.role_api.create_role(role2['id'], role2)
+
+        # Implication
+        PROVIDERS.role_api.create_implied_role(role1['id'], role2['id'])
+
+        # Assign new roles to the user (with role2 implied)
+        PROVIDERS.assignment_api.create_grant(
+            role_id=role1['id'], user_id=self.user_id,
+            project_id=self.project_id
+        )
+
+        # Create trust
+        ref = self.redelegated_trust_ref
+        ref['roles'] = [{'id': role1['id']}, {'id': role2['id']}]
+        resp = self.post('/OS-TRUST/trusts',
+                         body={'trust': ref})
+        trust = self.assertValidTrustResponse(resp)
+
+        # Trust created with exact set of roles (checked by role id)
+        role_ids = [r['id'] for r in ref['roles']]
+        trust_role_ids = [r['id'] for r in trust['roles']]
+        # Compare requested roles with roles in response
+        self.assertEqual(role_ids, trust_role_ids)
+
+        # Get a trust-scoped token
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id']
+        )
+        resp = self.post('/auth/tokens', body=auth_data)
+        trust_token_role_ids = [r['id'] for r in resp.json['token']['roles']]
+        # Compare requested roles with roles given in token data
+        self.assertEqual(sorted(role_ids), sorted(trust_token_role_ids))
 
     def test_redelegate_with_role_by_name(self):
         # For role by name testing
