@@ -24,7 +24,7 @@ import six
 from testtools import matchers
 
 from keystone.common import policies
-from keystone.common import policy
+from keystone.common.rbac_enforcer import policy
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
@@ -56,7 +56,7 @@ class PolicyFileTestCase(unit.TestCase):
         policy.enforce(empty_credentials, action, self.target)
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write("""{"example:test": ["false:false"]}""")
-        policy._ENFORCER.clear()
+        policy._ENFORCER._enforcer.clear()
         self.assertRaises(exception.ForbiddenAction, policy.enforce,
                           empty_credentials, action, self.target)
 
@@ -84,7 +84,7 @@ class PolicyTestCase(unit.TestCase):
 
     def _set_rules(self):
         these_rules = common_policy.Rules.from_dict(self.rules)
-        policy._ENFORCER.set_rules(these_rules)
+        policy._ENFORCER._enforcer.set_rules(these_rules)
 
     def test_enforce_nonexistent_action_throws(self):
         action = "example:noexist"
@@ -132,13 +132,12 @@ class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
 
     def setUp(self):
         super(PolicyScopeTypesEnforcementTestCase, self).setUp()
-        policy.init()
         rule = common_policy.RuleDefault(
             name='foo',
             check_str='',
             scope_types=['system']
         )
-        policy._ENFORCER.register_default(rule)
+        policy._ENFORCER._enforcer.register_default(rule)
         self.credentials = {}
         self.action = 'foo'
         self.target = {}
@@ -203,11 +202,10 @@ class PolicyJsonTestCase(unit.TestCase):
                        'is_admin_project': True, 'project_id': None,
                        'domain_id': uuid.uuid4().hex}
 
-        # Since we are moving policy.json defaults to code, we instead call
-        # `policy.init()` which does the enforce setup for us with the added
-        # bonus of registering the in code default policies.
-        policy.init()
-        result = policy._ENFORCER.enforce(action, target, credentials)
+        # The enforcer is setup behind the scenes and registers the in code
+        # default policies.
+        result = policy._ENFORCER._enforcer.enforce(action, target,
+                                                    credentials)
         self.assertTrue(result)
 
         domain_policy = unit.dirs.etc('policy.v3cloudsample.json')

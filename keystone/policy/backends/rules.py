@@ -17,7 +17,7 @@
 
 from oslo_log import log
 
-from keystone.common import policy
+from keystone.common.rbac_enforcer import policy
 from keystone import exception
 from keystone.policy.backends import base
 

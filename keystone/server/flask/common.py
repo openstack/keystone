@@ -12,8 +12,10 @@
 
 import abc
 import collections
+import functools
 
 from flask import blueprints
+from flask import g
 import flask_restful
 from oslo_log import log
 import six
@@ -21,6 +23,19 @@ import six
 
 LOG = log.getLogger(__name__)
 ResourceMap = collections.namedtuple('resource_map', 'resource, urls, kwargs')
+
+
+_ENFORCEMENT_CHECK_ATTR = 'keystone:RBAC:enforcement_called'
+
+
+def _initialize_rbac_enforcement_check():
+    setattr(g, _ENFORCEMENT_CHECK_ATTR, False)
+
+
+def _assert_rbac_enforcement_called():
+    # assert is intended to be used to ensure code during development works
+    # as expected, it is fine to be optimized out with `python -O`
+    assert getattr(g, _ENFORCEMENT_CHECK_ATTR, False)  # nosec
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -119,7 +134,7 @@ class APIBase(object):
                 'Adding resource routes to API %(name)s: '
                 '[%(urls)r %(kwargs)r]',
                 {'name': self._name, 'urls': r.urls, 'kwargs': r.kwargs})
-            self._blueprint.add_resource(r.resource, *r.urls, **r.kwargs)
+            self.blueprint.add_resource(r.resource, *r.urls, **r.kwargs)
 
     def _register_before_request_functions(self, functions=None):
         """Register functions to be executed in the `before request` phase.
@@ -145,6 +160,7 @@ class APIBase(object):
         assert not self.__before_request_functions_added, msg  # nosec
         # register global before request functions
         # e.g. self.__blueprint.before_request(function)
+        self.__blueprint.before_request(_initialize_rbac_enforcement_check)
 
         # Add passed-in functions
         for f in functions:
@@ -175,11 +191,30 @@ class APIBase(object):
         assert not self.__after_request_functions_added, msg  # nosec
         # register global after request functions
         # e.g. self.__blueprint.after_request(function)
+        self.__blueprint.after_request(_assert_rbac_enforcement_called)
 
         # Add Passed-In Functions
         for f in functions:
             self.__blueprint.after_request(f)
         self.__after_request_functions_added = True
+
+    @staticmethod
+    def unenforced_api(f):
+        """Decorate a resource method to mark is as an unenforced API.
+
+        Explicitly exempts an API from receiving the enforced API check,
+        specifically for cases such as user self-service password changes (or
+        other APIs that must work without already having a token).
+
+        This decorator may also be used if the API has extended enforcement
+        logic/varying enforcement logic (such as some of the AUTH paths) where
+        the full enforcement will be implemented directly within the methods.
+        """
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            setattr(g, _ENFORCEMENT_CHECK_ATTR, True)
+            return f(*args, **kwargs)
+        return wrapper
 
     @classmethod
     def instantiate_and_register_to_app(cls, flask_app):
