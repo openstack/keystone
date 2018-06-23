@@ -230,7 +230,7 @@ def application_factory(name='public'):
                                  rtr in ALL_API_ROUTERS]):
         dispatch_map['/v3/%s' % pfx] = legacy_dispatcher
 
-    application = KeystoneDispatcherMiddleware(
-        app,
+    app.wsgi_app = KeystoneDispatcherMiddleware(
+        app.wsgi_app,
         dispatch_map)
-    return application
+    return app
