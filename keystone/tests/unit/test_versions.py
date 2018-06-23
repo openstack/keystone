@@ -754,7 +754,9 @@ class VersionTestCase(unit.TestCase):
         client = TestClient(self.public_app)
         # request to /v2.0 should fail
         resp = client.get('/v2.0/')
-        self.assertEqual(http_client.NOT_FOUND, resp.status_int)
+        # NOTE(morgan): getting a 418 here is indicative of a 404, but from
+        # the flask app itself (not a handled 404 such as UserNotFound)
+        self.assertEqual(418, resp.status_int)
 
         # request to /v3 should pass
         resp = client.get('/v3/')
