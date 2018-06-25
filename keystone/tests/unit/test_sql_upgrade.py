@@ -3116,6 +3116,30 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
                                        self.metadata, autoload=True)
         self.assertEqual(set([]), limit_table.foreign_keys)
 
+    def test_migration_048_add_registered_limit_id_column_for_limit(self):
+        self.expand(47)
+        self.migrate(47)
+        self.contract(47)
+
+        limit_table_name = 'limit'
+        self.assertTableColumns(
+            limit_table_name,
+            ['id', 'project_id', 'service_id', 'region_id', 'resource_name',
+             'resource_limit', 'description', 'internal_id']
+        )
+
+        self.expand(48)
+        self.migrate(48)
+        self.contract(48)
+
+        self.assertTableColumns(
+            limit_table_name,
+            ['id', 'project_id', 'service_id', 'region_id', 'resource_name',
+             'resource_limit', 'description', 'internal_id',
+             'registered_limit_id']
+        )
+        self.assertTrue(self.does_fk_exist('limit', 'registered_limit_id'))
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture

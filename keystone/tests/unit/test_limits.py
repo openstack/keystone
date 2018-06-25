@@ -428,8 +428,8 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.CREATED)
         limits = r.result['limits']
 
-        self. assertIsNotNone(limits[0]['id'])
-        self. assertIsNotNone(limits[0]['project_id'])
+        self.assertIsNotNone(limits[0]['id'])
+        self.assertIsNotNone(limits[0]['project_id'])
         for key in ['service_id', 'region_id', 'resource_name',
                     'resource_limit', 'description']:
             self.assertEqual(limits[0][key], ref[key])
@@ -444,8 +444,8 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.CREATED)
         limits = r.result['limits']
 
-        self. assertIsNotNone(limits[0]['id'])
-        self. assertIsNotNone(limits[0]['project_id'])
+        self.assertIsNotNone(limits[0]['id'])
+        self.assertIsNotNone(limits[0]['project_id'])
         for key in ['service_id', 'resource_name', 'resource_limit']:
             self.assertEqual(limits[0][key], ref[key])
         self.assertIsNone(limits[0].get('region_id'))
@@ -462,8 +462,8 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.CREATED)
         limits = r.result['limits']
 
-        self. assertIsNotNone(limits[0]['id'])
-        self. assertIsNotNone(limits[0]['project_id'])
+        self.assertIsNotNone(limits[0]['id'])
+        self.assertIsNotNone(limits[0]['project_id'])
         for key in ['service_id', 'region_id', 'resource_name',
                     'resource_limit']:
             self.assertEqual(limits[0][key], ref[key])
