@@ -37,6 +37,7 @@ _POSSIBLE_TARGET_ACTIONS = frozenset([
     rule.name for
     rule in policies.list_rules() if not rule.deprecated_for_removal
 ])
+_ENFORCEMENT_CHECK_ATTR = 'keystone:RBAC:enforcement_called'
 
 
 class RBACEnforcer(object):
@@ -287,6 +288,12 @@ class RBACEnforcer(object):
                 message=_(
                     'Internal RBAC enforcement error, no rule/action name to '
                     'lookup'))
+
+        # Mark flask.g as "enforce_call" has been called. This should occur
+        # before anything except the "is this a valid action" check, ensuring
+        # all proper "after request" checks pass, showing that the API has
+        # enforcement.
+        setattr(flask.g, _ENFORCEMENT_CHECK_ATTR, True)
 
         # Assert we are actually authenticated
         cls._assert_is_authenticated()

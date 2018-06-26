@@ -20,22 +20,24 @@ import flask_restful
 from oslo_log import log
 import six
 
+from keystone.common.rbac_enforcer import enforcer
+
 
 LOG = log.getLogger(__name__)
 ResourceMap = collections.namedtuple('resource_map', 'resource, urls, kwargs')
 
 
-_ENFORCEMENT_CHECK_ATTR = 'keystone:RBAC:enforcement_called'
-
-
 def _initialize_rbac_enforcement_check():
-    setattr(g, _ENFORCEMENT_CHECK_ATTR, False)
+    setattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, False)
 
 
 def _assert_rbac_enforcement_called():
     # assert is intended to be used to ensure code during development works
     # as expected, it is fine to be optimized out with `python -O`
-    assert getattr(g, _ENFORCEMENT_CHECK_ATTR, False)  # nosec
+    msg = ('PROGRAMMING ERROR: enforcement (`keystone.common.rbac_enforcer.'
+           'enforcer.RBACKEnforcer.enforce_call()`) has not been called; API '
+           'is unenforced.')
+    assert getattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, False), msg  # nosec
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -212,7 +214,7 @@ class APIBase(object):
         """
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            setattr(g, _ENFORCEMENT_CHECK_ATTR, True)
+            setattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
             return f(*args, **kwargs)
         return wrapper
 
