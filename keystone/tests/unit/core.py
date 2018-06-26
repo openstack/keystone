@@ -37,6 +37,7 @@ from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
 import six
+from six.moves import http_client
 from sqlalchemy import exc
 import testtools
 from testtools import testcase
@@ -489,13 +490,30 @@ def _assert_expected_status(f):
 
     `expected_status` must be passed as a kwarg.
     """
+    TEAPOT_HTTP_STATUS = 418
+
+    _default_expected_responses = {
+        'get': http_client.OK,
+        'head': http_client.OK,
+        'post': http_client.CREATED,
+        'put': http_client.NO_CONTENT,
+        'patch': http_client.OK,
+        'delete': http_client.NO_CONTENT,
+    }
+
     @functools.wraps(f)
     def inner(*args, **kwargs):
-        expected_status_code = kwargs.pop('expected_status_code', 200)
+        # Get the "expected_status_code" kwarg if supplied. If not supplied use
+        # the `_default_expected_response` mapping, or fall through to
+        # "HTTP OK" if the method is somehow unknown.
+        expected_status_code = kwargs.pop(
+            'expected_status_code',
+            _default_expected_responses.get(
+                f.__name__.lower(), http_client.OK))
         response = f(*args, **kwargs)
 
         # Logic to verify the response object is sane. Expand as needed
-        if response.status_code == 418:
+        if response.status_code == TEAPOT_HTTP_STATUS:
             # NOTE(morgan): We use 418 internally during tests to indicate
             # an un-routed HTTP call was made. This allows us to avoid
             # misinterpreting HTTP 404 from Flask and HTTP 404 from a
