@@ -71,12 +71,3 @@ class Provider(base.Provider):
             return self.token_formatter.validate_token(token_id)
         except exception.ValidationError as e:
             raise exception.TokenNotFound(e)
-
-    @property
-    def _supports_bind_authentication(self):
-        """Return if the token provider supports bind authentication methods.
-
-        :returns: False
-
-        """
-        return False

@@ -44,9 +44,6 @@ class TestFernetTokenProvider(unit.TestCase):
         super(TestFernetTokenProvider, self).setUp()
         self.provider = fernet.Provider()
 
-    def test_supports_bind_authentication_returns_false(self):
-        self.assertFalse(self.provider._supports_bind_authentication)
-
     def test_invalid_token_raises_token_not_found(self):
         token_id = uuid.uuid4().hex
         e = self.assertRaises(
