@@ -652,3 +652,13 @@ class LDAPSizeLimitExceeded(UnexpectedError):
     message_format = _('Number of User/Group entities returned by LDAP '
                        'exceeded size limit. Contact your LDAP '
                        'administrator.')
+
+
+class CacheDeserializationError(Exception):
+
+    def __init__(self, obj, data):
+        super(CacheDeserializationError, self).__init__(
+            _('Failed to deserialize %(obj)s. Data is %(data)s') % {
+                'obj': obj, 'data': data
+            }
+        )
