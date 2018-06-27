@@ -383,16 +383,13 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
                     project_id=token_project_id,
                     effective=True, strip_domain_roles=False)
                 current_effective_trustor_roles = (
-                    list(set([x['role_id'] for x in assignments])))
+                    set([x['role_id'] for x in assignments]))
                 # Go through each of the effective trust roles, making sure the
                 # trustor still has them, if any have been removed, then we
                 # will treat the trust as invalid
                 for trust_role_id in effective_trust_role_ids:
-
-                    match_roles = [x for x in current_effective_trustor_roles
-                                   if x == trust_role_id]
-                    if match_roles:
-                        role = PROVIDERS.role_api.get_role(match_roles[0])
+                    if trust_role_id in current_effective_trustor_roles:
+                        role = PROVIDERS.role_api.get_role(trust_role_id)
                         if role['domain_id'] is None:
                             filtered_roles.append(role)
                     else:
