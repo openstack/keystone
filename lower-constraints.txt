@@ -88,7 +88,6 @@ psycopg2==2.7.4
 pyasn1==0.4.2
 pycadf==1.1.0
 pycparser==2.18
-pycrypto==2.6.1
 pyflakes==0.8.1
 Pygments==2.2.0
 pyinotify==0.9.6
