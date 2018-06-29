@@ -28,7 +28,8 @@ fasteners==0.14.1
 fixtures==3.0.0
 flake8-docstrings==0.2.1.post1
 flake8==2.5.5
-Flask===0.10
+Flask===1.0.2
+Flask-RESTful===0.3.5
 freezegun==0.3.6
 future==0.16.0
 futurist==1.6.0
