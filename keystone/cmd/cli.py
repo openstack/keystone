@@ -751,7 +751,7 @@ class MappingPurge(BaseApp):
         if CONF.command.local_id is not None:
             mapping['local_id'] = CONF.command.local_id
         if CONF.command.type is not None:
-            mapping['type'] = CONF.command.type
+            mapping['entity_type'] = CONF.command.type
 
         mapping_manager.purge_mappings(mapping)
 

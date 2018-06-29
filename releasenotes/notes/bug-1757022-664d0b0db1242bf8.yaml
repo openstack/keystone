@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1757022 <https://bugs.launchpad.net/keystone/+bug/1757022>`_]
+    In previous releases,  ``keystone-manage mapping_purge --type {user,group}``
+    command would purge all mapping incorrectly instead of only purging the
+    specified type mappings. ``keystone-manage mapping_purge --type {user,group}``
+    now purges only specified type mappings as expected.
