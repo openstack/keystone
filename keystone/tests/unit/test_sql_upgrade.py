@@ -3015,6 +3015,66 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         limit_table.insert().values(limit).execute()
 
+    def test_migration_046_copies_data_from_password_to_password_hash(self):
+        self.expand(46)
+        self.migrate(45)
+        self.contract(45)
+        # Create User and Local User
+        project_table = sqlalchemy.Table('project', self.metadata,
+                                         autoload=True)
+        domain_data = {'id': '_domain', 'domain_id': '_domain',
+                       'enabled': True, 'name': '_domain', 'is_domain': True}
+        project_table.insert().values(domain_data).execute()
+        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
+        user_id = uuid.uuid4().hex
+        user = {'id': user_id, 'enabled': True, 'domain_id': domain_data['id']}
+        user_table.insert().values(user).execute()
+        local_user_table = sqlalchemy.Table('local_user', self.metadata,
+                                            autoload=True)
+        local_user = {
+            'id': 1, 'user_id': user_id, 'domain_id': user['domain_id'],
+            'name': 'name'}
+
+        local_user_table.insert().values(local_user).execute()
+
+        password_table = sqlalchemy.Table('password',
+                                          self.metadata, autoload=True)
+        password_data = {
+            'local_user_id': local_user['id'],
+            'created_at': datetime.datetime.utcnow(),
+            'expires_at': datetime.datetime.utcnow(),
+            'password': uuid.uuid4().hex}
+        password_data1 = {
+            'local_user_id': local_user['id'],
+            'created_at': datetime.datetime.utcnow(),
+            'expires_at': datetime.datetime.utcnow(),
+            'password_hash': uuid.uuid4().hex}
+        password_data2 = {
+            'local_user_id': local_user['id'],
+            'created_at': datetime.datetime.utcnow(),
+            'expires_at': datetime.datetime.utcnow(),
+            'password': uuid.uuid4().hex,
+            'password_hash': uuid.uuid4().hex}
+        password_table.insert().values(password_data).execute()
+        password_table.insert().values(password_data1).execute()
+        password_table.insert().values(password_data2).execute()
+        self.migrate(46)
+        passwords = list(password_table.select().execute())
+        for p in passwords:
+            if p.password == password_data['password']:
+                self.assertEqual(p.password_hash, p.password)
+                self.assertIsNotNone(p.password)
+                self.assertIsNotNone(p.password_hash)
+            elif p.password_hash == password_data1['password_hash']:
+                self.assertIsNone(p.password)
+                self.assertIsNotNone(p.password_hash)
+            elif p.password_hash == password_data2['password_hash']:
+                self.assertIsNotNone(p.password)
+                self.assertIsNotNone(p.password_hash)
+                self.assertNotEqual(p.password, p.password_hash)
+            else:
+                raise ValueError('Too Many Passwords Found')
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
