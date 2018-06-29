@@ -19,3 +19,10 @@ features:
    The `project_id` filter is added for listing limits. This filter is used
    for system-scoped request only to fetch the specified project limits. Non
    system-scoped request will get empty response body instead.
+
+ - >
+   [`blueprint strict-two-level-model <https://blueprints.launchpad.net/keystone/+spec/strict-two-level-model>`_]
+   The `include_limits` filter is added to `GET /v3/projects/{project_id}` API.
+   This filter should be used together with `parents_as_list` or
+   `subtree_as_list` filter to add parent/sub project's limit information the
+   response body.

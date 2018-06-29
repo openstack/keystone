@@ -1090,6 +1090,70 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 'project_id': projects[1]['project']['id']},
             expected_status=http_client.BAD_REQUEST)
 
+    def test_get_project_with_include_limits(self):
+        parent, project, subproject = self._create_projects_hierarchy(2)
+        # Assign a role for the user on all the created projects
+        for proj in (parent, project, subproject):
+            self.put(self.build_role_assignment_link(
+                role_id=self.role_id, user_id=self.user_id,
+                project_id=proj['project']['id']))
+        # create a registered limit and three limits for each project.
+        reg_limit = unit.new_registered_limit_ref(service_id=self.service_id,
+                                                  region_id=self.region_id,
+                                                  resource_name='volume')
+        self.post(
+            '/registered_limits',
+            body={'registered_limits': [reg_limit]},
+            expected_status=http_client.CREATED)
+        limit1 = unit.new_limit_ref(project_id=parent['project']['id'],
+                                    service_id=self.service_id,
+                                    region_id=self.region_id,
+                                    resource_name='volume')
+        limit2 = unit.new_limit_ref(project_id=project['project']['id'],
+                                    service_id=self.service_id,
+                                    region_id=self.region_id,
+                                    resource_name='volume')
+        limit3 = unit.new_limit_ref(project_id=subproject['project']['id'],
+                                    service_id=self.service_id,
+                                    region_id=self.region_id,
+                                    resource_name='volume')
+        self.post(
+            '/limits',
+            body={'limits': [limit1, limit2, limit3]},
+            expected_status=http_client.CREATED)
+        # "include_limits" should work together with "parents_as_list" or
+        # "subtree_as_list". Only using "include_limits" really does nothing.
+        r = self.get('/projects/%(project_id)s?include_limits' %
+                     {'project_id': subproject['project']['id']})
+
+        self.assertIsNone(r.result['project'].get('parents'))
+        self.assertIsNone(r.result['project'].get('subtree'))
+        self.assertIsNone(r.result['project'].get('limits'))
+
+        # using "include_limits" with "parents_as_list"
+        r = self.get('/projects/%(project_id)s?include_limits&parents_as_list'
+                     % {'project_id': subproject['project']['id']})
+
+        self.assertEqual(2, len(r.result['project']['parents']))
+        for parent in r.result['project']['parents']:
+            self.assertEqual(1, len(parent['project']['limits']))
+            self.assertEqual(parent['project']['id'],
+                             parent['project']['limits'][0]['project_id'])
+            self.assertEqual(10,
+                             parent['project']['limits'][0]['resource_limit'])
+
+        # using "include_limits" with "subtree_as_list"
+        r = self.get('/projects/%(project_id)s?include_limits&subtree_as_list'
+                     % {'project_id': parent['project']['id']})
+
+        self.assertEqual(2, len(r.result['project']['subtree']))
+        for child in r.result['project']['subtree']:
+            self.assertEqual(1, len(child['project']['limits']))
+            self.assertEqual(child['project']['id'],
+                             child['project']['limits'][0]['project_id'])
+            self.assertEqual(10,
+                             child['project']['limits'][0]['resource_limit'])
+
     def test_list_project_is_domain_filter(self):
         """Call ``GET /projects?is_domain=True/False``."""
         # Get the initial number of projects, both acting as a domain as well

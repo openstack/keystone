@@ -526,13 +526,28 @@ class Manager(manager.Manager):
         # Check if project_id exists
         self.get_project(project_id)
 
-    def list_project_parents(self, project_id, user_id=None):
+    def _include_limits(self, projects):
+        """Modify a list of projects to include limit information.
+
+        :param projects: a list of project references including an `id`
+        :type projects: list of dictionaries
+        """
+        for project in projects:
+            hints = driver_hints.Hints()
+            hints.add_filter('project_id', project['id'])
+            limits = PROVIDERS.unified_limit_api.list_limits(hints)
+            project['limits'] = limits
+
+    def list_project_parents(self, project_id, user_id=None,
+                             include_limits=False):
         self._assert_valid_project_id(project_id)
         parents = self.driver.list_project_parents(project_id)
         # If a user_id was provided, the returned list should be filtered
         # against the projects this user has access to.
         if user_id:
             parents = self._filter_projects_list(parents, user_id)
+        if include_limits:
+            self._include_limits(parents)
         return parents
 
     def _build_parents_as_ids_dict(self, project, parents_by_id):
@@ -578,13 +593,16 @@ class Manager(manager.Manager):
             project, {proj['id']: proj for proj in parents_list})
         return parents_as_ids
 
-    def list_projects_in_subtree(self, project_id, user_id=None):
+    def list_projects_in_subtree(self, project_id, user_id=None,
+                                 include_limits=False):
         self._assert_valid_project_id(project_id)
         subtree = self.driver.list_projects_in_subtree(project_id)
         # If a user_id was provided, the returned list should be filtered
         # against the projects this user has access to.
         if user_id:
             subtree = self._filter_projects_list(subtree, user_id)
+        if include_limits:
+            self._include_limits(subtree)
         return subtree
 
     def _build_subtree_as_ids_dict(self, project_id, subtree_by_parent):

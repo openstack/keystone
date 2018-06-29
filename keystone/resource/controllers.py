@@ -213,6 +213,8 @@ class ProjectV3(controller.V3Controller):
             self.query_filter_is_true(params['subtree_as_list']))
         subtree_as_ids = 'subtree_as_ids' in params and (
             self.query_filter_is_true(params['subtree_as_ids']))
+        include_limits = 'include_limits' in params and (
+            self.query_filter_is_true(params['include_limits']))
 
         # parents_as_list and parents_as_ids are mutually exclusive
         if parents_as_list and parents_as_ids:
@@ -228,7 +230,7 @@ class ProjectV3(controller.V3Controller):
 
         if parents_as_list:
             parents = PROVIDERS.resource_api.list_project_parents(
-                ref['id'], request.context.user_id)
+                ref['id'], request.context.user_id, include_limits)
             ref['parents'] = [ProjectV3.wrap_member(context, p)
                               for p in parents]
         elif parents_as_ids:
@@ -238,7 +240,7 @@ class ProjectV3(controller.V3Controller):
 
         if subtree_as_list:
             subtree = PROVIDERS.resource_api.list_projects_in_subtree(
-                ref['id'], request.context.user_id)
+                ref['id'], request.context.user_id, include_limits)
             ref['subtree'] = [ProjectV3.wrap_member(context, p)
                               for p in subtree]
         elif subtree_as_ids:
