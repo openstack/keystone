@@ -2339,8 +2339,8 @@ class TokenAPITests(object):
         self.config_fixture.config(group='token', bind=[])
         auth_data = self.build_authentication_request()
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_create_token(auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertNotIn('bind', token)
@@ -2350,8 +2350,8 @@ class TokenAPITests(object):
         auth_data = self.build_authentication_request(
             project_id=self.project['id'])
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
 
         token = self.get_requested_token(auth_data)
         headers = {'X-Subject-Token': token}
@@ -2365,8 +2365,8 @@ class TokenAPITests(object):
 
         auth_data = self.build_authentication_request()
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_create_token(auth_data)
 
         # the unscoped token should have bind information in it
@@ -2587,8 +2587,8 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         auth_data = self.build_authentication_request(
             project_id=self.project['id'])
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
         # Bind not current supported by Fernet, see bug 1433311.
         self.v3_create_token(auth_data,
                              expected_status=http_client.NOT_IMPLEMENTED)
@@ -2598,8 +2598,8 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
 
         auth_data = self.build_authentication_request()
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
         # Bind not current supported by Fernet, see bug 1433311.
         self.v3_create_token(auth_data,
                              expected_status=http_client.NOT_IMPLEMENTED)
@@ -3645,9 +3645,9 @@ class AuthExternalDomainBehavior(object):
             kerberos=self.kerberos)
         remote_user = self.user['name']
         remote_domain = self.domain['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'REMOTE_DOMAIN': remote_domain,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'REMOTE_DOMAIN': remote_domain,
+                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_create_token(auth_data)
         token = self.assertValidProjectScopedTokenResponse(r)
         self.assertEqual(self.user['name'], token['bind']['kerberos'])
@@ -3657,9 +3657,9 @@ class AuthExternalDomainBehavior(object):
         auth_data = self.build_authentication_request(kerberos=self.kerberos)
         remote_user = self.user['name']
         remote_domain = self.domain['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'REMOTE_DOMAIN': remote_domain,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'REMOTE_DOMAIN': remote_domain,
+                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_create_token(auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertEqual(self.user['name'], token['bind']['kerberos'])
@@ -3703,8 +3703,8 @@ class TestAuthExternalDefaultDomain(object):
             project_id=self.default_domain_project['id'],
             kerberos=self.kerberos)
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_create_token(auth_data)
         token = self.assertValidProjectScopedTokenResponse(r)
         self.assertEqual(self.default_domain_user['name'],
@@ -3714,8 +3714,8 @@ class TestAuthExternalDefaultDomain(object):
         self.config_fixture.config(group='token', bind=['kerberos'])
         auth_data = self.build_authentication_request(kerberos=self.kerberos)
         remote_user = self.default_domain_user['name']
-        self.admin_app.extra_environ.update({'REMOTE_USER': remote_user,
-                                             'AUTH_TYPE': 'Negotiate'})
+        self.public_app.extra_environ.update({'REMOTE_USER': remote_user,
+                                              'AUTH_TYPE': 'Negotiate'})
         r = self.v3_create_token(auth_data)
         token = self.assertValidUnscopedTokenResponse(r)
         self.assertEqual(self.default_domain_user['name'],

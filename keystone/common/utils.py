@@ -44,7 +44,7 @@ WHITELISTED_PROPERTIES = [
     'tenant_id', 'project_id', 'user_id',
     'public_bind_host', 'admin_bind_host',
     'compute_host', 'admin_port', 'public_port',
-    'public_endpoint', 'admin_endpoint', ]
+    'public_endpoint', ]
 
 
 # NOTE(stevermar): This UUID must stay the same, forever, across

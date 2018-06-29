@@ -66,9 +66,6 @@ class RestfulTestCase(unit.TestCase):
         self.public_app = webtest.TestApp(
             self.loadapp(name='public'))
         self.addCleanup(delattr, self, 'public_app')
-        self.admin_app = webtest.TestApp(
-            self.loadapp(name='admin'))
-        self.addCleanup(delattr, self, 'admin_app')
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
         self.useFixture(
@@ -213,7 +210,7 @@ class RestfulTestCase(unit.TestCase):
         return self._request(app=self.public_app, **kwargs)
 
     def admin_request(self, **kwargs):
-        return self._request(app=self.admin_app, **kwargs)
+        return self._request(app=self.public_app, **kwargs)
 
     def _get_token_id(self, r):
         """Helper method to return a token ID from a response.

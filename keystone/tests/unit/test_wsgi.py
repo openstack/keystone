@@ -230,7 +230,7 @@ class ApplicationTest(BaseWSGITest):
     def test_base_url(self):
         class FakeApp(wsgi.Application):
             def index(self, request):
-                return self.base_url(request.context_dict, 'public')
+                return self.base_url(request.context_dict)
         req = self._make_request(url='/')
         # NOTE(gyee): according to wsgiref, if HTTP_HOST is present in the
         # request environment, it will be used to construct the base url.

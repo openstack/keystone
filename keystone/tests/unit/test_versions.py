@@ -25,7 +25,6 @@ import webob
 
 from keystone.common import json_home
 from keystone.tests import unit
-from keystone.tests.unit import utils
 from keystone.version import controllers
 
 
@@ -685,14 +684,10 @@ class VersionTestCase(unit.TestCase):
         super(VersionTestCase, self).setUp()
         self.load_backends()
         self.public_app = self.loadapp('public')
-        self.admin_app = self.loadapp('admin')
-
-        self.admin_port = random.randint(10000, 30000)
         self.public_port = random.randint(40000, 60000)
 
         self.config_fixture.config(
-            public_endpoint='http://localhost:%d' % self.public_port,
-            admin_endpoint='http://localhost:%d' % self.admin_port)
+            public_endpoint='http://localhost:%d' % self.public_port)
 
     def config_overrides(self):
         super(VersionTestCase, self).config_overrides()
@@ -714,22 +709,10 @@ class VersionTestCase(unit.TestCase):
                     version, 'http://localhost:%s/v3/' % self.public_port)
         self.assertThat(data, _VersionsEqual(expected))
 
-    def test_admin_versions(self):
-        client = TestClient(self.admin_app)
-        resp = client.get('/')
-        self.assertEqual(300, resp.status_int)
-        data = jsonutils.loads(resp.body)
-        expected = VERSIONS_RESPONSE
-        for version in expected['versions']['values']:
-            if version['id'].startswith('v3'):
-                self._paste_in_port(
-                    version, 'http://localhost:%s/v3/' % self.admin_port)
-        self.assertThat(data, _VersionsEqual(expected))
-
     def test_use_site_url_if_endpoint_unset(self):
-        self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
+        self.config_fixture.config(public_endpoint=None)
 
-        for app in (self.public_app, self.admin_app):
+        for app in (self.public_app,):
             client = TestClient(app)
             resp = client.get('/')
             self.assertEqual(300, resp.status_int)
@@ -752,20 +735,9 @@ class VersionTestCase(unit.TestCase):
                             'http://localhost:%s/v3/' % self.public_port)
         self.assertEqual(expected, data)
 
-    @utils.wip('waiting on bug #1381961')
-    def test_admin_version_v3(self):
-        client = TestClient(self.admin_app)
-        resp = client.get('/v3/')
-        self.assertEqual(http_client.OK, resp.status_int)
-        data = jsonutils.loads(resp.body)
-        expected = v3_VERSION_RESPONSE
-        self._paste_in_port(expected['version'],
-                            'http://localhost:%s/v3/' % self.admin_port)
-        self.assertEqual(expected, data)
-
     def test_use_site_url_if_endpoint_unset_v3(self):
-        self.config_fixture.config(public_endpoint=None, admin_endpoint=None)
-        for app in (self.public_app, self.admin_app):
+        self.config_fixture.config(public_endpoint=None)
+        for app in (self.public_app,):
             client = TestClient(app)
             resp = client.get('/v3/')
             self.assertEqual(http_client.OK, resp.status_int)
@@ -904,12 +876,10 @@ class VersionSingleAppTestCase(unit.TestCase):
         super(VersionSingleAppTestCase, self).setUp()
         self.load_backends()
 
-        self.admin_port = random.randint(10000, 30000)
         self.public_port = random.randint(40000, 60000)
 
         self.config_fixture.config(
-            public_endpoint='http://localhost:%d' % self.public_port,
-            admin_endpoint='http://localhost:%d' % self.admin_port)
+            public_endpoint='http://localhost:%d' % self.public_port)
 
     def config_overrides(self):
         super(VersionSingleAppTestCase, self).config_overrides()
@@ -920,11 +890,6 @@ class VersionSingleAppTestCase(unit.TestCase):
                 link['href'] = port
 
     def _test_version(self, app_name):
-        def app_port():
-            if app_name == 'admin':
-                return self.admin_port
-            else:
-                return self.public_port
         app = self.loadapp(app_name)
         client = TestClient(app)
         resp = client.get('/')
@@ -934,7 +899,7 @@ class VersionSingleAppTestCase(unit.TestCase):
         for version in expected['versions']['values']:
             if version['id'].startswith('v3'):
                 self._paste_in_port(
-                    version, 'http://localhost:%s/v3/' % app_port())
+                    version, 'http://localhost:%s/v3/' % self.public_port)
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_public(self):
