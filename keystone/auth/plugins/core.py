@@ -75,7 +75,7 @@ def convert_integer_to_method_list(method_int):
     method_map = construct_method_map_from_config()
     method_ints = sorted(method_map, reverse=True)
 
-    confirmed_methods = []
+    methods = []
     for m_int in method_ints:
         # (lbragstad): By dividing the method_int by each key in the
         # method_map, we know if the division results in an integer of 1, that
@@ -88,12 +88,8 @@ def convert_integer_to_method_list(method_int):
         # method_int represents.
         result = int(method_int / m_int)
         if result == 1:
-            confirmed_methods.append(m_int)
+            methods.append(method_map[m_int])
             method_int = method_int - m_int
-
-    methods = []
-    for method in confirmed_methods:
-        methods.append(method_map[method])
 
     return methods
 
