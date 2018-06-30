@@ -13,3 +13,9 @@ features:
 
    Please ensure that the previous project and limit structure deployment in
    your Keystone won't break this model before starting to use it.
+
+ - >
+   [`blueprint strict-two-level-model <https://blueprints.launchpad.net/keystone/+spec/strict-two-level-model>`_]
+   The `project_id` filter is added for listing limits. This filter is used
+   for system-scoped request only to fetch the specified project limits. Non
+   system-scoped request will get empty response body instead.
