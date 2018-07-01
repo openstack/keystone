@@ -27,7 +27,7 @@ oslo_i18n.enable_lazy()
 
 from keystone.common import profiler
 import keystone.conf
-from keystone.server import common
+import keystone.server
 from keystone.server.flask import application
 
 # NOTE(morgan): Middleware Named Tuple with the following values:
@@ -145,7 +145,7 @@ def initialize_application(name, post_log_configured_function=lambda: None,
         if os.path.exists(dev_conf):
             config_files = [dev_conf]
 
-    common.configure(config_files=config_files)
+    keystone.server.configure(config_files=config_files)
 
     # Log the options used when starting if we're in debug mode...
     if CONF.debug:
@@ -159,7 +159,7 @@ def initialize_application(name, post_log_configured_function=lambda: None,
         app = application.application_factory(name)
         return app
 
-    _unused, app = common.setup_backends(
+    _unused, app = keystone.server.setup_backends(
         startup_application_fn=loadapp)
 
     # setup OSprofiler notifier and enable the profiling if that is configured
