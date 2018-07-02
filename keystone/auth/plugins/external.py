@@ -49,11 +49,6 @@ class Base(base.AuthMethodHandler):
             raise exception.Unauthorized(msg)
 
         response_data['user_id'] = user_ref['id']
-        auth_type = (request.auth_type or '').lower()
-
-        if 'kerberos' in CONF.token.bind and auth_type == 'negotiate':
-            response_data.setdefault('bind', {})['kerberos'] = user_ref['name']
-
         return base.AuthHandlerResponse(status=True, response_body=None,
                                         response_data=response_data)
 

@@ -17,31 +17,18 @@ from oslo_log import versionutils
 
 from keystone.conf import utils
 
-
 bind = cfg.ListOpt(
     'bind',
     default=[],
-    help=utils.fmt("""
-This is a list of external authentication mechanisms which should add token
-binding metadata to tokens, such as `kerberos` or `x509`. Binding metadata is
-enforced according to the `[token] enforce_token_bind` option.
-"""))
-
-enforce_token_bind = cfg.StrOpt(
-    'enforce_token_bind',
-    default='permissive',
     deprecated_since=versionutils.deprecated.PIKE,
     deprecated_for_removal=True,
     help=utils.fmt("""
-This controls the token binding enforcement policy on tokens presented to
-keystone with token binding metadata (as specified by the `[token] bind`
-option). `disabled` completely bypasses token binding validation. `permissive`
-and `strict` do not require tokens to have binding metadata (but will validate
-it if present), whereas `required` will always demand tokens to having binding
-metadata. `permissive` will allow unsupported binding metadata to pass through
-without validation (usually to be validated at another time by another
-component), whereas `strict` and `required` will demand that the included
-binding metadata be supported by keystone.
+This is a list of external authentication mechanisms which should add token
+binding metadata to tokens, such as `kerberos` or `x509`. Note that this option
+is deprecated as keystone no longer supports binding metadata to tokens
+directly. This option is silently ignored and will be removed in the future.
+This option no longer has any impact on the behavior of tokens and can be
+removed.
 """))
 
 expiration = cfg.IntOpt(
@@ -141,8 +128,6 @@ Defaults to two days.
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
-    bind,
-    enforce_token_bind,
     expiration,
     provider,
     caching,

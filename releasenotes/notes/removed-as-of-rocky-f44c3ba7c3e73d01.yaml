@@ -9,3 +9,8 @@ other:
     Removed support for direct import of authentication drivers. If you're
     using full path names for authentication methods in configuration, please
     update your configuration to use the corresponding namespaces.
+  - >
+    [`blueprint removed-as-of-rocky <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-rocky>`_]
+    Removed support for token bind operations, which were supported by the
+    ``uuid``, ``pki``, and ``pkiz`` token providers. Support for this
+    feature was deprecated in Pike.
