@@ -20,7 +20,6 @@ import wsgiref.util
 
 import flask
 from flask import blueprints
-from flask import g
 import flask_restful
 from oslo_log import log
 import six
@@ -123,7 +122,7 @@ def construct_json_home_data(rel, status=json_home.Status.STABLE,
 
 
 def _initialize_rbac_enforcement_check():
-    setattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, False)
+    setattr(flask.g, enforcer._ENFORCEMENT_CHECK_ATTR, False)
 
 
 def _assert_rbac_enforcement_called(resp):
@@ -132,6 +131,7 @@ def _assert_rbac_enforcement_called(resp):
     msg = ('PROGRAMMING ERROR: enforcement (`keystone.common.rbac_enforcer.'
            'enforcer.RBACKEnforcer.enforce_call()`) has not been called; API '
            'is unenforced.')
+    g = flask.g
     assert getattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, False), msg  # nosec
     return resp
 
@@ -421,7 +421,7 @@ class APIBase(object):
         """
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            setattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
+            setattr(flask.g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
             return f(*args, **kwargs)
         return wrapper
 
