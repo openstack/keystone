@@ -1,6 +1,6 @@
 *.pyc
 *.sw?
-*.egg/
+*.egg*/
 vendor
 .ksl-venv
 .venv
