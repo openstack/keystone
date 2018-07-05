@@ -350,6 +350,16 @@ class InvalidLimit(Forbidden):
     message_format = _("Invalid resource limit: %(reason)s.")
 
 
+class LimitTreeExceedError(Exception):
+    def __init__(self, project_id, max_limit_depth):
+        super(LimitTreeExceedError, self).__init__(_(
+            "Keystone cannot start due to project hierarchical depth in the "
+            "current deployment (project_ids: %(project_id)s) exceeds the "
+            "enforcement model's maximum limit of %(max_limit_depth)s. Please "
+            "use a different enforcement model to correct the issue."
+        ) % {'project_id': project_id, 'max_limit_depth': max_limit_depth})
+
+
 class NotFound(Error):
     message_format = _("Could not find: %(target)s.")
     code = int(http_client.NOT_FOUND)

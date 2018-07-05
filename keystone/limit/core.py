@@ -39,6 +39,11 @@ class Manager(manager.Manager):
         self.enforcement_model = base.load_driver(
             CONF.unified_limit.enforcement_model)
 
+    def check_project_depth(self):
+        """Check project depth if satisfy current enforcement model or not."""
+        PROVIDERS.resource_api.check_project_depth(
+            self.enforcement_model.MAX_PROJECT_TREE_DEPTH)
+
     def _assert_resource_exist(self, unified_limit, target):
         try:
             service_id = unified_limit.get('service_id')

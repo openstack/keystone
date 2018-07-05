@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import sys
+
+from oslo_log import log
 
 from keystone import application_credential
 from keystone import assignment
@@ -18,6 +21,7 @@ from keystone.common import cache
 from keystone.common import provider_api
 from keystone import credential
 from keystone import endpoint_policy
+from keystone import exception
 from keystone import federation
 from keystone import identity
 from keystone import limit
@@ -27,6 +31,8 @@ from keystone import resource
 from keystone import revoke
 from keystone import token
 from keystone import trust
+
+LOG = log.getLogger(__name__)
 
 
 def load_backends():
@@ -55,6 +61,13 @@ def load_backends():
     # NOTE(morgan): lock the APIs, these should only ever be instantiated
     # before running keystone.
     provider_api.ProviderAPIs.lock_provider_registry()
+    try:
+        # Check project depth before start process. If fail, Keystone will not
+        # start.
+        drivers['unified_limit_api'].check_project_depth()
+    except exception.LimitTreeExceedError as e:
+        LOG.critical(e)
+        sys.exit(1)
 
     auth.core.load_auth_methods()
 
