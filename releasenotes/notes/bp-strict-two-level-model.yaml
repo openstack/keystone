@@ -14,6 +14,9 @@ features:
    Please ensure that the previous project and limit structure deployment in
    your Keystone won't break this model before starting to use it.
 
+   If a newly created project results in a project tree depth greater than 2, a
+   `403 Forbidden` error will be raised.
+
  - >
    [`blueprint strict-two-level-model <https://blueprints.launchpad.net/keystone/+spec/strict-two-level-model>`_]
    The `project_id` filter is added for listing limits. This filter is used
