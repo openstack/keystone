@@ -971,7 +971,7 @@ class SamlIdentityProviderMetadata(BaseApp):
     @staticmethod
     def main():
         metadata = idp.MetadataGenerator().generate_metadata()
-        print(metadata.to_string())
+        print(metadata)
 
 
 class MappingEngineTester(BaseApp):
