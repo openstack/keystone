@@ -3618,31 +3618,6 @@ class TestAuthJSONExternal(test_v3.RestfulTestCase):
                           auth_context)
 
 
-class TestTrustOptional(test_v3.RestfulTestCase):
-    def setUp(self):
-        super(TestTrustOptional, self).setUp()
-        # TODO(morgan): remove this test case, trusts are not optional.
-        self.skipTest('Trusts are no longer optional.')
-
-    def config_overrides(self):
-        super(TestTrustOptional, self).config_overrides()
-        self.config_fixture.config(group='trust', enabled=False)
-
-    def test_trusts_returns_not_found(self):
-        self.get('/OS-TRUST/trusts', body={'trust': {}},
-                 expected_status=http_client.NOT_FOUND)
-        self.post('/OS-TRUST/trusts', body={'trust': {}},
-                  expected_status=http_client.NOT_FOUND)
-
-    def test_auth_with_scope_in_trust_forbidden(self):
-        auth_data = self.build_authentication_request(
-            user_id=self.user['id'],
-            password=self.user['password'],
-            trust_id=uuid.uuid4().hex)
-        self.v3_create_token(auth_data,
-                             expected_status=http_client.FORBIDDEN)
-
-
 class TrustAPIBehavior(test_v3.RestfulTestCase):
     """Redelegation valid and secure.
 
@@ -3673,7 +3648,6 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         super(TrustAPIBehavior, self).config_overrides()
         self.config_fixture.config(
             group='trust',
-            enabled=True,
             allow_redelegation=True,
             max_redelegation_count=10
         )
@@ -4463,7 +4437,6 @@ class TestTrustChain(test_v3.RestfulTestCase):
         super(TestTrustChain, self).config_overrides()
         self.config_fixture.config(
             group='trust',
-            enabled=True,
             allow_redelegation=True,
             max_redelegation_count=10
         )
@@ -4905,8 +4878,7 @@ class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
         self.config_fixture.config(group='token',
                                    provider='fernet',
                                    revoke_by_id=False)
-        self.config_fixture.config(group='trust',
-                                   enabled=True)
+        self.config_fixture.config(group='trust')
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,

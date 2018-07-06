@@ -14,3 +14,7 @@ other:
     Removed support for token bind operations, which were supported by the
     ``uuid``, ``pki``, and ``pkiz`` token providers. Support for this
     feature was deprecated in Pike.
+  - >
+    [`blueprint removed-as-of-rocky <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-rocky>`_]
+    The deprecated `enable` config option of the trust feature is removed.
+    Trusts now is always enabled.

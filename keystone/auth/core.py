@@ -289,8 +289,6 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             domain_ref = self._lookup_domain(self.auth['scope']['domain'])
             self._scope_data = (domain_ref['id'], None, None, None, None)
         elif 'OS-TRUST:trust' in self.auth['scope']:
-            if not CONF.trust.enabled:
-                raise exception.Forbidden('Trusts are disabled.')
             trust_ref = self._lookup_trust(
                 self.auth['scope']['OS-TRUST:trust'])
             # TODO(ayoung): when trusts support domains, fill in domain data
