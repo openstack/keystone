@@ -314,8 +314,9 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                                             query,
                                             hints)
             old_format_data = [s.to_dict() for s in limits]
-            if hint_copy.filters and (not hint_copy.get_exact_filter_by_name(
-                    'project_id') or len(hint_copy.filters) > 1):
+            project_filter = hint_copy.get_exact_filter_by_name('project_id')
+            if hint_copy.filters and (not project_filter
+                                      or len(hint_copy.filters) > 1):
                 # If the hints contain "service_id", "region_id" or
                 # "resource_name", we should combine the registered_limit table
                 # first to fetch these information.
@@ -324,6 +325,9 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                 limits = sql.filter_limit_query(RegisteredLimitModel,
                                                 query_new,
                                                 hint_copy)
+                if project_filter:
+                    limits = limits.filter(
+                        LimitModel.project_id == project_filter['value'])
                 new_format_data = [s.to_dict() for s in limits]
             return old_format_data + new_format_data
 
