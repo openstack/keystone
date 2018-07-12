@@ -41,7 +41,7 @@ The source install instructions specifically avoid using platform specific
 packages. Instead, we recommend using the source for the code and the Python
 Package Index (PyPi_) for development environment installations..
 
-.. _PyPi: http://pypi.python.org/pypi
+.. _PyPi: https://pypi.org/project/pypi
 
 It's expected that your system already has python_, pip_, and git_ available.
 
