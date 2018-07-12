@@ -90,6 +90,8 @@ class APIBase(object):
     def __init__(self, blueprint_url_prefix='', api_url_prefix='',
                  default_mediatype='application/json', decorators=None,
                  errors=None):
+        self.__before_request_functions_added = False
+        self.__after_request_functions_added = False
         self._blueprint_url_prefix = blueprint_url_prefix
         self._default_mediatype = default_mediatype
         self._api_url_prefix = api_url_prefix
@@ -102,6 +104,15 @@ class APIBase(object):
             decorators=decorators, errors=errors)
         self._add_resources()
 
+        # Apply Before and After request functions
+        self._register_before_request_functions()
+        self._register_after_request_functions()
+        # Assert is intended to ensure code works as expected in development,
+        # it is fine to optimize out with python -O
+        msg = '%s_request functions not registered'
+        assert self.__before_request_functions_added, msg % 'before'  # nosec
+        assert self.__after_request_functions_added, msg % 'after'  # nosec
+
     def _add_resources(self):
         for r in self.resource_mapping:
             LOG.debug(
@@ -109,6 +120,66 @@ class APIBase(object):
                 '[%(urls)r %(kwargs)r]',
                 {'name': self._name, 'urls': r.urls, 'kwargs': r.kwargs})
             self._blueprint.add_resource(r.resource, *r.urls, **r.kwargs)
+
+    def _register_before_request_functions(self, functions=None):
+        """Register functions to be executed in the `before request` phase.
+
+        Override this method and pass in via "super" any additional functions
+        that should be registered. It is assumed that any override will also
+        accept a "functions" list and append the passed in values to it's
+        list prior to calling super.
+
+        Each function will be called with no arguments and expects a NoneType
+        return. If the function returns a value, that value will be returned
+        as the response to the entire request, no further processing will
+        happen.
+
+        :param functions: list of functions that will be run in the
+                          `before_request` phase.
+        :type functions: list
+        """
+        functions = functions or []
+        # Assert is intended to ensure code works as expected in development,
+        # it is fine to optimize out with python -O
+        msg = 'before_request functions already registered'
+        assert not self.__before_request_functions_added, msg  # nosec
+        # register global before request functions
+        # e.g. self.__blueprint.before_request(function)
+
+        # Add passed-in functions
+        for f in functions:
+            self.__blueprint.before_request(f)
+        self.__before_request_functions_added = True
+
+    def _register_after_request_functions(self, functions=None):
+        """Register functions to be executed in the `after request` phase.
+
+        Override this method and pass in via "super" any additional functions
+        that should be registered. It is assumed that any override will also
+        accept a "functions" list and append the passed in values to it's
+        list prior to calling super.
+
+        Each function will be called with a single argument of the Response
+        class type. The function must return either the passed in Response or
+        a new Response. NOTE: As of flask 0.7, these functions may not be
+        executed in the case of an unhandled exception.
+
+        :param functions: list of functions that will be run in the
+                          `after_request` phase.
+        :type functions: list
+        """
+        functions = functions or []
+        # Assert is intended to ensure code works as expected in development,
+        # it is fine to optimize out with python -O
+        msg = 'after_request functions already registered'
+        assert not self.__after_request_functions_added, msg  # nosec
+        # register global after request functions
+        # e.g. self.__blueprint.after_request(function)
+
+        # Add Passed-In Functions
+        for f in functions:
+            self.__blueprint.after_request(f)
+        self.__after_request_functions_added = True
 
     @classmethod
     def instantiate_and_register_to_app(cls, flask_app):
