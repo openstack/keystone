@@ -122,10 +122,10 @@ def setup_app_middleware(app):
         # local_conf, this is all a hold-over from paste-ini and pending
         # reworking/removal(s)
         factory_func = loaded.driver.factory({}, **mw.conf)
-        app = factory_func(app)
+        app.wsgi_app = factory_func(app.wsgi_app)
 
     # Apply werkzeug speficic middleware
-    app = fixers.ProxyFix(app)
+    app.wsgi_app = fixers.ProxyFix(app.wsgi_app)
     return app
 
 
