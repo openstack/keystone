@@ -370,7 +370,7 @@ class TestCredentialTrustScoped(test_v3.RestfulTestCase):
 
     def config_overrides(self):
         super(TestCredentialTrustScoped, self).config_overrides()
-        self.config_fixture.config(group='trust', enabled=True)
+        self.config_fixture.config(group='trust')
 
     def test_trust_scoped_ec2_credential(self):
         """Test creating trust scoped ec2 credential.

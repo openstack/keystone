@@ -277,7 +277,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             return
 
         user_ref = PROVIDERS.identity_api.get_user(user_id)
-        if CONF.trust.enabled and trust and 'OS-TRUST:trust' not in token_data:
+        if trust and 'OS-TRUST:trust' not in token_data:
             trustor_user_ref = (PROVIDERS.identity_api.get_user(
                                 trust['trustor_user_id']))
             trustee_user_ref = (PROVIDERS.identity_api.get_user(
@@ -343,7 +343,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             token_data['roles'] = filtered_roles
             return
 
-        if CONF.trust.enabled and trust:
+        if trust:
             # If redelegated_trust_id is set, then we must traverse the
             # trust_chain in order to determine who the original trustor is. We
             # need to do this because the user ID of the original trustor helps
@@ -366,7 +366,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
 
         if system or token_domain_id or token_project_id:
             filtered_roles = []
-            if CONF.trust.enabled and trust:
+            if trust:
                 # First expand out any roles that were in the trust to include
                 # any implied roles, whether global or domain specific
                 refs = [{'role_id': role['id']} for role in trust['roles']]
@@ -439,7 +439,7 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
             # no need to repopulate service catalog
             return
 
-        if CONF.trust.enabled and trust:
+        if trust:
             user_id = trust['trustor_user_id']
 
         # NOTE(lbragstad): The catalog API requires a project in order to
@@ -565,7 +565,7 @@ class BaseProvider(provider_api.ProviderAPIMixin, base.Provider):
                     'The configured token provider does not support bind '
                     'authentication.'))
 
-        if CONF.trust.enabled and trust:
+        if trust:
             if user_id != trust['trustee_user_id']:
                 raise exception.Forbidden(_('User is not a trustee.'))
 
