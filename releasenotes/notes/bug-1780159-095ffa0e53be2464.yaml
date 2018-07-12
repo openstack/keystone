@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1780159 <https://bugs.launchpad.net/keystone/+bug/1780159>`_]
+    Revoke the `role` cache when creating a project. This removes the delay
+    before making it appear in the list when a user has inherited role on it.
