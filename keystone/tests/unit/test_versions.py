@@ -23,9 +23,9 @@ from six.moves import http_client
 from testtools import matchers as tt_matchers
 import webob
 
+from keystone.api import discovery
 from keystone.common import json_home
 from keystone.tests import unit
-from keystone.version import controllers
 
 
 v3_MEDIA_TYPES = [
@@ -750,7 +750,7 @@ class VersionTestCase(unit.TestCase):
             self._paste_in_port(expected['version'], 'http://localhost/v3/')
             self.assertEqual(expected, data)
 
-    @mock.patch.object(controllers, '_VERSIONS', ['v3'])
+    @mock.patch.object(discovery, '_VERSIONS', ['v3'])
     def test_v2_disabled(self):
         # NOTE(morgan): This test should be kept, v2.0 is removed and should
         # never return, this prevents regression[s]/v2.0 discovery doc
@@ -826,8 +826,8 @@ class VersionTestCase(unit.TestCase):
             self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
             return resp.headers['Content-Type']
 
-        JSON = controllers.MimeTypes.JSON
-        JSON_HOME = controllers.MimeTypes.JSON_HOME
+        JSON = discovery.MimeTypes.JSON
+        JSON_HOME = discovery.MimeTypes.JSON_HOME
 
         JSON_MATCHER = tt_matchers.Equals(JSON)
         JSON_HOME_MATCHER = tt_matchers.Equals(JSON_HOME)
@@ -856,16 +856,12 @@ class VersionTestCase(unit.TestCase):
         # If request some unknown mime-type, get JSON.
         self.assertThat(make_request(self.getUniqueString()), JSON_MATCHER)
 
-    @mock.patch.object(controllers, '_VERSIONS', [])
+    @mock.patch.object(discovery, '_VERSIONS', [])
     def test_no_json_home_document_returned_when_v3_disabled(self):
-        json_home_document = controllers.request_v3_json_home('some_prefix')
+        json_home_document = discovery._v3_json_home_content()
+        json_home.translate_urls(json_home_document, '/v3')
         expected_document = {'resources': {}}
         self.assertEqual(expected_document, json_home_document)
-
-    def test_extension_property_method_returns_none(self):
-        extension_obj = controllers.Extensions()
-        extensions_property = extension_obj.extensions
-        self.assertIsNone(extensions_property)
 
 
 class VersionSingleAppTestCase(unit.TestCase):

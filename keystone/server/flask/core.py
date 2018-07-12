@@ -16,6 +16,7 @@ import os
 import oslo_i18n
 from oslo_log import log
 import stevedore
+from werkzeug.contrib import fixers
 
 
 # NOTE(dstanek): i18n.enable_lazy() must be called before
@@ -85,7 +86,7 @@ def _get_config_files(env=None):
     return files
 
 
-def setup_app_middleware(application):
+def setup_app_middleware(app):
     # NOTE(morgan): Load the middleware, in reverse order, we wrap the app
     # explicitly; reverse order to ensure the first element in _APP_MIDDLEWARE
     # processes the request first.
@@ -121,8 +122,11 @@ def setup_app_middleware(application):
         # local_conf, this is all a hold-over from paste-ini and pending
         # reworking/removal(s)
         factory_func = loaded.driver.factory({}, **mw.conf)
-        application = factory_func(application)
-    return application
+        app = factory_func(app)
+
+    # Apply werkzeug speficic middleware
+    app = fixers.ProxyFix(app)
+    return app
 
 
 def initialize_application(name, post_log_configured_function=lambda: None,
