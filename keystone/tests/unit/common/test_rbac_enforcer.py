@@ -562,3 +562,44 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
                               self.enforcer.enforce_call,
                               action='example:denied',
                               enforcer=enforcer)
+
+    def test_enforce_call_sets_enforcement_attr(self):
+        # Ensure calls to enforce_call set the value on flask.g that indicates
+        # enforce_call has actually been called
+        token_path = '/v3/auth/tokens'
+        auth_json = self._auth_json()
+        with self.test_client() as c:
+            # setup/initial call. Note that the request must hit the flask
+            # app to have access to g (without an explicit app-context push)
+            r = c.post(token_path, json=auth_json, expected_status_code=201)
+            token_id = r.headers.get('X-Subject-Token')
+            c.get('%s/argument/%s' % (
+                self.restful_api_url_prefix, uuid.uuid4().hex),
+                headers={'X-Auth-Token': token_id})
+
+            # Ensure the attribute is not set
+            self.assertFalse(
+                hasattr(
+                    flask.g, rbac_enforcer.enforcer._ENFORCEMENT_CHECK_ATTR)
+            )
+            # Set the value to false, like the resource have done automatically
+            setattr(
+                flask.g, rbac_enforcer.enforcer._ENFORCEMENT_CHECK_ATTR, False)
+            # Enforce
+            self.enforcer.enforce_call(action='example:allowed')
+            # Verify the attribute has been set to true.
+            self.assertEqual(
+                getattr(flask.g,
+                        rbac_enforcer.enforcer._ENFORCEMENT_CHECK_ATTR),
+                True)
+            # Reset Attribute and check that attribute is still set even if
+            # enforcement results in forbidden.
+            setattr(
+                flask.g, rbac_enforcer.enforcer._ENFORCEMENT_CHECK_ATTR, False)
+            self.assertRaises(exception.ForbiddenAction,
+                              self.enforcer.enforce_call,
+                              action='example:denied')
+            self.assertEqual(
+                getattr(flask.g,
+                        rbac_enforcer.enforcer._ENFORCEMENT_CHECK_ATTR),
+                True)
