@@ -1238,11 +1238,6 @@ class SecurityComplianceDoctorTests(unit.TestCase):
 class TokensDoctorTests(unit.TestCase):
 
     def test_unreasonable_max_token_size_raised(self):
-        # Symptom Detected: the max_token_size for uuid is not 32
-        self.config_fixture.config(group='token', provider='uuid')
-        self.config_fixture.config(max_token_size=33)
-        self.assertTrue(tokens.symptom_unreasonable_max_token_size())
-
         # Symptom Detected: the max_token_size for fernet is greater than 255
         self.config_fixture.config(group='token', provider='fernet')
         self.config_fixture.config(max_token_size=256)

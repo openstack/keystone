@@ -25,9 +25,6 @@ def symptom_unreasonable_max_token_size():
     providers, then you should set `keystone.conf [DEFAULT] max_token_size`
     accordingly:
 
-    - For UUID, set `keystone.conf [DEFAULT] max_token_size = 32`, because UUID
-      tokens are always exactly 32 characters.
-
     - For Fernet, set `keystone.conf [DEFAULT] max_token_size = 255`, because
       Fernet tokens should never exceed this length in most deployments.
       However, if you are also using `keystone.conf [identity] driver = ldap`,
@@ -35,6 +32,4 @@ def symptom_unreasonable_max_token_size():
       depending on the IDs returned from LDAP, resulting in longer Fernet
       tokens (adjust your `max_token_size` accordingly).
     """
-    return (
-        'uuid' in CONF.token.provider and CONF.max_token_size != 32
-        or 'fernet' in CONF.token.provider and CONF.max_token_size > 255)
+    return ('fernet' in CONF.token.provider and CONF.max_token_size > 255)
