@@ -33,8 +33,8 @@ from testtools import testcase
 
 from keystone import auth
 from keystone.auth.plugins import totp
-from keystone.common import policy
 from keystone.common import provider_api
+from keystone.common.rbac_enforcer import policy
 from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
