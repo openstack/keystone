@@ -485,9 +485,9 @@ def create_user(api, domain_id, **kwargs):
 
 
 def _assert_expected_status(f):
-    """Add "expected status as an argument to the test_client methods.
+    """Add `expected_status_code` as an argument to the test_client methods.
 
-    `expected_status` must be passed as a kwarg.
+    `expected_status_code` must be passed as a kwarg.
     """
     @functools.wraps(f)
     def inner(*args, **kwargs):
@@ -851,7 +851,7 @@ class TestCase(BaseTestCase):
         app.testing = True
         app.test_client_class = KeystoneFlaskTestClient
 
-        # NOTE(morgan): any unexpected 404s [not handled by the routed apis
+        # NOTE(morgan): any unexpected 404s, not handled by the routed apis,
         # is a hard error and should not pass testing.
         def page_not_found_teapot(e):
             content = (
