@@ -53,7 +53,8 @@ from keystone import exception
 from keystone.identity.backends.ldap import common as ks_ldap
 from keystone import notifications
 from keystone.resource.backends import base as resource_base
-from keystone.server import flask as keystone_flask
+from keystone.server.flask import application as flask_app
+from keystone.server.flask import core as keystone_flask
 from keystone.tests.unit import ksfixtures
 
 
@@ -865,7 +866,7 @@ class TestCase(BaseTestCase):
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 
     def loadapp(self, name='public'):
-        app = keystone_flask.application.application_factory(name)
+        app = flask_app.application_factory(name)
         app.testing = True
         app.test_client_class = KeystoneFlaskTestClient
 
