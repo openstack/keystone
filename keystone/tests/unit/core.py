@@ -28,6 +28,8 @@ import uuid
 import warnings
 
 import fixtures
+import flask
+from flask import testing as flask_testing
 from oslo_config import fixture as config_fixture
 from oslo_context import context as oslo_context
 from oslo_context import fixture as oslo_ctx_fixture
@@ -482,6 +484,69 @@ def create_user(api, domain_id, **kwargs):
     return user
 
 
+def _assert_expected_status(f):
+    """Add "expected status as an argument to the test_client methods.
+
+    `expected_status` must be passed as a kwarg.
+    """
+    @functools.wraps(f)
+    def inner(*args, **kwargs):
+        expected_status_code = kwargs.pop('expected_status_code', 200)
+        response = f(*args, **kwargs)
+
+        # Logic to verify the response object is sane. Expand as needed
+        if response.status_code == 418:
+            # NOTE(morgan): We use 418 internally during tests to indicate
+            # an un-routed HTTP call was made. This allows us to avoid
+            # misinterpreting HTTP 404 from Flask and HTTP 404 from a
+            # resource that is not found (e.g. USER NOT FOUND) programmatically
+            raise AssertionError("I AM A TEAPOT(418): %s" % response.data)
+
+        if response.status_code != expected_status_code:
+            raise AssertionError(
+                'Expected HTTP Status does not match observed HTTP '
+                'Status: %(expected)s != %(observed)s (%(data)s)' % {
+                    'expected': expected_status_code,
+                    'observed': response.status_code,
+                    'data': response.data})
+
+        # return the original response object
+        return response
+    return inner
+
+
+class KeystoneFlaskTestClient(flask_testing.FlaskClient):
+    """Subclass of flask.testing.FlaskClient implementing assertions.
+
+    Implements custom "expected" HTTP Status assertion for
+    GET/HEAD/PUT/PATCH/DELETE.
+    """
+
+    @_assert_expected_status
+    def get(self, *args, **kwargs):
+        return super(KeystoneFlaskTestClient, self).get(*args, **kwargs)
+
+    @_assert_expected_status
+    def head(self, *args, **kwargs):
+        return super(KeystoneFlaskTestClient, self).head(*args, **kwargs)
+
+    @_assert_expected_status
+    def post(self, *args, **kwargs):
+        return super(KeystoneFlaskTestClient, self).post(*args, **kwargs)
+
+    @_assert_expected_status
+    def patch(self, *args, **kwargs):
+        return super(KeystoneFlaskTestClient, self).patch(*args, **kwargs)
+
+    @_assert_expected_status
+    def put(self, *args, **kwargs):
+        return super(KeystoneFlaskTestClient, self).put(*args, **kwargs)
+
+    @_assert_expected_status
+    def delete(self, *args, **kwargs):
+        return super(KeystoneFlaskTestClient, self).delete(*args, **kwargs)
+
+
 class BaseTestCase(testtools.TestCase):
     """Light weight base test class.
 
@@ -783,7 +848,23 @@ class TestCase(BaseTestCase):
 
     def loadapp(self, name='public'):
         app = keystone_flask.application.application_factory(name)
-        app.config.update(PROPAGATE_EXCEPTIONS=True, testing=True)
+        app.testing = True
+        app.test_client_class = KeystoneFlaskTestClient
+
+        # NOTE(morgan): any unexpected 404s [not handled by the routed apis
+        # is a hard error and should not pass testing.
+        def page_not_found_teapot(e):
+            content = (
+                'TEST PROGRAMMING ERROR - Reached a 404 from an unrouted (`%s`'
+                ') path. Be sure the test is requesting the right resource '
+                'and that all blueprints are registered with the flask app.' %
+                flask.request.url)
+            return content, 418
+
+        app.register_error_handler(404, page_not_found_teapot)
+
+        self.test_client = app.test_client
+        self.cleanup_instance('test_client')
         return keystone_flask.setup_app_middleware(app)
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
