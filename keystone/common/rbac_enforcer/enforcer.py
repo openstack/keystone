@@ -280,14 +280,21 @@ class RBACEnforcer(object):
         # @policy_enforcer_action decorator was used.
         action = action or getattr(flask.g, cls.ACTION_STORE_ATTR, None)
         if action not in _POSSIBLE_TARGET_ACTIONS:
-            LOG.warning('RBAC: Unknown/No enforcement action name. Rejecting '
-                        'as unauthorized, this is a programming error and a '
-                        'bug should be filed with as much information about '
-                        'the request that caused this as possible.')
-            raise exception.Unauthorized(
+            LOG.warning('RBAC: Unknown enforcement action name `%s`. '
+                        'Rejecting as Forbidden, this is a programming error '
+                        'and a bug should be filed with as much information '
+                        'about the request that caused this as possible.',
+                        action)
+            # NOTE(morgan): While this is an internal error, a 500 is never
+            # desirable, we have handled the case and the most appropriate
+            # response here is to issue a 403 (FORBIDDEN) to any API calling
+            # enforce_call with an inappropriate action/name to look up the
+            # policy rule. This is simply a short-circuit as the enforcement
+            # code raises a 403 on an unknown action (in keystone) by default.
+            raise exception.Forbidden(
                 message=_(
-                    'Internal RBAC enforcement error, no rule/action name to '
-                    'lookup'))
+                    'Internal RBAC enforcement error, invalid rule (action) '
+                    'name.'))
 
         # Mark flask.g as "enforce_call" has been called. This should occur
         # before anything except the "is this a valid action" check, ensuring

@@ -335,6 +335,14 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
                 extracted_creds)
 
     def test_extract_member_target_data_inferred(self):
+        # NOTE(morgan): Setup the "resource" object with a 'member_name' attr
+        # and the 'get_member_from_driver' binding to the 'get' method. The
+        # enforcer here will look for 'get_member_from_driver' (callable) and
+        # the 'member_name' (e.g. 'user') so it can automatically populate
+        # the target dict with the member information. This is mostly compat
+        # with current @protected (ease of use). For most cases the target
+        # should be explicitly passed to .enforce_call, but for ease of
+        # converting / use, the automatic population of data has been added.
         self.restful_api_resource.member_name = 'argument'
         member_from_driver = self.restful_api_resource.get
         self.restful_api_resource.get_member_from_driver = member_from_driver
@@ -399,7 +407,8 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         self.assertRaises(ValueError, _decorator_fails)
 
     def test_enforce_call_invalid_action(self):
-        self.assertRaises(exception.Unauthorized, self.enforcer.enforce_call,
+        self.assertRaises(exception.Forbidden,
+                          self.enforcer.enforce_call,
                           action=uuid.uuid4().hex)
 
     def test_enforce_call_not_is_authenticated(self):
