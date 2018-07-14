@@ -239,7 +239,10 @@ class APIBase(object):
         if api_url_prefix and not api_url_prefix.startswith('/'):
             self._api_url_prefix = '/%s' % api_url_prefix
         else:
-            self._api_url_prefix = api_url_prefix
+            # NOTE(morgan): If the api_url_prefix is empty fall back on the
+            # class-level defined `_api_url_prefix` if it is set.
+            self._api_url_prefix = (api_url_prefix or
+                                    getattr(self, '_api_url_prefix', ''))
 
         if blueprint_url_prefix and not blueprint_url_prefix.startswith('/'):
             self._blueprint_url_prefix = self._build_bp_url_prefix(
