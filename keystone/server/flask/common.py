@@ -528,7 +528,7 @@ class ResourceBase(flask_restful.Resource):
 
     @classmethod
     def _add_self_referential_link(cls, ref):
-        self_link = '/'.join([base_url(), 'v3', cls.collection_key])
+        self_link = '/'.join([base_url(), 'v3', cls.collection_key, ref['id']])
         ref.setdefault('links', {})['self'] = self_link
 
     @classmethod

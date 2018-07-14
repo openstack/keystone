@@ -77,6 +77,8 @@ class _TestResourceWithCollectionInfo(flask_common.ResourceBase):
             raise exception.NotFound(target=argument_id)
         ref = flask.request.get_json(force=True)
         self._require_matching_id(ref)
+        # Maintain the ref id
+        ref['id'] = argument_id
         self._storage_dict[argument_id] = ref
         return '', 204
 
