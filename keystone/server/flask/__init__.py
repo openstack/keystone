@@ -10,11 +10,27 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# NOTE(morgan): Import relevant stuff so importing individual under-pinnings
+# isn't needed, keystone.server.flask exposes all the interesting bits
+# needed to develop restful APIs for keystone.
+
+from keystone.server.flask import application
+from keystone.server.flask.common import APIBase  # noqa
+from keystone.server.flask.common import base_url  # noqa
+from keystone.server.flask.common import construct_json_home_data  # noqa
+from keystone.server.flask.common import construct_resource_map  # noqa
+from keystone.server.flask.common import full_url  # noqa
+from keystone.server.flask.common import JsonHomeData  # noqa
+from keystone.server.flask.common import ResourceBase  # noqa
+from keystone.server.flask.common import ResourceMap  # noqa
 from keystone.server.flask.core import *  # noqa
-from keystone.server.flask import application  # noqa
 
 
-__all__ = ('application', 'core', 'fail_gracefully', 'initialize_application',
-           'setup_app_middleware')
+# NOTE(morgan): This allows for from keystone.flask import * and have all the
+# cool stuff needed to develop new APIs within a module/subsystem
+__all__ = ('APIBase', 'JsonHomeData', 'ResourceBase', 'ResourceMap',
+           'base_url', 'construct_json_home_data', 'construct_resource_map',
+           'full_url', 'fail_gracefully')
 
+application_factory = application.application_factory
 fail_gracefully = application.fail_gracefully
