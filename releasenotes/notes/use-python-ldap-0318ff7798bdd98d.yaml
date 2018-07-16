@@ -1,0 +1,6 @@
+---
+upgrade:
+  - Keystone now relies on python-ldap instead of pyldap.
+    The pyldap library is a deprecated fork from python-ldap. Starting
+    with python-ldap 3.0 release this has been merged and is maintained
+    there.
