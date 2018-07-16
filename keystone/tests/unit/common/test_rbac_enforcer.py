@@ -15,7 +15,6 @@ import uuid
 import fixtures
 import flask
 from flask import blueprints
-from flask import g
 import flask_restful
 import mock
 from oslo_policy import policy
@@ -389,7 +388,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         with self.test_client() as c:
             c.get('%s' % self.url_prefix)
             self.assertEqual(
-                action, getattr(g, self.enforcer.ACTION_STORE_ATTR))
+                action, getattr(flask.g, self.enforcer.ACTION_STORE_ATTR))
 
     def test_policy_enforcer_action_invalid_action_decorator(self):
         # If the "action" is not a registered policy enforcement point, check
