@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.common.rbac_enforcer import enforcer
+from keystone.common.rbac_enforcer.enforcer import RBACEnforcer  # noqa
 
 
-__all__ = ('enforcer',)
+__all__ = ('RBACEnforcer',)
