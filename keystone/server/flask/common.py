@@ -21,7 +21,9 @@ import wsgiref.util
 import flask
 from flask import blueprints
 import flask_restful
+import flask_restful.utils
 from oslo_log import log
+from oslo_serialization import jsonutils
 import six
 from six.moves import http_client
 
@@ -258,6 +260,14 @@ class APIBase(object):
             app=self.__blueprint, prefix=self._api_url_prefix,
             default_mediatype=self._default_mediatype,
             decorators=decorators, errors=errors)
+
+        # NOTE(morgan): Make sure we're using oslo_serialization.jsonutils
+        # instead of the default json serializer. Keystone has data types that
+        # the default serializer cannot handle, representation is a decorator
+        # but since we instantiate the API in-line we need to do some magic
+        # and call it as a normal method.
+        self.__api.representation('application/json')(self._output_json)
+
         self._add_resources()
         self._add_mapped_resources()
 
@@ -419,6 +429,31 @@ class APIBase(object):
         for f in functions:
             self.__blueprint.after_request(f)
         self.__after_request_functions_added = True
+
+    @staticmethod
+    def _output_json(data, code, headers=None):
+        """Make a Flask response with a JSON encoded body.
+
+        This is a replacement of the default that is shipped with flask-RESTful
+        as we need oslo_serialization for the wider datatypes in our objects
+        that are serialized to json.
+        """
+        settings = flask.current_app.config.get('RESTFUL_JSON', {})
+
+        # If we're in debug mode, and the indent is not set, we set it to
+        # a reasonable value here. Note that this won't override any existing
+        # value that was set. We also set the "sort_keys" value.
+        if flask.current_app.debug:
+            settings.setdefault('indent', 4)
+            settings.setdefault('sort_keys', not flask_restful.utils.PY3)
+
+        # always end the json dumps with a new line
+        # see https://github.com/mitsuhiko/flask/pull/1262
+        dumped = jsonutils.dumps(data, **settings) + "\n"
+
+        resp = flask.make_response(dumped, code)
+        resp.headers.extend(headers or {})
+        return resp
 
     @staticmethod
     def unenforced_api(f):
