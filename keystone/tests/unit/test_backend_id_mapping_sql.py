@@ -353,7 +353,7 @@ class SqlIDMapping(test_backend_sql.SqlTests):
             domain_a_mappings = [m.to_dict() for m in domain_a_mappings]
         self.assertItemsEqual(local_entities[:2], domain_a_mappings)
 
-    def test_get_domain_mapping_list_by_entity(self):
+    def test_get_domain_mapping_list_by_user_entity_type(self):
         local_entities = self._prepare_domain_mappings_for_list()
         # NOTE(notmorgan): Always call to_dict in an active session context to
         # ensure that lazy-loaded relationships succeed. Edge cases could cause
@@ -368,3 +368,20 @@ class SqlIDMapping(test_backend_sql.SqlTests):
             domain_b_mappings_user = [m.to_dict()
                                       for m in domain_b_mappings_user]
         self.assertItemsEqual(local_entities[-2:], domain_b_mappings_user)
+
+    def test_get_domain_mapping_list_by_group_entity_type(self):
+        local_entities = self._prepare_domain_mappings_for_list()
+        # NOTE(notmorgan): Always call to_dict in an active session context to
+        # ensure that lazy-loaded relationships succeed. Edge cases could cause
+        # issues especially in attribute mappers.
+        with sql.session_for_read():
+            # List group mappings for domainB. Given the data set, this should
+            # only return a single reference, so don't both iterating the query
+            # response.
+            domain_b_mappings_group = (
+                PROVIDERS.id_mapping_api.get_domain_mapping_list(
+                    self.domainB['id'], entity_type=mapping.EntityType.GROUP
+                )
+            )
+            domain_b_mappings_group = domain_b_mappings_group.first().to_dict()
+        self.assertItemsEqual(local_entities[2], domain_b_mappings_group)
