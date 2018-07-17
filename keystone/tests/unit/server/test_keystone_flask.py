@@ -178,6 +178,11 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
     def _setup_flask_restful_api(self, **options):
 
         self.restful_api_opts = options.copy()
+        orig_value = _TestResourceWithCollectionInfo.api_prefix
+        setattr(_TestResourceWithCollectionInfo,
+                'api_prefix', options.get('api_url_prefix', ''))
+        self.addCleanup(setattr, _TestResourceWithCollectionInfo, 'api_prefix',
+                        orig_value)
         self.restful_api = _TestRestfulAPI(**options)
         self.public_app.app.register_blueprint(self.restful_api.blueprint)
         self.cleanup_instance('restful_api')

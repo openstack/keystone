@@ -30,6 +30,7 @@ from pycadf import resource
 import six
 from six.moves import http_client
 
+from keystone.common import authorization
 from keystone.common import context
 from keystone.common import driver_hints
 from keystone.common import json_home
@@ -295,14 +296,21 @@ class APIBase(object):
         for r in self.resources:
             c_key = getattr(r, 'collection_key', None)
             m_key = getattr(r, 'member_key', None)
+            r_pfx = getattr(r, 'api_prefix', None)
             if not c_key or not m_key:
                 LOG.debug('Unable to add resource %(resource)s to API '
                           '%(name)s, both `member_key` and `collection_key` '
                           'must be implemented. [collection_key(%(col_key)s) '
                           'member_key(%(m_key)s)]',
-                          {'resource': r.__class__.view_class.__name__,
+                          {'resource': r.__name__,
                            'name': self._name, 'col_key': c_key,
                            'm_key': m_key})
+                continue
+            if r_pfx != self._api_url_prefix:
+                LOG.debug('Unable to add resource %(resource)s to API as the '
+                          'API Prefixes do not match: %(apfx)r != %(rpfx)r',
+                          {'resource': r.__name__,
+                           'rpfx': r_pfx, 'apfx': self._api_url_prefix})
                 continue
 
             # NOTE(morgan): The Prefix is automatically added by the API, so
@@ -311,8 +319,10 @@ class APIBase(object):
             entity_path = '/%(collection)s/<string:%(member)s_id>' % {
                 'collection': c_key, 'member': m_key}
             # NOTE(morgan): The json-home form of the entity path is different
-            # from the flask-url routing form.
-            jh_e_path = _URL_SUBST.sub('{\\1}', entity_path)
+            # from the flask-url routing form. Must also include the prefix
+            jh_e_path = '%(pfx)s/%(e_path)s' % {
+                'pfx': self._api_url_prefix,
+                'e_path': _URL_SUBST.sub('{\\1}', entity_path).lstrip('/')}
 
             LOG.debug(
                 'Adding standard routes to API %(name)s for `%(resource)s` '
@@ -515,6 +525,9 @@ class ResourceBase(flask_restful.Resource):
 
     collection_key = None
     member_key = None
+    # NOTE(morgan): This must match the string on the API the resource is
+    # registered to.
+    api_prefix = ''
 
     method_decorators = []
 
@@ -588,7 +601,11 @@ class ResourceBase(flask_restful.Resource):
 
     @classmethod
     def _add_self_referential_link(cls, ref):
-        self_link = '/'.join([base_url(), 'v3', cls.collection_key, ref['id']])
+        collection_element = cls.collection_key
+        if cls.api_prefix:
+            api_prefix = cls.api_prefix.lstrip('/').rstrip('/')
+            collection_element = '/'.join([api_prefix, cls.collection_key])
+        self_link = '/'.join([base_url(), 'v3', collection_element, ref['id']])
         ref.setdefault('links', {})['self'] = self_link
 
     @classmethod
@@ -651,6 +668,10 @@ class ResourceBase(flask_restful.Resource):
                 refs = [r for r in refs if _inexact_attr_match(f, r)]
 
         return refs
+
+    @property
+    def auth_context(self):
+        return flask.request.environ.get(authorization.AUTH_CONTEXT_ENV, None)
 
     @property
     def oslo_context(self):
