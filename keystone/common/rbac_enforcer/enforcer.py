@@ -331,7 +331,8 @@ class RBACEnforcer(object):
         # Pull the data from the view args (path based params) to generate
         # appropriate input/target attributes, we take an explicit copy here
         # to ensure we're not somehow corrupting
-        policy_dict.update(flask.request.view_args or {})
+        json_input = flask.request.get_json(force=True, silent=True) or {}
+        policy_dict.update(json_input.copy())
 
         # Generate the filter_attr dataset.
         policy_dict.update(cls._extract_filter_values(filters))
