@@ -112,12 +112,6 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         r = self.get('/OS-TRUST/trusts')
         self.assertValidTrustListResponse(r, trust)
 
-        # trusts are immutable
-        self.patch(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
-            body={'trust': ref},
-            expected_status=http_client.NOT_FOUND)
-
         # delete the trust
         self.delete(
             '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']})
