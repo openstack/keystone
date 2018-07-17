@@ -124,7 +124,7 @@ def construct_resource_map(resource, url, resource_kwargs, alternate_urls=None,
 def construct_json_home_data(rel, status=json_home.Status.STABLE,
                              path_vars=None,
                              resource_relation_func=_v3_resource_relation):
-    rel = resource_relation_func(rel)
+    rel = resource_relation_func(resource_name=rel)
     return JsonHomeData(rel=rel, status=status, path_vars=(path_vars or {}))
 
 
@@ -305,28 +305,44 @@ class APIBase(object):
                            'm_key': m_key})
                 continue
 
+            # NOTE(morgan): The Prefix is automatically added by the API, so
+            # we do not add it to the paths here.
             collection_path = '/%s' % c_key
-            entity_path = '/%(collection_key)s/<string:%(member_key)s_id>' % {
-                'collection_key': c_key, 'member_key': m_key}
+            entity_path = '/%(collection)s/<string:%(member)s_id>' % {
+                'collection': c_key, 'member': m_key}
             # NOTE(morgan): The json-home form of the entity path is different
             # from the flask-url routing form.
             jh_e_path = _URL_SUBST.sub('{\\1}', entity_path)
 
             LOG.debug(
                 'Adding standard routes to API %(name)s for `%(resource)s` '
-                '[%(collection_path)s, %(entity_path)s]', {
+                '(API Prefix: %(prefix)s) [%(collection_path)s, '
+                '%(entity_path)s]', {
                     'name': self._name, 'resource': r.__class__.__name__,
                     'collection_path': collection_path,
-                    'entity_path': entity_path})
+                    'entity_path': entity_path,
+                    'prefix': self._api_url_prefix})
             self.api.add_resource(r, collection_path, entity_path)
 
             # Add JSON Home data
-            collection_rel = json_home.build_v3_resource_relation(c_key)
-            rel_data = {'href': collection_path}
+            resource_rel_func = getattr(
+                r, 'json_home_resource_rel_func',
+                json_home.build_v3_resource_relation)
+            collection_rel = resource_rel_func(resource_name=c_key)
+            # NOTE(morgan): Add the prefix explicitly for JSON Home documents
+            # to the collection path.
+            rel_data = {'href': '%(pfx)s%(collection_path)s' % {
+                'pfx': self._api_url_prefix,
+                'collection_path': collection_path}
+            }
 
-            entity_rel = json_home.build_v3_resource_relation(m_key)
+            entity_rel = resource_rel_func(resource_name=m_key)
             id_str = '%s_id' % m_key
-            id_param_rel = json_home.build_v3_parameter_relation(id_str)
+
+            parameter_rel_func = getattr(
+                r, 'json_home_parameter_rel_func',
+                json_home.build_v3_parameter_relation)
+            id_param_rel = parameter_rel_func(parameter_name=id_str)
             entity_rel_data = {'href-template': jh_e_path,
                                'href-vars': {id_str: id_param_rel}}
 
@@ -358,7 +374,10 @@ class APIBase(object):
                 resource_data = {}
                 # NOTE(morgan): JSON Home form of the URL is different
                 # from FLASK, do the conversion here.
-                conv_url = _URL_SUBST.sub('{\\1}', r.url)
+                conv_url = '%(pfx)s/%(url)s' % {
+                    'url': _URL_SUBST.sub('{\\1}', r.url).lstrip('/'),
+                    'pfx': self._api_url_prefix}
+
                 if r.json_home_data.path_vars:
                     resource_data['href-template'] = conv_url
                     resource_data['href-vars'] = r.json_home_data.path_vars
