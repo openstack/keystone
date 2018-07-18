@@ -726,6 +726,74 @@ class LimitsTestCase(test_v3.RestfulTestCase):
                     'resource_limit']:
             self.assertEqual(limits[0][key], ref1[key])
 
+    def test_list_limit_with_project_id_filter(self):
+        # Create a new projects and a 'non-admin' role for test. The assignment
+        # is like:
+        #
+        # self.user -- admin -- self.project (default)
+        # self.user -- non-admin -- the new project
+        # self.user -- admin -- system
+        project_2 = unit.new_project_ref(domain_id=self.domain_id)
+        project_2_id = project_2['id']
+        PROVIDERS.resource_api.create_project(project_2_id, project_2)
+
+        role_2 = unit.new_role_ref(name='non-admin')
+        role_2_id = role_2['id']
+        PROVIDERS.role_api.create_role(role_2_id, role_2)
+
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user_id, project_2_id, role_2_id)
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role['id'])
+
+        # create two limit in different projects for test.
+        ref1 = unit.new_limit_ref(project_id=self.project_id,
+                                  service_id=self.service_id,
+                                  region_id=self.region_id,
+                                  resource_name='volume')
+        ref2 = unit.new_limit_ref(project_id=project_2_id,
+                                  service_id=self.service_id2,
+                                  resource_name='snapshot')
+        self.post(
+            '/limits',
+            body={'limits': [ref1, ref2]},
+            expected_status=http_client.CREATED)
+
+        # non system scoped request will get the limits in its project.
+        r = self.get('/limits', expected_status=http_client.OK)
+        limits = r.result['limits']
+        self.assertEqual(1, len(limits))
+        self.assertEqual(self.project_id, limits[0]['project_id'])
+
+        r = self.get(
+            '/limits', expected_status=http_client.OK,
+            auth=self.build_authentication_request(
+                user_id=self.user['id'], password=self.user['password'],
+                project_id=project_2_id))
+        limits = r.result['limits']
+        self.assertEqual(1, len(limits))
+        self.assertEqual(project_2_id, limits[0]['project_id'])
+
+        # if non system scoped request contain project_id filter, keystone
+        # will return an empty list.
+        r = self.get(
+            '/limits?project_id=%s' % self.project_id,
+            expected_status=http_client.OK)
+        limits = r.result['limits']
+        self.assertEqual(0, len(limits))
+
+        # a system scoped request can specify the project_id filter
+        r = self.get(
+            '/limits?project_id=%s' % self.project_id,
+            expected_status=http_client.OK,
+            auth=self.build_authentication_request(
+                user_id=self.user['id'], password=self.user['password'],
+                system=True)
+        )
+        limits = r.result['limits']
+        self.assertEqual(1, len(limits))
+        self.assertEqual(self.project_id, limits[0]['project_id'])
+
     def test_show_limit(self):
         ref1 = unit.new_limit_ref(project_id=self.project_id,
                                   service_id=self.service_id,

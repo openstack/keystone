@@ -101,17 +101,22 @@ class LimitV3(controller.V3Controller):
             limit_id, limit)
         return LimitV3.wrap_member(request.context_dict, ref)
 
-    @controller.filterprotected('service_id', 'region_id', 'resource_name')
+    @controller.filterprotected('service_id', 'region_id', 'resource_name',
+                                'project_id')
     def list_limits(self, request, filters):
         hints = LimitV3.build_driver_hints(request, filters)
-        # TODO(wxy): Add system-scope check. If the request is system-scoped,
-        # it can get all limits.
         context = request.context
-        if not context.is_admin and not ('admin' in context.roles):
+        project_id_filter = hints.get_exact_filter_by_name('project_id')
+        if project_id_filter:
+            if context.system_scope:
+                refs = PROVIDERS.unified_limit_api.list_limits(hints)
+            else:
+                refs = []
+        else:
             project_id = context.project_id
             if project_id:
                 hints.add_filter('project_id', project_id)
-        refs = PROVIDERS.unified_limit_api.list_limits(hints)
+            refs = PROVIDERS.unified_limit_api.list_limits(hints)
         return LimitV3.wrap_collection(request.context_dict, refs, hints=hints)
 
     @controller.protected()
