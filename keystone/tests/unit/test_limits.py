@@ -770,3 +770,493 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.OK)
         limits = r.result['limits']
         self.assertEqual(len(limits), 1)
+
+
+class StrictTwoLevelLimitsTestCase(LimitsTestCase):
+
+    def setUp(self):
+        super(StrictTwoLevelLimitsTestCase, self).setUp()
+        # create two hierarchical projects trees for test.
+        #   A        D
+        #  / \      / \
+        # B   C    E   F
+        project_ref = {'project': {'name': 'A', 'enabled': True}}
+        response = self.post('/projects', body=project_ref)
+        self.project_A = response.json_body['project']
+        project_ref = {'project': {'name': 'B', 'enabled': True,
+                                   'parent_id': self.project_A['id']}}
+        response = self.post('/projects', body=project_ref)
+        self.project_B = response.json_body['project']
+        project_ref = {'project': {'name': 'C', 'enabled': True,
+                                   'parent_id': self.project_A['id']}}
+        response = self.post('/projects', body=project_ref)
+        self.project_C = response.json_body['project']
+
+        project_ref = {'project': {'name': 'D', 'enabled': True}}
+        response = self.post('/projects', body=project_ref)
+        self.project_D = response.json_body['project']
+        project_ref = {'project': {'name': 'E', 'enabled': True,
+                                   'parent_id': self.project_D['id']}}
+        response = self.post('/projects', body=project_ref)
+        self.project_E = response.json_body['project']
+        project_ref = {'project': {'name': 'F', 'enabled': True,
+                                   'parent_id': self.project_D['id']}}
+        response = self.post('/projects', body=project_ref)
+        self.project_F = response.json_body['project']
+
+    def config_overrides(self):
+        super(StrictTwoLevelLimitsTestCase, self).config_overrides()
+        self.config_fixture.config(group='unified_limit',
+                                   enforcement_model='strict_two_level')
+
+    def test_create_child_limit(self):
+        # when A is 20, success to create B to 15, C to 18.
+        #     A,20             A,20
+        #    / \      -->     / \
+        #   B   C           B,15 C,18
+        ref = unit.new_limit_ref(project_id=self.project_A['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=20)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_B['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=15)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_C['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=18)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+    def test_create_child_limit_break_hierarchical_tree(self):
+        # when A is 20, success to create B to 15, but fail to create C to 21.
+        #     A,20             A,20
+        #    / \      -->     / \
+        #   B   C           B,15 C
+        #
+        #     A,20              A,20
+        #    / \      -/->      / \
+        #  B,15 C            B,15 C,21
+        ref = unit.new_limit_ref(project_id=self.project_A['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=20)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_B['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=15)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_C['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=21)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_create_child_with_default_parent(self):
+        # If A is not set, the default value is 10 (from registered limit).
+        # success to create B to 5, but fail to create C to 11.
+        #     A(10)             A(10)
+        #    / \      -->      / \
+        #   B   C            B,5  C
+        #
+        #     A(10)             A(10)
+        #    / \     -/->      / \
+        #   B,5   C          B,5  C,11
+        ref = unit.new_limit_ref(project_id=self.project_B['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=5)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_C['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=11)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_create_parent_limit(self):
+        # When B is 9 , success to set A to 12
+        #     A              A,12
+        #    / \    -->      / \
+        #  B,9  C          B,9  C
+        ref = unit.new_limit_ref(project_id=self.project_B['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=9)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_A['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=12)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+    def test_create_parent_limit_break_hierarchical_tree(self):
+        # When B is 9 , fail to set A to 8
+        #     A              A,8
+        #    / \    -/->     / \
+        #  B,9  C          B,9  C
+        ref = unit.new_limit_ref(project_id=self.project_B['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=9)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.CREATED)
+
+        ref = unit.new_limit_ref(project_id=self.project_A['id'],
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume',
+                                 resource_limit=8)
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_create_multi_limits(self):
+        # success to create a tree in one request like:
+        #    A,12         D,9
+        #    / \          / \
+        #  B,9  C,5    E,5   F,4
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=12)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=9)
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=5)
+        ref_D = unit.new_limit_ref(project_id=self.project_D['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=9)
+        ref_E = unit.new_limit_ref(project_id=self.project_E['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=5)
+        ref_F = unit.new_limit_ref(project_id=self.project_F['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=4)
+        self.post(
+            '/limits',
+            body={'limits': [ref_A, ref_B, ref_C, ref_D, ref_E, ref_F]},
+            expected_status=http_client.CREATED)
+
+    def test_create_multi_limits_invalid_input(self):
+        # fail to create a tree in one request like:
+        #    A,12         D,9
+        #    / \          / \
+        #  B,9  C,5    E,5   F,10
+        # because F will break the second limit tree.
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=12)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=9)
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=5)
+        ref_D = unit.new_limit_ref(project_id=self.project_D['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=9)
+        ref_E = unit.new_limit_ref(project_id=self.project_E['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=5)
+        ref_F = unit.new_limit_ref(project_id=self.project_F['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=10)
+        self.post(
+            '/limits',
+            body={'limits': [ref_A, ref_B, ref_C, ref_D, ref_E, ref_F]},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_create_multi_limits_break_hierarchical_tree(self):
+        # when there is some hierarchical_trees already like:
+        #    A,12          D
+        #    / \          / \
+        #  B,9  C       E,5   F
+        # fail to set C to 5 and D to 4 in one request like:
+        #    A,12         D,4
+        #    / \          / \
+        #  B,9  C,5    E,5   F
+        # because D will break the second limit tree.
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=12)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=9)
+        ref_E = unit.new_limit_ref(project_id=self.project_E['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=5)
+        self.post(
+            '/limits',
+            body={'limits': [ref_A, ref_B, ref_E]},
+            expected_status=http_client.CREATED)
+
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=5)
+        ref_D = unit.new_limit_ref(project_id=self.project_D['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=4)
+        self.post(
+            '/limits',
+            body={'limits': [ref_C, ref_D]},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_update_child_limit(self):
+        # Success to update C to 9
+        #     A,10             A,10
+        #    / \      -->     / \
+        #  B,6  C,7         B,6  C,9
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=10)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=6)
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=7)
+        self.post(
+            '/limits',
+            body={'limits': [ref_A, ref_B]},
+            expected_status=http_client.CREATED)
+        r = self.post(
+            '/limits',
+            body={'limits': [ref_C]},
+            expected_status=http_client.CREATED)
+
+        update_dict = {'resource_limit': 9}
+        self.patch(
+            '/limits/%s' % r.result['limits'][0]['id'],
+            body={'limit': update_dict},
+            expected_status=http_client.OK)
+
+    def test_update_child_limit_break_hierarchical_tree(self):
+        # Fail to update C to 11
+        #     A,10             A,10
+        #    / \      -/->     / \
+        #  B,6  C,7         B,6  C,11
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=10)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=6)
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=7)
+        self.post(
+            '/limits',
+            body={'limits': [ref_A, ref_B]},
+            expected_status=http_client.CREATED)
+        r = self.post(
+            '/limits',
+            body={'limits': [ref_C]},
+            expected_status=http_client.CREATED)
+
+        update_dict = {'resource_limit': 11}
+        self.patch(
+            '/limits/%s' % r.result['limits'][0]['id'],
+            body={'limit': update_dict},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_update_child_limit_with_default_parent(self):
+        # If A is not set, the default value is 10 (from registered limit).
+        # Success to update C to 9 but fail to update C to 11
+        #     A,(10)           A,(10)
+        #    / \      -->     / \
+        #   B,  C,7          B  C,9
+        #
+        #     A,(10)            A,(10)
+        #    / \      -/->     / \
+        #   B,  C,7           B  C,11
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=7)
+        r = self.post(
+            '/limits',
+            body={'limits': [ref_C]},
+            expected_status=http_client.CREATED)
+
+        update_dict = {'resource_limit': 9}
+        self.patch(
+            '/limits/%s' % r.result['limits'][0]['id'],
+            body={'limit': update_dict},
+            expected_status=http_client.OK)
+
+        update_dict = {'resource_limit': 11}
+        self.patch(
+            '/limits/%s' % r.result['limits'][0]['id'],
+            body={'limit': update_dict},
+            expected_status=http_client.FORBIDDEN)
+
+    def test_update_parent_limit(self):
+        # Success to update A to 8
+        #     A,10             A,8
+        #    / \      -->     / \
+        #  B,6  C,7         B,6  C,7
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=10)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=6)
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=7)
+        r = self.post(
+            '/limits',
+            body={'limits': [ref_A]},
+            expected_status=http_client.CREATED)
+        self.post(
+            '/limits',
+            body={'limits': [ref_B, ref_C]},
+            expected_status=http_client.CREATED)
+
+        update_dict = {'resource_limit': 8}
+        self.patch(
+            '/limits/%s' % r.result['limits'][0]['id'],
+            body={'limit': update_dict},
+            expected_status=http_client.OK)
+
+    def test_update_parent_limit_break_hierarchical_tree(self):
+        # Fail to update A to 6
+        #     A,10             A,6
+        #    / \      -/->     / \
+        #  B,6  C,7         B,6  C,7
+        ref_A = unit.new_limit_ref(project_id=self.project_A['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=10)
+        ref_B = unit.new_limit_ref(project_id=self.project_B['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=6)
+        ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
+                                   service_id=self.service_id,
+                                   region_id=self.region_id,
+                                   resource_name='volume',
+                                   resource_limit=7)
+        r = self.post(
+            '/limits',
+            body={'limits': [ref_A]},
+            expected_status=http_client.CREATED)
+        self.post(
+            '/limits',
+            body={'limits': [ref_B, ref_C]},
+            expected_status=http_client.CREATED)
+
+        update_dict = {'resource_limit': 6}
+        self.patch(
+            '/limits/%s' % r.result['limits'][0]['id'],
+            body={'limit': update_dict},
+            expected_status=http_client.FORBIDDEN)

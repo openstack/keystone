@@ -1,0 +1,15 @@
+---
+features:
+ - >
+   [`blueprint strict-two-level-model <https://blueprints.launchpad.net/keystone/+spec/strict-two-level-model>`_]
+   A new limit enforcement model called `strict_two_level` is added. Change the
+   value of the option `[unified_limit]/enforcement_model` to
+   `strict_two_level` to enable it.
+
+   In this [`model <http://specs.openstack.org/openstack/keystone-specs/specs/keystone/rocky/strict-two-level-enforcement-model.html>`_]:
+
+   1. The project depth is force limited to 2 level.
+   2. Any child project's limit can not exceed his parent's.
+
+   Please ensure that the previous project and limit structure deployment in
+   your Keystone won't break this model before starting to use it.

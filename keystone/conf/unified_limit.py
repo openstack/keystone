@@ -50,7 +50,7 @@ deployment.
 enforcement_model = cfg.StrOpt(
     'enforcement_model',
     default='flat',
-    choices=['flat'],
+    choices=['flat', 'strict_two_level'],
     help=utils.fmt("""
 The enforcement model to use when validating limits associated to projects.
 Enforcement models will behave differently depending on the existing limits,
