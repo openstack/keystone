@@ -43,7 +43,9 @@ from keystone.revoke import routers as revoke_routers
 from keystone.token import _simple_cert as simple_cert_ext
 from keystone.trust import routers as trust_routers
 
-
+# TODO(morgan): _MOVED_API_PREFIXES to be removed when the legacy dispatch
+# support is removed.
+_MOVED_API_PREFIXES = frozenset([])
 LOG = log.getLogger(__name__)
 
 
@@ -208,6 +210,16 @@ def application_factory(name='public'):
     sub_routers = []
     mapper = routes.Mapper()
     for api_routers in ALL_API_ROUTERS:
+        moved_found = [pfx for
+                       pfx in getattr(api_routers, '_path_prefixes', [])
+                       if pfx in _MOVED_API_PREFIXES]
+        if moved_found:
+            raise RuntimeError('An API Router is trying to register path '
+                               'prefix(s) `%(pfx)s` that is handled by the '
+                               'native Flask app. Keystone cannot '
+                               'start.' %
+                               {'pfx': ', '.join([p for p in moved_found])})
+
         routers_instance = api_routers.Routers()
         _routers.append(routers_instance)
         routers_instance.append_v3_routers(mapper, sub_routers)
