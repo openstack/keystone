@@ -487,24 +487,6 @@ class APIBase(object):
         resp.headers.extend(headers or {})
         return resp
 
-    @staticmethod
-    def unenforced_api(f):
-        """Decorate a resource method to mark is as an unenforced API.
-
-        Explicitly exempts an API from receiving the enforced API check,
-        specifically for cases such as user self-service password changes (or
-        other APIs that must work without already having a token).
-
-        This decorator may also be used if the API has extended enforcement
-        logic/varying enforcement logic (such as some of the AUTH paths) where
-        the full enforcement will be implemented directly within the methods.
-        """
-        @functools.wraps(f)
-        def wrapper(*args, **kwargs):
-            setattr(flask.g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
-            return f(*args, **kwargs)
-        return wrapper
-
     @classmethod
     def instantiate_and_register_to_app(cls, flask_app):
         """Build the API object and register to the passed in flask_app.
@@ -823,3 +805,21 @@ def full_url():
     if qs:
         subs['query_string'] = '?%s' % qs
     return '%(url)s%(query_string)s' % subs
+
+
+def unenforced_api(f):
+    """Decorate a resource method to mark is as an unenforced API.
+
+    Explicitly exempts an API from receiving the enforced API check,
+    specifically for cases such as user self-service password changes (or
+    other APIs that must work without already having a token).
+
+    This decorator may also be used if the API has extended enforcement
+    logic/varying enforcement logic (such as some of the AUTH paths) where
+    the full enforcement will be implemented directly within the methods.
+    """
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        setattr(flask.g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
+        return f(*args, **kwargs)
+    return wrapper
