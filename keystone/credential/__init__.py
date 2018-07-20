@@ -12,6 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.credential import controllers  # noqa
 from keystone.credential.core import *  # noqa
 from keystone.credential import provider  # noqa

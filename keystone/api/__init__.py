@@ -10,7 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from keystone.api import credentials
 from keystone.api import discovery
 
-__all__ = ('discovery',)
-__apis__ = (discovery,)
+__all__ = ('discovery', 'credentials')
+__apis__ = (discovery, credentials)

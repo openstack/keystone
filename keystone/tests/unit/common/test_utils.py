@@ -25,7 +25,7 @@ from keystone.common import utils as common_utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
-from keystone.server import flask as server_flask
+from keystone.server.flask import application
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import utils
@@ -250,7 +250,7 @@ class UtilsTestCase(unit.BaseTestCase):
 
 class ServiceHelperTests(unit.BaseTestCase):
 
-    @server_flask.fail_gracefully
+    @application.fail_gracefully
     def _do_test(self):
         raise Exception("Test Exc")
 

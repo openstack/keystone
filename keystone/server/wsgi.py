@@ -11,7 +11,6 @@
 #    under the License.
 
 
-from keystone.server import flask as keystone_flask
 from keystone.server.flask import core as flask_core
 
 
@@ -21,7 +20,7 @@ from keystone.server.flask import core as flask_core
 # export all the symbols from keystone.flask.core only specific ones that
 # are meant for public consumption
 def initialize_public_application():
-    return keystone_flask.initialize_application(
+    return flask_core.initialize_application(
         name='public', config_files=flask_core._get_config_files())
 
 
