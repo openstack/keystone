@@ -328,7 +328,7 @@ class RBACEnforcer(object):
         else:
             policy_dict['target'] = target_attr
 
-        # Pull the data from the view args (path based params) to generate
+        # Pull the data from the submitted json body to generate
         # appropriate input/target attributes, we take an explicit copy here
         # to ensure we're not somehow corrupting
         json_input = flask.request.get_json(force=True, silent=True) or {}
