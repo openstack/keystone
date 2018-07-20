@@ -23,7 +23,6 @@ from keystone.common import authorization
 from keystone.common import controller
 from keystone.common import provider_api
 from keystone.common import utils
-from keystone.common import validation
 from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
@@ -36,51 +35,6 @@ LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
-
-
-def validate_issue_token_auth(auth=None):
-    if auth is None:
-        return
-    validation.lazy_validate(schema.token_issue, auth)
-
-    user = auth['identity'].get('password', {}).get('user')
-    if user is not None:
-        if 'id' not in user and 'name' not in user:
-            msg = _('Invalid input for field identity/password/user: '
-                    'id or name must be present.')
-            raise exception.SchemaValidationError(detail=msg)
-
-        domain = user.get('domain')
-        if domain is not None:
-            if 'id' not in domain and 'name' not in domain:
-                msg = _(
-                    'Invalid input for field identity/password/user/domain: '
-                    'id or name must be present.')
-                raise exception.SchemaValidationError(detail=msg)
-
-    scope = auth.get('scope')
-    if scope is not None and isinstance(scope, dict):
-        project = scope.get('project')
-        if project is not None:
-            if 'id' not in project and 'name' not in project:
-                msg = _(
-                    'Invalid input for field scope/project: '
-                    'id or name must be present.')
-                raise exception.SchemaValidationError(detail=msg)
-            domain = project.get('domain')
-            if domain is not None:
-                if 'id' not in domain and 'name' not in domain:
-                    msg = _(
-                        'Invalid input for field scope/project/domain: '
-                        'id or name must be present.')
-                    raise exception.SchemaValidationError(detail=msg)
-        domain = scope.get('domain')
-        if domain is not None:
-            if 'id' not in domain and 'name' not in domain:
-                msg = _(
-                    'Invalid input for field scope/domain: '
-                    'id or name must be present.')
-                raise exception.SchemaValidationError(detail=msg)
 
 
 class Auth(controller.V3Controller):
@@ -107,7 +61,7 @@ class Auth(controller.V3Controller):
         """Authenticate user and issue a token."""
         include_catalog = 'nocatalog' not in request.params
 
-        validate_issue_token_auth(auth)
+        schema.validate_issue_token_auth(auth)
 
         try:
             auth_info = core.AuthInfo.create(auth=auth)

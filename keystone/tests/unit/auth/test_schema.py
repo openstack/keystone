@@ -11,7 +11,7 @@
 # under the License.
 
 
-from keystone.auth import controllers
+from keystone.auth import schema
 from keystone import exception
 from keystone.tests import unit
 
@@ -20,7 +20,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
     def _expect_failure(self, post_data):
         self.assertRaises(
             exception.SchemaValidationError,
-            controllers.validate_issue_token_auth, post_data)
+            schema.validate_issue_token_auth, post_data)
 
     def test_auth_not_object_ex(self):
         self._expect_failure('something')
@@ -49,7 +49,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 'methods': ['password'],
             },
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_password_not_object_ex(self):
         # if password is present, it must be an object.
@@ -202,7 +202,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 },
             },
         }
-        controllers.validate_issue_token_auth(p)
+        schema.validate_issue_token_auth(p)
 
     def test_token_not_object_ex(self):
         # if token auth plugin data is present, it must be an object.
@@ -391,7 +391,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 },
             },
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_user_domain_id(self):
         post_data = {
@@ -408,7 +408,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 },
             },
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_two_methods(self):
         post_data = {
@@ -425,7 +425,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 },
             },
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_project_scoped(self):
         post_data = {
@@ -450,7 +450,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 },
             },
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_domain_scoped(self):
         post_data = {
@@ -472,7 +472,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 },
             },
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_explicit_unscoped(self):
         post_data = {
@@ -490,7 +490,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
             },
             'scope': 'unscoped',
         }
-        controllers.validate_issue_token_auth(post_data)
+        schema.validate_issue_token_auth(post_data)
 
     def test_additional_properties(self):
         # Everything can have extra properties and they're ignored.
@@ -531,4 +531,4 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
             },
             'extra2': 'whatever2',
         }
-        controllers.validate_issue_token_auth(p)
+        schema.validate_issue_token_auth(p)
