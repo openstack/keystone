@@ -631,7 +631,10 @@ class Manager(manager.Manager):
         LOG.debug('Local ID: %s', ref['id'])
         ref = ref.copy()
 
-        self._insert_domain_id_if_needed(ref, driver, domain_id, conf)
+        if not driver.is_domain_aware():
+            if not domain_id:
+                domain_id = CONF.identity.default_domain_id
+            ref['domain_id'] = domain_id
 
         if self._is_mapping_needed(driver):
             local_entity = {'domain_id': ref['domain_id'],
@@ -655,8 +658,15 @@ class Manager(manager.Manager):
         if not ref_list:
             return []
 
-        for r in ref_list:
-            self._insert_domain_id_if_needed(r, driver, domain_id, conf)
+        # If the domain_id is None that means we are running in a single
+        # backend mode, so to remain backwards compatible we will use the
+        # default domain ID.
+        if not domain_id:
+            domain_id = CONF.identity.default_domain_id
+
+        if not driver.is_domain_aware():
+            for ref in ref_list:
+                ref['domain_id'] = domain_id
 
         if not self._is_mapping_needed(driver):
             return ref_list
@@ -665,13 +675,6 @@ class Manager(manager.Manager):
         refs_map = {}
         for r in ref_list:
             refs_map[(r['id'], entity_type, r['domain_id'])] = r
-
-        # NOTE(breton): there are cases when the driver is not domain aware and
-        # no domain_id was explicitely provided for list operation. domain_id
-        # gets inserted into refs, but not passed into this method. Lets use
-        # domain_id from one of the refs.
-        if not domain_id:
-            domain_id = ref_list[0]['domain_id']
 
         # fetch all mappings for the domain, lookup the user at the map built
         # at previous step and replace his id.
@@ -696,19 +699,6 @@ class Manager(manager.Manager):
                             'entity_type': entity_type}
             self._insert_new_public_id(local_entity, ref, driver)
         return ref_list
-
-    def _insert_domain_id_if_needed(self, ref, driver, domain_id, conf):
-        """Insert the domain ID into the ref, if required.
-
-        If the driver can't handle domains, then we need to insert the
-        domain_id into the entity being returned.  If the domain_id is
-        None that means we are running in a single backend mode, so to
-        remain backwardly compatible, we put in the default domain ID.
-        """
-        if not driver.is_domain_aware():
-            if domain_id is None:
-                domain_id = conf.default_domain_id
-            ref['domain_id'] = domain_id
 
     def _is_mapping_needed(self, driver):
         """Return whether mapping is needed.
