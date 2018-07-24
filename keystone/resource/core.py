@@ -76,6 +76,15 @@ class Manager(manager.Manager):
         # pushing any existing hierarchies over the limit, we add one to the
         # maximum depth allowed, as specified in the configuration file.
         max_depth = CONF.max_project_tree_depth + 1
+
+        # NOTE(wxy): If the hierarchical limit enforcement model is used, the
+        # project depth should be not greater than the model's limit as well.
+        #
+        # TODO(wxy): Deprecate and remove CONF.max_project_tree_depth, let the
+        # depth check only based on the limit enforcement model.
+        limit_model = PROVIDERS.unified_limit_api.enforcement_model
+        if limit_model.MAX_PROJECT_TREE_DEPTH is not None:
+            max_depth = min(max_depth, limit_model.MAX_PROJECT_TREE_DEPTH + 1)
         if self._get_hierarchy_depth(parents_list) > max_depth:
             raise exception.ForbiddenNotSecurity(
                 _('Max hierarchy depth reached for %s branch.') % project_id)
