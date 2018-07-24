@@ -24,6 +24,9 @@ import flask_restful
 import flask_restful.utils
 from oslo_log import log
 from oslo_serialization import jsonutils
+from pycadf import cadftaxonomy as taxonomy
+from pycadf import host
+from pycadf import resource
 import six
 from six.moves import http_client
 
@@ -633,6 +636,25 @@ class ResourceBase(flask_restful.Resource):
     @property
     def oslo_context(self):
         return flask.request.environ.get(context.REQUEST_CONTEXT_ENV, None)
+
+    @property
+    def audit_initiator(self):
+        """A pyCADF initiator describing the current authenticated context."""
+        pycadf_host = host.Host(address=flask.request.remote_addr,
+                                agent=str(flask.request.user_agent))
+        initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
+                                      host=pycadf_host)
+        if self.oslo_context.user_id:
+            initiator.id = utils.resource_uuid(self.oslo_context.user_id)
+            initiator.user_id = self.oslo_context.user_id
+
+        if self.oslo_context.project_id:
+            initiator.project_id = self.oslo_context.project_id
+
+        if self.oslo_context.domain_id:
+            initiator.domain_id = self.oslo_context.domain_id
+
+        return initiator
 
     @staticmethod
     def build_driver_hints(supported_filters):
