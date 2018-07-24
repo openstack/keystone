@@ -44,10 +44,9 @@ class ModelBase(object):
     def check_limit(self, limits):
         """Check the new creating or updating limits if satisfy the model.
 
-        :param limits: A list of the limit objects need to be check.
-        :type limits: A list of the limits. Each limit is a dict that contains
-            "resource_limit", "resource_name", "project_id", "service_id" and
-            optional "region_id", "description".
+        :param limits: A list of the limit references to be checked.
+        :type limits: A list of the limits. Each limit is a dictionary
+                      reference containing all limit attributes.
 
         :raises keystone.exception.InvalidLimit: If any of the input limits
             doesn't satisfy the limit model.

@@ -9,7 +9,7 @@ features:
    In this [`model <http://specs.openstack.org/openstack/keystone-specs/specs/keystone/rocky/strict-two-level-enforcement-model.html>`_]:
 
    1. The project depth is force limited to 2 level.
-   2. Any child project's limit can not exceed his parent's.
+   2. Any child project's limit can not exceed the parent's.
 
    Please ensure that the previous project and limit structure deployment in
    your Keystone won't break this model before starting to use it.
@@ -18,7 +18,7 @@ features:
    `403 Forbidden` error will be raised.
 
    When try to use this model but the project depth exceed 2 already, Keystone
-   process will fail to start. Operators should chose another available model
+   process will fail to start. Operators should choose another available model
    to fix the issue first.
 
  - >
