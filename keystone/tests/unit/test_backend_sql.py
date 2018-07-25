@@ -727,6 +727,29 @@ class SqlIdentity(SqlTests,
         self.assertNotEqual(len(first_call_users), len(second_call_users))
         self.assertEqual(first_call_counter, counter.calls)
 
+    def test_check_project_depth(self):
+        # create a 3 level project tree
+        ref = unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+        PROVIDERS.resource_api.create_project(ref['id'], ref)
+        ref_1 = unit.new_project_ref(domain_id=CONF.identity.default_domain_id,
+                                     parent_id=ref['id'])
+        PROVIDERS.resource_api.create_project(ref_1['id'], ref_1)
+        ref_2 = unit.new_project_ref(domain_id=CONF.identity.default_domain_id,
+                                     parent_id=ref_1['id'])
+        PROVIDERS.resource_api.create_project(ref_2['id'], ref_2)
+
+        # if max_depth is None or >= current project depth, return nothing.
+        resp = PROVIDERS.resource_api.check_project_depth(max_depth=None)
+        self.assertIsNone(resp)
+        resp = PROVIDERS.resource_api.check_project_depth(max_depth=3)
+        self.assertIsNone(resp)
+        resp = PROVIDERS.resource_api.check_project_depth(max_depth=4)
+        self.assertIsNone(resp)
+        # if max_depth < current project depth, raise LimitTreeExceedError
+        self.assertRaises(exception.LimitTreeExceedError,
+                          PROVIDERS.resource_api.check_project_depth,
+                          2)
+
 
 class SqlTrust(SqlTests, trust_tests.TrustTests):
 
