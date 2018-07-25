@@ -124,3 +124,8 @@ class Manager(manager.Manager):
     def delete_limit(self, limit_id):
         self.driver.delete_limit(limit_id)
         self.get_limit.invalidate(self, limit_id)
+
+    def delete_limits_for_project(self, project_id):
+        limit_ids = self.driver.delete_limits_for_project(project_id)
+        for limit_id in limit_ids:
+            self.get_limit.invalidate(self, limit_id)

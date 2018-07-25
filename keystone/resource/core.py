@@ -452,6 +452,7 @@ class Manager(manager.Manager):
             assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
             PROVIDERS.credential_api.delete_credentials_for_project(project_id)
             PROVIDERS.trust_api.delete_trusts_for_project(project_id)
+            PROVIDERS.unified_limit_api.delete_limits_for_project(project_id)
         finally:
             # attempt to send audit event even if the cache invalidation raises
             notifications.Audit.deleted(self._PROJECT, project_id, initiator)
