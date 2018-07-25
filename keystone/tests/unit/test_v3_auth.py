@@ -4979,6 +4979,59 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
     def test_head_projects_with_project_scoped_token(self):
         self.head('/auth/projects', expected_status=http_client.OK)
 
+    def test_get_projects_matches_federated_get_projects(self):
+        # create at least one addition project to make sure it doesn't end up
+        # in the response, since the user doesn't have any authorization on it
+        ref = unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+        r = self.post('/projects', body={'project': ref})
+        unauthorized_project_id = r.json['project']['id']
+
+        r = self.get('/auth/projects', expected_status=http_client.OK)
+        self.assertThat(r.json['projects'], matchers.HasLength(1))
+        for project in r.json['projects']:
+            self.assertNotEqual(unauthorized_project_id, project['id'])
+
+        expected_project_id = r.json['projects'][0]['id']
+
+        # call GET /v3/OS-FEDERATION/projects
+        r = self.get('/OS-FEDERATION/projects', expected_status=http_client.OK)
+
+        # make sure the response is the same
+        self.assertThat(r.json['projects'], matchers.HasLength(1))
+        for project in r.json['projects']:
+            self.assertEqual(expected_project_id, project['id'])
+
+    def test_get_domains_matches_federated_get_domains(self):
+        # create at least one addition domain to make sure it doesn't end up
+        # in the response, since the user doesn't have any authorization on it
+        ref = unit.new_domain_ref()
+        r = self.post('/domains', body={'domain': ref})
+        unauthorized_domain_id = r.json['domain']['id']
+
+        ref = unit.new_domain_ref()
+        r = self.post('/domains', body={'domain': ref})
+        authorized_domain_id = r.json['domain']['id']
+
+        path = '/domains/%(domain_id)s/users/%(user_id)s/roles/%(role_id)s' % {
+            'domain_id': authorized_domain_id,
+            'user_id': self.user_id,
+            'role_id': self.role_id
+        }
+        self.put(path, expected_status=http_client.NO_CONTENT)
+
+        r = self.get('/auth/domains', expected_status=http_client.OK)
+        self.assertThat(r.json['domains'], matchers.HasLength(1))
+        self.assertEqual(authorized_domain_id, r.json['domains'][0]['id'])
+        self.assertNotEqual(unauthorized_domain_id, r.json['domains'][0]['id'])
+
+        # call GET /v3/OS-FEDERATION/domains
+        r = self.get('/OS-FEDERATION/domains', expected_status=http_client.OK)
+
+        # make sure the response is the same
+        self.assertThat(r.json['domains'], matchers.HasLength(1))
+        self.assertEqual(authorized_domain_id, r.json['domains'][0]['id'])
+        self.assertNotEqual(unauthorized_domain_id, r.json['domains'][0]['id'])
+
     def test_get_domains_with_project_scoped_token(self):
         self.put(path='/domains/%s/users/%s/roles/%s' % (
             self.domain['id'], self.user['id'], self.role['id']))
