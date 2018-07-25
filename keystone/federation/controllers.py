@@ -455,13 +455,8 @@ class DomainV3(controller.V3Controller):
         :returns: list of accessible domains
 
         """
-        domains = PROVIDERS.assignment_api.list_domains_for_groups(
-            request.auth_context['group_ids'])
-        domains = domains + PROVIDERS.assignment_api.list_domains_for_user(
-            request.auth_context['user_id'])
-        # remove duplicates
-        domains = k_utils.remove_duplicate_dicts_by_id(domains)
-        return DomainV3.wrap_collection(request.context_dict, domains)
+        controller = auth_controllers.Auth()
+        return controller.get_auth_domains(request)
 
 
 class ProjectAssignmentV3(controller.V3Controller):
@@ -484,14 +479,8 @@ class ProjectAssignmentV3(controller.V3Controller):
         :returns: list of accessible projects
 
         """
-        projects = PROVIDERS.assignment_api.list_projects_for_groups(
-            request.auth_context['group_ids'])
-        projects = projects + PROVIDERS.assignment_api.list_projects_for_user(
-            request.auth_context['user_id'])
-        # remove duplicates
-        projects = k_utils.remove_duplicate_dicts_by_id(projects)
-        return ProjectAssignmentV3.wrap_collection(request.context_dict,
-                                                   projects)
+        controller = auth_controllers.Auth()
+        return controller.get_auth_projects(request)
 
 
 class ServiceProvider(_ControllerBase):
