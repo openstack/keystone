@@ -1193,6 +1193,8 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 self.assertValidRole(role)
 
             self.assertValidListLinks(entity.get('roles_links'))
+            # Mirror the test tempest does to ensure the self-link is correct
+            self.assertIn('v3/OS-TRUST/trusts', entity.get('links')['self'])
 
             # always disallow role xor project_id (neither or both is allowed)
             has_roles = bool(entity.get('roles'))
