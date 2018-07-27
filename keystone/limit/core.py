@@ -40,7 +40,7 @@ class Manager(manager.Manager):
             CONF.unified_limit.enforcement_model)
 
     def check_project_depth(self):
-        """Check project depth if satisfy current enforcement model or not."""
+        """Check if project depth satisfies current enforcement model."""
         PROVIDERS.resource_api.check_project_depth(
             self.enforcement_model.MAX_PROJECT_TREE_DEPTH)
 
