@@ -1,0 +1,11 @@
+---
+deprecations:
+  - >
+    The option ``[token] infer_roles=False`` is being deprecated in favor of
+    always expanding role implications during token validation.
+
+    `Default roles <https://specs.openstack.org/openstack/keystone-specs/specs/keystone/rocky/define-default-roles.html>`_
+    depend on a chain of implied role assignments, ex: an admin user will also
+    have the reader and member role. Therefore by ensuring that all these roles will
+    always appear on the token validation response, we can improve the
+    simplicity and readability of policy files.
