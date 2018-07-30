@@ -119,23 +119,6 @@ def attr_as_boolean(val_attr):
     return strutils.bool_from_string(val_attr, default=True)
 
 
-def remove_duplicate_dicts_by_id(item_list):
-    """Return a list with duplicate items removed.
-
-    This compares duplicates based on item id. This is to account
-    for dictionaries of items that can contain values, such as a
-    list of tags, that will not be guaranteed to be in order.
-
-    :param item_list: a list of dictionaries
-    :returns: a list of unique dictionaries
-
-    """
-    unique = {}
-    for i in item_list:
-        unique[i['id']] = i
-    return list(unique.values())
-
-
 def auth_str_equal(provided, known):
     """Constant-time string comparison.
 
