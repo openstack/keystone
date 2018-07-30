@@ -252,7 +252,7 @@ a common element between the CADF and Basic notification formats.
             "outcome": "success",
             "id": "openstack:f5352d7b-bee6-4c22-8213-450e7b646e9f",
             "resource_info": "671da331c47d4e29bb6ea1d270154ec3"
-        }
+        },
         "priority": "INFO",
         "publisher_id": "identity.host1234",
         "timestamp": "2013-08-29 19:03:45.960280"
