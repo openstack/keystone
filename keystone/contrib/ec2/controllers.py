@@ -113,7 +113,7 @@ class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
     def _authenticate(self, credentials=None, ec2credentials=None):
         """Common code shared between the V2 and V3 authenticate methods.
 
-        :returns: user_ref, tenant_ref, roles_ref, catalog_ref
+        :returns: user_ref, tenant_ref, roles_ref
         """
         # FIXME(ja): validate that a service token was used!
 
@@ -153,10 +153,7 @@ class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
                 message=_('User not valid for tenant.'))
         roles_ref = [self.role_api.get_role(role_id) for role_id in roles]
 
-        catalog_ref = self.catalog_api.get_catalog(
-            user_ref['id'], tenant_ref['id'])
-
-        return user_ref, tenant_ref, roles_ref, catalog_ref
+        return user_ref, tenant_ref, roles_ref
 
     def create_credential(self, request, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
@@ -290,7 +287,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         self.check_protection(request, prep_info, ref)
 
     def authenticate(self, context, credentials=None, ec2Credentials=None):
-        (user_ref, project_ref, roles_ref, catalog_ref) = self._authenticate(
+        (user_ref, project_ref, roles_ref) = self._authenticate(
             credentials=credentials, ec2credentials=ec2Credentials
         )
 
