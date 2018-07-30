@@ -12,21 +12,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 import logging
 import os
 import uuid
 
 import argparse
 import fixtures
+import freezegun
 import mock
 import oslo_config.fixture
 from oslo_db.sqlalchemy import migration
 from oslo_log import log
 from six.moves import configparser
+from six.moves import http_client
 from six.moves import range
 from testtools import matchers
 
-from keystone.auth import controllers
 from keystone.cmd import cli
 from keystone.cmd.doctor import caching
 from keystone.cmd.doctor import credential
@@ -40,7 +42,6 @@ from keystone.cmd.doctor import tokens_fernet
 from keystone.common import provider_api
 from keystone.common.sql import upgrades
 import keystone.conf
-from keystone import exception
 from keystone.i18n import _
 from keystone.identity.mapping_backends import mapping as identity_mapping
 from keystone.tests import unit
@@ -161,69 +162,91 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         # configuration multiple times without erroring.
         bootstrap = cli.BootStrap()
         self._do_test_bootstrap(bootstrap)
-        v3_token_controller = controllers.Auth()
+        app = self.loadapp()
         v3_password_data = {
-            'identity': {
-                "methods": ["password"],
-                "password": {
-                    "user": {
-                        "name": bootstrap.username,
-                        "password": bootstrap.password,
-                        "domain": {
-                            "id": CONF.identity.default_domain_id
+            'auth': {
+                'identity': {
+                    "methods": ["password"],
+                    "password": {
+                        "user": {
+                            "name": bootstrap.username,
+                            "password": bootstrap.password,
+                            "domain": {
+                                "id": CONF.identity.default_domain_id
+                            }
                         }
                     }
                 }
             }
         }
-        auth_response = v3_token_controller.authenticate_for_token(
-            self.make_request(), v3_password_data)
-        token = auth_response.headers['X-Subject-Token']
+        with app.test_client() as c:
+            auth_response = c.post('/v3/auth/tokens',
+                                   json=v3_password_data)
+            token = auth_response.headers['X-Subject-Token']
         self._do_test_bootstrap(bootstrap)
         # build validation request
-        request = self.make_request(is_admin=True)
-        request.headers['X-Subject-Token'] = token
-        # Make sure the token we authenticate for is still valid.
-        v3_token_controller.validate_token(request)
+        with app.test_client() as c:
+            # Get a new X-Auth-Token
+            r = c.post(
+                '/v3/auth/tokens',
+                json=v3_password_data)
+
+            # Validate the old token with our new X-Auth-Token.
+            c.get('/v3/auth/tokens',
+                  headers={'X-Auth-Token': r.headers['X-Subject-Token'],
+                           'X-Subject-Token': token})
 
     def test_bootstrap_is_not_idempotent_when_password_does_change(self):
         # NOTE(lbragstad): Ensure bootstrap isn't idempotent when run with
         # different arguments or configuration values.
         bootstrap = cli.BootStrap()
         self._do_test_bootstrap(bootstrap)
-        v3_token_controller = controllers.Auth()
+        app = self.loadapp()
         v3_password_data = {
-            'identity': {
-                "methods": ["password"],
-                "password": {
-                    "user": {
-                        "name": bootstrap.username,
-                        "password": bootstrap.password,
-                        "domain": {
-                            "id": CONF.identity.default_domain_id
+            'auth': {
+                'identity': {
+                    "methods": ["password"],
+                    "password": {
+                        "user": {
+                            "name": bootstrap.username,
+                            "password": bootstrap.password,
+                            "domain": {
+                                "id": CONF.identity.default_domain_id
+                            }
                         }
                     }
                 }
             }
         }
-        auth_response = v3_token_controller.authenticate_for_token(
-            self.make_request(), v3_password_data)
-        token = auth_response.headers['X-Subject-Token']
-        os.environ['OS_BOOTSTRAP_PASSWORD'] = uuid.uuid4().hex
-        self._do_test_bootstrap(bootstrap)
-        # build validation request
-        request = self.make_request(is_admin=True)
-        request.headers['X-Subject-Token'] = token
-        # Since the user account was recovered with a different password, we
-        # shouldn't be able to validate this token. Bootstrap should have
-        # persisted a revocation event because the user's password was updated.
-        # Since this token was obtained using the original password, it should
-        # now be invalid.
-        self.assertRaises(
-            exception.TokenNotFound,
-            v3_token_controller.validate_token,
-            request
-        )
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time) as frozen_time:
+            with app.test_client() as c:
+                auth_response = c.post('/v3/auth/tokens',
+                                       json=v3_password_data)
+                token = auth_response.headers['X-Subject-Token']
+            new_passwd = uuid.uuid4().hex
+            os.environ['OS_BOOTSTRAP_PASSWORD'] = new_passwd
+            self._do_test_bootstrap(bootstrap)
+            v3_password_data['auth']['identity']['password']['user'][
+                'password'] = new_passwd
+            # Move time forward a second to avoid rev. event capturing the new
+            # auth-token since we're within a single second (possibly) for the
+            # test case.
+            frozen_time.tick(delta=datetime.timedelta(seconds=1))
+            # Validate the old token
+            with app.test_client() as c:
+                # Get a new X-Auth-Token
+                r = c.post('/v3/auth/tokens', json=v3_password_data)
+                # Since the user account was recovered with a different
+                # password, we shouldn't be able to validate this token.
+                # Bootstrap should have persisted a revocation event because
+                # the user's password was updated. Since this token was
+                # obtained using the original password, it should now be
+                # invalid.
+                c.get('/v3/auth/tokens',
+                      headers={'X-Auth-Token': r.headers['X-Subject-Token'],
+                               'X-Subject-Token': token},
+                      expected_status_code=http_client.NOT_FOUND)
 
     def test_bootstrap_recovers_user(self):
         bootstrap = cli.BootStrap()
