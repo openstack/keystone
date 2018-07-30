@@ -12,6 +12,7 @@
 
 from keystone.api import credentials
 from keystone.api import discovery
+from keystone.api import trusts
 
-__all__ = ('discovery', 'credentials')
-__apis__ = (discovery, credentials)
+__all__ = ('discovery', 'credentials', 'trusts')
+__apis__ = (discovery, credentials, trusts)
