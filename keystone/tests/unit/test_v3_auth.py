@@ -45,7 +45,6 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -1415,9 +1414,6 @@ class TokenAPITests(object):
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
-    @test_utils.wip('issue token with project-scope get "NoneType has '
-                    'no len()" error',
-                    bug='#1784536')
     def test_create_project_token_with_default_domain_as_project(self):
         # Authenticate to a project with the default domain as project
         auth_data = self.build_authentication_request(
