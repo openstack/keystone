@@ -358,6 +358,8 @@ class APIBase(object):
             resource_rel_func = getattr(
                 r, 'json_home_resource_rel_func',
                 json_home.build_v3_resource_relation)
+            resource_rel_status = getattr(
+                r, 'json_home_resource_status', None)
             collection_rel = resource_rel_func(resource_name=c_key)
             # NOTE(morgan): Add the prefix explicitly for JSON Home documents
             # to the collection path.
@@ -375,6 +377,12 @@ class APIBase(object):
             id_param_rel = parameter_rel_func(parameter_name=id_str)
             entity_rel_data = {'href-template': jh_e_path,
                                'href-vars': {id_str: id_param_rel}}
+
+            if resource_rel_status is not None:
+                json_home.Status.update_resource_data(
+                    rel_data, resource_rel_status)
+                json_home.Status.update_resource_data(
+                    entity_rel_data, resource_rel_status)
 
             json_home.JsonHomeResources.append_resource(
                 collection_rel, rel_data)
