@@ -517,6 +517,9 @@ class CadfNotificationWrapper(object):
         def wrapper(wrapped_self, request, user_id, *args, **kwargs):
             """Will always send a notification."""
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
+            initiator = request.audit_initiator
+            initiator.user_id = user_id
+            initiator.id = utils.resource_uuid(user_id)
             try:
                 result = f(wrapped_self, request, user_id, *args, **kwargs)
             except (exception.AccountLocked,
@@ -524,19 +527,19 @@ class CadfNotificationWrapper(object):
                 # Send a CADF event with a reason for PCI-DSS related
                 # authentication failures
                 audit_reason = reason.Reason(str(ex), str(ex.code))
-                _send_audit_notification(self.action, request.audit_initiator,
+                _send_audit_notification(self.action, initiator,
                                          taxonomy.OUTCOME_FAILURE,
                                          target, self.event_type,
                                          reason=audit_reason)
                 raise
             except Exception:
                 # For authentication failure send a CADF event as well
-                _send_audit_notification(self.action, request.audit_initiator,
+                _send_audit_notification(self.action, initiator,
                                          taxonomy.OUTCOME_FAILURE,
                                          target, self.event_type)
                 raise
             else:
-                _send_audit_notification(self.action, request.audit_initiator,
+                _send_audit_notification(self.action, initiator,
                                          taxonomy.OUTCOME_SUCCESS,
                                          target, self.event_type)
                 return result
