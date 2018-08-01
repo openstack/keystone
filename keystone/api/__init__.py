@@ -12,8 +12,9 @@
 
 from keystone.api import credentials
 from keystone.api import discovery
+from keystone.api import os_oauth1
 from keystone.api import os_revoke
 from keystone.api import trusts
 
-__all__ = ('discovery', 'credentials', 'os_revoke', 'trusts')
-__apis__ = (discovery, credentials, os_revoke, trusts)
+__all__ = ('discovery', 'credentials', 'os_oauth1', 'os_revoke', 'trusts')
+__apis__ = (discovery, credentials, os_oauth1, os_revoke, trusts)

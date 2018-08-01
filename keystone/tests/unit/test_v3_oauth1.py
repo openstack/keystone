@@ -30,7 +30,6 @@ import keystone.conf
 from keystone import exception
 from keystone import oauth1
 from keystone.oauth1.backends import base
-from keystone.oauth1 import controllers
 from keystone.tests import unit
 from keystone.tests.unit.common import test_notifications
 from keystone.tests.unit import ksfixtures
@@ -53,10 +52,8 @@ class OAuth1Tests(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(OAuth1Tests, self).setUp()
-
         # Now that the app has been served, we can query CONF values
         self.base_url = 'http://localhost/v3'
-        self.controller = controllers.OAuthControllerV3()
 
     def _create_single_consumer(self):
         ref = {'description': uuid.uuid4().hex}

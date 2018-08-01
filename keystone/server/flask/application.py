@@ -42,7 +42,8 @@ from keystone.token import _simple_cert as simple_cert_ext
 
 # TODO(morgan): _MOVED_API_PREFIXES to be removed when the legacy dispatch
 # support is removed.
-_MOVED_API_PREFIXES = frozenset(['credentials', 'OS-REVOKE', 'OS-TRUST'])
+_MOVED_API_PREFIXES = frozenset(['credentials', 'OS-OAUTH1', 'OS-REVOKE',
+                                 'OS-TRUST'])
 LOG = log.getLogger(__name__)
 
 
