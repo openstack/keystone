@@ -32,7 +32,6 @@ from keystone.federation import idp as keystone_idp
 from keystone.federation import schema
 from keystone.federation import utils
 from keystone.i18n import _
-from keystone.models import token_model
 
 
 CONF = keystone.conf.CONF
@@ -369,26 +368,27 @@ class Auth(auth_controllers.Auth):
         sp_url = service_provider['sp_url']
 
         token_id = auth['identity']['token']['id']
-        token_data = PROVIDERS.token_provider_api.validate_token(token_id)
-        token_ref = token_model.KeystoneToken(token_id, token_data)
+        token = PROVIDERS.token_provider_api.validate_token(token_id)
 
-        if not token_ref.project_scoped:
+        if not token.project_scoped:
             action = _('Use a project scoped token when attempting to create '
                        'a SAML assertion')
             raise exception.ForbiddenAction(action=action)
 
-        subject = token_ref.user_name
-        roles = token_ref.role_names
-        project = token_ref.project_name
+        subject = token.user['name']
+        role_names = []
+        for role in token.roles:
+            role_names.append(role['name'])
+        project = token.project['name']
         # NOTE(rodrigods): the domain name is necessary in order to distinguish
         # between projects and users with the same name in different domains.
-        project_domain_name = token_ref.project_domain_name
-        subject_domain_name = token_ref.user_domain_name
+        project_domain_name = token.project_domain['name']
+        subject_domain_name = token.user_domain['name']
 
         generator = keystone_idp.SAMLGenerator()
         response = generator.samlize_token(
             issuer, sp_url, subject, subject_domain_name,
-            roles, project, project_domain_name)
+            role_names, project, project_domain_name)
         return (response, service_provider)
 
     def _build_response_headers(self, service_provider):

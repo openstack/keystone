@@ -268,8 +268,11 @@ def validate_mapping_structure(ref):
         raise exception.ValidationError(messages)
 
 
-def validate_expiration(token_ref):
-    if timeutils.utcnow() > token_ref.expires:
+def validate_expiration(token):
+    token_expiration_datetime = timeutils.normalize_time(
+        timeutils.parse_isotime(token.expires_at)
+    )
+    if timeutils.utcnow() > token_expiration_datetime:
         raise exception.Unauthorized(_('Federation token is expired'))
 
 

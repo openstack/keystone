@@ -1,0 +1,18 @@
+---
+upgrade:
+  - |
+    [`bug 1778945 <https://bugs.launchpad.net/keystone/+bug/1778945>`_]
+    The pluggable interface for token providers has changed. If you're
+    maintaining a custom token provider, you're going to be affected by these
+    interface changes. Implementing the new interface will be required before
+    using your custom token provider with the Rocky release of keystone. The
+    new interface is more clear about the relationship and responsibilities
+    between the token API and pluggable token providers.
+fixes:
+  - |
+    [`bug 1778945 <https://bugs.launchpad.net/keystone/+bug/1778945>`_]
+    There were several improvements made to the token provider API and
+    interface that simplify what external developers need to do and understand
+    in order to provide their own token provider implementation. Please see the
+    linked bug report for more details as to why these changes were made and
+    the benefits they provide for both upstream and downstream developers.

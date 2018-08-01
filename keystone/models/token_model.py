@@ -22,12 +22,10 @@ import six
 
 from keystone.common import cache
 from keystone.common import provider_api
-import keystone.conf
 from keystone import exception
 from keystone.federation import constants
 from keystone.i18n import _
 
-CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 

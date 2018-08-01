@@ -14,16 +14,21 @@
 
 """Token provider interface."""
 
+import base64
 import datetime
+import uuid
 
 from oslo_log import log
 from oslo_utils import timeutils
+import six
 
 from keystone.common import cache
 from keystone.common import manager
 from keystone.common import provider_api
+from keystone.common import utils
 import keystone.conf
 from keystone import exception
+from keystone.federation import constants
 from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
@@ -45,6 +50,29 @@ UnsupportedTokenVersionException = exception.UnsupportedTokenVersionException
 # supported token versions
 V3 = token_model.V3
 VERSIONS = token_model.VERSIONS
+
+
+def default_expire_time():
+    """Determine when a fresh token should expire.
+
+    Expiration time varies based on configuration (see ``[token] expiration``).
+
+    :returns: a naive UTC datetime.datetime object
+
+    """
+    expire_delta = datetime.timedelta(seconds=CONF.token.expiration)
+    expires_at = timeutils.utcnow() + expire_delta
+    return expires_at.replace(microsecond=0)
+
+
+def random_urlsafe_str():
+    """Generate a random URL-safe string.
+
+    :rtype: six.text_type
+
+    """
+    # chop the padding (==) off the end of the encoding to save space
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2].decode('utf-8')
 
 
 class Manager(manager.Manager):
@@ -101,11 +129,7 @@ class Manager(manager.Manager):
             TOKENS_REGION.invalidate()
 
     def check_revocation_v3(self, token):
-        try:
-            token_data = token['token']
-        except KeyError:
-            raise exception.TokenNotFound(_('Failed to validate token'))
-        token_values = self.revoke_api.model.build_token_values(token_data)
+        token_values = self.revoke_api.model.build_token_values(token)
         PROVIDERS.revoke_api.check_token(token_values)
 
     def check_revocation(self, token):
@@ -116,31 +140,48 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(_('No token in the request'))
 
         try:
-            token_ref = self._validate_token(token_id)
-            self._is_valid_token(token_ref, window_seconds=window_seconds)
-            return token_ref
+            token = self._validate_token(token_id)
+            self._is_valid_token(token, window_seconds=window_seconds)
+            return token
         except exception.Unauthorized as e:
             LOG.debug('Unable to validate token: %s', e)
             raise exception.TokenNotFound(token_id=token_id)
 
     @MEMOIZE_TOKENS
     def _validate_token(self, token_id):
-        return self.driver.validate_token(token_id)
+        (user_id, methods, audit_ids, system, domain_id,
+            project_id, trust_id, federated_group_ids, identity_provider_id,
+            protocol_id, access_token_id, app_cred_id, issued_at,
+            expires_at) = self.driver.validate_token(token_id)
+
+        token = token_model.TokenModel()
+        token.user_id = user_id
+        token.methods = methods
+        if len(audit_ids) > 1:
+            token.parent_audit_id = audit_ids.pop()
+        token.audit_id = audit_ids.pop()
+        token.system = system
+        token.domain_id = domain_id
+        token.project_id = project_id
+        token.trust_id = trust_id
+        token.access_token_id = access_token_id
+        token.application_credential_id = app_cred_id
+        token.expires_at = expires_at
+        if federated_group_ids:
+            token.is_federated = True
+            token.identity_provider_id = identity_provider_id
+            token.protocol_id = protocol_id
+            token.federated_groups = federated_group_ids
+
+        token.mint(token_id, issued_at)
+        return token
 
     def _is_valid_token(self, token, window_seconds=0):
         """Verify the token is valid format and has not expired."""
         current_time = timeutils.normalize_time(timeutils.utcnow())
 
         try:
-            # Get the data we need from the correct location (V2 and V3 tokens
-            # differ in structure, Try V3 first, fall back to V2 second)
-            token_data = token.get('token', token.get('access'))
-            expires_at = token_data.get('expires_at',
-                                        token_data.get('expires'))
-            if not expires_at:
-                expires_at = token_data['token']['expires']
-
-            expiry = timeutils.parse_isotime(expires_at)
+            expiry = timeutils.parse_isotime(token.expires_at)
             expiry = timeutils.normalize_time(expiry)
 
             # add a window in which you can fetch a token beyond expiry
@@ -159,24 +200,73 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(_('Failed to validate token'))
 
     def issue_token(self, user_id, method_names, expires_at=None,
-                    system=None, project_id=None, is_domain=False,
-                    domain_id=None, auth_context=None, trust=None,
-                    app_cred_id=None, include_catalog=True,
+                    system=None, project_id=None, domain_id=None,
+                    auth_context=None, trust_id=None, app_cred_id=None,
                     parent_audit_id=None):
-        token_id, token_data = self.driver.issue_token(
-            user_id, method_names, expires_at=expires_at,
-            system=system, project_id=project_id,
-            domain_id=domain_id, auth_context=auth_context, trust=trust,
-            app_cred_id=app_cred_id, include_catalog=include_catalog,
-            parent_audit_id=parent_audit_id)
 
+        # NOTE(lbragstad): Check if the token provider being used actually
+        # supports bind authentication methods before proceeding.
+        if auth_context and auth_context.get('bind'):
+            if not self.driver._supports_bind_authentication:
+                raise exception.NotImplemented(_(
+                    'The configured token provider does not support bind '
+                    'authentication.'))
+
+        # NOTE(lbragstad): Grab a blank token object and use composition to
+        # build the token according to the authentication and authorization
+        # context. This cuts down on the amount of logic we have to stuff into
+        # the TokenModel's __init__() method.
+        token = token_model.TokenModel()
+        token.methods = method_names
+        token.system = system
+        token.domain_id = domain_id
+        token.project_id = project_id
+        token.trust_id = trust_id
+        token.application_credential_id = app_cred_id
+        token.audit_id = random_urlsafe_str()
+        token.parent_audit_id = parent_audit_id
+
+        if auth_context:
+            if constants.IDENTITY_PROVIDER in auth_context:
+                token.is_federated = True
+                token.protocol_id = auth_context[constants.PROTOCOL]
+                idp_id = auth_context[constants.IDENTITY_PROVIDER]
+                if isinstance(idp_id, bytes):
+                    idp_id = idp_id.decode('utf-8')
+                token.identity_provider_id = idp_id
+                token.user_id = auth_context['user_id']
+                token.federated_groups = [
+                    {'id': group} for group in auth_context['group_ids']
+                ]
+
+            if 'access_token_id' in auth_context:
+                token.access_token_id = auth_context['access_token_id']
+
+        if not token.user_id:
+            token.user_id = user_id
+
+        token.user_domain_id = token.user['domain_id']
+
+        if isinstance(expires_at, datetime.datetime):
+            token.expires_at = utils.isotime(expires_at, subsecond=True)
+        if isinstance(expires_at, six.string_types):
+            token.expires_at = expires_at
+        elif not expires_at:
+            token.expires_at = utils.isotime(
+                default_expire_time(), subsecond=True
+            )
+
+        token_id, issued_at = self.driver.generate_id_and_issued_at(token)
+        token.mint(token_id, issued_at)
+
+        # cache the token object and with ID
         if CONF.token.cache_on_issue:
             # NOTE(amakarov): here and above TOKENS_REGION is to be passed
             # to serve as required positional "self" argument. It's ignored,
             # so I've put it here for convenience - any placeholder is fine.
-            self._validate_token.set(token_data, TOKENS_REGION, token_id)
+            self._validate_token.set(token, self, token.id)
 
-        return token_id, token_data
+        return token
 
     def invalidate_individual_token_cache(self, token_id):
         # NOTE(morganfainberg): invalidate takes the exact same arguments as
@@ -191,20 +281,18 @@ class Manager(manager.Manager):
         self._validate_token.invalidate(self, token_id)
 
     def revoke_token(self, token_id, revoke_chain=False):
-        token_ref = token_model.KeystoneToken(
-            token_id=token_id,
-            token_data=self.validate_token(token_id))
+        token = self.validate_token(token_id)
 
-        project_id = token_ref.project_id if token_ref.project_scoped else None
-        domain_id = token_ref.domain_id if token_ref.domain_scoped else None
+        project_id = token.project_id if token.project_scoped else None
+        domain_id = token.domain_id if token.domain_scoped else None
 
         if revoke_chain:
             PROVIDERS.revoke_api.revoke_by_audit_chain_id(
-                token_ref.audit_chain_id, project_id=project_id,
+                token.parent_audit_id, project_id=project_id,
                 domain_id=domain_id
             )
         else:
-            PROVIDERS.revoke_api.revoke_by_audit_id(token_ref.audit_id)
+            PROVIDERS.revoke_api.revoke_by_audit_id(token.audit_id)
 
         # FIXME(morganfainberg): Does this cache actually need to be
         # invalidated? We maintain a cached revocation list, which should be
