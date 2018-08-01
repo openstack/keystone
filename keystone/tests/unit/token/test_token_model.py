@@ -26,7 +26,7 @@ from keystone.models import token_model
 from keystone.tests.unit import base_classes
 from keystone.tests.unit import core
 from keystone.tests.unit import test_token_provider
-from keystone.token.providers import common as provider_common
+from keystone.token import provider
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -206,12 +206,12 @@ class TokenModelTests(base_classes.TestCaseWithBootstrap):
 
     def test_audit_id_attributes(self):
         token = token_model.TokenModel()
-        audit_id = provider_common.random_urlsafe_str()
+        audit_id = provider.random_urlsafe_str()
         token.audit_id = audit_id
 
         self.assertTrue(len(token.audit_ids) == 1)
 
-        parent_audit_id = provider_common.random_urlsafe_str()
+        parent_audit_id = provider.random_urlsafe_str()
         token.parent_audit_id = parent_audit_id
 
         self.assertTrue(len(token.audit_ids) == 2)
@@ -291,7 +291,7 @@ class TokenModelTests(base_classes.TestCaseWithBootstrap):
         token = token_model.TokenModel()
         token.user_id = user['id']
         token.system = 'all'
-        token.audit_id = provider_common.random_urlsafe_str()
+        token.audit_id = provider.random_urlsafe_str()
 
         self.assertRaises(
             exception.Unauthorized, token.mint, self.token_id, self.issued_at
@@ -360,7 +360,7 @@ class TokenModelTests(base_classes.TestCaseWithBootstrap):
         token = token_model.TokenModel()
         token.user_id = user['id']
         token.domain_id = CONF.identity.default_domain_id
-        token.audit_id = provider_common.random_urlsafe_str()
+        token.audit_id = provider.random_urlsafe_str()
 
         self.assertRaises(
             exception.Unauthorized, token.mint, self.token_id, self.issued_at
@@ -398,7 +398,7 @@ class TokenModelTests(base_classes.TestCaseWithBootstrap):
         token = token_model.TokenModel()
         token.user_id = user['id']
         token.project_id = self.project_id
-        token.audit_id = provider_common.random_urlsafe_str()
+        token.audit_id = provider.random_urlsafe_str()
 
         self.assertRaises(
             exception.Unauthorized, token.mint, self.token_id, self.issued_at
@@ -412,7 +412,7 @@ class TokenModelTests(base_classes.TestCaseWithBootstrap):
         token = token_model.TokenModel()
         token.user_id = self.admin_user_id
         token.project_id = self.project_id
-        token.audit_id = provider_common.random_urlsafe_str()
+        token.audit_id = provider.random_urlsafe_str()
 
         self.assertRaises(
             exception.ProjectNotFound, token.mint, self.token_id,
@@ -428,7 +428,7 @@ class TokenModelTests(base_classes.TestCaseWithBootstrap):
         token = token_model.TokenModel()
         token.user_id = self.admin_user_id
         token.project_id = self.project_id
-        token.audit_id = provider_common.random_urlsafe_str()
+        token.audit_id = provider.random_urlsafe_str()
 
         self.assertRaises(
             exception.DomainNotFound, token.mint, self.token_id, self.issued_at
