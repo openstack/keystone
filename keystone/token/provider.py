@@ -204,14 +204,6 @@ class Manager(manager.Manager):
                     auth_context=None, trust_id=None, app_cred_id=None,
                     parent_audit_id=None):
 
-        # NOTE(lbragstad): Check if the token provider being used actually
-        # supports bind authentication methods before proceeding.
-        if auth_context and auth_context.get('bind'):
-            if not self.driver._supports_bind_authentication:
-                raise exception.NotImplemented(_(
-                    'The configured token provider does not support bind '
-                    'authentication.'))
-
         # NOTE(lbragstad): Grab a blank token object and use composition to
         # build the token according to the authentication and authorization
         # context. This cuts down on the amount of logic we have to stuff into
