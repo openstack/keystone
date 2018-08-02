@@ -14,6 +14,7 @@
 
 import copy
 import datetime
+import fixtures
 import itertools
 import operator
 import re
@@ -2261,46 +2262,64 @@ class TokenAPITests(object):
         self.assertNotIn(role_group_domain1['id'], roles_ids)
 
     def test_remote_user_no_realm(self):
-        api = auth.controllers.Auth()
-        context, auth_info, auth_context = self.build_external_auth_request(
-            self.default_domain_user['name'])
-        api.authenticate(context, auth_info, auth_context)
-        self.assertEqual(self.default_domain_user['id'],
-                         auth_context['user_id'])
+        app = self.loadapp()
+
+        auth_contexts = []
+
+        # NOTE(morgan): This __init__ is used to inject the auth context into
+        # the auth_contexts list so that we can perform introspection. This way
+        # we do not need to try and mock out anything deep within keystone's
+        # auth pipeline. Note that we are using MockPatch to ensure we undo
+        # the mock after the fact.
+        def new_init(self, *args, **kwargs):
+            super(auth.core.AuthContext, self).__init__(*args, **kwargs)
+            auth_contexts.append(self)
+
+        self.useFixture(fixtures.MockPatch(
+            'keystone.auth.core.AuthContext.__init__', new_init))
+        with app.test_client() as c:
+            c.environ_base.update(self.build_external_auth_environ(
+                self.default_domain_user['name']))
+            auth_req = self.build_authentication_request()
+            c.post('/v3/auth/tokens', json=auth_req)
+            self.assertEqual(self.default_domain_user['id'],
+                             auth_contexts[-1]['user_id'])
+
         # Now test to make sure the user name can, itself, contain the
         # '@' character.
         user = {'name': 'myname@mydivision'}
         PROVIDERS.identity_api.update_user(
             self.default_domain_user['id'], user
         )
-        context, auth_info, auth_context = self.build_external_auth_request(
-            user["name"])
-        api.authenticate(context, auth_info, auth_context)
+        with app.test_client() as c:
+            c.environ_base.update(self.build_external_auth_environ(
+                user['name']))
+            auth_req = self.build_authentication_request()
+            c.post('/v3/auth/tokens', json=auth_req)
+            self.assertEqual(self.default_domain_user['id'],
+                             auth_contexts[-1]['user_id'])
         self.assertEqual(self.default_domain_user['id'],
-                         auth_context['user_id'])
+                         auth_contexts[-1]['user_id'])
 
     def test_remote_user_no_domain(self):
-        api = auth.controllers.Auth()
-        context, auth_info, auth_context = self.build_external_auth_request(
-            self.user['name'])
-        self.assertRaises(exception.Unauthorized,
-                          api.authenticate,
-                          context,
-                          auth_info,
-                          auth_context)
+        app = self.loadapp()
+        with app.test_client() as c:
+            c.environ_base.update(self.build_external_auth_environ(
+                self.user['name']))
+            auth_request = self.build_authentication_request()
+            c.post('/v3/auth/tokens', json=auth_request,
+                   expected_status_code=http_client.UNAUTHORIZED)
 
     def test_remote_user_and_password(self):
         # both REMOTE_USER and password methods must pass.
         # note that they do not have to match
-        api = auth.controllers.Auth()
-        auth_data = self.build_authentication_request(
-            user_domain_id=self.default_domain_user['domain_id'],
-            username=self.default_domain_user['name'],
-            password=self.default_domain_user['password'])['auth']
-        context, auth_info, auth_context = self.build_external_auth_request(
-            self.default_domain_user['name'], auth_data=auth_data)
-
-        api.authenticate(context, auth_info, auth_context)
+        app = self.loadapp()
+        with app.test_client() as c:
+            auth_data = self.build_authentication_request(
+                user_domain_id=self.default_domain_user['domain_id'],
+                username=self.default_domain_user['name'],
+                password=self.default_domain_user['password'])
+            c.post('/v3/auth/tokens', json=auth_data)
 
     def test_remote_user_and_explicit_external(self):
         # both REMOTE_USER and password methods must pass.
@@ -2308,32 +2327,24 @@ class TokenAPITests(object):
         auth_data = self.build_authentication_request(
             user_domain_id=self.domain['id'],
             username=self.user['name'],
-            password=self.user['password'])['auth']
-        auth_data['identity']['methods'] = ["password", "external"]
-        auth_data['identity']['external'] = {}
-        api = auth.controllers.Auth()
-        auth_info = auth.core.AuthInfo(auth_data)
-        auth_context = auth.core.AuthContext(extras={}, methods=[])
-        self.assertRaises(exception.Unauthorized,
-                          api.authenticate,
-                          self.make_request(),
-                          auth_info,
-                          auth_context)
+            password=self.user['password'])
+        auth_data['auth']['identity']['methods'] = ["password", "external"]
+        auth_data['auth']['identity']['external'] = {}
+        app = self.loadapp()
+        with app.test_client() as c:
+            c.post('/v3/auth/tokens', json=auth_data,
+                   expected_status_code=http_client.UNAUTHORIZED)
 
     def test_remote_user_bad_password(self):
         # both REMOTE_USER and password methods must pass.
-        api = auth.controllers.Auth()
+        app = self.loadapp()
         auth_data = self.build_authentication_request(
             user_domain_id=self.domain['id'],
             username=self.user['name'],
-            password='badpassword')['auth']
-        context, auth_info, auth_context = self.build_external_auth_request(
-            self.default_domain_user['name'], auth_data=auth_data)
-        self.assertRaises(exception.Unauthorized,
-                          api.authenticate,
-                          context,
-                          auth_info,
-                          auth_context)
+            password='badpassword')
+        with app.test_client() as c:
+            c.post('/v3/auth/tokens', json=auth_data,
+                   expected_status_code=http_client.UNAUTHORIZED)
 
     def test_fetch_expired_allow_expired(self):
         self.config_fixture.config(group='token',
@@ -3532,17 +3543,18 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
             methods=['password', 'token'])
 
     def test_remote_user_disabled(self):
-        api = auth.controllers.Auth()
+        app = self.loadapp()
         remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
-        request, auth_info, auth_context = self.build_external_auth_request(
-            remote_user)
-        self.assertRaises(exception.Unauthorized,
-                          api.authenticate,
-                          request,
-                          auth_info,
-                          auth_context)
+        with app.test_client() as c:
+            c.environ_base.update(self.build_external_auth_environ(
+                remote_user))
+            auth_data = self.build_authentication_request()
+            c.post('/v3/auth/tokens', json=auth_data,
+                   expected_status_code=http_client.UNAUTHORIZED)
 
 
+# TODO(morgan): Determine if these test cases should be run. If so, retro-fit
+# them to run.
 class AuthExternalDomainBehavior(object):
     content_type = 'json'
 
@@ -3568,6 +3580,8 @@ class AuthExternalDomainBehavior(object):
         self.assertEqual(self.user['id'], auth_context['user_id'])
 
 
+# TODO(morgan): Determine if these test cases should be run. If so, retro-fit
+# them to run.
 class TestAuthExternalDefaultDomain(object):
     content_type = 'json'
 
@@ -3608,14 +3622,13 @@ class TestAuthJSONExternal(test_v3.RestfulTestCase):
         self.config_fixture.config(group='auth', methods=[])
 
     def test_remote_user_no_method(self):
-        api = auth.controllers.Auth()
-        request, auth_info, auth_context = self.build_external_auth_request(
-            self.default_domain_user['name'])
-        self.assertRaises(exception.Unauthorized,
-                          api.authenticate,
-                          request,
-                          auth_info,
-                          auth_context)
+        app = self.loadapp()
+        with app.test_client() as c:
+            c.environ_base.update(self.build_external_auth_environ(
+                self.default_domain_user['name']))
+            auth_data = self.build_authentication_request()
+            c.post('/v3/auth/tokens', json=auth_data,
+                   expected_status_code=http_client.UNAUTHORIZED)
 
 
 class TrustAPIBehavior(test_v3.RestfulTestCase):
