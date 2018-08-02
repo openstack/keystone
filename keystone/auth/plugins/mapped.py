@@ -24,7 +24,6 @@ from keystone import exception
 from keystone.federation import constants as federation_constants
 from keystone.federation import utils
 from keystone.i18n import _
-from keystone.models import token_model
 from keystone import notifications
 
 LOG = log.getLogger(__name__)
@@ -37,9 +36,7 @@ class Mapped(base.AuthMethodHandler):
 
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
-        response = PROVIDERS.token_provider_api.validate_token(token_id)
-        return token_model.KeystoneToken(token_id=token_id,
-                                         token_data=response)
+        return PROVIDERS.token_provider_api.validate_token(token_id)
 
     def authenticate(self, request, auth_payload):
         """Authenticate mapped user and set an authentication context.

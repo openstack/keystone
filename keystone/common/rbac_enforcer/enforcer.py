@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import functools
 
 import flask
@@ -19,6 +20,7 @@ from oslo_utils import strutils
 
 from keystone.common import authorization
 from keystone.common import context
+from keystone.common import controller
 from keystone.common import policies
 from keystone.common import provider_api
 from keystone.common import utils
@@ -76,6 +78,19 @@ class RBACEnforcer(object):
         if do_raise:
             extra.update(exc=exception.ForbiddenAction, action=action,
                          do_raise=do_raise)
+
+        # NOTE(lbragstad): If there is a token in the credentials dictionary,
+        # it's going to be an instance of a TokenModel. We'll need to convert
+        # it to the a token response or dictionary before passing it to
+        # oslo.policy for enforcement. This is because oslo.policy shouldn't
+        # know how to deal with an internal object only used within keystone.
+        if 'token' in credentials:
+            token_ref = controller.render_token_response_from_model(
+                credentials['token']
+            )
+            credentials_copy = copy.deepcopy(credentials)
+            credentials_copy['token'] = token_ref
+            credentials = credentials_copy
 
         try:
             return self._enforcer.enforce(

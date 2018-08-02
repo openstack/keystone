@@ -28,6 +28,7 @@ from keystone.models import token_model
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 __all__ = ('AuthContextMiddleware',)
 
@@ -169,16 +170,20 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
             # parallel; only ione or the other should be used for access.
             request_context.is_admin_project = False
             request_context.domain_id = token.domain_id
-            request_context.domain_name = token.domain_name
+            request_context.domain_name = token.domain['name']
         if token.oauth_scoped:
             request_context.is_delegated_auth = True
-            request_context.oauth_consumer_id = token.oauth_consumer_id
-            request_context.oauth_access_token_id = token.oauth_access_token_id
+            request_context.oauth_consumer_id = (
+                token.access_token['consumer_id']
+            )
+            request_context.oauth_access_token_id = token.access_token_id
         if token.trust_scoped:
             request_context.is_delegated_auth = True
             request_context.trust_id = token.trust_id
-        if token.is_federated_user:
-            request_context.group_ids = token.federation_group_ids
+        if token.is_federated:
+            request_context.group_ids = []
+            for group in token.federated_groups:
+                request_context.group_ids.append(group['id'])
         else:
             request_context.group_ids = []
 
@@ -212,8 +217,9 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         elif request.token_auth.has_user_token:
             # Keystone enforces policy on some values that other services
             # do not, and should not, use.  This adds them in to the context.
-            token = token_model.KeystoneToken(token_id=request.user_token,
-                                              token_data=request.token_info)
+            token = PROVIDERS.token_provider_api.validate_token(
+                request.user_token
+            )
             self._keystone_specific_values(token, request_context)
             request_context.auth_token = request.user_token
             auth_context = request_context.to_policy_values()

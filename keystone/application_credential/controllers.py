@@ -84,10 +84,8 @@ class ApplicationCredentialV3(controller.V3Controller):
         return {cls.member_name: ref}
 
     def _check_unrestricted(self, token):
-        auth_methods = token['methods']
-        if 'application_credential' in auth_methods:
-            td = token.token_data['token']
-            if td['application_credential']['restricted']:
+        if 'application_credential' in token.methods:
+            if not token.application_credential['unrestricted']:
                 action = _("Using method 'application_credential' is not "
                            "allowed for managing additional application "
                            "credentials.")
@@ -112,7 +110,7 @@ class ApplicationCredentialV3(controller.V3Controller):
         app_cred['user_id'] = user_id
         app_cred['project_id'] = project_id
         app_cred['roles'] = self._normalize_role_list(
-            app_cred.get('roles', token['roles']))
+            app_cred.get('roles', token.roles))
         if app_cred.get('expires_at'):
             app_cred['expires_at'] = utils.parse_expiration_date(
                 app_cred['expires_at'])
