@@ -236,11 +236,12 @@ attributes will be needed in ``/etc/shibboleth/attribute-map.xml``:
 
 .. code-block:: xml
 
-   <Attribute name="openstack_user" id="openstack_user"/>
-   <Attribute name="openstack_roles" id="openstack_roles"/>
-   <Attribute name="openstack_project" id="openstack_project"/>
-   <Attribute name="openstack_user_domain" id="openstack_user_domain"/>
-   <Attribute name="openstack_project_domain" id="openstack_project_domain"/>
+    <Attribute name="openstack_user" id="openstack_user"/>
+    <Attribute name="openstack_roles" id="openstack_roles"/>
+    <Attribute name="openstack_project" id="openstack_project"/>
+    <Attribute name="openstack_user_domain" id="openstack_user_domain"/>
+    <Attribute name="openstack_project_domain" id="openstack_project_domain"/>
+    <Attribute name="openstack_groups" id="openstack_groups"/>
 
 And update the ``REMOTE_USER`` variable in ``/etc/shibboleth/shibboleth2.xml``
 if desired:

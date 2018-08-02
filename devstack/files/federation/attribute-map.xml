@@ -12,6 +12,7 @@
     <Attribute id="openstack_roles" name="openstack_roles"/>
     <Attribute id="openstack_user" name="openstack_user"/>
     <Attribute id="openstack_user_domain" name="openstack_user_domain"/>
+    <Attribute id="openstack_groups" name="openstack_groups"/>
 
     <!-- First some useful eduPerson attributes that many sites might use. -->
     <Attribute name="urn:mace:dir:attribute-def:eduPersonPrincipalName" id="eppn">

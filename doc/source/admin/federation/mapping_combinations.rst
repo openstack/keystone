@@ -892,7 +892,7 @@ look as follows:
 
 .. code-block:: xml
 
-    <!-- example from a K2k Shibboleth implementation -->
+    <!-- example 1 from a K2k Shibboleth implementation -->
     <Attribute name="openstack_user" id="openstack_user"/>
     <Attribute name="openstack_user_domain" id="openstack_user_domain"/>
 
@@ -933,6 +933,57 @@ names we have in the Identity Provider. It will map any user with the name
        ]
    }
 
+A keystone user's groups can also be mapped to groups in the service provider.
+For example, with the following attributes declared in Shibboleth's attributes file:
+
+.. code-block:: xml
+
+    <!-- example 2 from a K2k Shibboleth implementation -->
+    <Attribute name="openstack_user" id="openstack_user"/>
+    <Attribute name="openstack_groups" id="openstack_groups"/>
+
+Then the following mapping can be used to map the user's group membership from the keystone
+IdP to groups in the keystone SP:
+
+.. code-block:: json
+
+    {
+        "rules": [
+            {
+                "local":
+                [
+                    {
+                        "user":
+                            {
+                                "name": "{0}"
+                            }
+                    },
+                    {
+                        "groups": "{1}"
+                    }
+                ],
+                "remote":
+                [
+                    {
+                        "type": "openstack_user"
+                    },
+                    {
+                        "type": "openstack_groups"
+                    }
+                ]
+            }
+        ]
+    }
+
+
+``openstack_user``, and ``openstack_groups`` will be matched by service
+provider to the attribute names we have in the Identity Provider. It will
+take the ``openstack_user`` attribute and finds in the assertion then inserts
+it directly in the mapping.  The identity provider will set the value of
+``openstack_groups`` by group name and domain name to which the user belongs
+in the Idp. Suppose the user belongs to 'group1' in domain 'Default' in the IdP
+then it will map to a group with the same name and same domain's name in the SP.
+
 The possible attributes that can be used in a mapping are `openstack_user`,
-`openstack_user_domain`, `openstack_roles`, `openstack_project`, and
-`openstack_project_domain`.
+`openstack_user_domain`, `openstack_roles`, `openstack_project`,
+`openstack_project_domain` and `openstack_groups`.

@@ -65,5 +65,9 @@ UHeBXxQq/GmfBv3l+V5ObQ+EHKnyDodLHCk=</ns1:X509Certificate>
     <ns0:Attribute Name="openstack_project_domain" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
       <ns0:AttributeValue xsi:type="xs:string">project_domain</ns0:AttributeValue>
     </ns0:Attribute>
+    <ns0:Attribute Name="openstack_groups" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+      <ns0:AttributeValue xsi:type="xs:string">JSON:{"name":"group1","domain":{"name":"Default"}}</ns0:AttributeValue>
+      <ns0:AttributeValue xsi:type="xs:string">JSON:{"name":"group2","domain":{"name":"Default"}}</ns0:AttributeValue>
+    </ns0:Attribute>
   </ns0:AttributeStatement>
 </ns0:Assertion>
