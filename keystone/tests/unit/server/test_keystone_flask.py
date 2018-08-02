@@ -436,7 +436,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         # Test unenforced decorator works as expected
 
         class MappedResource(flask_restful.Resource):
-            @_TestRestfulAPI.unenforced_api
+            @flask_common.unenforced_api
             def post(self):
                 post_body = flask.request.get_json()
                 return {'post_body': post_body}, 201
