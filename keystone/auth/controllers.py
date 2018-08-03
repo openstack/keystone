@@ -62,8 +62,7 @@ class Auth(controller.V3Controller):
 
         try:
             auth_info = core.AuthInfo.create(auth=auth)
-            auth_context = core.AuthContext(extras={},
-                                            method_names=[],
+            auth_context = core.AuthContext(method_names=[],
                                             bind={})
             self.authenticate(request, auth_info, auth_context)
             if auth_context.get('access_token_id'):

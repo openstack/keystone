@@ -47,16 +47,14 @@ parameters.
 * ``context`` - keystone's request context
 * ``auth_payload`` - the content of the authentication for a given method
 * ``auth_context`` - user authentication context, a dictionary shared by all
-  plugins. It contains ``method_names`` and ``extras`` by default.
-  ``method_names`` is a list and ``extras`` is a dictionary.
+  plugins. It contains ``method_names`` and ``bind`` by default.
+  ``method_names`` is a list and ``bind`` is a dictionary.
 
 If successful, the ``authenticate()`` method must provide a valid ``user_id``
 in ``auth_context`` and return ``None``. ``method_name`` is used to convey any
 additional authentication methods in case authentication is for re-scoping. For
 example, if the authentication is for re-scoping, a plugin must append the
-previous method names into ``method_names``. Also, a plugin may add any
-additional information into ``extras``. Anything in ``extras`` will be conveyed
-in the token's ``extras`` field.
+previous method names into ``method_names``.
 
 If authentication requires multiple steps, the ``authenticate()`` method must
 return the payload in the form of a dictionary for the next authentication

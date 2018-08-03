@@ -118,10 +118,6 @@ def token_authenticate(request, token):
         response_data.setdefault('expires_at', token.expires_at)
         response_data['audit_id'] = token_audit_id
         response_data.setdefault('user_id', token.user_id)
-        # TODO(morganfainberg: determine if token 'extras' can be removed
-        # from the response_data
-        # response_data.setdefault('extras', {}).update(
-        #     token.get('extras', {}))
 
         return response_data
 
