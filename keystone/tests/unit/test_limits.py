@@ -525,6 +525,16 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(limits[0][key], ref[key])
         self.assertIsNone(limits[0]['description'])
 
+    def test_create_limit_with_domain_as_project(self):
+        ref = unit.new_limit_ref(project_id=self.domain_id,
+                                 service_id=self.service_id,
+                                 region_id=self.region_id,
+                                 resource_name='volume')
+        self.post(
+            '/limits',
+            body={'limits': [ref]},
+            expected_status=http_client.BAD_REQUEST)
+
     def test_create_multi_limit(self):
         ref1 = unit.new_limit_ref(project_id=self.project_id,
                                   service_id=self.service_id,
