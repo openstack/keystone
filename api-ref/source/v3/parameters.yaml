@@ -193,6 +193,13 @@ idp_id_query:
   in: query
   required: false
   type: string
+include_limits:
+  description: |
+    It should be used together with `parents_as_list` or `subtree_as_list`
+    filter to add the related project's limits into the response body.
+  in: query
+  required: false
+  type: key-only, no value expected
 include_names_query:
   description: |
     If set to true, then the names of any entities returned will be include as
