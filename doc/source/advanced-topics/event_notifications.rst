@@ -428,24 +428,24 @@ both a ``reasonCode`` and ``reasonType``.
                    "address": "127.0.0.1"
                },
                "id": "73a19db6-e26b-5313-a6df-58d297fa652e"
-               },
-               "target": {
-                   "typeURI": "service/security/account/user",
-                   "id": "c23e6cb7-abe0-5e42-b7f7-4c4104ea77b0"
-               },
-               "observer": {
-                   "typeURI": "service/security",
-                   "id": "9bdddeda6a0b451e9e0439646e532afd"
-               },
-               "eventType": "activity",
-               "eventTime": "2016-11-11T18:31:11.156356+0000",
-               "reason": {
-                   "reasonCode": 401,
-                   "reasonType": "The password is expired and needs to be reset for user: ed1ab0b40f284fb48fea9e25d0d157fc"
-               },
-               "action": "authenticate",
-               "outcome": "failure",
-               "id": "78cd795f-5850-532f-9ab1-5adb04e30c0f"
+           },
+           "target": {
+               "typeURI": "service/security/account/user",
+               "id": "c23e6cb7-abe0-5e42-b7f7-4c4104ea77b0"
+           },
+           "observer": {
+               "typeURI": "service/security",
+               "id": "9bdddeda6a0b451e9e0439646e532afd"
+           },
+           "eventType": "activity",
+           "eventTime": "2016-11-11T18:31:11.156356+0000",
+           "reason": {
+               "reasonCode": 401,
+               "reasonType": "The password is expired and needs to be reset for user: ed1ab0b40f284fb48fea9e25d0d157fc"
+           },
+           "action": "authenticate",
+           "outcome": "failure",
+           "id": "78cd795f-5850-532f-9ab1-5adb04e30c0f"
        },
        "message_id": "9a97e9d0-fef1-4852-8e82-bb693358bc46"
    }
