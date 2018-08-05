@@ -40,7 +40,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
 
 Response
 --------
@@ -93,7 +93,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
    - tag: project_tag_path
 
 Response
@@ -131,7 +131,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
    - tag: project_tag_path
 
 Response
@@ -170,7 +170,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
    - tags: response_body_project_tags_required
 
 Example
@@ -227,7 +227,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
    - tag: project_tag_path
 
 Response
@@ -265,7 +265,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
-   - project_id: project_id
+   - project_id: project_id_path
 
 Response
 --------
