@@ -98,8 +98,8 @@ Create application credential
 
 .. rest_method::  POST /v3/users/{user_id}/application_credentials
 
-Creates an application credential for a user on the project to which they are
-currently scoped.
+Creates an application credential for a user on the project to which the
+current token is scoped.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/application_credentials``
 
