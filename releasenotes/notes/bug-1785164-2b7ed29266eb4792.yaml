@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1785164 <https://bugs.launchpad.net/keystone/+bug/1785164>`_]
+    Setting resource limits on domains is explicitly unsupported. Previously,
+    it was possible to set a limit on a domain and the response would include
+    the domain ID as the project ID of the limit. This issue has been corrected
+    by explicitly opting domains out of limit support. A later release may
+    include functionality for domains to be associated to limit resources.
