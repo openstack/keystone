@@ -82,9 +82,7 @@ class Manager(manager.Manager):
     def _require_user_has_role_in_project(self, roles, user_id, project_id):
         user_roles = self._get_user_roles(user_id, project_id)
         for role in roles:
-            matching_roles = [x for x in user_roles
-                              if x == role['id']]
-            if not matching_roles:
+            if role['id'] not in user_roles:
                 raise exception.RoleAssignmentNotFound(role_id=role['id'],
                                                        actor_id=user_id,
                                                        target_id=project_id)
