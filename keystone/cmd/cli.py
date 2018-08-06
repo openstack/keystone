@@ -1173,19 +1173,44 @@ command_opt = cfg.SubCommandOpt('command',
                                 handler=add_command_parsers)
 
 
-def main(argv=None, config_files=None):
+def main(argv=None, developer_config_file=None):
+    """Main entry point into the keystone-manage CLI utility.
+
+    :param argv: Arguments supplied via the command line using the ``sys``
+                 standard library.
+    :type argv: list
+    :param developer_config_file: The location of a configuration file normally
+                                  found in development environments.
+    :type developer_config_file: string
+
+    """
     CONF.register_cli_opt(command_opt)
 
     keystone.conf.configure()
     sql.initialize()
     keystone.conf.set_default_for_default_log_levels()
 
+    user_supplied_config_file = False
+    if argv:
+        for argument in argv:
+            if argument == '--config-file':
+                user_supplied_config_file = True
+
+    if developer_config_file:
+        developer_config_file = [developer_config_file]
+
+    # NOTE(lbragstad): At this point in processing, the first element of argv
+    # is the binary location of keystone-manage, which oslo.config doesn't need
+    # and is keystone specific. Only pass a list of arguments so that
+    # oslo.config can determine configuration file locations based on user
+    # provided arguments, if present.
     CONF(args=argv[1:],
          project='keystone',
          version=pbr.version.VersionInfo('keystone').version_string(),
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
-         default_config_files=config_files)
-    if not CONF.default_config_files:
+         default_config_files=developer_config_file)
+
+    if not CONF.default_config_files and not user_supplied_config_file:
         LOG.warning('Config file not found, using default configs.')
     keystone.conf.setup_logging()
     CONF.command.cmd_class.main()
