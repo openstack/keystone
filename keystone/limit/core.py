@@ -54,7 +54,11 @@ class Manager(manager.Manager):
                 PROVIDERS.catalog_api.get_region(region_id)
             project_id = unified_limit.get('project_id')
             if project_id is not None:
-                PROVIDERS.resource_api.get_project(project_id)
+                project = PROVIDERS.resource_api.get_project(project_id)
+                # Keystone now does not support domain-level limits. This
+                # check can be removed if it'll be supported in the future.
+                if project['is_domain']:
+                    raise exception.ProjectNotFound(project_id=project_id)
         except exception.ServiceNotFound:
             raise exception.ValidationError(attribute='service_id',
                                             target=target)
