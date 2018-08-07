@@ -13,84 +13,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from six.moves import http_client
-
 from keystone.catalog import schema
 from keystone.common import controller
 from keystone.common import provider_api
 from keystone.common import utils
 from keystone.common import validation
-from keystone.common import wsgi
 from keystone import exception
-from keystone.i18n import _
 
 
 INTERFACES = ['public', 'internal', 'admin']
 PROVIDERS = provider_api.ProviderAPIs
-
-
-class RegionV3(controller.V3Controller):
-    collection_name = 'regions'
-    member_name = 'region'
-
-    def create_region_with_id(self, request, region_id, region):
-        """Create a region with a user-specified ID.
-
-        This method is unprotected because it depends on ``self.create_region``
-        to enforce policy.
-        """
-        if 'id' in region and region_id != region['id']:
-            raise exception.ValidationError(
-                _('Conflicting region IDs specified: '
-                  '"%(url_id)s" != "%(ref_id)s"') % {
-                      'url_id': region_id,
-                      'ref_id': region['id']})
-        region['id'] = region_id
-        return self.create_region(request, region)
-
-    @controller.protected()
-    def create_region(self, request, region):
-        validation.lazy_validate(schema.region_create, region)
-        ref = self._normalize_dict(region)
-
-        if not ref.get('id'):
-            ref = self._assign_unique_id(ref)
-
-        ref = PROVIDERS.catalog_api.create_region(
-            ref, initiator=request.audit_initiator
-        )
-        return wsgi.render_response(
-            RegionV3.wrap_member(request.context_dict, ref),
-            status=(http_client.CREATED,
-                    http_client.responses[http_client.CREATED]))
-
-    @controller.filterprotected('parent_region_id')
-    def list_regions(self, request, filters):
-        hints = RegionV3.build_driver_hints(request, filters)
-        refs = PROVIDERS.catalog_api.list_regions(hints)
-        return RegionV3.wrap_collection(request.context_dict,
-                                        refs,
-                                        hints=hints)
-
-    @controller.protected()
-    def get_region(self, request, region_id):
-        ref = PROVIDERS.catalog_api.get_region(region_id)
-        return RegionV3.wrap_member(request.context_dict, ref)
-
-    @controller.protected()
-    def update_region(self, request, region_id, region):
-        validation.lazy_validate(schema.region_update, region)
-        self._require_matching_id(region_id, region)
-        ref = PROVIDERS.catalog_api.update_region(
-            region_id, region, initiator=request.audit_initiator
-        )
-        return RegionV3.wrap_member(request.context_dict, ref)
-
-    @controller.protected()
-    def delete_region(self, request, region_id):
-        return PROVIDERS.catalog_api.delete_region(
-            region_id, initiator=request.audit_initiator
-        )
 
 
 class ServiceV3(controller.V3Controller):
