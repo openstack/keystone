@@ -594,8 +594,8 @@ class ResourceBase(flask_restful.Resource):
 
         container = {cls.collection_key: refs}
         pfx = getattr(cls, 'api_prefix', '').lstrip('/')
-        parts = [p for p in (full_url(), 'v3', pfx, cls.collection_key) if p]
-        self_url = '/'.join(parts)
+        path = '/'.join([p for p in (pfx, cls.collection_key) if p])
+        self_url = full_url(path)
         container['links'] = {
             'next': None,
             'self': self_url,
@@ -617,7 +617,7 @@ class ResourceBase(flask_restful.Resource):
         if cls.api_prefix:
             api_prefix = cls.api_prefix.lstrip('/').rstrip('/')
             collection_element = '/'.join([api_prefix, cls.collection_key])
-        self_link = '/'.join([base_url(), 'v3', collection_element, ref['id']])
+        self_link = base_url(path='/'.join([collection_element, ref['id']]))
         ref.setdefault('links', {})['self'] = self_link
 
     @classmethod
@@ -797,7 +797,7 @@ class ResourceBase(flask_restful.Resource):
         return arg.replace(':', '_').replace('-', '_')
 
 
-def base_url():
+def base_url(path=''):
     url = CONF['public_endpoint']
 
     if url:
@@ -819,11 +819,13 @@ def base_url():
         # production environment.
         url = 'http://localhost:%d' % CONF.eventlet_server.public_port
 
-    return url.rstrip('/')
+    url = url.rstrip('/')
+    url = '/'.join([p for p in (url, 'v3', path.lstrip('/').rstrip('/')) if p])
+    return url
 
 
-def full_url():
-    subs = {'url': base_url(), 'query_string': ''}
+def full_url(path=''):
+    subs = {'url': base_url(path), 'query_string': ''}
     qs = flask.request.environ.get('QUERY_STRING')
     if qs:
         subs['query_string'] = '?%s' % qs

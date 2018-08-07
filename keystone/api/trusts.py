@@ -81,7 +81,7 @@ def _normalize_trust_roles(trust):
 
     trust['roles'] = trust_full_roles
     trust['roles_links'] = {
-        'self': ks_flask.base_url() + '/%s/roles' % trust['id'],
+        'self': ks_flask.base_url(path='/%s/roles' % trust['id']),
         'next': None,
         'previous': None}
 

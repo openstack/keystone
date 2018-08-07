@@ -58,7 +58,7 @@ class OSRevokeResource(flask_restful.Resource):
         response = {'events': [event.to_dict() for event in events],
                     'links': {
                         'next': None,
-                        'self': '%s/v3/OS-REVOKE/events' % ks_flask.base_url(),
+                        'self': ks_flask.base_url(path='/OS-REVOKE/events'),
                         'previous': None}
                     }
         return response
