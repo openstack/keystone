@@ -20,12 +20,9 @@ from keystone.common import wsgi
 class Routers(wsgi.RoutersBase):
     """API for the keystone catalog."""
 
-    _path_prefixes = ('endpoints', 'services')
+    _path_prefixes = ('endpoints',)
 
     def append_v3_routers(self, mapper, routers):
-        routers.append(router.Router(controllers.ServiceV3(),
-                                     'services', 'service',
-                                     resource_descriptions=self.v3_resources))
         routers.append(router.Router(controllers.EndpointV3(),
                                      'endpoints', 'endpoint',
                                      resource_descriptions=self.v3_resources))

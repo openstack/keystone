@@ -25,52 +25,6 @@ INTERFACES = ['public', 'internal', 'admin']
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class ServiceV3(controller.V3Controller):
-    collection_name = 'services'
-    member_name = 'service'
-
-    def __init__(self):
-        super(ServiceV3, self).__init__()
-        self.get_member_from_driver = PROVIDERS.catalog_api.get_service
-
-    @controller.protected()
-    def create_service(self, request, service):
-        validation.lazy_validate(schema.service_create, service)
-        ref = self._assign_unique_id(self._normalize_dict(service))
-        ref = PROVIDERS.catalog_api.create_service(
-            ref['id'], ref, initiator=request.audit_initiator
-        )
-        return ServiceV3.wrap_member(request.context_dict, ref)
-
-    @controller.filterprotected('type', 'name')
-    def list_services(self, request, filters):
-        hints = ServiceV3.build_driver_hints(request, filters)
-        refs = PROVIDERS.catalog_api.list_services(hints=hints)
-        return ServiceV3.wrap_collection(request.context_dict,
-                                         refs,
-                                         hints=hints)
-
-    @controller.protected()
-    def get_service(self, request, service_id):
-        ref = PROVIDERS.catalog_api.get_service(service_id)
-        return ServiceV3.wrap_member(request.context_dict, ref)
-
-    @controller.protected()
-    def update_service(self, request, service_id, service):
-        validation.lazy_validate(schema.service_update, service)
-        self._require_matching_id(service_id, service)
-        ref = PROVIDERS.catalog_api.update_service(
-            service_id, service, initiator=request.audit_initiator
-        )
-        return ServiceV3.wrap_member(request.context_dict, ref)
-
-    @controller.protected()
-    def delete_service(self, request, service_id):
-        return PROVIDERS.catalog_api.delete_service(
-            service_id, initiator=request.audit_initiator
-        )
-
-
 class EndpointV3(controller.V3Controller):
     collection_name = 'endpoints'
     member_name = 'endpoint'
