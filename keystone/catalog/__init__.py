@@ -12,5 +12,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.catalog import controllers  # noqa
 from keystone.catalog.core import *  # noqa

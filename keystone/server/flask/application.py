@@ -27,7 +27,6 @@ import keystone.api
 from keystone.application_credential import routers as app_cred_routers
 from keystone.assignment import routers as assignment_routers
 from keystone.auth import routers as auth_routers
-from keystone.catalog import routers as catalog_routers
 from keystone.common import wsgi as keystone_wsgi
 from keystone.contrib.ec2 import routers as ec2_routers
 from keystone.contrib.s3 import routers as s3_routers
@@ -42,6 +41,7 @@ from keystone.resource import routers as resource_routers
 # support is removed.
 _MOVED_API_PREFIXES = frozenset(
     ['credentials',
+     'endpoints',
      'OS-OAUTH1',
      'OS-EP-FILTER',
      'OS-REVOKE',
@@ -59,7 +59,6 @@ LOG = log.getLogger(__name__)
 
 ALL_API_ROUTERS = [auth_routers,
                    assignment_routers,
-                   catalog_routers,
                    identity_routers,
                    app_cred_routers,
                    policy_routers,
