@@ -12,12 +12,10 @@
 
 # This file handles all flask-restful resources for /OS-EP-FILTER
 
-import flask
 import flask_restful
 import functools
 from six.moves import http_client
 
-from keystone.catalog import controllers as catalog_controllers
 from keystone.catalog import schema
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -25,7 +23,6 @@ from keystone.common import rbac_enforcer
 from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
-from keystone.resource import controllers as resource_controllers
 from keystone.server import flask as ks_flask
 
 
@@ -42,6 +39,14 @@ _build_parameter_relation = functools.partial(
 
 _ENDPOINT_GROUP_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='endpoint_group_id')
+
+
+# TODO(morgan): move this to a common location once catalog endpoint API is
+# converted to flask
+def _filter_endpoint(ref):
+    ref.pop('legacy_endpoint_id', None)
+    ref['region'] = ref['region_id']
+    return ref
 
 
 class EndpointGroupsResource(ks_flask.ResourceBase):
@@ -115,11 +120,8 @@ class EPFilterEndpointProjectsResource(flask_restful.Resource):
         refs = PROVIDERS.catalog_api.list_projects_for_endpoint(endpoint_id)
         projects = [PROVIDERS.resource_api.get_project(ref['project_id'])
                     for ref in refs]
-        # TODO(morgan): Fix to allow for local-wrapping of collection
-        return resource_controllers.ProjectV3.wrap_collection(
-            {'environment': flask.request.environ,
-             'path': flask.request.environ['PATH_INFO']},
-            projects)
+        return ks_flask.ResourceBase.wrap_collection(
+            projects, collection_name='projects')
 
 
 class EPFilterProjectsEndpointsResource(flask_restful.Resource):
@@ -151,11 +153,9 @@ class EPFilterProjectEndpointsListResource(flask_restful.Resource):
         filtered_endpoints = PROVIDERS.catalog_api.list_endpoints_for_project(
             project_id)
 
-        # TODO(morgan): fix this to allow local wrapping of collection/member
-        return catalog_controllers.EndpointV3.wrap_collection(
-            {'environment': flask.request.environ,
-             'path': flask.request.environ['PATH_INFO']},
-            [v for v in filtered_endpoints.values()])
+        return ks_flask.ResourceBase.wrap_collection(
+            [_filter_endpoint(v) for v in filtered_endpoints.values()],
+            collection_name='endpoints')
 
 
 class EndpointFilterProjectEndpointGroupsListResource(flask_restful.Resource):
@@ -180,11 +180,8 @@ class EndpointFilterEPGroupsProjects(flask_restful.Resource):
             if project:
                 projects.append(project)
 
-        # TODO(morgan): Fix to allow for local wrapping of collection/member
-        return resource_controllers.ProjectV3.wrap_collection(
-            {'environment': flask.request.environ,
-             'path': flask.request.environ['PATH_INFO']},
-            projects)
+        return ks_flask.ResourceBase.wrap_collection(
+            projects, collection_name='projects')
 
 
 class EndpointFilterEPGroupsEndpoints(flask_restful.Resource):
@@ -194,19 +191,17 @@ class EndpointFilterEPGroupsEndpoints(flask_restful.Resource):
         filtered_endpoints = (PROVIDERS.catalog_api.
                               get_endpoints_filtered_by_endpoint_group(
                                   endpoint_group_id))
-        # TODO(morgan): Fix this for local wrapping of collection/member
-        return catalog_controllers.EndpointV3.wrap_collection(
-            {'environment': flask.request.environ,
-             'path': flask.request.environ['PATH_INFO']},
-            filtered_endpoints)
+        return ks_flask.ResourceBase.wrap_collection(
+            [_filter_endpoint(e) for e in filtered_endpoints],
+            collection_name='endpoints')
 
 
 class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
     collection_key = 'project_endpoint_groups'
     member_key = 'project_endpoint_group'
 
-    @staticmethod
-    def _add_self_referential_link(ref):
+    @classmethod
+    def _add_self_referential_link(cls, ref, collection_name=None):
         url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
                '/projects/%(project_id)s' % {
                    'endpoint_group_id': ref['endpoint_group_id'],
