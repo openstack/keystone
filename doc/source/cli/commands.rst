@@ -22,3 +22,4 @@ Available commands:
 * ``mapping_engine``: Test your federation mapping rules.
 * ``saml_idp_metadata``: Generate identity provider metadata.
 * ``token_flush``: Purge expired tokens.
+* ``trust_flush``: Purge expired trusts.
