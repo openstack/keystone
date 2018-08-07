@@ -151,6 +151,26 @@ def _remove_content_type_on_204(resp):
     return resp
 
 
+def build_audit_initiator():
+    """A pyCADF initiator describing the current authenticated context."""
+    pycadf_host = host.Host(address=flask.request.remote_addr,
+                            agent=str(flask.request.user_agent))
+    initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
+                                  host=pycadf_host)
+    oslo_context = flask.request.environ.get(context.REQUEST_CONTEXT_ENV)
+    if oslo_context.user_id:
+        initiator.id = utils.resource_uuid(oslo_context.user_id)
+        initiator.user_id = oslo_context.user_id
+
+    if oslo_context.project_id:
+        initiator.project_id = oslo_context.project_id
+
+    if oslo_context.domain_id:
+        initiator.domain_id = oslo_context.domain_id
+
+    return initiator
+
+
 @six.add_metaclass(abc.ABCMeta)
 class APIBase(object):
 
@@ -565,7 +585,9 @@ class ResourceBase(flask_restful.Resource):
             cls._add_self_referential_link(ref)
 
         container = {cls.collection_key: refs}
-        self_url = full_url()
+        pfx = getattr(cls, 'api_prefix', '').lstrip('/')
+        parts = [p for p in (full_url(), 'v3', pfx, cls.collection_key) if p]
+        self_url = '/'.join(parts)
         container['links'] = {
             'next': None,
             'self': self_url,
@@ -661,22 +683,11 @@ class ResourceBase(flask_restful.Resource):
 
     @property
     def audit_initiator(self):
-        """A pyCADF initiator describing the current authenticated context."""
-        pycadf_host = host.Host(address=flask.request.remote_addr,
-                                agent=str(flask.request.user_agent))
-        initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
-                                      host=pycadf_host)
-        if self.oslo_context.user_id:
-            initiator.id = utils.resource_uuid(self.oslo_context.user_id)
-            initiator.user_id = self.oslo_context.user_id
+        """A pyCADF initiator describing the current authenticated context.
 
-        if self.oslo_context.project_id:
-            initiator.project_id = self.oslo_context.project_id
-
-        if self.oslo_context.domain_id:
-            initiator.domain_id = self.oslo_context.domain_id
-
-        return initiator
+        As a property.
+        """
+        return build_audit_initiator()
 
     @staticmethod
     def build_driver_hints(supported_filters):
