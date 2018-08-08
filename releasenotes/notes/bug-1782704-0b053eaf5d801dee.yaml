@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1782704 <https://bugs.launchpad.net/keystone/+bug/1782704>`_]
+    Checking for non-existant configuration files is more robust to ensure
+    proper logging to users when passing configuration information to
+    ``keystone-manage``.

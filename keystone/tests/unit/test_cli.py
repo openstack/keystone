@@ -48,20 +48,23 @@ from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
+from keystone.tests.unit.ksfixtures import temporaryfile
 
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class CliNoConfigTestCase(unit.BaseTestCase):
+class CliLoggingTestCase(unit.BaseTestCase):
 
     def setUp(self):
         self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
         self.useFixture(fixtures.MockPatch(
             'oslo_config.cfg.find_config_files', return_value=[]))
-        super(CliNoConfigTestCase, self).setUp()
+        fd = self.useFixture(temporaryfile.SecureTempFile())
+        self.fake_config_file = fd.file_name
+        super(CliLoggingTestCase, self).setUp()
 
         # NOTE(crinkle): the command call doesn't have to actually work,
         # that's what the other unit tests are for. So just mock it out.
@@ -73,10 +76,18 @@ class CliNoConfigTestCase(unit.BaseTestCase):
 
         self.logging = self.useFixture(fixtures.FakeLogger(level=log.WARN))
 
-    def test_cli(self):
+    def test_absent_config_logs_warning(self):
         expected_msg = 'Config file not found, using default configs.'
         cli.main(argv=['keystone-manage', 'db_sync'])
         self.assertThat(self.logging.output, matchers.Contains(expected_msg))
+
+    def test_present_config_does_not_log_warning(self):
+        fake_argv = [
+            'keystone-manage', '--config-file', self.fake_config_file, 'doctor'
+        ]
+        cli.main(argv=fake_argv)
+        expected_msg = 'Config file not found, using default configs.'
+        self.assertNotIn(expected_msg, self.logging.output)
 
 
 class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
