@@ -34,7 +34,6 @@ from keystone.contrib.s3 import routers as s3_routers
 from keystone.endpoint_policy import routers as endpoint_policy_routers
 from keystone.federation import routers as federation_routers
 from keystone.identity import routers as identity_routers
-from keystone.limit import routers as limit_routers
 from keystone.oauth1 import routers as oauth1_routers
 from keystone.policy import routers as policy_routers
 from keystone.resource import routers as resource_routers
@@ -43,7 +42,7 @@ from keystone.token import _simple_cert as simple_cert_ext
 # TODO(morgan): _MOVED_API_PREFIXES to be removed when the legacy dispatch
 # support is removed.
 _MOVED_API_PREFIXES = frozenset(['credentials', 'OS-OAUTH1', 'OS-REVOKE',
-                                 'OS-TRUST'])
+                                 'OS-TRUST', 'limits', 'registered_limits'])
 LOG = log.getLogger(__name__)
 
 
@@ -52,7 +51,6 @@ ALL_API_ROUTERS = [auth_routers,
                    catalog_routers,
                    identity_routers,
                    app_cred_routers,
-                   limit_routers,
                    policy_routers,
                    resource_routers,
                    federation_routers,
