@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-08-08 22:57+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-15 05:24+0000\n"
+"PO-Revision-Date: 2018-08-08 08:58+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -486,10 +486,6 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "Could not validate the access token"
 
-#, python-format
-msgid "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
-msgstr "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
-
 msgid "Credential could not be decrypted. Please contact the administrator"
 msgstr "Credential could not be decrypted. Please contact the administrator"
 
@@ -644,6 +640,10 @@ msgstr ""
 "with the request since it is either malformed or otherwise incorrect. The "
 "client is assumed to be in error."
 
+#, python-format
+msgid "Failed to deserialize %(obj)s. Data is %(data)s"
+msgstr "Failed to deserialise %(obj)s. Data is %(data)s"
+
 msgid "Failed to validate token"
 msgstr "Failed to validate token"
 
@@ -657,9 +657,6 @@ msgid ""
 msgstr ""
 "Field \"remaining_uses\" is set to %(value)s while it must not be set in "
 "order to redelegate a trust"
-
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "Found invalid token: scoped to both project and domain."
 
 msgid "Global role cannot imply a domain-specific role"
 msgstr "Global role cannot imply a domain-specific role"
@@ -715,6 +712,12 @@ msgstr ""
 "Insufficient auth methods received for %(user_id)s. Auth Methods Provided: "
 "%(methods)s."
 
+msgid "Internal RBAC enforcement error, invalid rule (action) name."
+msgstr "Internal RBAC enforcement error, invalid rule (action) name."
+
+msgid "Internal error processing authentication and authorization."
+msgstr "Internal error processing authentication and authorisation."
+
 msgid "Invalid EC2 signature."
 msgstr "Invalid EC2 signature."
 
@@ -743,10 +746,6 @@ msgstr "Invalid application credential ID or secret"
 #, python-format
 msgid "Invalid application credential: %(detail)s"
 msgstr "Invalid application credential: %(detail)s"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "Invalid audit info data type: %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "Invalid blob in credential"
@@ -816,6 +815,10 @@ msgstr ""
 "%(service_id)s, Region: %(region_id)s."
 
 #, python-format
+msgid "Invalid resource limit: %(reason)s."
+msgstr "Invalid resource limit: %(reason)s."
+
+#, python-format
 msgid ""
 "Invalid rule: %(identity_value)s. Both 'groups' and 'domain' keywords must "
 "be specified."
@@ -826,9 +829,6 @@ msgstr ""
 msgid "Invalid signature"
 msgstr "Invalid signature"
 
-msgid "Invalid signature."
-msgstr "Invalid signature."
-
 msgid "Invalid user / password"
 msgstr "Invalid user / password"
 
@@ -838,11 +838,17 @@ msgstr "Invalid username or TOTP passcode"
 msgid "Invalid username or password"
 msgstr "Invalid username or password"
 
-msgid "Kerberos credentials do not match those in bind"
-msgstr "Kerberos credentials do not match those in bind"
-
-msgid "Kerberos credentials required and not present"
-msgstr "Kerberos credentials required and not present"
+#, python-format
+msgid ""
+"Keystone cannot start due to project hierarchical depth in the current "
+"deployment (project_ids: %(project_id)s) exceeds the enforcement model's "
+"maximum limit of %(max_limit_depth)s. Please use a different enforcement "
+"model to correct the issue."
+msgstr ""
+"Keystone cannot start due to project hierarchical depth in the current "
+"deployment (project_ids: %(project_id)s) exceeds the enforcement model's "
+"maximum limit of %(max_limit_depth)s. Please use a different enforcement "
+"model to correct the issue."
 
 msgid "LDAP does not support write operations"
 msgstr "LDAP does not support write operations"
@@ -892,10 +898,6 @@ msgstr "Multiple domains are not supported"
 msgid "Must specify either domain or project"
 msgstr "Must specify either domain or project"
 
-#, python-format
-msgid "Named bind mode %(name)s not in bind information"
-msgstr "Named bind mode %(name)s not in bind information"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "Neither Project Domain ID nor Project Domain Name was provided."
 
@@ -908,9 +910,6 @@ msgstr ""
 
 msgid "No authenticated user"
 msgstr "No authenticated user"
-
-msgid "No bind information present in token."
-msgstr "No bind information present in token."
 
 msgid "No domain information specified as part of list request"
 msgstr "No domain information specified as part of list request"
@@ -1168,9 +1167,6 @@ msgstr "The authenticated project should match the project_id"
 msgid "The authenticated user should match the trustor"
 msgstr "The authenticated user should match the trustor"
 
-msgid "The configured token provider does not support bind authentication."
-msgstr "The configured token provider does not support bind authentication."
-
 #, python-format
 msgid ""
 "The given operator %(_op)s is not valid. It must be one of the following: "
@@ -1386,13 +1382,6 @@ msgid ""
 msgstr ""
 "Unable to update or delete registered limit %(id)s because there are project "
 "limits associated with it."
-
-msgid ""
-"Unable to update the registered limits because there are project limits "
-"associated with it."
-msgstr ""
-"Unable to update the registered limits because there are project limits "
-"associated with it."
 
 msgid "Unable to validate password due to invalid configuration"
 msgstr "Unable to validate password due to invalid configuration"
@@ -1622,8 +1611,8 @@ msgid "group %(group)s"
 msgstr "group %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "invalid date format %s"
+msgid "invalidate date format %s"
+msgstr "invalidate date format %s"
 
 #, python-format
 msgid ""
@@ -1684,7 +1673,3 @@ msgstr "tls_cacertdir %s not found or is not a directory"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s not found or is not a file"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "token reference must be a KeystoneToken type, got: %s"

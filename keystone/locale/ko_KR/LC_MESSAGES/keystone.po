@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-08-08 22:57+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -393,10 +393,6 @@ msgstr ""
 "필드 \"remaining_uses\"가 %(value)s(으)로 설정되었으나 신뢰를 재위임하려면 설"
 "정하지 않아야 함"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-"올바르지 않은 토큰이 있습니다. 프로젝트와 도메인 둘 다 범위에 포함됩니다."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "도메인 특정 구성에 대해 %(group)s 그룹이 지원되지 않음"
@@ -445,10 +441,6 @@ msgstr "올바르지 않은 LDAP 범위: %(scope)s. 다음 중 하나를 선택:
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "잘못된 TLS / LDAPS 결합."
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "올바르지 않은 감사 정보 데이터 유형: %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "신임 정보에 올바르지 blob가 있음"
@@ -681,9 +673,6 @@ msgstr ""
 msgid "The action you have requested has not been implemented."
 msgstr "요청한 조치가 구현되지 않았습니다."
 
-msgid "The configured token provider does not support bind authentication."
-msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -907,10 +896,6 @@ msgid "group %(group)s"
 msgstr "%(group)s 그룹"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "올바르지 않은 날짜 형식 %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -950,7 +935,3 @@ msgstr "tls_cacertdir %s를 찾을 수 없으며, 이 디렉토리에 존재하�
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s를 찾을 수 없스며, 그런 파일이 없습니다."
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "토큰 참조는 KeystoneToken 유형이어야 합니다. %s을(를) 가져왔습니다."
