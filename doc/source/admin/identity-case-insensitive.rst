@@ -25,7 +25,15 @@ which creates a new user by the name of "myuser" will return a
 
 .. code-block:: console
 
-    POST /v3/users {name: myuser}
+    POST /v3/users
+
+.. code-block:: json
+
+    {
+        "user": {
+            "name": "myuser"
+        }
+    }
 
 Projects
 --------
@@ -36,7 +44,22 @@ which creates a new project by the name of "foobar" will return a
 
 .. code-block:: console
 
-    POST /v3/projects {name: foobar}
+    POST /v3/projects
+
+.. code-block:: json
+
+    {
+        "project": {
+            "name": "foobar"
+        }
+    }
+
+Project Tags
+^^^^^^^^^^^^
+
+While project names are case-insensitive, project tags are case-sensitive.
+A tag with the value of ``mytag`` is different than ``MyTag``, and both values
+can be stored in the same project.
 
 Roles
 -----
@@ -46,6 +69,14 @@ roles, it creates "admin", "member", and "reader". If another role, "Member"
 (note the upper case 'M') is created, keystone will return a ``409 Conflict``
 since it considers the name "Member" equivalent to "member". Note that case
 is preserved in this event.
+
+.. note::
+  As of the Rocky release, keystone will create three default roles when
+  `keystone-manage bootstrap` is run: (``admin``, ``member``, ``reader``). For
+  existing deployments, this can cause issues if an existing role matches one
+  of these roles. Even if the casing is not an exact match
+  (``member`` vs ``Member``), it will report an error since roles are
+  considered case-insensitive.
 
 Backends
 ========
