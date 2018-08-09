@@ -20,6 +20,7 @@ from keystone.api import os_revoke
 from keystone.api import os_simple_cert
 from keystone.api import regions
 from keystone.api import registered_limits
+from keystone.api import role_assignments
 from keystone.api import role_inferences
 from keystone.api import roles
 from keystone.api import services
@@ -36,6 +37,7 @@ __all__ = (
     'os_simple_cert',
     'regions',
     'registered_limits',
+    'role_assignments',
     'role_inferences',
     'roles',
     'services',
@@ -53,6 +55,7 @@ __apis__ = (
     os_simple_cert,
     regions,
     registered_limits,
+    role_assignments,
     role_inferences,
     roles,
     services,
