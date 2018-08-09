@@ -50,66 +50,6 @@ class ProjectAssignmentV3(controller.V3Controller):
                                                    hints=hints)
 
 
-class ImpliedRolesV3(controller.V3Controller):
-    """The V3 ImpliedRoles CRD APIs.  There is no Update."""
-
-    def _check_implies_role(self, request, prep_info,
-                            prior_role_id, implied_role_id=None):
-        ref = {}
-        ref['prior_role'] = PROVIDERS.role_api.get_role(prior_role_id)
-        if implied_role_id:
-            ref['implied_role'] = PROVIDERS.role_api.get_role(implied_role_id)
-
-        self.check_protection(request, prep_info, ref)
-
-    def _prior_role_stanza(self, endpoint, prior_role_id, prior_role_name):
-        return {
-            "id": prior_role_id,
-            "links": {
-                "self": endpoint + "/v3/roles/" + prior_role_id
-            },
-            "name": prior_role_name
-        }
-
-    def _implied_role_stanza(self, endpoint, implied_role):
-        implied_id = implied_role['id']
-        implied_response = {
-            "id": implied_id,
-            "links": {
-                "self": endpoint + "/v3/roles/" + implied_id
-            },
-            "name": implied_role['name']
-        }
-        return implied_response
-
-    @controller.protected()
-    def list_role_inference_rules(self, request):
-        refs = PROVIDERS.role_api.list_role_inference_rules()
-        role_dict = {role_ref['id']: role_ref
-                     for role_ref in PROVIDERS.role_api.list_roles()}
-
-        rules = dict()
-        endpoint = super(controller.V3Controller, ImpliedRolesV3).base_url(
-            request.context_dict, 'public')
-
-        for ref in refs:
-            implied_role_id = ref['implied_role_id']
-            prior_role_id = ref['prior_role_id']
-            implied = rules.get(prior_role_id, [])
-            implied.append(self._implied_role_stanza(
-                endpoint, role_dict[implied_role_id]))
-            rules[prior_role_id] = implied
-
-        inferences = []
-        for prior_id, implied in rules.items():
-            prior_response = self._prior_role_stanza(
-                endpoint, prior_id, role_dict[prior_id]['name'])
-            inferences.append({'prior_role': prior_response,
-                               'implies': implied})
-        results = {'role_inferences': inferences}
-        return results
-
-
 class GrantAssignmentV3(controller.V3Controller):
     """The V3 Grant Assignment APIs."""
 

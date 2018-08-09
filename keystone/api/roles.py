@@ -16,6 +16,7 @@ import flask
 import flask_restful
 from six.moves import http_client
 
+from keystone.api._shared import implied_roles as shared
 from keystone.assignment import schema
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -191,34 +192,6 @@ def _build_enforcement_target_ref():
     return ref
 
 
-def _build_prior_role_response_data(prior_role_id, prior_role_name):
-    return {
-        'id': prior_role_id,
-        'links': {
-            'self': ks_flask.base_url(path='/roles/%s' % prior_role_id)
-        },
-        'name': prior_role_name}
-
-
-def _build_implied_role_response_data(implied_role):
-    return {
-        'id': implied_role['id'],
-        'links': {
-            'self': ks_flask.base_url(
-                path='/roles/%s' % implied_role['id'])
-        },
-        'name': implied_role['name']}
-
-
-def _role_inference_response(prior_role_id):
-    prior_role = PROVIDERS.role_api.get_role(prior_role_id)
-    response = {
-        'role_inference': {
-            'prior_role': _build_prior_role_response_data(
-                prior_role_id, prior_role['name'])}}
-    return response
-
-
 class RoleImplicationListResource(flask_restful.Resource):
     def get(self, prior_role_id):
         """List Implied Roles.
@@ -229,12 +202,12 @@ class RoleImplicationListResource(flask_restful.Resource):
                               target_attr=_build_enforcement_target_ref())
         ref = PROVIDERS.role_api.list_implied_roles(prior_role_id)
         implied_ids = [r['implied_role_id'] for r in ref]
-        response_json = _role_inference_response(prior_role_id)
+        response_json = shared.role_inference_response(prior_role_id)
         response_json['role_inference']['implies'] = []
         for implied_id in implied_ids:
             implied_role = PROVIDERS.role_api.get_role(implied_id)
             response_json['role_inference']['implies'].append(
-                _build_implied_role_response_data(implied_role))
+                shared.build_implied_role_response_data(implied_role))
         response_json['links'] = {
             'self': ks_flask.base_url(
                 path='/roles/%s/implies' % prior_role_id)}
@@ -274,9 +247,9 @@ class RoleImplicationResource(flask_restful.Resource):
         PROVIDERS.role_api.get_implied_role(
             prior_role_id, implied_role_id)
         implied_role_ref = PROVIDERS.role_api.get_role(implied_role_id)
-        response_json = _role_inference_response(prior_role_id)
+        response_json = shared.role_inference_response(prior_role_id)
         response_json['role_inference'][
-            'implies'] = _build_implied_role_response_data(
+            'implies'] = shared.build_implied_role_response_data(
             implied_role_ref)
         response_json['links'] = {
             'self': ks_flask.base_url(
