@@ -278,10 +278,7 @@ Parameters
    - option: option
    - url: domain_url
    - driver: domain_driver
-   - ldap: domain_ldap
-   - config: domain_config
    - user_tree_dn: domain_user_tree_dn
-   - identity: identity
 
 Example
 ~~~~~~~
