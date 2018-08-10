@@ -36,54 +36,6 @@ class Routers(wsgi.RoutersBase):
 
     The API looks like::
 
-        PUT /OS-FEDERATION/identity_providers/{idp_id}
-        GET /OS-FEDERATION/identity_providers
-        HEAD /OS-FEDERATION/identity_providers
-        GET /OS-FEDERATION/identity_providers/{idp_id}
-        HEAD /OS-FEDERATION/identity_providers/{idp_id}
-        DELETE /OS-FEDERATION/identity_providers/{idp_id}
-        PATCH /OS-FEDERATION/identity_providers/{idp_id}
-
-        PUT /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols/{protocol_id}
-        GET /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols
-        HEAD /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols
-        GET /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols/{protocol_id}
-        HEAD /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols/{protocol_id}
-        PATCH /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols/{protocol_id}
-        DELETE /OS-FEDERATION/identity_providers/
-            {idp_id}/protocols/{protocol_id}
-
-        PUT /OS-FEDERATION/mappings
-        GET /OS-FEDERATION/mappings
-        HEAD /OS-FEDERATION/mappings
-        PATCH /OS-FEDERATION/mappings/{mapping_id}
-        GET /OS-FEDERATION/mappings/{mapping_id}
-        HEAD /OS-FEDERATION/mappings/{mapping_id}
-        DELETE /OS-FEDERATION/mappings/{mapping_id}
-
-        GET /OS-FEDERATION/projects
-        HEAD /OS-FEDERATION/projects
-        GET /OS-FEDERATION/domains
-        HEAD /OS-FEDERATION/domains
-
-        PUT /OS-FEDERATION/service_providers/{sp_id}
-        GET /OS-FEDERATION/service_providers
-        HEAD /OS-FEDERATION/service_providers
-        GET /OS-FEDERATION/service_providers/{sp_id}
-        HEAD /OS-FEDERATION/service_providers/{sp_id}
-        DELETE /OS-FEDERATION/service_providers/{sp_id}
-        PATCH /OS-FEDERATION/service_providers/{sp_id}
-
-        GET /OS-FEDERATION/identity_providers/{idp_id}/
-            protocols/{protocol_id}/auth
-        POST /OS-FEDERATION/identity_providers/{idp_id}/
-            protocols/{protocol_id}/auth
         GET /auth/OS-FEDERATION/identity_providers/
             {idp_id}/protocols/{protocol_id}/websso
             ?origin=https%3A//horizon.example.com
@@ -94,8 +46,6 @@ class Routers(wsgi.RoutersBase):
 
         POST /auth/OS-FEDERATION/saml2
         POST /auth/OS-FEDERATION/saml2/ecp
-        GET /OS-FEDERATION/saml2/metadata
-        HEAD /OS-FEDERATION/saml2/metadata
 
         GET /auth/OS-FEDERATION/websso/{protocol_id}
             ?origin=https%3A//horizon.example.com
@@ -105,131 +55,15 @@ class Routers(wsgi.RoutersBase):
 
     """
 
-    _path_prefixes = ('auth', 'OS-FEDERATION')
+    _path_prefixes = ('auth',)
 
     def _construct_url(self, suffix):
         return "/OS-FEDERATION/%s" % suffix
 
     def append_v3_routers(self, mapper, routers):
         auth_controller = controllers.Auth()
-        idp_controller = controllers.IdentityProvider()
-        protocol_controller = controllers.FederationProtocol()
-        mapping_controller = controllers.MappingController()
-        project_controller = controllers.ProjectAssignmentV3()
-        domain_controller = controllers.DomainV3()
-        saml_metadata_controller = controllers.SAMLMetadataV3()
-        sp_controller = controllers.ServiceProvider()
-
-        # Identity Provider CRUD operations
-
-        self._add_resource(
-            mapper, idp_controller,
-            path=self._construct_url('identity_providers/{idp_id}'),
-            get_head_action='get_identity_provider',
-            put_action='create_identity_provider',
-            patch_action='update_identity_provider',
-            delete_action='delete_identity_provider',
-            rel=build_resource_relation(resource_name='identity_provider'),
-            path_vars={
-                'idp_id': IDP_ID_PARAMETER_RELATION,
-            })
-        self._add_resource(
-            mapper, idp_controller,
-            path=self._construct_url('identity_providers'),
-            get_head_action='list_identity_providers',
-            rel=build_resource_relation(resource_name='identity_providers'))
-
-        # Protocol CRUD operations
-
-        self._add_resource(
-            mapper, protocol_controller,
-            path=self._construct_url('identity_providers/{idp_id}/protocols/'
-                                     '{protocol_id}'),
-            get_head_action='get_protocol',
-            put_action='create_protocol',
-            patch_action='update_protocol',
-            delete_action='delete_protocol',
-            rel=build_resource_relation(
-                resource_name='identity_provider_protocol'),
-            path_vars={
-                'idp_id': IDP_ID_PARAMETER_RELATION,
-                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
-            })
-        self._add_resource(
-            mapper, protocol_controller,
-            path=self._construct_url('identity_providers/{idp_id}/protocols'),
-            get_head_action='list_protocols',
-            rel=build_resource_relation(
-                resource_name='identity_provider_protocols'),
-            path_vars={
-                'idp_id': IDP_ID_PARAMETER_RELATION,
-            })
-
-        # Mapping CRUD operations
-
-        self._add_resource(
-            mapper, mapping_controller,
-            path=self._construct_url('mappings/{mapping_id}'),
-            get_head_action='get_mapping',
-            put_action='create_mapping',
-            patch_action='update_mapping',
-            delete_action='delete_mapping',
-            rel=build_resource_relation(resource_name='mapping'),
-            path_vars={
-                'mapping_id': build_parameter_relation(
-                    parameter_name='mapping_id'),
-            })
-        self._add_resource(
-            mapper, mapping_controller,
-            path=self._construct_url('mappings'),
-            get_head_action='list_mappings',
-            rel=build_resource_relation(resource_name='mappings'))
-
-        # Service Providers CRUD operations
-
-        self._add_resource(
-            mapper, sp_controller,
-            path=self._construct_url('service_providers/{sp_id}'),
-            get_head_action='get_service_provider',
-            put_action='create_service_provider',
-            patch_action='update_service_provider',
-            delete_action='delete_service_provider',
-            rel=build_resource_relation(resource_name='service_provider'),
-            path_vars={
-                'sp_id': SP_ID_PARAMETER_RELATION,
-            })
-
-        self._add_resource(
-            mapper, sp_controller,
-            path=self._construct_url('service_providers'),
-            get_head_action='list_service_providers',
-            rel=build_resource_relation(resource_name='service_providers'))
-
-        self._add_resource(
-            mapper, domain_controller,
-            path=self._construct_url('domains'),
-            new_path='/auth/domains',
-            get_head_action='list_domains_for_user',
-            rel=build_resource_relation(resource_name='domains'))
-        self._add_resource(
-            mapper, project_controller,
-            path=self._construct_url('projects'),
-            new_path='/auth/projects',
-            get_head_action='list_projects_for_user',
-            rel=build_resource_relation(resource_name='projects'))
 
         # Auth operations
-        self._add_resource(
-            mapper, auth_controller,
-            path=self._construct_url('identity_providers/{idp_id}/'
-                                     'protocols/{protocol_id}/auth'),
-            get_post_action='federated_authentication',
-            rel=build_resource_relation(
-                resource_name='identity_provider_protocol_auth'),
-            path_vars={
-                'idp_id': IDP_ID_PARAMETER_RELATION,
-                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
-            })
         self._add_resource(
             mapper, auth_controller,
             path='/auth' + self._construct_url('saml2'),
@@ -253,15 +87,9 @@ class Routers(wsgi.RoutersBase):
             path='/auth' + self._construct_url(
                  'identity_providers/{idp_id}/protocols/{protocol_id}/websso'),
             get_post_action='federated_idp_specific_sso_auth',
-            rel=build_resource_relation(resource_name='identity_providers'),
+            rel=build_resource_relation(
+                resource_name='identity_providers_websso'),
             path_vars={
                 'idp_id': IDP_ID_PARAMETER_RELATION,
                 'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
             })
-
-        # Keystone-Identity-Provider metadata endpoint
-        self._add_resource(
-            mapper, saml_metadata_controller,
-            path=self._construct_url('saml2/metadata'),
-            get_head_action='get_metadata',
-            rel=build_resource_relation(resource_name='metadata'))

@@ -391,7 +391,7 @@ V3_JSON_HOME_RESOURCES = {
     {
         'href-template': '/OS-FEDERATION/identity_providers/{idp_id}',
         'href-vars': {'idp_id': IDP_ID_PARAMETER_RELATION, }},
-    _build_federation_rel(resource_name='identity_providers'): {
+    _build_federation_rel(resource_name='identity_providers_websso'): {
         'href-template': FEDERATED_IDP_SPECIFIC_WEBSSO,
         'href-vars': {
             'idp_id': IDP_ID_PARAMETER_RELATION,
@@ -799,9 +799,14 @@ class VersionTestCase(unit.TestCase):
         self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
         self.assertThat(resp.headers['Content-Type'],
                         tt_matchers.Equals('application/json-home'))
-
-        self.assertThat(jsonutils.loads(resp.body),
-                        tt_matchers.Equals(exp_json_home_data))
+        maxDiff = self.maxDiff
+        self.maxDiff = None
+        # NOTE(morgan): Changed from tt_matchers.Equals to make it easier to
+        # determine issues. Reset maxDiff to the original value at the end
+        # of the assert.
+        self.assertDictEqual(exp_json_home_data,
+                             jsonutils.loads(resp.body))
+        self.maxDiff = maxDiff
 
     def test_json_home_v3(self):
         # If the request is /v3 and the Accept header is application/json-home

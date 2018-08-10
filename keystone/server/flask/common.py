@@ -317,6 +317,7 @@ class APIBase(object):
             c_key = getattr(r, 'collection_key', None)
             m_key = getattr(r, 'member_key', None)
             r_pfx = getattr(r, 'api_prefix', None)
+
             if not c_key or not m_key:
                 LOG.debug('Unable to add resource %(resource)s to API '
                           '%(name)s, both `member_key` and `collection_key` '
@@ -336,13 +337,20 @@ class APIBase(object):
             # NOTE(morgan): The Prefix is automatically added by the API, so
             # we do not add it to the paths here.
             collection_path = '/%s' % c_key
-            entity_path = '/%(collection)s/<string:%(member)s_id>' % {
-                'collection': c_key, 'member': m_key}
+            if getattr(r, '_id_path_param_name_override', None):
+                # The member_key doesn't match the "id" key in the url, make
+                # sure to use the correct path-key for ID.
+                member_id_key = getattr(r, '_id_path_param_name_override')
+            else:
+                member_id_key = '%(member_key)s_id' % {'member_key': m_key}
+
+            entity_path = '/%(collection)s/<string:%(member)s>' % {
+                'collection': c_key, 'member': member_id_key}
             # NOTE(morgan): The json-home form of the entity path is different
             # from the flask-url routing form. Must also include the prefix
-            jh_e_path = '%(pfx)s/%(e_path)s' % {
+            jh_e_path = _URL_SUBST.sub('{\\1}', '%(pfx)s/%(e_path)s' % {
                 'pfx': self._api_url_prefix,
-                'e_path': _URL_SUBST.sub('{\\1}', entity_path).lstrip('/')}
+                'e_path': entity_path.lstrip('/')})
 
             LOG.debug(
                 'Adding standard routes to API %(name)s for `%(resource)s` '
@@ -360,16 +368,37 @@ class APIBase(object):
                 json_home.build_v3_resource_relation)
             resource_rel_status = getattr(
                 r, 'json_home_resource_status', None)
-            collection_rel = resource_rel_func(resource_name=c_key)
+            collection_rel_resource_name = getattr(
+                r, 'json_home_collection_resource_name_override', c_key)
+            collection_rel = resource_rel_func(
+                resource_name=collection_rel_resource_name)
             # NOTE(morgan): Add the prefix explicitly for JSON Home documents
             # to the collection path.
-            rel_data = {'href': '%(pfx)s%(collection_path)s' % {
+            href_val = '%(pfx)s%(collection_path)s' % {
                 'pfx': self._api_url_prefix,
                 'collection_path': collection_path}
-            }
 
-            entity_rel = resource_rel_func(resource_name=m_key)
-            id_str = '%s_id' % m_key
+            # If additional parameters exist in the URL, add them to the
+            # href-vars dict.
+            additional_params = getattr(
+                r, 'json_home_additional_parameters', {})
+
+            if additional_params:
+                # NOTE(morgan): Special case, we have 'additional params' which
+                # means we know the params are in the "prefix". This guarantees
+                # the correct data in the json_home document with href-template
+                # and href-vars even on the "collection" entry
+                rel_data = dict()
+                rel_data['href-template'] = _URL_SUBST.sub('{\\1}', href_val)
+                rel_data['href-vars'] = additional_params
+            else:
+                rel_data = {'href': href_val}
+            member_rel_resource_name = getattr(
+                r, 'json_home_member_resource_name_override', m_key)
+
+            entity_rel = resource_rel_func(
+                resource_name=member_rel_resource_name)
+            id_str = member_id_key
 
             parameter_rel_func = getattr(
                 r, 'json_home_parameter_rel_func',
@@ -377,6 +406,10 @@ class APIBase(object):
             id_param_rel = parameter_rel_func(parameter_name=id_str)
             entity_rel_data = {'href-template': jh_e_path,
                                'href-vars': {id_str: id_param_rel}}
+
+            if additional_params:
+                entity_rel_data.setdefault('href-vars', {}).update(
+                    additional_params)
 
             if resource_rel_status is not None:
                 json_home.Status.update_resource_data(
@@ -535,9 +568,11 @@ class ResourceBase(flask_restful.Resource):
 
     collection_key = None
     member_key = None
+    _public_parameters = frozenset([])
     # NOTE(morgan): This must match the string on the API the resource is
     # registered to.
     api_prefix = ''
+    _id_path_param_name_override = None
 
     method_decorators = []
 
@@ -564,6 +599,25 @@ class ResourceBase(flask_restful.Resource):
             id_arg = flask.request.view_args.get('%s_id' % cls.member_key)
         if ref.get('id') is not None and id_arg != ref['id']:
             raise exception.ValidationError('Cannot change ID')
+
+    @classmethod
+    def filter_params(cls, ref):
+        """Remove unspecified parameters from the dictionary.
+
+        This function removes unspecified parameters from the dictionary.
+        This method checks only root-level keys from a ref dictionary.
+
+        :param ref: a dictionary representing deserialized response to be
+                    serialized
+        """
+        # NOTE(morgan): if _public_parameters is empty, do nothing. We do not
+        # filter if we do not have an explicit white-list to work from.
+        if cls._public_parameters:
+            ref_keys = set(ref.keys())
+            blocked_keys = ref_keys - cls._public_parameters
+            for blocked_param in blocked_keys:
+                del ref[blocked_param]
+        return ref
 
     @classmethod
     def wrap_collection(cls, refs, hints=None, collection_name=None):

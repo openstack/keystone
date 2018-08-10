@@ -57,3 +57,11 @@ os_trust_parameter_rel_func = functools.partial(
 os_endpoint_policy_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
     extension_name='OS-ENDPOINT-POLICY', extension_version='1.0')
+
+# OS-FEDERATION "extension"
+os_federation_resource_rel_func = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-FEDERATION', extension_version='1.0')
+os_federation_parameter_rel_func = functools.partial(
+    json_home.build_v3_extension_parameter_relation,
+    extension_name='OS-FEDERATION', extension_version='1.0')

@@ -42,6 +42,7 @@ _MOVED_API_PREFIXES = frozenset(
      'endpoints',
      'OS-OAUTH1',
      'OS-EP-FILTER',
+     'OS-FEDERATION',
      'OS-REVOKE',
      'OS-SIMPLE-CERT',
      'OS-TRUST',
