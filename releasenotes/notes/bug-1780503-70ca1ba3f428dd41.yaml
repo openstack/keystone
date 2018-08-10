@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1780503 <https://bugs.launchpad.net/keystone/+bug/1780503>`_]
+    The notification wrapper now sets the initiator's id to the given user
+    id. This fixes an issue where identity.authentication event would result
+    in the initiator id being a random default UUID, rather than the user's id
+    when said user would authenticate against keystone.
