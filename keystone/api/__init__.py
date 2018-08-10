@@ -24,6 +24,7 @@ from keystone.api import role_assignments
 from keystone.api import role_inferences
 from keystone.api import roles
 from keystone.api import services
+from keystone.api import system
 from keystone.api import trusts
 
 __all__ = (
@@ -41,6 +42,7 @@ __all__ = (
     'role_inferences',
     'roles',
     'services',
+    'system',
     'trusts',
 )
 
@@ -59,5 +61,6 @@ __apis__ = (
     role_inferences,
     roles,
     services,
+    system,
     trusts,
 )
