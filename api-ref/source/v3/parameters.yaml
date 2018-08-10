@@ -1531,9 +1531,10 @@ request_application_credential_name_body_required:
   type: string
 request_application_credential_roles_body_not_required:
   description: |
-    An optional list of role objects, identified by ID or name. If not
-    provided, the roles assigned to the application credential will be the
-    same as the roles in the current token.
+    An optional list of role objects, identified by ID or name. The list
+    may only contain roles that the user has assigned on the project.
+    If not provided, the roles assigned to the application credential will
+    be the same as the roles in the current token.
   in: body
   required: false
   type: array
