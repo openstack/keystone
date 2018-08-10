@@ -469,13 +469,12 @@ class Manager(manager.Manager):
         """
         project = self.driver.get_project(project_id)
         if project.get('is_domain'):
-            self.delete_domain(project_id, initiator)
+            self._delete_domain(project, initiator)
         else:
-            self._delete_project(project_id, initiator, cascade)
+            self._delete_project(project, initiator, cascade)
 
-    def _delete_project(self, project_id, initiator=None, cascade=False):
-        # Use the driver directly to prevent using old cached value.
-        project = self.driver.get_project(project_id)
+    def _delete_project(self, project, initiator=None, cascade=False):
+        project_id = project['id']
         if project['is_domain'] and project['enabled']:
             raise exception.ValidationError(
                 message=_('cannot delete an enabled project acting as a '
@@ -787,7 +786,9 @@ class Manager(manager.Manager):
             domain = self.driver.get_project(domain_id)
         except exception.ProjectNotFound:
             raise exception.DomainNotFound(domain_id=domain_id)
+        self._delete_domain(domain, initiator)
 
+    def _delete_domain(self, domain, initiator=None):
         # To help avoid inadvertent deletes, we insist that the domain
         # has been previously disabled.  This also prevents a user deleting
         # their own domain since, once it is disabled, they won't be able
@@ -797,11 +798,12 @@ class Manager(manager.Manager):
                 _('Cannot delete a domain that is enabled, please disable it '
                   'first.'))
 
+        domain_id = domain['id']
         self._delete_domain_contents(domain_id)
         notifications.Audit.internal(
             notifications.DOMAIN_DELETED, domain_id
         )
-        self._delete_project(domain_id, initiator)
+        self._delete_project(domain, initiator)
         try:
             self.get_domain.invalidate(self, domain_id)
             self.get_domain_by_name.invalidate(self, domain['name'])
@@ -836,7 +838,7 @@ class Manager(manager.Manager):
                 _delete_projects(proj, projects, examined)
 
             try:
-                self.delete_project(project['id'], initiator=None)
+                self._delete_project(project, initiator=None)
             except exception.ProjectNotFound:
                 LOG.debug(('Project %(projectid)s not found when '
                            'deleting domain contents for %(domainid)s, '

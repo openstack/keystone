@@ -254,6 +254,9 @@ class ResourceTests(resource_tests.ResourceTests):
     def test_domain_crud(self):
         self.skip_test_overrides('N/A: Not relevant for multi ldap testing')
 
+    def test_delete_domain_call_db_time(self):
+        self.skip_test_overrides('Domains are read-only against LDAP')
+
     def test_create_project_with_parent_id_and_without_domain_id(self):
         self.skip_test_overrides('Resource LDAP has been removed')
 
