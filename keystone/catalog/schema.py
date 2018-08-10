@@ -20,9 +20,7 @@ _service_properties_type = {
 }
 
 _region_properties = {
-    'description': {
-        'type': ['string', 'null'],
-    },
+    'description': validation.nullable(parameter_types.description),
     # NOTE(lbragstad): Regions use ID differently. The user can specify the ID
     # or it will be generated automatically.
     'id': {
