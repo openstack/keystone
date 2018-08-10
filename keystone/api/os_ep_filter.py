@@ -13,9 +13,9 @@
 # This file handles all flask-restful resources for /OS-EP-FILTER
 
 import flask_restful
-import functools
 from six.moves import http_client
 
+from keystone.api._shared import json_home_relations
 from keystone.api import endpoints as _endpoints_api
 from keystone.catalog import schema
 from keystone.common import json_home
@@ -30,13 +30,8 @@ from keystone.server import flask as ks_flask
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
-_build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation,
-    extension_name='OS-EP-FILTER', extension_version='1.0')
-
-_build_parameter_relation = functools.partial(
-    json_home.build_v3_extension_parameter_relation,
-    extension_name='OS-EP-FILTER', extension_version='1.0')
+_build_resource_relation = json_home_relations.os_ep_filter_resource_rel_func
+_build_parameter_relation = json_home_relations.os_ep_filter_parameter_rel_func
 
 _ENDPOINT_GROUP_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='endpoint_group_id')
