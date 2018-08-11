@@ -315,8 +315,17 @@ class RBACEnforcer(object):
 
         # Get the Target Data Set.
         if target_attr is None:
-            policy_dict.update(cls._extract_member_target_data(
-                member_target_type, member_target))
+            try:
+                policy_dict.update(cls._extract_member_target_data(
+                    member_target_type, member_target))
+            except Exception as e:  # nosec
+                # NOTE(morgan): Errors should never bubble up at this point,
+                # if there is an error getting the target, log it and move
+                # on. Raise an explicit 403, we have failed policy checks.
+                LOG.warning('Unable to extract inferred target data during '
+                            'enforcement')
+                LOG.debug(e, exc_info=True)
+                raise exception.ForbiddenAction(action)
 
             # Special Case, extract and add subject_token data.
             subj_token_target_data = cls._extract_subject_token_target_data()
