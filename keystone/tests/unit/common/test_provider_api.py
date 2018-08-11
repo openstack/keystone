@@ -32,7 +32,26 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
             _provides_api = provides_api
             driver_namespace = '_TEST_NOTHING'
 
+            def do_something(self):
+                return provides_api
+
         return TestManager(driver_name=None)
+
+    def test_deferred_gettr(self):
+        api_name = '%s_api' % uuid.uuid4().hex
+
+        class TestClass(object):
+            descriptor = provider_api.ProviderAPIs.deferred_provider_lookup(
+                api=api_name, method='do_something')
+
+        test_instance = TestClass()
+        # Accessing the descriptor will raise the known "attribute" error
+        self.assertRaises(AttributeError, getattr, test_instance, 'descriptor')
+        self._create_manager_instance(provides_api=api_name)
+        # once the provider has been instantiated, we can call the descriptor
+        # which will return the method (callable) and we can check that the
+        # return value is as expected.
+        self.assertEqual(api_name, test_instance.descriptor())
 
     def test_registry_lock(self):
         provider_api.ProviderAPIs.lock_provider_registry()
