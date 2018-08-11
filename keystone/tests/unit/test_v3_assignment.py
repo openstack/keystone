@@ -1693,7 +1693,8 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             # Define URLs
             direct_url = '%s/users/%s/roles/%s' % (
                 target_url, self.user_id, role['id'])
-            inherited_url = '/OS-INHERIT/%s/inherited_to_projects' % direct_url
+            inherited_url = ('/OS-INHERIT/%s/inherited_to_projects' %
+                             direct_url.lstrip('/'))
 
             # Create the direct assignment
             self.put(direct_url)
