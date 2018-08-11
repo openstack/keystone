@@ -21,7 +21,7 @@ from keystone.identity import controllers
 
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('users', 'groups')
+    _path_prefixes = ('users', )
 
     def append_v3_routers(self, mapper, routers):
         user_controller = controllers.UserV3()
@@ -39,32 +39,7 @@ class Routers(wsgi.RoutersBase):
                 'user_id': json_home.Parameters.USER_ID,
             })
 
-        self._add_resource(
-            mapper, user_controller,
-            path='/groups/{group_id}/users',
-            get_head_action='list_users_in_group',
-            rel=json_home.build_v3_resource_relation('group_users'),
-            path_vars={
-                'group_id': json_home.Parameters.GROUP_ID,
-            })
-
-        self._add_resource(
-            mapper, user_controller,
-            path='/groups/{group_id}/users/{user_id}',
-            put_action='add_user_to_group',
-            get_head_action='check_user_in_group',
-            delete_action='remove_user_from_group',
-            rel=json_home.build_v3_resource_relation('group_user'),
-            path_vars={
-                'group_id': json_home.Parameters.GROUP_ID,
-                'user_id': json_home.Parameters.USER_ID,
-            })
-
         group_controller = controllers.GroupV3()
-        routers.append(
-            router.Router(group_controller,
-                          'groups', 'group',
-                          resource_descriptions=self.v3_resources))
 
         self._add_resource(
             mapper, group_controller,

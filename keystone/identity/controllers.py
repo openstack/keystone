@@ -45,11 +45,6 @@ class UserV3(controller.V3Controller):
         ref['group'] = PROVIDERS.identity_api.get_group(group_id)
         self.check_protection(request, prep_info, ref)
 
-    def _check_group_protection(self, request, prep_info, group_id):
-        ref = {}
-        ref['group'] = PROVIDERS.identity_api.get_group(group_id)
-        self.check_protection(request, prep_info, ref)
-
     @controller.protected()
     def create_user(self, request, user):
         validation.lazy_validate(schema.user_create, user)
@@ -72,16 +67,6 @@ class UserV3(controller.V3Controller):
         )
         return UserV3.wrap_collection(request.context_dict, refs, hints=hints)
 
-    @controller.filterprotected('domain_id', 'enabled', 'name',
-                                'password_expires_at',
-                                callback=_check_group_protection)
-    def list_users_in_group(self, request, filters, group_id):
-        hints = UserV3.build_driver_hints(request, filters)
-        refs = PROVIDERS.identity_api.list_users_in_group(
-            group_id, hints=hints
-        )
-        return UserV3.wrap_collection(request.context_dict, refs, hints=hints)
-
     @controller.protected()
     def get_user(self, request, user_id):
         ref = PROVIDERS.identity_api.get_user(user_id)
@@ -98,22 +83,6 @@ class UserV3(controller.V3Controller):
     def update_user(self, request, user_id, user):
         validation.lazy_validate(schema.user_update, user)
         return self._update_user(request, user_id, user)
-
-    @controller.protected(callback=_check_user_and_group_protection)
-    def add_user_to_group(self, request, user_id, group_id):
-        PROVIDERS.identity_api.add_user_to_group(
-            user_id, group_id, initiator=request.audit_initiator
-        )
-
-    @controller.protected(callback=_check_user_and_group_protection)
-    def check_user_in_group(self, request, user_id, group_id):
-        return PROVIDERS.identity_api.check_user_in_group(user_id, group_id)
-
-    @controller.protected(callback=_check_user_and_group_protection)
-    def remove_user_from_group(self, request, user_id, group_id):
-        PROVIDERS.identity_api.remove_user_from_group(
-            user_id, group_id, initiator=request.audit_initiator
-        )
 
     @controller.protected()
     def delete_user(self, request, user_id):
@@ -156,26 +125,6 @@ class GroupV3(controller.V3Controller):
         ref['user'] = PROVIDERS.identity_api.get_user(user_id)
         self.check_protection(request, prep_info, ref)
 
-    @controller.protected()
-    def create_group(self, request, group):
-        validation.lazy_validate(schema.group_create, group)
-        # The manager layer will generate the unique ID for groups
-        ref = self._normalize_dict(group)
-        ref = self._normalize_domain_id(request, ref)
-        ref = PROVIDERS.identity_api.create_group(
-            ref, initiator=request.audit_initiator
-        )
-        return GroupV3.wrap_member(request.context_dict, ref)
-
-    @controller.filterprotected('domain_id', 'name')
-    def list_groups(self, request, filters):
-        hints = GroupV3.build_driver_hints(request, filters)
-        domain = self._get_domain_id_for_list_request(request)
-        refs = PROVIDERS.identity_api.list_groups(
-            domain_scope=domain, hints=hints
-        )
-        return GroupV3.wrap_collection(request.context_dict, refs, hints=hints)
-
     @controller.filterprotected('name', callback=_check_user_protection)
     def list_groups_for_user(self, request, filters, user_id):
         hints = GroupV3.build_driver_hints(request, filters)
@@ -183,23 +132,3 @@ class GroupV3(controller.V3Controller):
             user_id, hints=hints
         )
         return GroupV3.wrap_collection(request.context_dict, refs, hints=hints)
-
-    @controller.protected()
-    def get_group(self, request, group_id):
-        ref = PROVIDERS.identity_api.get_group(group_id)
-        return GroupV3.wrap_member(request.context_dict, ref)
-
-    @controller.protected()
-    def update_group(self, request, group_id, group):
-        validation.lazy_validate(schema.group_update, group)
-        self._require_matching_id(group_id, group)
-        ref = PROVIDERS.identity_api.update_group(
-            group_id, group, initiator=request.audit_initiator
-        )
-        return GroupV3.wrap_member(request.context_dict, ref)
-
-    @controller.protected()
-    def delete_group(self, request, group_id):
-        PROVIDERS.identity_api.delete_group(
-            group_id, initiator=request.audit_initiator
-        )
