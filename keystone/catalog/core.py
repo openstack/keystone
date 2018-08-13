@@ -59,6 +59,22 @@ class Manager(manager.Manager):
 
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
+        notifications.register_event_callback(
+            notifications.ACTIONS.deleted, 'project',
+            self._on_project_or_endpoint_delete)
+        notifications.register_event_callback(
+            notifications.ACTIONS.deleted, 'endpoint',
+            self._on_project_or_endpoint_delete)
+
+    def _on_project_or_endpoint_delete(self, service, resource_type, operation,
+                                       payload):
+        project_or_endpoint_id = payload['resource_info']
+        if resource_type == 'project':
+            PROVIDERS.catalog_api.delete_association_by_project(
+                project_or_endpoint_id)
+        else:
+            PROVIDERS.catalog_api.delete_association_by_endpoint(
+                project_or_endpoint_id)
 
     def create_region(self, region_ref, initiator=None):
         # Check duplicate ID

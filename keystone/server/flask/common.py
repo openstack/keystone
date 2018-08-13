@@ -697,6 +697,10 @@ class ResourceBase(flask_restful.Resource):
         """
         return build_audit_initiator()
 
+    @property
+    def request_body_json(self):
+        return flask.request.get_json(silent=True, force=True) or {}
+
     @staticmethod
     def build_driver_hints(supported_filters):
         """Build list hints based on the context query string.
