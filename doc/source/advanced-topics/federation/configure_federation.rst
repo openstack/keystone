@@ -534,30 +534,17 @@ described in `Get an unscoped token`_.
 Testing it all out
 ------------------
 
-Use keystoneauth to create a password session with the IdP, then use the
-session to authenticate with the SP, and get a scoped token from the SP.
+Use ``python-openstackclient`` to authenticate with the IdP and then get a
+scoped token from the SP.
 
 .. NOTE::
     ECP stands for Enhanced Client or Proxy, an extension from the SAML2
     protocol used in non-browser interfaces, like in the following example.
 
-.. code-block:: python
+.. code-block:: bash
 
-    import os
-
-    from keystoneauth1 import session
-    from keystoneauth1.identity import v3
-    from keystoneauth1.identity.v3 import k2k
-
-    auth = v3.Password(auth_url=os.environ.get('OS_AUTH_URL'),
-                       username=os.environ.get('OS_USERNAME'),
-                       password=os.environ.get('OS_PASSWORD'),
-                       user_domain_name=os.environ.get('OS_USER_DOMAIN_NAME'),
-                       project_name=os.environ.get('OS_PROJECT_NAME'),
-                       project_domain_name=os.environ.get('OS_PROJECT_DOMAIN_NAME'))
-    password_session = session.Session(auth=auth)
-    k2ksession = k2k.Keystone2Keystone(password_session.auth, 'mysp',
-                                       domain_name='federated_domain')
-    auth_ref = k2ksession.get_auth_ref(password_session)
-    scoped_token_id = auth_ref.auth_token
-    print('Scoped token id: %s' % scoped_token_id)
+    $ openstack \
+    --os-service-provider mysp \
+    --os-remote-project-name federated_project \
+    --os-remote-project-domain-name federated_domain \
+    token issue
