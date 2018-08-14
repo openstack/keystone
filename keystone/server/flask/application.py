@@ -48,6 +48,7 @@ _MOVED_API_PREFIXES = frozenset(
      'OS-SIMPLE-CERT',
      'OS-TRUST',
      'limits',
+     'regions',
      'registered_limits',
      ]
 )

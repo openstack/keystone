@@ -20,21 +20,9 @@ from keystone.common import wsgi
 class Routers(wsgi.RoutersBase):
     """API for the keystone catalog."""
 
-    _path_prefixes = ('regions', 'endpoints', 'services')
+    _path_prefixes = ('endpoints', 'services')
 
     def append_v3_routers(self, mapper, routers):
-        regions_controller = controllers.RegionV3()
-        routers.append(router.Router(regions_controller,
-                                     'regions', 'region',
-                                     resource_descriptions=self.v3_resources))
-
-        # Need to add an additional route to support PUT /regions/{region_id}
-        mapper.connect(
-            '/regions/{region_id}',
-            controller=regions_controller,
-            action='create_region_with_id',
-            conditions=dict(method=['PUT']))
-
         routers.append(router.Router(controllers.ServiceV3(),
                                      'services', 'service',
                                      resource_descriptions=self.v3_resources))
