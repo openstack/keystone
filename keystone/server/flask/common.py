@@ -566,7 +566,7 @@ class ResourceBase(flask_restful.Resource):
             raise exception.ValidationError('Cannot change ID')
 
     @classmethod
-    def wrap_collection(cls, refs, hints=None):
+    def wrap_collection(cls, refs, hints=None, collection_name=None):
         """Wrap a collection, checking for filtering and pagination.
 
         Returns the wrapped collection, which includes:
@@ -579,6 +579,10 @@ class ResourceBase(flask_restful.Resource):
         :param hints: list hints, containing any relevant filters and limit.
                       Any filters already satisfied by managers will have been
                       removed
+        :param collection_name: optional override for the 'collection key'
+                                class attribute. This is to be used when
+                                wrapping a collection for a different api,
+                                e.g. 'roles' from the 'trust' api.
         """
         # Check if there are any filters in hints that were not handled by
         # the drivers. The driver will not have paginated or limited the
@@ -589,13 +593,13 @@ class ResourceBase(flask_restful.Resource):
 
         list_limited, refs = cls.limit(refs, hints)
 
-        for ref in refs:
-            cls._add_self_referential_link(ref)
+        collection = collection_name or cls.collection_key
 
-        container = {cls.collection_key: refs}
-        pfx = getattr(cls, 'api_prefix', '').lstrip('/')
-        path = '/'.join([p for p in (pfx, cls.collection_key) if p])
-        self_url = full_url(path)
+        for ref in refs:
+            cls._add_self_referential_link(ref, collection_name=collection)
+
+        container = {collection: refs}
+        self_url = full_url(flask.request.environ['PATH_INFO'])
         container['links'] = {
             'next': None,
             'self': self_url,
@@ -607,16 +611,17 @@ class ResourceBase(flask_restful.Resource):
         return container
 
     @classmethod
-    def wrap_member(cls, ref):
-        cls._add_self_referential_link(ref)
-        return {cls.member_key: ref}
+    def wrap_member(cls, ref, collection_name=None, member_name=None):
+        cls._add_self_referential_link(ref, collection_name)
+        return {member_name or cls.member_key: ref}
 
     @classmethod
-    def _add_self_referential_link(cls, ref):
-        collection_element = cls.collection_key
+    def _add_self_referential_link(cls, ref, collection_name=None):
+        collection_element = collection_name or cls.collection_key
         if cls.api_prefix:
             api_prefix = cls.api_prefix.lstrip('/').rstrip('/')
-            collection_element = '/'.join([api_prefix, cls.collection_key])
+            collection_element = '/'.join(
+                [api_prefix, collection_name or cls.collection_key])
         self_link = base_url(path='/'.join([collection_element, ref['id']]))
         ref.setdefault('links', {})['self'] = self_link
 
@@ -819,8 +824,14 @@ def base_url(path=''):
         # production environment.
         url = 'http://localhost:%d' % CONF.eventlet_server.public_port
 
+    if path:
+        # Cleanup leading /v3 if needed.
+        path = path.rstrip('/').lstrip('/')
+        if path.startswith('v3'):
+            path = path[2:].lstrip('/')
+
     url = url.rstrip('/')
-    url = '/'.join([p for p in (url, 'v3', path.lstrip('/').rstrip('/')) if p])
+    url = '/'.join([p for p in (url, 'v3', path) if p])
     return url
 
 
