@@ -35,6 +35,7 @@ if not xmldsig:
 
 from keystone.api._shared import authentication
 from keystone.api import auth as auth_api
+from keystone.common import driver_hints
 from keystone.common import provider_api
 from keystone.common import render_token
 import keystone.conf
@@ -2133,6 +2134,32 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             headers=headers,
             expected_status=http_client.NOT_FOUND
         )
+
+    def test_deleting_idp_cascade_deleting_fed_user(self):
+        token = self.v3_create_token(
+            self.TOKEN_SCOPE_PROJECT_EMPLOYEE_FROM_ADMIN
+        )
+        federated_info = token.json_body['token']['user']['OS-FEDERATION']
+        idp_id = federated_info['identity_provider']['id']
+
+        # There are three fed users (from 'EMPLOYEE_ASSERTION',
+        # 'CUSTOMER_ASSERTION', 'ADMIN_ASSERTION') with the specified idp.
+        hints = driver_hints.Hints()
+        hints.add_filter('idp_id', idp_id)
+        fed_users = PROVIDERS.shadow_users_api.get_federated_users(hints)
+        self.assertEqual(3, len(fed_users))
+        idp_domain_id = PROVIDERS.federation_api.get_idp(idp_id)['domain_id']
+        for fed_user in fed_users:
+            self.assertEqual(idp_domain_id, fed_user['domain_id'])
+
+        # Delete the idp
+        PROVIDERS.federation_api.delete_idp(idp_id)
+
+        # The related federated user should be deleted as well.
+        hints = driver_hints.Hints()
+        hints.add_filter('idp_id', idp_id)
+        fed_users = PROVIDERS.shadow_users_api.get_federated_users(hints)
+        self.assertEqual([], fed_users)
 
     def test_scope_to_bad_project(self):
         """Scope unscoped token with a project we don't have access to."""
