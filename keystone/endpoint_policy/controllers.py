@@ -135,19 +135,6 @@ class EndpointPolicyV3Controller(controller.V3Controller):
         PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, service_id=service_id, region_id=region_id)
 
-    @controller.protected()
-    def get_policy_for_endpoint(self, request, endpoint_id):
-        """Get the effective policy for an endpoint."""
-        PROVIDERS.catalog_api.get_endpoint(endpoint_id)
-        ref = PROVIDERS.endpoint_policy_api.get_policy_for_endpoint(
-            endpoint_id
-        )
-        # NOTE(henry-nash): since the collection and member for this class is
-        # set to endpoints, we have to handle wrapping this policy entity
-        # ourselves.
-        self._add_self_referential_link(request.context_dict, ref)
-        return {'policy': ref}
-
     # NOTE(henry-nash): As in the catalog controller, we must ensure that the
     # legacy_endpoint_id does not escape.
 

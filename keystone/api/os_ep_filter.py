@@ -16,6 +16,7 @@ import flask_restful
 import functools
 from six.moves import http_client
 
+from keystone.api import endpoints as _endpoints_api
 from keystone.catalog import schema
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -41,12 +42,9 @@ _ENDPOINT_GROUP_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='endpoint_group_id')
 
 
-# TODO(morgan): move this to a common location once catalog endpoint API is
-# converted to flask
-def _filter_endpoint(ref):
-    ref.pop('legacy_endpoint_id', None)
-    ref['region'] = ref['region_id']
-    return ref
+# NOTE(morgan): This is shared from keystone.api.endpoint, this is a special
+# case where cross-api code is used. This pattern should not be replicated.
+_filter_endpoint = _endpoints_api._filter_endpoint
 
 
 class EndpointGroupsResource(ks_flask.ResourceBase):
