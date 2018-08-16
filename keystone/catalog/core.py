@@ -72,6 +72,8 @@ class Manager(manager.Manager):
         if resource_type == 'project':
             PROVIDERS.catalog_api.delete_association_by_project(
                 project_or_endpoint_id)
+            PROVIDERS.catalog_api.delete_endpoint_group_association_by_project(
+                project_or_endpoint_id)
         else:
             PROVIDERS.catalog_api.delete_association_by_endpoint(
                 project_or_endpoint_id)
