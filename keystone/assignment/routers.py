@@ -19,7 +19,6 @@ import functools
 
 from keystone.assignment import controllers
 from keystone.common import json_home
-from keystone.common import router
 from keystone.common import wsgi
 
 
@@ -39,7 +38,7 @@ class Public(wsgi.ComposableRouter):
 
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('users', 'roles', 'role_inferences', 'projects',
+    _path_prefixes = ('users', 'role_inferences', 'projects',
                       'domains', 'system', 'role_assignments', 'OS-INHERIT')
 
     def append_v3_routers(self, mapper, routers):
@@ -54,35 +53,7 @@ class Routers(wsgi.RoutersBase):
                 'user_id': json_home.Parameters.USER_ID,
             })
 
-        routers.append(
-            router.Router(controllers.RoleV3(), 'roles', 'role',
-                          resource_descriptions=self.v3_resources,
-                          method_template='%s_wrapper'))
-
         implied_roles_controller = controllers.ImpliedRolesV3()
-        self._add_resource(
-            mapper, implied_roles_controller,
-            path='/roles/{prior_role_id}/implies',
-            rel=json_home.build_v3_resource_relation('implied_roles'),
-            get_head_action='list_implied_roles',
-            path_vars={
-                'prior_role_id': json_home.Parameters.ROLE_ID,
-            }
-        )
-
-        self._add_resource(
-            mapper, implied_roles_controller,
-            path='/roles/{prior_role_id}/implies/{implied_role_id}',
-            put_action='create_implied_role',
-            delete_action='delete_implied_role',
-            head_action='check_implied_role',
-            get_action='get_implied_role',
-            rel=json_home.build_v3_resource_relation('implied_role'),
-            path_vars={
-                'prior_role_id': json_home.Parameters.ROLE_ID,
-                'implied_role_id': json_home.Parameters.ROLE_ID
-            }
-        )
         self._add_resource(
             mapper, implied_roles_controller,
             path='/role_inferences',
