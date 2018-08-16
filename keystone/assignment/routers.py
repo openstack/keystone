@@ -38,7 +38,7 @@ class Public(wsgi.ComposableRouter):
 
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('users', 'role_inferences', 'projects',
+    _path_prefixes = ('users', 'projects',
                       'domains', 'system', 'role_assignments', 'OS-INHERIT')
 
     def append_v3_routers(self, mapper, routers):
@@ -52,15 +52,6 @@ class Routers(wsgi.RoutersBase):
             path_vars={
                 'user_id': json_home.Parameters.USER_ID,
             })
-
-        implied_roles_controller = controllers.ImpliedRolesV3()
-        self._add_resource(
-            mapper, implied_roles_controller,
-            path='/role_inferences',
-            get_head_action='list_role_inference_rules',
-            rel=json_home.build_v3_resource_relation('role_inferences'),
-            path_vars={}
-        )
 
         grant_controller = controllers.GrantAssignmentV3()
         self._add_resource(
