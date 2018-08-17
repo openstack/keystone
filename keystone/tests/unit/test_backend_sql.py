@@ -768,7 +768,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
     _legacy_endpoint_id_in_endpoint = True
     _enabled_default_to_true_when_creating_endpoint = True
 
-    def test_catalog_ignored_malformed_urls(self):
+    def test_get_v3_catalog_project_non_exist(self):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
@@ -777,12 +777,12 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
                                          url=malformed_url,
                                          region_id=None)
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
+        self.assertRaises(exception.ProjectNotFound,
+                          PROVIDERS.catalog_api.get_v3_catalog,
+                          'fake-user',
+                          'fake-tenant')
 
-        # NOTE(dstanek): there are no valid URLs, so nothing is in the catalog
-        catalog = PROVIDERS.catalog_api.get_catalog('fake-user', 'fake-tenant')
-        self.assertEqual({}, catalog)
-
-    def test_get_catalog_with_empty_public_url(self):
+    def test_get_v3_catalog_with_empty_public_url(self):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
@@ -790,13 +790,12 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
                                          region_id=None)
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
-        catalog = PROVIDERS.catalog_api.get_catalog('user', 'tenant')
-        catalog_endpoint = catalog[endpoint['region_id']][service['type']]
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(self.user_foo['id'],
+                                                       self.tenant_bar['id'])
+        catalog_endpoint = catalog[0]
         self.assertEqual(service['name'], catalog_endpoint['name'])
-        self.assertEqual(endpoint['id'], catalog_endpoint['id'])
-        self.assertEqual('', catalog_endpoint['publicURL'])
-        self.assertIsNone(catalog_endpoint.get('adminURL'))
-        self.assertIsNone(catalog_endpoint.get('internalURL'))
+        self.assertEqual(service['id'], catalog_endpoint['id'])
+        self.assertEqual([], catalog_endpoint['endpoints'])
 
     def test_create_endpoint_region_returns_not_found(self):
         service = unit.new_service_ref()
