@@ -46,11 +46,10 @@ class TestFernetTokenProvider(unit.TestCase):
 
     def test_invalid_token_raises_token_not_found(self):
         token_id = uuid.uuid4().hex
-        e = self.assertRaises(
+        self.assertRaises(
             exception.TokenNotFound,
             self.provider.validate_token,
             token_id)
-        self.assertIn(token_id, u'%s' % e)
 
 
 class TestValidate(unit.TestCase):
