@@ -421,6 +421,14 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
         # 1, 2, 3
         self.assertValidChangePassword(user['id'], passwords[3], passwords[0])
 
+    def test_validate_password_history_with_valid_password_only_once(self):
+        self.config_fixture.config(group='security_compliance',
+                                   unique_last_password_count=1)
+        passwords = [uuid.uuid4().hex, uuid.uuid4().hex]
+        user = self._create_user(passwords[0])
+        self.assertValidChangePassword(user['id'], passwords[0], passwords[1])
+        self.assertValidChangePassword(user['id'], passwords[1], passwords[0])
+
     def test_validate_password_history_but_start_with_password_none(self):
         passwords = [uuid.uuid4().hex, uuid.uuid4().hex]
         # Create user and confirm password is None
@@ -442,7 +450,7 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
 
     def test_disable_password_history_and_repeat_same_password(self):
         self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=1)
+                                   unique_last_password_count=0)
         password = uuid.uuid4().hex
         user = self._create_user(password)
         # Repeatedly change password with the same password

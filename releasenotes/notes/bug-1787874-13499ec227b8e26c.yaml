@@ -1,0 +1,16 @@
+---
+fixes:
+  - |
+    [`bug 1787874 <https://bugs.launchpad.net/keystone/+bug/1787874>`_]
+    The default value of the config option `unique_last_password_count` is
+    changed from 1 to 0. Now `unique_last_password_count = 0` means password
+    history check is disabled. `unique_last_password_count = 1` means
+    when changing password, the new one should be different than the current
+    one.
+
+upgrade:
+  - |
+    [`bug 1787874 <https://bugs.launchpad.net/keystone/+bug/1787874>`_]
+    Please not that the deployment which set `unique_last_password_count = 1`
+    in the config file should update the value to 0 to keep the same behavior
+    as before.
