@@ -41,6 +41,7 @@ class TestCaseWithBootstrap(core.BaseTestCase):
         self.useFixture(database.Database())
         super(TestCaseWithBootstrap, self).setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        CONF(args=[], project='keystone')
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,

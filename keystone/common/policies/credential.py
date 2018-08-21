@@ -10,56 +10,109 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+SYSTEM_READER_OR_CRED_OWNER = (
+    '(role:reader and system_scope:all) '
+    'or user_id:%(target.credential.user_id)s'
+)
+SYSTEM_MEMBER_OR_CRED_OWNER = (
+    '(role:member and system_scope:all) '
+    'or user_id:%(target.credential.user_id)s'
+)
+SYSTEM_ADMIN_OR_CRED_OWNER = (
+    '(role:admin and system_scope:all) '
+    'or user_id:%(target.credential.user_id)s'
+)
+
+DEPRECATED_REASON = (
+    'As of the Stein release, the credential API now understands how to '
+    'handle system-scoped tokens in addition to project-scoped tokens, making '
+    'the API more accessible to users without compromising security or '
+    'manageability for administrators. The new default policies for this API '
+    'account for these changes automatically.'
+)
+deprecated_get_credential = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_credential',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_credentials = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_credentials',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_create_credential = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_credential',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_update_credential = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_credential',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_credential = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_credential',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+
 credential_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_credential',
-        check_str=base.RULE_ADMIN_REQUIRED,
-        # FIXME(lbragstad): Credentials aren't really project-scoped or
-        # system-scoped. Instead, they are tied to a user. If this API is
-        # called with a system-scoped token, it's a system-administrator and
-        # they should be able to get any credential for management reasons. If
-        # this API is called with a project-scoped token, then extra
-        # enforcement needs to happen based on who created the credential, what
-        # projects they are members of, and the project the token is scoped to.
-        # When we fully support the second case, we can add `project` to the
-        # list of scope_types. This comment applies to the rest of the policies
-        # in this module.
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_READER_OR_CRED_OWNER,
+        scope_types=['system', 'project'],
         description='Show credentials details.',
         operations=[{'path': '/v3/credentials/{credential_id}',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_get_credential,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_credentials',
-        check_str=base.RULE_ADMIN_REQUIRED,
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_READER_OR_CRED_OWNER,
+        scope_types=['system', 'project'],
         description='List credentials.',
         operations=[{'path': '/v3/credentials',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_list_credentials,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_credential',
-        check_str=base.RULE_ADMIN_REQUIRED,
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
+        scope_types=['system', 'project'],
         description='Create credential.',
         operations=[{'path': '/v3/credentials',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_credential,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_credential',
-        check_str=base.RULE_ADMIN_REQUIRED,
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_MEMBER_OR_CRED_OWNER,
+        scope_types=['system', 'project'],
         description='Update credential.',
         operations=[{'path': '/v3/credentials/{credential_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_credential,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_credential',
-        check_str=base.RULE_ADMIN_REQUIRED,
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
+        scope_types=['system', 'project'],
         description='Delete credential.',
         operations=[{'path': '/v3/credentials/{credential_id}',
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_credential,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
+    )
 ]
 
 
