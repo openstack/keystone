@@ -52,7 +52,7 @@ class RestfulTestCase(unit.TestCase):
     # default content type to test
     content_type = 'json'
 
-    def setUp(self, app_conf='keystone', enable_sqlite_foreign_key=False):
+    def setUp(self, enable_sqlite_foreign_key=False):
         super(RestfulTestCase, self).setUp()
 
         self.auth_plugin_config_override()

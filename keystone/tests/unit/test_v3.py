@@ -196,10 +196,9 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
-    def setUp(self, app_conf='keystone', enable_sqlite_foreign_key=False):
+    def setUp(self, enable_sqlite_foreign_key=False):
         """Setup for v3 Restful Test Cases."""
         super(RestfulTestCase, self).setUp(
-            app_conf=app_conf,
             enable_sqlite_foreign_key=enable_sqlite_foreign_key)
 
         self.empty_context = {'environment': {}}
