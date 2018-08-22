@@ -2600,8 +2600,10 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         )
 
     def _policy_fixture(self):
-        return ksfixtures.Policy(unit.dirs.etc('policy.v3cloudsample.json'),
-                                 self.config_fixture)
+        return ksfixtures.Policy(
+            self.config_fixture,
+            policy_file=unit.dirs.etc('policy.v3cloudsample.json')
+        )
 
     def test_user_revokes_own_token(self):
         user_token = self.get_requested_token(

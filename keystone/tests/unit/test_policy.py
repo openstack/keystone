@@ -46,7 +46,9 @@ class PolicyFileTestCase(unit.TestCase):
         self.target = {}
 
     def _policy_fixture(self):
-        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
+        return ksfixtures.Policy(
+            self.config_fixture, policy_file=self.tmpfilename
+        )
 
     def test_modified_policy_reloads(self):
         action = "example:test"

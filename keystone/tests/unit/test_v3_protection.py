@@ -37,7 +37,9 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
     """Test policy enforcement on the v3 Identity API."""
 
     def _policy_fixture(self):
-        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
+        return ksfixtures.Policy(
+            self.config_fixture, policy_file=self.tmpfilename
+        )
 
     def setUp(self):
         """Setup for Identity Protection Test Cases.
@@ -643,8 +645,10 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
     """Test policy enforcement of the sample v3 cloud policy file."""
 
     def _policy_fixture(self):
-        return ksfixtures.Policy(unit.dirs.etc('policy.v3cloudsample.json'),
-                                 self.config_fixture)
+        return ksfixtures.Policy(
+            self.config_fixture,
+            policy_file=unit.dirs.etc('policy.v3cloudsample.json')
+        )
 
     def setUp(self):
         """Setup for v3 Cloud Policy Sample Test Cases.
