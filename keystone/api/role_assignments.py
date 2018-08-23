@@ -47,7 +47,7 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
     def _list_role_assignments(self):
         filters = [
             'group.id', 'role.id', 'scope.domain.id', 'scope.project.id',
-            'scope.OS-INHERIT:inherited_to', 'user.id'
+            'scope.OS-INHERIT:inherited_to', 'user.id', 'scope.system'
         ]
         ENFORCER.enforce_call(action='identity:list_role_assignments',
                               filters=filters)
