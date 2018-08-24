@@ -12,8 +12,6 @@
 
 """Unified in-memory token model."""
 
-import itertools
-
 from oslo_log import log
 from oslo_serialization import msgpackutils
 from oslo_utils import reflection
@@ -254,6 +252,7 @@ class TokenModel(object):
         roles = []
         groups = PROVIDERS.identity_api.list_groups_for_user(self.user_id)
         all_group_roles = []
+        assignments = []
         for group in groups:
             group_roles = (
                 PROVIDERS.assignment_api.list_system_grants_for_group(
@@ -262,10 +261,25 @@ class TokenModel(object):
             )
             for role in group_roles:
                 all_group_roles.append(role)
+                assignment = {'group_id': group['id'], 'role_id': role['id']}
+                assignments.append(assignment)
         user_roles = PROVIDERS.assignment_api.list_system_grants_for_user(
             self.user_id
         )
-        for role in itertools.chain(all_group_roles, user_roles):
+        for role in user_roles:
+            assignment = {'user_id': self.user_id, 'role_id': role['id']}
+            assignments.append(assignment)
+
+        # NOTE(lbragstad): The whole reason we need to build out a list of
+        # "assignments" as opposed to just using the nice list of roles we
+        # already have is because the add_implied_roles() method operates on a
+        # list of assignment dictionaries (containing role_id,
+        # user_id/group_id, project_id, et cetera). That method could probably
+        # be fixed to be more clear by operating on actual roles instead of
+        # just assignments.
+        assignments = PROVIDERS.assignment_api.add_implied_roles(assignments)
+        for assignment in assignments:
+            role = PROVIDERS.role_api.get_role(assignment['role_id'])
             roles.append({'id': role['id'], 'name': role['name']})
 
         return roles
