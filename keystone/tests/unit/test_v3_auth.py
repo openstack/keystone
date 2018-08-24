@@ -44,6 +44,7 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
+from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -1848,6 +1849,28 @@ class TokenAPITests(object):
         )
 
         self._create_implied_role_shows_in_v3_token(True)
+
+    @test_utils.wip(
+        "Skipped until system-scoped support expanding implied roles",
+        expected_exception=matchers._impl.MismatchError,
+        bug='#1788694'
+    )
+    def test_create_implied_role_shows_in_v3_system_token(self):
+        self.config_fixture.config(group='token', infer_roles=True)
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user['id'], self.role['id']
+        )
+
+        token_id = self.get_system_scoped_token()
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': token_id})
+        token_roles = r.result['token']['roles']
+
+        prior = token_roles[0]['id']
+        self._create_implied_role(prior)
+
+        r = self.get('/auth/tokens', headers={'X-Subject-Token': token_id})
+        token_roles = r.result['token']['roles']
+        self.assertEqual(2, len(token_roles))
 
     def test_group_assigned_implied_role_shows_in_v3_token(self):
         self.config_fixture.config(group='token', infer_roles=True)
