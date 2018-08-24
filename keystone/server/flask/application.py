@@ -54,6 +54,7 @@ _MOVED_API_PREFIXES = frozenset(
      'role_inferences',
      'roles',
      'services',
+     'system',
      ]
 )
 

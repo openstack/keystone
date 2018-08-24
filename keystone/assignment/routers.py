@@ -38,7 +38,7 @@ class Public(wsgi.ComposableRouter):
 
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('users', 'projects', 'domains', 'system', 'OS-INHERIT')
+    _path_prefixes = ('users', 'projects', 'domains', 'OS-INHERIT')
 
     def append_v3_routers(self, mapper, routers):
 
@@ -137,45 +137,6 @@ class Routers(wsgi.RoutersBase):
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group_id': json_home.Parameters.GROUP_ID,
             })
-        self._add_resource(
-            mapper, grant_controller,
-            path='/system/users/{user_id}/roles',
-            get_head_action='list_system_grants_for_user',
-            rel=json_home.build_v3_resource_relation('system_user_roles'),
-            path_vars={
-                'user_id': json_home.Parameters.USER_ID
-            })
-        self._add_resource(
-            mapper, grant_controller,
-            path='/system/users/{user_id}/roles/{role_id}',
-            get_head_action='check_system_grant_for_user',
-            put_action='create_system_grant_for_user',
-            delete_action='revoke_system_grant_for_user',
-            rel=json_home.build_v3_resource_relation('system_user_role'),
-            path_vars={
-                'role_id': json_home.Parameters.ROLE_ID,
-                'user_id': json_home.Parameters.USER_ID
-            })
-        self._add_resource(
-            mapper, grant_controller,
-            path='/system/groups/{group_id}/roles',
-            get_head_action='list_system_grants_for_group',
-            rel=json_home.build_v3_resource_relation('system_group_roles'),
-            path_vars={
-                'group_id': json_home.Parameters.GROUP_ID
-            })
-        self._add_resource(
-            mapper, grant_controller,
-            path='/system/groups/{group_id}/roles/{role_id}',
-            get_head_action='check_system_grant_for_group',
-            put_action='create_system_grant_for_group',
-            delete_action='revoke_system_grant_for_group',
-            rel=json_home.build_v3_resource_relation('system_group_role'),
-            path_vars={
-                'role_id': json_home.Parameters.ROLE_ID,
-                'group_id': json_home.Parameters.GROUP_ID
-            })
-
         self._add_resource(
             mapper, grant_controller,
             path='/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'
