@@ -50,6 +50,7 @@ _MOVED_API_PREFIXES = frozenset(
      'limits',
      'regions',
      'registered_limits',
+     'role_assignments',
      'role_inferences',
      'roles',
      'services',

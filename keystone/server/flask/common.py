@@ -702,6 +702,37 @@ class ResourceBase(flask_restful.Resource):
         """
         return build_audit_initiator()
 
+    @staticmethod
+    def query_filter_is_true(filter_name):
+        """Determine if bool query param is 'True'.
+
+        We treat this the same way as we do for policy
+        enforcement:
+
+        {bool_param}=0 is treated as False
+
+        Any other value is considered to be equivalent to
+        True, including the absence of a value (but existence
+        as a parameter).
+
+        False Examples for param named `p`:
+
+           * http://host/url
+           * http://host/url?p=0
+
+        All other forms of the param 'p' would be result in a True value
+        including: `http://host/url?param`.
+        """
+        val = False
+        if filter_name in flask.request.args:
+            filter_value = flask.request.args.get(filter_name)
+            if (isinstance(filter_value, six.string_types) and
+                    filter_value == '0'):
+                val = False
+            else:
+                val = True
+        return val
+
     @property
     def request_body_json(self):
         return flask.request.get_json(silent=True, force=True) or {}

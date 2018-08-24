@@ -38,8 +38,7 @@ class Public(wsgi.ComposableRouter):
 
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('users', 'projects',
-                      'domains', 'system', 'role_assignments', 'OS-INHERIT')
+    _path_prefixes = ('users', 'projects', 'domains', 'system', 'OS-INHERIT')
 
     def append_v3_routers(self, mapper, routers):
 
@@ -176,12 +175,6 @@ class Routers(wsgi.RoutersBase):
                 'role_id': json_home.Parameters.ROLE_ID,
                 'group_id': json_home.Parameters.GROUP_ID
             })
-
-        self._add_resource(
-            mapper, controllers.RoleAssignmentV3(),
-            path='/role_assignments',
-            get_head_action='list_role_assignments_wrapper',
-            rel=json_home.build_v3_resource_relation('role_assignments'))
 
         self._add_resource(
             mapper, grant_controller,
