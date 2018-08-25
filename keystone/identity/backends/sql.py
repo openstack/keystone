@@ -233,12 +233,9 @@ class Identity(base.IdentityDriverBase):
 
     def _validate_password_history(self, password, user_ref):
         unique_cnt = CONF.security_compliance.unique_last_password_count
-        # Slice off all of the extra passwords.
-        user_ref.local_user.passwords = (
-            user_ref.local_user.passwords[-unique_cnt:])
         # Validate the new password against the remaining passwords.
-        if unique_cnt > 1:
-            for password_ref in user_ref.local_user.passwords:
+        if unique_cnt > 0:
+            for password_ref in user_ref.local_user.passwords[-unique_cnt:]:
                 if password_hashing.check_password(
                         password,
                         password_ref.password_hash or password_ref.password):

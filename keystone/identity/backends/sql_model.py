@@ -140,6 +140,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         # truncate extra passwords
         if self.local_user.passwords:
             unique_cnt = CONF.security_compliance.unique_last_password_count
+            unique_cnt = unique_cnt + 1 if unique_cnt == 0 else unique_cnt
             self.local_user.passwords = self.local_user.passwords[-unique_cnt:]
         # set all previous passwords to be expired
         for ref in self.local_user.passwords:
