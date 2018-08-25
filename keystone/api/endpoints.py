@@ -13,9 +13,9 @@
 # This file handles all flask-restful resources for /v3/services
 
 import flask_restful
-import functools
 from six.moves import http_client
 
+from keystone.api._shared import json_home_relations
 from keystone.catalog import schema
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -29,11 +29,7 @@ from keystone.server import flask as ks_flask
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
-# TODO(morgan) move the partial functions to a common place so that they
-# can be referenced by multiple APIs, such as endpoints and endpoint_policy.
-_build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation,
-    extension_name='OS-ENDPOINT-POLICY', extension_version='1.0')
+_resource_rel_func = json_home_relations.os_endpoint_policy_resource_rel_func
 
 
 def _filter_endpoint(ref):
@@ -141,7 +137,7 @@ class EndpointAPI(ks_flask.APIBase):
             url='/endpoints/<string:endpoint_id>/OS-ENDPOINT-POLICY/policy',
             resource_kwargs={},
             rel='endpoint_policy',
-            resource_relation_func=_build_resource_relation,
+            resource_relation_func=_resource_rel_func,
             path_vars={'endpoint_id': json_home.Parameters.ENDPOINT_ID})
     ]
 

@@ -12,13 +12,11 @@
 
 # This file handles all flask-restful resources for /v3/OS-REVOKE/events
 
-import functools
-
 import flask
 import flask_restful
 from oslo_utils import timeutils
 
-from keystone.common import json_home
+from keystone.api._shared import json_home_relations
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone import exception
@@ -30,9 +28,7 @@ PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer
 
 
-_build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation,
-    extension_name='OS-REVOKE', extension_version='1.0')
+_build_resource_relation = json_home_relations.os_revoke_resource_rel_func
 
 
 class OSRevokeResource(flask_restful.Resource):

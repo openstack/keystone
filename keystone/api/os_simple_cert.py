@@ -14,10 +14,9 @@
 
 import flask
 import flask_restful
-import functools
 from six.moves import http_client
 
-from keystone.common import json_home
+from keystone.api._shared import json_home_relations
 import keystone.conf
 from keystone import exception
 from keystone.server import flask as ks_flask
@@ -26,9 +25,7 @@ from keystone.server import flask as ks_flask
 CONF = keystone.conf.CONF
 
 
-_build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation,
-    extension_name='OS-SIMPLE-CERT', extension_version='1.0')
+_build_resource_relation = json_home_relations.os_simple_cert_resource_rel_func
 
 
 def _get_certificate(name):

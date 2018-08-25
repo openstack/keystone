@@ -12,8 +12,6 @@
 
 # This file handles all flask-restful resources for /v3/OS-OAUTH1/
 
-import functools
-
 import flask
 import flask_restful
 from oslo_log import log
@@ -22,9 +20,9 @@ from six.moves import http_client
 from six.moves.urllib import parse as urlparse
 from werkzeug import exceptions
 
+from keystone.api._shared import json_home_relations
 from keystone.common import authorization
 from keystone.common import context
-from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone.common import validation
@@ -44,13 +42,8 @@ ENFORCER = rbac_enforcer.RBACEnforcer
 CONF = keystone.conf.CONF
 
 
-_build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation,
-    extension_name='OS-OAUTH1', extension_version='1.0')
-
-_build_parameter_relation = functools.partial(
-    json_home.build_v3_extension_parameter_relation,
-    extension_name='OS-OAUTH1', extension_version='1.0')
+_build_resource_relation = json_home_relations.os_oauth1_resource_rel_func
+_build_parameter_relation = json_home_relations.os_oauth1_parameter_rel_func
 
 _ACCESS_TOKEN_ID_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='access_token_id')

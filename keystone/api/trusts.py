@@ -15,12 +15,11 @@
 # TODO(morgan): Deprecate /v3/OS-TRUST/trusts path in favour of /v3/trusts.
 # /v3/OS-TRUST should remain indefinitely.
 
-import functools
-
 import flask
 import flask_restful
 from six.moves import http_client
 
+from keystone.api._shared import json_home_relations
 from keystone.common import context
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -36,12 +35,8 @@ from keystone.trust import schema
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
-_build_resource_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
-    extension_version='1.0')
-_build_parameter_relation = functools.partial(
-    json_home.build_v3_extension_parameter_relation, extension_name='OS-TRUST',
-    extension_version='1.0')
+_build_resource_relation = json_home_relations.os_trust_resource_rel_func
+_build_parameter_relation = json_home_relations.os_trust_parameter_rel_func
 
 TRUST_ID_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='trust_id')
