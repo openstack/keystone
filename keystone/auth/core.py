@@ -167,9 +167,11 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             if domain_name:
                 if (CONF.resource.domain_name_url_safe == 'strict' and
                         utils.is_not_url_safe(domain_name)):
-                    msg = _('Domain name cannot contain reserved characters.')
+                    msg = 'Domain name cannot contain reserved characters.'
+                    tr_msg = _('Domain name cannot contain reserved '
+                               'characters.')
                     LOG.warning(msg)
-                    raise exception.Unauthorized(message=msg)
+                    raise exception.Unauthorized(message=tr_msg)
                 domain_ref = PROVIDERS.resource_api.get_domain_by_name(
                     domain_name)
             else:
@@ -187,9 +189,11 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             if project_name:
                 if (CONF.resource.project_name_url_safe == 'strict' and
                         utils.is_not_url_safe(project_name)):
-                    msg = _('Project name cannot contain reserved characters.')
+                    msg = 'Project name cannot contain reserved characters.'
+                    tr_msg = _('Project name cannot contain reserved '
+                               'characters.')
                     LOG.warning(msg)
-                    raise exception.Unauthorized(message=msg)
+                    raise exception.Unauthorized(message=tr_msg)
                 if 'domain' not in project_info:
                     raise exception.ValidationError(attribute='domain',
                                                     target='project')
@@ -249,8 +253,9 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             user_id, hints)
         if len(app_creds) != 1:
             message = "Could not find application credential: %s" % name
+            tr_message = _("Could not find application credential: %s") % name
             LOG.warning(six.text_type(message))
-            raise exception.Unauthorized(message)
+            raise exception.Unauthorized(tr_message)
         return app_creds[0]
 
     def _set_scope_from_app_cred(self, app_cred_info):

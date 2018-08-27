@@ -279,9 +279,10 @@ class Auth(auth_controllers.Auth):
         origin = request.params.get('origin')
 
         if not origin:
-            msg = _('Request must have an origin query parameter')
+            msg = 'Request must have an origin query parameter'
+            tr_msg = _('Request must have an origin query parameter')
             LOG.error(msg)
-            raise exception.ValidationError(msg)
+            raise exception.ValidationError(tr_msg)
 
         host = urllib.parse.unquote_plus(origin)
 
@@ -290,10 +291,11 @@ class Auth(auth_controllers.Auth):
                               for trusted in CONF.federation.trusted_dashboard]
 
         if host not in trusted_dashboards:
-            msg = _('%(host)s is not a trusted dashboard host')
-            msg = msg % {'host': host}
+            msg = '%(host)s is not a trusted dashboard host' % {'host': host}
+            tr_msg = _('%(host)s is not a trusted dashboard host') % {
+                'host': host}
             LOG.error(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
         return host
 
@@ -321,9 +323,10 @@ class Auth(auth_controllers.Auth):
             remote_id_name = utils.get_remote_id_parameter(protocol_id)
             remote_id = request.environ[remote_id_name]
         except KeyError:
-            msg = _('Missing entity ID from environment')
+            msg = 'Missing entity ID from environment'
+            tr_msg = _('Missing entity ID from environment')
             LOG.error(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
         host = self._get_sso_origin_host(request)
 

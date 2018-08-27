@@ -111,9 +111,8 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         try:
             domain_ref = resource_api.get_domain_by_name(domain_name)
         except exception.DomainNotFound:
-            LOG.warning(
-                ('Invalid domain name (%s) found in config file name'),
-                domain_name)
+            LOG.warning('Invalid domain name (%s) found in config file name',
+                        domain_name)
             return
 
         # Create a new entry in the domain config dict, which contains

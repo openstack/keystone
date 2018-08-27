@@ -30,9 +30,9 @@ from keystone.identity.backends.ldap import models
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-_DEPRECATION_MSG = _('%s for the LDAP identity backend has been deprecated in '
-                     'the Mitaka release in favor of read-only identity LDAP '
-                     'access. It will be removed in the "O" release.')
+_DEPRECATION_MSG = ('%s for the LDAP identity backend has been deprecated in '
+                    'the Mitaka release in favor of read-only identity LDAP '
+                    'access. It will be removed in the "O" release.')
 
 READ_ONLY_LDAP_ERROR_MESSAGE = _("LDAP does not support write operations")
 

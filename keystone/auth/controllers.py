@@ -254,9 +254,10 @@ class Auth(controller.V3Controller):
             raise exception.AdditionalAuthRequired(auth_response)
 
         if 'user_id' not in auth_context:
-            msg = _('User not found by auth plugin; authentication failed')
+            msg = 'User not found by auth plugin; authentication failed'
+            tr_msg = _('User not found by auth plugin; authentication failed')
             LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
     @controller.protected()
     def check_token(self, request):
