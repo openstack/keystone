@@ -83,12 +83,6 @@
     "identity:check_user_in_group": "rule:cloud_admin or rule:admin_and_matching_target_group_domain_id",
     "identity:add_user_to_group": "rule:cloud_admin or rule:admin_and_matching_target_group_domain_id",
 
-    "identity:get_credential": "rule:admin_required",
-    "identity:list_credentials": "rule:admin_required or user_id:%(user_id)s",
-    "identity:create_credential": "rule:admin_required",
-    "identity:update_credential": "rule:admin_required",
-    "identity:delete_credential": "rule:admin_required",
-
     "identity:ec2_get_credential": "rule:admin_required or (rule:owner and user_id:%(target.credential.user_id)s)",
     "identity:ec2_list_credentials": "rule:admin_required or rule:owner",
     "identity:ec2_create_credential": "rule:admin_required or rule:owner",
