@@ -161,7 +161,7 @@ class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
         )
         with mock.patch('warnings.warn') as mock_warn:
             policy.enforce(self.credentials, self.action, self.target)
-            mock_warn.assert_called_once_with(expected_msg)
+            mock_warn.assert_called_with(expected_msg)
 
 
 class PolicyJsonTestCase(unit.TestCase):
