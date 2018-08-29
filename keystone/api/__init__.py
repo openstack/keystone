@@ -12,6 +12,7 @@
 
 from keystone.api import credentials
 from keystone.api import discovery
+from keystone.api import domains
 from keystone.api import endpoints
 from keystone.api import groups
 from keystone.api import limits
@@ -34,6 +35,7 @@ from keystone.api import trusts
 __all__ = (
     'discovery',
     'credentials',
+    'domains',
     'endpoints',
     'groups',
     'limits',
@@ -57,6 +59,7 @@ __all__ = (
 __apis__ = (
     discovery,
     credentials,
+    domains,
     endpoints,
     groups,
     limits,

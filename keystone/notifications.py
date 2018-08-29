@@ -615,7 +615,14 @@ class CadfRoleAssignmentNotificationWrapper(object):
             inherited = call_args['inherited_to_projects']
             context = call_args['context']
 
-            initiator = _get_request_audit_info(context)
+            # TODO(gagehugo): Once all of the APIs for grant creation
+            # and deletion are moved over to flask, get rid of checking
+            # context here and only grab the initiator from the
+            # passed in value
+            if context:
+                initiator = _get_request_audit_info(context)
+            else:
+                initiator = call_args.get('initiator', None)
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
 
             audit_kwargs = {}
