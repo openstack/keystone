@@ -127,12 +127,12 @@
     templates:
       - openstack-python-jobs
       - openstack-python35-jobs
-      - publish-openstack-sphinx-docs
+      - publish-openstack-docs-pti
       - periodic-stable-jobs
       - check-requirements
       - integrated-gate
       - integrated-gate-py35
-      - release-notes-jobs
+      - release-notes-jobs-python3
     check:
       jobs:
         - keystone-dsvm-functional
