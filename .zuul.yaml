@@ -1,0 +1,100 @@
+- project:
+    templates:
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - publish-openstack-sphinx-docs
+      - periodic-stable-jobs
+      - check-requirements
+      - integrated-gate
+      - integrated-gate-py35
+      - release-notes-jobs
+    check:
+      jobs:
+        - legacy-keystoneclient-dsvm-functional:
+            voting: false
+            irrelevant-files:
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+        - openstack-tox-cover
+        - legacy-tempest-dsvm-ldap-domain-specific-driver:
+            voting: false
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+        - tempest-full:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+        - neutron-grenade:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+    gate:
+      jobs:
+        - tempest-full:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+        - neutron-grenade:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+    experimental:
+      jobs:
+        - legacy-tempest-dsvm-neutron-pg-full:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+        - legacy-tempest-dsvm-neutron-full-opensuse-423:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+    post:
+      jobs:
+        - publish-loci-keystone
