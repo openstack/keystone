@@ -11,6 +11,6 @@ fixes:
 upgrade:
   - |
     [`bug 1787874 <https://bugs.launchpad.net/keystone/+bug/1787874>`_]
-    Please not that the deployment which set `unique_last_password_count = 1`
+    Please note that the deployment which sets `unique_last_password_count = 1`
     in the config file should update the value to 0 to keep the same behavior
     as before.
