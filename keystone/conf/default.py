@@ -21,16 +21,6 @@ This option has been deprecated in the N release and will be removed in the P
 release. Use oslo.middleware.http_proxy_to_wsgi configuration instead.
 """)
 
-
-_DEPRECATE_MEMBER_ID_AND_NAME = utils.fmt("""
-This option was used to create a default member role for keystone v2 role
-assignments, but with the removal of the v2 API it is no longer necessary to
-create this default role. This option is deprecated and will be removed in the
-S release. If you are depending on having a predictable role name and ID for
-this member role you will need to update your tooling.
-""")
-
-
 admin_token = cfg.StrOpt(
     'admin_token',
     secret=True,
@@ -99,34 +89,6 @@ max_token_size = cfg.IntOpt(
 Similar to `[DEFAULT] max_param_size`, but provides an exception for token
 values. With Fernet tokens, this can be set as low as 255. With UUID tokens,
 this should be set to 32).
-"""))
-
-member_role_id = cfg.StrOpt(
-    'member_role_id',
-    default='9fe2ff9ee4384b1894a90878d3e92bab',
-    deprecated_for_removal=True,
-    deprecated_reason=_DEPRECATE_MEMBER_ID_AND_NAME,
-    deprecated_since=versionutils.deprecated.QUEENS,
-    help=utils.fmt("""
-Similar to the `[DEFAULT] member_role_name` option, this represents the default
-role ID used to associate users with their default projects in the v2 API. This
-will be used as the explicit role where one is not specified by the v2 API. You
-do not need to set this value unless you want keystone to use an existing role
-with a different ID, other than the arbitrarily defined `_member_` role (in
-which case, you should set `[DEFAULT] member_role_name` as well).
-"""))
-
-member_role_name = cfg.StrOpt(
-    'member_role_name',
-    default='_member_',
-    deprecated_for_removal=True,
-    deprecated_reason=_DEPRECATE_MEMBER_ID_AND_NAME,
-    deprecated_since=versionutils.deprecated.QUEENS,
-    help=utils.fmt("""
-This is the role name used in combination with the `[DEFAULT] member_role_id`
-option; see that option for more detail. You do not need to set this option
-unless you want keystone to use an existing role (in which case, you should set
-`[DEFAULT] member_role_id` as well).
 """))
 
 # NOTE(lbragstad/morganfainberg): This value of 10k was measured as having an
@@ -245,8 +207,6 @@ ALL_OPTS = [
     max_project_tree_depth,
     max_param_size,
     max_token_size,
-    member_role_id,
-    member_role_name,
     crypt_strength,
     list_limit,
     strict_password_check,

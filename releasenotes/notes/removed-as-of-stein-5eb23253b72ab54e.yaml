@@ -1,0 +1,6 @@
+---
+other:
+  - |
+    [`blueprint removed-as-of-stein <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-stein>`_]
+    The options ``member_role_id`` and ``member_role_name`` which were
+    deprecated in Queens and only used for V2 are removed now.

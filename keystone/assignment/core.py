@@ -165,22 +165,6 @@ class Manager(manager.Manager):
         role_ids = list(set([x['role_id'] for x in assignment_list]))
         return PROVIDERS.role_api.list_roles_from_ids(role_ids)
 
-    def ensure_default_role(self):
-        try:
-            PROVIDERS.role_api.get_role(CONF.member_role_id)
-        except exception.RoleNotFound:
-            LOG.info("Creating the default role %s "
-                     "because it does not exist.",
-                     CONF.member_role_id)
-            role = {'id': CONF.member_role_id,
-                    'name': CONF.member_role_name}
-            try:
-                PROVIDERS.role_api.create_role(CONF.member_role_id, role)
-            except exception.Conflict:
-                LOG.info("Creating the default role %s failed because it "
-                         "was already created",
-                         CONF.member_role_id)
-
     @notifications.role_assignment('created')
     def _add_role_to_user_and_project_adapter(self, role_id, user_id=None,
                                               group_id=None, domain_id=None,
