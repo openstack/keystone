@@ -18,6 +18,7 @@ from keystone.api import os_ep_filter
 from keystone.api import os_oauth1
 from keystone.api import os_revoke
 from keystone.api import os_simple_cert
+from keystone.api import policy
 from keystone.api import regions
 from keystone.api import registered_limits
 from keystone.api import role_assignments
@@ -36,6 +37,7 @@ __all__ = (
     'os_oauth1',
     'os_revoke',
     'os_simple_cert',
+    'policy',
     'regions',
     'registered_limits',
     'role_assignments',
@@ -55,6 +57,7 @@ __apis__ = (
     os_oauth1,
     os_revoke,
     os_simple_cert,
+    policy,
     regions,
     registered_limits,
     role_assignments,

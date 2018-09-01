@@ -12,5 +12,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.policy import controllers  # noqa
 from keystone.policy.core import *  # noqa
