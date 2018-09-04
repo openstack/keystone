@@ -609,11 +609,14 @@ class RuleProcessor(object):
         # if mapping yield no valid identity values, we should bail right away
         # instead of continuing on with a normalized bogus user
         if not identity_values:
-            msg = _("Could not map any federated user properties to identity "
-                    "values. Check debug logs or the mapping used for "
-                    "additional details.")
+            msg = ("Could not map any federated user properties to identity "
+                   "values. Check debug logs or the mapping used for "
+                   "additional details.")
+            tr_msg = _("Could not map any federated user properties to "
+                       "identity values. Check debug logs or the mapping"
+                       "used for additional details.")
             LOG.warning(msg)
-            raise exception.ValidationError(msg)
+            raise exception.ValidationError(tr_msg)
 
         for identity_value in identity_values:
             if 'user' in identity_value:
@@ -864,14 +867,18 @@ class RuleProcessor(object):
 def assert_enabled_identity_provider(federation_api, idp_id):
     identity_provider = federation_api.get_idp(idp_id)
     if identity_provider.get('enabled') is not True:
-        msg = _('Identity Provider %(idp)s is disabled') % {'idp': idp_id}
+        msg = 'Identity Provider %(idp)s is disabled' % {
+            'idp': idp_id}
+        tr_msg = _('Identity Provider %(idp)s is disabled') % {
+            'idp': idp_id}
         LOG.debug(msg)
-        raise exception.Forbidden(msg)
+        raise exception.Forbidden(tr_msg)
 
 
 def assert_enabled_service_provider_object(service_provider):
     if service_provider.get('enabled') is not True:
         sp_id = service_provider['id']
-        msg = _('Service Provider %(sp)s is disabled') % {'sp': sp_id}
+        msg = 'Service Provider %(sp)s is disabled' % {'sp': sp_id}
+        tr_msg = _('Service Provider %(sp)s is disabled') % {'sp': sp_id}
         LOG.debug(msg)
-        raise exception.Forbidden(msg)
+        raise exception.Forbidden(tr_msg)

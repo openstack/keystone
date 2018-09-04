@@ -408,10 +408,13 @@ def _verify_assertion_binary_is_installed():
     except subprocess.CalledProcessError:
         msg = (
             'Unable to locate %(binary)s binary on the system. Check to make '
-            'sure it is installed.' % {'binary': CONF.saml.xmlsec1_binary}
-        )
+            'sure it is installed.') % {'binary': CONF.saml.xmlsec1_binary}
+        tr_msg = _(
+            'Unable to locate %(binary)s binary on the system. Check to'
+            'make sure it is installed.') % {
+            'binary': CONF.saml.xmlsec1_binary}
         LOG.error(msg)
-        raise exception.SAMLSigningError(reason=msg)
+        raise exception.SAMLSigningError(reason=tr_msg)
 
 
 def _sign_assertion(assertion):
@@ -482,7 +485,7 @@ def _sign_assertion(assertion):
                                          # parsing.
                                          stderr=subprocess.STDOUT)
     except Exception as e:
-        msg = ('Error when signing assertion, reason: %(reason)s%(output)s')
+        msg = 'Error when signing assertion, reason: %(reason)s%(output)s'
         LOG.error(msg,
                   {'reason': e,
                    'output': ' ' + e.output if hasattr(e, 'output') else ''})
@@ -528,11 +531,14 @@ class MetadataGenerator(object):
             try:
                 return sigver.read_cert_from_file(CONF.saml.certfile, 'pem')
             except (IOError, sigver.CertificateError) as e:
-                msg = _('Cannot open certificate %(cert_file)s. '
-                        'Reason: %(reason)s')
-                msg = msg % {'cert_file': CONF.saml.certfile, 'reason': e}
+                msg = ('Cannot open certificate %(cert_file)s.'
+                       'Reason: %(reason)s') % {
+                    'cert_file': CONF.saml.certfile, 'reason': e}
+                tr_msg = _('Cannot open certificate %(cert_file)s.'
+                           'Reason: %(reason)s') % {
+                    'cert_file': CONF.saml.certfile, 'reason': e}
                 LOG.error(msg)
-                raise IOError(msg)
+                raise IOError(tr_msg)
 
         def key_descriptor():
             cert = get_cert()

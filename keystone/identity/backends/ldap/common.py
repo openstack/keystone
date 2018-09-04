@@ -178,8 +178,8 @@ def convert_ldap_result(ldap_result):
 
         py_result.append((utf8_decode(dn), ldap_attrs))
     if at_least_one_referral:
-        LOG.debug(('Referrals were returned and ignored. Enable referral '
-                   'chasing in keystone.conf via [ldap] chase_referrals'))
+        LOG.debug('Referrals were returned and ignored. Enable referral '
+                  'chasing in keystone.conf via [ldap] chase_referrals')
 
     return py_result
 

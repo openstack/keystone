@@ -431,15 +431,19 @@ class TokenModel(object):
 
     def _validate_token_resources(self):
         if self.project and not self.project.get('enabled'):
-            msg = _('Unable to validate token because project %(id)s is '
-                    'disabled') % {'id': self.project_id}
+            msg = ('Unable to validate token because project %(id)s is '
+                   'disabled') % {'id': self.project_id}
+            tr_msg = _('Unable to validate token because project %(id)s is'
+                       'disabled') % {'id': self.project_id}
             LOG.warning(msg)
-            raise exception.ProjectNotFound(msg)
+            raise exception.ProjectNotFound(tr_msg)
         if self.project and not self.project_domain.get('enabled'):
-            msg = _('Unable to validate token because domain %(id)s is '
-                    'disabled') % {'id': self.project_domain['id']}
+            msg = ('Unable to validate token because domain %(id)s is '
+                   'disabled') % {'id': self.project_domain['id']}
+            tr_msg = _('Unable to validate token because domain %(id)s is '
+                       'disabled') % {'id': self.project_domain['id']}
             LOG.warning(msg)
-            raise exception.DomainNotFound(msg)
+            raise exception.DomainNotFound(tr_msg)
 
     def _validate_token_user(self):
         if self.trust_scoped:
@@ -466,34 +470,43 @@ class TokenModel(object):
                 raise exception.Forbidden(_('Trustor is disabled.'))
 
         if not self.user_domain.get('enabled'):
-            msg = _('Unable to validate token because domain %(id)s is '
-                    'disabled') % {'id': self.user_domain['id']}
+            msg = ('Unable to validate token because domain %(id)s is '
+                   'disabled') % {'id': self.user_domain['id']}
+            tr_msg = _('Unable to validate token because domain %(id)s is '
+                       'disabled') % {'id': self.user_domain['id']}
             LOG.warning(msg)
-            raise exception.DomainNotFound(msg)
+            raise exception.DomainNotFound(tr_msg)
 
     def _validate_system_scope(self):
         if self.system_scoped and not self.roles:
-            msg = _(
-                'User %(user_id)s has no access to the system'
-            ) % {'user_id': self.user_id}
+            msg = ('User %(user_id)s has no access to the system'
+                   ) % {'user_id': self.user_id}
+            tr_msg = _('User %(user_id)s has no access to the system'
+                       ) % {'user_id': self.user_id}
             LOG.debug(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
     def _validate_domain_scope(self):
         if self.domain_scoped and not self.roles:
-            msg = _(
+            msg = (
+                'User %(user_id)s has no access to domain %(domain_id)s'
+            ) % {'user_id': self.user_id, 'domain_id': self.domain_id}
+            tr_msg = _(
                 'User %(user_id)s has no access to domain %(domain_id)s'
             ) % {'user_id': self.user_id, 'domain_id': self.domain_id}
             LOG.debug(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
     def _validate_project_scope(self):
         if self.project_scoped and not self.roles:
-            msg = _(
+            msg = (
+                'User %(user_id)s has no access to project %(project_id)s'
+            ) % {'user_id': self.user_id, 'project_id': self.project_id}
+            tr_msg = _(
                 'User %(user_id)s has no access to project %(project_id)s'
             ) % {'user_id': self.user_id, 'project_id': self.project_id}
             LOG.debug(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
     def _validate_trust_scope(self):
         trust_roles = []

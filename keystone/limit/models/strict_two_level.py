@@ -16,6 +16,7 @@ from oslo_log import log
 from keystone.common import driver_hints
 from keystone.common import provider_api
 from keystone import exception
+from keystone.i18n import _
 from keystone.limit.models import base
 
 LOG = log.getLogger(__name__)
@@ -124,5 +125,17 @@ class StrictTwoLevelModel(base.ModelBase):
                     'service_id': service_id,
                     'region_id': region_id
                 }
+                tr_error = _("The resource limit (project_id: %(project_id)s, "
+                             "resource_name: %(resource_name)s, "
+                             "resource_limit: %(resource_limit)s, "
+                             "service_id: %(service_id)s, "
+                             "region_id: %(region_id)s) doesn't satisfy "
+                             "current hierarchy model.") % {
+                    'project_id': project_id,
+                    'resource_name': resource_name,
+                    'resource_limit': resource_limit,
+                    'service_id': service_id,
+                    'region_id': region_id
+                }
                 LOG.error(error)
-                raise exception.InvalidLimit(reason=error)
+                raise exception.InvalidLimit(reason=tr_error)

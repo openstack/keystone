@@ -90,13 +90,18 @@ class Request(webob.Request):
     def assert_authenticated(self):
         """Ensure that the current request has been authenticated."""
         if not self.context:
-            msg = _('An authenticated call was made and there is '
-                    'no request.context. This means the '
-                    'auth_context middleware is not in place. You '
-                    'must have this middleware in your pipeline '
-                    'to perform authenticated calls')
+            msg = ('An authenticated call was made and there is '
+                   'no request.context. This means the '
+                   'auth_context middleware is not in place. You '
+                   'must have this middleware in your pipeline '
+                   'to perform authenticated calls')
+            tr_msg = _('An authenticated call was made and there is '
+                       'no request.context. This means the '
+                       'auth_context middleware is not in place. You '
+                       'must have this middleware in your pipeline '
+                       'to perform authenticated calls')
             LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
         if not self.context.authenticated:
             # auth_context didn't decode anything we can use
