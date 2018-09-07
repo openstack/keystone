@@ -112,13 +112,7 @@ class RoleResource(ks_flask.ResourceBase):
         else:
             ENFORCER.enforce_call(action='identity:create_role')
         validation.lazy_validate(schema.role_create, role)
-        if role['name'] == CONF.member_role_name:
-            # Use the configured member role ID when creating the configured
-            # member role name. This avoids the potential of creating
-            # a "member" role with an unexpected ID.
-            role['id'] = CONF.member_role_id
-        else:
-            role = self._assign_unique_id(role)
+        role = self._assign_unique_id(role)
         role = self._normalize_dict(role)
         ref = PROVIDERS.role_api.create_role(
             role['id'], role, initiator=self.audit_initiator)
