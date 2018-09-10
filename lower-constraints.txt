@@ -41,7 +41,7 @@ iso8601==0.1.12
 Jinja2==2.10
 jsonschema==2.6.0
 keystoneauth1==3.4.0
-keystonemiddleware==4.17.0
+keystonemiddleware==5.1.0
 kombu==4.1.0
 ldappool===2.0.0
 linecache2==1.0.0
@@ -52,7 +52,7 @@ mccabe==0.2.1
 mock==2.0.0
 monotonic==1.4
 mox3==0.25.0
-msgpack==0.4.0
+msgpack==0.5.0
 netaddr==0.7.19
 netifaces==0.10.6
 oauthlib==0.6.2
@@ -66,10 +66,10 @@ oslo.config==5.2.0
 oslo.context==2.21.0
 oslo.db==4.27.0
 oslo.i18n==3.15.3
-oslo.log==3.37.0
+oslo.log==3.38.0
 oslo.messaging==5.29.0
 oslo.middleware==3.31.0
-oslo.policy==1.30.0
+oslo.policy==1.33.0
 oslo.serialization==2.18.0
 oslo.service==1.30.0
 oslo.utils==3.33.0
@@ -120,7 +120,7 @@ snowballstemmer==1.2.1
 Sphinx==1.6.5
 sphinxcontrib-websupport==1.0.1
 sqlalchemy-migrate==0.11.0
-SQLAlchemy==1.0.10
+SQLAlchemy==1.0.13
 sqlparse==0.2.4
 statsd==3.2.2
 stestr==1.0.0
