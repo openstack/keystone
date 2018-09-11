@@ -14,6 +14,7 @@
 
 import flask
 import flask_restful
+import functools
 from six.moves import http_client
 
 from keystone.common import json_home
@@ -57,7 +58,7 @@ class SystemUsersListResource(flask_restful.Resource):
         GET/HEAD /system/users/{user_id}/roles
         """
         ENFORCER.enforce_call(action='identity:list_system_grants_for_user',
-                              target_attr=_build_enforcement_target())
+                              build_target=_build_enforcement_target)
         refs = PROVIDERS.assignment_api.list_system_grants_for_user(user_id)
         return ks_flask.ResourceBase.wrap_collection(
             refs, collection_name='roles')
@@ -70,7 +71,7 @@ class SystemUsersResource(flask_restful.Resource):
         GET/HEAD /system/users/{user_id}/roles/{role_id}
         """
         ENFORCER.enforce_call(action='identity:check_system_grant_for_user',
-                              target_attr=_build_enforcement_target())
+                              build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.check_system_grant_for_user(user_id, role_id)
         return None, http_client.NO_CONTENT
 
@@ -80,7 +81,7 @@ class SystemUsersResource(flask_restful.Resource):
         PUT /system/users/{user_id}/roles/{role_id}
         """
         ENFORCER.enforce_call(action='identity:create_system_grant_for_user',
-                              target_attr=_build_enforcement_target())
+                              build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.create_system_grant_for_user(user_id, role_id)
         return None, http_client.NO_CONTENT
 
@@ -91,7 +92,9 @@ class SystemUsersResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_system_grant_for_user',
-            target_attr=_build_enforcement_target(allow_non_existing=True))
+            build_target=functools.partial(
+                _build_enforcement_target,
+                allow_non_existing=True))
         PROVIDERS.assignment_api.delete_system_grant_for_user(user_id, role_id)
         return None, http_client.NO_CONTENT
 
@@ -103,7 +106,7 @@ class SystemGroupsRolesListResource(flask_restful.Resource):
         GET/HEAD /system/groups/{group_id}/roles
         """
         ENFORCER.enforce_call(action='identity:list_system_grants_for_group',
-                              target_attr=_build_enforcement_target())
+                              build_target=_build_enforcement_target)
         refs = PROVIDERS.assignment_api.list_system_grants_for_group(group_id)
         return ks_flask.ResourceBase.wrap_collection(
             refs, collection_name='roles')
@@ -116,7 +119,7 @@ class SystemGroupsRolestResource(flask_restful.Resource):
         GET/HEAD /system/groups/{group_id}/roles/{role_id}
         """
         ENFORCER.enforce_call(action='identity:check_system_grant_for_group',
-                              target_attr=_build_enforcement_target())
+                              build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.check_system_grant_for_group(
             group_id, role_id)
         return None, http_client.NO_CONTENT
@@ -127,7 +130,7 @@ class SystemGroupsRolestResource(flask_restful.Resource):
         PUT /system/groups/{group_id}/roles/{role_id}
         """
         ENFORCER.enforce_call(action='identity:create_system_grant_for_group',
-                              target_attr=_build_enforcement_target())
+                              build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.create_system_grant_for_group(
             group_id, role_id)
         return None, http_client.NO_CONTENT
@@ -139,7 +142,9 @@ class SystemGroupsRolestResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_system_grant_for_group',
-            target_attr=_build_enforcement_target(allow_non_existing=True))
+            build_target=functools.partial(
+                _build_enforcement_target,
+                allow_non_existing=True))
         PROVIDERS.assignment_api.delete_system_grant_for_group(
             group_id, role_id)
         return None, http_client.NO_CONTENT
