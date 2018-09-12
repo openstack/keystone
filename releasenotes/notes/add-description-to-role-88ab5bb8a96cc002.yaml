@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    [`bug 1669080 <https://bugs.launchpad.net/keystone/+bug/1669080>`_]
+    Added support for a ``description`` attribute for V3 Identity Roles, see
+    API docs for details.

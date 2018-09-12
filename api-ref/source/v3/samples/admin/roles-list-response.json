@@ -10,6 +10,7 @@
             "links": {
                 "self": "http://example.com/identity/v3/roles/5318e65d75574c17bf5339d3df33a5a3"
             },
+            "description": "My new role",
             "name": "admin"
         },
         {
@@ -17,6 +18,7 @@
             "links": {
                 "self": "http://example.com/identity/v3/roles/642bcfc75c384fd181adf34d9b2df897"
             },
+            "description": "My new role",
             "name": "anotherrole"
         },
         {
@@ -24,6 +26,7 @@
             "links": {
                 "self": "http://example.com/identity/v3/roles/779a76d74f544224a7ef8762ca0de627"
             },
+            "description": "My new role",
             "name": "Member"
         },
         {
@@ -38,6 +41,7 @@
             "links": {
                 "self": "http://example.com/identity/v3/roles/ba2dfba61c934ee89e3110de36273229"
             },
+            "description": "My new role",
             "name": "ResellerAdmin"
         },
         {
@@ -45,6 +49,7 @@
             "links": {
                 "self": "http://example.com/identity/v3/roles/f127b97616f24d3ebceb7be840210adc"
             },
+            "description": null,
             "name": "service"
         }
     ]

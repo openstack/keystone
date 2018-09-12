@@ -1665,6 +1665,24 @@ role_assignments:
   in: body
   required: true
   type: array
+role_description_create_body:
+  description: |
+    Add description about the role.
+  in: body
+  required: false
+  type: string
+role_description_response_body:
+  description: |
+    The role description.
+  in: body
+  required: false
+  type: string
+role_description_update_body:
+  description: |
+    The new role description.
+  in: body
+  required: false
+  type: string
 role_domain_id_request_body:
   description: |
     The ID of the domain of the role.

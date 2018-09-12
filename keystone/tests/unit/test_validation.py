@@ -755,6 +755,20 @@ class RoleValidationTestCase(unit.BaseTestCase):
                           self.create_role_validator.validate,
                           request_to_validate)
 
+    def test_validate_role_request_with_valid_description(self):
+        """Test we can validate`description` in create role request."""
+        request_to_validate = {'name': self.role_name,
+                               'description': 'My Role'}
+        self.create_role_validator.validate(request_to_validate)
+
+    def test_validate_role_request_fails_with_invalid_description(self):
+        """Exception is raised when `description` as a non-string value."""
+        request_to_validate = {'name': self.role_name,
+                               'description': False}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.create_role_validator.validate,
+                          request_to_validate)
+
     def test_validate_role_update_request(self):
         """Test that we validate a role update request."""
         request_to_validate = {'name': 'My New Role'}
