@@ -62,7 +62,7 @@ class _ResourceBase(ks_flask.ResourceBase):
     def wrap_member(cls, ref, collection_name=None, member_name=None):
         cls._add_self_referential_link(ref, collection_name)
         cls._add_related_links(ref)
-        return {member_name or cls.member_key: ref}
+        return {member_name or cls.member_key: cls.filter_params(ref)}
 
     @staticmethod
     def _add_related_links(ref):
