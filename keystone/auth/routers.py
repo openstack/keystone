@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.api._shared import json_home_relations
 from keystone.auth import controllers
 from keystone.common import json_home
 from keystone.common import wsgi
@@ -57,6 +58,17 @@ class Routers(wsgi.RoutersBase):
             path='/auth/domains',
             get_head_action='get_auth_domains',
             rel=json_home.build_v3_resource_relation('auth_domains'))
+        # NOTE(morgan): explicitly add json_home data for auth_projects and
+        # auth_domains for OS-FEDERATION here, as auth will always own it
+        # based upon how the flask scaffolding works. This bit is transitional
+        # for the move to flask.
+        for element in ['projects', 'domains']:
+            resource_data = {'href': '/auth/%s' % element}
+            json_home.Status.update_resource_data(
+                resource_data, status=json_home.Status.STABLE)
+            json_home.JsonHomeResources.append_resource(
+                json_home_relations.os_federation_resource_rel_func(
+                    resource_name=element), resource_data)
 
         self._add_resource(
             mapper, auth_controller,
