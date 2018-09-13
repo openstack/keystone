@@ -331,37 +331,6 @@ class RevokeTests(object):
         self.assertEqual(
             1, len(revocation_backend.list_events(token=token_data)))
 
-    def test_by_project_and_user_and_role(self):
-        revocation_backend = sql.Revoke()
-
-        first_token = _sample_blank_token()
-        first_token['user_id'] = uuid.uuid4().hex
-        first_token['project_id'] = uuid.uuid4().hex
-
-        second_token = _sample_blank_token()
-        second_token['user_id'] = uuid.uuid4().hex
-        second_token['project_id'] = first_token['project_id']
-
-        # Check that both tokens have not been revoked.
-        self._assertTokenNotRevoked(first_token)
-        self._assertTokenNotRevoked(second_token)
-        self.assertEqual(
-            0, len(revocation_backend.list_events(token=first_token)))
-        self.assertEqual(
-            0, len(revocation_backend.list_events(token=second_token)))
-
-        # Revoke first_token using user_id and project_id
-        PROVIDERS.revoke_api.revoke_by_user_and_project(
-            first_token['user_id'], first_token['project_id'])
-
-        # Check that only first_token has been revoked.
-        self._assertTokenRevoked(first_token)
-        self._assertTokenNotRevoked(second_token)
-        self.assertEqual(
-            1, len(revocation_backend.list_events(token=first_token)))
-        self.assertEqual(
-            0, len(revocation_backend.list_events(token=second_token)))
-
     def test_revoke_by_audit_id(self):
         token = _sample_blank_token()
         # Audit ID and Audit Chain ID are populated with the same value
