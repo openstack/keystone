@@ -13,6 +13,7 @@
 from keystone.api import credentials
 from keystone.api import discovery
 from keystone.api import endpoints
+from keystone.api import groups
 from keystone.api import limits
 from keystone.api import os_ep_filter
 from keystone.api import os_federation
@@ -33,6 +34,7 @@ __all__ = (
     'discovery',
     'credentials',
     'endpoints',
+    'groups',
     'limits',
     'os_ep_filter',
     'os_federation',
@@ -54,6 +56,7 @@ __apis__ = (
     discovery,
     credentials,
     endpoints,
+    groups,
     limits,
     os_ep_filter,
     os_federation,

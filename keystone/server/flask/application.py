@@ -40,6 +40,7 @@ from keystone.resource import routers as resource_routers
 _MOVED_API_PREFIXES = frozenset(
     ['credentials',
      'endpoints',
+     'groups',
      'OS-OAUTH1',
      'OS-EP-FILTER',
      'OS-FEDERATION',

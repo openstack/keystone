@@ -804,7 +804,7 @@ class ResourceBase(flask_restful.Resource):
         if not flask.request.args:
             return hints
 
-        for key, value in flask.request.args.items():
+        for key, value in flask.request.args.items(multi=True):
             # Check if this is an exact filter
             if supported_filters is None or key in supported_filters:
                 hints.add_filter(key, value)
@@ -885,6 +885,58 @@ class ResourceBase(flask_restful.Resource):
     @staticmethod
     def _normalize_arg(arg):
         return arg.replace(':', '_').replace('-', '_')
+
+    @classmethod
+    def _get_domain_id_for_list_request(cls):
+        """Get the domain_id for a v3 list call.
+
+        If we running with multiple domain drivers, then the caller must
+        specify a domain_id either as a filter or as part of the token scope.
+
+        """
+        if not CONF.identity.domain_specific_drivers_enabled:
+            # We don't need to specify a domain ID in this case
+            return
+
+        domain_id = flask.request.args.get('domain_id')
+        if domain_id:
+            return domain_id
+
+        token_ref = cls.get_token_ref()
+
+        if token_ref.domain_scoped:
+            return token_ref.domain_id
+        elif token_ref.project_scoped:
+            return token_ref.project_domain_id
+        else:
+            msg = _('No domain information specified as part of list request')
+            LOG.warning(msg)
+            raise exception.Unauthorized(msg)
+
+    @classmethod
+    def get_token_ref(cls):
+        """Retrieve KeystoneToken object from the auth context and returns it.
+
+        :raises keystone.exception.Unauthorized: If auth context cannot be
+                                                 found.
+        :returns: The KeystoneToken object.
+        """
+        try:
+            # Retrieve the auth context that was prepared by
+            # AuthContextMiddleware.
+
+            auth_context = cls.auth_context
+            return auth_context['token']
+        except KeyError:
+            LOG.warning("Couldn't find the auth context.")
+            raise exception.Unauthorized()
+
+    @classmethod
+    def _normalize_domain_id(cls, ref):
+        """Fill in domain_id if not specified in a v3 call."""
+        if not ref.get('domain_id'):
+            ref['domain_id'] = cls._get_domain_id_from_token()
+        return ref
 
 
 def base_url(path=''):
