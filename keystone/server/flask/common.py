@@ -909,9 +909,11 @@ class ResourceBase(flask_restful.Resource):
         elif token_ref.project_scoped:
             return token_ref.project_domain_id
         else:
-            msg = _('No domain information specified as part of list request')
+            msg = 'No domain information specified as part of list request'
+            tr_msg = _('No domain information specified as part of list '
+                       'request')
             LOG.warning(msg)
-            raise exception.Unauthorized(msg)
+            raise exception.Unauthorized(tr_msg)
 
     @classmethod
     def get_token_ref(cls):
