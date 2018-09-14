@@ -48,10 +48,10 @@
       - ^releasenotes/.*$
 
 - job:
-    name: keystone-dsvm-py35-functional-v3-only
+    name: keystone-dsvm-py35-functional-federation
     parent: legacy-dsvm-base
-    run: playbooks/legacy/keystone-dsvm-py35-functional-v3-only/run.yaml
-    post-run: playbooks/legacy/keystone-dsvm-py35-functional-v3-only/post.yaml
+    run: playbooks/legacy/keystone-dsvm-py35-functional-federation/run.yaml
+    post-run: playbooks/legacy/keystone-dsvm-py35-functional-federation/post.yaml
     timeout: 4200
     voting: false
     required-projects:
@@ -138,7 +138,7 @@
       jobs:
         - keystone-dsvm-functional
         - keystone-dsvm-functional-v3-only
-        - keystone-dsvm-py35-functional-v3-only
+        - keystone-dsvm-py35-functional-federation
         - openstack-ansible-keystone-rolling-upgrade
         - openstack-tox-lower-constraints
         - legacy-keystoneclient-dsvm-functional:

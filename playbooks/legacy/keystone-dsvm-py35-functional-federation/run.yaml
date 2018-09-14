@@ -1,6 +1,5 @@
 - hosts: all
-  name: Autoconverted job legacy-keystone-dsvm-py35-functional-v3-only from old job
-    gate-keystone-dsvm-py35-functional-v3-only-ubuntu-xenial-nv
+  name: Autoconverted job legacy-keystone-dsvm-py35-functional-federation
   tasks:
 
     - name: Ensure legacy workspace directory
@@ -36,7 +35,6 @@
           disable_service s-container
           disable_service s-object
           disable_service s-proxy
-          ENABLE_IDENTITY_V2=False
           enable_plugin keystone git://git.openstack.org/openstack/keystone
 
           EOF
