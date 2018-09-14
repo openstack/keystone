@@ -41,10 +41,8 @@ def _filter_endpoint(ref):
 class EndpointResource(ks_flask.ResourceBase):
     collection_key = 'endpoints'
     member_key = 'endpoint'
-
-    def __init__(self):
-        super(EndpointResource, self).__init__()
-        self.get_member_from_driver = PROVIDERS.catalog_api.get_endpoint
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='catalog_api', method='get_endpoint')
 
     @staticmethod
     def _validate_endpoint_region(endpoint):

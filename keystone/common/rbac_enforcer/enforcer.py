@@ -161,7 +161,7 @@ class RBACEnforcer(object):
                 # here.
                 resource = flask.current_app.view_functions[
                     flask.request.endpoint].view_class
-                member_name = getattr(resource, 'member_name', None)
+                member_name = getattr(resource, 'member_key', None)
                 func = getattr(
                     resource, 'get_member_from_driver', None)
                 if member_name is not None and callable(func):
@@ -177,9 +177,8 @@ class RBACEnforcer(object):
                         # TODO(morgan): add (future) support for passing class
                         # instantiation args.
                         ret_dict['target'] = {
-                            member_name: func(
-                                resource(),
-                                flask.request.view_args[key])[member_name]}
+                            member_name: func(flask.request.view_args[key])
+                        }
         return ret_dict
 
     @staticmethod
@@ -333,6 +332,14 @@ class RBACEnforcer(object):
             try:
                 policy_dict.update(cls._extract_member_target_data(
                     member_target_type, member_target))
+            except exception.NotFound:
+                # DEBUG LOG and bubble up the 404 error. This is expected
+                # behavior. This likely should be specific in each API. This
+                # should be revisited in the future and each API should make
+                # the explicit "existence" checks before enforcement.
+                LOG.debug('Extracting inferred target data resulted in '
+                          '"NOT FOUND (404)".')
+                raise
             except Exception as e:  # nosec
                 # NOTE(morgan): Errors should never bubble up at this point,
                 # if there is an error getting the target, log it and move
@@ -340,7 +347,7 @@ class RBACEnforcer(object):
                 LOG.warning('Unable to extract inferred target data during '
                             'enforcement')
                 LOG.debug(e, exc_info=True)
-                raise exception.ForbiddenAction(action)
+                raise exception.ForbiddenAction(action=action)
 
             # Special Case, extract and add subject_token data.
             subj_token_target_data = cls._extract_subject_token_target_data()

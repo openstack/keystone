@@ -94,19 +94,24 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
         self.flask_blueprint = blueprint
         self.cleanup_instance('flask_blueprint', 'url_prefix')
 
+    def _driver_simulation_get_method(self, argument_id):
+        user = self.user_req_admin
+        return {'id': argument_id,
+                'value': 'TEST',
+                'owner_id': user['id']}
+
     def _setup_flask_restful_api(self):
         self.restful_api_url_prefix = '/_%s_TEST' % uuid.uuid4().hex
         self.restful_api = flask_restful.Api(self.public_app.app,
                                              self.restful_api_url_prefix)
-        user = self.user_req_admin
+
+        driver_simulation_method = self._driver_simulation_get_method
 
         # Very Basic Restful Resource
         class RestfulResource(flask_restful.Resource):
+
             def get(self, argument_id):
-                return {'argument': {
-                        'id': argument_id,
-                        'value': 'TEST',
-                        'owner_id': user['id']}}
+                return {'argument': driver_simulation_method(argument_id)}
 
         self.restful_api_resource = RestfulResource
         self.restful_api.add_resource(
@@ -336,8 +341,8 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         # with current @protected (ease of use). For most cases the target
         # should be explicitly passed to .enforce_call, but for ease of
         # converting / use, the automatic population of data has been added.
-        self.restful_api_resource.member_name = 'argument'
-        member_from_driver = self.restful_api_resource.get
+        self.restful_api_resource.member_key = 'argument'
+        member_from_driver = self._driver_simulation_get_method
         self.restful_api_resource.get_member_from_driver = member_from_driver
 
         argument_id = uuid.uuid4().hex
@@ -487,8 +492,8 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         # Check that inferred "get" works as expected for the member target
 
         # setup the restful resource for an inferred "get"
-        self.restful_api_resource.member_name = 'argument'
-        member_from_driver = self.restful_api_resource.get
+        self.restful_api_resource.member_key = 'argument'
+        member_from_driver = self._driver_simulation_get_method
         self.restful_api_resource.get_member_from_driver = member_from_driver
 
         token_path = '/v3/auth/tokens'

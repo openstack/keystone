@@ -34,10 +34,8 @@ PROVIDERS = provider_api.ProviderAPIs
 class RoleResource(ks_flask.ResourceBase):
     collection_key = 'roles'
     member_key = 'role'
-
-    def __init__(self):
-        super(RoleResource, self).__init__()
-        self.get_member_from_driver = PROVIDERS.role_api.get_role
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='role_api', method='get_role')
 
     def _is_domain_role(self, role):
         return bool(role.get('domain_id'))
