@@ -39,6 +39,7 @@ from keystone.resource import routers as resource_routers
 # support is removed.
 _MOVED_API_PREFIXES = frozenset(
     ['credentials',
+     'domains',
      'endpoints',
      'groups',
      'OS-EP-FILTER',

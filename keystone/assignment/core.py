@@ -285,7 +285,8 @@ class Manager(manager.Manager):
     @notifications.role_assignment('created')
     def create_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
-                     inherited_to_projects=False, context=None):
+                     inherited_to_projects=False, context=None,
+                     initiator=None):
         role = PROVIDERS.role_api.get_role(role_id)
         if domain_id:
             PROVIDERS.resource_api.get_domain(domain_id)
@@ -335,7 +336,8 @@ class Manager(manager.Manager):
     @notifications.role_assignment('deleted')
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
-                     inherited_to_projects=False, context=None):
+                     inherited_to_projects=False, context=None,
+                     initiator=None):
 
         # check if role exist before any processing
         PROVIDERS.role_api.get_role(role_id)
