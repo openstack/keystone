@@ -327,6 +327,13 @@ class RBACEnforcer(object):
         # The lowest priority values are set first and the highest priority
         # values are set last.
 
+        # Populate the input attributes (view args) directly to the policy
+        # dict. This is to allow the policy engine to have access to the
+        # view args for substitution. This is to mirror the old @protected
+        # mechanism and ensure current policy files continue to work as
+        # expected.
+        policy_dict.update(flask.request.view_args)
+
         # Get the Target Data Set.
         if target_attr is None:
             try:
