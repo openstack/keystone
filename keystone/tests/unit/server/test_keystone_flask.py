@@ -19,11 +19,16 @@ from oslo_policy import policy
 from oslo_serialization import jsonutils
 from testtools import matchers
 
+from keystone.common import context
 from keystone.common import json_home
 from keystone.common import rbac_enforcer
+import keystone.conf
 from keystone import exception
 from keystone.server.flask import common as flask_common
 from keystone.tests.unit import rest
+
+
+CONF = keystone.conf.CONF
 
 
 class _TestResourceWithCollectionInfo(flask_common.ResourceBase):
@@ -544,3 +549,64 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             for rel in json_home_data:
                 self.assertThat(resp_data['resources'][rel],
                                 matchers.Equals(json_home_data[rel]))
+
+    def test_normalize_domain_id_extracts_domain_id_if_needed(self):
+        self._setup_flask_restful_api()
+        blueprint_prefix = self.restful_api._blueprint_url_prefix.rstrip('/')
+        url = ''.join([blueprint_prefix, '/arguments'])
+        headers = {'X-Auth-Token': self._get_token()}
+        ref_with_domain_id = {'domain_id': uuid.uuid4().hex}
+        ref_without_domain_id = {}
+        with self.test_client() as c:
+            # Make a dummy request.. ANY request is fine to push the whole
+            # context stack.
+            c.get('%s/%s' % (url, uuid.uuid4().hex), headers=headers,
+                  expected_status_code=404)
+
+            oslo_context = flask.request.environ[
+                context.REQUEST_CONTEXT_ENV]
+
+            # Normal Project Scope Form
+            # ---------------------------
+            # test that _normalize_domain_id does something sane
+            domain_id = ref_with_domain_id['domain_id']
+            # Ensure we don't change the domain if it is specified
+            flask_common.ResourceBase._normalize_domain_id(ref_with_domain_id)
+            self.assertEqual(domain_id, ref_with_domain_id['domain_id'])
+            # Ensure (deprecated) we add default domain if needed
+            flask_common.ResourceBase._normalize_domain_id(
+                ref_without_domain_id)
+            self.assertEqual(
+                CONF.identity.default_domain_id,
+                ref_without_domain_id['domain_id'])
+            ref_without_domain_id.clear()
+
+            # Domain Scoped Form
+            # --------------------
+            # Just set oslo_context domain_id to a value. This is how we
+            # communicate domain scope. No need to explicitly
+            # do a domain-scoped request, this is a synthetic text anyway
+            oslo_context.domain_id = uuid.uuid4().hex
+            # Ensure we don't change the domain if it is specified
+            flask_common.ResourceBase._normalize_domain_id(ref_with_domain_id)
+            self.assertEqual(domain_id, ref_with_domain_id['domain_id'])
+            flask_common.ResourceBase._normalize_domain_id(
+                ref_without_domain_id)
+            self.assertEqual(oslo_context.domain_id,
+                             ref_without_domain_id['domain_id'])
+            ref_without_domain_id.clear()
+
+            # "Admin" Token form
+            # -------------------
+            # Explicitly set "is_admin" to true, no new request is needed
+            # as we simply check "is_admin" value everywhere
+            oslo_context.is_admin = True
+            oslo_context.domain_id = None
+            # Ensure we don't change the domain if it is specified
+            flask_common.ResourceBase._normalize_domain_id(ref_with_domain_id)
+            self.assertEqual(domain_id, ref_with_domain_id['domain_id'])
+            # Ensure we raise an appropriate exception with the inferred
+            # domain_id
+            self.assertRaises(exception.ValidationError,
+                              flask_common.ResourceBase._normalize_domain_id,
+                              ref=ref_without_domain_id)
