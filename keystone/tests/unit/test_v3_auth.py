@@ -3574,67 +3574,71 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
             c.post('/v3/auth/tokens', json=auth_data,
                    expected_status_code=http_client.UNAUTHORIZED)
 
-
-# TODO(morgan): Determine if these test cases should be run. If so, retro-fit
-# them to run.
-class AuthExternalDomainBehavior(object):
-    content_type = 'json'
-
-    def test_remote_user_with_realm(self):
-        api = auth.controllers.Auth()
-        remote_user = self.user['name']
-        remote_domain = self.domain['name']
-        request, auth_info, auth_context = self.build_external_auth_request(
-            remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
-
-        api.authenticate(request, auth_info, auth_context)
-        self.assertEqual(self.user['id'], auth_context['user_id'])
-
-        # Now test to make sure the user name can, itself, contain the
-        # '@' character.
-        user = {'name': 'myname@mydivision'}
-        PROVIDERS.identity_api.update_user(self.user['id'], user)
-        remote_user = user['name']
-        request, auth_info, auth_context = self.build_external_auth_request(
-            remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
-
-        api.authenticate(request, auth_info, auth_context)
-        self.assertEqual(self.user['id'], auth_context['user_id'])
-
-
-# TODO(morgan): Determine if these test cases should be run. If so, retro-fit
-# them to run.
-class TestAuthExternalDefaultDomain(object):
-    content_type = 'json'
-
-    def config_overrides(self):
-        super(TestAuthExternalDefaultDomain, self).config_overrides()
-        self.kerberos = False
-        self.auth_plugin_config_override(external='DefaultDomain')
-
-    def test_remote_user_with_default_domain(self):
-        api = auth.controllers.Auth()
-        remote_user = self.default_domain_user['name']
-        request, auth_info, auth_context = self.build_external_auth_request(
-            remote_user, kerberos=self.kerberos)
-
-        api.authenticate(request, auth_info, auth_context)
-        self.assertEqual(self.default_domain_user['id'],
-                         auth_context['user_id'])
-
-        # Now test to make sure the user name can, itself, contain the
-        # '@' character.
-        user = {'name': 'myname@mydivision'}
-        PROVIDERS.identity_api.update_user(
-            self.default_domain_user['id'], user
-        )
-        remote_user = user['name']
-        request, auth_info, auth_context = self.build_external_auth_request(
-            remote_user, kerberos=self.kerberos)
-
-        api.authenticate(request, auth_info, auth_context)
-        self.assertEqual(self.default_domain_user['id'],
-                         auth_context['user_id'])
+# FIXME(morgan): This test case must be re-worked to function under flask. It
+# has been commented out until it is re-worked ensuring no issues when webob
+# classes are removed.
+# https://bugs.launchpad.net/keystone/+bug/1793756
+# class AuthExternalDomainBehavior(object):
+#     content_type = 'json'
+#
+#     def test_remote_user_with_realm(self):
+#         api = auth.controllers.Auth()
+#         remote_user = self.user['name']
+#         remote_domain = self.domain['name']
+#         request, auth_info, auth_context = self.build_external_auth_request(
+#             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
+#
+#         api.authenticate(request, auth_info, auth_context)
+#         self.assertEqual(self.user['id'], auth_context['user_id'])
+#
+#         # Now test to make sure the user name can, itself, contain the
+#         # '@' character.
+#         user = {'name': 'myname@mydivision'}
+#         PROVIDERS.identity_api.update_user(self.user['id'], user)
+#         remote_user = user['name']
+#         request, auth_info, auth_context = self.build_external_auth_request(
+#             remote_user, remote_domain=remote_domain, kerberos=self.kerberos)
+#
+#         api.authenticate(request, auth_info, auth_context)
+#         self.assertEqual(self.user['id'], auth_context['user_id'])
+#
+#
+# FIXME(morgan): This test case must be re-worked to function under flask. It
+# has been commented out until it is re-worked ensuring no issues when webob
+# classes are removed.
+# https://bugs.launchpad.net/keystone/+bug/1793756
+# class TestAuthExternalDefaultDomain(object):
+#     content_type = 'json'
+#
+#     def config_overrides(self):
+#         super(TestAuthExternalDefaultDomain, self).config_overrides()
+#         self.kerberos = False
+#         self.auth_plugin_config_override(external='DefaultDomain')
+#
+#     def test_remote_user_with_default_domain(self):
+#         api = auth.controllers.Auth()
+#         remote_user = self.default_domain_user['name']
+#         request, auth_info, auth_context = self.build_external_auth_request(
+#             remote_user, kerberos=self.kerberos)
+#
+#         api.authenticate(request, auth_info, auth_context)
+#         self.assertEqual(self.default_domain_user['id'],
+#                          auth_context['user_id'])
+#
+#         # Now test to make sure the user name can, itself, contain the
+#         # '@' character.
+#         user = {'name': 'myname@mydivision'}
+#         PROVIDERS.identity_api.update_user(
+#             self.default_domain_user['id'], user
+#         )
+#         remote_user = user['name']
+#         request, auth_info, auth_context = self.build_external_auth_request(
+#             remote_user, kerberos=self.kerberos)
+#
+#         api.authenticate(request, auth_info, auth_context)
+#         self.assertEqual(self.default_domain_user['id'],
+#                          auth_context['user_id'])
+#
 
 
 class TestAuthJSONExternal(test_v3.RestfulTestCase):
