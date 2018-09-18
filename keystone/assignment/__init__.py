@@ -12,5 +12,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.assignment import controllers  # noqa
 from keystone.assignment.core import *  # noqa
