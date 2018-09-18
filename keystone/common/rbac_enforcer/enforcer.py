@@ -20,9 +20,9 @@ from oslo_utils import strutils
 
 from keystone.common import authorization
 from keystone.common import context
-from keystone.common import controller
 from keystone.common import policies
 from keystone.common import provider_api
+from keystone.common import render_token
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -85,7 +85,7 @@ class RBACEnforcer(object):
         # oslo.policy for enforcement. This is because oslo.policy shouldn't
         # know how to deal with an internal object only used within keystone.
         if 'token' in credentials:
-            token_ref = controller.render_token_response_from_model(
+            token_ref = render_token.render_token_response_from_model(
                 credentials['token']
             )
             credentials_copy = copy.deepcopy(credentials)
@@ -210,7 +210,7 @@ class RBACEnforcer(object):
             ret_dict[target] = {}
             ret_dict[target]['user_id'] = token.user_id
             try:
-                user_domain_id = token.user_domain_id
+                user_domain_id = token.user['domain_id']
             except exception.UnexpectedError:
                 user_domain_id = None
             if user_domain_id:

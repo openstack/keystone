@@ -15,5 +15,3 @@
 # NOTE(notmorgan): Be careful in adjusting whitespace here, flake8 checks
 # get cranky.
 from keystone.auth import core  # noqa
-
-from keystone.auth import controllers  # noqa

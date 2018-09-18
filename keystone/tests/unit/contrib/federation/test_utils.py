@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import flask
 import uuid
 
 from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
-import webob
 
 from keystone.auth.plugins import mapped
 import keystone.conf
@@ -30,6 +30,13 @@ FAKE_MAPPING_ID = uuid.uuid4().hex
 
 class MappingRuleEngineTests(unit.BaseTestCase):
     """A class for testing the mapping rule engine."""
+
+    def setUp(self):
+        super(MappingRuleEngineTests, self).setUp()
+        # create dummy app so we can setup a request context for our
+        # tests.
+        self.flask_app = flask.Flask(__name__)
+        self.cleanup_instance('flask_app')
 
     def assertValidMappedUserObject(self, mapped_properties,
                                     user_type='ephemeral',
@@ -510,7 +517,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertValidMappedUserObject(mapped_properties)
         self.assertEqual('jsmith', mapped_properties['user']['name'])
         unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            {}, mapped_properties)
+            mapped_properties)
         self.assertEqual('jsmith', unique_id)
         self.assertEqual('jsmith', display_name)
 
@@ -533,7 +540,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
         unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            {}, mapped_properties)
+            mapped_properties)
         self.assertEqual('tbo', display_name)
         self.assertEqual('abc123%40example.com', unique_id)
 
@@ -549,15 +556,15 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         as it was not explicitly specified in the mapping.
 
         """
-        request = webob.Request.blank('/')
         mapping = mapping_fixtures.MAPPING_USER_IDS
         rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
         assertion = mapping_fixtures.ADMIN_ASSERTION
         mapped_properties = rp.process(assertion)
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
-        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            request, mapped_properties)
+        with self.flask_app.test_request_context():
+            unique_id, display_name = (
+                mapped.get_user_unique_id_and_display_name(mapped_properties))
         self.assertEqual('bob', unique_id)
         self.assertEqual('bob', display_name)
 
@@ -566,13 +573,14 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         mapping = mapping_fixtures.MAPPING_USER_IDS
         assertion = mapping_fixtures.ADMIN_ASSERTION
         FAKE_MAPPING_ID = uuid.uuid4().hex
-        request = webob.Request.blank('/', remote_user='remote_user')
         rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
         mapped_properties = rp.process(assertion)
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
-        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            request, mapped_properties)
+        with self.flask_app.test_request_context(
+                environ_base={'REMOTE_USER': 'remote_user'}):
+            unique_id, display_name = (
+                mapped.get_user_unique_id_and_display_name(mapped_properties))
         self.assertEqual('bob', unique_id)
         self.assertEqual('remote_user', display_name)
 
@@ -597,7 +605,6 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         not to change it.
 
         """
-        request = webob.Request.blank('/')
         testcases = [(mapping_fixtures.CUSTOMER_ASSERTION, 'bwilliams'),
                      (mapping_fixtures.EMPLOYEE_ASSERTION, 'tbo')]
         for assertion, exp_user_name in testcases:
@@ -607,8 +614,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
             self.assertIsNotNone(mapped_properties)
             self.assertValidMappedUserObject(mapped_properties)
             unique_id, display_name = (
-                mapped.get_user_unique_id_and_display_name(request,
-                                                           mapped_properties)
+                mapped.get_user_unique_id_and_display_name(mapped_properties)
             )
             self.assertEqual(exp_user_name, display_name)
             self.assertEqual('abc123%40example.com', unique_id)
@@ -821,12 +827,14 @@ class TestUnicodeAssertionData(unit.BaseTestCase):
         # pulled from the HTTP headers. These bytes may be decodable as
         # ISO-8859-1 according to Section 3.2.4 of RFC 7230. Let's assume
         # that our web server plugins are correctly encoding the data.
-        request = webob.Request.blank(
-            '/path',
-            environ=mapping_fixtures.UNICODE_NAME_ASSERTION)
-        data = mapping_utils.get_assertion_params_from_env(request)
-        # NOTE(dstanek): keystone.auth.plugins.mapped
-        return dict(data)
+        # Create a dummy application
+        app = flask.Flask(__name__)
+        with app.test_request_context(
+                path='/path',
+                environ_overrides=mapping_fixtures.UNICODE_NAME_ASSERTION):
+            data = mapping_utils.get_assertion_params_from_env()
+            # NOTE(dstanek): keystone.auth.plugins.mapped
+            return dict(data)
 
     def test_unicode(self):
         mapping = self._pull_mapping_rules_from_the_database()

@@ -23,7 +23,7 @@ METHOD_NAME = 'application_credential'
 
 
 class ApplicationCredential(base.AuthMethodHandler):
-    def authenticate(self, request, auth_payload):
+    def authenticate(self, auth_payload):
         """Authenticate an application."""
         response_data = {}
         app_cred_info = auth_plugins.AppCredInfo.create(auth_payload,
@@ -31,7 +31,6 @@ class ApplicationCredential(base.AuthMethodHandler):
 
         try:
             PROVIDERS.application_credential_api.authenticate(
-                request,
                 application_credential_id=app_cred_info.id,
                 secret=app_cred_info.secret)
         except AssertionError as e:

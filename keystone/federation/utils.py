@@ -15,6 +15,7 @@
 import ast
 import re
 
+import flask
 import jsonschema
 from oslo_config import cfg
 from oslo_log import log
@@ -416,10 +417,10 @@ def transform_to_group_ids(group_names, mapping_id,
                       group['name'])
 
 
-def get_assertion_params_from_env(request):
-    LOG.debug('Environment variables: %s', request.environ)
+def get_assertion_params_from_env():
+    LOG.debug('Environment variables: %s', flask.request.environ)
     prefix = CONF.federation.assertion_prefix
-    for k, v in list(request.environ.items()):
+    for k, v in list(flask.request.environ.items()):
         if not k.startswith(prefix):
             continue
         # These bytes may be decodable as ISO-8859-1 according to Section

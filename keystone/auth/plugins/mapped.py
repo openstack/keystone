@@ -13,6 +13,7 @@
 import functools
 import uuid
 
+import flask
 from oslo_log import log
 from pycadf import cadftaxonomy as taxonomy
 from six.moves.urllib import parse
@@ -38,10 +39,9 @@ class Mapped(base.AuthMethodHandler):
         token_id = auth_payload['id']
         return PROVIDERS.token_provider_api.validate_token(token_id)
 
-    def authenticate(self, request, auth_payload):
+    def authenticate(self, auth_payload):
         """Authenticate mapped user and set an authentication context.
 
-        :param request: keystone's request context
         :param auth_payload: the content of the authentication for a
                              given method
 
@@ -52,13 +52,11 @@ class Mapped(base.AuthMethodHandler):
         """
         if 'id' in auth_payload:
             token_ref = self._get_token_ref(auth_payload)
-            response_data = handle_scoped_token(request,
-                                                token_ref,
+            response_data = handle_scoped_token(token_ref,
                                                 PROVIDERS.federation_api,
                                                 PROVIDERS.identity_api)
         else:
-            response_data = handle_unscoped_token(request,
-                                                  auth_payload,
+            response_data = handle_unscoped_token(auth_payload,
                                                   PROVIDERS.resource_api,
                                                   PROVIDERS.federation_api,
                                                   PROVIDERS.identity_api,
@@ -69,7 +67,7 @@ class Mapped(base.AuthMethodHandler):
                                         response_data=response_data)
 
 
-def handle_scoped_token(request, token, federation_api, identity_api):
+def handle_scoped_token(token, federation_api, identity_api):
     response_data = {}
     utils.validate_expiration(token)
     token_audit_id = token.audit_id
@@ -81,7 +79,7 @@ def handle_scoped_token(request, token, federation_api, identity_api):
         group_ids.append(group_dict['id'])
     send_notification = functools.partial(
         notifications.send_saml_audit_notification, 'authenticate',
-        request, user_id, group_ids, identity_provider, protocol,
+        user_id, group_ids, identity_provider, protocol,
         token_audit_id)
 
     utils.assert_enabled_identity_provider(federation_api, identity_provider)
@@ -108,7 +106,7 @@ def handle_scoped_token(request, token, federation_api, identity_api):
     return response_data
 
 
-def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
+def handle_unscoped_token(auth_payload, resource_api, federation_api,
                           identity_api, assignment_api, role_api):
 
     def validate_shadow_mapping(shadow_projects, existing_roles, idp_domain_id,
@@ -199,7 +197,7 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
 
         return resp
 
-    assertion = extract_assertion_data(request)
+    assertion = extract_assertion_data()
     try:
         identity_provider = auth_payload['identity_provider']
     except KeyError:
@@ -234,7 +232,7 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
 
         if is_ephemeral_user(mapped_properties):
             unique_id, display_name = (
-                get_user_unique_id_and_display_name(request, mapped_properties)
+                get_user_unique_id_and_display_name(mapped_properties)
             )
             email = mapped_properties['user'].get('email')
             user = identity_api.shadow_federated_user(identity_provider,
@@ -282,7 +280,6 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
         # after sending the notification
         outcome = taxonomy.OUTCOME_FAILURE
         notifications.send_saml_audit_notification('authenticate',
-                                                   request,
                                                    user_id, group_ids,
                                                    identity_provider,
                                                    protocol, token_id,
@@ -291,7 +288,6 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
     else:
         outcome = taxonomy.OUTCOME_SUCCESS
         notifications.send_saml_audit_notification('authenticate',
-                                                   request,
                                                    user_id, group_ids,
                                                    identity_provider,
                                                    protocol, token_id,
@@ -300,8 +296,8 @@ def handle_unscoped_token(request, auth_payload, resource_api, federation_api,
     return response_data
 
 
-def extract_assertion_data(request):
-    assertion = dict(utils.get_assertion_params_from_env(request))
+def extract_assertion_data():
+    assertion = dict(utils.get_assertion_params_from_env())
     return assertion
 
 
@@ -329,7 +325,7 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
     return mapped_properties, mapping_id
 
 
-def get_user_unique_id_and_display_name(request, mapped_properties):
+def get_user_unique_id_and_display_name(mapped_properties):
     """Setup federated username.
 
     Function covers all the cases for properly setting user id, a primary
@@ -345,7 +341,6 @@ def get_user_unique_id_and_display_name(request, mapped_properties):
     3) If user_id is not set and user_name is, set user_id as url safe version
        of user_name.
 
-    :param request: current request object
     :param mapped_properties: Properties issued by a RuleProcessor.
     :type: dictionary
 
@@ -358,7 +353,7 @@ def get_user_unique_id_and_display_name(request, mapped_properties):
     user = mapped_properties['user']
 
     user_id = user.get('id')
-    user_name = user.get('name') or request.remote_user
+    user_name = user.get('name') or flask.request.remote_user
 
     if not any([user_id, user_name]):
         msg = _("Could not map user while setting ephemeral user identity. "

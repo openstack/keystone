@@ -25,14 +25,13 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class Password(base.AuthMethodHandler):
 
-    def authenticate(self, request, auth_payload):
+    def authenticate(self, auth_payload):
         """Try to authenticate against the identity backend."""
         response_data = {}
         user_info = auth_plugins.UserAuthInfo.create(auth_payload, METHOD_NAME)
 
         try:
             PROVIDERS.identity_api.authenticate(
-                request,
                 user_id=user_info.user_id,
                 password=user_info.password)
         except AssertionError:

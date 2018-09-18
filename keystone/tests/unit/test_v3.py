@@ -21,7 +21,6 @@ from six.moves import http_client
 from testtools import matchers
 import webtest
 
-from keystone import auth
 from keystone.common import authorization
 from keystone.common import cache
 from keystone.common import provider_api
@@ -1214,18 +1213,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                                 'links', 'relay_state_prefix', 'sp_url'])
         for attribute in attributes:
             self.assertIsNotNone(entity.get(attribute))
-
-    def build_external_auth_request(self, remote_user,
-                                    remote_domain=None, auth_data=None,
-                                    kerberos=False):
-        environment = self.build_external_auth_environ(
-            remote_user, remote_domain)
-        if not auth_data:
-            auth_data = self.build_authentication_request(
-                kerberos=kerberos)['auth']
-        auth_info = auth.core.AuthInfo.create(auth_data)
-        auth_context = auth.core.AuthContext(method_names=[])
-        return self.make_request(environ=environment), auth_info, auth_context
 
     def build_external_auth_environ(self, remote_user, remote_domain=None):
         environment = {'REMOTE_USER': remote_user, 'AUTH_TYPE': 'Negotiate'}

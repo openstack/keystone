@@ -25,9 +25,6 @@ import flask_restful.utils
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
-from pycadf import cadftaxonomy as taxonomy
-from pycadf import host
-from pycadf import resource
 import six
 from six.moves import http_client
 
@@ -40,6 +37,7 @@ from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
+from keystone import notifications
 
 
 # NOTE(morgan): Capture the relevant part of the flask url route rule for
@@ -92,15 +90,21 @@ def construct_resource_map(resource, url, resource_kwargs, alternate_urls=None,
                             Additional keyword arguments not specified above
                             will be passed as-is to
                             :meth:`flask.Flask.add_url_rule`.
-    :param alternate_urls: An iterable (list) of urls that also map to the
-                           resource. These are used to ensure API compat when
-                           a "new" path is more correct for the API but old
-                           paths must continue to work. Example:
+    :param alternate_urls: An iterable (list) of dictionaries containing urls
+                           and associated json home REL data. Each element is
+                           expected to be a dictionary with a 'url' key and an
+                           optional 'json_home' key for a 'JsonHomeData' named
+                           tuple  These urls will also map to the resource.
+                           These are used to ensure API compatibility when a
+                           "new" path is more correct for the API but old paths
+                           must continue to work. Example:
                            `/auth/domains` being the new path for
                            `/OS-FEDERATION/domains`. The `OS-FEDERATION` part
-                           would be listed as an alternate url. These are not
-                           added to the JSON Home Document.
-    :type: any iterable or None
+                           would be listed as an alternate url. If a
+                           'json_home' key is provided, the original path
+                           with the new json_home data will be added to the
+                           JSON Home Document.
+    :type: iterable or None
     :param rel:
     :type rel: str or None
     :param status: JSON Home API Status, e.g. "STABLE"
@@ -151,26 +155,6 @@ def _remove_content_type_on_204(resp):
     if resp.status_code == http_client.NO_CONTENT:
         resp.headers.pop('content-type', None)
     return resp
-
-
-def build_audit_initiator():
-    """A pyCADF initiator describing the current authenticated context."""
-    pycadf_host = host.Host(address=flask.request.remote_addr,
-                            agent=str(flask.request.user_agent))
-    initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER,
-                                  host=pycadf_host)
-    oslo_context = flask.request.environ.get(context.REQUEST_CONTEXT_ENV)
-    if oslo_context.user_id:
-        initiator.id = utils.resource_uuid(oslo_context.user_id)
-        initiator.user_id = oslo_context.user_id
-
-    if oslo_context.project_id:
-        initiator.project_id = oslo_context.project_id
-
-    if oslo_context.domain_id:
-        initiator.domain_id = oslo_context.domain_id
-
-    return initiator
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -427,19 +411,33 @@ class APIBase(object):
     def _add_mapped_resources(self):
         # Add resource mappings, non-standard resource connections
         for r in self.resource_mapping:
+            alt_url_json_home_data = []
             LOG.debug(
                 'Adding resource routes to API %(name)s: '
                 '[%(url)r %(kwargs)r]',
                 {'name': self._name, 'url': r.url, 'kwargs': r.kwargs})
-            self.api.add_resource(r.resource, r.url, **r.kwargs)
+            urls = [r.url]
             if r.alternate_urls is not None:
-                LOG.debug(
-                    'Adding additional resource routes (alternate) to API'
-                    '%(name)s: [%(urls)r %(kwargs)r]',
-                    {'name': self._name, 'urls': r.alternate_urls,
-                     'kwargs': r.kwargs})
-                self.api.add_resource(r.resource, *r.alternate_urls,
-                                      **r.kwargs)
+                for element in r.alternate_urls:
+                    if self._api_url_prefix:
+                        LOG.debug(
+                            'Unable to add additional resource route '
+                            '`%(route)s` to API %(name)s because API has a '
+                            'URL prefix. Only APIs without explicit prefixes '
+                            'can have alternate URL routes added.',
+                            {'route': element['url'], 'name': self._name}
+                        )
+                        continue
+                    LOG.debug(
+                        'Adding additional resource route (alternate) to API'
+                        '%(name)s: [%(url)r %(kwargs)r]',
+                        {'name': self._name, 'url': element['url'],
+                         'kwargs': r.kwargs})
+                    urls.append(element['url'])
+                    if element.get('json_home'):
+                        alt_url_json_home_data.append(element['json_home'])
+            # Add all URL routes at once.
+            self.api.add_resource(r.resource, *urls, **r.kwargs)
 
             # Build the JSON Home data and add it to the relevant JSON Home
             # Documents for explicit JSON Home data.
@@ -461,6 +459,12 @@ class APIBase(object):
                 json_home.JsonHomeResources.append_resource(
                     r.json_home_data.rel,
                     resource_data)
+
+                for element in alt_url_json_home_data:
+                    # Append the "new" path (resource) data with the old rel
+                    # reference.
+                    json_home.JsonHomeResources.append_resource(
+                        element.rel, resource_data)
 
     def _register_before_request_functions(self, functions=None):
         """Register functions to be executed in the `before request` phase.
@@ -764,7 +768,7 @@ class ResourceBase(flask_restful.Resource):
 
         As a property.
         """
-        return build_audit_initiator()
+        return notifications.build_audit_initiator()
 
     @staticmethod
     def query_filter_is_true(filter_name):

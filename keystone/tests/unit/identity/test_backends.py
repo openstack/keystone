@@ -43,25 +43,25 @@ class IdentityTests(object):
             return domain_id
 
     def test_authenticate_bad_user(self):
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=uuid.uuid4().hex,
-                          password=self.user_foo['password'])
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=uuid.uuid4().hex,
+                              password=self.user_foo['password'])
 
     def test_authenticate_bad_password(self):
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=self.user_foo['id'],
-                          password=uuid.uuid4().hex)
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=self.user_foo['id'],
+                              password=uuid.uuid4().hex)
 
     def test_authenticate(self):
-        user_ref = PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=self.user_sna['id'],
-            password=self.user_sna['password'])
-        # NOTE(termie): the password field is left in user_sna to make
+        with self.make_request():
+            user_ref = PROVIDERS.identity_api.authenticate(
+                user_id=self.user_sna['id'],
+                password=self.user_sna['password'])
+            # NOTE(termie): the password field is left in user_sna to make
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         self.user_sna.pop('password')
@@ -83,10 +83,10 @@ class IdentityTests(object):
         PROVIDERS.assignment_api.add_role_to_user_and_project(
             new_user['id'], self.tenant_baz['id'], role_member['id']
         )
-        user_ref = PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=new_user['id'],
-            password=user['password'])
+        with self.make_request():
+            user_ref = PROVIDERS.identity_api.authenticate(
+                user_id=new_user['id'],
+                password=user['password'])
         self.assertNotIn('password', user_ref)
         # NOTE(termie): the password field is left in user_sna to make
         #               it easier to authenticate in tests, but should
@@ -103,11 +103,11 @@ class IdentityTests(object):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         PROVIDERS.identity_api.create_user(user)
 
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=id_,
-                          password='password')
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=id_,
+                              password='password')
 
     def test_create_unicode_user_name(self):
         unicode_name = u'name \u540d\u5b57'
@@ -394,16 +394,15 @@ class IdentityTests(object):
         PROVIDERS.identity_api.get_user(user['id'])
         # Make sure  the user is not allowed to login
         # with a password that  is empty string or None
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=user['id'],
-                          password='')
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=user['id'],
-                          password=None)
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=user['id'],
+                              password='')
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=user['id'],
+                              password=None)
 
     def test_create_user_none_password(self):
         user = unit.new_user_ref(password=None,
@@ -412,16 +411,15 @@ class IdentityTests(object):
         PROVIDERS.identity_api.get_user(user['id'])
         # Make sure  the user is not allowed to login
         # with a password that  is empty string or None
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=user['id'],
-                          password='')
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=user['id'],
-                          password=None)
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=user['id'],
+                              password='')
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=user['id'],
+                              password=None)
 
     def test_create_user_invalid_name_fails(self):
         user = unit.new_user_ref(name=None,

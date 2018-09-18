@@ -101,7 +101,7 @@ class Manager(manager.Manager):
             roles.append(PROVIDERS.role_api.get_role(role['id']))
         return roles
 
-    def authenticate(self, request, application_credential_id, secret):
+    def authenticate(self, application_credential_id, secret):
         """Authenticate with an application credential.
 
         :param str application_credential_id: Application Credential ID

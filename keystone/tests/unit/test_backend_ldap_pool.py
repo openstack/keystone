@@ -176,10 +176,10 @@ class LdapPoolCommonTestMixin(object):
 
         # authenticate so that connection is added to pool before password
         # change
-        user_ref = PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=self.user_sna['id'],
-            password=self.user_sna['password'])
+        with self.make_request():
+            user_ref = PROVIDERS.identity_api.authenticate(
+                user_id=self.user_sna['id'],
+                password=self.user_sna['password'])
 
         self.user_sna.pop('password')
         self.user_sna['enabled'] = True
@@ -191,10 +191,10 @@ class LdapPoolCommonTestMixin(object):
 
         # now authenticate again to make sure new password works with
         # connection pool
-        user_ref2 = PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=self.user_sna['id'],
-            password=new_password)
+        with self.make_request():
+            user_ref2 = PROVIDERS.identity_api.authenticate(
+                user_id=self.user_sna['id'],
+                password=new_password)
 
         user_ref.pop('password')
         self.assertUserDictEqual(user_ref, user_ref2)
@@ -202,11 +202,11 @@ class LdapPoolCommonTestMixin(object):
         # Authentication with old password would not work here as there
         # is only one connection in pool which get bind again with updated
         # password..so no old bind is maintained in this case.
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=self.user_sna['id'],
-                          password=old_password)
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=self.user_sna['id'],
+                              password=old_password)
 
 
 class LDAPIdentity(LdapPoolCommonTestMixin,

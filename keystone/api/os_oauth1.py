@@ -174,7 +174,7 @@ class RequestTokenResource(_OAuth1ResourceBase):
             consumer_id,
             requested_project_id,
             request_token_duration,
-            initiator=ks_flask.build_audit_initiator())
+            initiator=notifications.build_audit_initiator())
 
         result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
                   % {'key': token_ref['id'],
@@ -266,7 +266,7 @@ class AccessTokenResource(_OAuth1ResourceBase):
         token_ref = PROVIDERS.oauth_api.create_access_token(
             request_token_id,
             access_token_duration,
-            initiator=ks_flask.build_audit_initiator())
+            initiator=notifications.build_audit_initiator())
 
         result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
                   % {'key': token_ref['id'],

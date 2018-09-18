@@ -33,11 +33,9 @@ class AuthMethodHandler(provider_api.ProviderAPIMixin, object):
         pass
 
     @abc.abstractmethod
-    def authenticate(self, request, auth_payload):
+    def authenticate(self, auth_payload):
         """Authenticate user and return an authentication context.
 
-        :param request: context of an authentication request
-        :type request: common.request.Request
         :param auth_payload: the payload content of the authentication request
                              for a given method
         :type auth_payload: dict

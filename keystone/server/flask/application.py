@@ -26,11 +26,9 @@ import werkzeug.wsgi
 import keystone.api
 from keystone.application_credential import routers as app_cred_routers
 from keystone.assignment import routers as assignment_routers
-from keystone.auth import routers as auth_routers
 from keystone.common import wsgi as keystone_wsgi
 from keystone.contrib.ec2 import routers as ec2_routers
 from keystone.contrib.s3 import routers as s3_routers
-from keystone.federation import routers as federation_routers
 from keystone.identity import routers as identity_routers
 from keystone.oauth1 import routers as oauth1_routers
 from keystone.resource import routers as resource_routers
@@ -38,7 +36,8 @@ from keystone.resource import routers as resource_routers
 # TODO(morgan): _MOVED_API_PREFIXES to be removed when the legacy dispatch
 # support is removed.
 _MOVED_API_PREFIXES = frozenset(
-    ['credentials',
+    ['auth',
+     'credentials',
      'domains',
      'endpoints',
      'groups',
@@ -64,12 +63,10 @@ _MOVED_API_PREFIXES = frozenset(
 LOG = log.getLogger(__name__)
 
 
-ALL_API_ROUTERS = [auth_routers,
-                   assignment_routers,
+ALL_API_ROUTERS = [assignment_routers,
                    identity_routers,
                    app_cred_routers,
                    resource_routers,
-                   federation_routers,
                    oauth1_routers,
                    ec2_routers,
                    s3_routers]

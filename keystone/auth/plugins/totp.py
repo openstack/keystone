@@ -72,7 +72,7 @@ def _generate_totp_passcode(secret):
 
 class TOTP(base.AuthMethodHandler):
 
-    def authenticate(self, request, auth_payload):
+    def authenticate(self, auth_payload):
         """Try to authenticate using TOTP."""
         response_data = {}
         user_info = plugins.TOTPUserInfo.create(auth_payload, METHOD_NAME)

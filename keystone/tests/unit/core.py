@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 import atexit
 import base64
+import contextlib
 import datetime
 import functools
 import hashlib
@@ -46,7 +47,6 @@ import keystone.api
 from keystone.common import context
 from keystone.common import json_home
 from keystone.common import provider_api
-from keystone.common import request
 from keystone.common import sql
 import keystone.conf
 from keystone import exception
@@ -684,19 +684,27 @@ class TestCase(BaseTestCase):
     def _policy_fixture(self):
         return ksfixtures.Policy(dirs.etc('policy.json'), self.config_fixture)
 
+    @contextlib.contextmanager
     def make_request(self, path='/', **kwargs):
+        # standup a fake app and request context with a passed in/known
+        # environment.
+
         is_admin = kwargs.pop('is_admin', False)
         environ = kwargs.setdefault('environ', {})
+        query_string = kwargs.pop('query_string', None)
+        if query_string:
+            # Make sure query string is properly added to the context
+            path = '{path}?{qs}'.format(path=path, qs=query_string)
 
         if not environ.get(context.REQUEST_CONTEXT_ENV):
             environ[context.REQUEST_CONTEXT_ENV] = context.RequestContext(
                 is_admin=is_admin,
                 authenticated=kwargs.pop('authenticated', True))
 
-        req = request.Request.blank(path=path, **kwargs)
-        req.context_dict['is_admin'] = is_admin
-
-        return req
+        # Create a dummy flask app to work with
+        app = flask.Flask(__name__)
+        with app.test_request_context(path=path, environ_overrides=environ):
+            yield
 
     def config_overrides(self):
         # NOTE(morganfainberg): enforce config_overrides can only ever be
@@ -779,6 +787,8 @@ class TestCase(BaseTestCase):
             new=mocked_register_auth_plugin_opt))
 
         self.config_overrides()
+        # explicitly load auth configuration
+        keystone.conf.auth.setup_authentication()
         # NOTE(morganfainberg): ensure config_overrides has been called.
         self.addCleanup(self._assert_config_overrides_called)
 

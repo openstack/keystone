@@ -70,3 +70,8 @@ os_federation_parameter_rel_func = functools.partial(
 os_inherit_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
     extension_name='OS-INHERIT', extension_version='1.0')
+
+# OS-PKI (revoked) "extension"
+os_pki_resource_rel_func = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-PKI', extension_version='1.0')

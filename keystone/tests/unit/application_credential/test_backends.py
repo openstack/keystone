@@ -257,13 +257,11 @@ class ApplicationCredentialTests(object):
         app_cred = self._new_app_cred_data(self.user_foo['id'],
                                            project_id=self.tenant_bar['id'])
         resp = self.app_cred_api.create_application_credential(app_cred)
-        self.app_cred_api.authenticate(
-            self.make_request(), resp['id'], resp['secret'])
+        self.app_cred_api.authenticate(resp['id'], resp['secret'])
 
     def test_authenticate_not_found(self):
         self.assertRaises(AssertionError,
                           self.app_cred_api.authenticate,
-                          self.make_request(),
                           uuid.uuid4().hex,
                           uuid.uuid4().hex)
 
@@ -275,7 +273,6 @@ class ApplicationCredentialTests(object):
         resp = self.app_cred_api.create_application_credential(app_cred)
         self.assertRaises(AssertionError,
                           self.app_cred_api.authenticate,
-                          self.make_request(),
                           resp['id'],
                           resp['secret'])
 
@@ -287,6 +284,5 @@ class ApplicationCredentialTests(object):
         self.assertNotEqual(badpass, resp['secret'])
         self.assertRaises(AssertionError,
                           self.app_cred_api.authenticate,
-                          self.make_request(),
                           resp['id'],
                           badpass)

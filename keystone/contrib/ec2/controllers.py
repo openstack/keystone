@@ -43,6 +43,7 @@ from six.moves import http_client
 
 from keystone.common import controller
 from keystone.common import provider_api
+from keystone.common import render_token
 from keystone.common import utils
 from keystone.common import wsgi
 import keystone.conf
@@ -296,7 +297,7 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         token = self.token_provider_api.issue_token(
             user_ref['id'], method_names, project_id=project_ref['id']
         )
-        token_reference = controller.render_token_response_from_model(token)
+        token_reference = render_token.render_token_response_from_model(token)
         return self.render_token_data_response(token.id, token_reference)
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)

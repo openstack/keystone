@@ -900,10 +900,19 @@ class Manager(manager.Manager):
     # - clear/set domain_ids for drivers that do not support domains
     # - create any ID mapping that might be required
 
+    # TODO(morgan): The split of "authenticate" and "_authenticate" is done
+    # until user API is converted to flask. This is to make webob and flask
+    # play nicely with the authenticate mechanism during self-service password
+    # changes. While this is in place, CADF notifications will not be emitted
+    # for self-service password changes indicating an auth attempt was being
+    # made. This is a very limited time transitional change.
     @notifications.emit_event('authenticate')
+    def authenticate(self, user_id, password):
+        return self._authenticate(user_id, password)
+
     @domains_configured
     @exception_translated('assertion')
-    def authenticate(self, request, user_id, password):
+    def _authenticate(self, user_id, password):
         domain_id, driver, entity_id = (
             self._get_domain_driver_and_entity_id(user_id))
         ref = driver.authenticate(entity_id, password)
@@ -1376,12 +1385,14 @@ class Manager(manager.Manager):
                                                 group_entity_id)
 
     @domains_configured
-    def change_password(self, request, user_id, original_password,
+    def change_password(self, user_id, original_password,
                         new_password, initiator=None):
 
         # authenticate() will raise an AssertionError if authentication fails
         try:
-            self.authenticate(request, user_id, original_password)
+            # TODO(morgan): When users is ported to flask, ensure this is
+            # mapped back to self.authenticate instead of self._authenticate.
+            self._authenticate(user_id, original_password)
         except exception.PasswordExpired:
             # If a password has expired, we want users to be able to change it
             pass

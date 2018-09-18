@@ -765,11 +765,11 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         driver.user.LDAP_USER = None
         driver.user.LDAP_PASSWORD = None
 
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          self.make_request(),
-                          user_id=user['id'],
-                          password=None)
+        with self.make_request():
+            self.assertRaises(AssertionError,
+                              PROVIDERS.identity_api.authenticate,
+                              user_id=user['id'],
+                              password=None)
 
     @mock.patch.object(versionutils, 'report_deprecated_feature')
     def test_user_crud(self, mock_deprecator):
@@ -1988,10 +1988,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.enabled_emulation_dn = 'cn=test,dc=test'
-        PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=self.user_foo['id'],
-            password=self.user_foo['password'])
+        with self.make_request():
+            PROVIDERS.identity_api.authenticate(
+                user_id=self.user_foo['id'],
+                password=self.user_foo['password'])
 
     def test_user_enable_attribute_mask(self):
         self.skip_test_overrides(
@@ -2334,10 +2334,10 @@ class BaseMultiLDAPandSQLIdentity(object):
 
         for user_num in range(self.domain_count):
             user = 'user%s' % user_num
-            PROVIDERS.identity_api.authenticate(
-                self.make_request(),
-                user_id=users[user]['id'],
-                password=users[user]['password'])
+            with self.make_request():
+                PROVIDERS.identity_api.authenticate(
+                    user_id=users[user]['id'],
+                    password=users[user]['password'])
 
 
 class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,

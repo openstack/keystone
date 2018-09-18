@@ -414,13 +414,14 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
 class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
     """Helper object that can validate the MFA Rules."""
 
-    @property
-    def _auth_methods(self):
+    @classmethod
+    def _auth_methods(cls):
         if AUTH_PLUGINS_LOADED:
             return set(AUTH_METHODS.keys())
         raise RuntimeError(_('Auth Method Plugins are not loaded.'))
 
-    def check_auth_methods_against_rules(self, user_id, auth_methods):
+    @classmethod
+    def check_auth_methods_against_rules(cls, user_id, auth_methods):
         """Validate the MFA rules against the successful auth methods.
 
         :param user_id: The user's ID (uuid).
@@ -434,7 +435,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
         mfa_rules = user_ref['options'].get(ro.MFA_RULES_OPT.option_name, [])
         mfa_rules_enabled = user_ref['options'].get(
             ro.MFA_ENABLED_OPT.option_name, True)
-        rules = self._parse_rule_structure(mfa_rules, user_ref['id'])
+        rules = cls._parse_rule_structure(mfa_rules, user_ref['id'])
 
         if not rules or not mfa_rules_enabled:
             # return quickly if the rules are disabled for the user or not set
@@ -451,7 +452,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
             # disable an auth method, and a rule will still pass making it
             # impossible to accidently lock-out a subset of users with a
             # bad keystone.conf
-            r_set = set(r).intersection(self._auth_methods)
+            r_set = set(r).intersection(cls._auth_methods())
             if set(auth_methods).issuperset(r_set):
                 # Rule Matches no need to continue, return here.
                 LOG.debug('Auth methods for user `%(user_id)s`, `%(methods)s` '
@@ -460,7 +461,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
                           {'user_id': user_id,
                            'rule': list(r_set),
                            'methods': auth_methods,
-                           'loaded': self._auth_methods})
+                           'loaded': cls._auth_methods()})
                 return True
 
         LOG.debug('Auth methods for user `%(user_id)s`, `%(methods)s` did not '

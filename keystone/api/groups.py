@@ -22,6 +22,7 @@ from keystone.common import rbac_enforcer
 from keystone.common import validation
 from keystone import exception
 from keystone.identity import schema
+from keystone import notifications
 from keystone.server import flask as ks_flask
 
 
@@ -163,7 +164,7 @@ class UserGroupCRUDResource(flask_restful.Resource):
             build_target=functools.partial(self._build_enforcement_target_attr,
                                            user_id, group_id))
         PROVIDERS.identity_api.add_user_to_group(
-            user_id, group_id, initiator=ks_flask.build_audit_initiator())
+            user_id, group_id, initiator=notifications.build_audit_initiator())
         return None, http_client.NO_CONTENT
 
     def delete(self, group_id, user_id):
@@ -176,7 +177,7 @@ class UserGroupCRUDResource(flask_restful.Resource):
             build_target=functools.partial(self._build_enforcement_target_attr,
                                            user_id, group_id))
         PROVIDERS.identity_api.remove_user_from_group(
-            user_id, group_id, initiator=ks_flask.build_audit_initiator())
+            user_id, group_id, initiator=notifications.build_audit_initiator())
         return None, http_client.NO_CONTENT
 
 

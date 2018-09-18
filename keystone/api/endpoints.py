@@ -23,6 +23,7 @@ from keystone.common import rbac_enforcer
 from keystone.common import utils
 from keystone.common import validation
 from keystone import exception
+from keystone import notifications
 from keystone.server import flask as ks_flask
 
 
@@ -65,7 +66,7 @@ class EndpointResource(ks_flask.ResourceBase):
             except exception.RegionNotFound:
                 region = dict(id=endpoint['region_id'])
                 PROVIDERS.catalog_api.create_region(
-                    region, initiator=ks_flask.build_audit_initiator())
+                    region, initiator=notifications.build_audit_initiator())
         return endpoint
 
     def _get_endpoint(self, endpoint_id):

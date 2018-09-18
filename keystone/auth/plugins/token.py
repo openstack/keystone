@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import flask
 from oslo_log import log
 import six
 
@@ -35,18 +36,18 @@ class Token(base.AuthMethodHandler):
         token_id = auth_payload['id']
         return PROVIDERS.token_provider_api.validate_token(token_id)
 
-    def authenticate(self, request, auth_payload):
+    def authenticate(self, auth_payload):
         if 'id' not in auth_payload:
             raise exception.ValidationError(attribute='id',
                                             target='token')
         token = self._get_token_ref(auth_payload)
         if token.is_federated and PROVIDERS.federation_api:
             response_data = mapped.handle_scoped_token(
-                request, token, PROVIDERS.federation_api,
+                token, PROVIDERS.federation_api,
                 PROVIDERS.identity_api
             )
         else:
-            response_data = token_authenticate(request, token)
+            response_data = token_authenticate(token)
 
         # NOTE(notmorgan): The Token auth method is *very* special and sets the
         # previous values to the method_names. This is because it can be used
@@ -58,7 +59,7 @@ class Token(base.AuthMethodHandler):
                                         response_data=response_data)
 
 
-def token_authenticate(request, token):
+def token_authenticate(token):
     response_data = {}
     try:
 
@@ -67,10 +68,11 @@ def token_authenticate(request, token):
         # state in Keystone. To do so is to invite elevation of
         # privilege attacks
 
-        project_scoped = 'project' in request.json_body['auth'].get(
+        json_body = flask.request.get_json(silent=True, force=True) or {}
+        project_scoped = 'project' in json_body['auth'].get(
             'scope', {}
         )
-        domain_scoped = 'domain' in request.json_body['auth'].get(
+        domain_scoped = 'domain' in json_body['auth'].get(
             'scope', {}
         )
 

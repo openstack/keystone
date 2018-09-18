@@ -121,10 +121,10 @@ class ShadowUsersBackendTests(object):
         now = datetime.datetime.utcnow().date()
         password = uuid.uuid4().hex
         user = self._create_user(password)
-        user_auth = PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=user['id'],
-            password=password)
+        with self.make_request():
+            user_auth = PROVIDERS.identity_api.authenticate(
+                user_id=user['id'],
+                password=password)
         user_ref = self._get_user_ref(user_auth['id'])
         self.assertGreaterEqual(now, user_ref.last_active_at)
 
@@ -133,10 +133,10 @@ class ShadowUsersBackendTests(object):
                                    disable_user_account_days_inactive=None)
         password = uuid.uuid4().hex
         user = self._create_user(password)
-        user_auth = PROVIDERS.identity_api.authenticate(
-            self.make_request(),
-            user_id=user['id'],
-            password=password)
+        with self.make_request():
+            user_auth = PROVIDERS.identity_api.authenticate(
+                user_id=user['id'],
+                password=password)
         user_ref = self._get_user_ref(user_auth['id'])
         self.assertIsNone(user_ref.last_active_at)
 

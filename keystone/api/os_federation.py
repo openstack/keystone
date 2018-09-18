@@ -14,18 +14,17 @@
 
 import flask
 import flask_restful
-from oslo_log import versionutils
+from oslo_serialization import jsonutils
 from six.moves import http_client
 
+from keystone.api._shared import authentication
 from keystone.api._shared import json_home_relations
-from keystone.common import authorization
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import request
+from keystone.common import render_token
 from keystone.common import validation
 import keystone.conf
 from keystone import exception
-import keystone.federation.controllers
 from keystone.federation import schema
 from keystone.federation import utils
 from keystone.server import flask as ks_flask
@@ -380,74 +379,6 @@ class ServiceProvidersResource(_ResourceBase):
         return None, http_client.NO_CONTENT
 
 
-class OSFederationProjectResource(flask_restful.Resource):
-    @versionutils.deprecated(as_of=versionutils.deprecated.JUNO,
-                             what='GET /v3/OS-FEDERATION/projects',
-                             in_favor_of='GET /v3/auth/projects')
-    def get(self):
-        """Get projects for user.
-
-        GET/HEAD /OS-FEDERATION/projects
-        """
-        ENFORCER.enforce_call(action='identity:get_auth_projects')
-        # TODO(morgan): Make this method simply call the endpoint for
-        # /v3/auth/projects once auth is ported to flask.
-        auth_context = flask.request.environ.get(
-            authorization.AUTH_CONTEXT_ENV)
-        user_id = auth_context.get('user_id')
-        group_ids = auth_context.get('group_ids')
-
-        user_refs = []
-        if user_id:
-            try:
-                user_refs = PROVIDERS.assignment_api.list_projects_for_user(
-                    user_id)
-            except exception.UserNotFound:  # nosec
-                # federated users have an id but they don't link to anything
-                pass
-        group_refs = []
-        if group_ids:
-            group_refs = PROVIDERS.assignment_api.list_projects_for_groups(
-                group_ids)
-        refs = _combine_lists_uniquely(user_refs, group_refs)
-        return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='projects')
-
-
-class OSFederationDomainResource(flask_restful.Resource):
-    @versionutils.deprecated(as_of=versionutils.deprecated.JUNO,
-                             what='GET /v3/OS-FEDERATION/domains',
-                             in_favor_of='GET /v3/auth/domains')
-    def get(self):
-        """Get domains for user.
-
-        GET/HEAD /OS-FEDERATION/domains
-        """
-        ENFORCER.enforce_call(action='identity:get_auth_domains')
-        # TODO(morgan): Make this method simply call the endpoint for
-        # /v3/auth/domains once auth is ported to flask.
-        auth_context = flask.request.environ.get(
-            authorization.AUTH_CONTEXT_ENV)
-        user_id = auth_context.get('user_id')
-        group_ids = auth_context.get('group_ids')
-
-        user_refs = []
-        if user_id:
-            try:
-                user_refs = PROVIDERS.assignment_api.list_domains_for_user(
-                    user_id)
-            except exception.UserNotFound:  # nosec
-                # federated users have an ide bu they don't link to anything
-                pass
-        group_refs = []
-        if group_ids:
-            group_refs = PROVIDERS.assignment_api.list_domains_for_groups(
-                group_ids)
-        refs = _combine_lists_uniquely(user_refs, group_refs)
-        return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='domains')
-
-
 class SAML2MetadataResource(flask_restful.Resource):
     @ks_flask.unenforced_api
     def get(self):
@@ -468,11 +399,6 @@ class SAML2MetadataResource(flask_restful.Resource):
 
 
 class OSFederationAuthResource(flask_restful.Resource):
-    def _construct_webob_request(self):
-        # Build a fake(ish) webob request object from the flask request state
-        # to pass to the Auth Controller's authenticate_for_token. This is
-        # purely transitional code.
-        return request.Request(flask.request.environ)
 
     @ks_flask.unenforced_api
     def get(self, idp_id, protocol_id):
@@ -493,12 +419,11 @@ class OSFederationAuthResource(flask_restful.Resource):
         return self._auth(idp_id, protocol_id)
 
     def _auth(self, idp_id, protocol_id):
-        """Build and pass auth data to auth controller.
+        """Build and pass auth data to authentication code.
 
         Build HTTP request body for federated authentication and inject
         it into the ``authenticate_for_token`` function.
         """
-        compat_controller = keystone.federation.controllers.Auth()
         auth = {
             'identity': {
                 'methods': [protocol_id],
@@ -508,14 +433,12 @@ class OSFederationAuthResource(flask_restful.Resource):
                 },
             }
         }
-        # NOTE(morgan): for compatibility, make sure we use a webob request
-        # until /auth is ported to flask. Since this is a webob response,
-        # deconstruct it and turn it into a flask response.
-        webob_resp = compat_controller.authenticate_for_token(
-            self._construct_webob_request(), auth)
-        flask_resp = flask.make_response(
-            webob_resp.body, webob_resp.status_code)
-        flask_resp.headers.extend(webob_resp.headers.dict_of_lists())
+        token = authentication.authenticate_for_token(auth)
+        token_data = render_token.render_token_response_from_model(token)
+        resp_data = jsonutils.dumps(token_data)
+        flask_resp = flask.make_response(resp_data, http_client.CREATED)
+        flask_resp.headers['X-Subject-Token'] = token.id
+        flask_resp.headers['Content-Type'] = 'application/json'
         return flask_resp
 
 
@@ -525,18 +448,6 @@ class OSFederationAPI(ks_flask.APIBase):
     _api_url_prefix = '/OS-FEDERATION'
     resources = []
     resource_mapping = [
-        ks_flask.construct_resource_map(
-            # NOTE(morgan): No resource relation here, the resource relation is
-            # to /v3/auth/domains and /v3/auth/projects
-            resource=OSFederationDomainResource,
-            url='/domains',
-            resource_kwargs={}),
-        ks_flask.construct_resource_map(
-            # NOTE(morgan): No resource relation here, the resource relation is
-            # to /v3/auth/domains and /v3/auth/projects
-            resource=OSFederationProjectResource,
-            url='/projects',
-            resource_kwargs={}),
         ks_flask.construct_resource_map(
             resource=SAML2MetadataResource,
             url='/saml2/metadata',
