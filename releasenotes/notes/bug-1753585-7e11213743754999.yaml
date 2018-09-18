@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    ['bug 1753585 <https://bugs.launchpad.net/keystone/+bug/1753585>'_]
+    LDAP attribute names are now matched case insensitively to comply with
+    LDAP implementations.

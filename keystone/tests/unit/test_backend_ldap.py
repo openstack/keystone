@@ -1305,6 +1305,53 @@ class LDAPIdentity(BaseLDAPIdentity):
         self.assertEqual('junk1', user_refs[0]['name'])
         self.assertEqual('sn=junk1,dc=example,dc=com', user_refs[0]['dn'])
 
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'connect')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'search_s')
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_filter_ldap_result_with_case_sensitive_attr(self,
+                                                         mock_simple_bind_s,
+                                                         mock_search_s,
+                                                         mock_connect):
+        # Mock the ldap search results to return user entries
+        # irrespective of lowercase and uppercase characters in
+        # ldap_result attribute keys e.g. {'Sn': ['junk1']} with
+        # user_name_attribute('sn')
+        mock_search_s.return_value = [(
+            'sn=junk1,dc=example,dc=com',
+            {
+                'cn': [uuid.uuid4().hex],
+                'email': [uuid.uuid4().hex],
+                'sN': ['junk1']
+            }
+        ),
+            (
+            'sn=junk1,dc=example,dc=com',
+            {
+                'cn': [uuid.uuid4().hex],
+                'email': [uuid.uuid4().hex],
+                'Sn': ['junk1']
+            }
+        ),
+            (
+            'sn=junk1,dc=example,dc=com',
+            {
+                'cn': [uuid.uuid4().hex],
+                'email': [uuid.uuid4().hex],
+                'sn': ['    ']
+            }
+        )
+        ]
+
+        user_api = identity.backends.ldap.UserApi(CONF)
+        user_refs = user_api.get_all()
+        # validate that keystone.identity.backends.ldap.common.BaseLdap.
+        # _filter_ldap_result_by_attr() method filtered the ldap query results
+        # whose name attribute keys having case insensitive characters.
+        self.assertEqual(2, len(user_refs))
+
+        self.assertEqual('junk1', user_refs[0]['name'])
+        self.assertEqual('sn=junk1,dc=example,dc=com', user_refs[0]['dn'])
+
     @mock.patch.object(common_ldap.BaseLdap, '_ldap_get')
     def test_user_enabled_attribute_handles_expired(self, mock_ldap_get):
         # If using 'passwordisexpired' as enabled attribute, and inverting it,

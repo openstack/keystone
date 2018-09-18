@@ -1402,20 +1402,31 @@ class BaseLdap(object):
             raise ValueError('"%(attr)s" is not a valid value for'
                              ' "%(attr_name)s"' % {'attr': attr,
                                                    'attr_name': attr_name})
+
+        # consider attr = "cn" and
+        # ldap_result = [{'uid': ['fake_id1']}, , 'cN': ["name"]}]
+        # doing lower case on both user_name_attribute and ldap users
+        # attribute
         result = []
         # consider attr = "cn" and
-        # ldap_result = [{'uid': ['fake_id1']},
-        #                {'uid': ['fake_id2'], 'cn': ['     ']},
-        #                {'uid': ['fake_id3'], 'cn': ['']},
-        #                {'uid': ['fake_id4'], 'cn': []},
-        #                {'uid': ['fake_id5'], 'cn': ["name"]}]
+        # ldap_result = [(u'cn=fake1,o=ex_domain', {'uid': ['fake_id1']}),
+        #                (u'cn=fake2,o=ex_domain', {'uid': ['fake_id2'],
+        #                'cn': ['     ']}),
+        #                (u'cn=fake3,o=ex_domain', {'uid': ['fake_id3'],
+        #                'cn': ['']}),
+        #                (u'cn=fake4,o=ex_domain', {'uid': ['fake_id4'],
+        #                'cn': []}),
+        #                (u'cn=fake5,o=ex_domain', {'uid': ['fake_id5'],
+        #                'cn': ["name"]})]
         for obj in ldap_result:
             # ignore ldap object(user/group entry) which has no attr set
             # in it or whose value is empty list.
-            if obj[1].get(attr):
-                # ignore ldap object whose attr value has empty strings or
-                # contains only whitespaces.
-                if obj[1].get(attr)[0] and obj[1].get(attr)[0].strip():
+            ldap_res_low_keys_dict = {k.lower(): v for k, v in obj[1].items()}
+            result_attr_vals = ldap_res_low_keys_dict.get(attr.lower())
+            # ignore ldap object whose attr value has empty strings or
+            # contains only whitespaces.
+            if result_attr_vals:
+                if result_attr_vals[0] and result_attr_vals[0].strip():
                     result.append(obj)
         # except {'uid': ['fake_id5'], 'cn': ["name"]}, all entries
         # will be ignored in ldap_result
