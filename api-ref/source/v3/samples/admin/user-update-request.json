@@ -1,6 +1,9 @@
 {
     "user": {
         "default_project_id": "263fd9",
-        "enabled": true
+        "enabled": true,
+        "options": {
+            "ignore_lockout_failure_attempts": true
+        }
     }
 }

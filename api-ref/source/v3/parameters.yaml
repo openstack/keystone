@@ -1977,6 +1977,25 @@ user_object:
   in: body
   required: true
   type: object
+user_options_request_body:
+  description: |
+    The resource options for the user. Available resource options are
+    ``ignore_change_password_upon_first_use``, ``ignore_password_expiry``,
+    ``ignore_lockout_failure_attempts``, ``lock_password``,
+    ``multi_factor_auth_enabled``, and ``multi_factor_auth_rules``.
+  in: body
+  required: false
+  type: object
+user_options_response_body:
+  description: |
+    The resource options for the user. Only present in the response if set on
+    the user entity. Available resource options are
+    ``ignore_change_password_upon_first_use``, ``ignore_password_expiry``,
+    ``ignore_lockout_failure_attempts``, ``lock_password``,
+    ``multi_factor_auth_enabled``, and ``multi_factor_auth_rules``.
+  in: body
+  required: false
+  type: object
 user_password_update_body:
   description: |
     The new password for the user.

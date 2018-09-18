@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1792026 <https://bugs.launchpad.net/keystone/+bug/1792026>`_]
+    Formal documentation for user resource options has been added to the
+    administrator guide and the API reference. This documentation helps
+    describe how user options can improve user experience, namely for
+    deployments looking to offer flexibility around PCI-DSS security
+    requirements, among other things.
