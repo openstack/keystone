@@ -122,10 +122,6 @@ class Manager(manager.Manager):
                                              domain_id=domain_id,
                                              project_id=project_id))
 
-    def revoke_by_user_and_project(self, user_id, project_id):
-        self.revoke(
-            revoke_model.RevokeEvent(project_id=project_id, user_id=user_id))
-
     def check_token(self, token):
         """Check the values from a token against the revocation list.
 
