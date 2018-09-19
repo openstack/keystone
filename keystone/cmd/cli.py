@@ -1019,7 +1019,7 @@ class MappingEngineTester(BaseApp):
     def read_rules(self, path):
         self.rules_pathname = path
         try:
-            with open(path) as file:
+            with open(path, "rb") as file:
                 self.rules = jsonutils.load(file)
         except ValueError as e:
             raise SystemExit(_('Error while parsing rules '
@@ -1046,7 +1046,7 @@ class MappingEngineTester(BaseApp):
                 raise SystemExit(msg % {'pathname': self.assertion_pathname,
                                         'line_num': line_num,
                                         'line': line})
-        assertion = self.assertion.split('\n')
+        assertion = self.assertion.splitlines()
         assertion_dict = {}
         prefix = CONF.command.prefix
         for line_num, line in enumerate(assertion, 1):
