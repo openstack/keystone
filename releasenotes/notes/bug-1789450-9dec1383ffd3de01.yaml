@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1789450 <https://bugs.launchpad.net/keystone/+bug/1789450>`_]
+    When a mapped group that does not exist in keystone is found, instead
+    of throwing a 500 error, keystone will now log the instance and continue.
+    This is expected behavior as an external IdP may specify a group that
+    does not exist within keystone.
