@@ -54,3 +54,12 @@ The delegation parameters are:
 
 **Duration**
   (Optional) Comprised of the start time and end time for the trust.
+
+
+Removing Expired Trusts
+===========================================================
+
+In the SQL trust stores expired trusts are not automatically
+removed. These trusts can be removed with::
+
+    $ keystone-manage trust_flush

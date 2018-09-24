@@ -1638,3 +1638,47 @@ class TestTokenFlush(unit.TestCase):
         tf = cli.TokenFlush()
         tf.main()
         self.assertThat(logging.output, matchers.Contains(expected_msg))
+
+
+class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
+
+    class FakeConfCommand(object):
+        def __init__(self, parent):
+            self.extension = False
+            self.project_id = parent.command_project_id
+            self.trustor_user_id = parent.command_trustor_user_id
+            self.trustee_user_id = parent.command_trustee_user_id
+
+    def setUp(self):
+        # Set up preset cli options and a parser
+        super(TestTrustFlush, self).setUp()
+        self.useFixture(database.Database())
+        self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
+        self.config_fixture.register_cli_opt(cli.command_opt)
+        # For unit tests that should not throw any erorrs,
+        # Use the argument parser to test that the combinations work
+        parser_test = argparse.ArgumentParser()
+        subparsers = parser_test.add_subparsers()
+        self.parser = cli.TrustFlush.add_argument_parser(subparsers)
+
+    def config_files(self):
+        config_files = super(TestTrustFlush, self).config_files()
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
+        return config_files
+
+    def test_trust_flush(self):
+        self.command_project_id = None
+        self.command_trustor_user_id = None
+        self.command_trustee_user_id = None
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+
+        def fake_load_backends():
+            return dict(
+                trust_api=keystone.trust.core.Manager())
+
+        self.useFixture(fixtures.MockPatch(
+            'keystone.server.backends.load_backends',
+            side_effect=fake_load_backends))
+        trust = cli.TrustFlush()
+        trust.main()
