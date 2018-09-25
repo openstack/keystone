@@ -676,7 +676,7 @@ class TokenFlush(BaseApp):
 
 
 class TrustFlush(BaseApp):
-    """Flush expired trusts from the backend."""
+    """Flush expired and non-expired soft deleted trusts from the backend."""
 
     name = 'trust_flush'
 
@@ -699,7 +699,7 @@ class TrustFlush(BaseApp):
     def main(cls):
         drivers = backends.load_backends()
         trust_manager = drivers['trust_api']
-        trust_manager.flush_expired_trusts(
+        trust_manager.flush_expired_and_soft_deleted_trusts(
             project_id=CONF.command.project_id,
             trustor_user_id=CONF.command.trustor_user_id,
             trustee_user_id=CONF.command.trustee_user_id)

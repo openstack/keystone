@@ -206,7 +206,7 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts()
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts()
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
         self.assertEqual(trust_ref2['id'], trusts[0]['id'])
@@ -233,7 +233,7 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             project_id=self.tenant_bar['id'],
             trustor_user_id=self.user_foo['id'],
             trustee_user_id=self.user_two['id'])
@@ -263,7 +263,7 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             trustor_user_id=self.user_foo['id'],
             trustee_user_id=self.user_two['id'])
         trusts = self.trust_api.list_trusts()
@@ -292,7 +292,7 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             project_id=self.tenant_bar['id'],
             trustee_user_id=self.user_two['id'])
         trusts = self.trust_api.list_trusts()
@@ -321,7 +321,7 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             project_id=self.tenant_bar['id'],
             trustor_user_id=self.user_foo['id'])
         trusts = self.trust_api.list_trusts()
@@ -350,7 +350,7 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             project_id=self.tenant_bar['id'])
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -377,7 +377,7 @@ class TrustTests(object):
         trust_data = PROVIDERS.trust_api.create_trust(trust_ref2['id'],
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             trustee_user_id=self.user_two['id'])
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -405,8 +405,70 @@ class TrustTests(object):
                                                       trust_ref2, roles)
         self.assertIsNotNone(trust_data)
 
-        PROVIDERS.trust_api.flush_expired_trusts(
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             trustor_user_id=self.user_foo['id'])
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
         self.assertEqual(trust_ref2['id'], trusts[0]['id'])
+
+    def test_non_expired_soft_deleted_trusts(self):
+        roles = [{"id": "member"},
+                 {"id": "other"},
+                 {"id": "browser"}]
+        trust_ref1 = core.new_trust_ref(
+            self.user_foo['id'], self.user_two['id'],
+            project_id=self.tenant_bar['id'])
+        trust_ref1['expires_at'] = \
+            timeutils.utcnow() + datetime.timedelta(minutes=10)
+        trust_ref2 = core.new_trust_ref(
+            self.user_two['id'], self.user_two['id'],
+            project_id=self.tenant_bar['id'])
+        trust_ref2['expires_at'] = \
+            timeutils.utcnow() + datetime.timedelta(minutes=5)
+
+        trust_data = PROVIDERS.trust_api.create_trust(trust_ref1['id'],
+                                                      trust_ref1, roles)
+        self.assertIsNotNone(trust_data)
+        trust_data = PROVIDERS.trust_api.create_trust(trust_ref2['id'],
+                                                      trust_ref2, roles)
+        self.assertIsNotNone(trust_data)
+        PROVIDERS.trust_api.delete_trust(trust_ref2['id'])
+
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts()
+        trusts = self.trust_api.list_trusts()
+        self.assertEqual(len(trusts), 1)
+        self.assertEqual(trust_ref1['id'], trusts[0]['id'])
+
+    def test_non_expired_non_deleted_trusts(self):
+        roles = [{"id": "member"},
+                 {"id": "other"},
+                 {"id": "browser"}]
+        trust_ref1 = core.new_trust_ref(
+            self.user_foo['id'], self.user_two['id'],
+            project_id=self.tenant_bar['id'])
+        trust_ref1['expires_at'] = \
+            timeutils.utcnow() + datetime.timedelta(minutes=10)
+        trust_ref2 = core.new_trust_ref(
+            self.user_two['id'], self.user_two['id'],
+            project_id=self.tenant_bar['id'])
+        trust_ref2['expires_at'] = \
+            timeutils.utcnow() + datetime.timedelta(minutes=5)
+        trust_ref3 = core.new_trust_ref(
+            self.user_two['id'], self.user_foo['id'],
+            project_id=self.tenant_bar['id'])
+        trust_ref3['expires_at'] = None
+
+        trust_data = PROVIDERS.trust_api.create_trust(trust_ref1['id'],
+                                                      trust_ref1, roles)
+        self.assertIsNotNone(trust_data)
+        trust_data = PROVIDERS.trust_api.create_trust(trust_ref2['id'],
+                                                      trust_ref2, roles)
+        self.assertIsNotNone(trust_data)
+        PROVIDERS.trust_api.delete_trust(trust_ref2['id'])
+        trust_data = PROVIDERS.trust_api.create_trust(trust_ref3['id'],
+                                                      trust_ref3, roles)
+        self.assertIsNotNone(trust_data)
+
+        PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts()
+        trusts = self.trust_api.list_trusts()
+        self.assertEqual(len(trusts), 2)
