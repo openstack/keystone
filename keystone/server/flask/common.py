@@ -604,6 +604,12 @@ class ResourceBase(flask_restful.Resource):
         ref['id'] = uuid.uuid4().hex
         return ref
 
+    @staticmethod
+    def _validate_id_format(id):
+        uval = uuid.UUID(id).hex
+        if uval != id:
+            raise ValueError('badly formed hexadecimal UUID value')
+
     @classmethod
     def _require_matching_id(cls, ref):
         """Ensure the value matches the reference's ID, if any."""

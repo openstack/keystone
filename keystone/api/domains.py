@@ -113,7 +113,17 @@ class DomainResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(action='identity:create_domain')
         domain = self.request_body_json.get('domain', {})
         validation.lazy_validate(schema.domain_create, domain)
-        domain = self._assign_unique_id(domain)
+
+        domain_id = domain.get('explicit_domain_id')
+        if domain_id is None:
+            domain = self._assign_unique_id(domain)
+        else:
+            # Domain ID validation provided by PyCADF
+            try:
+                self._validate_id_format(domain_id)
+            except ValueError:
+                raise exception.DomainIdInvalid
+            domain['id'] = domain_id
         domain = self._normalize_dict(domain)
         ref = PROVIDERS.resource_api.create_domain(
             domain['id'], domain, initiator=self.audit_initiator)
