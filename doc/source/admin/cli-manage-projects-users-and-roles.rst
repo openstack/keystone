@@ -374,7 +374,7 @@ Remove a role from a user-project pair:
 
    .. code-block:: console
 
-      $ openstack role list --user USER_NAME --project TENANT_ID
+      $ openstack role assignment list --user USER_NAME --project TENANT_ID --names
 
    If the role was removed, the command output omits the removed role.
 
