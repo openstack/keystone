@@ -755,7 +755,7 @@ For example, consider the following mapping:
                                 "name": "Production",
                                 "roles": [
                                     {
-                                        "name": "observer"
+                                        "name": "reader"
                                     }
                                 ]
                             },
@@ -796,7 +796,7 @@ authenticated and the mapping engine has applied values from the assertion
 and mapped them into the ``local`` rules.
 
 In the above example, an authenticated federated user will be granted the
-``observer`` role on the ``Production`` project, ``member`` role on the
+``reader`` role on the ``Production`` project, ``member`` role on the
 ``Staging`` project, and they will have ``admin`` role on the ``Project for
 jsmith``.
 
