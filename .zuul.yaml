@@ -32,6 +32,14 @@
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
 
 - job:
+    name: keystone-dsvm-py3-functional
+    parent: keystone-dsvm-functional
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        USE_PYTHON3: True
+
+- job:
     name: keystone-dsvm-functional-federation
     parent: keystone-dsvm-functional
     voting: false
@@ -126,6 +134,7 @@
     check:
       jobs:
         - keystone-dsvm-functional
+        - keystone-dsvm-py3-functional
         - keystone-dsvm-functional-federation
         - keystone-dsvm-py35-functional-federation
         - legacy-keystoneclient-dsvm-functional:
@@ -171,6 +180,7 @@
     gate:
       jobs:
         - keystone-dsvm-functional
+        - keystone-dsvm-py3-functional
         - tempest-full:
             irrelevant-files:
               - ^(test-|)requirements.txt$
