@@ -1,0 +1,41 @@
+---
+upgrade:
+  - |
+    [`bug 1794864 <https://bugs.launchpad.net/keystone/+bug/1794864>`_]
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The default policies that protect the domains API have been deprecated in
+    favor of ones that are more secure and self-serviceable. If you're
+    maintaining custom policies, please make sure you resolve your domain
+    policies to work with the new default by adding the proper role
+    assignments, or continue maintaining custom overrides. The new defaults
+    allow for better protection of the domains API when giving the `admin` role
+    to users on domains and projects.
+deprecations:
+  - |
+    [`bug 1794864 <https://bugs.launchpad.net/keystone/+bug/1794864>`_]
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The default policies that protect the domains API have been deprecated in
+    favor of ones that are more secure and self-serviceable. If you're
+    maintaining custom policies, please make sure you resolve your domain
+    policies to work with the new default by adding the proper role
+    assignments, or continue maintaining custom overrides. The new defaults
+    allow for better protection of the domains API when giving the `admin` role
+    to users on domains and projects.
+security:
+  - |
+    [`bug 1794864 <https://bugs.launchpad.net/keystone/+bug/1794864>`_]
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The default policies that protect the domains API have been deprecated in
+    favor of ones that are more secure and self-serviceable.
+fixes:
+  - |
+    [`bug 1794864 <https://bugs.launchpad.net/keystone/+bug/1794864>`_]
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The default policies that protect the domains API have been deprecated in
+    favor of ones that are more secure and self-serviceable. Users with roles
+    on domains and projects are now able to call the
+    ``GET /v3/domains/{domain_id}`` API if they use a token scoped to that
+    domain or a token scoped to a project within that domain. System users are
+    allowed to access the domain APIs in the same way legacy `admin` users were
+    able to. This allows for better protection of the domain API when giving
+    the `admin` role to users on domains and projects.
