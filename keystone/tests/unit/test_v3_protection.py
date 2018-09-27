@@ -859,25 +859,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.post('/projects', auth=self.auth, body={'project': proj_ref},
                   expected_status=status_created)
 
-    def _test_domain_management(self, expected=None):
-        status_OK, status_created, status_no_data = self._stati(expected)
-        entity_url = '/domains/%s' % self.domainB['id']
-        list_url = '/domains'
-
-        self.get(entity_url, auth=self.auth,
-                 expected_status=status_OK)
-        self.get(list_url, auth=self.auth,
-                 expected_status=status_OK)
-        domain = {'description': 'Updated', 'enabled': False}
-        self.patch(entity_url, auth=self.auth, body={'domain': domain},
-                   expected_status=status_OK)
-        self.delete(entity_url, auth=self.auth,
-                    expected_status=status_no_data)
-
-        domain_ref = unit.new_domain_ref()
-        self.post('/domains', auth=self.auth, body={'domain': domain_ref},
-                  expected_status=status_created)
-
     def _test_grants(self, target, entity_id, role_domain_id=None,
                      list_status_OK=False, expected=None):
         status_OK, status_created, status_no_data = self._stati(expected)
@@ -1522,38 +1503,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             project_id=self.project['id'])
         self.get(collection_url, auth=self.auth,
                  expected_status=http_client.FORBIDDEN)
-
-    def test_cloud_admin(self):
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_domain_management(
-            expected=exception.ForbiddenAction.code)
-
-        self.auth = self.build_authentication_request(
-            user_id=self.cloud_admin_user['id'],
-            password=self.cloud_admin_user['password'],
-            project_id=self.admin_project['id'])
-
-        self._test_domain_management()
-
-    def test_admin_project(self):
-        self.auth = self.build_authentication_request(
-            user_id=self.project_admin_user['id'],
-            password=self.project_admin_user['password'],
-            project_id=self.project['id'])
-
-        self._test_domain_management(
-            expected=exception.ForbiddenAction.code)
-
-        self.auth = self.build_authentication_request(
-            user_id=self.cloud_admin_user['id'],
-            password=self.cloud_admin_user['password'],
-            project_id=self.admin_project['id'])
-
-        self._test_domain_management()
 
     def test_domain_admin_get_domain(self):
         self.auth = self.build_authentication_request(
