@@ -12,9 +12,7 @@
 
 - job:
     name: keystone-dsvm-functional
-    parent: legacy-dsvm-base
-    run: playbooks/legacy/keystone-dsvm-functional/run.yaml
-    post-run: playbooks/legacy/keystone-dsvm-functional/post.yaml
+    parent: devstack-tempest
     timeout: 4200
     required-projects:
       - openstack-infra/devstack-gate
@@ -27,44 +25,33 @@
       - ^etc/.*$
       - ^keystone/tests/unit/.*$
       - ^releasenotes/.*$
+    vars:
+      tox_envlist: all
+      tempest_test_regex: 'keystone_tempest_plugin'
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
 
 - job:
     name: keystone-dsvm-functional-federation
-    parent: legacy-dsvm-base
-    run: playbooks/legacy/keystone-dsvm-functional-federation/run.yaml
-    post-run: playbooks/legacy/keystone-dsvm-functional-federation/post.yaml
-    timeout: 4200
+    parent: keystone-dsvm-functional
     voting: false
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/keystone
-      - openstack/keystone-tempest-plugin
-    irrelevant-files:
-      - ^.*\.rst$
-      - ^api-ref/.*$
-      - ^doc/.*$
-      - ^etc/.*$
-      - ^keystone/tests/unit/.*$
-      - ^releasenotes/.*$
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+      devstack_services:
+        keystone-saml2-federation: true
+        tls-proxy: false
+      devstack_plugins:
+        keystone: git://git.openstack.org/openstack/keystone
 
 - job:
     name: keystone-dsvm-py35-functional-federation
-    parent: legacy-dsvm-base
-    run: playbooks/legacy/keystone-dsvm-py35-functional-federation/run.yaml
-    post-run: playbooks/legacy/keystone-dsvm-py35-functional-federation/post.yaml
-    timeout: 4200
+    parent: keystone-dsvm-functional-federation
     voting: false
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/keystone
-      - openstack/keystone-tempest-plugin
-    irrelevant-files:
-      - ^.*\.rst$
-      - ^api-ref/.*$
-      - ^doc/.*$
-      - ^etc/.*$
-      - ^keystone/tests/unit/.*$
-      - ^releasenotes/.*$
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        USE_PYTHON3: True
 
 # This job will execute 'tox -e upgrade' from the OSA
 # repo specified in 'osa_test_repo'.
