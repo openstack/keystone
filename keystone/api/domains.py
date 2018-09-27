@@ -31,6 +31,20 @@ ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
 
+def _build_domain_enforcement_target():
+    target = {}
+    try:
+        target['domain'] = PROVIDERS.resource_api.get_domain(
+            flask.request.view_args.get('domain_id')
+        )
+    except exception.NotFound:  # nosec
+        # Defer existence in the event the domain doesn't exist, we'll
+        # check this later anyway.
+        pass
+
+    return target
+
+
 def _build_enforcement_target(allow_non_existing=False):
     target = {}
     if flask.request.view_args:
@@ -76,8 +90,12 @@ class DomainResource(ks_flask.ResourceBase):
         return self._list_domains()
 
     def _get_domain(self, domain_id):
-        ENFORCER.enforce_call(action='identity:get_domain')
-        return self.wrap_member(PROVIDERS.resource_api.get_domain(domain_id))
+        ENFORCER.enforce_call(
+            action='identity:get_domain',
+            build_target=_build_domain_enforcement_target
+        )
+        domain = PROVIDERS.resource_api.get_domain(domain_id)
+        return self.wrap_member(domain)
 
     def _list_domains(self):
         filters = ['name', 'enabled']
