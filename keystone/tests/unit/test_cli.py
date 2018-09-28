@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import datetime
 import logging
 import os
@@ -24,6 +25,7 @@ import mock
 import oslo_config.fixture
 from oslo_db.sqlalchemy import migration
 from oslo_log import log
+from oslo_serialization import jsonutils
 from six.moves import configparser
 from six.moves import http_client
 from six.moves import range
@@ -42,6 +44,7 @@ from keystone.cmd.doctor import tokens_fernet
 from keystone.common import provider_api
 from keystone.common.sql import upgrades
 import keystone.conf
+from keystone import exception
 from keystone.i18n import _
 from keystone.identity.mapping_backends import mapping as identity_mapping
 from keystone.tests import unit
@@ -49,6 +52,7 @@ from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
 from keystone.tests.unit.ksfixtures import temporaryfile
+from keystone.tests.unit import mapping_fixtures
 
 
 CONF = keystone.conf.CONF
@@ -1682,3 +1686,84 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
             side_effect=fake_load_backends))
         trust = cli.TrustFlush()
         trust.main()
+
+
+class TestMappingEngineTester(unit.BaseTestCase):
+
+    class FakeConfCommand(object):
+        def __init__(self, parent):
+            self.extension = False
+            self.rules = parent.command_rules
+            self.input = parent.command_input
+            self.prefix = parent.command_prefix
+            self.engine_debug = parent.command_engine_debug
+
+    def setUp(self):
+        # Set up preset cli options and a parser
+        super(TestMappingEngineTester, self).setUp()
+        self.mapping_id = uuid.uuid4().hex
+        self.rules_pathname = None
+        self.rules = None
+        self.assertion_pathname = None
+        self.assertion = None
+        self.logging = self.useFixture(fixtures.LoggerFixture())
+        self.useFixture(database.Database())
+        self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
+        self.config_fixture.register_cli_opt(cli.command_opt)
+        # For unit tests that should not throw any erorrs,
+        # Use the argument parser to test that the combinations work
+        parser_test = argparse.ArgumentParser()
+        subparsers = parser_test.add_subparsers()
+        self.parser = cli.MappingEngineTester.add_argument_parser(subparsers)
+
+    def config_files(self):
+        config_files = super(TestMappingEngineTester, self).config_files()
+        config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
+        return config_files
+
+    def test_mapping_engine_tester(self):
+        tempfilejson = self.useFixture(temporaryfile.SecureTempFile())
+        tmpfilejsonname = tempfilejson.file_name
+        updated_mapping = copy.deepcopy(mapping_fixtures.MAPPING_SMALL)
+        with open(tmpfilejsonname, 'w') as f:
+            f.write(jsonutils.dumps(updated_mapping))
+        self.command_rules = tmpfilejsonname
+        tempfile = self.useFixture(temporaryfile.SecureTempFile())
+        tmpfilename = tempfile.file_name
+        with open(tmpfilename, 'w') as f:
+            f.write("\n")
+            f.write("UserName:me\n")
+            f.write("orgPersonType:NoContractor\n")
+            f.write("LastName:Bo\n")
+            f.write("FirstName:Jill\n")
+        self.command_input = tmpfilename
+        self.command_prefix = None
+        self.command_engine_debug = True
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+        mapping_engine = cli.MappingEngineTester()
+        mapping_engine.main()
+
+    def test_mapping_engine_tester_with_invalid_data(self):
+        tempfilejson = self.useFixture(temporaryfile.SecureTempFile())
+        tmpfilejsonname = tempfilejson.file_name
+        updated_mapping = copy.deepcopy(mapping_fixtures.MAPPING_SMALL)
+        with open(tmpfilejsonname, 'w') as f:
+            f.write(jsonutils.dumps(updated_mapping))
+        self.command_rules = tmpfilejsonname
+        tempfile = self.useFixture(temporaryfile.SecureTempFile())
+        tmpfilename = tempfile.file_name
+        # Here we do not have any value matching to type 'Email'
+        # and condition in mapping_engine_test_rules.json
+        with open(tmpfilename, 'w') as f:
+            f.write("\n")
+            f.write("UserName: me\n")
+            f.write("Email: No@example.com\n")
+        self.command_input = tmpfilename
+        self.command_prefix = None
+        self.command_engine_debug = True
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+        mapping_engine = cli.MappingEngineTester()
+        self.assertRaises(exception.ValidationError,
+                          mapping_engine.main)
