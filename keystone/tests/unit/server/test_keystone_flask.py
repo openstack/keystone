@@ -610,3 +610,34 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             self.assertRaises(exception.ValidationError,
                               flask_common.ResourceBase._normalize_domain_id,
                               ref=ref_without_domain_id)
+
+    def test_api_prefix_self_referential_link_substitution(self):
+
+        view_arg = uuid.uuid4().hex
+
+        class TestResource(flask_common.ResourceBase):
+            api_prefix = '/<string:test_value>/nothing'
+
+        # use a dummy request context, no enforcement is happening
+        # therefore we don't need the heavy lifting of a full request
+        # run.
+        with self.test_request_context(
+                path='/%s/nothing/values' % view_arg,
+                base_url='https://localhost/'):
+            # explicitly set the view_args, this is a special case
+            # for a synthetic test case, usually one would rely on
+            # a full request stack to set these.
+            flask.request.view_args = {'test_value': view_arg}
+
+            # create dummy ref
+            ref = {'id': uuid.uuid4().hex}
+
+            # add the self referential link
+            TestResource._add_self_referential_link(
+                ref, collection_name='values')
+
+            # Check that the link in fact starts with what we expect
+            # including the explicit view arg.
+            self.assertTrue(ref['links']['self'].startswith(
+                'https://localhost/v3/%s' % view_arg)
+            )

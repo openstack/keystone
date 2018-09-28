@@ -884,6 +884,8 @@ class TestCase(BaseTestCase):
         app.register_error_handler(404, page_not_found_teapot)
 
         self.test_client = app.test_client
+        self.test_request_context = app.test_request_context
+        self.cleanup_instance('test_request_context')
         self.cleanup_instance('test_client')
         return keystone_flask.setup_app_middleware(app)
 
