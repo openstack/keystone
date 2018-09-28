@@ -284,4 +284,4 @@ texinfo_documents = [
 # -- Options for openstackdocstheme -------------------------------------------
 repository_name = 'openstack/keystone'
 bug_project = 'keystone'
-bug_tag = 'doc'
+bug_tag = 'documentation'
