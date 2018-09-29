@@ -310,6 +310,35 @@ def new_federated_user_ref(idp_id=None, protocol_id=None, **kwargs):
     return ref
 
 
+def new_mapping_ref(mapping_id=None, rules=None, **kwargs):
+    ref = {
+        'id': mapping_id or uuid.uuid4().hex,
+        'rules': rules or []
+    }
+    ref.update(kwargs)
+    return ref
+
+
+def new_protocol_ref(protocol_id=None, idp_id=None, mapping_id=None, **kwargs):
+    ref = {
+        'id': protocol_id or 'saml2',
+        'idp_id': idp_id or 'ORG_IDP',
+        'mapping_id': mapping_id or uuid.uuid4().hex
+    }
+    ref.update(kwargs)
+    return ref
+
+
+def new_identity_provider_ref(idp_id=None, **kwargs):
+    ref = {
+        'id': idp_id or 'ORG_IDP',
+        'enabled': True,
+        'description': '',
+    }
+    ref.update(kwargs)
+    return ref
+
+
 def new_group_ref(domain_id, **kwargs):
     ref = {
         'id': uuid.uuid4().hex,
