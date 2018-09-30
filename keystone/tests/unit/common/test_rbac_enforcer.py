@@ -423,6 +423,43 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         self.assertEqual({}, self.enforcer._extract_member_target_data(
             member_target={}, member_target_type=None))
 
+    def test_call_build_enforcement_target(self):
+        assertIn = self.assertIn
+        assertEq = self.assertEqual
+        ref_uuid = uuid.uuid4().hex
+
+        def _enforce_mock_func(credentials, action, target,
+                               do_raise=True):
+            assertIn('target.domain.id', target)
+            assertEq(target['target.domain.id'], ref_uuid)
+
+        def _build_enforcement_target():
+            return {'domain': {'id': ref_uuid}}
+
+        self.useFixture(fixtures.MockPatchObject(
+            self.enforcer, '_enforce', _enforce_mock_func))
+
+        argument_id = uuid.uuid4().hex
+
+        with self.test_client() as c:
+            path = '/v3/auth/tokens'
+            body = self._auth_json()
+
+            r = c.post(
+                path,
+                json=body,
+                follow_redirects=True,
+                expected_status_code=201)
+
+            token_id = r.headers['X-Subject-Token']
+
+            c.get('%s/argument/%s' % (self.restful_api_url_prefix,
+                                      argument_id),
+                  headers={'X-Auth-Token': token_id})
+            self.enforcer.enforce_call(
+                action='example:allowed',
+                build_target=_build_enforcement_target)
+
     def test_policy_enforcer_action_decorator(self):
         # Create a method that has an action pre-registered
         action = 'example:allowed'

@@ -14,6 +14,7 @@
 
 import flask
 import flask_restful
+import functools
 from six.moves import http_client
 
 from keystone.common import json_home
@@ -342,7 +343,7 @@ class DomainUserListResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:list_grants',
-            target_attr=_build_enforcement_target())
+            build_target=_build_enforcement_target)
         refs = PROVIDERS.assignment_api.list_grants(
             domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False)
@@ -361,7 +362,7 @@ class DomainUserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            target_attr=_build_enforcement_target())
+            build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.get_grant(
             role_id, domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False)
@@ -374,7 +375,7 @@ class DomainUserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            target_attr=_build_enforcement_target())
+            build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.create_grant(
             role_id, domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
@@ -387,7 +388,8 @@ class DomainUserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            target_attr=_build_enforcement_target(allow_non_existing=True))
+            build_target=functools.partial(_build_enforcement_target,
+                                           allow_non_existing=True))
         PROVIDERS.assignment_api.delete_grant(
             role_id, domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
@@ -402,7 +404,7 @@ class DomainGroupListResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:list_grants',
-            target_attr=_build_enforcement_target())
+            build_target=_build_enforcement_target)
         refs = PROVIDERS.assignment_api.list_grants(
             domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False)
@@ -421,7 +423,7 @@ class DomainGroupResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            target_attr=_build_enforcement_target())
+            build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.get_grant(
             role_id, domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False)
@@ -434,7 +436,7 @@ class DomainGroupResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            target_attr=_build_enforcement_target())
+            build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.create_grant(
             role_id, domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
@@ -447,7 +449,8 @@ class DomainGroupResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            target_attr=_build_enforcement_target(allow_non_existing=True))
+            build_target=functools.partial(_build_enforcement_target,
+                                           allow_non_existing=True))
         PROVIDERS.assignment_api.delete_grant(
             role_id, domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False, initiator=self.audit_initiator)

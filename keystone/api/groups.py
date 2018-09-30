@@ -13,6 +13,7 @@
 # This file handles all flask-restful resources for /v3/groups
 
 import flask_restful
+import functools
 from six.moves import http_client
 
 from keystone.common import json_home
@@ -147,7 +148,8 @@ class UserGroupCRUDResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:check_user_in_group',
-            target_attr=self._build_enforcement_target_attr(user_id, group_id))
+            build_target=functools.partial(self._build_enforcement_target_attr,
+                                           user_id, group_id))
         PROVIDERS.identity_api.check_user_in_group(user_id, group_id)
         return None, http_client.NO_CONTENT
 
@@ -158,7 +160,8 @@ class UserGroupCRUDResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:add_user_to_group',
-            target_attr=self._build_enforcement_target_attr(user_id, group_id))
+            build_target=functools.partial(self._build_enforcement_target_attr,
+                                           user_id, group_id))
         PROVIDERS.identity_api.add_user_to_group(
             user_id, group_id, initiator=ks_flask.build_audit_initiator())
         return None, http_client.NO_CONTENT
@@ -170,7 +173,8 @@ class UserGroupCRUDResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:remove_user_from_group',
-            target_attr=self._build_enforcement_target_attr(user_id, group_id))
+            build_target=functools.partial(self._build_enforcement_target_attr,
+                                           user_id, group_id))
         PROVIDERS.identity_api.remove_user_from_group(
             user_id, group_id, initiator=ks_flask.build_audit_initiator())
         return None, http_client.NO_CONTENT

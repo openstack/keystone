@@ -191,7 +191,7 @@ class RoleImplicationListResource(flask_restful.Resource):
         GET/HEAD /v3/roles/{prior_role_id}/implies
         """
         ENFORCER.enforce_call(action='identity:list_implied_roles',
-                              target_attr=_build_enforcement_target_ref())
+                              build_target=_build_enforcement_target_ref)
         ref = PROVIDERS.role_api.list_implied_roles(prior_role_id)
         implied_ids = [r['implied_role_id'] for r in ref]
         response_json = shared.role_inference_response(prior_role_id)
@@ -216,7 +216,7 @@ class RoleImplicationResource(flask_restful.Resource):
         # Alternatively we can keep check_implied_role and reference
         # ._get_implied_role instead.
         ENFORCER.enforce_call(action='identity:check_implied_role',
-                              target_attr=_build_enforcement_target_ref())
+                              build_target=_build_enforcement_target_ref)
         self.get(prior_role_id, implied_role_id)
         # NOTE(morgan): Our API here breaks HTTP Spec. This should be evaluated
         # for a future fix. This should just return the above "get" however,
@@ -231,7 +231,7 @@ class RoleImplicationResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:get_implied_role',
-            target_attr=_build_enforcement_target_ref())
+            build_target=_build_enforcement_target_ref)
         return self._get_implied_role(prior_role_id, implied_role_id)
 
     def _get_implied_role(self, prior_role_id, implied_role_id):
@@ -255,7 +255,7 @@ class RoleImplicationResource(flask_restful.Resource):
         PUT /v3/roles/{prior_role_id}/implies/{implied_role_id}
         """
         ENFORCER.enforce_call(action='identity:create_implied_role',
-                              target_attr=_build_enforcement_target_ref())
+                              build_target=_build_enforcement_target_ref)
         PROVIDERS.role_api.create_implied_role(prior_role_id, implied_role_id)
         response_json = self._get_implied_role(prior_role_id, implied_role_id)
         return response_json, http_client.CREATED
@@ -266,7 +266,7 @@ class RoleImplicationResource(flask_restful.Resource):
         DELETE /v3/roles/{prior_role_id}/implies/{implied_role_id}
         """
         ENFORCER.enforce_call(action='identity:delete_implied_role',
-                              target_attr=_build_enforcement_target_ref())
+                              build_target=_build_enforcement_target_ref)
         PROVIDERS.role_api.delete_implied_role(prior_role_id, implied_role_id)
         return None, http_client.NO_CONTENT
 

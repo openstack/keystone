@@ -13,6 +13,7 @@
 # This file handles all flask-restful resources for /v3/OS-INHERIT
 
 import flask_restful
+import functools
 from oslo_log import log
 from six.moves import http_client
 
@@ -110,8 +111,10 @@ class OSInheritDomainGroupRolesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, group_id=group_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           group_id=group_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.get_grant(
             domain_id=domain_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
@@ -125,8 +128,10 @@ class OSInheritDomainGroupRolesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, group_id=group_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           group_id=group_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.create_grant(
             domain_id=domain_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
@@ -140,8 +145,10 @@ class OSInheritDomainGroupRolesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, group_id=group_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           group_id=group_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.delete_grant(
             domain_id=domain_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
@@ -157,8 +164,9 @@ class OSInheritDomainGroupRolesListResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:list_grants',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, group_id=group_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           group_id=group_id))
         refs = PROVIDERS.assignment_api.list_grants(
             domain_id=domain_id, group_id=group_id, inherited_to_projects=True)
         return ks_flask.ResourceBase.wrap_collection(
@@ -174,8 +182,10 @@ class OSInheritDomainUserRolesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, user_id=user_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           user_id=user_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.get_grant(
             domain_id=domain_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
@@ -189,8 +199,10 @@ class OSInheritDomainUserRolesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, user_id=user_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           user_id=user_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.create_grant(
             domain_id=domain_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
@@ -204,8 +216,10 @@ class OSInheritDomainUserRolesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, user_id=user_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           user_id=user_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.delete_grant(
             domain_id=domain_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
@@ -221,8 +235,9 @@ class OSInheritDomainUserRolesListResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:list_grants',
-            target_attr=_build_enforcement_target_attr(
-                domain_id=domain_id, user_id=user_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           domain_id=domain_id,
+                                           user_id=user_id))
         refs = PROVIDERS.assignment_api.list_grants(
             domain_id=domain_id, user_id=user_id, inherited_to_projects=True)
         return ks_flask.ResourceBase.wrap_collection(
@@ -238,8 +253,10 @@ class OSInheritProjectUserResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            target_attr=_build_enforcement_target_attr(
-                project_id=project_id, user_id=user_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           project_id=project_id,
+                                           user_id=user_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.get_grant(
             project_id=project_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
@@ -253,8 +270,10 @@ class OSInheritProjectUserResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            target_attr=_build_enforcement_target_attr(
-                project_id=project_id, user_id=user_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           project_id=project_id,
+                                           user_id=user_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.create_grant(
             project_id=project_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
@@ -268,8 +287,10 @@ class OSInheritProjectUserResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            target_attr=_build_enforcement_target_attr(
-                project_id=project_id, user_id=user_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           project_id=project_id,
+                                           user_id=user_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.delete_grant(
             project_id=project_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
@@ -285,8 +306,10 @@ class OSInheritProjectGroupResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            target_attr=_build_enforcement_target_attr(
-                project_id=project_id, group_id=group_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           project_id=project_id,
+                                           group_id=group_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.get_grant(
             project_id=project_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
@@ -300,8 +323,10 @@ class OSInheritProjectGroupResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            target_attr=_build_enforcement_target_attr(
-                project_id=project_id, group_id=group_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           project_id=project_id,
+                                           group_id=group_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.create_grant(
             project_id=project_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
@@ -315,8 +340,10 @@ class OSInheritProjectGroupResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            target_attr=_build_enforcement_target_attr(
-                project_id=project_id, group_id=group_id, role_id=role_id))
+            build_target=functools.partial(_build_enforcement_target_attr,
+                                           project_id=project_id,
+                                           group_id=group_id,
+                                           role_id=role_id))
         PROVIDERS.assignment_api.delete_grant(
             project_id=project_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
