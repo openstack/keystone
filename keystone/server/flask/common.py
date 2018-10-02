@@ -676,6 +676,14 @@ class ResourceBase(flask_restful.Resource):
         collection_element = collection_name or cls.collection_key
         if cls.api_prefix:
             api_prefix = cls.api_prefix.lstrip('/').rstrip('/')
+            # ensure we have substituted the flask-arg specification
+            # to the "keystone" mechanism, then format the string
+            api_prefix = _URL_SUBST.sub('{\\1}', api_prefix)
+            if flask.request.view_args:
+                # if a prefix has substitutions it is *required* that the
+                # values are passed as view_args to the HTTP action method
+                # (e.g. head/get/post/...).
+                api_prefix = api_prefix.format(**flask.request.view_args)
             collection_element = '/'.join(
                 [api_prefix, collection_name or cls.collection_key])
         self_link = base_url(path='/'.join([collection_element, ref['id']]))
