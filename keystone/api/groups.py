@@ -120,7 +120,7 @@ class GroupUsersResource(flask_restful.Resource):
         refs = PROVIDERS.identity_api.list_users_in_group(
             group_id, hints=hints)
         return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='users')
+            refs, hints=hints, collection_name='users')
 
 
 class UserGroupCRUDResource(flask_restful.Resource):

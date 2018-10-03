@@ -44,7 +44,7 @@ class RegisteredLimitResource(ks_flask.ResourceBase):
                               filters=filters)
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.unified_limit_api.list_registered_limits(hints)
-        return self.wrap_collection(refs)
+        return self.wrap_collection(refs, hints=hints)
 
     def get(self, registered_limit_id=None):
         if registered_limit_id is not None:

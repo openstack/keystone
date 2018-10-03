@@ -97,7 +97,7 @@ class RoleResource(ks_flask.ResourceBase):
             # provided.
             hints.add_filter('domain_id', None)
         refs = PROVIDERS.role_api.list_roles(hints=hints)
-        return self.wrap_collection(refs)
+        return self.wrap_collection(refs, hints=hints)
 
     def post(self):
         """Create role.
