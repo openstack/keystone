@@ -834,7 +834,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self._set_policy({"identity:list_services": []})
         r = self.get('/services', auth=self.auth)
         self.assertEqual(10, len(r.result.get('services')))
-        self.assertIsNone(r.result.get('truncated'))
+        self.assertNotIn('truncated', r.result)
 
     def test_at_limit(self):
         """Check truncated attribute not set when list at max size."""
@@ -846,4 +846,4 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         self.config_fixture.config(group='catalog', list_limit=10)
         r = self.get('/services', auth=self.auth)
         self.assertEqual(10, len(r.result.get('services')))
-        self.assertIsNone(r.result.get('truncated'))
+        self.assertNotIn('truncated', r.result)
