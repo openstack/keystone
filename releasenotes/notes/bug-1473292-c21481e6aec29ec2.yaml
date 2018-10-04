@@ -2,9 +2,10 @@
 feature:
   - |
     [`Bug 1473292 <https://bugs.launchpad.net/keystone/+bug/1473292>`_]
-    As trusts created by user are stored in database resulting db it to grow
-    larger as trusts that are expired are not automatically purged by keystone.
-    Thus this implements TrustFlush via keystone-manage to delete expired trusts.
+    As trusts created by user are stored in database resulting it to grow larger
+    as trusts that are expired and soft deleted non-expired are not automatically
+    purged by keystone.Thus this implements TrustFlush via keystone-manage to delete
+    expired and soft deleted non-expired trusts.
 
     Command:
 
@@ -12,9 +13,9 @@ feature:
 
     Options:
 
-        project-id <string>: To purge expired trusts of given project-id.
-        trustor-user-id <string>: To purge expired trusts of given trustor-id.
-        trustee-user-id <string>: To purge expired trusts of given trustee-id.
+        project-id <string>: To purge trusts of given project-id.
+        trustor-user-id <string>: To purge trusts of given trustor-id.
+        trustee-user-id <string>: To purge trusts of given trustee-id.
 
 
 
