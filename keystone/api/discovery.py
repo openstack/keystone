@@ -35,9 +35,9 @@ def _get_versions_list(identity_url):
     versions = {}
     if 'v3' in _VERSIONS:
         versions['v3'] = {
-            'id': 'v3.10',
+            'id': 'v3.11',
             'status': 'stable',
-            'updated': '2018-02-28T00:00:00Z',
+            'updated': '2018-10-15T00:00:00Z',
             'links': [
                 {
                     'rel': 'self',
