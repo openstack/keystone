@@ -142,6 +142,7 @@ FEDERATED_IDP_SPECIFIC_WEBSSO = ('/auth/OS-FEDERATION/identity_providers/'
 
 APPLICATION_CREDENTIAL = ('/users/{user_id}/application_credentials/'
                           '{application_credential_id}')
+APPLICATION_CREDENTIALS = '/users/{user_id}/application_credentials'
 APPLICATION_CREDENTIAL_RELATION = (
     json_home.build_v3_parameter_relation('application_credential_id'))
 
@@ -633,6 +634,10 @@ V3_JSON_HOME_RESOURCES = {
         'href': '/limits/model',
         'hints': {'status': 'experimental'}
     },
+    json_home.build_v3_resource_relation('application_credentials'): {
+        'href-template': APPLICATION_CREDENTIALS,
+        'href-vars': {
+            'user_id': json_home.build_v3_parameter_relation('user_id')}},
     json_home.build_v3_resource_relation('application_credential'): {
         'href-template': APPLICATION_CREDENTIAL,
         'href-vars': {

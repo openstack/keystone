@@ -32,6 +32,7 @@ from keystone.api import roles
 from keystone.api import services
 from keystone.api import system
 from keystone.api import trusts
+from keystone.api import users
 
 __all__ = (
     'auth',
@@ -56,6 +57,7 @@ __all__ = (
     'services',
     'system',
     'trusts',
+    'users',
 )
 
 __apis__ = (
@@ -81,4 +83,5 @@ __apis__ = (
     services,
     system,
     trusts,
+    users,
 )

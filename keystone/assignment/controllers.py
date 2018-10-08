@@ -31,25 +31,6 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class ProjectAssignmentV3(controller.V3Controller):
-    """The V3 Project APIs that are processing assignments."""
-
-    collection_name = 'projects'
-    member_name = 'project'
-
-    def __init__(self):
-        super(ProjectAssignmentV3, self).__init__()
-        self.get_member_from_driver = PROVIDERS.resource_api.get_project
-
-    @controller.filterprotected('domain_id', 'enabled', 'name')
-    def list_user_projects(self, request, filters, user_id):
-        hints = ProjectAssignmentV3.build_driver_hints(request, filters)
-        refs = PROVIDERS.assignment_api.list_projects_for_user(user_id)
-        return ProjectAssignmentV3.wrap_collection(request.context_dict,
-                                                   refs,
-                                                   hints=hints)
-
-
 class GrantAssignmentV3(controller.V3Controller):
     """The V3 Grant Assignment APIs."""
 

@@ -12,6 +12,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystone.identity import controllers  # noqa
 from keystone.identity.core import *  # noqa
 from keystone.identity import generator  # noqa

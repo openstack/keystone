@@ -20,30 +20,11 @@ from keystone.common import json_home
 from keystone.common import wsgi
 
 
-class Public(wsgi.ComposableRouter):
-    def add_routes(self, mapper):
-        tenant_controller = controllers.TenantAssignment()
-        mapper.connect('/tenants',
-                       controller=tenant_controller,
-                       action='get_projects_for_token',
-                       conditions=dict(method=['GET']))
-
-
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('users', 'projects')
+    _path_prefixes = ('projects',)
 
     def append_v3_routers(self, mapper, routers):
-
-        project_controller = controllers.ProjectAssignmentV3()
-        self._add_resource(
-            mapper, project_controller,
-            path='/users/{user_id}/projects',
-            get_head_action='list_user_projects',
-            rel=json_home.build_v3_resource_relation('user_projects'),
-            path_vars={
-                'user_id': json_home.Parameters.USER_ID,
-            })
 
         grant_controller = controllers.GrantAssignmentV3()
         self._add_resource(

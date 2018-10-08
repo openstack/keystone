@@ -57,6 +57,8 @@ class Parameters(object):
     TAG_VALUE = build_v3_parameter_relation('tag_value')
     REGISTERED_LIMIT_ID = build_v3_parameter_relation('registered_limit_id')
     LIMIT_ID = build_v3_parameter_relation('limit_id')
+    APPLICATION_CRED_ID = build_v3_parameter_relation(
+        'application_credential_id')
 
 
 class Status(object):

@@ -921,7 +921,7 @@ class ResourceBase(flask_restful.Resource):
         if token_ref.domain_scoped:
             return token_ref.domain_id
         elif token_ref.project_scoped:
-            return token_ref.project_domain_id
+            return token_ref.project_domain['id']
         else:
             msg = 'No domain information specified as part of list request'
             tr_msg = _('No domain information specified as part of list '
@@ -941,7 +941,8 @@ class ResourceBase(flask_restful.Resource):
             # Retrieve the auth context that was prepared by
             # AuthContextMiddleware.
 
-            auth_context = cls.auth_context
+            auth_context = flask.request.environ.get(
+                authorization.AUTH_CONTEXT_ENV, {})
             return auth_context['token']
         except KeyError:
             LOG.warning("Couldn't find the auth context.")

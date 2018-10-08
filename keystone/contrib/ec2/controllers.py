@@ -34,7 +34,6 @@ Glance to list images needed to perform the requested task.
 
 import abc
 import sys
-import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils
@@ -156,70 +155,6 @@ class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
 
         return user_ref, tenant_ref, roles_ref
 
-    def create_credential(self, request, user_id, tenant_id):
-        """Create a secret/access pair for use with ec2 style auth.
-
-        Generates a new set of credentials that map the user/tenant
-        pair.
-
-        :param request: current request
-        :param user_id: id of user
-        :param tenant_id: id of tenant
-        :returns: credential: dict of ec2 credential
-        """
-        self.identity_api.get_user(user_id)
-        self.resource_api.get_project(tenant_id)
-        blob = {'access': uuid.uuid4().hex,
-                'secret': uuid.uuid4().hex,
-                'trust_id': request.context.trust_id}
-        credential_id = utils.hash_access_key(blob['access'])
-        cred_ref = {'user_id': user_id,
-                    'project_id': tenant_id,
-                    'blob': jsonutils.dumps(blob),
-                    'id': credential_id,
-                    'type': CRED_TYPE_EC2}
-        self.credential_api.create_credential(credential_id, cred_ref)
-        return {'credential': self._convert_v3_to_ec2_credential(cred_ref)}
-
-    def get_credentials(self, user_id):
-        """List all credentials for a user.
-
-        :param user_id: id of user
-        :returns: credentials: list of ec2 credential dicts
-        """
-        self.identity_api.get_user(user_id)
-        credential_refs = self.credential_api.list_credentials_for_user(
-            user_id, type=CRED_TYPE_EC2)
-        return {'credentials':
-                [self._convert_v3_to_ec2_credential(credential)
-                    for credential in credential_refs]}
-
-    def get_credential(self, user_id, credential_id):
-        """Retrieve a user's access/secret pair by the access key.
-
-        Grab the full access/secret pair for a given access key.
-
-        :param user_id: id of user
-        :param credential_id: access key for credentials
-        :returns: credential: dict of ec2 credential
-        """
-        self.identity_api.get_user(user_id)
-        return {'credential': self._get_credentials(credential_id)}
-
-    def delete_credential(self, user_id, credential_id):
-        """Delete a user's access/secret pair.
-
-        Used to revoke a user's access/secret pair
-
-        :param user_id: id of user
-        :param credential_id: access key for credentials
-        :returns: bool: success
-        """
-        self.identity_api.get_user(user_id)
-        self._get_credentials(credential_id)
-        ec2_credential_id = utils.hash_access_key(credential_id)
-        return self.credential_api.delete_credential(ec2_credential_id)
-
     @staticmethod
     def _convert_v3_to_ec2_credential(credential):
         # Prior to bug #1259584 fix, blob was stored unserialized
@@ -271,22 +206,6 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
     collection_name = 'credentials'
     member_name = 'credential'
 
-    def _check_credential_owner_and_user_id_match(self, request, prep_info,
-                                                  user_id, credential_id):
-        # NOTE(morganfainberg): this method needs to capture the arguments of
-        # the method that is decorated with @controller.protected() (with
-        # exception of the first argument ('context') since the protected
-        # method passes in *args, **kwargs. In this case, it is easier to see
-        # the expected input if the argspec is `user_id` and `credential_id`
-        # explicitly (matching the :class:`.ec2_delete_credential()` method
-        # below).
-        ref = {}
-        credential_id = utils.hash_access_key(credential_id)
-        ref['credential'] = self.credential_api.get_credential(credential_id)
-        # NOTE(morganfainberg): policy_api is required for this
-        # check_protection to properly be able to perform policy enforcement.
-        self.check_protection(request, prep_info, ref)
-
     def authenticate(self, context, credentials=None, ec2Credentials=None):
         (user_ref, project_ref, roles_ref) = self._authenticate(
             credentials=credentials, ec2credentials=ec2Credentials
@@ -299,37 +218,3 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         )
         token_reference = render_token.render_token_response_from_model(token)
         return self.render_token_data_response(token.id, token_reference)
-
-    @controller.protected(callback=_check_credential_owner_and_user_id_match)
-    def ec2_get_credential(self, request, user_id, credential_id):
-        ref = super(Ec2ControllerV3, self).get_credential(user_id,
-                                                          credential_id)
-        return Ec2ControllerV3.wrap_member(request.context_dict,
-                                           ref['credential'])
-
-    @controller.protected()
-    def ec2_list_credentials(self, request, user_id):
-        refs = super(Ec2ControllerV3, self).get_credentials(user_id)
-        return Ec2ControllerV3.wrap_collection(request.context_dict,
-                                               refs['credentials'])
-
-    @controller.protected()
-    def ec2_create_credential(self, request, user_id, tenant_id):
-        ref = super(Ec2ControllerV3, self).create_credential(
-            request, user_id, tenant_id)
-        return Ec2ControllerV3.wrap_member(request.context_dict,
-                                           ref['credential'])
-
-    @controller.protected(callback=_check_credential_owner_and_user_id_match)
-    def ec2_delete_credential(self, request, user_id, credential_id):
-        return super(Ec2ControllerV3, self).delete_credential(user_id,
-                                                              credential_id)
-
-    @classmethod
-    def _add_self_referential_link(cls, context, ref):
-        path = '/users/%(user_id)s/credentials/OS-EC2/%(credential_id)s'
-        url = cls.base_url(context, path) % {
-            'user_id': ref['user_id'],
-            'credential_id': ref['access']}
-        ref.setdefault('links', {})
-        ref['links']['self'] = url

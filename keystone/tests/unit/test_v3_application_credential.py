@@ -292,15 +292,26 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             expected_status=http_client.NO_CONTENT)
 
     def test_update_application_credential(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        resp = self.post('/users/%s/application_credentials' % self.user_id,
-                         body=app_cred_body,
-                         expected_status=http_client.CREATED)
-        # Application credentials are immutable
-        app_cred_body['application_credential']['description'] = "New Things"
-        app_cred_id = resp.json['application_credential']['id']
-        self.patch(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                      'app_cred_id': app_cred_id},
-                   body=app_cred_body,
-                   expected_status=http_client.NOT_FOUND)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
+            # Application credentials are immutable
+            app_cred_body['application_credential'][
+                'description'] = "New Things"
+            app_cred_id = resp.json['application_credential']['id']
+            # NOTE(morgan): when the whole test case is converted to using
+            # flask test_client, this extra v3 prefix will
+            # need to be rolled into the base MEMBER_PATH_FMT
+            member_path = '/v3%s' % MEMBER_PATH_FMT % {
+                'user_id': self.user_id,
+                'app_cred_id': app_cred_id}
+            c.patch(member_path,
+                    json=app_cred_body,
+                    expected_status_code=http_client.METHOD_NOT_ALLOWED,
+                    headers={'X-Auth-Token': token})

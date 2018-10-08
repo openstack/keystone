@@ -26,7 +26,7 @@ build_resource_relation = functools.partial(
 
 class Routers(wsgi.RoutersBase):
 
-    _path_prefixes = ('ec2tokens', 'users')
+    _path_prefixes = ('ec2tokens',)
 
     def append_v3_routers(self, mapper, routers):
         ec2_controller = controllers.Ec2ControllerV3()
@@ -36,25 +36,3 @@ class Routers(wsgi.RoutersBase):
             path='/ec2tokens',
             post_action='authenticate',
             rel=build_resource_relation(resource_name='ec2tokens'))
-
-        # crud
-        self._add_resource(
-            mapper, ec2_controller,
-            path='/users/{user_id}/credentials/OS-EC2',
-            get_head_action='ec2_list_credentials',
-            post_action='ec2_create_credential',
-            rel=build_resource_relation(resource_name='user_credentials'),
-            path_vars={
-                'user_id': json_home.Parameters.USER_ID,
-            })
-        self._add_resource(
-            mapper, ec2_controller,
-            path='/users/{user_id}/credentials/OS-EC2/{credential_id}',
-            get_head_action='ec2_get_credential',
-            delete_action='ec2_delete_credential',
-            rel=build_resource_relation(resource_name='user_credential'),
-            path_vars={
-                'credential_id':
-                json_home.build_v3_parameter_relation('credential_id'),
-                'user_id': json_home.Parameters.USER_ID,
-            })
