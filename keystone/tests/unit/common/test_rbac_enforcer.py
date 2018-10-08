@@ -102,15 +102,23 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
 
         # Very Basic Restful Resource
         class RestfulResource(flask_restful.Resource):
-            def get(self, argument_id):
+            def get(self, argument_id=None):
+                if argument_id is not None:
+                    return self._get_argument(argument_id)
+                return self._list_arguments()
+
+            def _get_argument(self, argument_id):
                 return {'argument': {
                         'id': argument_id,
                         'value': 'TEST',
                         'owner_id': user['id']}}
 
+            def _list_arguments(self):
+                return {'arguments': []}
+
         self.restful_api_resource = RestfulResource
         self.restful_api.add_resource(
-            RestfulResource, '/argument/<string:argument_id>')
+            RestfulResource, '/argument/<string:argument_id>', '/argument')
         self.cleanup_instance('restful_api', 'restful_resource',
                               'restful_api_url_prefix')
 
@@ -349,6 +357,48 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
                 member_target_type=None, member_target=None)
             self.assertDictEqual(extracted['target'],
                                  self.restful_api_resource().get(argument_id))
+
+    def test_view_args_populated_in_policy_dict(self):
+        # Setup the "resource" object and make a call that has view arguments
+        # (substituted values in the URL). Make sure to use an policy enforcer
+        # that properly checks (substitutes in) a value that is not in "target"
+        # path but in the main policy dict path.
+
+        def _enforce_mock_func(credentials, action, target,
+                               do_raise=True):
+            if 'argument_id' not in target:
+                raise exception.ForbiddenAction(action=action)
+
+        self.useFixture(fixtures.MockPatchObject(
+            self.enforcer, '_enforce', _enforce_mock_func))
+
+        argument_id = uuid.uuid4().hex
+
+        # Check with a call that will populate view_args.
+
+        with self.test_client() as c:
+            path = '/v3/auth/tokens'
+            body = self._auth_json()
+
+            r = c.post(
+                path,
+                json=body,
+                follow_redirects=True,
+                expected_status_code=201)
+
+            token_id = r.headers['X-Subject-Token']
+
+            c.get('%s/argument/%s' % (self.restful_api_url_prefix,
+                                      argument_id),
+                  headers={'X-Auth-Token': token_id})
+
+            # Use any valid policy as _enforce is mockpatched out
+            self.enforcer.enforce_call(action='example:allowed')
+            c.get('%s/argument' % self.restful_api_url_prefix,
+                  headers={'X-Auth-Token': token_id})
+            self.assertRaises(exception.ForbiddenAction,
+                              self.enforcer.enforce_call,
+                              action='example:allowed')
 
     def test_extract_member_target_data_supplied_target(self):
         # Test extract member target data with member_target and
