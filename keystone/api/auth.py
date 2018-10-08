@@ -24,6 +24,7 @@ import werkzeug.exceptions
 
 from keystone.api._shared import authentication
 from keystone.api._shared import json_home_relations
+from keystone.api._shared import saml
 from keystone.auth import schema as auth_schema
 from keystone.common import authorization
 from keystone.common import provider_api
@@ -53,38 +54,6 @@ def _combine_lists_uniquely(a, b):
         return {x['id']: x for x in a + b}.values()
     else:
         return a or b
-
-
-def _create_base_saml_assertion(auth):
-    issuer = CONF.saml.idp_entity_id
-    sp_id = auth['scope']['service_provider']['id']
-    service_provider = PROVIDERS.federation_api.get_sp(sp_id)
-    federation_utils.assert_enabled_service_provider_object(service_provider)
-    sp_url = service_provider['sp_url']
-
-    token_id = auth['identity']['token']['id']
-    token = PROVIDERS.token_provider_api.validate_token(token_id)
-
-    if not token.project_scoped:
-        action = _('Use a project scoped token when attempting to create '
-                   'a SAML assertion')
-        raise exception.ForbiddenAction(action=action)
-
-    subject = token.user['name']
-    role_names = []
-    for role in token.roles:
-        role_names.append(role['name'])
-    project = token.project['name']
-    # NOTE(rodrigods): the domain name is necessary in order to distinguish
-    # between projects and users with the same name in different domains.
-    project_domain_name = token.project_domain['name']
-    subject_domain_name = token.user_domain['name']
-
-    generator = keystone_idp.SAMLGenerator()
-    response = generator.samlize_token(
-        issuer, sp_url, subject, subject_domain_name,
-        role_names, project, project_domain_name)
-    return response, service_provider
 
 
 def _build_response_headers(service_provider):
@@ -424,7 +393,7 @@ class AuthFederationSaml2Resource(_AuthFederationWebSSOBase):
         """
         auth = self.request_body_json.get('auth')
         validation.lazy_validate(federation_schema.saml_create, auth)
-        response, service_provider = _create_base_saml_assertion(auth)
+        response, service_provider = saml.create_base_saml_assertion(auth)
         headers = _build_response_headers(service_provider)
         response = flask.make_response(response.to_string(), http_client.OK)
         for header, value in headers:
@@ -444,7 +413,8 @@ class AuthFederationSaml2ECPResource(_AuthFederationWebSSOBase):
         """
         auth = self.request_body_json.get('auth')
         validation.lazy_validate(federation_schema.saml_create, auth)
-        saml_assertion, service_provider = _create_base_saml_assertion(auth)
+        saml_assertion, service_provider = saml.create_base_saml_assertion(
+            auth)
         relay_state_prefix = service_provider['relay_state_prefix']
 
         generator = keystone_idp.ECPGenerator()

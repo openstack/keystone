@@ -84,6 +84,13 @@ class RBACEnforcer(object):
         # it to the a token response or dictionary before passing it to
         # oslo.policy for enforcement. This is because oslo.policy shouldn't
         # know how to deal with an internal object only used within keystone.
+        #
+        # TODO(morgan): Rework this to not need an explicit token render as
+        # this is a generally poorly designed behavior. The enforcer should not
+        # rely on a contract of the token's rendered JSON form. This likely
+        # needs reworking of how we handle the context in oslo.policy. Until
+        # this is reworked, it is not possible to merge the token render
+        # function into keystone.api
         if 'token' in credentials:
             token_ref = render_token.render_token_response_from_model(
                 credentials['token']

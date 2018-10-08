@@ -146,8 +146,6 @@ def initialize_application(name, post_log_configured_function=lambda: None,
             config_files = [dev_conf]
 
     keystone.server.configure(config_files=config_files)
-    # explicitly load auth configuration
-    keystone.conf.auth.setup_authentication()
 
     # Log the options used when starting if we're in debug mode...
     if CONF.debug:
