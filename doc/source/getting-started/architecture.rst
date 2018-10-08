@@ -138,7 +138,7 @@ of pipelines of WSGI middleware, such as:
 .. code-block:: ini
 
     [pipeline:api_v3]
-    pipeline = healthcheck cors sizelimit http_proxy_to_wsgi osprofiler url_normalize request_id build_auth_context token_auth json_body ec2_extension_v3 s3_extension service_v3
+    pipeline = healthcheck cors sizelimit http_proxy_to_wsgi osprofiler url_normalize request_id build_auth_context json_body ec2_extension_v3 s3_extension service_v3
 
 
 These in turn use a subclass of :mod:`keystone.common.wsgi.ComposingRouter` to
