@@ -355,7 +355,8 @@ def transform_to_group_ids(group_names, mapping_id,
     """Transform groups identified by name/domain to their ids.
 
     Function accepts list of groups identified by a name and domain giving
-    a list of group ids in return.
+    a list of group ids in return. A message is logged if the group doesn't
+    exist in the backend.
 
     Example of group_names parameter::
 
@@ -385,9 +386,6 @@ def transform_to_group_ids(group_names, mapping_id,
     :param resource_api: resource manager object
 
     :returns: generator object with group ids
-
-    :raises keystone.exception.MappedGroupNotFound: in case asked group doesn't
-        exist in the backend.
 
     """
     def resolve_domain(domain):
