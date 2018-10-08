@@ -137,7 +137,7 @@
         - keystone-dsvm-py3-functional
         - keystone-dsvm-functional-federation
         - keystone-dsvm-py35-functional-federation
-        - legacy-keystoneclient-dsvm-functional:
+        - keystoneclient-devstack-functional:
             voting: false
             irrelevant-files:
               - ^.*\.rst$
