@@ -1126,9 +1126,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         r = self.get('/projects/%(project_id)s?include_limits' %
                      {'project_id': subproject['project']['id']})
 
-        self.assertIsNone(r.result['project'].get('parents'))
-        self.assertIsNone(r.result['project'].get('subtree'))
-        self.assertIsNone(r.result['project'].get('limits'))
+        self.assertNotIn('parents', r.result['project'])
+        self.assertNotIn('subtree', r.result['project'])
+        self.assertNotIn('limits', r.result['project'])
 
         # using "include_limits" with "parents_as_list"
         r = self.get('/projects/%(project_id)s?include_limits&parents_as_list'

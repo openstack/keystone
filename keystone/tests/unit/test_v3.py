@@ -932,7 +932,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
     def assertValidUser(self, entity, ref=None):
         self.assertIsNotNone(entity.get('domain_id'))
         self.assertIsNotNone(entity.get('email'))
-        self.assertIsNone(entity.get('password'))
+        self.assertNotIn('password', entity)
         self.assertNotIn('tenantId', entity)
         self.assertIn('password_expires_at', entity)
         if ref:
@@ -1070,7 +1070,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
 
         # Only one of user or group should be present
         if entity.get('user'):
-            self.assertIsNone(entity.get('group'))
+            self.assertNotIn('group', entity)
             self.assertIsNotNone(entity['user'].get('id'))
         else:
             self.assertIsNotNone(entity.get('group'))
@@ -1080,7 +1080,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         self.assertIsNotNone(entity.get('scope'))
 
         if entity['scope'].get('project'):
-            self.assertIsNone(entity['scope'].get('domain'))
+            self.assertNotIn('domain', entity['scope'])
             self.assertIsNotNone(entity['scope']['project'].get('id'))
         elif entity['scope'].get('domain'):
             self.assertIsNotNone(entity['scope'].get('domain'))

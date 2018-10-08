@@ -350,7 +350,7 @@ class SqlIdentity(SqlTests,
         project[arbitrary_key] = arbitrary_value
         ref = PROVIDERS.resource_api.create_project(project['id'], project)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
-        self.assertIsNone(ref.get('extra'))
+        self.assertNotIn('extra', ref)
 
         ref['name'] = uuid.uuid4().hex
         ref = PROVIDERS.resource_api.update_project(ref['id'], ref)
@@ -374,14 +374,14 @@ class SqlIdentity(SqlTests,
         del user["id"]
         ref = PROVIDERS.identity_api.create_user(user)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
-        self.assertIsNone(ref.get('password'))
-        self.assertIsNone(ref.get('extra'))
+        self.assertNotIn('password', ref)
+        self.assertNotIn('extra', ref)
 
         user['name'] = uuid.uuid4().hex
         user['password'] = uuid.uuid4().hex
         ref = PROVIDERS.identity_api.update_user(ref['id'], user)
-        self.assertIsNone(ref.get('password'))
-        self.assertIsNone(ref['extra'].get('password'))
+        self.assertNotIn('password', ref)
+        self.assertNotIn('password', ref['extra'])
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
         self.assertEqual(arbitrary_value, ref['extra'][arbitrary_key])
 
