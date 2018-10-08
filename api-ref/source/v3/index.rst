@@ -26,39 +26,39 @@ For information about Identity API protection, see
 <https://docs.openstack.org/keystone/latest/admin/identity-service-api-protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
-==========================
-What's New in Version 3.10
-==========================
+===================================
+What's New in Version 3.10 (Queens)
+===================================
 
 - Introduction of the Application Credentials API.
 - Introduction of an experimental Unified Limits API.
 - Ability to grant system role assignments and obtain system-scoped tokens.
 
-=========================
-What's New in Version 3.9
-=========================
+================================
+What's New in Version 3.9 (Pike)
+================================
 
 - Addition of ``tags`` attribute to project.
 - New APIs to interact with the ``tags`` attribute.
 
-=========================
-What's New in Version 3.8
-=========================
+=================================
+What's New in Version 3.8 (Ocata)
+=================================
 
 - Allow a service user to fetch a token that has expired.
 - Add a ``password_expires_at`` query parameter to user list and users in
   group list.
 
-=========================
-What's New in Version 3.7
-=========================
+==================================
+What's New in Version 3.7 (Newton)
+==================================
 
 - Addition of the ``password_expires_at`` field to the user response object.
 - Introduce a flag to bypass expiration and revocation checking.
 
-=========================
-What's New in Version 3.6
-=========================
+==================================
+What's New in Version 3.6 (Mitaka)
+==================================
 
 - Listing role assignments for a tree of projects.
 - Setting the project ``is_domain`` attribute enables a project to behave as
@@ -78,18 +78,18 @@ What's New in Version 3.6
 - Support ``enabled`` and ``id`` as optional attributes to filter identity
   providers when listing.
 
-=========================
-What's New in Version 3.5
-=========================
+===================================
+What's New in Version 3.5 (Liberty)
+===================================
 
 - Addition of ``type`` optional attribute to list credentials.
 - Addition of ``region_id`` optional attribute to list endpoints.
 - Addition of ``is_domain`` optional attribute to projects. Setting this
   currently has no effect, it is reserved for future use.
 
-=========================
-What's New in Version 3.4
-=========================
+================================
+What's New in Version 3.4 (Kilo)
+================================
 
 - For tokenless authorization, the scope information may be set in the
   request headers.
@@ -103,9 +103,9 @@ What's New in Version 3.4
 - The JSON Home support now will indicate the status of resource if it is not
   stable and current.
 
-=========================
-What's New in Version 3.3
-=========================
+================================
+What's New in Version 3.3 (Juno)
+================================
 
 These features are considered stable as of September 4th, 2014.
 
@@ -117,9 +117,9 @@ These features are considered stable as of September 4th, 2014.
   targets for a token.
 - Addition of ``url`` optional attribute for ``regions``.
 
-=========================
-What's New in Version 3.2
-=========================
+====================================
+What's New in Version 3.2 (Icehouse)
+====================================
 
 These features are considered stable as of January 23, 2014.
 
@@ -132,9 +132,9 @@ These features are considered stable as of January 23, 2014.
   provided if a particular deployment has limited the number of entries
   a query may return
 
-=========================
-What's New in Version 3.1
-=========================
+==================================
+What's New in Version 3.1 (Havana)
+==================================
 
 These features are considered stable as of July 18, 2013.
 
@@ -147,9 +147,9 @@ These features are considered stable as of July 18, 2013.
   creation
 - Added optional bind information to token structure
 
-=========================
-What's New in Version 3.0
-=========================
+===================================
+What's New in Version 3.0 (Grizzly)
+===================================
 
 These features are considered stable as of February 20, 2013.
 
