@@ -220,24 +220,28 @@ class HackingTranslations(fixtures.Fixture):
         },
         {
             'code': """
-                # this should not be an error
+                # this should be an error even if it'll be raised later.
                 L = log.getLogger(__name__)
                 msg = _('text')
                 L.warning(msg)
                 raise Exception(msg)
             """,
-            'expected_errors': [],
+            'expected_errors': [
+                (4, 10, 'K005'),
+            ],
         },
         {
             'code': """
                 L = log.getLogger(__name__)
                 def f():
                     msg = _('text')
-                    L2.warning(msg)
+                    L.warning(msg)
                     something = True  # add an extra statement here
                     raise Exception(msg)
             """,
-            'expected_errors': [],
+            'expected_errors': [
+                (4, 14, 'K005'),
+            ],
         },
         {
             'code': """
@@ -262,6 +266,7 @@ class HackingTranslations(fixtures.Fixture):
                 raise Exception(msg)
             """,
             'expected_errors': [
+                (6, 12, 'K005'),
             ],
         },
         {
@@ -320,6 +325,8 @@ class HackingTranslations(fixtures.Fixture):
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=msg)
             """,
-            'expected_errors': [],
+            'expected_errors': [
+                (7, 16, 'K005'),
+            ],
         },
     ]

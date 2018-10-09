@@ -295,50 +295,8 @@ class CheckForTranslationIssues(BaseASTChecker):
 
         # if the first arg is a reference to a i18n call
         elif (isinstance(msg, ast.Name)
-                and msg.id in self.assignments
-                and not self._is_raised_later(node, msg.id)):
+                and msg.id in self.assignments):
             self.add_error(msg, message=self.LOGGING_CHECK_DESC)
-
-    def _is_raised_later(self, node, name):
-
-        def find_peers(node):
-            node_for_line = node._parent
-            for _field, value in ast.iter_fields(node._parent._parent):
-                if isinstance(value, list) and node_for_line in value:
-                    return value[value.index(node_for_line) + 1:]
-                continue
-            return []
-
-        def is_in_args(node, name):
-            if (len(node.args) > 0 and isinstance(node.args[0], ast.Name)
-                    and name in (a.id for a in node.args)):
-                return True
-            return False
-
-        def is_in_kwargs(node, name):
-            for keyword in node.keywords:
-                if (isinstance(keyword.value, ast.Name)
-                        and keyword.value.id == name):
-                    return True
-            return False
-
-        peers = find_peers(node)
-        for peer in peers:
-            if isinstance(peer, ast.Raise):
-                if six.PY3:
-                    exc = peer.exc
-                else:
-                    exc = peer.type
-                if isinstance(exc, ast.Call):
-                    if is_in_args(exc, name):
-                        return True
-                    elif is_in_kwargs(exc, name):
-                        return True
-
-                return False
-            elif isinstance(peer, ast.Assign):
-                if name in (t.id for t in peer.targets if hasattr(t, 'id')):
-                    return False
 
 
 def dict_constructor_with_sequence_copy(logical_line):
