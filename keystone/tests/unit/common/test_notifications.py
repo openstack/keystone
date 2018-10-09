@@ -141,12 +141,11 @@ class NotificationsTestCase(unit.BaseTestCase):
         expected_args = [
             {},  # empty context
             'identity.%s.created' % resource_type,  # event_type
-            {'resource_info': resource},  # payload
-            'INFO',  # priority is always INFO...
+            {'resource_info': resource}  # payload
         ]
 
         with mock.patch.object(notifications._get_notifier(),
-                               '_notify') as mocked:
+                               'info') as mocked:
             notifications._send_notification(operation, resource_type,
                                              resource)
             mocked.assert_called_once_with(*expected_args)
@@ -170,7 +169,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         conf.config(notification_opt_out=[event_type])
 
         with mock.patch.object(notifications._get_notifier(),
-                               '_notify') as mocked:
+                               'info') as mocked:
 
             notifications._send_notification(operation, resource_type,
                                              resource)
@@ -194,7 +193,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         conf.config(notification_opt_out=[event_type])
 
         with mock.patch.object(notifications._get_notifier(),
-                               '_notify') as mocked:
+                               'info') as mocked:
 
             notifications._send_audit_notification(action,
                                                    initiator,
@@ -218,7 +217,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         conf.config(notification_opt_out=[meter_name])
 
         with mock.patch.object(notifications._get_notifier(),
-                               '_notify') as mocked:
+                               'info') as mocked:
 
             notifications._send_audit_notification(action,
                                                    initiator,
@@ -1341,7 +1340,7 @@ class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
         event_type = 'identity.authenticate.created'
 
         with mock.patch.object(notifications._get_notifier(),
-                               '_notify') as mocked:
+                               'info') as mocked:
 
             notifications._send_audit_notification(action,
                                                    initiator,
