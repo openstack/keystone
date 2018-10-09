@@ -763,8 +763,6 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
                                 reason=expected_reason)
 
     def test_locked_out_user_sends_notification(self):
-        # TODO(morgan): skip this test until users is ported to flask.
-        self.skipTest('Users are not handled via flask.')
         password = uuid.uuid4().hex
         new_password = uuid.uuid4().hex
         expected_responses = [AssertionError, AssertionError, AssertionError,
