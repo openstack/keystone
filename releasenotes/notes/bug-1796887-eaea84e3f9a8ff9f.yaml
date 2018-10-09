@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1796887 <https://bugs.launchpad.net/keystone/+bug/1796887>`_]
+    Add caching on trust role validation to improve performance. Services
+    relying heavily on trusts are impacted as the trusts are validated against
+    the database. This adds caching on those operations to improve performance

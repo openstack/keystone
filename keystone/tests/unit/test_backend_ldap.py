@@ -199,6 +199,9 @@ class AssignmentTests(assignment_tests.AssignmentTests):
             'N/A: LDAP does not implement get_roles_for_groups; '
             'see bug 1333712 for details')
 
+    def test_get_role_by_trustor_and_project(self):
+        self.skip_test_overrides('Domains are read-only against LDAP')
+
     def test_get_roles_for_groups_on_project(self):
         self.skip_test_overrides(
             'N/A: LDAP does not implement get_roles_for_groups; '
