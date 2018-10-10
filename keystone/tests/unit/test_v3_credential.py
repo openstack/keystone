@@ -20,9 +20,9 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 from six.moves import http_client
 from testtools import matchers
 
+from keystone.api import ec2tokens
 from keystone.common import provider_api
 from keystone.common import utils
-from keystone.contrib.ec2 import controllers
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
@@ -31,7 +31,7 @@ from keystone.tests.unit import test_v3
 
 
 PROVIDERS = provider_api.ProviderAPIs
-CRED_TYPE_EC2 = controllers.CRED_TYPE_EC2
+CRED_TYPE_EC2 = ec2tokens.CRED_TYPE_EC2
 
 
 class CredentialBaseTestCase(test_v3.RestfulTestCase):

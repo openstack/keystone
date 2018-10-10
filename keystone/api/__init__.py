@@ -14,6 +14,7 @@ from keystone.api import auth
 from keystone.api import credentials
 from keystone.api import discovery
 from keystone.api import domains
+from keystone.api import ec2tokens
 from keystone.api import endpoints
 from keystone.api import groups
 from keystone.api import limits
@@ -30,6 +31,7 @@ from keystone.api import registered_limits
 from keystone.api import role_assignments
 from keystone.api import role_inferences
 from keystone.api import roles
+from keystone.api import s3tokens
 from keystone.api import services
 from keystone.api import system
 from keystone.api import trusts
@@ -40,6 +42,7 @@ __all__ = (
     'discovery',
     'credentials',
     'domains',
+    'ec2tokens',
     'endpoints',
     'groups',
     'limits',
@@ -56,6 +59,7 @@ __all__ = (
     'role_assignments',
     'role_inferences',
     'roles',
+    's3tokens',
     'services',
     'system',
     'trusts',
@@ -67,6 +71,7 @@ __apis__ = (
     auth,
     credentials,
     domains,
+    ec2tokens,
     endpoints,
     groups,
     limits,
@@ -83,6 +88,7 @@ __apis__ = (
     role_assignments,
     role_inferences,
     roles,
+    s3tokens,
     services,
     system,
     trusts,

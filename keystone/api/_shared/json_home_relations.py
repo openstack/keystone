@@ -24,6 +24,11 @@ os_ec2_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
     extension_name='OS-EC2', extension_version='1.0')
 
+# s3token "extension"
+s3_token_resource_rel_func = functools.partial(
+    json_home.build_v3_extension_resource_relation,
+    extension_name='s3tokens', extension_version='1.0')
+
 # OS-EP-FILTER "extension"
 os_ep_filter_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,

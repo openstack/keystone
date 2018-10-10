@@ -16,7 +16,6 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 from six.moves import http_client
 
 from keystone.common import provider_api
-from keystone.contrib.ec2 import controllers
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
@@ -32,8 +31,6 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             self.user['id'], self.project_id)
         PROVIDERS.credential_api.create_credential(
             self.credential['id'], self.credential)
-
-        self.controller = controllers.Ec2ControllerV3
 
     def test_valid_authentication_response_with_proper_secret(self):
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
