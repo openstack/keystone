@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1744195 <https://bugs.launchpad.net/keystone/+bug/1744195>`_]
+    The SQL Foreign Key is enabled for Keystone unit tests now. This is not an
+    end user impact fixed. But for the downstream teams, please take care of
+    it for your private test code changes.

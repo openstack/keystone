@@ -1941,7 +1941,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         super(LDAPIdentityEnabledEmulation, self).setUp()
         _assert_backends(self, identity='ldap')
 
-    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
+    def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
         super(LDAPIdentity, self).load_fixtures(fixtures)
         for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
@@ -2360,9 +2360,11 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
 
     """
 
-    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
+    def load_fixtures(self, fixtures):
         self.domain_count = 5
         self.domain_specific_count = 3
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
         self.setup_initial_domains()
 
         # All initial test data setup complete, time to switch on support
@@ -2934,7 +2936,9 @@ class DomainSpecificLDAPandSQLIdentity(
 
         super(DomainSpecificLDAPandSQLIdentity, self).setUp()
 
-    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
+    def load_fixtures(self, fixtures):
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
         self.setup_initial_domains()
         super(DomainSpecificLDAPandSQLIdentity, self).load_fixtures(fixtures)
 

@@ -22,6 +22,7 @@ from testtools import matchers
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
+from keystone.resource.backends import base as resource_base
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils as test_utils
@@ -1174,7 +1175,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
     MAX_HIERARCHY_BREADTH = 3
     MAX_HIERARCHY_DEPTH = CONF.max_project_tree_depth - 1
 
-    def load_sample_data(self, enable_sqlite_foreign_key=False):
+    def load_sample_data(self):
         """Create sample data to be used on tests.
 
         Created data are i) a role and ii) a domain containing: a project
@@ -3294,7 +3295,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
 class ListUserProjectsTestCase(test_v3.RestfulTestCase):
     """Test for /users/<user>/projects."""
 
-    def load_sample_data(self, enable_sqlite_foreign_key=False):
+    def load_sample_data(self):
         # do not load base class's data, keep it focused on the tests
 
         self.auths = []
@@ -3302,6 +3303,13 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
         self.projects = []
         self.roles = []
         self.users = []
+
+        root_domain = unit.new_domain_ref(
+            id=resource_base.NULL_DOMAIN_ID,
+            name=resource_base.NULL_DOMAIN_ID
+        )
+        self.resource_api.create_domain(resource_base.NULL_DOMAIN_ID,
+                                        root_domain)
 
         # Create 3 sets of domain, roles, projects, and users to demonstrate
         # the right user's data is loaded and only projects they can access

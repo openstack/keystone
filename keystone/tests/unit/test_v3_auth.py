@@ -2575,7 +2575,7 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     """Test token revoke using v3 Identity API by token owner and admin."""
 
-    def load_sample_data(self, enable_sqlite_foreign_key=False):
+    def load_sample_data(self):
         """Load Sample Data for Test Cases.
 
         Two domains, domainA and domainB

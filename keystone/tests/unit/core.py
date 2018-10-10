@@ -821,7 +821,7 @@ class TestCase(BaseTestCase):
         provider_api.ProviderAPIs._clear_registry_instances()
         self.useFixture(ksfixtures.BackendLoader(self))
 
-    def load_fixtures(self, fixtures, enable_sqlite_foreign_key=False):
+    def load_fixtures(self, fixtures):
         """Hacky basic and naive fixture loading based on a python module.
 
         Expects that the various APIs into the various services are already
@@ -837,12 +837,12 @@ class TestCase(BaseTestCase):
         if (hasattr(self, 'identity_api') and
             hasattr(self, 'assignment_api') and
                 hasattr(self, 'resource_api')):
-            # TODO(wxy): Once all test enable FKs, remove
-            # ``enable_sqlite_foreign_key`` and create the root domain by
-            # default.
-            if enable_sqlite_foreign_key:
-                self.resource_api.create_domain(resource_base.NULL_DOMAIN_ID,
-                                                fixtures.ROOT_DOMAIN)
+            try:
+                PROVIDERS.resource_api.create_domain(
+                    resource_base.NULL_DOMAIN_ID, fixtures.ROOT_DOMAIN)
+            except exception.Conflict:
+                # the root domain already exists, skip now.
+                pass
             for domain in fixtures.DOMAINS:
                 rv = PROVIDERS.resource_api.create_domain(domain['id'], domain)
                 attrname = 'domain_%s' % domain['id']

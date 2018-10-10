@@ -21,6 +21,7 @@ from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
+from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
 
@@ -34,6 +35,8 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
         super(TestResourceManagerNoFixtures, self).setUp()
         self.useFixture(database.Database())
         self.load_backends()
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
 
     def test_update_project_name_conflict(self):
         name = uuid.uuid4().hex
