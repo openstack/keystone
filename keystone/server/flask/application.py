@@ -25,6 +25,7 @@ import werkzeug.wsgi
 
 import keystone.api
 from keystone.common import wsgi as keystone_wsgi
+from keystone.server.flask.request_processing import json_body
 
 # TODO(morgan): _MOVED_API_PREFIXES to be removed when the legacy dispatch
 # support is removed.
@@ -179,6 +180,11 @@ def application_factory(name='public'):
     # NOTE(morgan): The Flask App actually dispatches nothing until we migrate
     # some routers to Flask-Blueprints, it is simply a placeholder.
     app = flask.Flask(name)
+
+    # Add core before request functions
+    app.before_request(json_body.json_body_before_request)
+
+    # Add core after request functions
     app.after_request(_add_vary_x_auth_token_header)
 
     # NOTE(morgan): Configure the Flask Environment for our needs.

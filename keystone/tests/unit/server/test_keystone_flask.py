@@ -26,6 +26,7 @@ from keystone.common import rbac_enforcer
 import keystone.conf
 from keystone import exception
 from keystone.server.flask import common as flask_common
+from keystone.server.flask.request_processing import json_body
 from keystone.tests.unit import rest
 
 
@@ -654,3 +655,44 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             self.assertTrue(ref['links']['self'].startswith(
                 'https://localhost/v3/%s' % view_arg)
             )
+
+    def test_json_body_before_req_func_valid_json(self):
+        with self.test_request_context(
+                headers={'Content-Type': 'application/json'},
+                data='{"key": "value"}'):
+            # No exception should be raised, everything is happy.
+            json_body.json_body_before_request()
+
+    def test_json_body_before_req_func_invalid_json(self):
+        with self.test_request_context(
+                headers={'Content-Type': 'application/json'},
+                data='invalid JSON'):
+            # keystone.exception.ValidationError should be raised
+            self.assertRaises(exception.ValidationError,
+                              json_body.json_body_before_request)
+
+    def test_json_body_before_req_func_no_content_type(self):
+        # Unset
+        with self.test_request_context(data='{"key": "value"}'):
+            # No exception should be raised, everything is happy.
+            json_body.json_body_before_request()
+
+        # Explicitly set to ''
+        with self.test_request_context(
+                headers={'Content-Type': ''}, data='{"key": "value"}'):
+            # No exception should be raised, everything is happy.
+            json_body.json_body_before_request()
+
+    def test_json_body_before_req_func_unrecognized_content_type(self):
+        with self.test_request_context(
+                headers={'Content-Type': 'unrecognized/content-type'},
+                data='{"key": "value"'):
+            # keystone.exception.ValidationError should be raised
+            self.assertRaises(exception.ValidationError,
+                              json_body.json_body_before_request)
+
+    def test_json_body_before_req_func_unrecognized_conten_type_no_body(self):
+        with self.test_request_context(
+                headers={'Content-Type': 'unrecognized/content-type'}):
+            # No exception should be raised, everything is happy.
+            json_body.json_body_before_request()
