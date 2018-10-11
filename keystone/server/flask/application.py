@@ -16,11 +16,15 @@ import functools
 import sys
 
 import flask
+import oslo_i18n
 from oslo_log import log
 from oslo_middleware import healthcheck
+import six
 import werkzeug.wsgi
 
 import keystone.api
+from keystone import exception
+from keystone.server.flask import common as ks_flask
 from keystone.server.flask.request_processing import json_body
 from keystone.server.flask.request_processing import req_logging
 
@@ -50,6 +54,68 @@ def _add_vary_x_auth_token_header(response):
     return response
 
 
+def _best_match_language():
+    """Determine the best available locale.
+
+    This returns best available locale based on the Accept-Language HTTP
+    header passed in the request.
+    """
+    if not flask.request.accept_languages:
+        return None
+    return flask.request.accept_languages.best_match(
+        oslo_i18n.get_available_languages('keystone'))
+
+
+def _handle_keystone_exception(error):
+    # Handle logging
+    if isinstance(error, exception.Unauthorized):
+        LOG.warning(
+            "Authorization failed. %(exception)s from %(remote_addr)s",
+            {'exception': error, 'remote_addr': flask.request.remote_addr})
+    elif isinstance(error, exception.UnexpectedError):
+        LOG.exception(six.text_type(error))
+    else:
+        LOG.warning(six.text_type(error))
+
+    # Render the exception to something user "friendly"
+    error_message = error.args[0]
+    message = oslo_i18n.translate(error_message, _best_match_language())
+    if message is error_message:
+        # translate() didn't do anything because it wasn't a Message,
+        # convert to a string.
+        message = six.text_type(message)
+
+    body = dict(
+        error={
+            'code': error.code,
+            'title': error.title,
+            'message': message}
+    )
+
+    if isinstance(error, exception.AuthPluginException):
+        body['error']['identity'] = error.authentication
+
+    # Create the response and set status code.
+    response = flask.jsonify(body)
+    response.status_code = error.code
+
+    # Add the appropriate WWW-Authenticate header for Unauthorized
+    if isinstance(error, exception.Unauthorized):
+        url = ks_flask.base_url()
+        response.headers['WWW-Authenticate'] = 'Keystone uri="%s"' % url
+    return response
+
+
+def _handle_unknown_keystone_exception(error):
+    # translate a python exception to something we can properly render as
+    # an API error.
+    if isinstance(error, TypeError):
+        new_exc = exception.ValidationError(error)
+    else:
+        new_exc = exception.UnexpectedError(error)
+    return _handle_keystone_exception(new_exc)
+
+
 @fail_gracefully
 def application_factory(name='public'):
     if name not in ('admin', 'public'):
@@ -57,6 +123,21 @@ def application_factory(name='public'):
                            'either `admin` or `public`.')
 
     app = flask.Flask(name)
+
+    # Register Error Handler Function for Keystone Errors.
+    # NOTE(morgan): Flask passes errors to an error handling function. All of
+    # keystone's api errors are explicitly registered in
+    # keystone.exception.KEYSTONE_API_EXCEPTIONS and those are in turn
+    # registered here to ensure a proper error is bubbled up to the end user
+    # instead of a 500 error.
+    for exc in exception.KEYSTONE_API_EXCEPTIONS:
+        app.register_error_handler(exc, _handle_keystone_exception)
+
+    # Register extra (python) exceptions with the proper exception handler,
+    # specifically TypeError and generic exception, these will render as
+    # 500 errors, but presented in a "web-ified" manner
+    app.register_error_handler(TypeError, _handle_unknown_keystone_exception)
+    app.register_error_handler(Exception, _handle_unknown_keystone_exception)
 
     # Add core before request functions
     app.before_request(req_logging.log_request_info)
