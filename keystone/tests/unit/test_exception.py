@@ -12,6 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# NOTE(morgan): These test cases are used for AuthContextMiddleware exception
+# rendering.
+
 import uuid
 
 import fixtures
@@ -20,9 +23,9 @@ from oslo_log import log
 from oslo_serialization import jsonutils
 import six
 
-from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
+from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.tests import unit
 
 
@@ -31,7 +34,7 @@ CONF = keystone.conf.CONF
 
 class ExceptionTestCase(unit.BaseTestCase):
     def assertValidJsonRendering(self, e):
-        resp = wsgi.render_exception(e)
+        resp = auth_context.render_exception(e)
         self.assertEqual(e.code, resp.status_int)
         self.assertEqual('%s %s' % (e.code, e.title), resp.status)
 
@@ -74,7 +77,7 @@ class ExceptionTestCase(unit.BaseTestCase):
 
     def test_forbidden_title(self):
         e = exception.Forbidden()
-        resp = wsgi.render_exception(e)
+        resp = auth_context.render_exception(e)
         j = jsonutils.loads(resp.body)
         self.assertEqual('Forbidden', e.title)
         self.assertEqual('Forbidden', j['error'].get('title'))

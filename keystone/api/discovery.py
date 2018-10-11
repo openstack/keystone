@@ -16,9 +16,9 @@ from oslo_serialization import jsonutils
 from six.moves import http_client
 
 from keystone.common import json_home
-from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
+from keystone.server import flask as ks_flask
 
 
 CONF = keystone.conf.CONF
@@ -87,11 +87,7 @@ def get_versions():
         return flask.Response(response=jsonutils.dumps(v3_json_home),
                               mimetype=MimeTypes.JSON_HOME)
     else:
-        # NOTE(morgan): wsgi.Application.base_url will eventually need to
-        # be moved to a better "common" location. For now, we'll just lean
-        # on it for the sake of leaning on common code where possible.
-        identity_url = '%s/v3/' % wsgi.Application.base_url(
-            context={'environment': request.environ})
+        identity_url = '%s/' % ks_flask.base_url()
         versions = _get_versions_list(identity_url)
         return flask.Response(
             response=jsonutils.dumps(
@@ -113,11 +109,7 @@ def get_version_v3():
         return flask.Response(response=jsonutils.dumps(content),
                               mimetype=MimeTypes.JSON_HOME)
     else:
-        # NOTE(morgan): wsgi.Application.base_url will eventually need to
-        # be moved to a better "common" location. For now, we'll just lean
-        # on it for the sake of leaning on common code where possible.
-        identity_url = '%s/v3/' % wsgi.Application.base_url(
-            context={'environment': request.environ})
+        identity_url = '%s/' % ks_flask.base_url()
         versions = _get_versions_list(identity_url)
         return flask.Response(
             response=jsonutils.dumps({'version': versions['v3']}),

@@ -10,19 +10,31 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
+import functools
+import itertools
+import re
+import wsgiref.util
+
 from keystonemiddleware import auth_token
+import oslo_i18n
 from oslo_log import log
+from oslo_serialization import jsonutils
+import six
+from six.moves import http_client
+import webob.dec
+import webob.exc
 
 from keystone.common import authorization
 from keystone.common import context
 from keystone.common import provider_api
 from keystone.common import render_token
 from keystone.common import tokenless_auth
-from keystone.common import wsgi
+from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
-from keystone.federation import utils
+from keystone.federation import utils as federation_utils
 from keystone.i18n import _
 from keystone.models import token_model
 
@@ -30,7 +42,191 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
+# Environment variable used to pass the request context
+CONTEXT_ENV = 'openstack.context'
+
 __all__ = ('AuthContextMiddleware',)
+
+
+CONF = keystone.conf.CONF
+LOG = log.getLogger(__name__)
+
+
+JSON_ENCODE_CONTENT_TYPES = set(['application/json',
+                                 'application/json-home'])
+
+
+def best_match_language(req):
+    """Determine the best available locale.
+
+    This returns best available locale based on the Accept-Language HTTP
+    header passed in the request.
+    """
+    if not req.accept_language:
+        return None
+    return req.accept_language.best_match(
+        oslo_i18n.get_available_languages('keystone'))
+
+
+def base_url(context):
+    url = CONF['public_endpoint']
+
+    if url:
+        substitutions = dict(
+            itertools.chain(CONF.items(), CONF.eventlet_server.items()))
+
+        url = url % substitutions
+    elif 'environment' in context:
+        url = wsgiref.util.application_uri(context['environment'])
+        # remove version from the URL as it may be part of SCRIPT_NAME but
+        # it should not be part of base URL
+        url = re.sub(r'/v(3|(2\.0))/*$', '', url)
+
+        # now remove the standard port
+        url = utils.remove_standard_port(url)
+    else:
+        # if we don't have enough information to come up with a base URL,
+        # then fall back to localhost. This should never happen in
+        # production environment.
+        url = 'http://localhost:%d' % CONF.eventlet_server.public_port
+
+    return url.rstrip('/')
+
+
+def middleware_exceptions(method):
+
+    @functools.wraps(method)
+    def _inner(self, request):
+        try:
+            return method(self, request)
+        except exception.Error as e:
+            LOG.warning(six.text_type(e))
+            return render_exception(e, request=request,
+                                    user_locale=best_match_language(request))
+        except TypeError as e:
+            LOG.exception(six.text_type(e))
+            return render_exception(exception.ValidationError(e),
+                                    request=request,
+                                    user_locale=best_match_language(request))
+        except Exception as e:
+            LOG.exception(six.text_type(e))
+            return render_exception(exception.UnexpectedError(exception=e),
+                                    request=request,
+                                    user_locale=best_match_language(request))
+
+    return _inner
+
+
+def render_response(body=None, status=None, headers=None, method=None):
+    """Form a WSGI response."""
+    if headers is None:
+        headers = []
+    else:
+        headers = list(headers)
+    headers.append(('Vary', 'X-Auth-Token'))
+
+    if body is None:
+        body = b''
+        status = status or (http_client.NO_CONTENT,
+                            http_client.responses[http_client.NO_CONTENT])
+    else:
+        content_types = [v for h, v in headers if h == 'Content-Type']
+        if content_types:
+            content_type = content_types[0]
+        else:
+            content_type = None
+
+        if content_type is None or content_type in JSON_ENCODE_CONTENT_TYPES:
+            body = jsonutils.dump_as_bytes(body, cls=utils.SmarterEncoder)
+            if content_type is None:
+                headers.append(('Content-Type', 'application/json'))
+        status = status or (http_client.OK,
+                            http_client.responses[http_client.OK])
+
+    # NOTE(davechen): `mod_wsgi` follows the standards from pep-3333 and
+    # requires the value in response header to be binary type(str) on python2,
+    # unicode based string(str) on python3, or else keystone will not work
+    # under apache with `mod_wsgi`.
+    # keystone needs to check the data type of each header and convert the
+    # type if needed.
+    # see bug:
+    # https://bugs.launchpad.net/keystone/+bug/1528981
+    # see pep-3333:
+    # https://www.python.org/dev/peps/pep-3333/#a-note-on-string-types
+    # see source from mod_wsgi:
+    # https://github.com/GrahamDumpleton/mod_wsgi(methods:
+    # wsgi_convert_headers_to_bytes(...), wsgi_convert_string_to_bytes(...)
+    # and wsgi_validate_header_value(...)).
+    def _convert_to_str(headers):
+        str_headers = []
+        for header in headers:
+            str_header = []
+            for value in header:
+                if not isinstance(value, str):
+                    str_header.append(str(value))
+                else:
+                    str_header.append(value)
+            # convert the list to the immutable tuple to build the headers.
+            # header's key/value will be guaranteed to be str type.
+            str_headers.append(tuple(str_header))
+        return str_headers
+
+    headers = _convert_to_str(headers)
+
+    resp = webob.Response(body=body,
+                          status='%d %s' % status,
+                          headerlist=headers,
+                          charset='utf-8')
+
+    if method and method.upper() == 'HEAD':
+        # NOTE(morganfainberg): HEAD requests should return the same status
+        # as a GET request and same headers (including content-type and
+        # content-length). The webob.Response object automatically changes
+        # content-length (and other headers) if the body is set to b''. Capture
+        # all headers and reset them on the response object after clearing the
+        # body. The body can only be set to a binary-type (not TextType or
+        # NoneType), so b'' is used here and should be compatible with
+        # both py2x and py3x.
+        stored_headers = resp.headers.copy()
+        resp.body = b''
+        for header, value in stored_headers.items():
+            resp.headers[header] = value
+
+    return resp
+
+
+def render_exception(error, context=None, request=None, user_locale=None):
+    """Form a WSGI response based on the current error."""
+    error_message = error.args[0]
+    message = oslo_i18n.translate(error_message, desired_locale=user_locale)
+    if message is error_message:
+        # translate() didn't do anything because it wasn't a Message,
+        # convert to a string.
+        message = six.text_type(message)
+
+    body = {'error': {
+        'code': error.code,
+        'title': error.title,
+        'message': message,
+    }}
+    headers = []
+    if isinstance(error, exception.AuthPluginException):
+        body['error']['identity'] = error.authentication
+    elif isinstance(error, exception.Unauthorized):
+        # NOTE(gyee): we only care about the request environment in the
+        # context. Also, its OK to pass the environment as it is read-only in
+        # base_url()
+        local_context = {}
+        if request:
+            local_context = {'environment': request.environ}
+        elif context and 'environment' in context:
+            local_context = {'environment': context['environment']}
+        url = base_url(local_context)
+
+        headers.append(('WWW-Authenticate', 'Keystone uri="%s"' % url))
+    return render_response(status=(error.code, error.title),
+                           body=body,
+                           headers=headers)
 
 
 class AuthContextMiddleware(provider_api.ProviderAPIMixin,
@@ -66,7 +262,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         # NOTE(gyee): if it is an ephemeral user, the
         # given X.509 SSL client cert does not need to map to
         # an existing user.
-        if user_ref['type'] == utils.UserType.EPHEMERAL:
+        if user_ref['type'] == federation_utils.UserType.EPHEMERAL:
             auth_context = {}
             auth_context['group_ids'] = user_ref['group_ids']
             auth_context[federation_constants.IDENTITY_PROVIDER] = (
@@ -130,9 +326,9 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
 
         return False
 
-    @wsgi.middleware_exceptions
+    @middleware_exceptions
     def process_request(self, request):
-        context_env = request.environ.get(wsgi.CONTEXT_ENV, {})
+        context_env = request.environ.get(CONTEXT_ENV, {})
 
         # NOTE(notmorgan): This code is merged over from the admin token
         # middleware and now emits the security warning when the
@@ -146,7 +342,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
                 "not be set. This option is deprecated in favor of using "
                 "'keystone-manage bootstrap' and will be removed in a "
                 "future release.")
-            request.environ[wsgi.CONTEXT_ENV] = context_env
+            request.environ[CONTEXT_ENV] = context_env
 
         if not context_env.get('is_admin', False):
             resp = super(AuthContextMiddleware, self).process_request(request)
@@ -210,7 +406,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         # certificate is effectively disabled if no trusted issuers are
         # provided.
 
-        if request.environ.get(wsgi.CONTEXT_ENV, {}).get('is_admin', False):
+        if request.environ.get(CONTEXT_ENV, {}).get('is_admin', False):
             request_context.is_admin = True
             auth_context = {}
 
