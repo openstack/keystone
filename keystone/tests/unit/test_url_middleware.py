@@ -12,43 +12,55 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import webob
-
-from keystone import middleware
+from keystone.server.flask.request_processing.middleware import url_normalize
 from keystone.tests import unit
 
 
 class FakeApp(object):
     """Fakes a WSGI app URL normalized."""
 
+    def __init__(self):
+        self.env = {}
+
     def __call__(self, env, start_response):
-        resp = webob.Response()
-        resp.body = 'SUCCESS'
-        return resp(env, start_response)
+        self.env = env
+        return
 
 
 class UrlMiddlewareTest(unit.TestCase):
     def setUp(self):
-        self.middleware = middleware.NormalizingFilter(FakeApp())
-        self.response_status = None
-        self.response_headers = None
         super(UrlMiddlewareTest, self).setUp()
-
-    def start_fake_response(self, status, headers):
-        self.response_status = int(status.split(' ', 1)[0])
-        self.response_headers = dict(headers)
+        self.fake_app = FakeApp()
+        self.middleware = url_normalize.URLNormalizingMiddleware(self.fake_app)
 
     def test_trailing_slash_normalization(self):
         """Test /v3/auth/tokens & /v3/auth/tokens/ normalized URLs match."""
-        req1 = webob.Request.blank('/v3/auth/tokens')
-        req2 = webob.Request.blank('/v3/auth/tokens/')
-        self.middleware(req1.environ, self.start_fake_response)
-        self.middleware(req2.environ, self.start_fake_response)
-        self.assertEqual(req1.path_url, req2.path_url)
-        self.assertEqual('http://localhost/v3/auth/tokens', req1.path_url)
+        expected = '/v3/auth/tokens'
+        no_slash = {'PATH_INFO': expected}
+        with_slash = {'PATH_INFO': '/v3/auth/tokens/'}
+        with_many_slash = {'PATH_INFO': '/v3/auth/tokens////'}
+
+        # Run with a URL that doesn't need stripping and ensure nothing else is
+        # added to the environ
+        self.middleware(no_slash, None)
+        self.assertEqual(expected, self.fake_app.env['PATH_INFO'])
+        self.assertEqual(1, len(self.fake_app.env.keys()))
+
+        # Run with a URL that needs a single slash stripped and nothing else is
+        # added to the environ
+        self.middleware(with_slash, None)
+        self.assertEqual(expected, self.fake_app.env['PATH_INFO'])
+        self.assertEqual(1, len(self.fake_app.env.keys()))
+
+        # Run with a URL that needs multiple slashes stripped and ensure
+        # nothing else is added to the environ
+        self.middleware(with_many_slash, None)
+        self.assertEqual(expected, self.fake_app.env['PATH_INFO'])
+        self.assertEqual(1, len(self.fake_app.env.keys()))
 
     def test_rewrite_empty_path(self):
         """Test empty path is rewritten to root."""
-        req = webob.Request.blank('')
-        self.middleware(req.environ, self.start_fake_response)
-        self.assertEqual('http://localhost/', req.path_url)
+        environ = {'PATH_INFO': ''}
+        self.middleware(environ, None)
+        self.assertEqual('/', self.fake_app.env['PATH_INFO'])
+        self.assertEqual(1, len(self.fake_app.env.keys()))

@@ -13,4 +13,3 @@
 # under the License.
 
 from keystone.middleware.auth import *  # noqa
-from keystone.middleware.core import *  # noqa
