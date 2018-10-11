@@ -16,6 +16,9 @@
 class URLNormalizingMiddleware(object):
     """Middleware filter to handle URL normalization."""
 
+    # NOTE(morgan): This must be a middleware as changing 'PATH_INFO' after
+    # the request hits the flask app will not impact routing.
+
     def __init__(self, app):
         self.app = app
 

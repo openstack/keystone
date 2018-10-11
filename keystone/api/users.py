@@ -397,7 +397,7 @@ class OAuth1ListAccessTokensResource(_OAuth1ResourceBase):
     def get(self, user_id):
         """List OAuth1 Access Tokens for user.
 
-        GET /v3/users/{user_id}/OS=OAUTH1/access_tokens
+        GET /v3/users/{user_id}/OS-OAUTH1/access_tokens
         """
         ENFORCER.enforce_call(action='identity:list_access_tokens')
         if self.oslo_context.is_delegated_auth:
