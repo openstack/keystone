@@ -1567,6 +1567,33 @@ request_application_credential_user_body_not_required:
   in: body
   required: false
   type: object
+request_default_limit_body_not_required:
+  description: |
+    The default limit for the registered limit.
+  in: body
+  required: false
+  type: integer
+request_resource_limit_body_not_required:
+  description: |
+    The override limit.
+  in: body
+  required: false
+  type: integer
+request_resource_name_body_not_required:
+  description: |
+    The resource name.Either service_id or resource_name must be
+    different than existing value otherwise it will raise 409.
+  in: body
+  required: false
+  type: string
+request_service_id_registered_limit_body_not_required:
+  description: |
+    The UUID of the service to update to which the registered
+    limit belongs. Either service_id or resource_name must be
+    different than existing value otherwise it will raise 409.
+  in: body
+  required: false
+  type: string
 resource_limit:
   description: |
     The override limit.

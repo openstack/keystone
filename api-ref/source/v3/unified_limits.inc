@@ -162,10 +162,10 @@ Parameters
 
    - registered_limit_id: registered_limit_id_path
    - registered_limit: registered_limit
-   - service_id: service_id_registered_limit
+   - service_id: request_service_id_registered_limit_body_not_required
    - region_id: region_id_request_body
-   - resource_name: resource_name
-   - default_limit: default_limit
+   - resource_name: request_resource_name_body_not_required
+   - default_limit: request_default_limit_body_not_required
    - description: description_registered_limit_request_body
 
 Example
@@ -486,7 +486,7 @@ Update Limits
 
 .. rest_method::  PATCH /v3/limits/{limit_id}
 
-Updates the specifeid limit. It only supports to update ``resource_limit`` or
+Updates the specified limit. It only supports to update ``resource_limit`` or
 ``description`` for the limit.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/limit``
@@ -501,7 +501,7 @@ Parameters
 
    - limit_id: limit_id_path
    - limit: limit
-   - resource_limit: resource_limit
+   - resource_limit: request_resource_limit_body_not_required
    - description: description_limit_request_body
 
 Example
