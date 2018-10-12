@@ -101,9 +101,6 @@ def _get_sso_origin_host():
 
 
 class _AuthFederationWebSSOBase(ks_flask.ResourceBase):
-    collection_key = '__UNUSED__'
-    member_key = '__UNUSED__'
-
     @staticmethod
     def _render_template_response(host, token_id):
         with open(CONF.federation.sso_callback_template) as template:

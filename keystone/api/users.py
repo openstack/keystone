@@ -193,9 +193,6 @@ class UserResource(ks_flask.ResourceBase):
 
 
 class UserChangePasswordResource(ks_flask.ResourceBase):
-    collection_key = '__UNUSED__'
-    member_key = '__UNUSED__'
-
     @ks_flask.unenforced_api
     def get(self, user_id):
         # Special case, GET is not allowed.

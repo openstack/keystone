@@ -570,10 +570,22 @@ class APIBase(object):
         return inst
 
 
-class ResourceBase(flask_restful.Resource):
+class _AttributeRaisesError(object):
+    # NOTE(morgan): This is a special case class that exists to effectively
+    # create a @classproperty style function. We use __get__ to raise the
+    # exception.
 
-    collection_key = None
-    member_key = None
+    def __init__(self, name):
+        self.__msg = 'PROGRAMMING ERROR: `self.{name}` is not set.'.format(
+            name=name)
+
+    def __get__(self, instance, owner):
+        raise ValueError(self.__msg)
+
+
+class ResourceBase(flask_restful.Resource):
+    collection_key = _AttributeRaisesError(name='collection_key')
+    member_key = _AttributeRaisesError(name='member_key')
     _public_parameters = frozenset([])
     # NOTE(morgan): This must match the string on the API the resource is
     # registered to.
@@ -581,15 +593,6 @@ class ResourceBase(flask_restful.Resource):
     _id_path_param_name_override = None
 
     method_decorators = []
-
-    def __init__(self):
-        super(ResourceBase, self).__init__()
-        if self.collection_key is None:
-            raise ValueError('PROGRAMMING ERROR: `self.collection_key` '
-                             'cannot be `None`.')
-        if self.member_key is None:
-            raise ValueError('PROGRAMMING ERROR: `self.member_key` cannot '
-                             'be `None`.')
 
     @staticmethod
     def _assign_unique_id(ref):

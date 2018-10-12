@@ -168,7 +168,15 @@ class RBACEnforcer(object):
                 # here.
                 resource = flask.current_app.view_functions[
                     flask.request.endpoint].view_class
-                member_name = getattr(resource, 'member_key', None)
+                try:
+                    member_name = getattr(resource, 'member_key', None)
+                except ValueError:
+                    # NOTE(morgan): In the case that the ResourceBase keystone
+                    # class is used, we raise a value error when member_key
+                    # has not been set on the class. This is perfectly
+                    # normal and acceptable. Set member_name to None as though
+                    # it wasn't set.
+                    member_name = None
                 func = getattr(
                     resource, 'get_member_from_driver', None)
                 if member_name is not None and callable(func):
