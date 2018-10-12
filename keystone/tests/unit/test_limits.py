@@ -225,6 +225,32 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.assertEqual(new_registered_limits['description'],
                          'test description')
 
+    def test_update_registered_limit_region_failed(self):
+        ref = unit.new_registered_limit_ref(service_id=self.service_id,
+                                            resource_name='volume',
+                                            default_limit=10,
+                                            description='test description')
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref]},
+            expected_status=http_client.CREATED)
+        update_ref = {
+            'region_id': self.region_id,
+        }
+        registered_limit_id = r.result['registered_limits'][0]['id']
+        r = self.patch(
+            '/registered_limits/%s' % registered_limit_id,
+            body={'registered_limit': update_ref},
+            expected_status=http_client.OK)
+        new_registered_limits = r.result['registered_limit']
+        self.assertEqual(self.region_id, new_registered_limits['region_id'])
+
+        update_ref['region_id'] = ''
+        r = self.patch(
+            '/registered_limits/%s' % registered_limit_id,
+            body={'registered_limit': update_ref},
+            expected_status=http_client.BAD_REQUEST)
+
     def test_update_registered_limit_description(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
                                             region_id=self.region_id,
