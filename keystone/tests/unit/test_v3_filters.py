@@ -39,7 +39,9 @@ class IdentityTestFilteredCase(filtering.FilterTests,
     """Test filter enforcement on the v3 Identity API."""
 
     def _policy_fixture(self):
-        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
+        return ksfixtures.Policy(
+            self.config_fixture, policy_file=self.tmpfilename
+        )
 
     def setUp(self):
         """Setup for Identity Filter Test Cases."""

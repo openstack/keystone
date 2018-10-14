@@ -682,7 +682,7 @@ class TestCase(BaseTestCase):
         return []
 
     def _policy_fixture(self):
-        return ksfixtures.Policy(dirs.etc('policy.json'), self.config_fixture)
+        return ksfixtures.Policy(self.config_fixture)
 
     @contextlib.contextmanager
     def make_request(self, path='/', **kwargs):
