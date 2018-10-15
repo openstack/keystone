@@ -2563,6 +2563,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
                             {'resource_name': ''},
                             {'resource_name': 'a' * 256},
                             {'default_limit': 'not_int'},
+                            {'default_limit': -10},
+                            {'default_limit': 10000000000000000},
                             {'description': 123},
                             {'description': True}]
         for invalid_desc in _INVALID_FORMATS:
@@ -2584,6 +2586,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
                             {'resource_name': ''},
                             {'resource_name': 'a' * 256},
                             {'default_limit': 'not_int'},
+                            {'default_limit': -10},
+                            {'default_limit': 10000000000000000},
                             {'description': 123}]
         for invalid_desc in _INVALID_FORMATS:
             request_to_validate = {'service_id': uuid.uuid4().hex,
@@ -2667,6 +2671,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
                             {'resource_name': 123},
                             {'resource_name': ''},
                             {'resource_name': 'a' * 256},
+                            {'resource_limit': -10},
+                            {'resource_limit': 10000000000000000},
                             {'resource_limit': 'not_int'},
                             {'description': 123}]
         for invalid_desc in _INVALID_FORMATS:
@@ -2683,11 +2689,25 @@ class LimitValidationTestCase(unit.BaseTestCase):
                               request_to_validate)
 
     def test_validate_limit_update_request_with_invalid_input(self):
-        request_to_validate = {'resource_limit': 'not_int'}
+        _INVALID_FORMATS = [{'resource_name': 123},
+                            {'resource_limit': 'not_int'},
+                            {'resource_name': ''},
+                            {'resource_name': 'a' * 256},
+                            {'resource_limit': -10},
+                            {'resource_limit': 10000000000000000},
+                            {'description': 123}]
+        for invalid_desc in _INVALID_FORMATS:
+            request_to_validate = [{'project_id': uuid.uuid4().hex,
+                                    'service_id': uuid.uuid4().hex,
+                                    'region_id': 'RegionOne',
+                                    'resource_name': 'volume',
+                                    'resource_limit': 10,
+                                    'description': 'test description'}]
+            request_to_validate[0].update(invalid_desc)
 
-        self.assertRaises(exception.SchemaValidationError,
-                          self.update_limits_validator.validate,
-                          request_to_validate)
+            self.assertRaises(exception.SchemaValidationError,
+                              self.update_limits_validator.validate,
+                              request_to_validate)
 
     def test_validate_limit_create_request_with_addition_input_fails(self):
         request_to_validate = [{'service_id': uuid.uuid4().hex,
