@@ -206,7 +206,7 @@
         - keystone-tox-patch_cover
         - keystone-dsvm-grenade-multinode
         - openstack-ansible-keystone-rolling-upgrade
-        - legacy-tempest-dsvm-neutron-pg-full:
+        - tempest-pg-full:
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
