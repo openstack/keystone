@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1788694 <https://bugs.launchpad.net/keystone/+bug/1788694>`_]
+    System-scoped tokens now support expanding role assignments to include
+    implied roles in token creation and validation responses.
