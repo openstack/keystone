@@ -675,6 +675,29 @@ class BaseTestCase(testtools.TestCase):
                 return True
         return False
 
+    def loadapp(self, name='public'):
+        app = flask_app.application_factory(name)
+        app.testing = True
+        app.test_client_class = KeystoneFlaskTestClient
+
+        # NOTE(morgan): any unexpected 404s, not handled by the routed apis,
+        # is a hard error and should not pass testing.
+        def page_not_found_teapot(e):
+            content = (
+                'TEST PROGRAMMING ERROR - Reached a 404 from an unrouted (`%s`'
+                ') path. Be sure the test is requesting the right resource '
+                'and that all blueprints are registered with the flask app.' %
+                flask.request.url)
+            return content, 418
+
+        app.register_error_handler(404, page_not_found_teapot)
+
+        self.test_client = app.test_client
+        self.test_request_context = app.test_request_context
+        self.cleanup_instance('test_request_context')
+        self.cleanup_instance('test_client')
+        return keystone_flask.setup_app_middleware(app)
+
 
 class TestCase(BaseTestCase):
 
@@ -904,29 +927,6 @@ class TestCase(BaseTestCase):
                     user_id, tenant_id, role_id)
 
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
-
-    def loadapp(self, name='public'):
-        app = flask_app.application_factory(name)
-        app.testing = True
-        app.test_client_class = KeystoneFlaskTestClient
-
-        # NOTE(morgan): any unexpected 404s, not handled by the routed apis,
-        # is a hard error and should not pass testing.
-        def page_not_found_teapot(e):
-            content = (
-                'TEST PROGRAMMING ERROR - Reached a 404 from an unrouted (`%s`'
-                ') path. Be sure the test is requesting the right resource '
-                'and that all blueprints are registered with the flask app.' %
-                flask.request.url)
-            return content, 418
-
-        app.register_error_handler(404, page_not_found_teapot)
-
-        self.test_client = app.test_client
-        self.test_request_context = app.test_request_context
-        self.cleanup_instance('test_request_context')
-        self.cleanup_instance('test_client')
-        return keystone_flask.setup_app_middleware(app)
 
     def assertCloseEnoughForGovernmentWork(self, a, b, delta=3):
         """Assert that two datetimes are nearly equal within a small delta.
