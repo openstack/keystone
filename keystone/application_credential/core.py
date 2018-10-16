@@ -179,9 +179,9 @@ class Manager(manager.Manager):
         :raises keystone.exception.ApplicationCredentialNotFound: If the
             application credential doesn't exist.
         """
+        self.driver.delete_application_credential(application_credential_id)
         self.get_application_credential.invalidate(self,
                                                    application_credential_id)
-        self.driver.delete_application_credential(application_credential_id)
         notifications.Audit.deleted(
             self._APP_CRED, application_credential_id, initiator)
 
