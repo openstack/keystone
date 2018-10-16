@@ -280,6 +280,54 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(new_registered_limits['description'], '')
 
+    def test_update_registered_limit_region_id_to_none(self):
+        ref = unit.new_registered_limit_ref(service_id=self.service_id,
+                                            region_id=self.region_id,
+                                            resource_name='volume',
+                                            default_limit=10)
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref]},
+            expected_status=http_client.CREATED)
+        update_ref = {
+            'region_id': None
+        }
+        registered_limit_id = r.result['registered_limits'][0]['id']
+        r = self.patch(
+            '/registered_limits/%s' % registered_limit_id,
+            body={'registered_limit': update_ref},
+            expected_status=http_client.OK)
+        self.assertIsNone(r.result['registered_limit']['region_id'])
+
+    def test_update_registered_limit_region_id_to_none_conflict(self):
+        ref1 = unit.new_registered_limit_ref(service_id=self.service_id,
+                                             resource_name='volume',
+                                             default_limit=10)
+        ref2 = unit.new_registered_limit_ref(service_id=self.service_id,
+                                             region_id=self.region_id,
+                                             resource_name='volume',
+                                             default_limit=10)
+        self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref1]},
+            expected_status=http_client.CREATED)
+        r = self.post(
+            '/registered_limits',
+            body={'registered_limits': [ref2]},
+            expected_status=http_client.CREATED)
+
+        update_ref = {
+            'region_id': None
+        }
+        registered_limit_id = r.result['registered_limits'][0]['id']
+        # There is a registered limit with "service_id=self.service_id,
+        # region_id=None" already. So update ref2's region_id to None will
+        # raise 409 Conflict Error.
+        self.patch(
+            '/registered_limits/%s' % registered_limit_id,
+            body={'registered_limit': update_ref},
+            expected_status=http_client.CONFLICT)
+
     def test_update_registered_limit_not_found(self):
         update_ref = {
             'service_id': self.service_id,

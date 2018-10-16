@@ -212,7 +212,7 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                 old_dict = ref.to_dict()
                 old_dict.update(registered_limit)
                 if (registered_limit.get('service_id') or
-                        registered_limit.get('region_id') or
+                        'region_id' in registered_limit or
                         registered_limit.get('resource_name')):
                     self._check_unified_limit_unique(old_dict)
                 new_registered_limit = RegisteredLimitModel.from_dict(
