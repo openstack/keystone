@@ -43,7 +43,7 @@ jsonschema==2.6.0
 keystoneauth1==3.4.0
 keystonemiddleware==4.17.0
 kombu==4.1.0
-ldappool===2.0.0
+ldappool===2.3.1
 linecache2==1.0.0
 lxml==3.4.1
 Mako==1.0.7

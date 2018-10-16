@@ -65,7 +65,7 @@ def _internal_attr(attr_name, value_or_values):
             return 'CN=Doe\\2C John,OU=Users,CN=example,CN=com'
 
         try:
-            dn = ldap.dn.str2dn(common.utf8_encode(dn))
+            dn = ldap.dn.str2dn(dn)
         except ldap.DECODING_ERROR:
             # NOTE(amakarov): In case of IDs instead of DNs in group members
             # they must be handled as regular values.
@@ -74,10 +74,9 @@ def _internal_attr(attr_name, value_or_values):
         norm = []
         for part in dn:
             name, val, i = part[0]
-            name = common.utf8_decode(name)
             name = name.upper()
             norm.append([(name, val, i)])
-        return common.utf8_decode(ldap.dn.dn2str(norm))
+        return ldap.dn.dn2str(norm)
 
     if attr_name in ('member', 'roleOccupant'):
         attr_fn = normalize_dn
@@ -216,8 +215,8 @@ PendingRequests = {}
 class FakeLdap(common.LDAPHandler):
     """Emulate the python-ldap API.
 
-    The python-ldap API requires all strings to be UTF-8 encoded. This
-    is assured by the caller of this interface
+    The python-ldap API requires all strings to be UTF-8 encoded with the
+    exception of [1]. This is assured by the caller of this interface
     (i.e. KeystoneLDAPHandler).
 
     However, internally this emulation MUST process and store strings
@@ -227,6 +226,11 @@ class FakeLdap(common.LDAPHandler):
     strings, decodes them to unicode for operations internal to this
     emulation, and encodes them back to UTF-8 when returning values
     from the emulation.
+
+    [1] Some fields (DNs, RDNs, attribute names, queries) are represented
+    as text in python-ldap for Python 3, and for Python 2 when
+    bytes_mode=False. For more details see:
+    http://www.python-ldap.org/en/latest/bytes_mode.html#bytes-mode
 
     """
 
@@ -278,19 +282,14 @@ class FakeLdap(common.LDAPHandler):
         self.pool_conn_lifetime = pool_conn_lifetime
         self.conn_timeout = conn_timeout
 
-    def dn(self, dn):
-        return common.utf8_decode(dn)
-
     def _dn_to_id_attr(self, dn):
-        return common.utf8_decode(
-            ldap.dn.str2dn(common.utf8_encode(dn))[0][0][0])
+        return ldap.dn.str2dn(dn)[0][0][0]
 
     def _dn_to_id_value(self, dn):
-        return common.utf8_decode(
-            ldap.dn.str2dn(common.utf8_encode(dn))[0][0][1])
+        return ldap.dn.str2dn(dn)[0][0][1]
 
     def key(self, dn):
-        return '%s%s' % (self.__prefix, self.dn(dn))
+        return '%s%s' % (self.__prefix, dn)
 
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
@@ -298,27 +297,23 @@ class FakeLdap(common.LDAPHandler):
         if server_fail:
             raise ldap.SERVER_DOWN
         whos = ['cn=Admin', CONF.ldap.user]
-        if (common.utf8_decode(who) in whos and
-                common.utf8_decode(cred) in ['password', CONF.ldap.password]):
+        if (who in whos and cred in ['password', CONF.ldap.password]):
             return
 
         attrs = self.db.get(self.key(who))
         if not attrs:
-            LOG.debug('who=%s not found, binding anonymously',
-                      common.utf8_decode(who))
+            LOG.debug('who=%s not found, binding anonymously', who)
 
         db_password = ''
         if attrs:
             try:
                 db_password = attrs['userPassword'][0]
             except (KeyError, IndexError):
-                LOG.debug('bind fail: password for who=%s not found',
-                          common.utf8_decode(who))
+                LOG.debug('bind fail: password for who=%s not found', who)
                 raise ldap.INAPPROPRIATE_AUTH
 
-        if cred != common.utf8_encode(db_password):
-            LOG.debug('bind fail: password for who=%s does not match',
-                      common.utf8_decode(who))
+        if cred != db_password:
+            LOG.debug('bind fail: password for who=%s does not match', who)
             raise ldap.INVALID_CREDENTIALS
 
     def unbind_s(self):
@@ -352,10 +347,9 @@ class FakeLdap(common.LDAPHandler):
             raise ldap.NAMING_VIOLATION
         key = self.key(dn)
         LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
-            'dn': common.utf8_decode(dn), 'attrs': modlist})
+            'dn': dn, 'attrs': modlist})
         if key in self.db:
-            LOG.debug('add item failed: dn=%s is already in store.',
-                      common.utf8_decode(dn))
+            LOG.debug('add item failed: dn=%s is already in store.', dn)
             raise ldap.ALREADY_EXISTS(dn)
 
         self.db[key] = {k: _internal_attr(k, v) for k, v in modlist}
@@ -369,7 +363,7 @@ class FakeLdap(common.LDAPHandler):
         return [k for k, v in self.db.items()
                 if re.match('%s.*,%s' % (
                             re.escape(self.__prefix),
-                            re.escape(self.dn(dn))), k)]
+                            re.escape(dn)), k)]
 
     def delete_ext_s(self, dn, serverctrls, clientctrls=None):
         """Remove the ldap object at specified dn."""
@@ -378,11 +372,10 @@ class FakeLdap(common.LDAPHandler):
 
         try:
             key = self.key(dn)
-            LOG.debug('FakeLdap delete item: dn=%s', common.utf8_decode(dn))
+            LOG.debug('FakeLdap delete item: dn=%s', dn)
             del self.db[key]
         except KeyError:
-            LOG.debug('delete item failed: dn=%s not found.',
-                      common.utf8_decode(dn))
+            LOG.debug('delete item failed: dn=%s not found.', dn)
             raise ldap.NO_SUCH_OBJECT
         self.db.sync()
 
@@ -398,12 +391,11 @@ class FakeLdap(common.LDAPHandler):
 
         key = self.key(dn)
         LOG.debug('modify item: dn=%(dn)s attrs=%(attrs)s', {
-            'dn': common.utf8_decode(dn), 'attrs': modlist})
+            'dn': dn, 'attrs': modlist})
         try:
             entry = self.db[key]
         except KeyError:
-            LOG.debug('modify item failed: dn=%s not found.',
-                      common.utf8_decode(dn))
+            LOG.debug('modify item failed: dn=%s not found.', dn)
             raise ldap.NO_SUCH_OBJECT
 
         for cmd, k, v in modlist:
@@ -483,19 +475,19 @@ class FakeLdap(common.LDAPHandler):
                             for k, v in self.db.items()
                             if re.match('%s.*,%s' %
                                         (re.escape(self.__prefix),
-                                         re.escape(self.dn(base))), k)]
+                                         re.escape(base)), k)]
             results.extend(extraresults)
         elif scope == ldap.SCOPE_ONELEVEL:
 
             def get_entries():
-                base_dn = ldap.dn.str2dn(common.utf8_encode(base))
+                base_dn = ldap.dn.str2dn(base)
                 base_len = len(base_dn)
 
                 for k, v in self.db.items():
                     if not k.startswith(self.__prefix):
                         continue
                     k_dn_str = k[len(self.__prefix):]
-                    k_dn = ldap.dn.str2dn(common.utf8_encode(k_dn_str))
+                    k_dn = ldap.dn.str2dn(k_dn_str)
                     if len(k_dn) != base_len + 1:
                         continue
                     if k_dn[-base_len:] != base_dn:
@@ -511,13 +503,11 @@ class FakeLdap(common.LDAPHandler):
         objects = []
         for dn, attrs in results:
             # filter the objects by filterstr
-            id_attr, id_val, _ = ldap.dn.str2dn(common.utf8_encode(dn))[0][0]
-            id_attr = common.utf8_decode(id_attr)
-            id_val = common.utf8_decode(id_val)
+            id_attr, id_val, _ = ldap.dn.str2dn(dn)[0][0]
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
             attrs_checked = set()
-            if not filterstr or _match_query(common.utf8_decode(filterstr),
+            if not filterstr or _match_query(filterstr,
                                              match_attrs,
                                              attrs_checked):
                 if (filterstr and
@@ -650,8 +640,7 @@ class FakeLdapNoSubtreeDelete(FakeLdap):
                 raise ldap.NOT_ALLOWED_ON_NONLEAF
 
         except KeyError:
-            LOG.debug('delete item failed: dn=%s not found.',
-                      common.utf8_decode(dn))
+            LOG.debug('delete item failed: dn=%s not found.', dn)
             raise ldap.NO_SUCH_OBJECT
         super(FakeLdapNoSubtreeDelete, self).delete_ext_s(dn,
                                                           serverctrls,

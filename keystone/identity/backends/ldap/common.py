@@ -27,6 +27,7 @@ from oslo_log import log
 from oslo_utils import reflection
 import six
 from six.moves import map, zip
+from six import PY2
 
 from keystone.common import driver_hints
 from keystone import exception
@@ -152,8 +153,9 @@ def convert_ldap_result(ldap_result):
     are lists of strings.
 
     OpenStack wants to use Python types of its choosing. Strings will
-    be unicode, truth values boolean, whole numbers int's, etc. DN's will
-    also be decoded from UTF-8 to unicode.
+    be unicode, truth values boolean, whole numbers int's, etc. DN's are
+    represented as text in python-ldap by default for Python 3 and when
+    bytes_mode=False for Python 2, and therefore do not require decoding.
 
     :param ldap_result: LDAP search result
     :returns: list of 2-tuples containing (dn, attrs) where dn is unicode
@@ -175,8 +177,7 @@ def convert_ldap_result(ldap_result):
                 ldap_attrs[kind] = [val2py(x) for x in values]
             except UnicodeDecodeError:
                 LOG.debug('Unable to decode value for attribute %s', kind)
-
-        py_result.append((utf8_decode(dn), ldap_attrs))
+        py_result.append((dn, ldap_attrs))
     if at_least_one_referral:
         LOG.debug(('Referrals were returned and ignored. Enable referral '
                    'chasing in keystone.conf via [ldap] chase_referrals'))
@@ -299,9 +300,9 @@ def is_dn_equal(dn1, dn2):
 
     """
     if not isinstance(dn1, list):
-        dn1 = ldap.dn.str2dn(utf8_encode(dn1))
+        dn1 = ldap.dn.str2dn(dn1)
     if not isinstance(dn2, list):
-        dn2 = ldap.dn.str2dn(utf8_encode(dn2))
+        dn2 = ldap.dn.str2dn(dn2)
 
     if len(dn1) != len(dn2):
         return False
@@ -320,9 +321,9 @@ def dn_startswith(descendant_dn, dn):
 
     """
     if not isinstance(descendant_dn, list):
-        descendant_dn = ldap.dn.str2dn(utf8_encode(descendant_dn))
+        descendant_dn = ldap.dn.str2dn(descendant_dn)
     if not isinstance(dn, list):
-        dn = ldap.dn.str2dn(utf8_encode(dn))
+        dn = ldap.dn.str2dn(dn)
 
     if len(descendant_dn) <= len(dn):
         return False
@@ -344,6 +345,11 @@ class LDAPHandler(object):
         * integer values map to their string representation.
 
         * unicode strings are encoded in UTF-8
+
+    Note, in python-ldap some fields (DNs, RDNs, attribute names, queries)
+    are represented as text (str on Python 3, unicode on Python 2 when
+    bytes_mode=False). For more details see:
+    http://www.python-ldap.org/en/latest/bytes_mode.html#bytes-mode
 
     In addition to handling type conversions at the API boundary we
     have the requirement to support more than one LDAP API
@@ -482,7 +488,14 @@ class LDAPHandler(object):
 class PythonLDAPHandler(LDAPHandler):
     """LDAPHandler implementation which calls the python-ldap API.
 
-    Note, the python-ldap API requires all string values to be UTF-8 encoded.
+    Note, the python-ldap API requires all string attribute values to be UTF-8
+    encoded.
+
+    Note, in python-ldap some fields (DNs, RDNs, attribute names, queries)
+    are represented as text (str on Python 3, unicode on Python 2 when
+    bytes_mode=False). For more details see:
+    http://www.python-ldap.org/en/latest/bytes_mode.html#bytes-mode
+
     The KeystoneLDAPHandler enforces this prior to invoking the methods in this
     class.
 
@@ -503,7 +516,14 @@ class PythonLDAPHandler(LDAPHandler):
                                     debug_level=debug_level,
                                     timeout=conn_timeout)
 
-        self.conn = ldap.initialize(url)
+        if PY2:
+            # NOTE: Once https://github.com/python-ldap/python-ldap/issues/249
+            # is released, we can pass bytes_strictness='warn' as a parameter
+            # to ldap.initialize instead of setting it after ldap.initialize.
+            self.conn = ldap.initialize(url, bytes_mode=False)
+            self.conn.bytes_strictness = 'warn'
+        else:
+            self.conn = ldap.initialize(url)
         self.conn.protocol_version = ldap.VERSION3
 
         if alias_dereferencing is not None:
@@ -653,9 +673,14 @@ class PooledLDAPHandler(LDAPHandler):
     If 'use_auth_pool' is not enabled, then connection pooling is not used for
     those LDAP operations.
 
-    Note, the python-ldap API requires all string values to be UTF-8
-    encoded. The KeystoneLDAPHandler enforces this prior to invoking
-    the methods in this class.
+    Note, the python-ldap API requires all string attribute values to be UTF-8
+    encoded. The KeystoneLDAPHandler enforces this prior to invoking the
+    methods in this class.
+
+    Note, in python-ldap some fields (DNs, RDNs, attribute names, queries)
+    are represented as text (str on Python 3, unicode on Python 2 when
+    bytes_mode=False). For more details see:
+    http://www.python-ldap.org/en/latest/bytes_mode.html#bytes-mode
 
     """
 
@@ -822,11 +847,16 @@ class KeystoneLDAPHandler(LDAPHandler):
     """Convert data types and perform logging.
 
     This LDAP interface wraps the python-ldap based interfaces. The
-    python-ldap interfaces require string values encoded in UTF-8. The
-    OpenStack logging framework at the time of this writing is not
-    capable of accepting strings encoded in UTF-8, the log functions
-    will throw decoding errors if a non-ascii character appears in a
-    string.
+    python-ldap interfaces require string values encoded in UTF-8 with
+    the exception of [1]. The OpenStack logging framework at the time
+    of this writing is not capable of accepting strings encoded in
+    UTF-8, the log functions will throw decoding errors if a non-ascii
+    character appears in a string.
+
+    [1] In python-ldap, some fields (DNs, RDNs, attribute names,
+    queries) are represented as text (str on Python 3, unicode on
+    Python 2 when bytes_mode=False). For more details see:
+    http://www.python-ldap.org/en/latest/bytes_mode.html#bytes-mode
 
     Prior to the call Python data types are converted to a string
     representation as required by the LDAP APIs.
@@ -885,9 +915,7 @@ class KeystoneLDAPHandler(LDAPHandler):
     def simple_bind_s(self, who='', cred='',
                       serverctrls=None, clientctrls=None):
         LOG.debug('LDAP bind: who=%s', who)
-        who_utf8 = utf8_encode(who)
-        cred_utf8 = utf8_encode(cred)
-        return self.conn.simple_bind_s(who_utf8, cred_utf8,
+        return self.conn.simple_bind_s(who, cred,
                                        serverctrls=serverctrls,
                                        clientctrls=clientctrls)
 
@@ -904,10 +932,9 @@ class KeystoneLDAPHandler(LDAPHandler):
                          for kind, values in ldap_attrs]
         LOG.debug('LDAP add: dn=%s attrs=%s',
                   dn, logging_attrs)
-        dn_utf8 = utf8_encode(dn)
         ldap_attrs_utf8 = [(kind, [utf8_encode(x) for x in safe_iter(values)])
                            for kind, values in ldap_attrs]
-        return self.conn.add_s(dn_utf8, ldap_attrs_utf8)
+        return self.conn.add_s(dn, ldap_attrs_utf8)
 
     def search_s(self, base, scope,
                  filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
@@ -924,15 +951,12 @@ class KeystoneLDAPHandler(LDAPHandler):
             ldap_result = self._paged_search_s(base, scope,
                                                filterstr, attrlist)
         else:
-            base_utf8 = utf8_encode(base)
-            filterstr_utf8 = utf8_encode(filterstr)
             if attrlist is None:
                 attrlist_utf8 = None
             else:
                 attrlist_utf8 = list(map(utf8_encode, attrlist))
             try:
-                ldap_result = self.conn.search_s(base_utf8, scope,
-                                                 filterstr_utf8,
+                ldap_result = self.conn.search_s(base, scope, filterstr,
                                                  attrlist_utf8, attrsonly)
             except ldap.SIZELIMIT_EXCEEDED:
                 raise exception.LDAPSizeLimitExceeded()
@@ -977,16 +1001,14 @@ class KeystoneLDAPHandler(LDAPHandler):
                 cookie='')
             page_ctrl_oid = ldap.controls.SimplePagedResultsControl.controlType
 
-        base_utf8 = utf8_encode(base)
-        filterstr_utf8 = utf8_encode(filterstr)
         if attrlist is None:
             attrlist_utf8 = None
         else:
             attrlist = [attr for attr in attrlist if attr is not None]
             attrlist_utf8 = list(map(utf8_encode, attrlist))
-        msgid = self.conn.search_ext(base_utf8,
+        msgid = self.conn.search_ext(base,
                                      scope,
-                                     filterstr_utf8,
+                                     filterstr,
                                      attrlist_utf8,
                                      serverctrls=[lc])
         # Endless loop request pages on ldap server until it has no data
@@ -1008,9 +1030,9 @@ class KeystoneLDAPHandler(LDAPHandler):
                 if cookie:
                     # There is more data still on the server
                     # so we request another page
-                    msgid = self.conn.search_ext(base_utf8,
+                    msgid = self.conn.search_ext(base,
                                                  scope,
-                                                 filterstr_utf8,
+                                                 filterstr,
                                                  attrlist_utf8,
                                                  serverctrls=[lc])
                 else:
@@ -1051,12 +1073,11 @@ class KeystoneLDAPHandler(LDAPHandler):
         LOG.debug('LDAP modify: dn=%s modlist=%s',
                   dn, logging_modlist)
 
-        dn_utf8 = utf8_encode(dn)
         ldap_modlist_utf8 = [
             (op, kind, (None if values is None
                         else [utf8_encode(x) for x in safe_iter(values)]))
             for op, kind, values in ldap_modlist]
-        return self.conn.modify_s(dn_utf8, ldap_modlist_utf8)
+        return self.conn.modify_s(dn, ldap_modlist_utf8)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit runtime context, unbind LDAP."""
@@ -1283,7 +1304,7 @@ class BaseLdap(object):
 
     @staticmethod
     def _dn_to_id(dn):
-        return utf8_decode(ldap.dn.str2dn(utf8_encode(dn))[0][0][1])
+        return ldap.dn.str2dn(dn)[0][0][1]
 
     def _ldap_res_to_model(self, res):
         # LDAP attribute names may be returned in a different case than
@@ -1769,10 +1790,10 @@ class EnabledEmuMixIn(BaseLdap):
             naming_attr = (naming_attr_name, [naming_attr_value])
         else:
             # Extract the attribute name and value from the configured DN.
-            naming_dn = ldap.dn.str2dn(utf8_encode(self.enabled_emulation_dn))
+            naming_dn = ldap.dn.str2dn(self.enabled_emulation_dn)
             naming_rdn = naming_dn[0][0]
-            naming_attr = (utf8_decode(naming_rdn[0]),
-                           utf8_decode(naming_rdn[1]))
+            naming_attr = (naming_rdn[0],
+                           naming_rdn[1])
         self.enabled_emulation_naming_attr = naming_attr
 
     def _get_enabled(self, object_id, conn):
