@@ -16,6 +16,7 @@ import subprocess
 
 import ldap.modlist
 from six.moves import range
+from six import PY2
 
 from keystone.common import provider_api
 import keystone.conf
@@ -30,7 +31,14 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 def create_object(dn, attrs):
-    conn = ldap.initialize(CONF.ldap.url)
+    if PY2:
+        # NOTE: Once https://github.com/python-ldap/python-ldap/issues/249
+        # is released, we can pass bytes_strictness='warn' as a parameter to
+        # ldap.initialize instead of setting it after ldap.initialize.
+        conn = ldap.initialize(CONF.ldap.url, bytes_mode=False)
+        conn.bytes_strictness = 'warn'
+    else:
+        conn = ldap.initialize(CONF.ldap.url)
     conn.simple_bind_s(CONF.ldap.user, CONF.ldap.password)
     ldif = ldap.modlist.addModlist(attrs)
     conn.add_s(dn, ldif)
