@@ -434,9 +434,10 @@ user group has already received in keystone:
 
 This example can be expanded by adding a second rule that conveys
 additional authorization to only a subset of federated users. Federated users
-with a `title` attribute that matches either ``Manager`` or
-``Supervisor`` are granted the hypothetical ``observer`` role, which would
-allow them to perform any read-only API call in the cloud:
+with a `title` attribute that matches either ``Manager`` or ``Supervisor`` are
+admitted to the ``observers`` group which is granted the ``reader`` role on some
+project, which would allow the group members to perform any read-only API call
+in the project:
 
 .. code:: javascript
 
