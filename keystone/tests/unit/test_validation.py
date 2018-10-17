@@ -2560,6 +2560,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
         _INVALID_FORMATS = [{'service_id': 'fake_id'},
                             {'region_id': 123},
                             {'resource_name': 123},
+                            {'resource_name': ''},
+                            {'resource_name': 'a' * 256},
                             {'default_limit': 'not_int'},
                             {'description': 123},
                             {'description': True}]
@@ -2579,6 +2581,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
         _INVALID_FORMATS = [{'service_id': 'fake_id'},
                             {'region_id': 123},
                             {'resource_name': 123},
+                            {'resource_name': ''},
+                            {'resource_name': 'a' * 256},
                             {'default_limit': 'not_int'},
                             {'description': 123}]
         for invalid_desc in _INVALID_FORMATS:
@@ -2661,6 +2665,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
                             {'service_id': 'fake_id'},
                             {'region_id': 123},
                             {'resource_name': 123},
+                            {'resource_name': ''},
+                            {'resource_name': 'a' * 256},
                             {'resource_limit': 'not_int'},
                             {'description': 123}]
         for invalid_desc in _INVALID_FORMATS:
