@@ -49,6 +49,14 @@ class TestCaseWithBootstrap(core.BaseTestCase):
             )
         )
 
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_receipts',
+                CONF.fernet_receipts.max_active_keys
+            )
+        )
+
         self.bootstrapper = bootstrap.Bootstrapper()
         self.addCleanup(provider_api.ProviderAPIs._clear_registry_instances)
         self.addCleanup(self.clean_default_domain)

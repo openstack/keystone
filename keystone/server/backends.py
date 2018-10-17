@@ -27,6 +27,7 @@ from keystone import identity
 from keystone import limit
 from keystone import oauth1
 from keystone import policy
+from keystone import receipt
 from keystone import resource
 from keystone import revoke
 from keystone import token
@@ -43,6 +44,7 @@ def load_backends():
     cache.configure_cache(region=assignment.COMPUTED_ASSIGNMENTS_REGION)
     cache.configure_cache(region=revoke.REVOKE_REGION)
     cache.configure_cache(region=token.provider.TOKENS_REGION)
+    cache.configure_cache(region=receipt.provider.RECEIPTS_REGION)
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
     cache.configure_invalidation_region()
 
@@ -54,7 +56,8 @@ def load_backends():
                 identity.Manager, identity.ShadowUsersManager,
                 limit.Manager, oauth1.Manager, policy.Manager,
                 resource.Manager, revoke.Manager, assignment.RoleManager,
-                trust.Manager, token.provider.Manager]
+                receipt.provider.Manager, trust.Manager,
+                token.provider.Manager]
 
     drivers = {d._provides_api: d() for d in managers}
 

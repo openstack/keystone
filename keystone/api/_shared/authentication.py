@@ -26,6 +26,7 @@ from keystone.common import provider_api
 from keystone import exception
 from keystone.federation import constants
 from keystone.i18n import _
+from keystone.receipt import handlers as receipt_handlers
 
 
 LOG = log.getLogger(__name__)
@@ -191,11 +192,19 @@ def authenticate_for_token(auth=None):
         )
         trust_id = trust.get('id') if trust else None
 
+        receipt = receipt_handlers.extract_receipt(auth_context)
+
         # NOTE(notmorgan): only methods that actually run and succeed will
         # be in the auth_context['method_names'] list. Do not blindly take
         # the values from auth_info, look at the authoritative values. Make
         # sure the set is unique.
-        method_names_set = set(auth_context.get('method_names', []))
+        # NOTE(adriant): The set of methods will also include any methods from
+        # the given receipt.
+        if receipt:
+            method_names_set = set(
+                auth_context.get('method_names', []) + receipt.methods)
+        else:
+            method_names_set = set(auth_context.get('method_names', []))
         method_names = list(method_names_set)
 
         app_cred_id = None
@@ -208,7 +217,7 @@ def authenticate_for_token(auth=None):
                 auth_context['user_id'], method_names_set):
             raise exception.InsufficientAuthMethods(
                 user_id=auth_context['user_id'],
-                methods='[%s]' % ','.join(auth_info.get_method_names()))
+                methods=method_names)
 
         expires_at = auth_context.get('expires_at')
         token_audit_id = auth_context.get('audit_id')
