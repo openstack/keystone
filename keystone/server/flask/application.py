@@ -25,8 +25,6 @@ import werkzeug.wsgi
 
 import keystone.api
 from keystone.common import wsgi as keystone_wsgi
-from keystone.contrib.ec2 import routers as ec2_routers
-from keystone.contrib.s3 import routers as s3_routers
 
 # TODO(morgan): _MOVED_API_PREFIXES to be removed when the legacy dispatch
 # support is removed.
@@ -34,6 +32,7 @@ _MOVED_API_PREFIXES = frozenset(
     ['auth',
      'credentials',
      'domains',
+     'ec2tokens',
      'endpoints',
      'groups',
      'OS-EP-FILTER',
@@ -51,6 +50,7 @@ _MOVED_API_PREFIXES = frozenset(
      'role_assignments',
      'role_inferences',
      'roles',
+     's3tokens',
      'services',
      'system',
      'users',
@@ -60,8 +60,7 @@ _MOVED_API_PREFIXES = frozenset(
 LOG = log.getLogger(__name__)
 
 
-ALL_API_ROUTERS = [ec2_routers,
-                   s3_routers]
+ALL_API_ROUTERS = []
 
 
 def fail_gracefully(f):

@@ -26,6 +26,11 @@ from six.moves import http_client
 from testtools import matchers
 import webob
 
+# NOTE(morgan): we need to explicitly import the controller
+# or a number of tests get really cranky due to the way they
+# hit oslo_utils.import_class for the controller. This can
+# go away once the final bits of WSGI compat code is removed.
+from keystone.common import controller  # noqa
 from keystone.common import wsgi
 from keystone import exception
 from keystone.server.flask import core as server_flask

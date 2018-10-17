@@ -19,8 +19,8 @@ import uuid
 
 from six.moves import http_client
 
+from keystone.api import s3tokens
 from keystone.common import provider_api
-from keystone.contrib import s3
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
@@ -38,8 +38,6 @@ class S3ContribCore(test_v3.RestfulTestCase):
             self.user['id'], self.project_id)
         PROVIDERS.credential_api.create_credential(
             self.credential['id'], self.credential)
-
-        self.controller = s3.S3Controller()
 
     def test_good_response(self):
         sts = 'string to sign'  # opaque string from swift3
@@ -91,8 +89,8 @@ class S3ContribCore(test_v3.RestfulTestCase):
                        'vbV9zMy50eHQ=',
                        'signature': 'IL4QLcLVaYgylF9iHj6Wb8BGZsw='}
 
-        self.assertIsNone(self.controller.check_signature(creds_ref,
-                                                          credentials))
+        self.assertIsNone(s3tokens.S3Resource._check_signature(
+            creds_ref, credentials))
 
     def test_bad_signature_v1(self):
         creds_ref = {'secret':
@@ -105,7 +103,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
                        'signature': uuid.uuid4().hex}
 
         self.assertRaises(exception.Unauthorized,
-                          self.controller.check_signature,
+                          s3tokens.S3Resource._check_signature,
                           creds_ref, credentials)
 
     def test_good_signature_v4(self):
@@ -120,8 +118,8 @@ class S3ContribCore(test_v3.RestfulTestCase):
                        '730ba8f58df6ffeadd78f402e990b2910d60'
                        'bc5c2aec63619734f096a4dd77be'}
 
-        self.assertIsNone(self.controller.check_signature(creds_ref,
-                                                          credentials))
+        self.assertIsNone(s3tokens.S3Resource._check_signature(
+            creds_ref, credentials))
 
     def test_bad_signature_v4(self):
         creds_ref = {'secret':
@@ -134,7 +132,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
                        'signature': uuid.uuid4().hex}
 
         self.assertRaises(exception.Unauthorized,
-                          self.controller.check_signature,
+                          s3tokens.S3Resource._check_signature,
                           creds_ref, credentials)
 
     def test_bad_token_v4(self):
@@ -145,7 +143,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
                        'QVdTNC1BQUEKWApYClg=',
                        'signature': ''}
         self.assertRaises(exception.Unauthorized,
-                          self.controller.check_signature,
+                          s3tokens.S3Resource._check_signature,
                           creds_ref, credentials)
 
         # token has invalid format of scope
@@ -153,5 +151,5 @@ class S3ContribCore(test_v3.RestfulTestCase):
                        'QVdTNC1ITUFDLVNIQTI1NgpYCi8vczMvYXdzTl9yZXF1ZXN0Clg=',
                        'signature': ''}
         self.assertRaises(exception.Unauthorized,
-                          self.controller.check_signature,
+                          s3tokens.S3Resource._check_signature,
                           creds_ref, credentials)
