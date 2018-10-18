@@ -35,6 +35,7 @@
 - job:
     name: keystone-dsvm-functional-federation
     parent: keystone-dsvm-functional
+    nodeset: openstack-single-node-xenial
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
