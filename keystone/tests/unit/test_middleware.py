@@ -103,57 +103,6 @@ class MiddlewareRequestTestBase(unit.TestCase):
         return self._do_middleware_response(*args, **kwargs).request
 
 
-class JsonBodyMiddlewareTest(MiddlewareRequestTestBase):
-
-    MIDDLEWARE_CLASS = middleware.JsonBodyMiddleware
-
-    def test_request_with_params(self):
-        headers = {'Content-Type': 'application/json'}
-        params = '{"arg1": "one", "arg2": ["a"]}'
-        req = self._do_middleware_request(params=params,
-                                          headers=headers,
-                                          method='post')
-        self.assertEqual({"arg1": "one", "arg2": ["a"]},
-                         req.environ[wsgi.PARAMS_ENV])
-
-    def test_malformed_json(self):
-        headers = {'Content-Type': 'application/json'}
-        self._do_middleware_response(params='{"arg1": "on',
-                                     headers=headers,
-                                     method='post',
-                                     status=http_client.BAD_REQUEST)
-
-    def test_not_dict_body(self):
-        headers = {'Content-Type': 'application/json'}
-        resp = self._do_middleware_response(params='42',
-                                            headers=headers,
-                                            method='post',
-                                            status=http_client.BAD_REQUEST)
-
-        self.assertIn('valid JSON object', resp.json['error']['message'])
-
-    def test_no_content_type(self):
-        headers = {'Content-Type': ''}
-        params = '{"arg1": "one", "arg2": ["a"]}'
-        req = self._do_middleware_request(params=params,
-                                          headers=headers,
-                                          method='post')
-        self.assertEqual({"arg1": "one", "arg2": ["a"]},
-                         req.environ[wsgi.PARAMS_ENV])
-
-    def test_unrecognized_content_type(self):
-        headers = {'Content-Type': 'text/plain'}
-        self._do_middleware_response(params='{"arg1": "one", "arg2": ["a"]}',
-                                     headers=headers,
-                                     method='post',
-                                     status=http_client.BAD_REQUEST)
-
-    def test_unrecognized_content_type_without_body(self):
-        headers = {'Content-Type': 'text/plain'}
-        req = self._do_middleware_request(headers=headers)
-        self.assertEqual({}, req.environ.get(wsgi.PARAMS_ENV, {}))
-
-
 class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
                                 MiddlewareRequestTestBase):
 

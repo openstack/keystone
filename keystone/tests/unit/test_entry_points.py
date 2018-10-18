@@ -23,7 +23,6 @@ class TestEntryPoints(test.TestCase):
             'build_auth_context',
             'cors',
             'debug',
-            'json_body',
             'request_id',
             'sizelimit',
             'url_normalize',
