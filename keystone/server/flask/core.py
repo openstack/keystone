@@ -27,6 +27,7 @@ oslo_i18n.enable_lazy()
 
 from keystone.common import profiler
 import keystone.conf
+import keystone.middleware
 import keystone.server
 from keystone.server.flask import application
 
@@ -52,17 +53,22 @@ _APP_MIDDLEWARE = (
                 ep='http_proxy_to_wsgi',
                 conf={}),
     _Middleware(namespace='keystone.server_middleware',
-                ep='url_normalize',
-                conf={}),
-    _Middleware(namespace='keystone.server_middleware',
                 ep='osprofiler',
                 conf={}),
     _Middleware(namespace='keystone.server_middleware',
                 ep='request_id',
                 conf={}),
-    _Middleware(namespace='keystone.server_middleware',
-                ep='build_auth_context',
-                conf={}),
+)
+
+# NOTE(morgan): ORDER HERE IS IMPORTANT! Each of these middlewares are
+# implemented/defined explicitly in Keystone Server. They do some level of
+# lifting to ensure the request is properly handled. It is importat to note
+# that these will be processed in the order of this list AND after all
+# middleware defined in _APP_MIDDLEWARE. AuthContextMiddleware should always
+# be the last element here as long as it is an actual Middleware.
+_KEYSTONE_MIDDLEWARE = (
+    keystone.middleware.NormalizingFilter,
+    keystone.middleware.AuthContextMiddleware,
 )
 
 
@@ -89,6 +95,7 @@ def setup_app_middleware(app):
     # processes the request first.
 
     MW = _APP_MIDDLEWARE
+    IMW = _KEYSTONE_MIDDLEWARE
 
     # Add in optional (config-based) middleware
     # NOTE(morgan): Each of these may need to be in a specific location
@@ -98,6 +105,11 @@ def setup_app_middleware(app):
         MW = (_Middleware(namespace='keystone.server_middleware',
                           ep='debug',
                           conf={}),) + _APP_MIDDLEWARE
+
+    # Apply internal-only Middleware (e.g. AuthContextMiddleware). These
+    # are below all externally loaded middleware in request processing.
+    for mw in reversed(IMW):
+        app.wsgi_app = mw(app.wsgi_app)
 
     # Apply the middleware to the application.
     for mw in reversed(MW):

@@ -20,12 +20,10 @@ class TestEntryPoints(test.TestCase):
     def test_entry_point_middleware(self):
         """Assert that our list of expected middleware is present."""
         expected_names = [
-            'build_auth_context',
             'cors',
             'debug',
             'request_id',
             'sizelimit',
-            'url_normalize',
         ]
 
         em = stevedore.ExtensionManager('keystone.server_middleware')
