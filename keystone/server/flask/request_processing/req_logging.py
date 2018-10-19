@@ -18,14 +18,12 @@ from oslo_log import log
 
 
 LOG = log.getLogger(__name__)
-_ENVIRON_KEYS = ('SCRIPT_NAME', 'PATH_INFO')
 
 
 def log_request_info():
     # Add in any extra debug logging about the request that is desired
     # note that this is executed prior to routing the request to a resource
     # so the data is somewhat raw.
-    for element in _ENVIRON_KEYS:
-        LOG.debug("environ['%(key)s']: %(value)s",
-                  {'key': element,
-                   'value': flask.request.environ.get(element, '<<NOT SET>>')})
+    LOG.debug('REQUEST_METHOD: `%s`', flask.request.method)
+    LOG.debug('SCRIPT_NAME: `%s`', flask.request.script_root)
+    LOG.debug('PATH_INFO: `%s`', flask.request.path)
