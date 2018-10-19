@@ -20,6 +20,7 @@ import freezegun
 import mock
 from oslo_config import fixture as config_fixture
 from oslo_log import log
+import oslo_messaging
 from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
@@ -116,6 +117,13 @@ class AuditNotificationsTestCase(unit.BaseTestCase):
 
 
 class NotificationsTestCase(unit.BaseTestCase):
+
+    def setUp(self):
+        super(NotificationsTestCase, self).setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture.config(
+            group='oslo_messaging_notifications', transport_url='rabbit://'
+        )
 
     def test_send_notification(self):
         """Test _send_notification.
@@ -1325,8 +1333,27 @@ class TestCallbackRegistration(unit.BaseTestCase):
 
 class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
 
-    def test_receive_identityId_from_audit_notification(self):
+    def config_overrides(self):
+        super(CADFNotificationsDataTestCase, self).config_overrides()
+        # NOTE(lbragstad): This is a workaround since oslo.messaging version
+        # 9.0.0 had a broken default for transport_url. This makes it so that
+        # we are able to use version 9.0.0 in tests because we are supplying
+        # an override to use a sane default (rabbit://). The problem is that
+        # we can't update the config fixture until we call
+        # get_notification_transport since that method registers the
+        # configuration options for oslo.messaging, which fails since there
+        # isn't a default value for transport_url with version 9.0.0. All the
+        # next line is doing is bypassing the broken default logic by supplying
+        # a dummy url, which allows the options to be registered. After that,
+        # we can actually update the configuration option to override the
+        # transport_url option that was just registered before proceeding with
+        # the test.
+        oslo_messaging.get_notification_transport(CONF, url='rabbit://')
+        self.config_fixture.config(
+            group='oslo_messaging_notifications', transport_url='rabbit://'
+        )
 
+    def test_receive_identityId_from_audit_notification(self):
         observer = None
         resource_type = EXP_RESOURCE_TYPE
 
