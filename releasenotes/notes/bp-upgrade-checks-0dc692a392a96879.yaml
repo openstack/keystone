@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    [`Community Goal <https://governance.openstack.org/tc/goals/stein/upgrade-checkers.html>`_]
+    Support has been added for developers to write pre-upgrade checks.
+    Operators can run these checks using ``keystone-status upgrade check``.
+    This allows operators to be more confident when upgrading their deployments
+    by having a tool that automates programmable checks against the deployment
+    configuration or dataset.

@@ -18,4 +18,8 @@
 CLI Documentation
 =================
 
-.. include:: keystone-manage.rst
+.. toctree::
+   :maxdepth: 1
+
+   keystone-manage
+   keystone-status

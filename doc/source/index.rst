@@ -100,7 +100,7 @@ This section contains the documentation for end-users of keystone.
 CLI Documentation
 ~~~~~~~~~~~~~~~~~
 
-This section details information related to ``keystone-manage``.
+This section details information related to keystone management commands.
 
 .. toctree::
     :maxdepth: 2
