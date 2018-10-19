@@ -25,20 +25,6 @@ With that said, there are many opportunities for tuning the performance of
 Keystone, many of which are actually trade-offs between performance and
 security that you need to judge for yourself, and tune accordingly.
 
-Pruning expired tokens from backend storage
-===========================================
-
-Using a persistent token format will result in an ever-growing backend store.
-Keystone will not remove, or prune, tokens from the backend even after they are
-expired. This can be managed manually using ``keystone-manage token_flush``,
-which will purge expired tokens from the data store in batches. Diligently
-pruning expired tokens will prevent token bloat.
-
-.. note::
-
-    This optimization is not necessary for deployments leveraging Fernet
-    tokens, which are non-persistent in nature.
-
 Keystone configuration options that affect performance
 ======================================================
 

@@ -145,24 +145,3 @@ If your certificates are fetched on demand, the PKI validation is
 working properly. Most likely, the token from Identity is not valid for
 the operation you are attempting to perform, and your user needs a
 different role for the operation.
-
-
-Flush expired tokens from the token database table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Problem
--------
-
-As you generate tokens, the token database table on the Identity server
-grows.
-
-Solution
---------
-
-To clear the token table, an administrative user must run the
-:command:`keystone-manage token_flush` command to flush the tokens. When you
-flush tokens, expired tokens are deleted and traceability is eliminated.
-
-Use ``cron`` to schedule this command to run frequently based on your
-workload. For large workloads, running it every minute is recommended.
-

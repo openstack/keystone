@@ -658,23 +658,6 @@ class CredentialMigrate(BasePermissionsSetup):
         klass.migrate_credentials()
 
 
-class TokenFlush(BaseApp):
-    """Flush expired tokens from the backend."""
-
-    name = 'token_flush'
-
-    @classmethod
-    def main(cls):
-        LOG.warning(
-            'This command is deprecated and no longer needed with the '
-            'development of non-persistent token formats. It will be removed '
-            'in Stein. It is recommended that you remove usage of this '
-            'command or integrate it\'s functionality into a separate tool if '
-            'you are using an out-of-tree provider that relies on persistent '
-            'token storage.'
-        )
-
-
 class TrustFlush(BaseApp):
     """Flush expired and non-expired soft deleted trusts from the backend."""
 
@@ -1185,7 +1168,6 @@ CMDS = [
     MappingPurge,
     MappingEngineTester,
     SamlIdentityProviderMetadata,
-    TokenFlush,
     TokenRotate,
     TokenSetup,
     TrustFlush
