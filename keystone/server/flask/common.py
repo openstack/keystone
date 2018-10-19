@@ -1027,6 +1027,13 @@ def full_url(path=''):
     return '%(url)s%(query_string)s' % subs
 
 
+def set_unenforced_ok():
+    # Does the work for unenforced_api. This must be used outside of a
+    # decorator in some limited, such as when a ValidationError is raised up
+    # from a "before_request" function (body_json checker is a prime example)
+    setattr(flask.g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
+
+
 def unenforced_api(f):
     """Decorate a resource method to mark is as an unenforced API.
 
@@ -1040,6 +1047,6 @@ def unenforced_api(f):
     """
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        setattr(flask.g, enforcer._ENFORCEMENT_CHECK_ATTR, True)
+        set_unenforced_ok()
         return f(*args, **kwargs)
     return wrapper

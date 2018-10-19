@@ -24,6 +24,8 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
+KEYSTONE_API_EXCEPTIONS = set([])
+
 # Tests use this to make exception message format errors fatal
 _FATAL_EXCEPTION_FORMAT_ERRORS = False
 
@@ -44,6 +46,21 @@ def _format_with_unicode_kwargs(msg_format, kwargs):
         return msg_format % kwargs
 
 
+class _KeystoneExceptionMeta(type):
+    """Automatically Register the Exceptions in 'KEYSTONE_API_EXCEPTIONS' list.
+
+    The `KEYSTONE_API_EXCEPTIONS` list is utilized by flask to register a
+    handler to emit sane details when the exception occurs.
+    """
+
+    def __new__(mcs, name, bases, class_dict):
+        """Create a new instance and register with KEYSTONE_API_EXCEPTIONS."""
+        cls = type.__new__(mcs, name, bases, class_dict)
+        KEYSTONE_API_EXCEPTIONS.add(cls)
+        return cls
+
+
+@six.add_metaclass(_KeystoneExceptionMeta)
 class Error(Exception):
     """Base error class.
 

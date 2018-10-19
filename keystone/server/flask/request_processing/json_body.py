@@ -17,6 +17,7 @@ from werkzeug import exceptions as werkzeug_exceptions
 
 from keystone import exception
 from keystone.i18n import _
+from keystone.server.flask import common as ks_flask_common
 
 
 def json_body_before_request():
@@ -46,9 +47,15 @@ def json_body_before_request():
                 raise werkzeug_exceptions.BadRequest(
                     _('resulting JSON load was not a dict'))
         else:
+            # We no longer need enforcement on this API, set unenforced_ok
+            # we already hit a validation error.
+            ks_flask_common.set_unenforced_ok()
             raise exception.ValidationError(attribute='application/json',
                                             target='Content-Type header')
 
     except werkzeug_exceptions.BadRequest:
+        # We no longer need enforcement on this API, set unenforced_ok
+        # we already hit a validation error.
+        ks_flask_common.set_unenforced_ok()
         raise exception.ValidationError(attribute='valid JSON',
                                         target='request body')
