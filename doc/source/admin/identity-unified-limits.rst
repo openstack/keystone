@@ -27,9 +27,15 @@ establish a limit may include:
 - API service type (e.g. compute, network, object-storage)
 - a resource type (e.g. ram_mb, vcpus, security-groups)
 - a default limit
-- a project specific limit
+- a project specific limit i.e resource limit
 - user_id (optional)
 - a region (optional depending on the service)
+
+.. NOTE:: The `default limit` of registered limit and the `resource limit` of
+          limit now are limited from `-1` to `2147483647` (integer). `-1` means
+          no limit and `2147483647` is the max value for user to define limits.
+          The length of unified limit's `resource type` now is limited from `1`
+          to `255` (string).
 
 Since keystone is the source of truth for nearly everything in the above list,
 limits are a natural fit as a keystone resource. Two different limit resources
