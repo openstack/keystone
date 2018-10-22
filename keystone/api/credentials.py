@@ -129,7 +129,7 @@ class CredentialResource(ks_flask.ResourceBase):
 
     def post(self):
         # Create a new credential
-        credential = flask.request.json.get('credential', {})
+        credential = self.request_body_json.get('credential', {})
         target = {}
         target['credential'] = credential
         ENFORCER.enforce_call(
@@ -150,7 +150,7 @@ class CredentialResource(ks_flask.ResourceBase):
         )
         PROVIDERS.credential_api.get_credential(credential_id)
 
-        credential = flask.request.json.get('credential', {})
+        credential = self.request_body_json.get('credential', {})
         validation.lazy_validate(schema.credential_update, credential)
         self._require_matching_id(credential)
         ref = PROVIDERS.credential_api.update_credential(

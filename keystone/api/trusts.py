@@ -207,7 +207,7 @@ class TrustResource(ks_flask.ResourceBase):
         The User creating the trust must be the trustor.
         """
         ENFORCER.enforce_call(action='identity:create_trust')
-        trust = flask.request.json.get('trust', {})
+        trust = self.request_body_json.get('trust', {})
         validation.lazy_validate(schema.trust_create, trust)
         self._check_unrestricted()
 
