@@ -30,6 +30,7 @@ import keystone.conf
 import keystone.middleware
 import keystone.server
 from keystone.server.flask import application
+from keystone.server.flask.request_processing.middleware import url_normalize
 
 # NOTE(morgan): Middleware Named Tuple with the following values:
 #   * "namespace": namespace for the entry_point
@@ -67,7 +68,7 @@ _APP_MIDDLEWARE = (
 # middleware defined in _APP_MIDDLEWARE. AuthContextMiddleware should always
 # be the last element here as long as it is an actual Middleware.
 _KEYSTONE_MIDDLEWARE = (
-    keystone.middleware.NormalizingFilter,
+    url_normalize.URLNormalizingMiddleware,
     keystone.middleware.AuthContextMiddleware,
 )
 
