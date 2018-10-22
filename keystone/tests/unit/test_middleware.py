@@ -27,7 +27,7 @@ from keystone.common import wsgi
 import keystone.conf
 from keystone import exception
 from keystone.federation import constants as federation_constants
-from keystone import middleware
+from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_backend_sql
@@ -106,7 +106,7 @@ class MiddlewareRequestTestBase(unit.TestCase):
 class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
                                 MiddlewareRequestTestBase):
 
-    MIDDLEWARE_CLASS = middleware.AuthContextMiddleware
+    MIDDLEWARE_CLASS = auth_context.AuthContextMiddleware
 
     def setUp(self):
         super(AuthContextMiddlewareTest, self).setUp()

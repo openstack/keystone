@@ -27,9 +27,9 @@ oslo_i18n.enable_lazy()
 
 from keystone.common import profiler
 import keystone.conf
-import keystone.middleware
 import keystone.server
 from keystone.server.flask import application
+from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.server.flask.request_processing.middleware import url_normalize
 
 # NOTE(morgan): Middleware Named Tuple with the following values:
@@ -69,7 +69,7 @@ _APP_MIDDLEWARE = (
 # be the last element here as long as it is an actual Middleware.
 _KEYSTONE_MIDDLEWARE = (
     url_normalize.URLNormalizingMiddleware,
-    keystone.middleware.AuthContextMiddleware,
+    auth_context.AuthContextMiddleware,
 )
 
 
