@@ -48,14 +48,22 @@ def json_body_before_request():
                     _('resulting JSON load was not a dict'))
         else:
             # We no longer need enforcement on this API, set unenforced_ok
-            # we already hit a validation error.
+            # we already hit a validation error. This is required as the
+            # request is never hitting the resource methods, meaning
+            # @unenforced_api is not called. Without marking the request
+            # as "unenforced_ok" the assertion check to ensure enforcement
+            # was called would raise up causing a 500 error.
             ks_flask_common.set_unenforced_ok()
             raise exception.ValidationError(attribute='application/json',
                                             target='Content-Type header')
 
     except werkzeug_exceptions.BadRequest:
         # We no longer need enforcement on this API, set unenforced_ok
-        # we already hit a validation error.
+        # we already hit a validation error. This is required as the
+        # request is never hitting the resource methods, meaning
+        # @unenforced_api is not called. Without marking the request
+        # as "unenforced_ok" the assertion check to ensure enforcement
+        # was called would raise up causing a 500 error.
         ks_flask_common.set_unenforced_ok()
         raise exception.ValidationError(attribute='valid JSON',
                                         target='request body')
