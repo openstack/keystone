@@ -374,20 +374,6 @@ class IdentityTests(object):
                           PROVIDERS.identity_api.delete_user,
                           uuid.uuid4().hex)
 
-    def test_create_user_long_name_fails(self):
-        user = unit.new_user_ref(name='a' * 256,
-                                 domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.create_user,
-                          user)
-
-    def test_create_user_blank_name_fails(self):
-        user = unit.new_user_ref(name='',
-                                 domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.create_user,
-                          user)
-
     def test_create_user_missed_password(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = PROVIDERS.identity_api.create_user(user)
@@ -420,36 +406,6 @@ class IdentityTests(object):
                               PROVIDERS.identity_api.authenticate,
                               user_id=user['id'],
                               password=None)
-
-    def test_create_user_invalid_name_fails(self):
-        user = unit.new_user_ref(name=None,
-                                 domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.create_user,
-                          user)
-
-        user = unit.new_user_ref(name=123,
-                                 domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.create_user,
-                          user)
-
-    def test_create_user_invalid_enabled_type_string(self):
-        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id,
-                                 # invalid string value
-                                 enabled='true')
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.create_user,
-                          user)
-
-    def test_update_user_long_name_fails(self):
-        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user = PROVIDERS.identity_api.create_user(user)
-        user['name'] = 'a' * 256
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.update_user,
-                          user['id'],
-                          user)
 
     def test_list_users(self):
         users = PROVIDERS.identity_api.list_users(
@@ -647,21 +603,6 @@ class IdentityTests(object):
         PROVIDERS.identity_api.update_user(user['id'], user)
         user_ref = PROVIDERS.identity_api.get_user(user['id'])
         self.assertTrue(user_ref['enabled'])
-
-        # Integers are valid Python's booleans. Explicitly test it.
-        user['enabled'] = 0
-        PROVIDERS.identity_api.update_user(user['id'], user)
-        user_ref = PROVIDERS.identity_api.get_user(user['id'])
-        self.assertFalse(user_ref['enabled'])
-
-        # Any integers other than 0 are interpreted as True
-        user['enabled'] = -42
-        PROVIDERS.identity_api.update_user(user['id'], user)
-        user_ref = PROVIDERS.identity_api.get_user(user['id'])
-        # NOTE(breton): below, attribute `enabled` is explicitly tested to be
-        # equal True. assertTrue should not be used, because it converts
-        # the passed value to bool().
-        self.assertIs(True, user_ref['enabled'])
 
     def test_update_user_name(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)

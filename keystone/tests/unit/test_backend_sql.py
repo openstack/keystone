@@ -282,17 +282,6 @@ class SqlIdentity(SqlTests,
                           PROVIDERS.assignment_api.list_projects_for_user,
                           user['id'])
 
-    def test_create_null_user_name(self):
-        user = unit.new_user_ref(name=None,
-                                 domain_id=CONF.identity.default_domain_id)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.identity_api.create_user,
-                          user)
-        self.assertRaises(exception.UserNotFound,
-                          PROVIDERS.identity_api.get_user_by_name,
-                          user['name'],
-                          CONF.identity.default_domain_id)
-
     def test_create_user_case_sensitivity(self):
         # user name case sensitivity is down to the fact that it is marked as
         # an SQL UNIQUE column, which may not be valid for other backends, like

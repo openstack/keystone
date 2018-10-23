@@ -28,7 +28,6 @@ from pycadf import reason
 
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
 from keystone.common import cache
-from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.common import provider_api
@@ -935,9 +934,8 @@ class Manager(manager.Manager):
         user = user_ref.copy()
         if 'password' in user:
             validators.validate_password(user['password'])
-        user['name'] = clean.user_name(user['name'])
+        user['name'] = user['name'].strip()
         user.setdefault('enabled', True)
-        user['enabled'] = clean.user_enabled(user['enabled'])
         domain_id = user['domain_id']
         PROVIDERS.resource_api.get_domain(domain_id)
 
@@ -1085,9 +1083,7 @@ class Manager(manager.Manager):
         if 'password' in user:
             validators.validate_password(user['password'])
         if 'name' in user:
-            user['name'] = clean.user_name(user['name'])
-        if 'enabled' in user:
-            user['enabled'] = clean.user_enabled(user['enabled'])
+            user['name'] = user['name'].strip()
         if 'id' in user:
             if user_id != user['id']:
                 raise exception.ValidationError(_('Cannot change user ID'))
@@ -1172,7 +1168,7 @@ class Manager(manager.Manager):
         # the underlying driver so that it could conform to rules set down by
         # that particular driver type.
         group['id'] = uuid.uuid4().hex
-        group['name'] = clean.group_name(group['name'])
+        group['name'] = group['name'].strip()
         ref = driver.create_group(group['id'], group)
 
         notifications.Audit.created(self._GROUP, group['id'], initiator)
@@ -1207,7 +1203,7 @@ class Manager(manager.Manager):
             self._get_domain_driver_and_entity_id(group_id))
         group = self._clear_domain_id_if_domain_unaware(driver, group)
         if 'name' in group:
-            group['name'] = clean.group_name(group['name'])
+            group['name'] = group['name'].strip()
         ref = driver.update_group(entity_id, group)
         self.get_group.invalidate(self, group_id)
         notifications.Audit.updated(self._GROUP, group_id, initiator)
