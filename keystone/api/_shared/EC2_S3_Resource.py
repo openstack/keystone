@@ -29,9 +29,6 @@ CRED_TYPE_EC2 = 'ec2'
 
 
 class ResourceBase(ks_flask.ResourceBase):
-    collection_key = '__UNUSED__'
-    member_key = '__UNUSED__'
-
     def get(self):
         # SPECIAL CASE: GET is not allowed, raise METHOD_NOT_ALLOWED
         raise exceptions.MethodNotAllowed(valid_methods=['POST'])

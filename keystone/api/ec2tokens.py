@@ -30,9 +30,6 @@ CRED_TYPE_EC2 = 'ec2'
 
 
 class EC2TokensResource(EC2_S3_Resource.ResourceBase):
-    collection_key = '__UNUSED__'
-    member_key = '__UNUSED__'
-
     @staticmethod
     def _check_signature(creds_ref, credentials):
         signer = ec2_utils.Ec2Signer(creds_ref['secret'])

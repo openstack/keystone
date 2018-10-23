@@ -696,3 +696,31 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
                 headers={'Content-Type': 'unrecognized/content-type'}):
             # No exception should be raised, everything is happy.
             json_body.json_body_before_request()
+
+    def test_resource_collection_key_raises_exception_if_unset(self):
+        class TestResource(flask_common.ResourceBase):
+            """A Test Resource."""
+
+        class TestResourceWithKey(flask_common.ResourceBase):
+            collection_key = uuid.uuid4().hex
+
+        r = TestResource()
+        self.assertRaises(ValueError, getattr, r, 'collection_key')
+
+        r = TestResourceWithKey()
+        self.assertEqual(
+            TestResourceWithKey.collection_key, r.collection_key)
+
+    def test_resource_member_key_raises_exception_if_unset(self):
+        class TestResource(flask_common.ResourceBase):
+            """A Test Resource."""
+
+        class TestResourceWithKey(flask_common.ResourceBase):
+            member_key = uuid.uuid4().hex
+
+        r = TestResource()
+        self.assertRaises(ValueError, getattr, r, 'member_key')
+
+        r = TestResourceWithKey()
+        self.assertEqual(
+            TestResourceWithKey.member_key, r.member_key)
