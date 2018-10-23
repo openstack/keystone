@@ -1639,6 +1639,7 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
             self.project_id = parent.command_project_id
             self.trustor_user_id = parent.command_trustor_user_id
             self.trustee_user_id = parent.command_trustee_user_id
+            self.date = parent.command_date
 
     def setUp(self):
         # Set up preset cli options and a parser
@@ -1661,6 +1662,7 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
         self.command_project_id = None
         self.command_trustor_user_id = None
         self.command_trustee_user_id = None
+        self.command_date = datetime.datetime.utcnow()
         self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
 
@@ -1673,6 +1675,26 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
             side_effect=fake_load_backends))
         trust = cli.TrustFlush()
         trust.main()
+
+    def test_trust_flush_with_invalid_date(self):
+        self.command_project_id = None
+        self.command_trustor_user_id = None
+        self.command_trustee_user_id = None
+        self.command_date = '4/10/92'
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+
+        def fake_load_backends():
+            return dict(
+                trust_api=keystone.trust.core.Manager())
+
+        self.useFixture(fixtures.MockPatch(
+            'keystone.server.backends.load_backends',
+            side_effect=fake_load_backends))
+        # Clear backend dependencies, since cli loads these manually
+        provider_api.ProviderAPIs._clear_registry_instances()
+        trust = cli.TrustFlush()
+        self.assertRaises(ValueError, trust.main)
 
 
 class TestMappingEngineTester(unit.BaseTestCase):
