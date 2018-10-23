@@ -16,7 +16,6 @@
 
 import os
 
-import dogpile.cache
 from dogpile.cache import region
 from dogpile.cache import util
 from oslo_cache import core as cache
@@ -182,21 +181,3 @@ def get_memoization_decorator(group, expiration_group=None, region=None):
         region = CACHE_REGION
     return cache.get_memoization_decorator(CONF, region, group,
                                            expiration_group=expiration_group)
-
-
-# NOTE(stevemar): When memcache_pool, mongo and noop backends are removed
-# we no longer need to register the backends here.
-dogpile.cache.register_backend(
-    'keystone.common.cache.noop',
-    'keystone.common.cache.backends.noop',
-    'NoopCacheBackend')
-
-dogpile.cache.register_backend(
-    'keystone.cache.mongo',
-    'keystone.common.cache.backends.mongo',
-    'MongoCacheBackend')
-
-dogpile.cache.register_backend(
-    'keystone.cache.memcache_pool',
-    'keystone.common.cache.backends.memcache_pool',
-    'PooledMemcachedBackend')

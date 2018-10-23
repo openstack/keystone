@@ -126,29 +126,6 @@ def add_constraints(constraints):
             refcolumns=[constraint_def['ref_column']]).create()
 
 
-def rename_tables_with_constraints(renames, constraints, engine):
-    """Rename tables with foreign key constraints.
-
-    Tables are renamed after first removing constraints. The constraints are
-    replaced after the rename is complete.
-
-    This works on databases that don't support renaming tables that have
-    constraints on them (DB2).
-
-    `renames` is a dict, mapping {'to_table_name': from_table, ...}
-    """
-    if engine.name != 'sqlite':
-        # SQLite doesn't support constraints, so nothing to remove.
-        remove_constraints(constraints)
-
-    for to_table_name in renames:
-        from_table = renames[to_table_name]
-        from_table.rename(to_table_name)
-
-    if engine != 'sqlite':
-        add_constraints(constraints)
-
-
 def find_repo(repo_name):
     """Return the absolute path to the named repository."""
     path = os.path.abspath(os.path.join(

@@ -96,12 +96,6 @@ def hash_user_password(user):
     return dict(user, password=hash_password(password))
 
 
-def hash_password_compat(password):
-    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
-    return passlib.hash.sha512_crypt.using(rounds=CONF.crypt_strength).hash(
-        password_utf8)
-
-
 def hash_password(password):
     """Hash a password. Harder."""
     params = {}
