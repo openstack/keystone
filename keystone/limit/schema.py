@@ -21,7 +21,9 @@ _registered_limit_properties = {
         'type': 'string'
     },
     'resource_name': {
-        'type': 'string'
+        'type': 'string',
+        'minLength': 1,
+        'maxLength': 255
     },
     'default_limit': {
         'type': 'integer'
@@ -54,7 +56,9 @@ _limit_create_properties = {
         'type': 'string'
     },
     'resource_name': {
-        'type': 'string'
+        'type': 'string',
+        'minLength': 1,
+        'maxLength': 255
     },
     'resource_limit': {
         'type': 'integer'
