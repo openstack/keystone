@@ -1,0 +1,26 @@
+---
+other:
+  - |
+    Keystone has been fully converted to run under flask. All of the APIs are
+    now natively dispatched under flask.
+
+    Included in this change is a removal of a legacy WSGI environment data
+    holder calld `openstack.params`. The data holder was used exclusively for
+    communicating data down the chain under paste-deploy. The data in
+    `openstack.params` was generally "normalized" in an odd way and
+    unreferenced in the rest of the openstack code-base.
+
+    Some minor changes to the JSON Home document occured to make it consistent
+    with the rest of our convensions (Technically an API contract break) but
+    required for the more strict view the Keystone flask code takes on setting
+    up the values for JSON Home. Notably "application_credentials" now has
+    an appropriate entry for listing and creating new app creds.
+
+    JSON Body and URL Normalizing middleware were move to a flask-native
+    model.
+
+    Any middleware defined in Keystone's tree is no longer loaded via
+    stevedore, and likewise the entry points were removed.
+
+    Original WSGI Framework (custom, home-rolled, based on WEBOB) has been
+    removed from the codebase.
