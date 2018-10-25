@@ -15,11 +15,10 @@ from keystone.common.validation import parameter_types
 from keystone.identity.backends import resource_options as ro
 
 
-# NOTE(lhcheng): the max length is not applicable since it is specific
-# to the SQL backend, LDAP does not have length limitation.
 _identity_name = {
     'type': 'string',
     'minLength': 1,
+    'maxLength': 255,
     'pattern': '[\S]+'
 }
 

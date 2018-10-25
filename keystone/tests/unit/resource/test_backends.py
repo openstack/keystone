@@ -206,42 +206,6 @@ class ResourceTests(object):
                           project['id'],
                           project)
 
-    def test_update_project_blank_name_fails(self):
-        project = unit.new_project_ref(
-            name='fake1', domain_id=CONF.identity.default_domain_id)
-        PROVIDERS.resource_api.create_project(project['id'], project)
-        project['name'] = ''
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.resource_api.update_project,
-                          project['id'],
-                          project)
-
-    def test_update_project_long_name_fails(self):
-        project = unit.new_project_ref(
-            name='fake1', domain_id=CONF.identity.default_domain_id)
-        PROVIDERS.resource_api.create_project(project['id'], project)
-        project['name'] = 'a' * 65
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.resource_api.update_project,
-                          project['id'],
-                          project)
-
-    def test_update_project_invalid_name_fails(self):
-        project = unit.new_project_ref(
-            name='fake1', domain_id=CONF.identity.default_domain_id)
-        PROVIDERS.resource_api.create_project(project['id'], project)
-        project['name'] = None
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.resource_api.update_project,
-                          project['id'],
-                          project)
-
-        project['name'] = 123
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.resource_api.update_project,
-                          project['id'],
-                          project)
-
     def test_create_project_invalid_domain_id(self):
         project = unit.new_project_ref(domain_id=uuid.uuid4().hex)
         self.assertRaises(exception.DomainNotFound,

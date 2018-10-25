@@ -17,7 +17,6 @@ import six
 
 from keystone import assignment
 from keystone.common import cache
-from keystone.common import clean
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.common import provider_api
@@ -307,8 +306,6 @@ class Manager(manager.Manager):
         if original_project['is_domain']:
             domain = self._get_domain_from_project(original_project)
             self.assert_domain_not_federated(project_id, domain)
-            if 'enabled' in domain:
-                domain['enabled'] = clean.domain_enabled(domain['enabled'])
             url_safe_option = CONF.resource.domain_name_url_safe
             exception_entity = 'Domain'
         else:
@@ -322,8 +319,7 @@ class Manager(manager.Manager):
             self._raise_reserved_character_exception(exception_entity,
                                                      project['name'])
         elif project_name_changed:
-            project['name'] = clean.project_name(project['name'])
-
+            project['name'] = project['name'].strip()
         parent_id = original_project.get('parent_id')
         if 'parent_id' in project and project.get('parent_id') != parent_id:
             raise exception.ForbiddenNotSecurity(

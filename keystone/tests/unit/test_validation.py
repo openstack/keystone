@@ -107,7 +107,7 @@ _VALID_FILTERS = [{'interface': 'admin'},
 
 _INVALID_FILTERS = ['some string', 1, 0, True, False]
 
-_INVALID_NAMES = [True, 24, ' ', '']
+_INVALID_NAMES = [True, 24, ' ', '', 'a' * 256, None]
 
 
 class CommonValidationTestCase(unit.BaseTestCase):
@@ -415,7 +415,7 @@ class ProjectValidationTestCase(unit.BaseTestCase):
 
     def test_validate_project_create_fails_with_invalid_name(self):
         """Exception when validating a create request with invalid `name`."""
-        for invalid_name in _INVALID_NAMES:
+        for invalid_name in _INVALID_NAMES + ['a' * 65]:
             request_to_validate = {'name': invalid_name}
             self.assertRaises(exception.SchemaValidationError,
                               self.create_project_validator.validate,
