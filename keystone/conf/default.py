@@ -91,33 +91,6 @@ values. With Fernet tokens, this can be set as low as 255. With UUID tokens,
 this should be set to 32).
 """))
 
-# NOTE(lbragstad/morganfainberg): This value of 10k was measured as having an
-# approximate 30% clock-time savings over the old default of 40k.  The passlib
-# default is not static and grows over time to constantly approximate ~300ms of
-# CPU time to hash; this was considered too high.  This value still exceeds the
-# glibc default of 5k.
-crypt_strength = cfg.IntOpt(
-    'crypt_strength',
-    default=10000,
-    min=1000,
-    max=100000,
-    deprecated_since=versionutils.deprecated.PIKE,
-    deprecated_reason=utils.fmt("""
-sha512_crypt is insufficient for password hashes, use of bcrypt, pbkfd2_sha512
-and scrypt are now supported. Options are located in the [identity] config
-block. This option is still used for rolling upgrade compatibility password
-hashing.
-"""),
-    help=utils.fmt("""
-The value passed as the keyword "rounds" to passlib's encrypt method. This
-option represents a trade off between security and performance. Higher values
-lead to slower performance, but higher security. Changing this option will only
-affect newly created passwords as existing password hashes already have a fixed
-number of rounds applied, so it is safe to tune this option in a running
-cluster. For more information, see
-https://pythonhosted.org/passlib/password_hash_api.html#choosing-the-right-rounds-value
-"""))
-
 list_limit = cfg.IntOpt(
     'list_limit',
     help=utils.fmt("""
@@ -207,7 +180,6 @@ ALL_OPTS = [
     max_project_tree_depth,
     max_param_size,
     max_token_size,
-    crypt_strength,
     list_limit,
     strict_password_check,
     secure_proxy_ssl_header,

@@ -32,9 +32,6 @@ These are all of the options in ``keystone.conf`` that have a direct impact on
 performance. See the help descriptions for these options for more specific
 details on how and why you might want to tune these options for yourself.
 
-* ``[DEFAULT] crypt_strength``: Reduce this number to increase performance,
-  increase this number to make SQL managed password checking more secure.
-
 * ``[DEFAULT] max_project_tree_depth``: Reduce this number to increase
   performance, increase this number to cater to more complicated hierarchical
   multitenancy use cases.
