@@ -1,0 +1,7 @@
+---
+deprecations:
+  - >
+    The commandline options `standard-threads, `pydev-debug-host` and
+    `pydev-debug-port` are only used by Keystone eventlet model in Newton
+    release before. They are deprecated now and will be removed in the next
+    release.

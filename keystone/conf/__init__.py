@@ -15,6 +15,7 @@ import logging
 from oslo_cache import core as cache
 from oslo_config import cfg
 from oslo_log import log
+from oslo_log import versionutils
 import oslo_messaging
 from oslo_middleware import cors
 from osprofiler import opts as profiler
@@ -88,6 +89,8 @@ conf_modules = [
 
 
 oslo_messaging.set_transport_defaults(control_exchange='keystone')
+_DEPRECATED_REASON = ('This option is only used by eventlet mode which has'
+                      'been removed from Keystone in Newton release.')
 
 
 def set_default_for_default_log_levels():
@@ -122,13 +125,22 @@ def configure(conf=None):
 
     conf.register_cli_opt(
         cfg.BoolOpt('standard-threads', default=False,
-                    help='Do not monkey-patch threading system modules.'))
+                    help='Do not monkey-patch threading system modules.',
+                    deprecated_for_removal=True,
+                    deprecated_reason=_DEPRECATED_REASON,
+                    deprecated_since=versionutils.deprecated.STEIN))
     conf.register_cli_opt(
         cfg.StrOpt('pydev-debug-host',
-                   help='Host to connect to for remote debugger.'))
+                   help='Host to connect to for remote debugger.',
+                   deprecated_for_removal=True,
+                   deprecated_reason=_DEPRECATED_REASON,
+                   deprecated_since=versionutils.deprecated.STEIN))
     conf.register_cli_opt(
         cfg.PortOpt('pydev-debug-port',
-                    help='Port to connect to for remote debugger.'))
+                    help='Port to connect to for remote debugger.',
+                    deprecated_for_removal=True,
+                    deprecated_reason=_DEPRECATED_REASON,
+                    deprecated_since=versionutils.deprecated.STEIN))
 
     for module in conf_modules:
         module.register_opts(conf)
