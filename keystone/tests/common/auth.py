@@ -23,8 +23,6 @@ class AuthTestMixin(object):
             scope_data['system'] = {'all': True}
         elif unscoped:
             scope_data['unscoped'] = {}
-        elif system:
-            scope_data['system'] = {'all': True}
         elif project_id or project_name:
             scope_data['project'] = {}
             if project_id:
