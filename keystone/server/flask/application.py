@@ -151,10 +151,6 @@ def application_factory(name='public'):
         # We want to bubble up Flask Exceptions (for now)
         PROPAGATE_EXCEPTIONS=True)
 
-    # TODO(morgan): Remove "API version registration". For now this is kept
-    # for ease of conversion (minimal changes)
-    keystone.api.discovery.register_version('v3')
-
     for api in keystone.api.__apis__:
         for api_bp in api.APIs:
             api_bp.instantiate_and_register_to_app(app)

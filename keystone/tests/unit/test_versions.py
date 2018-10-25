@@ -874,13 +874,6 @@ class VersionTestCase(unit.TestCase):
         # If request some unknown mime-type, get JSON.
         self.assertThat(make_request(self.getUniqueString()), JSON_MATCHER)
 
-    @mock.patch.object(discovery, '_VERSIONS', [])
-    def test_no_json_home_document_returned_when_v3_disabled(self):
-        json_home_document = discovery._v3_json_home_content()
-        json_home.translate_urls(json_home_document, '/v3')
-        expected_document = {'resources': {}}
-        self.assertEqual(expected_document, json_home_document)
-
 
 class VersionSingleAppTestCase(unit.TestCase):
     """Test running with a single application loaded.
