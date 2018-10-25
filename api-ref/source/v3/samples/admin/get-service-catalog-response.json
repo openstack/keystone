@@ -18,7 +18,7 @@
                     "id": "c609fc430175452290b62a4242e8a7e8",
                     "interface": "admin",
                     "region": "RegionOne",
-                    "url": "http://localhost:35357"
+                    "url": "http://localhost:5000"
                 }
             ],
             "id": "4363ae44bdf34a3981fde3b823cb9aa2",
