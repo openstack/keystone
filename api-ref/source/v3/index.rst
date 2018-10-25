@@ -43,9 +43,9 @@ What's New in Version 3.10 (Queens)
 - Introduction of an experimental Unified Limits API.
 - Ability to grant system role assignments and obtain system-scoped tokens.
 
-================================
-What's New in Version 3.9 (Pike)
-================================
+==================================
+What's New in Version 3.9 (Queens)
+==================================
 
 - Addition of ``tags`` attribute to project.
 - New APIs to interact with the ``tags`` attribute.
