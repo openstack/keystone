@@ -38,7 +38,6 @@ command-line client.
    identity-troubleshoot.rst
    identity-unified-limits.rst
    token-provider.rst
-   federated-identity.rst
    identity-credential-encryption.rst
    endpoint-filtering.rst
    health-check-middleware.rst
