@@ -68,7 +68,7 @@ Verbosely, keystone can be bootstrapped with:
         --bootstrap-role-name admin \
         --bootstrap-service-name keystone \
         --bootstrap-region-id RegionOne \
-        --bootstrap-admin-url http://localhost:35357 \
+        --bootstrap-admin-url http://localhost:5000 \
         --bootstrap-public-url http://localhost:5000 \
         --bootstrap-internal-url http://localhost:5000
 
