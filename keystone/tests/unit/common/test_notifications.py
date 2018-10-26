@@ -25,6 +25,7 @@ from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
 from pycadf import resource as cadfresource
+from six.moves import http_client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -1068,6 +1069,10 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self.useFixture(fixtures.MockPatchObject(
             notifications, '_send_audit_notification', fake_notify))
 
+    def _get_last_note(self):
+        self.assertTrue(self._notifications)
+        return self._notifications[-1]
+
     def _assert_last_note(self, action, user_id, event_type=None):
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
@@ -1157,6 +1162,43 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                                  password=password)
         self.post('/auth/tokens', body=data)
         self._assert_last_note(self.ACTION, user_id)
+
+    def test_v3_authenticate_with_invalid_user_id_sends_notification(self):
+        user_id = uuid.uuid4().hex
+        password = self.user['password']
+        data = self.build_authentication_request(user_id=user_id,
+                                                 password=password)
+        self.post('/auth/tokens', body=data,
+                  expected_status=http_client.UNAUTHORIZED)
+        note = self._get_last_note()
+        initiator = note['initiator']
+
+        # Confirm user-name specific event was emitted.
+        self.assertEqual(self.ACTION, note['action'])
+        self.assertEqual(user_id, initiator.user_id)
+        self.assertTrue(note['send_notification_called'])
+        self.assertEqual(cadftaxonomy.OUTCOME_FAILURE, note['event'].outcome)
+        self.assertEqual(self.LOCAL_HOST, initiator.host.address)
+
+    def test_v3_authenticate_with_invalid_user_name_sends_notification(self):
+        user_name = uuid.uuid4().hex
+        password = self.user['password']
+        domain_id = self.domain_id
+        data = self.build_authentication_request(username=user_name,
+                                                 user_domain_id=domain_id,
+                                                 password=password)
+        self.post('/auth/tokens', body=data,
+                  expected_status=http_client.UNAUTHORIZED)
+        note = self._get_last_note()
+        initiator = note['initiator']
+
+        # Confirm user-name specific event was emitted.
+        self.assertEqual(self.ACTION, note['action'])
+        self.assertEqual(user_name, initiator.user_name)
+        self.assertEqual(domain_id, initiator.domain_id)
+        self.assertTrue(note['send_notification_called'])
+        self.assertEqual(cadftaxonomy.OUTCOME_FAILURE, note['event'].outcome)
+        self.assertEqual(self.LOCAL_HOST, initiator.host.address)
 
     def test_v3_authenticate_user_name_and_domain_name(self):
         user_id = self.user_id
