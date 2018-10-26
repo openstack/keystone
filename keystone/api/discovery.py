@@ -89,12 +89,20 @@ def get_versions():
     else:
         identity_url = '%s/' % ks_flask.base_url()
         versions = _get_versions_list(identity_url)
-        return flask.Response(
+        # Set the preferred version to the latest "stable" version.
+        # TODO(morgan): If we ever have more API versions find the latest
+        # stable version instead of just using the "base_url", for now we
+        # simply have a single version so use it as the preferred location.
+        preferred_location = identity_url
+
+        response = flask.Response(
             response=jsonutils.dumps(
                 {'versions': {
                     'values': list(versions.values())}}),
             mimetype=MimeTypes.JSON,
             status=http_client.MULTIPLE_CHOICES)
+        response.headers['Location'] = preferred_location
+        return response
 
 
 @_DISCOVERY_BLUEPRINT.route('/v3')
