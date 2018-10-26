@@ -105,10 +105,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
     def password(self):
         """Return the current password."""
         if self.password_ref:
-            if self.password_ref.password_hash is not None:
-                return self.password_ref.password_hash
-            else:
-                return self.password_ref.password
+            return self.password_ref.password_hash
         return None
 
     @property
@@ -149,19 +146,17 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         new_password_ref = Password()
 
         hashed_passwd = None
-        hashed_compat = None
         if value is not None:
             # NOTE(notmorgan): hash the passwords, never directly bind the
-            # "value" in the unhashed form to hashed_passwd or hashed_compat
-            # to ensure the unhashed password cannot end up in the db. If an
-            # unhashed password ends up in the DB, it cannot be used for auth,
-            # it is however incorrect and could leak user credentials (due to
-            # users doing insecure things such as sharing passwords across
+            # "value" in the unhashed form to hashed_passwd to ensure the
+            # unhashed password cannot end up in the db. If an unhashed
+            # password ends up in the DB, it cannot be used for auth, it is
+            # however incorrect and could leak user credentials (due to users
+            # doing insecure things such as sharing passwords across
             # different systems) to unauthorized parties.
             hashed_passwd = password_hashing.hash_password(value)
 
         new_password_ref.password_hash = hashed_passwd
-        new_password_ref.password = hashed_compat
         new_password_ref.created_at = now
         new_password_ref.expires_at = self._get_password_expires_at(now)
         self.local_user.passwords.append(new_password_ref)
@@ -185,7 +180,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
     @password.expression
     def password(cls):
-        return Password.password
+        return Password.password_hash
 
     # NOTE(stevemar): we use a hybrid property here because we leverage the
     # expression method, see `@enabled.expression` and `User._enabled` below.
@@ -289,15 +284,11 @@ class LocalUser(sql.ModelBase, sql.ModelDictMixin):
 
 class Password(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'password'
-    attributes = ['id', 'local_user_id', 'password', 'password_hash',
-                  'created_at', 'expires_at']
+    attributes = ['id', 'local_user_id', 'password_hash', 'created_at',
+                  'expires_at']
     id = sql.Column(sql.Integer, primary_key=True)
     local_user_id = sql.Column(sql.Integer, sql.ForeignKey('local_user.id',
                                ondelete='CASCADE'))
-    # TODO(notmorgan): in the Q release the "password" field can be dropped as
-    # long as data migration exists to move the hashes over to the
-    # password_hash column if no value is in the password_hash column.
-    password = sql.Column(sql.String(128), nullable=True)
     password_hash = sql.Column(sql.String(255), nullable=True)
 
     # TODO(lbragstad): Once Rocky opens for development, the _created_at and

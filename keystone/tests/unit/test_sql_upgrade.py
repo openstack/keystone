@@ -3179,6 +3179,29 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         }
         role_table.insert().values(role_without_description).execute()
 
+    def test_migration_054_drop_old_password_column(self):
+        self.expand(53)
+        self.migrate(53)
+        self.contract(53)
+
+        password_table = 'password'
+        self.assertTableColumns(
+            password_table,
+            ['id', 'local_user_id', 'password', 'password_hash',
+             'self_service', 'created_at_int', 'created_at', 'expires_at_int',
+             'expires_at']
+        )
+
+        self.expand(54)
+        self.migrate(54)
+        self.contract(54)
+
+        self.assertTableColumns(
+            password_table,
+            ['id', 'local_user_id', 'password_hash', 'self_service',
+             'created_at_int', 'created_at', 'expires_at_int', 'expires_at']
+        )
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture

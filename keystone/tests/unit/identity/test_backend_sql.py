@@ -61,18 +61,6 @@ class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
         self.config_fixture.config(group='identity',
                                    password_hash_algorithm='scrypt')
 
-    def test_password_hashing_compat_not_set_used(self):
-        with sql.session_for_read() as session:
-            user_ref = PROVIDERS.identity_api._get_user(
-                session, self.user_foo['id']
-            )
-        self.assertIsNone(user_ref.password_ref.password)
-        self.assertIsNotNone(user_ref.password_ref.password_hash)
-        self.assertEqual(user_ref.password,
-                         user_ref.password_ref.password_hash)
-        self.assertTrue(password_hashing.check_password(
-            self.user_foo['password'], user_ref.password))
-
     def test_configured_algorithm_used(self):
         with sql.session_for_read() as session:
             user_ref = PROVIDERS.identity_api._get_user(
