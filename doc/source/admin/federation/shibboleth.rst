@@ -18,8 +18,8 @@ Setup Shibboleth
 Configure Apache HTTPD for mod_shibboleth
 -----------------------------------------
 
-Follow the steps outlined at: Running Keystone in HTTPD for `SUSE`_, `RedHat`_
-or `Ubuntu`_.
+Configure keystone under Apache, following the steps in the install guide for
+`SUSE`_, `RedHat`_ or `Ubuntu`_.
 
 .. _`SUSE`: ../../install/keystone-install-obs.html#configure-the-apache-http-server
 .. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
