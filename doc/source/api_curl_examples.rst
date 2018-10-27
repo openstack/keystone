@@ -877,7 +877,7 @@ Example response:
                 },
                 "region": "RegionOne",
                 "service_id": "bd7397d2c0e14fb69bae8ff76e112a90",
-                "url": "http://localhost:35357/v2.0"
+                "url": "http://localhost:5000/v3"
             }
         ],
         "links": {
