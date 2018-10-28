@@ -14,8 +14,6 @@
 
 """Main entry point into the Application Credential service."""
 
-from oslo_log import log
-
 from keystone.common import cache
 from keystone.common import driver_hints
 from keystone.common import manager
@@ -27,7 +25,6 @@ from keystone import notifications
 
 CONF = keystone.conf.CONF
 MEMOIZE = cache.get_memoization_decorator(group='application_credential')
-LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 

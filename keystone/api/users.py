@@ -17,7 +17,6 @@ import os
 import uuid
 
 import flask
-from oslo_log import log
 from oslo_serialization import jsonutils
 from six.moves import http_client
 from werkzeug import exceptions
@@ -40,7 +39,6 @@ from keystone.server import flask as ks_flask
 CRED_TYPE_EC2 = 'ec2'
 CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer
-LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 ACCESS_TOKEN_ID_PARAMETER_RELATION = (
