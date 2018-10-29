@@ -724,3 +724,20 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         r = TestResourceWithKey()
         self.assertEqual(
             TestResourceWithKey.member_key, r.member_key)
+
+
+class TestKeystoneFlaskUnrouted404(rest.RestfulTestCase):
+    def setUp(self):
+        super(TestKeystoneFlaskUnrouted404, self).setUp()
+        # unregister the 404 handler we explicitly set in loadapp. This
+        # makes the 404 error fallback to a standard werkzeug handling.
+        self.public_app.app.error_handler_spec[None].pop(404)
+
+    def test_unrouted_path_is_not_jsonified_404(self):
+        with self.test_client() as c:
+            path = '/{unrouted_path}'.format(unrouted_path=uuid.uuid4())
+            resp = c.get(path, expected_status_code=404)
+            # Make sure we're emitting a html error
+            self.assertEqual('text/html', resp.headers['Content-Type'])
+            # Ensure the more generic flask/werkzeug 404 response is emitted
+            self.assertTrue(b'404 Not Found' in resp.data)

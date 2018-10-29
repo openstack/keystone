@@ -134,10 +134,9 @@ def application_factory(name='public'):
         app.register_error_handler(exc, _handle_keystone_exception)
 
     # Register extra (python) exceptions with the proper exception handler,
-    # specifically TypeError and generic exception, these will render as
-    # 500 errors, but presented in a "web-ified" manner
+    # specifically TypeError. It will render as a 400 error, but presented in
+    # a "web-ified" manner
     app.register_error_handler(TypeError, _handle_unknown_keystone_exception)
-    app.register_error_handler(Exception, _handle_unknown_keystone_exception)
 
     # Add core before request functions
     app.before_request(req_logging.log_request_info)
