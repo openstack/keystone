@@ -69,16 +69,6 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
                 'minItems': 1,
                 'maxItems': 2,
             },
-            'bind': {
-                'type': 'object',
-                'properties': {
-                    'kerberos': {
-                        'type': 'string',
-                    },
-                },
-                'required': ['kerberos'],
-                'additionalProperties': False,
-            },
             'expires_at': {
                 'type': 'string',
                 'pattern': unit.TIME_FORMAT_REGEX,
@@ -172,7 +162,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             'properties': properties,
             'required': ['audit_ids', 'expires_at', 'issued_at', 'methods',
                          'user'],
-            'optional': ['bind'],
+            'optional': [],
             'additionalProperties': False
         }
 
