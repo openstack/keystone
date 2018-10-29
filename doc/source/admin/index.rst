@@ -22,7 +22,6 @@ command-line client.
    identity-domain-specific-config.rst
    identity-url-safe-naming.rst
    identity-case-insensitive.rst
-   identity-external-authentication.rst
    identity-integrate-with-ldap.rst
    identity-upgrading.rst
    identity-tokens.rst
