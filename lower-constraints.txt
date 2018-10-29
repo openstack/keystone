@@ -57,7 +57,7 @@ scrypt==0.8.0
 six==1.10.0
 Sphinx==1.6.5
 sqlalchemy-migrate==0.11.0
-SQLAlchemy==1.0.13
+SQLAlchemy==1.1.0
 stestr==1.0.0
 stevedore==1.20.0
 tempest==17.1.0
