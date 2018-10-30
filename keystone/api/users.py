@@ -199,26 +199,13 @@ class UserChangePasswordResource(ks_flask.ResourceBase):
     @ks_flask.unenforced_api
     def post(self, user_id):
         user_data = self.request_body_json.get('user', {})
-        original_password = user_data.get('original_password')
-        new_password = user_data.get('password')
-
-        # TODO(morgan): Convert this to JSON Schema validation
-        if original_password is None:
-            raise ks_exception.ValidationError(
-                target='user',
-                attribute='original_password')
-
-        # TODO(morgan): Convert this to JSON Schema validation
-        if new_password is None:
-            raise ks_exception.ValidationError(
-                target='user',
-                attribute='password')
+        validation.lazy_validate(schema.password_change, user_data)
 
         try:
             PROVIDERS.identity_api.change_password(
                 user_id=user_id,
-                original_password=original_password,
-                new_password=new_password,
+                original_password=user_data['original_password'],
+                new_password=user_data['password'],
                 initiator=self.audit_initiator)
         except AssertionError as e:
             raise ks_exception.Unauthorized(
