@@ -412,63 +412,6 @@ If a response to ``list_{entity}`` call has been truncated, then the response
 status code will still be 200 (OK), but the ``truncated`` attribute in the
 collection will be set to ``true``.
 
-.. _`prepare your deployment`:
-
-Preparing your deployment
-=========================
-
-Step 1: Configure keystone.conf
--------------------------------
-
-Ensure that your ``keystone.conf`` is configured to use a SQL driver:
-
-.. code-block:: ini
-
-    [identity]
-    driver = sql
-
-You may also want to configure your ``[database]`` settings to better reflect
-your environment:
-
-.. code-block:: ini
-
-    [database]
-    connection = sqlite:///keystone.db
-    idle_timeout = 200
-
-.. NOTE::
-
-    It is important that the database that you specify be different from the
-    one containing your existing install.
-
-Step 2: Sync your new, empty database
--------------------------------------
-
-You should now be ready to initialize your new database without error, using:
-
-.. code-block:: bash
-
-    $ keystone-manage db_sync
-
-To test this, you should now be able to start keystone:
-
-.. code-block:: bash
-
-    $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
-
-And use the OpenStack Client to list your projects (which should successfully
-return an empty list from your new database):
-
-.. code-block:: bash
-
-    $ openstack --os-token ADMIN --os-url http://127.0.0.1:35357/v3/ project list
-
-.. NOTE::
-
-    We're providing the default OS_TOKEN and OS_URL values from
-    ``keystone.conf`` to connect to the keystone service. If you changed those
-    values, or deployed keystone to a different endpoint, you will need to
-    change the provided command accordingly.
 
 Supported clients
 =================
