@@ -1,0 +1,25 @@
+---
+upgrade:
+  - |
+    [`bug 1788415 <https://bugs.launchpad.net/keystone/+bug/1788415>`_]
+    [`bug 968696 <https://bugs.launchpad.net/keystone/+bug/968696>`_]
+    Policies protecting the ``/v3/credentials`` API have changed defaults in
+    order to make the credentials API more accessible for all users and not
+    just operators or system administrator. Please consider these updates when
+    using this version of keystone since it could affect API behavior in your
+    deployment, especially if you're using a customized policy file.
+security:
+  - |
+    [`bug 1788415 <https://bugs.launchpad.net/keystone/+bug/1788415>`_]
+    [`bug 968696 <https://bugs.launchpad.net/keystone/+bug/968696>`_]
+    More granular policy checks have been applied to the credential API in
+    order to make it more self-service for users. By default, end users will
+    now have the ability to manage their credentials.
+fixes:
+  - |
+    [`bug 1788415 <https://bugs.launchpad.net/keystone/+bug/1788415>`_]
+    [`bug 968696 <https://bugs.launchpad.net/keystone/+bug/968696>`_]
+    Improved self-service support has been implemented in the credential API.
+    This means that end users have the ability to manage their own credentials
+    as opposed to filing tickets to have deployment administrators manage
+    credentials for users.
