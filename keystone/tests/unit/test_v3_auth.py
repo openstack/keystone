@@ -2803,6 +2803,64 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         )
 
 
+class TestJWSTokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
+    def config_overrides(self):
+        super(TestJWSTokenAPIs, self).config_overrides()
+        self.config_fixture.config(group='token', provider='jws',
+                                   cache_on_issue=True)
+        self.useFixture(ksfixtures.JWSKeyRepository(self.config_fixture))
+
+    def setUp(self):
+        super(TestJWSTokenAPIs, self).setUp()
+        self.doSetUp()
+
+    def _make_auth_request(self, auth_data):
+        token = super(TestJWSTokenAPIs, self)._make_auth_request(auth_data)
+        self.assertLess(len(token), 350)
+        return token
+
+    def test_validate_tampered_unscoped_token_fails(self):
+        unscoped_token = self._get_unscoped_token()
+        tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
+                          unscoped_token[50 + 32:])
+        self._validate_token(tampered_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_validate_tampered_project_scoped_token_fails(self):
+        project_scoped_token = self._get_project_scoped_token()
+        tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
+                          project_scoped_token[50 + 32:])
+        self._validate_token(tampered_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_validate_tampered_trust_scoped_token_fails(self):
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Get a trust scoped token
+        tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
+                          trust_scoped_token[50 + 32:])
+        self._validate_token(tampered_token,
+                             expected_status=http_client.NOT_FOUND)
+
+    def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
+        # NOTE(amakarov): have to override this test for non-persistent tokens
+        # as TokenNotFound exception makes no sense for those.
+        trustee_user, trust = self._create_trust()
+        trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
+        # Validate a trust scoped token
+        r = self._validate_token(trust_scoped_token)
+        self.assertValidProjectScopedTokenResponse(r)
+
+        # Disable the trustor
+        trustor_update_ref = dict(enabled=False)
+        PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
+        # Ensure validating a token for a disabled user fails
+        self._validate_token(
+            trust_scoped_token,
+            expected_status=http_client.FORBIDDEN
+        )
+
+
 class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
     """Test token revoke using v3 Identity API by token owner and admin."""
 
