@@ -178,7 +178,18 @@ class PolicyJsonTestCase(unit.TestCase):
         return rules
 
     def test_json_examples_have_matching_entries(self):
+        # TODO(lbragstad): Once all policies have been removed from
+        # policy.v3cloudsample.json, remove this test.
+        removed_policies = [
+            'identity:create_credential',
+            'identity:get_credential',
+            'identity:list_credentials',
+            'identity:update_credential',
+            'identity:delete_credential'
+        ]
         policy_keys = self._get_default_policy_rules()
+        for p in removed_policies:
+            del policy_keys[p]
         cloud_policy_keys = set(
             json.load(open(unit.dirs.etc('policy.v3cloudsample.json'))))
 

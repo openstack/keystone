@@ -1563,28 +1563,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         entity_url = '/domains/%s' % self.domainA['id']
         self.get(entity_url, auth=self.auth)
 
-    def test_list_user_credentials(self):
-        credential_user = unit.new_credential_ref(self.just_a_user['id'])
-        PROVIDERS.credential_api.create_credential(
-            credential_user['id'], credential_user
-        )
-        credential_admin = unit.new_credential_ref(self.cloud_admin_user['id'])
-        PROVIDERS.credential_api.create_credential(
-            credential_admin['id'], credential_admin
-        )
-
-        self.auth = self.build_authentication_request(
-            user_id=self.just_a_user['id'],
-            password=self.just_a_user['password'])
-        url = '/credentials?user_id=%s' % self.just_a_user['id']
-        self.get(url, auth=self.auth)
-        url = '/credentials?user_id=%s' % self.cloud_admin_user['id']
-        self.get(url, auth=self.auth,
-                 expected_status=exception.ForbiddenAction.code)
-        url = '/credentials'
-        self.get(url, auth=self.auth,
-                 expected_status=exception.ForbiddenAction.code)
-
     def test_get_and_delete_ec2_credentials(self):
         """Test getting and deleting ec2 credentials through the ec2 API."""
         another_user = unit.create_user(PROVIDERS.identity_api,
