@@ -1,0 +1,15 @@
+---
+fixes:
+  - >
+    Some bugs for unified limit APIs have been fixed, it includes:
+
+      * [`bug 1798716 <https://bugs.launchpad.net/keystone/+bug/1798716>`_]
+        The `region_id` of registered limit now can be updated to `None`.
+      * [`bug 1798495 <https://bugs.launchpad.net/keystone/+bug/1798495>`_]
+        The length of unified limit's `resource_name` now is limited from `1`
+        to `255` (string).
+      * [`bug 1797876 <https://bugs.launchpad.net/keystone/+bug/1797876>`_]
+        The `default_limit` of registered limit and the `resource_limit` of
+        limit now are limited from `-1` to `2147483647` (integer). `-1` means
+        no limit. `2147483647` is the max value for integer by default in SQL
+        (4 bytes).
