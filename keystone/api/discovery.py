@@ -17,56 +17,35 @@ from six.moves import http_client
 
 from keystone.common import json_home
 import keystone.conf
-from keystone import exception
 from keystone.server import flask as ks_flask
 
 
 CONF = keystone.conf.CONF
 MEDIA_TYPE_JSON = 'application/vnd.openstack.identity-%s+json'
-_VERSIONS = []
 _DISCOVERY_BLUEPRINT = flask.Blueprint('Discovery', __name__)
-
-
-def register_version(version):
-    _VERSIONS.append(version)
 
 
 def _get_versions_list(identity_url):
     versions = {}
-    if 'v3' in _VERSIONS:
-        versions['v3'] = {
-            'id': 'v3.11',
-            'status': 'stable',
-            'updated': '2018-10-15T00:00:00Z',
-            'links': [
-                {
-                    'rel': 'self',
-                    'href': identity_url,
-                }
-            ],
-            'media-types': [
-                {
-                    'base': 'application/json',
-                    'type': MEDIA_TYPE_JSON % 'v3'
-                }
-            ]
-        }
-
+    versions['v3'] = {
+        'id': 'v3.11',
+        'status': 'stable',
+        'updated': '2018-10-15T00:00:00Z',
+        'links': [{
+            'rel': 'self',
+            'href': identity_url,
+        }],
+        'media-types': [{
+            'base': 'application/json',
+            'type': MEDIA_TYPE_JSON % 'v3'
+        }]
+    }
     return versions
 
 
 class MimeTypes(object):
     JSON = 'application/json'
     JSON_HOME = 'application/json-home'
-
-
-def _v3_json_home_content():
-    # TODO(morgan): Eliminate this, we should never be disabling an API version
-    # now, JSON Home should never be empty.
-    if 'v3' not in _VERSIONS:
-        # No V3 Support, so return an empty JSON Home document.
-        return {'resources': {}}
-    return json_home.JsonHomeResources.resources()
 
 
 def v3_mime_type_best_match():
@@ -82,7 +61,7 @@ def get_versions():
     if v3_mime_type_best_match() == MimeTypes.JSON_HOME:
         # RENDER JSON-Home form, we have a clever client who will
         # understand the JSON-Home document.
-        v3_json_home = _v3_json_home_content()
+        v3_json_home = json_home.JsonHomeResources.resources()
         json_home.translate_urls(v3_json_home, '/v3')
         return flask.Response(response=jsonutils.dumps(v3_json_home),
                               mimetype=MimeTypes.JSON_HOME)
@@ -99,13 +78,10 @@ def get_versions():
 
 @_DISCOVERY_BLUEPRINT.route('/v3')
 def get_version_v3():
-    if 'v3' not in _VERSIONS:
-        raise exception.VersionNotFound(version='v3')
-
     if v3_mime_type_best_match() == MimeTypes.JSON_HOME:
         # RENDER JSON-Home form, we have a clever client who will
         # understand the JSON-Home document.
-        content = _v3_json_home_content()
+        content = json_home.JsonHomeResources.resources()
         return flask.Response(response=jsonutils.dumps(content),
                               mimetype=MimeTypes.JSON_HOME)
     else:
