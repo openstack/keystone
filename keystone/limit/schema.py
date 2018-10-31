@@ -18,7 +18,7 @@ from keystone.common.validation import parameter_types
 _registered_limit_properties = {
     'service_id': parameter_types.id_string,
     'region_id': {
-        'type': 'string'
+        'type': ['null', 'string']
     },
     'resource_name': {
         'type': 'string',
