@@ -28,6 +28,8 @@ from keystone.server.flask import common as ks_flask
 from keystone.server.flask.request_processing import json_body
 from keystone.server.flask.request_processing import req_logging
 
+from keystone.receipt import handlers as receipt_handlers
+
 LOG = log.getLogger(__name__)
 
 
@@ -67,6 +69,10 @@ def _best_match_language():
 
 
 def _handle_keystone_exception(error):
+    # TODO(adriant): register this with its own specific handler:
+    if isinstance(error, exception.InsufficientAuthMethods):
+        return receipt_handlers.build_receipt(error)
+
     # Handle logging
     if isinstance(error, exception.Unauthorized):
         LOG.warning(

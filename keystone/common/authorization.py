@@ -21,6 +21,11 @@
 # Header used to transmit the auth token
 AUTH_TOKEN_HEADER = 'X-Auth-Token'
 
+
+# Header used to transmit the auth receipt
+AUTH_RECEIPT_HEADER = 'Openstack-Auth-Receipt'
+
+
 # Header used to transmit the subject token
 SUBJECT_TOKEN_HEADER = 'X-Subject-Token'
 

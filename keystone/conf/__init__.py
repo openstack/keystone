@@ -31,6 +31,7 @@ from keystone.conf import endpoint_filter
 from keystone.conf import endpoint_policy
 from keystone.conf import eventlet_server
 from keystone.conf import federation
+from keystone.conf import fernet_receipts
 from keystone.conf import fernet_tokens
 from keystone.conf import identity
 from keystone.conf import identity_mapping
@@ -38,6 +39,7 @@ from keystone.conf import ldap
 from keystone.conf import memcache
 from keystone.conf import oauth1
 from keystone.conf import policy
+from keystone.conf import receipt
 from keystone.conf import resource
 from keystone.conf import revoke
 from keystone.conf import role
@@ -66,6 +68,7 @@ conf_modules = [
     endpoint_policy,
     eventlet_server,
     federation,
+    fernet_receipts,
     fernet_tokens,
     identity,
     identity_mapping,
@@ -73,6 +76,7 @@ conf_modules = [
     memcache,
     oauth1,
     policy,
+    receipt,
     resource,
     revoke,
     role,
@@ -163,10 +167,12 @@ def set_external_opts_defaults():
                        'X-Project-Domain-Id',
                        'X-Project-Domain-Name',
                        'X-Domain-Id',
-                       'X-Domain-Name'],
+                       'X-Domain-Name',
+                       'Openstack-Auth-Receipt'],
         expose_headers=['X-Auth-Token',
                         'X-Openstack-Request-Id',
-                        'X-Subject-Token'],
+                        'X-Subject-Token',
+                        'Openstack-Auth-Receipt'],
         allow_methods=['GET',
                        'PUT',
                        'POST',

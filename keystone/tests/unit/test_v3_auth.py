@@ -34,6 +34,7 @@ from testtools import testcase
 
 from keystone import auth
 from keystone.auth.plugins import totp
+from keystone.common import authorization
 from keystone.common import provider_api
 from keystone.common.rbac_enforcer import policy
 from keystone.common import utils
@@ -54,6 +55,7 @@ PROVIDERS = provider_api.ProviderAPIs
 class TestMFARules(test_v3.RestfulTestCase):
     def config_overrides(self):
         super(TestMFARules, self).config_overrides()
+
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -69,6 +71,18 @@ class TestMFARules(test_v3.RestfulTestCase):
                 credential_fernet.MAX_ACTIVE_KEYS
             )
         )
+
+    def assertValidErrorResponse(self, r):
+        resp = r.result
+        if r.headers.get(authorization.AUTH_RECEIPT_HEADER):
+            self.assertIsNotNone(resp.get('receipt'))
+            self.assertIsNotNone(resp.get('receipt').get('methods'))
+        else:
+            self.assertIsNotNone(resp.get('error'))
+            self.assertIsNotNone(resp['error'].get('code'))
+            self.assertIsNotNone(resp['error'].get('title'))
+            self.assertIsNotNone(resp['error'].get('message'))
+            self.assertEqual(int(resp['error']['code']), r.status_code)
 
     def _create_totp_cred(self):
         totp_cred = unit.new_totp_credential(self.user_id, self.project_id)
@@ -246,6 +260,206 @@ class TestMFARules(test_v3.RestfulTestCase):
                 token=r.headers.get('X-Subject-Token'),
                 project_id=self.project_id)
             self.v3_create_token(auth_data)
+
+    def test_MFA_requirements_makes_correct_receipt_for_password(self):
+        # if multiple rules are specified and only one is passed,
+        # unauthorized is expected
+        rule_list = [['password', 'totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id),
+                expected_status=http_client.UNAUTHORIZED)
+
+        self.assertIsNotNone(
+            response.headers.get(authorization.AUTH_RECEIPT_HEADER))
+        resp_data = response.result
+        # NOTE(adriant): We convert to sets to avoid any potential sorting
+        # related failures since order isn't important, just content.
+        self.assertEqual(
+            {'password'}, set(resp_data.get('receipt').get('methods')))
+        self.assertEqual(
+            set(frozenset(r) for r in rule_list),
+            set(frozenset(r) for r in resp_data.get('required_auth_methods')))
+
+    def test_MFA_requirements_makes_correct_receipt_for_totp(self):
+        # if multiple rules are specified and only one is passed,
+        # unauthorized is expected
+        totp_cred = self._create_totp_cred()
+        rule_list = [['password', 'totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id,
+                    passcode=totp._generate_totp_passcode(totp_cred['blob'])),
+                expected_status=http_client.UNAUTHORIZED)
+
+        self.assertIsNotNone(
+            response.headers.get(authorization.AUTH_RECEIPT_HEADER))
+        resp_data = response.result
+        # NOTE(adriant): We convert to sets to avoid any potential sorting
+        # related failures since order isn't important, just content.
+        self.assertEqual(
+            {'totp'}, set(resp_data.get('receipt').get('methods')))
+        self.assertEqual(
+            set(frozenset(r) for r in rule_list),
+            set(frozenset(r) for r in resp_data.get('required_auth_methods')))
+
+    def test_MFA_requirements_makes_correct_receipt_for_pass_and_totp(self):
+        # if multiple rules are specified and only one is passed,
+        # unauthorized is expected
+        totp_cred = self._create_totp_cred()
+        rule_list = [['password', 'totp', 'token']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id,
+                    passcode=totp._generate_totp_passcode(totp_cred['blob'])),
+                expected_status=http_client.UNAUTHORIZED)
+
+        self.assertIsNotNone(
+            response.headers.get(authorization.AUTH_RECEIPT_HEADER))
+        resp_data = response.result
+        # NOTE(adriant): We convert to sets to avoid any potential sorting
+        # related failures since order isn't important, just content.
+        self.assertEqual(
+            {'password', 'totp'}, set(resp_data.get('receipt').get('methods')))
+        self.assertEqual(
+            set(frozenset(r) for r in rule_list),
+            set(frozenset(r) for r in resp_data.get('required_auth_methods')))
+
+    def test_MFA_requirements_returns_correct_required_auth_methods(self):
+        # if multiple rules are specified and only one is passed,
+        # unauthorized is expected
+        rule_list = [
+            ['password', 'totp', 'token'],
+            ['password', 'totp'],
+            ['token', 'totp'],
+            ['BoGusAuThMeTh0dHandl3r']
+        ]
+        expect_rule_list = rule_list = [
+            ['password', 'totp', 'token'],
+            ['password', 'totp'],
+        ]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id),
+                expected_status=http_client.UNAUTHORIZED)
+
+        self.assertIsNotNone(
+            response.headers.get(authorization.AUTH_RECEIPT_HEADER))
+        resp_data = response.result
+        # NOTE(adriant): We convert to sets to avoid any potential sorting
+        # related failures since order isn't important, just content.
+        self.assertEqual(
+            {'password'}, set(resp_data.get('receipt').get('methods')))
+        self.assertEqual(
+            set(frozenset(r) for r in expect_rule_list),
+            set(frozenset(r) for r in resp_data.get('required_auth_methods')))
+
+    def test_MFA_consuming_receipt_with_totp(self):
+        # if multiple rules are specified and only one is passed,
+        # unauthorized is expected
+        totp_cred = self._create_totp_cred()
+        rule_list = [['password', 'totp']]
+        self._update_user_with_MFA_rules(rule_list=rule_list)
+        # NOTE(notmorgan): Step forward in time to ensure we're not causing
+        # issues with revocation events that occur at the same time as the
+        # token issuance. This is a bug with the limited resolution that
+        # tokens and revocation events have.
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    password=self.user['password'],
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id),
+                expected_status=http_client.UNAUTHORIZED)
+
+        self.assertIsNotNone(
+            response.headers.get(authorization.AUTH_RECEIPT_HEADER))
+        receipt = response.headers.get(authorization.AUTH_RECEIPT_HEADER)
+        resp_data = response.result
+        # NOTE(adriant): We convert to sets to avoid any potential sorting
+        # related failures since order isn't important, just content.
+        self.assertEqual(
+            {'password'}, set(resp_data.get('receipt').get('methods')))
+        self.assertEqual(
+            set(frozenset(r) for r in rule_list),
+            set(frozenset(r) for r in resp_data.get('required_auth_methods')))
+
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                headers={authorization.AUTH_RECEIPT_HEADER: receipt},
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id,
+                    passcode=totp._generate_totp_passcode(totp_cred['blob'])))
+
+    def test_MFA_consuming_receipt_not_found(self):
+        time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        with freezegun.freeze_time(time):
+            response = self.admin_request(
+                method='POST',
+                path='/v3/auth/tokens',
+                headers={authorization.AUTH_RECEIPT_HEADER: "bogus-receipt"},
+                body=self.build_authentication_request(
+                    user_id=self.user_id,
+                    user_domain_id=self.domain_id,
+                    project_id=self.project_id),
+                expected_status=http_client.UNAUTHORIZED)
+        self.assertEqual(401, response.result['error']['code'])
 
 
 class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):

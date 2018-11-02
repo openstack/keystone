@@ -1,0 +1,18 @@
+---
+features:
+  - |
+    [`blueprint mfa-auth-receipt <https://blueprints.launchpad.net/keystone/+spec/mfa-auth-receipt>`_]
+    Added support for auth receipts. Allows multi-step authentication for users
+    with configured MFA Rules. Partial authentication with successful auth
+    methods will return an auth receipt that can be consumed in subsequent auth
+    attempts along with the missing auth methods to complete auth and be
+    provided with a valid token.
+upgrade:
+  - |
+    [`blueprint mfa-auth-receipt <https://blueprints.launchpad.net/keystone/+spec/mfa-auth-receipt>`_]
+    Auth receipts share the same fernet mechanism as tokens and by default
+    will share keys with tokens and work out of the box. If your fernet key
+    directory is not the default, you will need to also configure the receipt
+    key directory, but they can both point to the same location allowing key
+    rotations to affect both safely. It is possible to split receipt and token
+    keys and run rotatations separately for both if needed.

@@ -385,11 +385,11 @@ class BasePermissionsSetup(BaseApp):
 
 
 class FernetSetup(BasePermissionsSetup):
-    """Setup a key repository for Fernet tokens.
+    """Setup key repositories for Fernet tokens and auth receipts.
 
     This also creates a primary key used for both creating and validating
-    Fernet tokens. To improve security, you should rotate your keys (using
-    keystone-manage fernet_rotate, for example).
+    Fernet tokens and auth receipts. To improve security, you should rotate
+    your keys (using keystone-manage fernet_rotate, for example).
 
     """
 
@@ -408,6 +408,32 @@ class FernetSetup(BasePermissionsSetup):
         if futils.validate_key_repository(requires_write=True):
             futils.initialize_key_repository(
                 keystone_user_id, keystone_group_id)
+
+        if (CONF.fernet_tokens.key_repository !=
+                CONF.fernet_receipts.key_repository):
+            futils = fernet_utils.FernetUtils(
+                CONF.fernet_receipts.key_repository,
+                CONF.fernet_receipts.max_active_keys,
+                'fernet_receipts'
+            )
+
+            futils.create_key_directory(keystone_user_id, keystone_group_id)
+            if futils.validate_key_repository(requires_write=True):
+                futils.initialize_key_repository(
+                    keystone_user_id, keystone_group_id)
+        elif(CONF.fernet_tokens.max_active_keys !=
+                CONF.fernet_receipts.max_active_keys):
+            # WARNING(adriant): If the directories are the same,
+            # 'max_active_keys' is ignored from fernet_receipts in favor of
+            # fernet_tokens to avoid a potential mismatch. Only if the
+            # directories are different do we create a different one for
+            # receipts, and then respect 'max_active_keys' for receipts.
+            LOG.warning(
+                "Receipt and Token fernet key directories are the same "
+                "but `max_active_keys` is different. Receipt "
+                "`max_active_keys` will be ignored in favor of Token "
+                "`max_active_keys`."
+            )
 
 
 class FernetRotate(BasePermissionsSetup):
@@ -441,6 +467,17 @@ class FernetRotate(BasePermissionsSetup):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         if futils.validate_key_repository(requires_write=True):
             futils.rotate_keys(keystone_user_id, keystone_group_id)
+
+        if (CONF.fernet_tokens.key_repository !=
+                CONF.fernet_receipts.key_repository):
+            futils = fernet_utils.FernetUtils(
+                CONF.fernet_receipts.key_repository,
+                CONF.fernet_receipts.max_active_keys,
+                'fernet_receipts'
+            )
+
+            if futils.validate_key_repository(requires_write=True):
+                futils.rotate_keys(keystone_user_id, keystone_group_id)
 
 
 class TokenSetup(BasePermissionsSetup):
@@ -497,6 +534,65 @@ class TokenRotate(BasePermissionsSetup):
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
             'fernet_tokens'
+        )
+
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        if futils.validate_key_repository(requires_write=True):
+            futils.rotate_keys(keystone_user_id, keystone_group_id)
+
+
+class ReceiptSetup(BasePermissionsSetup):
+    """Setup a key repository for auth receipts.
+
+    This also creates a primary key used for both creating and validating
+    receipts. To improve security, you should rotate your keys (using
+    keystone-manage receipt_rotate, for example).
+
+    """
+
+    name = 'receipt_setup'
+
+    @classmethod
+    def main(cls):
+        futils = fernet_utils.FernetUtils(
+            CONF.fernet_receipts.key_repository,
+            CONF.fernet_receipts.max_active_keys,
+            'fernet_receipts'
+        )
+
+        keystone_user_id, keystone_group_id = cls.get_user_group()
+        futils.create_key_directory(keystone_user_id, keystone_group_id)
+        if futils.validate_key_repository(requires_write=True):
+            futils.initialize_key_repository(
+                keystone_user_id, keystone_group_id)
+
+
+class ReceiptRotate(BasePermissionsSetup):
+    """Rotate auth receipts encryption keys.
+
+    This assumes you have already run keystone-manage receipt_setup.
+
+    A new primary key is placed into rotation, which is used for new receipts.
+    The old primary key is demoted to secondary, which can then still be used
+    for validating receipts. Excess secondary keys (beyond [receipt]
+    max_active_keys) are revoked. Revoked keys are permanently deleted. A new
+    staged key will be created and used to validate receipts. The next time key
+    rotation takes place, the staged key will be put into rotation as the
+    primary key.
+
+    Rotating keys too frequently, or with [receipt] max_active_keys set
+    too low, will cause receipts to become invalid prior to their expiration.
+
+    """
+
+    name = 'receipt_rotate'
+
+    @classmethod
+    def main(cls):
+        futils = fernet_utils.FernetUtils(
+            CONF.fernet_receipts.key_repository,
+            CONF.fernet_receipts.max_active_keys,
+            'fernet_receipts'
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()

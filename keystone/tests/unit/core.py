@@ -789,6 +789,14 @@ class TestCase(BaseTestCase):
             )
         )
 
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_receipts',
+                CONF.fernet_receipts.max_active_keys
+            )
+        )
+
     def _assert_config_overrides_called(self):
         assert self.__config_overrides_called is True
 
