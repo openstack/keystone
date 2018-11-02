@@ -457,3 +457,37 @@ def check_endpoint_url(url):
         url.replace('$(', '%(') % substitutions
     except (KeyError, TypeError, ValueError):
         raise exception.URLValidationError(url)
+
+
+def create_directory(directory, keystone_user_id=None, keystone_group_id=None):
+    """Attempt to create a directory if it doesn't exist.
+
+    :param directory: string containing the path of the directory to create.
+    :param keystone_user_id: the system ID of the process running keystone.
+    :param keystone_group_id: the system ID of the group running keystone.
+
+    """
+    if not os.access(directory, os.F_OK):
+        LOG.info(
+            '%s does not appear to exist; attempting to create it', directory
+        )
+
+        try:
+            os.makedirs(directory, 0o700)
+        except OSError:
+            LOG.error(
+                'Failed to create %s: either it already '
+                'exists or you don\'t have sufficient permissions to '
+                'create it', directory
+            )
+
+        if keystone_user_id and keystone_group_id:
+            os.chown(
+                directory,
+                keystone_user_id,
+                keystone_group_id)
+        elif keystone_user_id or keystone_group_id:
+            LOG.warning(
+                'Unable to change the ownership of key repository without '
+                'a keystone user ID and keystone group ID both being '
+                'provided: %s', directory)

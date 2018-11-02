@@ -17,6 +17,7 @@ import stat
 from cryptography import fernet
 from oslo_log import log
 
+from keystone.common import utils
 import keystone.conf
 
 
@@ -74,29 +75,10 @@ class FernetUtils(object):
     def create_key_directory(self, keystone_user_id=None,
                              keystone_group_id=None):
         """Attempt to create the key directory if it doesn't exist."""
-        if not os.access(self.key_repository, os.F_OK):
-            LOG.info(
-                'key_repository does not appear to exist; attempting to '
-                'create it')
-
-            try:
-                os.makedirs(self.key_repository, 0o700)
-            except OSError:
-                LOG.error(
-                    'Failed to create key_repository: either it already '
-                    'exists or you don\'t have sufficient permissions to '
-                    'create it')
-
-            if keystone_user_id and keystone_group_id:
-                os.chown(
-                    self.key_repository,
-                    keystone_user_id,
-                    keystone_group_id)
-            elif keystone_user_id or keystone_group_id:
-                LOG.warning(
-                    'Unable to change the ownership of key_repository without '
-                    'a keystone user ID and keystone group ID both being '
-                    'provided: %s', self.key_repository)
+        utils.create_directory(
+            self.key_repository, keystone_user_id=keystone_user_id,
+            keystone_group_id=keystone_group_id
+        )
 
     def _create_new_key(self, keystone_user_id, keystone_group_id):
         """Securely create a new encryption key.
