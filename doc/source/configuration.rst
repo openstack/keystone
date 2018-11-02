@@ -444,7 +444,7 @@ to be passed as arguments each time:
     $ export OS_USERNAME=my_username
     $ export OS_PASSWORD=my_password
     $ export OS_PROJECT_NAME=my_project
-    $ export OS_AUTH_URL=http://localhost:35357/v3
+    $ export OS_AUTH_URL=http://localhost:5000/v3
 
 For example, the commands ``user list``, ``token issue`` and ``project create``
 can be invoked as follows:
@@ -455,11 +455,11 @@ can be invoked as follows:
     $ export OS_USERNAME=admin
     $ export OS_PASSWORD=secret
     $ export OS_PROJECT_NAME=admin
-    $ export OS_AUTH_URL=http://localhost:35357/v3
+    $ export OS_AUTH_URL=http://localhost:5000/v3
     $ openstack user list
     $ openstack project create demo
     $ openstack token issue
 
     # Using password authentication, with flags
-    $ openstack --os-username=admin --os-password=secret --os-project-name=admin --os-auth-url=http://localhost:35357/v3 user list
-    $ openstack --os-username=admin --os-password=secret --os-project-name=admin --os-auth-url=http://localhost:35357/v3 project create demo
+    $ openstack --os-username=admin --os-password=secret --os-project-name=admin --os-auth-url=http://localhost:5000/v3 user list
+    $ openstack --os-username=admin --os-password=secret --os-project-name=admin --os-auth-url=http://localhost:5000/v3 project create demo
