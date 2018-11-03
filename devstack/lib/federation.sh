@@ -16,15 +16,14 @@ DOMAIN_NAME=${DOMAIN_NAME:-federated_domain}
 PROJECT_NAME=${PROJECT_NAME:-federated_project}
 GROUP_NAME=${GROUP_NAME:-federated_users}
 
-# TODO(rodrigods): remove/update the settings based at testshib
-IDP_ID=${IDP_ID:-testshib}
-IDP_USERNAME=${IDP_USERNAME:-myself}
-IDP_PASSWORD=${IDP_PASSWORD:-myself}
-IDP_REMOTE_ID=${IDP_REMOTE_ID:-https://idp.testshib.org/idp/shibboleth}
-IDP_ECP_URL=${IDP_ECP_URL:-https://idp.testshib.org/idp/profile/SAML2/SOAP/ECP}
-IDP_METADATA_URL=${IDP_METADATA_URL:-http://www.testshib.org/metadata/testshib-providers.xml}
+IDP_ID=${IDP_ID:-samltest}
+IDP_USERNAME=${IDP_USERNAME:-morty}
+IDP_PASSWORD=${IDP_PASSWORD:-panic}
+IDP_REMOTE_ID=${IDP_REMOTE_ID:-https://samltest.id/saml/idp}
+IDP_ECP_URL=${IDP_ECP_URL:-https://samltest.id/idp/profile/SAML2/SOAP/ECP}
+IDP_METADATA_URL=${IDP_METADATA_URL:-https://samltest.id/saml/idp}
 
-MAPPING_REMOTE_TYPE=${MAPPING_REMOTE_TYPE:-eppn}
+MAPPING_REMOTE_TYPE=${MAPPING_REMOTE_TYPE:-uid}
 MAPPING_USER_NAME=${MAPPING_USER_NAME:-"{0}"}
 
 PROTOCOL_ID=${PROTOCOL_ID:-mapped}
@@ -74,7 +73,7 @@ function install_federation {
     fi
 }
 
-function upload_sp_metadata_to_testshib {
+function upload_sp_metadata_to_samltest {
     local metadata_fname=${HOST_IP//./}_"$RANDOM"_sp
     local metadata_url=http://$HOST_IP/Shibboleth.sso/Metadata
 
@@ -84,7 +83,7 @@ function upload_sp_metadata_to_testshib {
         return
     fi
 
-    curl --form userfile=@"$FILES/${metadata_fname}" "https://www.testshib.org/procupload.php"
+    curl --form userfile=@"$FILES/${metadata_fname}" --form "submit=OK" "https://samltest.id/upload.php"
 }
 
 function configure_federation {
@@ -115,8 +114,8 @@ function configure_federation {
 
     # TODO(knikolla): We should not be relying on an external service. This
     # will be removed once we have an idp deployed during devstack install.
-    if [[ "$IDP_ID" == "testshib" ]]; then
-        upload_sp_metadata_to_testshib
+    if [[ "$IDP_ID" == "samltest" ]]; then
+        upload_sp_metadata_to_samltest
     fi
 }
 
