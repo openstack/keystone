@@ -14,14 +14,6 @@
 Configuring Keystone for Federation
 ===================================
 
------------
-Definitions
------------
-* `Service Provider (SP)`: provides a service to an end-user.
-* `Identity Provider (IdP)`: service that stores information about users and
-  groups.
-* `SAML assertion`: contains information about a user as provided by an IdP.
-
 -----------------------------------
 Keystone as a Service Provider (SP)
 -----------------------------------

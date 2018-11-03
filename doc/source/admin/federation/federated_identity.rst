@@ -4,6 +4,7 @@ Federated Identity
 
 Keystone's one-stop-shop for all federated identity documentation.
 
+.. include:: introduction.rst
 .. include:: configure_federation.rst
 .. include:: mapping_combinations.rst
 .. include:: openidc.rst
