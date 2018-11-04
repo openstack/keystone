@@ -147,7 +147,7 @@ following uses ``uwsgi``:
 
 .. code-block:: bash
 
-    $ uwsgi --http 127.0.0.1:35357 --wsgi-file $(which keystone-wsgi-admin)
+    $ uwsgi --http 127.0.0.1:5000 --wsgi-file $(which keystone-wsgi-public)
 
 This runs Keystone with the configuration the etc/ directory of the project.
 See :doc:`../configuration` for details on how Keystone is configured. By default,
