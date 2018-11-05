@@ -145,6 +145,7 @@ def initialize_application(name, post_log_configured_function=lambda: None,
                                        os.path.abspath(__file__),
                                        os.pardir,
                                        os.pardir,
+                                       os.pardir,
                                        os.pardir))
 
     dev_conf = os.path.join(possible_topdir,
