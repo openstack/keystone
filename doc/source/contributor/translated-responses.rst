@@ -35,7 +35,7 @@ This will generate .mo files like keystone/locale/[lang]/LC_MESSAGES/[lang].mo
 
 .. code-block:: bash
 
-    $ KEYSTONE_LOCALEDIR=/opt/stack/keystone/keystone/locale uwsgi --http-socket 127.0.0.1:5000 --wsgi-file $(which keystone-wsgi-public)
+    $ KEYSTONE_LOCALEDIR=/opt/stack/keystone/keystone/locale uwsgi --http 127.0.0.1:5000 --wsgi-file $(which keystone-wsgi-public)
 
 
 Now you can get a translated error response:
