@@ -409,8 +409,8 @@ class FernetSetup(BasePermissionsSetup):
             futils.initialize_key_repository(
                 keystone_user_id, keystone_group_id)
 
-        if (CONF.fernet_tokens.key_repository !=
-                CONF.fernet_receipts.key_repository):
+        if (os.path.abspath(CONF.fernet_tokens.key_repository) !=
+                os.path.abspath(CONF.fernet_receipts.key_repository)):
             futils = fernet_utils.FernetUtils(
                 CONF.fernet_receipts.key_repository,
                 CONF.fernet_receipts.max_active_keys,
@@ -468,8 +468,8 @@ class FernetRotate(BasePermissionsSetup):
         if futils.validate_key_repository(requires_write=True):
             futils.rotate_keys(keystone_user_id, keystone_group_id)
 
-        if (CONF.fernet_tokens.key_repository !=
-                CONF.fernet_receipts.key_repository):
+        if (os.path.abspath(CONF.fernet_tokens.key_repository) !=
+                os.path.abspath(CONF.fernet_receipts.key_repository)):
             futils = fernet_utils.FernetUtils(
                 CONF.fernet_receipts.key_repository,
                 CONF.fernet_receipts.max_active_keys,
