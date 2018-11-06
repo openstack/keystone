@@ -240,13 +240,14 @@ Create the ``new-role`` role:
 .. code-block:: console
 
    $ openstack role create new-role
-   +-----------+----------------------------------+
-   | Field     | Value                            |
-   +-----------+----------------------------------+
-   | domain_id | None                             |
-   | id        | a34425c884c74c8881496dc2c2e84ffc |
-   | name      | new-role                         |
-   +-----------+----------------------------------+
+   +-------------+----------------------------------+
+   | Field       | Value                            |
+   +-------------+----------------------------------+
+   | description | None                             |
+   | domain_id   | None                             |
+   | id          | a34425c884c74c8881496dc2c2e84ffc |
+   | name        | new-role                         |
+   +-------------+----------------------------------+
 
 .. note::
 
@@ -351,13 +352,14 @@ View details for a specified role:
 .. code-block:: console
 
    $ openstack role show ROLE_NAME
-   +-----------+----------------------------------+
-   | Field     | Value                            |
-   +-----------+----------------------------------+
-   | domain_id | None                             |
-   | id        | a34425c884c74c8881496dc2c2e84ffc |
-   | name      | new-role                         |
-   +-----------+----------------------------------+
+   +-------------+----------------------------------+
+   | Field       | Value                            |
+   +-------------+----------------------------------+
+   | description | None                             |
+   | domain_id   | None                             |
+   | id          | a34425c884c74c8881496dc2c2e84ffc |
+   | name        | new-role                         |
+   +-------------+----------------------------------+
 
 Remove a role
 -------------
