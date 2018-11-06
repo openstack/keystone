@@ -53,7 +53,7 @@ def initialize_sql_session(connection_str=unit.IN_MEM_DB_CONN_STRING,
         connection=connection_str)
 
     # Enable the  Sqlite FKs for global engine by default.
-    facade = enginefacade.get_legacy_facade()
+    facade = enginefacade.writer
     engine = facade.get_engine()
     f_key = 'ON' if enforce_sqlite_fks else 'OFF'
     if engine.name == 'sqlite':
