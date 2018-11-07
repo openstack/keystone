@@ -2675,14 +2675,14 @@ class LimitValidationTestCase(unit.BaseTestCase):
                             {'resource_limit': 10000000000000000},
                             {'resource_limit': 'not_int'},
                             {'description': 123}]
-        for invalid_desc in _INVALID_FORMATS:
+        for invalid_attribute in _INVALID_FORMATS:
             request_to_validate = [{'project_id': uuid.uuid4().hex,
                                     'service_id': uuid.uuid4().hex,
                                     'region_id': 'RegionOne',
                                     'resource_name': 'volume',
                                     'resource_limit': 10,
                                     'description': 'test description'}]
-            request_to_validate[0].update(invalid_desc)
+            request_to_validate[0].update(invalid_attribute)
 
             self.assertRaises(exception.SchemaValidationError,
                               self.create_limits_validator.validate,

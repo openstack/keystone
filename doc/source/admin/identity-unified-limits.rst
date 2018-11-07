@@ -32,7 +32,7 @@ establish a limit may include:
 - a region (optional depending on the service)
 
 .. NOTE:: The `default limit` of registered limit and the `resource limit` of
-          limit now are limited from `-1` to `2147483647` (integer). `-1` means
+          project limit now are limited from `-1` to `2147483647` (integer). `-1` means
           no limit and `2147483647` is the max value for user to define limits.
           The length of unified limit's `resource type` now is limited from `1`
           to `255` (string).
