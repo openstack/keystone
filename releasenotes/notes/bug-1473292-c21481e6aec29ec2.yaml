@@ -1,7 +1,7 @@
 ---
 feature:
   - |
-    [`Bug 1473292 <https://bugs.launchpad.net/keystone/+bug/1473292>`_]
+    [`bug 1473292 <https://bugs.launchpad.net/keystone/+bug/1473292>`_]
     As trusts created by user are stored in database resulting it to grow larger
     as trusts that are expired and soft deleted non-expired are not automatically
     purged by keystone.Thus this implements TrustFlush via keystone-manage to delete
@@ -18,6 +18,8 @@ feature:
         --trustee-user-id <string>: To purge trusts of given trustee-id.
         --date <string>: To purge trusts older than date. It will purge trusts older than
            current if date not given.
-
-
-
+other:
+  - >
+    [`bug 1473292 <https://bugs.launchpad.net/keystone/+bug/1473292>`_]
+    If you're relying on a custom implementation of the trust backend, please be sure to
+    implement the new method prior to upgrading.
