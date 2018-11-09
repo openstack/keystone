@@ -38,8 +38,8 @@ Add this *WSGIScriptAliasMatch* directive to your public vhost configuration::
 
     WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /usr/local/bin/keystone-wsgi-public/$1
 
-Make sure the *keystone.conf* vhost file contains a *<Location>* directive for the Shibboleth module and
-a *<Location>* directive for each identity provider::
+Make sure the keystone Apache virtual host configuration contains a *<Location>* directive for the
+Shibboleth module and a *<Location>* directive for each identity provider::
 
     <Location /Shibboleth.sso>
         SetHandler shib
