@@ -907,10 +907,18 @@ class VersionSingleAppTestCase(unit.TestCase):
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
+        url_with_port = 'http://localhost:%s/v3/' % self.public_port
         for version in expected['versions']['values']:
+            # TODO(morgan): Eliminate the need to do the "paste-in-port" part
+            # of the tests. Ultimately, this is very hacky and shows we are
+            # not setting up the test case sanely.
             if version['id'].startswith('v3'):
                 self._paste_in_port(
-                    version, 'http://localhost:%s/v3/' % self.public_port)
+                    version, url_with_port)
+        # Explicitly check that a location header is set and it is pointing
+        # to v3 (The preferred location for now)!
+        self.assertIn('Location', resp.headers)
+        self.assertEqual(url_with_port, resp.headers['Location'])
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_public(self):
