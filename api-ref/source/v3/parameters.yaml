@@ -1573,6 +1573,14 @@ request_default_limit_body_not_required:
   in: body
   required: false
   type: integer
+request_region_id_registered_limit_body_not_required:
+  description: |
+    The ID of the region that contains the service endpoint.
+    Either service_id, resource_name, or region_id must be
+    different than existing value otherwise it will raise 409.
+  in: body
+  required: false
+  type: string
 request_resource_limit_body_not_required:
   description: |
     The override limit.
@@ -1581,16 +1589,18 @@ request_resource_limit_body_not_required:
   type: integer
 request_resource_name_body_not_required:
   description: |
-    The resource name.Either service_id or resource_name must be
-    different than existing value otherwise it will raise 409.
+    The resource name. Either service_id, resource_name or
+    region_id must be different than existing value otherwise
+    it will raise 409.
   in: body
   required: false
   type: string
 request_service_id_registered_limit_body_not_required:
   description: |
     The UUID of the service to update to which the registered
-    limit belongs. Either service_id or resource_name must be
-    different than existing value otherwise it will raise 409.
+    limit belongs. Either service_id, resource_name, or region_id
+    must be different than existing value otherwise it will
+    raise 409.
   in: body
   required: false
   type: string
