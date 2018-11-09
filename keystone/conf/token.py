@@ -17,20 +17,6 @@ from oslo_log import versionutils
 
 from keystone.conf import utils
 
-bind = cfg.ListOpt(
-    'bind',
-    default=[],
-    deprecated_since=versionutils.deprecated.PIKE,
-    deprecated_for_removal=True,
-    help=utils.fmt("""
-This is a list of external authentication mechanisms which should add token
-binding metadata to tokens, such as `kerberos` or `x509`. Note that this option
-is deprecated as keystone no longer supports binding metadata to tokens
-directly. This option is silently ignored and will be removed in the future.
-This option no longer has any impact on the behavior of tokens and can be
-removed.
-"""))
-
 expiration = cfg.IntOpt(
     'expiration',
     default=3600,

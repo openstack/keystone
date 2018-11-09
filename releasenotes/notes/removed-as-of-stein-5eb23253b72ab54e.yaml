@@ -7,3 +7,6 @@ other:
   - >
     [`blueprint removed-as-of-stein <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-stein>`_]
     The deprecated token_flush is removed now.
+  - >
+    [`blueprint removed-as-of-stein <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-stein>`_]
+    The deprecated config option `bind` is removed now.

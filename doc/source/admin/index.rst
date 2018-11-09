@@ -25,7 +25,6 @@ command-line client.
    identity-integrate-with-ldap.rst
    identity-upgrading.rst
    identity-tokens.rst
-   identity-token-binding.rst
    identity-fernet-token-faq.rst
    identity-use-trusts.rst
    identity-caching-layer.rst
