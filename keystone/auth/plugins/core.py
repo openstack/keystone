@@ -15,17 +15,24 @@
 import sys
 
 from oslo_log import log
+from pycadf import cadftaxonomy as taxonomy
+from pycadf import reason
+from pycadf import resource
 import six
 
 from keystone.common import driver_hints
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
+from keystone import notifications
 
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
+_NOTIFY_OP = 'authenticate'
+_NOTIFY_EVENT = '{service}.{event}'.format(service=notifications.SERVICE,
+                                           event=_NOTIFY_OP)
 
 
 def construct_method_map_from_config():
@@ -153,6 +160,7 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
         user_info = auth_payload['user']
         user_id = user_info.get('id')
         user_name = user_info.get('name')
+        domain_ref = {}
         if not user_id and not user_name:
             raise exception.ValidationError(attribute='id or name',
                                             target='user')
@@ -171,6 +179,29 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:
             LOG.warning(six.text_type(e))
+
+            # We need to special case USER NOT FOUND here for CADF
+            # notifications as the normal path for notification(s) come from
+            # `identity_api.authenticate` and we are a bit before dropping into
+            # that method.
+            audit_reason = reason.Reason(str(e), str(e.code))
+            audit_initiator = notifications.build_audit_initiator()
+            # build an appropriate audit initiator with relevant information
+            # for the failed request. This will catch invalid user_name and
+            # invalid user_id.
+            if user_name:
+                audit_initiator.user_name = user_name
+            else:
+                audit_initiator.user_id = user_id
+            audit_initiator.domain_id = domain_ref.get('id')
+            audit_initiator.domain_name = domain_ref.get('name')
+            notifications._send_audit_notification(
+                action=_NOTIFY_OP,
+                initiator=audit_initiator,
+                outcome=taxonomy.OUTCOME_FAILURE,
+                target=resource.Resource(typeURI=taxonomy.ACCOUNT_USER),
+                event_type=_NOTIFY_EVENT,
+                reason=audit_reason)
             raise exception.Unauthorized(e)
         self._assert_user_is_enabled(user_ref)
         self.user_ref = user_ref
