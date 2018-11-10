@@ -146,7 +146,11 @@ def _assert_rbac_enforcement_called(resp):
            'enforcer.RBACKEnforcer.enforce_call()`) has not been called; API '
            'is unenforced.')
     g = flask.g
-    assert getattr(g, enforcer._ENFORCEMENT_CHECK_ATTR, False), msg  # nosec
+    # NOTE(morgan): OPTIONS is a special case and is handled by flask
+    # internally. We should never be enforcing on OPTIONS calls.
+    if flask.request.method != 'OPTIONS':
+        assert getattr(  # nosec
+            g, enforcer._ENFORCEMENT_CHECK_ATTR, False), msg  # nosec
     return resp
 
 
