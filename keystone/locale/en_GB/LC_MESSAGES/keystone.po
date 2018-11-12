@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -486,10 +486,6 @@ msgstr ""
 msgid "Could not validate the access token"
 msgstr "Could not validate the access token"
 
-#, python-format
-msgid "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
-msgstr "Could not verify unknown bind: {%(bind_type)s: %(identifier)s}"
-
 msgid "Credential could not be decrypted. Please contact the administrator"
 msgstr "Credential could not be decrypted. Please contact the administrator"
 
@@ -658,9 +654,6 @@ msgstr ""
 "Field \"remaining_uses\" is set to %(value)s while it must not be set in "
 "order to redelegate a trust"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "Found invalid token: scoped to both project and domain."
-
 msgid "Global role cannot imply a domain-specific role"
 msgstr "Global role cannot imply a domain-specific role"
 
@@ -744,10 +737,6 @@ msgstr "Invalid application credential ID or secret"
 msgid "Invalid application credential: %(detail)s"
 msgstr "Invalid application credential: %(detail)s"
 
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "Invalid audit info data type: %(data)s (%(type)s)"
-
 msgid "Invalid blob in credential"
 msgstr "Invalid blob in credential"
 
@@ -826,9 +815,6 @@ msgstr ""
 msgid "Invalid signature"
 msgstr "Invalid signature"
 
-msgid "Invalid signature."
-msgstr "Invalid signature."
-
 msgid "Invalid user / password"
 msgstr "Invalid user / password"
 
@@ -837,12 +823,6 @@ msgstr "Invalid username or TOTP passcode"
 
 msgid "Invalid username or password"
 msgstr "Invalid username or password"
-
-msgid "Kerberos credentials do not match those in bind"
-msgstr "Kerberos credentials do not match those in bind"
-
-msgid "Kerberos credentials required and not present"
-msgstr "Kerberos credentials required and not present"
 
 msgid "LDAP does not support write operations"
 msgstr "LDAP does not support write operations"
@@ -892,10 +872,6 @@ msgstr "Multiple domains are not supported"
 msgid "Must specify either domain or project"
 msgstr "Must specify either domain or project"
 
-#, python-format
-msgid "Named bind mode %(name)s not in bind information"
-msgstr "Named bind mode %(name)s not in bind information"
-
 msgid "Neither Project Domain ID nor Project Domain Name was provided."
 msgstr "Neither Project Domain ID nor Project Domain Name was provided."
 
@@ -908,9 +884,6 @@ msgstr ""
 
 msgid "No authenticated user"
 msgstr "No authenticated user"
-
-msgid "No bind information present in token."
-msgstr "No bind information present in token."
 
 msgid "No domain information specified as part of list request"
 msgstr "No domain information specified as part of list request"
@@ -1168,9 +1141,6 @@ msgstr "The authenticated project should match the project_id"
 msgid "The authenticated user should match the trustor"
 msgstr "The authenticated user should match the trustor"
 
-msgid "The configured token provider does not support bind authentication."
-msgstr "The configured token provider does not support bind authentication."
-
 #, python-format
 msgid ""
 "The given operator %(_op)s is not valid. It must be one of the following: "
@@ -1386,13 +1356,6 @@ msgid ""
 msgstr ""
 "Unable to update or delete registered limit %(id)s because there are project "
 "limits associated with it."
-
-msgid ""
-"Unable to update the registered limits because there are project limits "
-"associated with it."
-msgstr ""
-"Unable to update the registered limits because there are project limits "
-"associated with it."
 
 msgid "Unable to validate password due to invalid configuration"
 msgstr "Unable to validate password due to invalid configuration"
@@ -1622,10 +1585,6 @@ msgid "group %(group)s"
 msgstr "group %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "invalid date format %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -1684,7 +1643,3 @@ msgstr "tls_cacertdir %s not found or is not a directory"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s not found or is not a file"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "token reference must be a KeystoneToken type, got: %s"

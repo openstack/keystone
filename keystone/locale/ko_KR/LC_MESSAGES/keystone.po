@@ -7,16 +7,17 @@
 # Sungjin Kang <potopro@gmail.com>, 2013
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 # Ian Y. Choi <ianyrchoi@gmail.com>, 2018. #zanata
+# JongSoo Ha <neo415ha@gmail.com>, 2018. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-02-14 07:35+0000\n"
-"Last-Translator: Ian Y. Choi <ianyrchoi@gmail.com>\n"
+"PO-Revision-Date: 2018-11-12 02:06+0000\n"
+"Last-Translator: JongSoo Ha <neo415ha@gmail.com>\n"
 "Language: ko_KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -393,10 +394,6 @@ msgstr ""
 "필드 \"remaining_uses\"가 %(value)s(으)로 설정되었으나 신뢰를 재위임하려면 설"
 "정하지 않아야 함"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-"올바르지 않은 토큰이 있습니다. 프로젝트와 도메인 둘 다 범위에 포함됩니다."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "도메인 특정 구성에 대해 %(group)s 그룹이 지원되지 않음"
@@ -447,8 +444,8 @@ msgid "Invalid TLS / LDAPS combination"
 msgstr "잘못된 TLS / LDAPS 결합."
 
 #, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "올바르지 않은 감사 정보 데이터 유형: %(data)s (%(type)s)"
+msgid "Invalid application credential: %(detail)s"
+msgstr "부적절한 지원  신임장 : %(detail)s."
 
 msgid "Invalid blob in credential"
 msgstr "신임 정보에 올바르지 blob가 있음"
@@ -678,11 +675,36 @@ msgstr ""
 "키스톤 도메인 특정 구성에 하나 이상의 SQL 드라이버가  지정됨(하나만 허용됨): "
 "%(source)s."
 
+#, python-format
+msgid "The account is disabled for user: %(user_id)s."
+msgstr "사용자에게 사용중지된 계정입니다 : %(user_id)s."
+
 msgid "The action you have requested has not been implemented."
 msgstr "요청한 조치가 구현되지 않았습니다."
 
-msgid "The configured token provider does not support bind authentication."
-msgstr "구성된 토큰 제공자가 바인드 인증을 지원하지 않습니다. "
+#, python-format
+msgid ""
+"The given operator %(_op)s is not valid. It must be one of the following: "
+"'eq', 'neq', 'lt', 'lte', 'gt', or 'gte'."
+msgstr ""
+"주어진 %(_op)s 연산자는 유효하지 않습니다. 다음과 같아야만 합니다 : 'eq', "
+"'neq'', 'lt', 'lte', 'gt' 또는 'gte'."
+
+#, python-format
+msgid ""
+"The new password cannot be identical to a previous password. The total "
+"number whichincludes the new password must be unique is %(unique_count)s."
+msgstr ""
+"새로운 비밀번호는 이전 비밀번호와 같으면 안됩니다. 새로운 비밀번호에 포함되"
+"는 모든 숫자들이 고유해야 하는 것은  %(unique_count)s 입니다."
+
+#, python-format
+msgid "The password does not match the requirements: %(detail)s."
+msgstr "이 비밀번호는 요구사항을 충족치 못합니다 : %(detail)s."
+
+#, python-format
+msgid "The password is expired and needs to be changed for user: %(user_id)s."
+msgstr "비밀번호가 만료되었으므로 사용자를 위해 바뀌어야 합니다 : %(user_id)s."
 
 #, python-format
 msgid ""
@@ -716,6 +738,14 @@ msgid ""
 "The value of group %(group)s specified in the config should be a dictionary "
 "of options"
 msgstr "구성에 지정된 %(group)s 그룹의 값은 옵션의 사전이어야 함"
+
+#, python-format
+msgid ""
+"There are multiple %(resource)s entities named '%(name)s'. Please use ID "
+"instead of names to resolve the ambiguity."
+msgstr ""
+"%(name)s 로 명명된 복수의 %(resource)s 엔티티들이 있습니다.  이름 대신 ID를 "
+"사용하여 모호성을 해결해주시기 바랍니다."
 
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
@@ -770,6 +800,14 @@ msgid ""
 msgstr ""
 "키스톤 데이터베이스를 액세스할 수 없습니다. 데이터베이스가 제대로 구성되어 있"
 "는지 확인하십시오. "
+
+#, python-format
+msgid ""
+"Unable to create additional application credentials, maximum of %(limit)d "
+"already exceeded for user."
+msgstr ""
+"추가적인 신임장 생성이 불가능합니다, %(limit)d 의 최대치가 사용자에게 이미 초"
+"과되었습니다."
 
 #, python-format
 msgid ""
@@ -872,6 +910,26 @@ msgid "You are not authorized to perform the requested action."
 msgstr "요청한 조치를 수행할 권한이 없습니다."
 
 msgid ""
+"You cannot change your password at this time due to password policy "
+"disallowing password changes. Please contact your administrator to reset "
+"your password."
+msgstr ""
+"당신은 비밀번호 변경에 관한 비밀번호 정책을 위배하였기에 현재 비밀번호를 바"
+"꿀 수 없습니다. 관리자에게 비밀번호를 초기화시켜 달라고 연락하시기 바랍니다."
+
+#, python-format
+msgid ""
+"You cannot change your password at this time due to the minimum password "
+"age. Once you change your password, it must be used for %(min_age_days)d "
+"day(s) before it can be changed. Please try again in %(days_left)d day(s) or "
+"contact your administrator to reset your password."
+msgstr ""
+"당신은 비밀번호의 최소 주기로 인해 비밀번호를 바꿀 수 없습니다. 한번 비밀번호"
+"를 바꾸면, 그 비밀번호는 바뀌기 전까지 %(min_age_days)d day(s) 동안 쓰여야만 "
+"합니다. %(days_left)d day(s) 만큼 기다려주시거나, 관리자에게 비밀번호를 초기"
+"화시켜 달라고 연락하시기 바랍니다."
+
+msgid ""
 "You have tried to create a resource using the admin token. As this token is "
 "not within a domain you must explicitly include a domain for this resource "
 "to belong to."
@@ -905,10 +963,6 @@ msgstr ""
 #, python-format
 msgid "group %(group)s"
 msgstr "%(group)s 그룹"
-
-#, python-format
-msgid "invalid date format %s"
-msgstr "올바르지 않은 날짜 형식 %s"
 
 #, python-format
 msgid ""
@@ -950,7 +1004,3 @@ msgstr "tls_cacertdir %s를 찾을 수 없으며, 이 디렉토리에 존재하�
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s를 찾을 수 없스며, 그런 파일이 없습니다."
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "토큰 참조는 KeystoneToken 유형이어야 합니다. %s을(를) 가져왔습니다."

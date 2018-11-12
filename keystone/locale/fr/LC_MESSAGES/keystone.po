@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -412,9 +412,6 @@ msgstr ""
 "La zone \"remaining_uses\" est définie sur %(value)s alors qu'elle ne doit "
 "pas être définie pour redéléguer une fiducie"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "Jeton non valide trouvé : portée de projet et de domaine."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
@@ -469,10 +466,6 @@ msgstr "Portée LDAP invalide: %(scope)s. Choisissez parmi: %(options)s"
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Combinaison TLS / LDAPS invalide"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "Type de données d'information d'audit non valide : %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "Blob non valide dans les informations d'identification"
@@ -705,11 +698,6 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "L'action que vous avez demandée n'a pas été implémentée."
-
-msgid "The configured token provider does not support bind authentication."
-msgstr ""
-"Le fournisseur de jeton configuré ne prend pas en charge l'authentification "
-"par opération de liaison."
 
 #, python-format
 msgid ""
@@ -944,10 +932,6 @@ msgid "group %(group)s"
 msgstr "groupe %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "Format de date invalid %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -991,7 +975,3 @@ msgstr "tls_cacertdir %s introuvable ou n'est pas un répertoire"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s introuvable ou n'est pas un fichier"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "La référence de jeton doit être un type KeystoneToken, obtenu : %s"

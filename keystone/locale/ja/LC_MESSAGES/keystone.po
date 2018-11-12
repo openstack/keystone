@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -403,11 +403,6 @@ msgstr ""
 "フィールド \"remaining_uses\" は %(value)s になっていますが、トラストを再委任"
 "するにはこのフィールドが設定されていてはなりません"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-"無効なトークンが見つかりました: スコープがプロジェクトとドメインの両方に対し"
-"て設定されています。"
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "ドメイン固有の設定ではグループ %(group)s はサポートされません"
@@ -460,10 +455,6 @@ msgstr ""
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "無効な TLS / LDAPS の組み合わせです"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "無効な監査情報データタイプ %(data)s (%(type)s) です"
 
 msgid "Invalid blob in credential"
 msgstr "クレデンシャル内の blob が無効です"
@@ -694,9 +685,6 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "要求したアクションは実装されていません。"
-
-msgid "The configured token provider does not support bind authentication."
-msgstr "設定済みトークンプロバイダーはバインド認証をサポートしません。"
 
 #, python-format
 msgid ""
@@ -933,10 +921,6 @@ msgid "group %(group)s"
 msgstr "グループ %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "日付形式 %s は無効です"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -980,7 +964,3 @@ msgstr ""
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s が見つからない、もしくは、ファイルではありません。"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "トークン参照は KeystoneToken 型である必要があります。%s を受信しました"

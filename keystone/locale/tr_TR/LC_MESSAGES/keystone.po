@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -268,9 +268,6 @@ msgstr ""
 "\"remaining_uses\" alanı %(value)s olarak ayarlanmış, bir güvene tekrar "
 "yetki vermek için böyle ayarlanmamalı"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "Geçersiz jeton bulundu: hem proje hem alana kapsanmış."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "%(group)s grubu alana özel yapılandırmalar için desteklenmiyor"
@@ -320,10 +317,6 @@ msgstr "Geçersiz LDAP kapsamı: %(scope)s. Şunlardan birini seçin: %(options)
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Geçersiz TLS / LDAPS kombinasyonu"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "Geçersiz denetim bilgisi veri türü: %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "Kimlik bilgisinde geçersiz düğüm"
@@ -699,10 +692,6 @@ msgid "group %(group)s"
 msgstr "grup %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "geçersiz tarih biçimi %s"
-
-#, python-format
 msgid "option %(option)s in group %(group)s"
 msgstr "%(group)s grubundaki %(option)s seçeneği"
 
@@ -730,7 +719,3 @@ msgstr "tls_cacertdir %s bulunamadı ya da bir dizin"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s bulunamadı ya da bir dosya değil"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "jeton referansı bir KeystoneToken türünde olmalı, alınan: %s"

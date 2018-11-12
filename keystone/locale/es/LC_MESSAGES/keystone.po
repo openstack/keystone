@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -418,10 +418,6 @@ msgstr ""
 "El campo \"remaining_uses\" está establecido en %(value)s, pero no debe "
 "estar establecido para poder redelegar una confianza"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr ""
-"Se ha encontrado una señal no válida: tiene un ámbito de proyecto y dominio."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
@@ -475,11 +471,6 @@ msgstr ""
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Combinación TLS/LDAPS no válida"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr ""
-"Tipo de datos de información de auditoría no válido: %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "Blob no válido en credencial"
@@ -712,11 +703,6 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "La acción que ha solicitado no ha sido implemento"
-
-msgid "The configured token provider does not support bind authentication."
-msgstr ""
-"El proveedor de señales configurado no da soporte a la autenticación de "
-"enlaces."
 
 #, python-format
 msgid ""
@@ -954,10 +940,6 @@ msgid "group %(group)s"
 msgstr "grupo %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "formato de fecha no válido %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -1000,8 +982,3 @@ msgstr "No se ha encontrado o no es un directorio tls_cacertdir %s"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "No se ha encontrado o no es un fichero tls_cacertfile %s"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr ""
-"la referencia de señal debe ser un tipo KeystoneToken, se ha obtenido: %s"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -409,9 +409,6 @@ msgstr ""
 "Il campo \"remaining_uses\" è impostato su %(value)s mentre non deve essere "
 "impostato per assegnare una nuova delega ad un trust"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "trovato token non valido: in ambito sia di progetto che di dominio."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
@@ -466,11 +463,6 @@ msgstr ""
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Combinazione TLS / LDAPS non valida"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr ""
-"Tipo di dati delle informazioni di verifica non valido: %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "Blob non valido nella credenziale"
@@ -704,9 +696,6 @@ msgstr ""
 msgid "The action you have requested has not been implemented."
 msgstr "L'azione richiesta non è stata implementata."
 
-msgid "The configured token provider does not support bind authentication."
-msgstr "Il provider di token configurato non supporta l'autenticazione bind. "
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -939,10 +928,6 @@ msgid "group %(group)s"
 msgstr "gruppo %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "formato data non valido %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -987,8 +972,3 @@ msgstr "Impossibile trovare tls_cacertdir %s o non è una directory"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "Impossibile trovare tls_cacertfile %s o non è un file"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr ""
-"il riferimento al token deve essere un tipo KeystoneToken, ottenuto: %s"

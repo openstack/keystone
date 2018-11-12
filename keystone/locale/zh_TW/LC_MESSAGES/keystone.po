@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -354,9 +354,6 @@ msgid ""
 msgstr ""
 "欄位 \"remaining_uses\" 設定為 %(value)s，但為了重新委派信任，不能設定該欄位"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "找到無效記號：已將範圍限定為專案及網域。"
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr "網域特定配置不支援群組 %(group)s"
@@ -401,10 +398,6 @@ msgstr "無效的 LDAP 範圍：%(scope)s。請選擇 %(options)s 的其中之�
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "無效的 TLS/LDAPS 組合"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr "審核資訊資料類型無效：%(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "認證中的二進位大型物件無效"
@@ -609,9 +602,6 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "尚未實作所要求的動作。"
-
-msgid "The configured token provider does not support bind authentication."
-msgstr "所配置的記號提供者不支援連結鑑別。"
 
 #, python-format
 msgid ""
@@ -824,10 +814,6 @@ msgid "group %(group)s"
 msgstr "群組 %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "無效的日期格式 %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -865,7 +851,3 @@ msgstr "tls_cacertdir %s 找不到，或者不是目錄"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s 找不到，或者不是檔案"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "記號參照必須是 KeystoneToken 類型，但卻取得：%s"

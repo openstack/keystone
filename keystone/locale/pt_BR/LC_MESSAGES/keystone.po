@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-06-16 01:19+0000\n"
+"POT-Creation-Date: 2018-11-06 21:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -403,9 +403,6 @@ msgstr ""
 "O campo \"remaining_uses\" está configurado como %(value)s enquanto ele não "
 "deve ser configurado para delegar novamente uma confiança"
 
-msgid "Found invalid token: scoped to both project and domain."
-msgstr "Token inválido encontrado: escopo para ambos o projeto e o domínio."
-
 #, python-format
 msgid "Group %(group)s is not supported for domain specific configurations"
 msgstr ""
@@ -457,11 +454,6 @@ msgstr "Escopo LDAP inválido: %(scope)s. Escolha um de: %(options)s"
 
 msgid "Invalid TLS / LDAPS combination"
 msgstr "Combinação TLS / LADPS inválida"
-
-#, python-format
-msgid "Invalid audit info data type: %(data)s (%(type)s)"
-msgstr ""
-"Tipo de dados de informações de auditoria inválido: %(data)s (%(type)s)"
 
 msgid "Invalid blob in credential"
 msgstr "BLOB inválido na credencial"
@@ -694,9 +686,6 @@ msgstr ""
 msgid "The action you have requested has not been implemented."
 msgstr "A ação que você solicitou não foi implementada."
 
-msgid "The configured token provider does not support bind authentication."
-msgstr "O provedor de token configurado não suporta autenticação de ligação."
-
 #, python-format
 msgid ""
 "The password length must be less than or equal to %(size)i. The server could "
@@ -928,10 +917,6 @@ msgid "group %(group)s"
 msgstr "grupo %(group)s"
 
 #, python-format
-msgid "invalid date format %s"
-msgstr "formato de data inválido %s"
-
-#, python-format
 msgid ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
@@ -975,7 +960,3 @@ msgstr "tls_cacertdir %s não encontrado ou não é um diretório"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s não encontrada ou não é um arquivo"
-
-#, python-format
-msgid "token reference must be a KeystoneToken type, got: %s"
-msgstr "referência de token deve ser um tipo KeystoneToken, obteve: %s"
