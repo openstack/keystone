@@ -163,7 +163,7 @@ Parameters
    - registered_limit_id: registered_limit_id_path
    - registered_limit: registered_limit
    - service_id: request_service_id_registered_limit_body_not_required
-   - region_id: region_id_request_body
+   - region_id: request_region_id_registered_limit_body_not_required
    - resource_name: request_resource_name_body_not_required
    - default_limit: request_default_limit_body_not_required
    - description: description_registered_limit_request_body
