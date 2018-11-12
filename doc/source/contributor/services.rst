@@ -91,8 +91,7 @@ their own namespace. For example, unlike in v2.0, usernames are no longer
 unique across the deployment. You can have two users with the same name, but
 they must be in different domains. However, user IDs are assigned to users by
 keystone and are expected to be unique across the deployment. All of this logic
-applies to both projects and user groups as well. Note that roles are *not*
-namespaced by domains.
+applies to projects, user groups and roles.
 
 One of the great things about domains is that you can have one domain backed by
 SQL (for service users) and another backed by LDAP (the cloud is deployed into
