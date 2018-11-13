@@ -154,11 +154,6 @@ class IdentityDriverBase(object):
         """Indicate if the driver supports domains."""
         return True
 
-    def default_assignment_driver(self):
-        # TODO(morganfainberg): To be removed when assignment driver based
-        # upon [identity]/driver option is removed in the "O" release.
-        return 'sql'
-
     @property
     def is_sql(self):
         """Indicate if this Driver uses SQL."""

@@ -78,10 +78,6 @@ class IdentityDriverTests(object):
         self.assertIs(self.expected_is_domain_aware,
                       self.driver.is_domain_aware())
 
-    def test_default_assignment_driver(self):
-        self.assertEqual(self.expected_default_assignment_driver,
-                         self.driver.default_assignment_driver())
-
     def test_is_sql(self):
         self.assertIs(self.expected_is_sql, self.driver.is_sql)
 
