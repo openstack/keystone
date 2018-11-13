@@ -484,6 +484,43 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             resp = c.post('/v3/test_api', json=body)
             self.assertEqual(body, resp.json['post_body'])
 
+    def test_HTTP_OPTIONS_is_unenforced(self):
+        # Standup a test mapped resource and call OPTIONS on it. This will
+        # return a header "Allow" with the valid methods, in this case
+        # OPTIONS and POST. Ensure that the response otherwise conforms
+        # as expected.
+
+        class MappedResource(flask_restful.Resource):
+            def post(self):
+                # we don't actually use this or call it.
+                pass
+
+        resource_map = flask_common.construct_resource_map(
+            resource=MappedResource,
+            url='test_api',
+            alternate_urls=[],
+            resource_kwargs={},
+            rel='test',
+            status=json_home.Status.STABLE,
+            path_vars=None,
+            resource_relation_func=json_home.build_v3_resource_relation)
+
+        restful_api = _TestRestfulAPI(resource_mapping=[resource_map],
+                                      resources=[])
+        self.public_app.app.register_blueprint(restful_api.blueprint)
+        with self.test_client() as c:
+            r = c.options('/v3/test_api')
+            # make sure we split the data and left/right strip off whitespace
+            # The use of a SET here is to ensure the exact values are in place
+            # even if hash-seeds change order. `r.data` will be an empty
+            # byte-string. `Content-Length` will be 0.
+            self.assertEqual(
+                set(['OPTIONS', 'POST']),
+                set([v.lstrip().rstrip()
+                     for v in r.headers['Allow'].split(',')]))
+            self.assertEqual(r.headers['Content-Length'], '0')
+            self.assertEqual(r.data, b'')
+
     def test_mapped_resource_routes(self):
         # Test non-standard URL routes ("mapped") function as expected
 
