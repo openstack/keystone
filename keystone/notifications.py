@@ -74,6 +74,7 @@ _SUBSCRIBERS = {}
 _notifier = None
 SERVICE = 'identity'
 
+ROOT_DOMAIN = '<<keystone.domain.root>>'
 
 CONF = keystone.conf.CONF
 
@@ -420,6 +421,13 @@ def _create_cadf_payload(operation, resource_type, resource_id,
         target_uri = taxonomy.UNKNOWN
     else:
         target_uri = CADF_TYPE_MAP.get(resource_type)
+
+    # TODO(gagehugo): The root domain ID is typically hidden, there isn't a
+    # reason to emit a notification for it. Once we expose the root domain
+    # (and handle the CADF UUID), remove this.
+    if resource_id == ROOT_DOMAIN:
+        return
+
     target = resource.Resource(typeURI=target_uri,
                                id=resource_id)
 
