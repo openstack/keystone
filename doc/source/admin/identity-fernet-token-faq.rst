@@ -242,7 +242,7 @@ If any key used in the key repository is compromised, an attacker will be able
 to build their own tokens. If they know the ID of an administrator on a
 project, they could generate administrator tokens for the project. They will be
 able to generate their own tokens until the compromised key has been removed
-from from the repository.
+from the repository.
 
 I rotated keys and now tokens are invalidating early, what did I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
