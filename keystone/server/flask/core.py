@@ -13,17 +13,9 @@
 import collections
 import os
 
-import oslo_i18n
 from oslo_log import log
 import stevedore
 from werkzeug.contrib import fixers
-
-
-# NOTE(dstanek): i18n.enable_lazy() must be called before
-# keystone.i18n._() is called to ensure it has the desired lazy lookup
-# behavior. This includes cases, like keystone.exceptions, where
-# keystone.i18n._() is called at import time.
-oslo_i18n.enable_lazy()
 
 from keystone.common import profiler
 import keystone.conf
