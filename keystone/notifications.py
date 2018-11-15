@@ -102,6 +102,11 @@ def build_audit_initiator():
     if oslo_context.domain_id:
         initiator.domain_id = oslo_context.domain_id
 
+    initiator.request_id = oslo_context.request_id
+
+    if oslo_context.global_request_id:
+        initiator.global_request_id = oslo_context.global_request_id
+
     return initiator
 
 
