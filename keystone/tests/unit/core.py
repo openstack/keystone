@@ -779,7 +779,6 @@ class TestCase(BaseTestCase):
         # of hashing has been used. Note that 4 is the lowest for bcrypt
         # allowed in the `[identity] password_hash_rounds` setting
         self.config_fixture.config(group='identity', password_hash_rounds=4)
-        self.config_fixture.config(crypt_strength=1000)
 
         self.useFixture(
             ksfixtures.KeyRepository(

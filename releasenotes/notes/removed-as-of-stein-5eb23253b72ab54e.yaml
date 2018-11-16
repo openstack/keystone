@@ -10,3 +10,7 @@ other:
   - >
     [`blueprint removed-as-of-stein <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-stein>`_]
     The deprecated config option `bind` is removed now.
+  - >
+    The deprecated option `crypt_strength` is removed now. It was only useful
+    for `sha512_crypt` password hashes which has been superseded by more secure
+    hashing implementations.
