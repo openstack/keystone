@@ -29,6 +29,7 @@ command-line client.
    identity-use-trusts.rst
    identity-caching-layer.rst
    identity-security-compliance.rst
+   identity-resource-options.rst
    identity-performance.rst
    identity-keystone-usage-and-features.rst
    identity-auth-token-middleware.rst
