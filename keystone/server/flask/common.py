@@ -433,7 +433,7 @@ class APIBase(object):
                         )
                         continue
                     LOG.debug(
-                        'Adding additional resource route (alternate) to API'
+                        'Adding additional resource route (alternate) to API '
                         '%(name)s: [%(url)r %(kwargs)r]',
                         {'name': self._name, 'url': element['url'],
                          'kwargs': r.kwargs})

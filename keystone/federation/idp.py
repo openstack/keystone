@@ -410,7 +410,7 @@ def _verify_assertion_binary_is_installed():
             'Unable to locate %(binary)s binary on the system. Check to make '
             'sure it is installed.') % {'binary': CONF.saml.xmlsec1_binary}
         tr_msg = _(
-            'Unable to locate %(binary)s binary on the system. Check to'
+            'Unable to locate %(binary)s binary on the system. Check to '
             'make sure it is installed.') % {
             'binary': CONF.saml.xmlsec1_binary}
         LOG.error(msg)
