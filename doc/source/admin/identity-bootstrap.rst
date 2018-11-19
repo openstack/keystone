@@ -78,6 +78,10 @@ both the user and the project will be created in the ``default`` domain. By not
 creating an endpoint in the catalog users will need to provide endpoint
 overrides to perform additional identity operations.
 
+This command will also create ``member`` and ``reader`` roles. The ``admin``
+role implies the ``member`` role and ``member`` role implies the ``reader``
+role.
+
 By creating an ``admin`` user and an identity endpoint you may
 authenticate to keystone and perform identity operations like creating
 additional services and endpoints using the ``admin`` user. This will preclude
