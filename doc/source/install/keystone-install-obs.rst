@@ -77,7 +77,7 @@ Install and configure components
 
    .. code-block:: console
 
-      # zypper install openstack-keystone
+      # zypper install openstack-keystone apache2 apache2-mod_wsgi
 
    .. end
 
