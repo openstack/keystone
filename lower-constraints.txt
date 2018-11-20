@@ -12,7 +12,7 @@ flake8==2.5.5
 Flask===1.0.2
 Flask-RESTful===0.3.5
 freezegun==0.3.6
-hacking==0.12.0
+hacking==1.1.0
 iso8601==0.1.12
 jsonschema==2.6.0
 keystoneauth1==3.4.0
@@ -43,9 +43,9 @@ osprofiler==1.4.0
 passlib==1.7.0
 pbr==2.0.0
 pep257==0.7.0
-pep8==1.5.7
 pika==0.10.0
 pycadf==1.1.0
+pycodestyle==2.0.0
 python-ldap===3.0.0
 pymongo===3.0.2
 pysaml2==4.5.0
