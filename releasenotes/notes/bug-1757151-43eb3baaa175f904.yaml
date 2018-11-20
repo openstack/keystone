@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1757151 <https://bugs.launchpad.net/keystone/+bug/1757151>`_]
+    More thorough documentation has been added for authorization and token
+    scopes, which helps users and developers understand the purpose of scope
+    and why it can be a useful tool for resource isolation and API protection.
