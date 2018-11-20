@@ -19,8 +19,8 @@ so that core devs don't have to.
 There are two types of pep8 extensions. One is a function that takes either
 a physical or logical line. The physical or logical line is the first param
 in the function definition and can be followed by other parameters supported
-by pep8. The second type is a class that parses AST trees. For more info
-please see pep8.py.
+by pycodestyle. The second type is a class that parses AST trees. For more info
+please see pycodestyle.py.
 """
 
 import ast

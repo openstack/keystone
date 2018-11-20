@@ -12,13 +12,7 @@
 
 import textwrap
 
-try:
-    import pep8
-except ImportError:
-    # NTOE(stevemar): pycodestyle is not yet in global-requirements, but
-    # packagers have begun pycodestyle (the renamed version of pep8)
-    # See: https://github.com/PyCQA/pycodestyle/issues/466
-    import pycodestyle as pep8
+import pycodestyle
 
 from keystone.tests.hacking import checks
 from keystone.tests import unit
@@ -41,14 +35,14 @@ class BaseStyleCheck(unit.BaseTestCase):
         return hacking_fixtures.HackingCode()
 
     def run_check(self, code):
-        pep8.register_check(self.get_checker())
+        pycodestyle.register_check(self.get_checker())
 
         lines = textwrap.dedent(code).strip().splitlines(True)
 
         # Load all keystone hacking checks, they are of the form Kddd,
         # where ddd can from range from 000-999
-        guide = pep8.StyleGuide(select='K')
-        checker = pep8.Checker(lines=lines, options=guide.options)
+        guide = pycodestyle.StyleGuide(select='K')
+        checker = pycodestyle.Checker(lines=lines, options=guide.options)
         checker.check_all()
         checker.report._deferred_print.sort()
         return checker.report._deferred_print
