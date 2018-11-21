@@ -10,9 +10,32 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
+
+deprecated_create_region = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_region',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_update_region = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_region',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_region = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_region',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+DEPRECATED_REASON = (
+    'As of the Stein release, the region API now understands default roles '
+    'and system-scoped tokens, making the API more granular without '
+    'compromising security. The new policies for this API account for these '
+    'changes automatically. Be sure to take these new defaults into '
+    'consideration if you are relying on overrides in your deployment for the '
+    'region API.'
+)
 
 region_policies = [
     policy.DocumentedRuleDefault(
@@ -41,27 +64,36 @@ region_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_region',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create region.',
         operations=[{'path': '/v3/regions',
                      'method': 'POST'},
                     {'path': '/v3/regions/{region_id}',
-                     'method': 'PUT'}]),
+                     'method': 'PUT'}],
+        deprecated_rule=deprecated_create_region,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_region',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update region.',
         operations=[{'path': '/v3/regions/{region_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_region,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_region',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete region.',
         operations=[{'path': '/v3/regions/{region_id}',
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_region,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
 ]
 
 
