@@ -183,12 +183,6 @@
     "identity:add_endpoint_group_to_project": "rule:admin_required",
     "identity:remove_endpoint_group_from_project": "rule:admin_required",
 
-    "identity:create_identity_provider": "rule:cloud_admin",
-    "identity:list_identity_providers": "rule:cloud_admin",
-    "identity:get_identity_provider": "rule:cloud_admin",
-    "identity:update_identity_provider": "rule:cloud_admin",
-    "identity:delete_identity_provider": "rule:cloud_admin",
-
     "identity:create_protocol": "rule:cloud_admin",
     "identity:update_protocol": "rule:cloud_admin",
     "identity:get_protocol": "rule:cloud_admin",
