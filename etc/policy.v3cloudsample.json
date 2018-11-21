@@ -16,12 +16,6 @@
     "identity:update_service": "rule:cloud_admin",
     "identity:delete_service": "rule:cloud_admin",
 
-    "identity:get_endpoint": "rule:admin_required",
-    "identity:list_endpoints": "rule:admin_required",
-    "identity:create_endpoint": "rule:cloud_admin",
-    "identity:update_endpoint": "rule:cloud_admin",
-    "identity:delete_endpoint": "rule:cloud_admin",
-
     "identity:get_limit_model": "",
     "identity:get_limit": "",
     "identity:list_limits": "",
