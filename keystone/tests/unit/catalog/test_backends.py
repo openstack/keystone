@@ -151,6 +151,20 @@ class CatalogTests(object):
         self.assertEqual(new_description['description'],
                          current_region['description'])
 
+    def test_update_region_extras(self):
+        new_region = unit.new_region_ref()
+        region_id = new_region['id']
+        PROVIDERS.catalog_api.create_region(new_region)
+
+        email = 'keystone@openstack.org'
+        new_ref = {'description': uuid.uuid4().hex,
+                   'email': email}
+        PROVIDERS.catalog_api.update_region(region_id, new_ref)
+
+        current_region = PROVIDERS.catalog_api.get_region(region_id)
+        self.assertEqual(email,
+                         current_region['email'])
+
     def test_create_region_with_duplicate_id(self):
         new_region = unit.new_region_ref()
         PROVIDERS.catalog_api.create_region(new_region)
