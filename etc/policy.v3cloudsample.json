@@ -10,12 +10,6 @@
 
     "default": "rule:admin_required",
 
-    "identity:get_service": "rule:admin_required",
-    "identity:list_services": "rule:admin_required",
-    "identity:create_service": "rule:cloud_admin",
-    "identity:update_service": "rule:cloud_admin",
-    "identity:delete_service": "rule:cloud_admin",
-
     "identity:get_limit_model": "",
     "identity:get_limit": "",
     "identity:list_limits": "",
