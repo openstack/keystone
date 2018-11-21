@@ -612,7 +612,7 @@ class RuleProcessor(object):
                    "values. Check debug logs or the mapping used for "
                    "additional details.")
             tr_msg = _("Could not map any federated user properties to "
-                       "identity values. Check debug logs or the mapping"
+                       "identity values. Check debug logs or the mapping "
                        "used for additional details.")
             LOG.warning(msg)
             raise exception.ValidationError(tr_msg)

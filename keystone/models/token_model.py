@@ -442,7 +442,7 @@ class TokenModel(object):
         if self.project and not self.project.get('enabled'):
             msg = ('Unable to validate token because project %(id)s is '
                    'disabled') % {'id': self.project_id}
-            tr_msg = _('Unable to validate token because project %(id)s is'
+            tr_msg = _('Unable to validate token because project %(id)s is '
                        'disabled') % {'id': self.project_id}
             LOG.warning(msg)
             raise exception.ProjectNotFound(tr_msg)

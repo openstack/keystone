@@ -93,7 +93,7 @@ conf_modules = [
 
 
 oslo_messaging.set_transport_defaults(control_exchange='keystone')
-_DEPRECATED_REASON = ('This option is only used by eventlet mode which has'
+_DEPRECATED_REASON = ('This option is only used by eventlet mode which has '
                       'been removed from Keystone in Newton release.')
 
 
