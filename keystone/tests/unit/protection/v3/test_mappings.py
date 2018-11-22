@@ -25,7 +25,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _SystemUserMappingTests(object):
+class _SystemReaderAndMemberUserMappingTests(object):
 
     def test_user_can_list_mappings(self):
         mapping = unit.new_mapping_ref()
@@ -49,39 +49,6 @@ class _SystemUserMappingTests(object):
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 headers=self.headers
             )
-
-
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserMappingTests):
-
-    def setUp(self):
-        super(SystemReaderTests, self).setUp()
-        self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
-
-        system_reader = unit.new_user_ref(
-            domain_id=CONF.identity.default_domain_id
-        )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
-        PROVIDERS.assignment_api.create_system_grant_for_user(
-            self.user_id, self.bootstrapper.reader_role_id
-        )
-
-        auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
 
     def test_user_cannot_create_mappings(self):
         create = {
@@ -136,3 +103,69 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+
+class SystemReaderTests(base_classes.TestCaseWithBootstrap,
+                        common_auth.AuthTestMixin,
+                        _SystemReaderAndMemberUserMappingTests):
+
+    def setUp(self):
+        super(SystemReaderTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        system_reader = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        self.user_id = PROVIDERS.identity_api.create_user(
+            system_reader
+        )['id']
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.bootstrapper.reader_role_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=system_reader['password'],
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemMemberTests(base_classes.TestCaseWithBootstrap,
+                        common_auth.AuthTestMixin,
+                        _SystemReaderAndMemberUserMappingTests):
+
+    def setUp(self):
+        super(SystemMemberTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        system_member = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        self.user_id = PROVIDERS.identity_api.create_user(
+            system_member
+        )['id']
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.bootstrapper.member_role_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=system_member['password'],
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
