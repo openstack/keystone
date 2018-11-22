@@ -110,6 +110,88 @@ class _SystemReaderAndMemberUserMappingTests(object):
             )
 
 
+class _DomainAndProjectUserMappingTests(object):
+
+    def test_user_cannot_create_mappings(self):
+        create = {
+            'mapping': {
+                'id': uuid.uuid4().hex,
+                'rules': [{
+                    'local': [{'user': {'name': '{0}'}}],
+                    'remote': [{'type': 'UserName'}],
+                }]
+            }
+        }
+        mapping_id = create['mapping']['id']
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping_id, json=create,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_mappings(self):
+        mapping = unit.new_mapping_ref()
+        mapping = PROVIDERS.federation_api.create_mapping(
+            mapping['id'], mapping
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-FEDERATION/mappings', headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_get_a_mapping(self):
+        mapping = unit.new_mapping_ref()
+        mapping = PROVIDERS.federation_api.create_mapping(
+            mapping['id'], mapping
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_mappings(self):
+        mapping = unit.new_mapping_ref()
+        mapping = PROVIDERS.federation_api.create_mapping(
+            mapping['id'], mapping
+        )
+
+        update = {
+            'mapping': {
+                'rules': [{
+                    'local': [{'user': {'name': '{0}'}}],
+                    'remote': [{'type': 'UserName'}],
+                }]
+            }
+        }
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                json=update, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_mappings(self):
+        mapping = unit.new_mapping_ref()
+        mapping = PROVIDERS.federation_api.create_mapping(
+            mapping['id'], mapping
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _SystemUserMappingTests,
@@ -142,6 +224,60 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_cannot_create_mappings(self):
+        create = {
+            'mapping': {
+                'id': uuid.uuid4().hex,
+                'rules': [{
+                    'local': [{'user': {'name': '{0}'}}],
+                    'remote': [{'type': 'UserName'}],
+                }]
+            }
+        }
+        mapping_id = create['mapping']['id']
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping_id, json=create,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_mappings(self):
+        mapping = unit.new_mapping_ref()
+        mapping = PROVIDERS.federation_api.create_mapping(
+            mapping['id'], mapping
+        )
+
+        update = {
+            'mapping': {
+                'rules': [{
+                    'local': [{'user': {'name': '{0}'}}],
+                    'remote': [{'type': 'UserName'}],
+                }]
+            }
+        }
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                json=update, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_mappings(self):
+        mapping = unit.new_mapping_ref()
+        mapping = PROVIDERS.federation_api.create_mapping(
+            mapping['id'], mapping
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
 
 
 class SystemMemberTests(base_classes.TestCaseWithBootstrap,
@@ -254,3 +390,38 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 headers=self.headers
             )
+
+
+class DomainUserTests(base_classes.TestCaseWithBootstrap,
+                      common_auth.AuthTestMixin,
+                      _DomainAndProjectUserMappingTests):
+
+    def setUp(self):
+        super(DomainUserTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+        domain_admin = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.admin_role_id, user_id=self.user_id,
+            domain_id=self.domain_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=domain_admin['password'],
+            domain_id=self.domain_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
