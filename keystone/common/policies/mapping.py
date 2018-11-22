@@ -23,6 +23,18 @@ deprecated_list_mappings = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_mappings',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_update_mapping = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_mapping',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_create_mapping = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_mapping',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_mapping = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_mapping',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the federated mapping API now understands default
@@ -35,7 +47,7 @@ relying on overrides in your deployment for the federated mapping API.
 mapping_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_mapping',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): Today, keystone doesn't support federation unless
         # the person create identity providers, service providers, or mappings
         # has the ability to modify keystone and Apache configuration files.
@@ -46,7 +58,10 @@ mapping_policies = [
         description=('Create a new federated mapping containing one or '
                      'more sets of rules.'),
         operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'PUT'}]),
+                     'method': 'PUT'}],
+        deprecated_rule=deprecated_create_mapping,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_mapping',
         check_str=base.SYSTEM_READER,
@@ -87,18 +102,24 @@ mapping_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_mapping',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete a federated mapping.',
         operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_mapping,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_mapping',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update a federated mapping.',
         operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'PATCH'}])
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_mapping,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN)
 ]
 
 
