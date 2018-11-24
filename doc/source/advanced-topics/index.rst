@@ -11,5 +11,4 @@ Advanced Topics
    :maxdepth: 1
 
    configure_tokenless_x509.rst
-   auth-totp.rst
    external-auth.rst
