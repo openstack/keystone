@@ -43,3 +43,4 @@ command-line client.
    oauth1.rst
    service-catalog.rst
    endpoint-policy.rst
+   event_notifications.rst
