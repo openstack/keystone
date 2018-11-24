@@ -41,3 +41,4 @@ command-line client.
    endpoint-filtering.rst
    health-check-middleware.rst
    oauth1.rst
+   service-catalog.rst
