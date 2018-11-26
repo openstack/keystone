@@ -3630,22 +3630,13 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
     ASSERTION_VERSION = "2.0"
     SERVICE_PROVDIER_ID = 'ACME'
 
-    def sp_ref(self):
-        ref = {
-            'auth_url': self.SP_AUTH_URL,
-            'enabled': True,
-            'description': uuid.uuid4().hex,
-            'sp_url': self.RECIPIENT,
-            'relay_state_prefix': CONF.saml.relay_state_prefix,
-
-        }
-        return ref
-
     def setUp(self):
         super(SAMLGenerationTests, self).setUp()
         self.signed_assertion = saml2.create_class_from_xml_string(
             saml.Assertion, _load_xml(self.ASSERTION_FILE))
-        self.sp = self.sp_ref()
+        self.sp = core.new_service_provider_ref(
+            auth_url=self.SP_AUTH_URL, sp_url=self.RECIPIENT
+        )
         url = '/OS-FEDERATION/service_providers/' + self.SERVICE_PROVDIER_ID
         self.put(url, body={'service_provider': self.sp},
                  expected_status=http_client.CREATED)
@@ -4283,20 +4274,10 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
         super(ServiceProviderTests, self).setUp()
         # Add a Service Provider
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
-        self.SP_REF = self.sp_ref()
+        self.SP_REF = core.new_service_provider_ref()
         self.SERVICE_PROVIDER = self.put(
             url, body={'service_provider': self.SP_REF},
             expected_status=http_client.CREATED).result
-
-    def sp_ref(self):
-        ref = {
-            'auth_url': 'https://' + uuid.uuid4().hex + '.com',
-            'enabled': True,
-            'description': uuid.uuid4().hex,
-            'sp_url': 'https://' + uuid.uuid4().hex + '.com',
-            'relay_state_prefix': CONF.saml.relay_state_prefix
-        }
-        return ref
 
     def base_url(self, suffix=None):
         if suffix is not None:
@@ -4307,7 +4288,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
         """Create default Service Provider."""
         url = self.base_url(suffix=uuid.uuid4().hex)
         if body is None:
-            body = self.sp_ref()
+            body = core.new_service_provider_ref()
         resp = self.put(url, body={'service_provider': body},
                         expected_status=http_client.CREATED)
         return resp
@@ -4325,7 +4306,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
 
     def test_create_service_provider(self):
         url = self.base_url(suffix=uuid.uuid4().hex)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         resp = self.put(url, body={'service_provider': sp},
                         expected_status=http_client.CREATED)
         self.assertValidEntity(resp.result['service_provider'],
@@ -4343,7 +4324,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
 
         # Create a new service provider.
         url = self.base_url(suffix=uuid.uuid4().hex)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         self.put(url, body={'service_provider': sp},
                  expected_status=http_client.CREATED)
 
@@ -4367,7 +4348,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
 
         # Create a new service provider.
         url = self.base_url(suffix=uuid.uuid4().hex)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         self.put(url, body={'service_provider': sp},
                  expected_status=http_client.CREATED)
 
@@ -4403,7 +4384,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
         # Create a new service provider.
         service_provider_id = uuid.uuid4().hex
         url = self.base_url(suffix=service_provider_id)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         self.put(url, body={'service_provider': sp},
                  expected_status=http_client.CREATED)
 
@@ -4433,7 +4414,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
     def test_create_sp_relay_state_default(self):
         """Create an SP without relay state, should default to `ss:mem`."""
         url = self.base_url(suffix=uuid.uuid4().hex)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         del sp['relay_state_prefix']
         resp = self.put(url, body={'service_provider': sp},
                         expected_status=http_client.CREATED)
@@ -4444,7 +4425,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
     def test_create_sp_relay_state_non_default(self):
         """Create an SP with custom relay state."""
         url = self.base_url(suffix=uuid.uuid4().hex)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         non_default_prefix = uuid.uuid4().hex
         sp['relay_state_prefix'] = non_default_prefix
         resp = self.put(url, body={'service_provider': sp},
@@ -4456,7 +4437,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
     def test_create_service_provider_fail(self):
         """Try adding SP object with unallowed attribute."""
         url = self.base_url(suffix=uuid.uuid4().hex)
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         sp[uuid.uuid4().hex] = uuid.uuid4().hex
         self.put(url, body={'service_provider': sp},
                  expected_status=http_client.BAD_REQUEST)
@@ -4470,8 +4451,8 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
 
         """
         ref_service_providers = {
-            uuid.uuid4().hex: self.sp_ref(),
-            uuid.uuid4().hex: self.sp_ref(),
+            uuid.uuid4().hex: core.new_service_provider_ref(),
+            uuid.uuid4().hex: core.new_service_provider_ref(),
         }
         for id, sp in ref_service_providers.items():
             url = self.base_url(suffix=id)
@@ -4503,7 +4484,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
         properly changed.
 
         """
-        new_sp_ref = self.sp_ref()
+        new_sp_ref = core.new_service_provider_ref()
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         resp = self.patch(url, body={'service_provider': new_sp_ref})
         patch_result = resp.result
@@ -4531,14 +4512,14 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
                    expected_status=http_client.BAD_REQUEST)
 
     def test_update_service_provider_unknown_parameter(self):
-        new_sp_ref = self.sp_ref()
+        new_sp_ref = core.new_service_provider_ref()
         new_sp_ref[uuid.uuid4().hex] = uuid.uuid4().hex
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         self.patch(url, body={'service_provider': new_sp_ref},
                    expected_status=http_client.BAD_REQUEST)
 
     def test_update_service_provider_returns_not_found(self):
-        new_sp_ref = self.sp_ref()
+        new_sp_ref = core.new_service_provider_ref()
         new_sp_ref['description'] = uuid.uuid4().hex
         url = self.base_url(suffix=uuid.uuid4().hex)
         self.patch(url, body={'service_provider': new_sp_ref},
@@ -4546,7 +4527,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
 
     def test_update_sp_relay_state(self):
         """Update an SP with custom relay state."""
-        new_sp_ref = self.sp_ref()
+        new_sp_ref = core.new_service_provider_ref()
         non_default_prefix = uuid.uuid4().hex
         new_sp_ref['relay_state_prefix'] = non_default_prefix
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
@@ -4593,7 +4574,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
             return sp.get('id')
 
         sp1_id = get_id(self._create_default_sp())
-        sp2_ref = self.sp_ref()
+        sp2_ref = core.new_service_provider_ref()
         sp2_ref['enabled'] = False
         sp2_id = get_id(self._create_default_sp(body=sp2_ref))
 
@@ -4762,15 +4743,15 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
     def setUp(self):
         super(K2KServiceCatalogTests, self).setUp()
 
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         PROVIDERS.federation_api.create_sp(self.SP1, sp)
         self.sp_alpha = {self.SP1: sp}
 
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         PROVIDERS.federation_api.create_sp(self.SP2, sp)
         self.sp_beta = {self.SP2: sp}
 
-        sp = self.sp_ref()
+        sp = core.new_service_provider_ref()
         PROVIDERS.federation_api.create_sp(self.SP3, sp)
         self.sp_gamma = {self.SP3: sp}
 
@@ -4779,16 +4760,6 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
         ref.pop('description')
         ref.pop('relay_state_prefix')
         ref['id'] = id
-        return ref
-
-    def sp_ref(self):
-        ref = {
-            'auth_url': uuid.uuid4().hex,
-            'enabled': True,
-            'description': uuid.uuid4().hex,
-            'sp_url': uuid.uuid4().hex,
-            'relay_state_prefix': CONF.saml.relay_state_prefix,
-        }
         return ref
 
     def _validate_service_providers(self, token, ref):

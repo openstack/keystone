@@ -339,6 +339,18 @@ def new_identity_provider_ref(idp_id=None, **kwargs):
     return ref
 
 
+def new_service_provider_ref(**kwargs):
+    ref = {
+        'auth_url': 'https://' + uuid.uuid4().hex + '.com',
+        'enabled': True,
+        'description': uuid.uuid4().hex,
+        'sp_url': 'https://' + uuid.uuid4().hex + '.com',
+        'relay_state_prefix': CONF.saml.relay_state_prefix
+    }
+    ref.update(kwargs)
+    return ref
+
+
 def new_group_ref(domain_id, **kwargs):
     ref = {
         'id': uuid.uuid4().hex,
