@@ -167,6 +167,16 @@
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
               - ^setup.cfg$
+        - tempest-full-py3:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
         - neutron-grenade:
             irrelevant-files:
               - ^(test-|)requirements.txt$
@@ -182,6 +192,16 @@
         - keystone-dsvm-functional
         - keystone-dsvm-py3-functional
         - tempest-full:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^api-ref/.*$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^keystone/tests/unit/.*$
+              - ^releasenotes/.*$
+              - ^setup.cfg$
+        - tempest-full-py3:
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
