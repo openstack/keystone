@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import functools
 
 import flask
@@ -22,7 +21,6 @@ from keystone.common import authorization
 from keystone.common import context
 from keystone.common import policies
 from keystone.common import provider_api
-from keystone.common import render_token
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -78,26 +76,6 @@ class RBACEnforcer(object):
         if do_raise:
             extra.update(exc=exception.ForbiddenAction, action=action,
                          do_raise=do_raise)
-
-        # NOTE(lbragstad): If there is a token in the credentials dictionary,
-        # it's going to be an instance of a TokenModel. We'll need to convert
-        # it to the a token response or dictionary before passing it to
-        # oslo.policy for enforcement. This is because oslo.policy shouldn't
-        # know how to deal with an internal object only used within keystone.
-        #
-        # TODO(morgan): Rework this to not need an explicit token render as
-        # this is a generally poorly designed behavior. The enforcer should not
-        # rely on a contract of the token's rendered JSON form. This likely
-        # needs reworking of how we handle the context in oslo.policy. Until
-        # this is reworked, it is not possible to merge the token render
-        # function into keystone.api
-        if 'token' in credentials:
-            token_ref = render_token.render_token_response_from_model(
-                credentials['token']
-            )
-            credentials_copy = copy.deepcopy(credentials)
-            credentials_copy['token'] = token_ref
-            credentials = credentials_copy
 
         try:
             return self._enforcer.enforce(
@@ -398,7 +376,8 @@ class RBACEnforcer(object):
         policy_dict.update(cls._extract_filter_values(filters))
 
         # Extract the cred data
-        creds = cls._extract_policy_check_credentials()
+        ctxt = cls._get_oslo_req_context()
+        creds = ctxt.to_policy_values()
         flattened = utils.flatten_dict(policy_dict)
         if LOG.logger.getEffectiveLevel() <= log.DEBUG:
             # LOG the Args
@@ -410,8 +389,7 @@ class RBACEnforcer(object):
                       {'action': action, 'args': args_str})
 
             # LOG the Cred Data
-            cred_str = ', '.join(
-                ['%s=%s' % (k, v) for k, v in creds.items()])
+            cred_str = ', '.join(['%s=%s' % (k, v) for k, v in creds.items()])
             cred_str = strutils.mask_password(cred_str)
             LOG.debug('RBAC: Policy Enforcement Cred Data '
                       '`%(action)s creds(%(cred_str)s)`',
@@ -428,7 +406,7 @@ class RBACEnforcer(object):
         # Instantiate the enforcer object if needed.
         enforcer_obj = enforcer or cls()
         enforcer_obj._enforce(
-            credentials=creds, action=action, target=flattened)
+            credentials=ctxt, action=action, target=flattened)
         LOG.debug('RBAC: Authorization granted')
 
     @classmethod
