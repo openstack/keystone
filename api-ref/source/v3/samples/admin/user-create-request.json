@@ -6,6 +6,9 @@
         "name": "James Doe",
         "password": "secretsecret",
         "description": "James Doe user",
-        "email": "jdoe@example.com"
+        "email": "jdoe@example.com",
+        "options": {
+            "ignore_password_expiry": true
+        }
     }
 }
