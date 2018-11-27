@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1734244 <https://bugs.launchpad.net/keystone/+bug/1735250>`_]
+    Users can't set password longer than 128 if Keystone using
+    `Sqlalchemy` < 1.1.0. Update `Sqlalchemy` to a higher version can solve
+    this problem.
+    [`Related Sqlalchemy Changelog <https://docs.sqlalchemy.org/en/latest/changelog/migration_11.html#change-3653>`_].

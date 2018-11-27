@@ -374,6 +374,12 @@ class IdentityTests(object):
                           PROVIDERS.identity_api.delete_user,
                           uuid.uuid4().hex)
 
+    def test_create_user_with_long_password(self):
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id,
+                                 password='a' * 2000)
+        # success create a user with long password
+        PROVIDERS.identity_api.create_user(user)
+
     def test_create_user_missed_password(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = PROVIDERS.identity_api.create_user(user)
