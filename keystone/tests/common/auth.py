@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.i18n import _
+
 
 class AuthTestMixin(object):
     """To hold auth building helper functions."""
