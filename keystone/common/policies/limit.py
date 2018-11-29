@@ -14,11 +14,23 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+SYSTEM_OR_DOMAIN_OR_PROJECT_USER = (
+    '(' + base.SYSTEM_READER + ') or '
+    '('
+    'domain_id:%(target.limit.domain.id)s or '
+    'domain_id:%(target.limit.project.domain_id)s'
+    ') or '
+    '('
+    'project_id:%(target.limit.project_id)s and not '
+    'None:%(target.limit.project_id)s'
+    ')'
+)
+
 limit_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_limit_model',
         check_str='',
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description='Get limit enforcement model.',
         operations=[{'path': '/v3/limits/model',
                      'method': 'GET'},
@@ -26,10 +38,8 @@ limit_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_limit',
-        check_str='(role:reader and system_scope:all) or '
-                  'project_id:%(target.limit.project_id)s or '
-                  'domain_id:%(target.limit.domain_id)s',
-        scope_types=['system', 'project', 'domain'],
+        check_str=SYSTEM_OR_DOMAIN_OR_PROJECT_USER,
+        scope_types=['system', 'domain', 'project'],
         description='Show limit details.',
         operations=[{'path': '/v3/limits/{limit_id}',
                      'method': 'GET'},
@@ -38,7 +48,7 @@ limit_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_limits',
         check_str='',
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description='List limits.',
         operations=[{'path': '/v3/limits',
                      'method': 'GET'},
