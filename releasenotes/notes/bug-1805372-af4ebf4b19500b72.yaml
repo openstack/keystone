@@ -2,24 +2,29 @@
 features:
   - |
     [`bug 1805372 <https://bugs.launchpad.net/keystone/+bug/1805372>`_]
-    The registered limit API now supports the ``admin``, ``member``, and
-    ``reader`` default roles.
+    The registered limit and limit API now support the ``admin``,
+    ``member``, and ``reader`` default roles.
 upgrade:
   - |
     [`bug 1805372 <https://bugs.launchpad.net/keystone/+bug/1805372>`_]
-    The following registered limit policy check strings have changed
-    in favor of more clear and concise defaults:
+    Several of the registered limit and limit policies have been
+    deprecated. The following policies now use ``role:admin and
+    system_scope:all`` instead of ``rule:admin_required``:
 
     * ``identity:create_registered_limits``
     * ``identity:update_registered_limit``
     * ``identity:delete_registered_limit``
+    * ``identity:create_limits``
+    * ``identity:update_limit``
+    * ``identity:delete_limit``
 
     These policies are not being formally deprecated because the
-    unified limits API is still considered experiemental. Please
+    unified limits API is still considered experimental. These
+    new default automatically account for system-scope. Please
     consider these new defaults if your deployment overrides the
-    registered limit policies.
+    registered limit or limit policies.
 security:
   - |
     [`bug 1805372 <https://bugs.launchpad.net/keystone/+bug/1805372>`_]
-    The registered limit API now uses system-scope and default
-    roles to provide better accessibility to users in a secure way.
+    The registered limit and limit APIs now uses system-scope and default roles
+    to provide better accessibility to users in a secure way.
