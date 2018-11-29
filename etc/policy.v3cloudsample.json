@@ -8,11 +8,6 @@
 
     "default": "rule:admin_required",
 
-    "identity:get_limit": "",
-    "identity:create_limits": "rule:admin_required",
-    "identity:update_limit": "rule:admin_required",
-    "identity:delete_limit": "rule:admin_required",
-
     "domain_admin_matches_domain_role": "rule:admin_required and domain_id:%(role.domain_id)s",
     "get_domain_roles": "rule:domain_admin_matches_target_domain_role or rule:project_admin_matches_target_domain_role",
     "domain_admin_matches_target_domain_role": "rule:admin_required and domain_id:%(target.role.domain_id)s",
