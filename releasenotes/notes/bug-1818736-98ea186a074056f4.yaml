@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    [`bug 1818736 <https://bugs.launchpad.net/keystone/+bug/1818736>`_]
+    The ``identity:get_limit``, ``identity:list_limits`` and
+    ``identity:get_limit_model`` policies now support domain scope, so domain
+    users are now able to get limit information on their own domains as well as
+    see the limit model in effect.
+upgrade:
+  - |
+    [`bug 1818736 <https://bugs.launchpad.net/keystone/+bug/1818736>`_]
+    The ``identity:get_limit`` policy default check string has been changed to
+    support domain scope. This policy are not being formally deprecated because
+    the unified limits API is still considered experimental. These
+    new default automatically account for domain scope in addition to system
+    scope. Please consider these new defaults if your deployment overrides the
+    limit policies.
