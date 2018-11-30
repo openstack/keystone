@@ -2185,6 +2185,49 @@ class GroupValidationTestCase(unit.BaseTestCase):
                               request_to_validate)
 
 
+class ChangePasswordValidationTestCase(unit.BaseTestCase):
+    """Test for Change Password API validation."""
+
+    def setUp(self):
+        super(ChangePasswordValidationTestCase, self).setUp()
+
+        self.original_password = uuid.uuid4().hex
+        self.password = uuid.uuid4().hex
+
+        change = identity_schema.password_change
+        self.change_password_validator = validators.SchemaValidator(change)
+
+    def test_validate_password_change_request_succeeds(self):
+        """Test that validating a password change request succeeds."""
+        request_to_validate = {'original_password': self.original_password,
+                               'password': self.password}
+        self.change_password_validator.validate(request_to_validate)
+
+    def test_validate_password_change_fails_without_all_fields(self):
+        """Test that validating a password change fails without all values."""
+        request_to_validate = {'original_password': self.original_password}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.change_password_validator.validate,
+                          request_to_validate)
+        request_to_validate = {'password': self.password}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.change_password_validator.validate,
+                          request_to_validate)
+
+    def test_validate_password_change_fails_with_invalid_values(self):
+        """Test that validating a password change fails with bad values."""
+        request_to_validate = {'original_password': None,
+                               'password': None}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.change_password_validator.validate,
+                          request_to_validate)
+        request_to_validate = {'original_password': 42,
+                               'password': True}
+        self.assertRaises(exception.SchemaValidationError,
+                          self.change_password_validator.validate,
+                          request_to_validate)
+
+
 class IdentityProviderValidationTestCase(unit.BaseTestCase):
     """Test for V3 Identity Provider API validation."""
 
