@@ -408,14 +408,15 @@ class LimitTests(object):
             enforcement_model=uuid.uuid4().hex
         )
 
-    def test_create_limit(self):
+    def test_create_project_limit(self):
         # create one, return it.
         limit_1 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            description='test description')
+            description='test description',
+            domain_id=None)
         limits = PROVIDERS.unified_limit_api.create_limits([limit_1])
         self.assertDictEqual(limit_1, limits[0])
 
@@ -424,12 +425,14 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
+            domain_id=None)
         limit_3 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='backup', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='backup', resource_limit=5, id=uuid.uuid4().hex,
+            domain_id=None)
 
         limits = PROVIDERS.unified_limit_api.create_limits([limit_2, limit_3])
         for limit in limits:
@@ -438,7 +441,18 @@ class LimitTests(object):
             if limit['id'] == limit_3['id']:
                 self.assertDictEqual(limit_3, limit)
 
-    def test_create_limit_duplicate(self):
+    def test_create_domain_limit(self):
+        limit_1 = unit.new_limit_ref(
+            project_id=None,
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            description='test description',
+            domain_id=self.domain_default['id'])
+        limits = PROVIDERS.unified_limit_api.create_limits([limit_1])
+        self.assertDictEqual(limit_1, limits[0])
+
+    def test_create_project_limit_duplicate(self):
         limit_1 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
@@ -452,6 +466,26 @@ class LimitTests(object):
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+        self.assertRaises(exception.Conflict,
+                          PROVIDERS.unified_limit_api.create_limits,
+                          [limit_1])
+
+    def test_create_domain_limit_duplicate(self):
+        limit_1 = unit.new_limit_ref(
+            project_id=None,
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=self.domain_default['id'])
+        PROVIDERS.unified_limit_api.create_limits([limit_1])
+
+        # use different id but the same domain_id, service_id and region_id
+        limit_1 = unit.new_limit_ref(
+            project_id=None,
+            service_id=self.service_one['id'],
+            region_id=self.region_one['id'],
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=self.domain_default['id'])
         self.assertRaises(exception.Conflict,
                           PROVIDERS.unified_limit_api.create_limits,
                           [limit_1])
@@ -539,12 +573,14 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=None)
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
+            domain_id=None)
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # list
@@ -565,12 +601,14 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=None)
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
+            domain_id=None)
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # list, limit is 1
@@ -587,18 +625,26 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=None)
         limit_2 = unit.new_limit_ref(
             project_id=self.project_baz['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex)
-        PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
+            resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=None)
+        limit_3 = unit.new_limit_ref(
+            project_id=None,
+            service_id=self.service_one['id'],
+            region_id=self.region_two['id'],
+            resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=self.domain_default['id'])
+        PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2, limit_3])
 
         hints = driver_hints.Hints()
         hints.add_filter('service_id', self.service_one['id'])
         res = PROVIDERS.unified_limit_api.list_limits(hints)
-        self.assertEqual(2, len(res))
+        self.assertEqual(3, len(res))
 
         hints = driver_hints.Hints()
         hints.add_filter('region_id', self.region_one['id'])
@@ -613,6 +659,11 @@ class LimitTests(object):
 
         hints = driver_hints.Hints()
         hints.add_filter('project_id', self.project_bar['id'])
+        res = PROVIDERS.unified_limit_api.list_limits(hints)
+        self.assertEqual(1, len(res))
+
+        hints = driver_hints.Hints()
+        hints.add_filter('domain_id', self.domain_default['id'])
         res = PROVIDERS.unified_limit_api.list_limits(hints)
         self.assertEqual(1, len(res))
 
@@ -641,12 +692,14 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            domain_id=None)
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
+            domain_id=None)
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # show one

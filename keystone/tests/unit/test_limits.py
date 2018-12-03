@@ -657,11 +657,11 @@ class LimitsTestCase(test_v3.RestfulTestCase):
                                  service_id=self.service_id,
                                  region_id=self.region_id,
                                  resource_name='volume')
-        self.post(
-            '/limits',
-            body={'limits': [ref]},
-            token=self.system_admin_token,
-            expected_status=http_client.BAD_REQUEST)
+        r = self.post('/limits', body={'limits': [ref]},
+                      token=self.system_admin_token)
+        limits = r.result['limits']
+        self.assertIsNone(limits[0]['project_id'])
+        self.assertEqual(self.domain_id, limits[0]['domain_id'])
 
     def test_create_multi_limit(self):
         ref1 = unit.new_limit_ref(project_id=self.project_id,
@@ -1524,3 +1524,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http_client.FORBIDDEN)
+
+    def test_create_limit_with_domain_as_project(self):
+        self.skipTest('enable this test once strict two level model support'
+                      'domain level check.')
