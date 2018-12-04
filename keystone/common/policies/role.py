@@ -23,6 +23,18 @@ deprecated_list_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_roles',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_update_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_role',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_create_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_role',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_role',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the role API now understands default roles and
@@ -64,25 +76,34 @@ role_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_role',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create role.',
         operations=[{'path': '/v3/roles',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_role',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update role.',
         operations=[{'path': '/v3/roles/{role_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_role',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete role.',
         operations=[{'path': '/v3/roles/{role_id}',
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_role',
         check_str=base.RULE_ADMIN_REQUIRED,
