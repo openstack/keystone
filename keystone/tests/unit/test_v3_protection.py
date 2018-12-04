@@ -1867,28 +1867,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         self._role_management_cases(expected=exception.ForbiddenAction.code)
 
-    def test_role_management_with_project_admin(self):
-        # A project admin user should be able to get and list, but not be able
-        # to create/update/delete global roles
-        self.auth = self.build_authentication_request(
-            user_id=self.project_admin_user['id'],
-            password=self.project_admin_user['password'],
-            project_id=self.project['id'])
-
-        self._role_management_cases(read_status_OK=True,
-                                    expected=exception.ForbiddenAction.code)
-
-    def test_role_management_with_domain_admin(self):
-        # A domain admin user should be able to get and list, but not be able
-        # to create/update/delete global roles
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._role_management_cases(read_status_OK=True,
-                                    expected=exception.ForbiddenAction.code)
-
     def test_role_management_with_cloud_admin(self):
         # A cloud admin user should have rights to manipulate global roles
         self.auth = self.build_authentication_request(
