@@ -503,7 +503,6 @@ def new_registered_limit_ref(**kwargs):
 
 def new_limit_ref(**kwargs):
     ref = {
-        'project_id': uuid.uuid4().hex,
         'service_id': uuid.uuid4().hex,
         'resource_name': uuid.uuid4().hex,
         'resource_limit': 10,
