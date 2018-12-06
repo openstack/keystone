@@ -28,13 +28,13 @@ os-testr==1.0.0
 oslo.cache==1.26.0
 oslo.concurrency==3.26.0
 oslo.config==5.2.0
-oslo.context==2.21.0
+oslo.context==2.22.0
 oslo.db==4.27.0
 oslo.i18n==3.15.3
 oslo.log==3.38.0
 oslo.messaging==5.29.0
 oslo.middleware==3.31.0
-oslo.policy==1.38.0
+oslo.policy==1.43.1
 oslo.serialization==2.18.0
 oslo.upgradecheck==0.1.0
 oslo.utils==3.33.0
