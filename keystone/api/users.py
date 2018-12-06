@@ -162,9 +162,16 @@ class UserResource(ks_flask.ResourceBase):
         """
         filters = ('domain_id', 'enabled', 'idp_id', 'name', 'protocol_id',
                    'unique_id', 'password_expires_at')
+        target = None
+        if self.oslo_context.domain_id:
+            target = {'domain_id': self.oslo_context.domain_id}
         hints = self.build_driver_hints(filters)
-        ENFORCER.enforce_call(action='identity:list_users', filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_users', filters=filters, target_attr=target
+        )
         domain = self._get_domain_id_for_list_request()
+        if domain is None and self.oslo_context.domain_id:
+            domain = self.oslo_context.domain_id
         refs = PROVIDERS.identity_api.list_users(
             domain_scope=domain, hints=hints)
         return self.wrap_collection(refs, hints=hints)

@@ -15,10 +15,14 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-# Allow access for system readers or users attempting to list their owner user
-# reference.
-SYSTEM_READER_OR_USER = (
-    '(' + base.SYSTEM_READER + ') or user_id:%(target.user.id)s'
+SYSTEM_READER_OR_DOMAIN_READER_OR_USER = (
+    '(' + base.SYSTEM_READER + ') or '
+    '(role:reader and token.domain.id:%(target.user.domain_id)s) or '
+    'user_id:%(target.user.id)s'
+)
+
+SYSTEM_READER_OR_DOMAIN_READER = (
+    '(' + base.SYSTEM_READER + ') or (' + base.DOMAIN_READER + ')'
 )
 
 DEPRECATED_REASON = """
@@ -52,8 +56,8 @@ deprecated_delete_user = policy.DeprecatedRule(
 user_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_user',
-        check_str=SYSTEM_READER_OR_USER,
-        scope_types=['system', 'project'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_USER,
+        scope_types=['system', 'domain', 'project'],
         description='Show user details.',
         operations=[{'path': '/v3/users/{user_id}',
                      'method': 'GET'},
@@ -64,17 +68,8 @@ user_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users',
-        check_str=base.SYSTEM_READER,
-        # FIXME(lbragstad): Since listing users has traditionally always been a
-        # system-level API call, let's maintain that pattern here. A system
-        # administrator should be able to list all users in the deployment,
-        # which is what's supported today. Project and domain administrators
-        # should also be able to list users, but they should only see users
-        # within their project or domain. Otherwise it would be possible for
-        # project and domain administrators to see users unrelated to their
-        # project or domain, which would be a security issue. Once we have that
-        # support in place, we should update scope_types to include 'project'.
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain'],
         description='List users.',
         operations=[{'path': '/v3/users',
                      'method': 'GET'},
