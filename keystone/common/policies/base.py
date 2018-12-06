@@ -44,6 +44,7 @@ RULE_TRUST_OWNER = 'user_id:%(trust.trustor_user_id)s'
 # automatically by scope_types in oslo.policy's RuleDefault objects.
 SYSTEM_READER = 'role:reader and system_scope:all'
 SYSTEM_ADMIN = 'role:admin and system_scope:all'
+DOMAIN_READER = 'role:reader and domain_id:%(target.domain_id)s'
 
 
 rules = [
