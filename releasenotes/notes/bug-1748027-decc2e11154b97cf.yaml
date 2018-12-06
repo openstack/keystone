@@ -1,0 +1,39 @@
+---
+features:
+  - |
+    [`bug 1748027 <https://bugs.launchpad.net/keystone/+bug/1748027>`_]
+    The user API now supports the ``admin``, ``member``, and
+    ``reader`` default roles across system-scope, domain-scope, and
+    project-scope.
+upgrade:
+  - |
+    [`bug 1748027 <https://bugs.launchpad.net/keystone/+bug/1748027>`_]
+    The user API uses new default policies that make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides
+    user policies.
+deprecations:
+  - |
+    [`bug 1748027 <https://bugs.launchpad.net/keystone/+bug/1748027>`_]
+    The user policies have been deprecated. The ``identity:get_user``
+    policy now uses ``(role:reader and system_scope:all) or
+    (role:reader and token.domain.id:%(target.user.domain_id)s) or
+    user_id:%(target.user.id)s`` instead of ``rule:admin_or_owner``.
+    The ``identity:list_users`` policy now uses ``(role:reader and
+    system_scope:all) or (role:reader and
+    domain_id:%(target.domain_id)s)`` instead of
+    ``rule:admin_required``.  The ``identity:create_user``,
+    ``identity:update_user``, and ``identity:delete_user`` policies
+    now use ``(role:admin and system_scope:all) or (role:admin and
+    token.domain.id:%(target.user.domain_id)s)`` instead of
+    ``rule:admin_required``. These new defaults automatically include
+    support for a read-only role and allow for more granular access to
+    user APIs, making it easier for system and domain administrators
+    to delegate authorization, safely.  Please consider these new
+    defaults if your deployment overrides user policies.
+security:
+  - |
+    [`bug 1748027 <https://bugs.launchpad.net/keystone/+bug/1748027>`_]
+    The user API now uses system-scope, domain-scope, project-scope and default
+    roles to provide better accessibility to users in a secure way.
+

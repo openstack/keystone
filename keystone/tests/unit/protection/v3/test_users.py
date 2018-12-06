@@ -300,6 +300,165 @@ class _DomainMemberAndReaderUserTests(object):
             )
 
 
+class _ProjectUserTests(object):
+    """Common tests cases for all project users."""
+
+    def test_user_cannot_get_users_within_their_domain(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/users/%s' % user['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_get_users_in_other_domains(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain['id'])
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/users/%s' % user['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_get_non_existent_user_forbidden(self):
+        with self.test_client() as c:
+            c.get(
+                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_users_within_domain(self):
+        with self.test_client() as c:
+            c.get(
+                '/v3/users?domain_id=%s' % self.domain_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_users_in_other_domains(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain['id'])
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/users?domain_id=%s' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_create_users_within_domain(self):
+        create = {
+            'user': {
+                'domain_id': self.domain_id,
+                'name': uuid.uuid4().hex
+            }
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/users', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_create_users_in_other_domains(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        create = {
+            'user': {
+                'domain_id': domain['id'],
+                'name': uuid.uuid4().hex
+            }
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/users', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_users_within_domain(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+
+        update = {'user': {'email': uuid.uuid4().hex}}
+        with self.test_client() as c:
+            c.patch(
+                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_users_in_other_domain(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain['id'])
+        )
+
+        update = {'user': {'email': uuid.uuid4().hex}}
+        with self.test_client() as c:
+            c.patch(
+                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_non_existent_user_forbidden(self):
+        update = {'user': {'email': uuid.uuid4().hex}}
+        with self.test_client() as c:
+            c.patch(
+                '/v3/users/%s' % uuid.uuid4().hex, json=update,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_users_within_domain(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/users/%s' % user['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_users_in_other_domains(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain['id'])
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/users/%s' % user['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_non_existent_user_forbidden(self):
+        with self.test_client() as c:
+            c.delete(
+                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _CommonUserTests,
@@ -670,3 +829,142 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+
+class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
+                         common_auth.AuthTestMixin,
+                         _CommonUserTests,
+                         _ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectReaderTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        self.project_id = project['id']
+
+        project_reader = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id, user_id=self.user_id,
+            project_id=self.project_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=project_reader['password'],
+            project_id=self.project_id,
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
+class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
+                         common_auth.AuthTestMixin,
+                         _CommonUserTests,
+                         _ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectMemberTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        self.project_id = project['id']
+
+        project_member = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id, user_id=self.user_id,
+            project_id=self.project_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=project_member['password'],
+            project_id=self.project_id,
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
+class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
+                        common_auth.AuthTestMixin,
+                        _CommonUserTests,
+                        _ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectAdminTests, self).setUp()
+        self.loadapp()
+
+        self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
+        self.policy_file_name = self.policy_file.file_name
+        self.useFixture(
+            ksfixtures.Policy(
+                self.config_fixture, policy_file=self.policy_file_name
+            )
+        )
+
+        self._override_policy()
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.bootstrapper.project_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def _override_policy(self):
+        # TODO(lbragstad): Remove this once the deprecated policies in
+        # keystone.common.policies.users have been removed. This is only
+        # here to make sure we test the new policies instead of the deprecated
+        # ones. Oslo.policy will OR deprecated policies with new policies to
+        # maintain compatibility and give operators a chance to update
+        # permissions or update policies without breaking users. This will
+        # cause these specific tests to fail since we're trying to correct this
+        # broken behavior with better scope checking.
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {
+                'identity:get_user': up.SYSTEM_READER_OR_DOMAIN_READER_OR_USER,
+                'identity:list_users': up.SYSTEM_READER_OR_DOMAIN_READER,
+                'identity:create_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+                'identity:update_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+                'identity:delete_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN
+            }
+            f.write(jsonutils.dumps(overridden_policies))
