@@ -148,7 +148,10 @@ class UserResource(ks_flask.ResourceBase):
 
         GET/HEAD /v3/users/{user_id}
         """
-        ENFORCER.enforce_call(action='identity:get_user')
+        ENFORCER.enforce_call(
+            action='identity:get_user',
+            build_target=_build_user_target_enforcement
+        )
         ref = PROVIDERS.identity_api.get_user(user_id)
         return self.wrap_member(ref)
 
@@ -199,7 +202,10 @@ class UserResource(ks_flask.ResourceBase):
 
         DELETE /v3/users/{user_id}
         """
-        ENFORCER.enforce_call(action='identity:delete_user')
+        ENFORCER.enforce_call(
+            action='identity:delete_user',
+            build_target=_build_user_target_enforcement
+        )
         PROVIDERS.identity_api.delete_user(user_id)
         return None, http_client.NO_CONTENT
 

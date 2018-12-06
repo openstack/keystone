@@ -1,0 +1,7 @@
+upgrade:
+  - |
+    [`bug 1805406 <https://bugs.launchpad.net/keystone/+bug/1805406>`_]
+    The ``GET /v3/users/{user_id`` API now properly returns an ``HTTP
+    403 Forbidden`` as opposed to ``HTTP 404 Not Found`` if the calling
+    user doesn't have authorization to call the API. This applies consistent
+    authorititive policy checks to the API.

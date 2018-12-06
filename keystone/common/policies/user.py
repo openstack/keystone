@@ -10,31 +10,49 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+# Allow access for system readers or users attempting to list their owner user
+# reference.
+SYSTEM_READER_OR_USER = (
+    '(' + base.SYSTEM_READER + ') or user_id:%(target.user.id)s'
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the user API understands how to handle system-scoped
+tokens in addition to project and domain tokens, making the API more accessible
+to users without compromising security or manageability for administrators. The
+new default policies for this API account for these changes automatically.
+"""
+
+deprecated_get_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_user',
+    check_str=base.RULE_ADMIN_OR_OWNER
+)
+deprecated_list_users = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_users',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
 user_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_user',
-        check_str=base.RULE_ADMIN_OR_OWNER,
-        # FIXME(lbragstad): First, a system administrator should be able to get
-        # a user reference for anyone in the system. Second, a project
-        # administrator should be able to get references for users within the
-        # project their token is scoped to or their domain. Third, a user
-        # should be able to get a reference for themselves. This is going to
-        # require keystone to be smarter about enforcing policy checks in code,
-        # specifically for the last two cases. Once that is fixed, we can
-        # uncomment the following line.
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_READER_OR_USER,
+        scope_types=['system', 'project'],
         description='Show user details.',
         operations=[{'path': '/v3/users/{user_id}',
                      'method': 'GET'},
                     {'path': '/v3/users/{user_id}',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_get_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         # FIXME(lbragstad): Since listing users has traditionally always been a
         # system-level API call, let's maintain that pattern here. A system
         # administrator should be able to list all users in the deployment,
@@ -49,7 +67,10 @@ user_policies = [
         operations=[{'path': '/v3/users',
                      'method': 'GET'},
                     {'path': '/v3/users',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_list_users,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_for_user',
         check_str='',
