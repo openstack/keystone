@@ -793,25 +793,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         else:
             return (expected_status, expected_status, expected_status)
 
-    def _test_user_management(self, user_id, domain_id, expected=None):
-        status_OK, status_created, status_no_data = self._stati(expected)
-        entity_url = '/users/%s' % user_id
-        list_url = '/users?domain_id=%s' % domain_id
-
-        self.get(entity_url, auth=self.auth,
-                 expected_status=status_OK)
-        self.get(list_url, auth=self.auth,
-                 expected_status=status_OK)
-        user = {'description': 'Updated'}
-        self.patch(entity_url, auth=self.auth, body={'user': user},
-                   expected_status=status_OK)
-        self.delete(entity_url, auth=self.auth,
-                    expected_status=status_no_data)
-
-        user_ref = unit.new_user_ref(domain_id=domain_id)
-        self.post('/users', auth=self.auth, body={'user': user_ref},
-                  expected_status=status_created)
-
     def _test_group_management(self, group, expected=None):
         status_OK, status_created, status_no_data = self._stati(expected)
         entity_url = '/groups/%s' % group['id']
@@ -937,113 +918,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         role_ref = unit.new_role_ref(domain_id=domain_id)
         self.post('/roles', auth=self.auth, body={'role': role_ref},
                   expected_status=status_created)
-
-    def test_user_management(self):
-        # First, authenticate with a user that does not have the domain
-        # admin role - shouldn't be able to do much.
-        self.auth = self.build_authentication_request(
-            user_id=self.just_a_user['id'],
-            password=self.just_a_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_user_management(
-            self.domain_admin_user['id'], self.domainA['id'],
-            expected=exception.ForbiddenAction.code)
-
-        # Now, authenticate with a user that does have the domain admin role
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_user_management(self.just_a_user['id'], self.domainA['id'])
-
-    def test_user_management_normalized_keys(self):
-        """Illustrate the inconsistent handling of hyphens in keys.
-
-        To quote Morgan in bug 1526244:
-
-            the reason this is converted from "domain-id" to "domain_id" is
-            because of how we process/normalize data. The way we have to handle
-            specific data types for known columns requires avoiding "-" in the
-            actual python code since "-" is not valid for attributes in python
-            w/o significant use of "getattr" etc.
-
-            In short, historically we handle some things in conversions. The
-            use of "extras" has long been a poor design choice that leads to
-            odd/strange inconsistent behaviors because of other choices made in
-            handling data from within the body. (In many cases we convert from
-            "-" to "_" throughout openstack)
-
-        Source: https://bugs.launchpad.net/keystone/+bug/1526244/comments/9
-
-        """
-        # Authenticate with a user that has the domain admin role
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        # Show that we can read a normal user without any surprises.
-        r = self.get(
-            '/users/%s' % self.just_a_user['id'],
-            auth=self.auth,
-            expected_status=http_client.OK)
-        self.assertValidUserResponse(r)
-
-        # We don't normalize query string keys, so both of these result in a
-        # 403, because we didn't specify a domain_id query string in either
-        # case, and we explicitly require one (it doesn't matter what
-        # 'domain-id' value you use).
-        self.get(
-            '/users?domain-id=%s' % self.domainA['id'],
-            auth=self.auth,
-            expected_status=exception.ForbiddenAction.code)
-        self.get(
-            '/users?domain-id=%s' % self.domainB['id'],
-            auth=self.auth,
-            expected_status=exception.ForbiddenAction.code)
-
-        # If we try updating the user's 'domain_id' by specifying a
-        # 'domain-id', then it'll be stored into extras rather than normalized,
-        # and the user's actual 'domain_id' is not affected.
-        r = self.patch(
-            '/users/%s' % self.just_a_user['id'],
-            auth=self.auth,
-            body={'user': {'domain-id': self.domainB['id']}},
-            expected_status=http_client.OK)
-        self.assertEqual(self.domainB['id'], r.json['user']['domain-id'])
-        self.assertEqual(self.domainA['id'], r.json['user']['domain_id'])
-        self.assertNotEqual(self.domainB['id'], self.just_a_user['domain_id'])
-        self.assertValidUserResponse(r, self.just_a_user)
-
-        # Finally, show that we can create a new user without any surprises.
-        # But if we specify a 'domain-id' instead of a 'domain_id', we get a
-        # Forbidden response because we fail a policy check before
-        # normalization occurs.
-        user_ref = unit.new_user_ref(domain_id=self.domainA['id'])
-        r = self.post(
-            '/users',
-            auth=self.auth,
-            body={'user': user_ref},
-            expected_status=http_client.CREATED)
-        self.assertValidUserResponse(r, ref=user_ref)
-        user_ref['domain-id'] = user_ref.pop('domain_id')
-        self.post(
-            '/users',
-            auth=self.auth,
-            body={'user': user_ref},
-            expected_status=exception.ForbiddenAction.code)
-
-    def test_user_management_by_cloud_admin(self):
-        # Test users management with a cloud admin. This user should
-        # be able to manage users in any domain.
-        self.auth = self.build_authentication_request(
-            user_id=self.cloud_admin_user['id'],
-            password=self.cloud_admin_user['password'],
-            project_id=self.admin_project['id'])
-
-        self._test_user_management(self.just_a_user['id'], self.domainA['id'])
 
     def test_group_management(self):
         # First, authenticate with a user that does not have the domain
