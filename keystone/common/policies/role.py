@@ -10,14 +10,32 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+deprecated_get_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_role',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_roles',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the role API now understands default roles and
+system-scoped tokens, making the API more granular by default without
+compromising security. The new policy defaults account for these changes
+automatically. Be sure to take these new defaults into consideration if you are
+relying on overrides in your deployment for the role API.
+"""
+
 role_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str='role:reader',
         # FIXME(lbragstad): Roles should be considered a system-level resource.
         # The current RBAC design of OpenStack requires configuration
         # modification depending on the roles created in keystone. Once that is
@@ -28,16 +46,22 @@ role_policies = [
         operations=[{'path': '/v3/roles/{role_id}',
                      'method': 'GET'},
                     {'path': '/v3/roles/{role_id}',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_get_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str='role:reader',
         scope_types=['system'],
         description='List roles.',
         operations=[{'path': '/v3/roles',
                      'method': 'GET'},
                     {'path': '/v3/roles',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_list_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_role',
         check_str=base.RULE_ADMIN_REQUIRED,
