@@ -132,6 +132,7 @@ class DomainConfigBase(ks_flask.ResourceBase):
         """Check if config option exists.
 
         GET/HEAD /v3/domains/{domain_id}/config
+        GET/HEAD /v3/domains/{domain_id}/config/{group}
         GET/HEAD /v3/domains/{domain_id}/config/{group}/{option}
         """
         err = None
@@ -167,6 +168,8 @@ class DomainConfigBase(ks_flask.ResourceBase):
         """Update domain config option.
 
         PATCH /v3/domains/{domain_id}/config
+        PATCH /v3/domains/{domain_id}/config/{group}
+        PATCH /v3/domains/{domain_id}/config/{group}/{option}
         """
         ENFORCER.enforce_call(action='identity:update_domain_config')
         PROVIDERS.resource_api.get_domain(domain_id)
@@ -179,6 +182,8 @@ class DomainConfigBase(ks_flask.ResourceBase):
         """Delete domain config.
 
         DELETE /v3/domains/{domain_id}/config
+        DELETE /v3/domains/{domain_id}/config/{group}
+        DELETE /v3/domains/{domain_id}/config/{group}/{option}
         """
         ENFORCER.enforce_call(action='identity:delete_domain_config')
         PROVIDERS.resource_api.get_domain(domain_id)
@@ -188,6 +193,15 @@ class DomainConfigBase(ks_flask.ResourceBase):
 
 
 class DomainConfigResource(DomainConfigBase):
+    """Provides config routing functionality.
+
+    This class leans on DomainConfigBase to provide the following APIs:
+
+    GET/HEAD /v3/domains/{domain_id}/config
+    PATCH /v3/domains/{domain_id}/config
+    DELETE /v3/domains/{domain_id}/config
+    """
+
     def put(self, domain_id):
         """Create domain config.
 
