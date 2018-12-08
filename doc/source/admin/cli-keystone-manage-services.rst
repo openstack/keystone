@@ -128,13 +128,27 @@ Create service users
       +-------------+----------------------------------+
 
 #. Create service users for the relevant services for your
-   deployment.
+   deployment. For example:
+
+   .. code-block:: console
+
+    $ openstack user create nova --password Sekr3tPass
+    +---------------------+----------------------------------+
+    | Field               | Value                            |
+    +---------------------+----------------------------------+
+    | domain_id           | default                          |
+    | enabled             | True                             |
+    | id                  | 95ec3e1d5dd747f5a512d261731d29c7 |
+    | name                | nova                             |
+    | options             | {}                               |
+    | password_expires_at | None                             |
+    +---------------------+----------------------------------+
 
 #. Assign the admin role to the user-project pair.
 
    .. code-block:: console
 
-      $ openstack role add --project service --user SERVICE_USER_NAME admin
+      $ openstack role add --project service --user nova admin
       +-------+----------------------------------+
       | Field | Value                            |
       +-------+----------------------------------+
