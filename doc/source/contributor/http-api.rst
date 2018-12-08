@@ -19,14 +19,13 @@ Specifications
 ==============
 
 As of the Queens release, Keystone solely implements the `Identity API v3`_.
-Support for `Identity API v2.0`_ has been removed in Queens in favor of
+Support for Identity API v2.0 has been removed in Queens in favor of
 the `Identity API v3`_.
 
 Identity API v3 is a superset of all the functionality available in the
 Identity API v2.0 and several of its extensions, and provides a much more
 consistent developer experience.
 
-.. _`Identity API v2.0`: https://developer.openstack.org/api-ref/identity/v2/
 .. _`Identity API v3`: https://developer.openstack.org/api-ref/identity/v3/
 
 History
@@ -53,44 +52,10 @@ How do I migrate from v2.0 to v3?
 I am a deployer
 ---------------
 
-You'll need to ensure the v3 API is included in your Paste pipeline, usually
-``etc/keystone-paste.ini``. Our `latest sample configuration`_ includes the v3
-application pipeline.
-
-First define a v3 application, which refers to the v3 application factory
-method:
-
-.. code-block:: ini
-
-    [app:service_v3]
-    use = egg:keystone#service_v3
-
-Then define a v3 pipeline, which terminates with the v3 application you defined
-above:
-
-.. code-block:: ini
-
-    [pipeline:api_v3]
-    pipeline = ... service_v3
-
-Replace "..." with whatever middleware you'd like to run in front of the API
-service. Our `latest sample configuration`_ documents our tested
-recommendations, but your requirements may vary.
-
-Finally, include the v3 pipeline in at least one ``composite`` application (but
-usually both ``[composite:main]`` and ``[composite:admin]``), for example:
-
-.. code-block:: ini
-
-    [composite:main]
-    use = egg:Paste#urlmap
-    /v3 = api_v3
-    ...
-
-Once your pipeline is configured to expose v3, you need to ensure that you've
-configured your service catalog in Keystone correctly. The simplest, and most
-ideal, configuration would expose one identity with unversioned endpoints (note
-the lack of ``/v2.0/`` or ``/v3/`` in these URLs):
+You need to ensure that you've configured your service catalog in Keystone
+correctly. The simplest, and most ideal, configuration would expose one
+identity with unversioned endpoints (note the lack of ``/v2.0/`` or ``/v3/`` in
+these URLs):
 
 - Service (type: ``identity``)
 
@@ -125,7 +90,6 @@ Keystone clients can use to automatically detect available API versions.
 With unversioned ``identity`` endpoints in the service catalog, you should be
 able to `authenticate with keystoneclient`_ successfully.
 
-.. _`latest sample configuration`: https://git.openstack.org/cgit/openstack/keystone/tree/etc/keystone-paste.ini
 .. _`authenticate with keystoneclient`: https://docs.openstack.org/python-keystoneclient/latest/using-api-v3.html#authenticating-using-sessions
 
 I have a Python client

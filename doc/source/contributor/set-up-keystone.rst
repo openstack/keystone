@@ -89,11 +89,10 @@ Deploying configuration files
 =============================
 
 You should be able to run keystone after installing via pip. Additional
-configuration files are required, however. The following files are required in
-order to run keystone:
+configuration files are required. The following file is required in order to
+run keystone:
 
 * ``keystone.conf``
-* ``keystone-paste.ini``
 
 Configuring Keystone with a sample file
 ---------------------------------------
