@@ -538,3 +538,9 @@ scoped token from the SP.
     --os-remote-project-name federated_project \
     --os-remote-project-domain-name federated_domain \
     token issue
+
+
+.. include:: openidc.rst
+.. include:: mellon.rst
+.. include:: shibboleth.rst
+.. include:: websso.rst

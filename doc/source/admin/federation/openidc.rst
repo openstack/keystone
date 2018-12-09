@@ -11,10 +11,10 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+--------------------
 Setup OpenID Connect
-====================
+--------------------
 
-----------------------------
 Configuring mod_auth_openidc
 ----------------------------
 
@@ -79,7 +79,6 @@ Once you are done, restart your Apache daemon:
 
     $ sudo service apache2 restart
 
-----
 Tips
 ----
 
