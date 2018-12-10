@@ -10,14 +10,44 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+SYSTEM_READER_OR_PROJECT_USER = (
+    '(' + base.SYSTEM_READER + ') or project_id:%(target.project.id)s'
+)
+
+SYSTEM_READER_OR_OWNER = (
+    '(' + base.SYSTEM_READER + ') or user_id:%(target.user.id)s'
+)
+
+deprecated_list_projects = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_projects',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_get_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_project',
+    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT
+)
+deprecated_list_user_projects = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_user_projects',
+    check_str=base.RULE_ADMIN_OR_OWNER
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the project API understands how to handle
+system-scoped tokens in addition to project and domain tokens, making the API
+more accessible to users without compromising security or manageability for
+administrators. The new default policies for this API account for these changes
+automatically.
+"""
+
 project_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_project',
-        check_str=base.RULE_ADMIN_OR_TARGET_PROJECT,
+        check_str=SYSTEM_READER_OR_PROJECT_USER,
         # FIXME(lbragstad): The default check_str here should change to be just
         # a role. The OR_TARGET_PROJECT bit of this check_str should actually
         # be moved into keystone. A system administrator should be able to get
@@ -29,13 +59,16 @@ project_policies = [
         # place, we should keep scope_type commented out. Otherwise, we risk
         # exposing information to people who don't have the correct
         # authorization.
-        # scope_types=['system', 'project'],
+        scope_types=['system', 'project'],
         description='Show project details.',
         operations=[{'path': '/v3/projects/{project_id}',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_get_project,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         # FIXME(lbragstad): This is set to 'system' until keystone is smart
         # enough to tailor list_project responses for project-scoped tokens
         # without exposing information that doesn't pertain to the scope of the
@@ -48,10 +81,13 @@ project_policies = [
         scope_types=['system'],
         description='List projects.',
         operations=[{'path': '/v3/projects',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_list_projects,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_user_projects',
-        check_str=base.RULE_ADMIN_OR_OWNER,
+        check_str=SYSTEM_READER_OR_OWNER,
         # FIXME(lbragstad): This is going to require keystone to be smarter
         # about how it authorizes this API. A system administrator should be
         # able to list all projects for a user. A domain administrator should
@@ -62,7 +98,10 @@ project_policies = [
         # scope_types=['system', 'project'],
         description='List projects for user.',
         operations=[{'path': '/v3/users/{user_id}/projects',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_list_user_projects,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project',
         check_str=base.RULE_ADMIN_REQUIRED,
