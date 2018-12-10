@@ -184,6 +184,31 @@ LDAP has been configured or after ``mapping_purge``.
 
     $ keystone-manage mapping_populate --domain DOMAINA
 
+Public ID Generators
+--------------------
+
+Keystone supports a customizable public ID generator and it is specified in the
+``[identity_mapping]`` section of the configuration file. Keystone provides a
+sha256 generator as default, which produces regenerable public IDs. The
+generator algorithm for public IDs is a balance between key size (i.e. the
+length of the public ID), the probability of collision and, in some
+circumstances, the security of the public ID. The maximum length of public ID
+supported by keystone is 64 characters, and the default generator (sha256) uses
+this full capability. Since the public ID is what is exposed externally by
+keystone and potentially stored in external systems, some installations may
+wish to make use of other generator algorithms that have a different trade-off
+of attributes. A different generator can be installed by configuring the
+following property:
+
+* ``generator`` - identity mapping generator. Defaults to ``sha256``
+  (implemented by :class:`keystone.identity.id_generators.sha256.Generator`)
+
+.. WARNING::
+
+    Changing the generator may cause all existing public IDs to be become
+    invalid, so typically the generator selection should be considered
+    immutable for a given installation.
+
 Migrate domain-specific configuration files to the SQL database
 ---------------------------------------------------------------
 
