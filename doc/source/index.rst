@@ -85,7 +85,6 @@ keystone service.
     :maxdepth: 2
 
     configuration.rst
-    advanced-topics/index.rst
 
 User Documentation
 ~~~~~~~~~~~~~~~~~~
