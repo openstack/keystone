@@ -718,15 +718,20 @@ class SqlIdentity(SqlTests,
         self.assertEqual(first_call_counter, counter.calls)
 
     def test_check_project_depth(self):
-        # create a 3 level project tree
-        ref = unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
-        PROVIDERS.resource_api.create_project(ref['id'], ref)
-        ref_1 = unit.new_project_ref(domain_id=CONF.identity.default_domain_id,
-                                     parent_id=ref['id'])
-        PROVIDERS.resource_api.create_project(ref_1['id'], ref_1)
-        ref_2 = unit.new_project_ref(domain_id=CONF.identity.default_domain_id,
-                                     parent_id=ref_1['id'])
-        PROVIDERS.resource_api.create_project(ref_2['id'], ref_2)
+        # Create a 3 level project tree:
+        #
+        # default_domain
+        #       |
+        #   project_1
+        #       |
+        #   project_2
+        project_1 = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id)
+        PROVIDERS.resource_api.create_project(project_1['id'], project_1)
+        project_2 = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id,
+            parent_id=project_1['id'])
+        PROVIDERS.resource_api.create_project(project_2['id'], project_2)
 
         # if max_depth is None or >= current project depth, return nothing.
         resp = PROVIDERS.resource_api.check_project_depth(max_depth=None)
