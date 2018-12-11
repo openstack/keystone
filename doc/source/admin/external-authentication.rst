@@ -1,7 +1,6 @@
 ===========================================
 Using external authentication with Keystone
 ===========================================
-.. _external-auth:
 
 When Keystone is executed in a web server like Apache HTTPD,
 it is possible to have the web server also handle authentication.

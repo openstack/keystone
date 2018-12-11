@@ -272,8 +272,6 @@ For more information see the
 
 Once you are done, restart your Shibboleth daemon and apache:
 
-.. _`external authentication`: ../external-auth.html
-
 .. code-block:: bash
 
     $ service shibd restart
