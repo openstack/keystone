@@ -47,6 +47,7 @@ command-line client.
    auth-totp.rst
    external-authentication.rst
    configure_tokenless_x509.rst
+   limit-list-size.rst
 
 .. toctree::
    :maxdepth: 2
