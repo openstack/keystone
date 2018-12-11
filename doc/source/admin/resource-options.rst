@@ -33,7 +33,7 @@ that auto-generate passwords but want to ensure a user picks a new password
 when they start using the deployment.
 
 See the `security compliance documentation
-<identity-security-compliance.html>`_ for more details.
+<security-compliance.html>`_ for more details.
 
 ignore_password_expiry
 ----------------------
@@ -46,7 +46,7 @@ option to ``True`` will allow users to continue using passwords that may be
 expired according to global configuration values.
 
 See the `security compliance documentation
-<identity-security-compliance.html>`_ for more details.
+<security-compliance.html>`_ for more details.
 
 ignore_lockout_failure_attempts
 -------------------------------
@@ -57,7 +57,7 @@ If ``True``, opt into ignoring the number of times a user has authenticated and
 locking out the user as a result.
 
 See the `security compliance documentation
-<identity-security-compliance.html>`_ for more details.
+<security-compliance.html>`_ for more details.
 
 lock_password
 -------------
@@ -68,7 +68,7 @@ If set to ``True``, this option disables the ability for users to change their
 password through self-service APIs.
 
 See the `security compliance documentation
-<identity-security-compliance.html>`_ for more details.
+<security-compliance.html>`_ for more details.
 
 multi_factor_auth_enabled
 -------------------------

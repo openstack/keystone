@@ -15,29 +15,29 @@ command-line client.
    :maxdepth: 1
 
    identity-concepts.rst
-   identity-bootstrap.rst
+   bootstrap.rst
    cli-manage-projects-users-and-roles.rst
    cli-keystone-manage-services.rst
-   identity-certificates-for-pki.rst
-   identity-domain-specific-config.rst
-   identity-url-safe-naming.rst
-   identity-case-insensitive.rst
-   identity-integrate-with-ldap.rst
-   identity-upgrading.rst
-   identity-tokens.rst
-   identity-fernet-token-faq.rst
-   identity-use-trusts.rst
-   identity-caching-layer.rst
-   identity-security-compliance.rst
-   identity-resource-options.rst
-   identity-performance.rst
-   identity-keystone-usage-and-features.rst
-   identity-auth-token-middleware.rst
-   identity-service-api-protection.rst
-   identity-troubleshoot.rst
-   identity-unified-limits.rst
+   certificates-for-pki.rst
+   domain-specific-config.rst
+   url-safe-naming.rst
+   case-insensitive.rst
+   integrate-with-ldap.rst
+   upgrading.rst
+   tokens.rst
+   fernet-token-faq.rst
+   use-trusts.rst
+   caching-layer.rst
+   security-compliance.rst
+   resource-options.rst
+   performance.rst
+   keystone-usage-and-features.rst
+   auth-token-middleware.rst
+   service-api-protection.rst
+   troubleshoot.rst
+   unified-limits.rst
    token-provider.rst
-   identity-credential-encryption.rst
+   credential-encryption.rst
    endpoint-filtering.rst
    health-check-middleware.rst
    oauth1.rst
@@ -45,7 +45,7 @@ command-line client.
    endpoint-policy.rst
    event_notifications.rst
    auth-totp.rst
-   identity-external-authentication.rst
+   external-authentication.rst
    configure_tokenless_x509.rst
 
 .. toctree::
