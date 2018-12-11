@@ -54,6 +54,7 @@ extensions = ['sphinx.ext.coverage',
               'oslo_policy.sphinxext',
               'ext.support_matrix',
               'sphinxcontrib.apidoc',
+              'sphinxcontrib.seqdiag',
               ]
 
 # sphinxcontrib.apidoc options
@@ -64,6 +65,10 @@ apidoc_excluded_paths = [
     'tests',
     'test']
 apidoc_separate_modules = True
+
+# sphinxcontrib.seqdiag options
+seqdiag_antialias = True
+seqdiag_html_image_format = 'SVG'
 
 config_generator_config_file = '../../config-generator/keystone.conf'
 sample_config_basename = '_static/keystone'
