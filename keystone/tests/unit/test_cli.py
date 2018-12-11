@@ -1627,12 +1627,12 @@ class TestTokenFlush(unit.TestCase):
 
     def test_token_flush_emits_warning(self):
         expected_msg = (
-            'This command is deprecated and no longer needed with the '
-            'development of non-persistent token formats. It will be removed '
-            'in Stein. It is recommended that you remove usage of this '
-            'command or integrate it\'s functionality into a separate tool if '
-            'you are using an out-of-tree provider that relies on persistent '
-            'token storage.'
+            'The token_flush command is deprecated and no longer needed with '
+            'the development of non-persistent token formats. It will be '
+            'removed in Stein. It is recommended that you remove usage of '
+            'this command or integrate it\'s functionality into a separate '
+            'tool if you are using an out-of-tree provider that relies on '
+            'persistent token storage.'
         )
         logging = self.useFixture(fixtures.FakeLogger())
         tf = cli.TokenFlush()
