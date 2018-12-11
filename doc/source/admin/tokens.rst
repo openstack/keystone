@@ -91,6 +91,6 @@ token and integrity is verified with a ``SHA256 HMAC`` signature. Only the
 Identity service should have access to the keys used to encrypt and decrypt
 fernet tokens. Like UUID tokens, fernet tokens must be passed back to the
 Identity service in order to validate them. For more information on the fernet
-token type, see the :doc:`identity-fernet-token-faq`.
+token type, see the :doc:`fernet-token-faq`.
 
 .. support_matrix:: token-support-matrix.ini

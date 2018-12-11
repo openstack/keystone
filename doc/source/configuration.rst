@@ -31,7 +31,7 @@ Configuration`_ for an example). For example, you can store OpenStack service us
 and their passwords in SQL, manage customers in LDAP, and authenticate employees
 via SAML federation.
 
-.. _Domain-specific Configuration: admin/identity-domain-specific-config.html
+.. _Domain-specific Configuration: admin/domain-specific-config.html
 .. support_matrix:: identity-support-matrix.ini
 
 Limiting list return size
