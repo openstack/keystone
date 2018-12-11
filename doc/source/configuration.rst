@@ -34,12 +34,6 @@ via SAML federation.
 .. _Domain-specific Configuration: admin/identity-domain-specific-config.html
 .. support_matrix:: identity-support-matrix.ini
 
-SSL
-===
-
-A secure deployment should have keystone running in a web server (such as
-Apache httpd), or behind an SSL terminator.
-
 Limiting list return size
 =========================
 

@@ -197,6 +197,12 @@ Configure the Apache HTTP server
 
    .. end
 
+SSL
+^^^
+
+A secure deployment should have the web server configured to use SSL or running
+behind an SSL terminator.
+
 Finalize the installation
 -------------------------
 
