@@ -18,7 +18,7 @@ command-line client.
    identity-sources.rst
    bootstrap.rst
    cli-manage-projects-users-and-roles.rst
-   cli-keystone-manage-services.rst
+   manage-services.rst
    domain-specific-config.rst
    url-safe-naming.rst
    case-insensitive.rst
@@ -39,7 +39,6 @@ command-line client.
    endpoint-filtering.rst
    health-check-middleware.rst
    oauth1.rst
-   service-catalog.rst
    endpoint-policy.rst
    event_notifications.rst
    auth-totp.rst

@@ -2,36 +2,62 @@
 Create and manage services and service users
 ============================================
 
-The Identity service enables you to define services, as
-follows:
+Service Catalog
+===============
 
-- Service catalog template. The Identity service acts
-  as a service catalog of endpoints for other OpenStack
-  services. The ``/etc/keystone/default_catalog.templates``
-  template file defines the endpoints for services. When
-  the Identity service uses a template file back end,
-  any changes that are made to the endpoints are cached.
-  These changes do not persist when you restart the
-  service or reboot the machine.
-- An SQL back end for the catalog service. When the
-  Identity service is online, you must add the services
-  to the catalog. When you deploy a system for
-  production, use the SQL back end.
+OpenStack services can be discovered when registered in keystone's service
+catalog. The service catalog can be managed as either a static file template or
+as a dynamic database table.
 
-The ``auth_token`` middleware supports the
-use of either a shared secret or users for each
-service.
+File-based Service Catalog (``templated.Catalog``)
+--------------------------------------------------
 
-To authenticate users against the Identity service, you must
-create a service user for each OpenStack service. For example,
-create a service user for the Compute, Block Storage, and
-Networking services.
+The templated catalog is an in-memory backend initialized from a read-only
+``template_file``. Choose this option only if you know that your service
+catalog will not change very much over time.
 
-To configure the OpenStack services with service users,
-create a project for all services and create users for each
-service. Assign the admin role to each service user and
-project pair. This role enables users to validate tokens and
-authenticate and authorize other user requests.
+.. NOTE::
+
+    Attempting to change your service catalog against this driver will result
+    in ``HTTP 501 Not Implemented`` errors. This is the expected behavior. If
+    you want to use these commands, you must instead use the SQL-based Service
+    Catalog driver.
+
+``keystone.conf`` example:
+
+.. code-block:: ini
+
+    [catalog]
+    driver = templated
+    template_file = /opt/stack/keystone/etc/default_catalog.templates
+
+The value of ``template_file`` is expected to be an absolute path to your
+service catalog configuration. An example ``template_file`` is included in
+keystone, however you should create your own to reflect your deployment.
+
+SQL-based Service Catalog (``sql.Catalog``)
+-------------------------------------------
+
+A dynamic database-backed driver fully supporting persistent configuration.
+
+``keystone.conf`` example:
+
+.. code-block:: ini
+
+    [catalog]
+    driver = sql
+
+.. NOTE::
+
+    A `template_file` does not need to be defined for the sql based catalog.
+
+To build your service catalog using this driver, see the built-in help:
+
+.. code-block:: bash
+
+    $ openstack --help
+    $ openstack service create --help
+    $ openstack endpoint create --help
 
 Create a service
 ~~~~~~~~~~~~~~~~
@@ -105,8 +131,59 @@ Create a service
       | type        | object-store                     |
       +-------------+----------------------------------+
 
+Create an endpoint
+~~~~~~~~~~~~~~~~~~
+
+#. Once a service is created, register it at an endpoint:
+
+   .. code-block:: console
+
+      $ openstack endpoint create nova public http://example.com/compute/v2.1
+      +--------------+----------------------------------+
+      | Field        | Value                            |
+      +--------------+----------------------------------+
+      | enabled      | True                             |
+      | id           | c219aa779e90403eb4a78cf0aa7d38b1 |
+      | interface    | public                           |
+      | region       | None                             |
+      | region_id    | None                             |
+      | service_id   | 0f5da035b8e94629bf35e7ec1703a8eb |
+      | service_name | nova                             |
+      | service_type | compute                          |
+      | url          | http://example.com/compute/v2.1  |
+      +--------------+----------------------------------+
+
+Delete a service
+~~~~~~~~~~~~~~~~
+
+To delete a specified service, specify its ID.
+
+.. code-block:: console
+
+   $ openstack service delete SERVICE_TYPE|SERVICE_NAME|SERVICE_ID
+
+For example:
+
+.. code-block:: console
+
+   $ openstack service delete object-store
+
+Service users
+=============
+
+To authenticate users against the Identity service, you must
+create a service user for each OpenStack service. For example,
+create a service user for the Compute, Block Storage, and
+Networking services.
+
+To configure the OpenStack services with service users,
+create a project for all services and create users for each
+service. Assign the admin role to each service user and
+project pair. This role enables users to validate tokens and
+authenticate and authorize other user requests.
+
 Create service users
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 #. Create a project for the service users.
    Typically, this project is named ``service``,
@@ -156,17 +233,3 @@ Create service users
       | name  | admin                            |
       +-------+----------------------------------+
 
-Delete a service
-~~~~~~~~~~~~~~~~
-
-To delete a specified service, specify its ID.
-
-.. code-block:: console
-
-   $ openstack service delete SERVICE_TYPE|SERVICE_NAME|SERVICE_ID
-
-For example:
-
-.. code-block:: console
-
-   $ openstack service delete object-store
