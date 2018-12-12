@@ -30,7 +30,6 @@ command-line client.
    security-compliance.rst
    resource-options.rst
    performance.rst
-   auth-token-middleware.rst
    service-api-protection.rst
    troubleshoot.rst
    unified-limits.rst
