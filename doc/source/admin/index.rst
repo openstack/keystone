@@ -18,7 +18,6 @@ command-line client.
    bootstrap.rst
    cli-manage-projects-users-and-roles.rst
    cli-keystone-manage-services.rst
-   certificates-for-pki.rst
    domain-specific-config.rst
    url-safe-naming.rst
    case-insensitive.rst
