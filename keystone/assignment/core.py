@@ -682,9 +682,8 @@ class Manager(manager.Manager):
                         _make_implied_ref_copy(
                             next_ref, implied_role['implied_role_id']))
                     if implied_ref in checked_role_refs:
-                        msg = ('Circular reference found '
-                               'role inference rules - %(prior_role_id)s.')
-                        LOG.error(msg, {'prior_role_id': next_ref['role_id']})
+                        # Avoid traversing a cycle
+                        continue
                     else:
                         ref_results.append(implied_ref)
                         role_refs_to_check.append(implied_ref)
