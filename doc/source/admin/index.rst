@@ -25,7 +25,7 @@ command-line client.
    upgrading.rst
    tokens.rst
    fernet-token-faq.rst
-   use-trusts.rst
+   manage-trusts.rst
    caching-layer.rst
    security-compliance.rst
    resource-options.rst

@@ -1,6 +1,22 @@
-==========
-Use trusts
-==========
+..
+      Copyright 2018 SUSE Linux GmbH
+      All Rights Reserved.
+
+      Licensed under the Apache License, Version 2.0 (the "License"); you may
+      not use this file except in compliance with the License. You may obtain
+      a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+      License for the specific language governing permissions and limitations
+      under the License.
+
+======
+Trusts
+======
 
 OpenStack Identity manages authentication and authorization. A trust is
 an OpenStack Identity extension that enables delegation and, optionally,
@@ -55,23 +71,9 @@ The delegation parameters are:
 **Duration**
   (Optional) Comprised of the start time and end time for the trust.
 
+.. note::
 
-Removing Expired Trusts
-===========================================================
+   See the administrator guide on `removing expired trusts`_ for recommended
+   maintenance procedures.
 
-In the SQL trust stores expired and soft deleted trusts, that are not
-automatically removed. These trusts can be removed with::
-
-    $ keystone-manage trust_flush [options]
-
- OPTIONS (optional):
-
-        --project-id <string>:
-                    To purge trusts of given project-id.
-        --trustor-user-id <string>:
-                    To purge trusts of given trustor-id.
-        --trustee-user-id <string>:
-                    To purge trusts of given trustee-id.
-        --date <string>:
-                    To purge trusts older than date. If no date is supplied
-                    keystone-manage will use the system clock time at runtime.
+.. _`removing expired trusts`: ../admin/manage-trusts.html
