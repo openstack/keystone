@@ -1,0 +1,32 @@
+---
+features:
+  - |
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The domain API now supports the ``admin``, ``member``, and
+    ``reader`` default roles.
+upgrade:
+  - |
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The domain API uses new default policies that make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides
+    domain policies.
+deprecations:
+  - |
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The following domain policy check strings have been deprecated in
+    favor of more clear and concise defaults:
+    
+    * ``identity:get_domain``
+    * ``identity:list_domains``
+    * ``identity:create_domain``
+    * ``identity:update_domain``
+    * ``identtity:delete_domain``
+
+    Please consider these new default if your deployment overrides
+    domain policies.
+security:
+  - |
+    [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
+    The domain API now uses system-scope and default roles to
+    provide better accessibility to users in a secure way.
