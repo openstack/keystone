@@ -1,5 +1,5 @@
 Logging
--------
+=======
 
 You configure logging externally to the rest of Identity. The name of
 the file specifying the logging configuration is set using the

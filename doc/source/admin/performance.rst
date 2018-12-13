@@ -11,7 +11,6 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-=======================
 Performance and scaling
 =======================
 
@@ -26,7 +25,7 @@ Keystone, many of which are actually trade-offs between performance and
 security that you need to judge for yourself, and tune accordingly.
 
 Keystone configuration options that affect performance
-======================================================
+------------------------------------------------------
 
 These are all of the options in ``keystone.conf`` that have a direct impact on
 performance. See the help descriptions for these options for more specific
@@ -55,7 +54,7 @@ details on how and why you might want to tune these options for yourself.
   key rotation strategies.
 
 Keystonemiddleware configuration options that affect performance
-================================================================
+----------------------------------------------------------------
 
 This configuration actually lives in the Paste pipelines of services consuming
 token validation from keystone (i.e.: nova, cinder, swift, etc.).
