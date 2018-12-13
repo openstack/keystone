@@ -15,6 +15,7 @@ command-line client.
    :maxdepth: 1
 
    identity-concepts.rst
+   identity-sources.rst
    bootstrap.rst
    cli-manage-projects-users-and-roles.rst
    cli-keystone-manage-services.rst

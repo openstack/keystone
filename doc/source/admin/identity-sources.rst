@@ -1,5 +1,5 @@
 ..
-      Copyright 2011-2012 OpenStack Foundation
+      Copyright 2018 SUSE Linux GmbH
       All Rights Reserved.
 
       Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -31,6 +31,6 @@ Configuration`_ for an example). For example, you can store OpenStack service us
 and their passwords in SQL, manage customers in LDAP, and authenticate employees
 via SAML federation.
 
-.. _Domain-specific Configuration: admin/domain-specific-config.html
+.. _Domain-specific Configuration: domain-specific-config.html
 .. support_matrix:: identity-support-matrix.ini
 
