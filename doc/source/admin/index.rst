@@ -30,7 +30,6 @@ command-line client.
    security-compliance.rst
    resource-options.rst
    performance.rst
-   keystone-usage-and-features.rst
    auth-token-middleware.rst
    service-api-protection.rst
    troubleshoot.rst
@@ -47,6 +46,7 @@ command-line client.
    external-authentication.rst
    configure_tokenless_x509.rst
    limit-list-size.rst
+   logging.rst
 
 .. toctree::
    :maxdepth: 2
