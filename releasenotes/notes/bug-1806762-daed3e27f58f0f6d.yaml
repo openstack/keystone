@@ -1,0 +1,17 @@
+---
+upgrade:
+  - |
+    [`bug 1806762 <https://bugs.launchpad.net/keystone/+bug/1806762>`_]
+    [`bug 1804518 <https://bugs.launchpad.net/keystone/+bug/1804518>`_]
+    The protocol policies defined in the ``policy.v3cloudsample.json``
+    policy file have been removed. These policies are now obsolete after
+    incorporating system-scope into the federated protocol API and
+    implementing default roles.
+fixes:
+  - |
+    [`bug 1806762 <https://bugs.launchpad.net/keystone/+bug/1806762>`_]
+    [`bug 1804518 <https://bugs.launchpad.net/keystone/+bug/1804518>`_]
+    The federated protocol policies in the ``policy.v3cloudsample.json``
+    policy file have been removed in favor of better defaults in code.
+    These policies weren't tested exhaustively and were misleading to
+    users and operators.
