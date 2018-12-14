@@ -23,6 +23,18 @@ deprecated_list_protocols = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_protocols',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_update_protocol = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_protocol',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_create_protocol = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_protocol',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_protocol = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_protocol',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the federated protocol API now understands default
@@ -35,7 +47,7 @@ relying on overrides in your deployment for the protocol API.
 protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): Once it is possible to add complete federated
         # identity without having to modify system configuration files, like
         # Apache, this should include 'project' in scope_types.
@@ -43,15 +55,21 @@ protocol_policies = [
         description='Create federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
-                     'method': 'PUT'}]),
+                     'method': 'PUT'}],
+        deprecated_rule=deprecated_create_protocol,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_protocol,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_protocol',
         check_str=base.SYSTEM_READER,
@@ -76,12 +94,15 @@ protocol_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_protocol,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN)
 ]
 
 
