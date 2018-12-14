@@ -10,9 +10,27 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
+
+deprecated_get_protocol = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_protocol',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_protocols = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_protocols',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the federated protocol API now understands default
+roles and system-scoped tokens, making the API more granular by default without
+compromising security. The new policy defaults account for these changes
+automatically. Be sure to take these new defaults into consideration if you are
+relying on overrides in your deployment for the protocol API.
+"""
 
 protocol_policies = [
     policy.DocumentedRuleDefault(
@@ -36,20 +54,26 @@ protocol_policies = [
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_protocol',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='Get federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_get_protocol,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_protocols',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List federated protocols.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols'),
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_list_protocols,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_protocol',
         check_str=base.RULE_ADMIN_REQUIRED,
