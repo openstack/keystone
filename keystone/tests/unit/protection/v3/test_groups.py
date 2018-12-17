@@ -280,6 +280,111 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _SystemUserGroupTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_create_group(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        create = {
+            'group': {
+                'name': uuid.uuid4().hex,
+                'domain_id': domain['id']
+            }
+        }
+
+        with self.test_client() as c:
+            c.post('/v3/groups', json=create, headers=self.headers)
+
+    def test_user_can_update_group(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(domain_id=domain['id'])
+        )
+
+        update = {'group': {'description': uuid.uuid4().hex}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/groups/%s' % group['id'], json=update,
+                headers=self.headers
+            )
+
+    def test_user_can_delete_group(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(domain_id=domain['id'])
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/groups/%s' % group['id'], headers=self.headers
+            )
+
+    def test_user_can_add_users_to_group(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(domain_id=domain['id'])
+        )
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain['id'])
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                headers=self.headers
+            )
+
+    def test_user_can_remove_users_from_group(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(domain_id=domain['id'])
+        )
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=domain['id'])
+        )
+
+        PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                headers=self.headers
+            )
+
+
 class ProjectUserTests(base_classes.TestCaseWithBootstrap,
                        common_auth.AuthTestMixin):
 
