@@ -10,14 +10,47 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+SYSTEM_READER_OR_OWNER = (
+    '(role:reader and system_scope:all) or user_id:%(user_id)s'
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the group API understands how to handle system-scoped
+tokens in addition to project and domain tokens, making the API more accessible
+to users without compromising security or manageability for administrators. The
+new default policies for this API account for these changes automatically.
+"""
+
+deprecated_get_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_groups = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_groups',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_groups_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_groups_for_user',
+    check_str=base.RULE_ADMIN_OR_OWNER
+)
+deprecated_list_users_in_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_users_in_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_check_user_in_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_user_in_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
 group_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         # FIXME(lbragstad): Groups have traditionally been a resource managed
         # by system or cloud administrators. If, or when, keystone supports the
         # ability for groups to be created or managed by project
@@ -29,25 +62,34 @@ group_policies = [
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'GET'},
                     {'path': '/v3/groups/{group_id}',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_get_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_groups',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List groups.',
         operations=[{'path': '/v3/groups',
                      'method': 'GET'},
                     {'path': '/v3/groups',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_list_groups,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_groups_for_user',
-        check_str=base.RULE_ADMIN_OR_OWNER,
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_OWNER,
+        scope_types=['system', 'project'],
         description='List groups to which a user belongs.',
         operations=[{'path': '/v3/users/{user_id}/groups',
                      'method': 'GET'},
                     {'path': '/v3/users/{user_id}/groups',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_list_groups_for_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_group',
         check_str=base.RULE_ADMIN_REQUIRED,
@@ -71,13 +113,16 @@ group_policies = [
                      'method': 'DELETE'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users_in_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List members of a specific group.',
         operations=[{'path': '/v3/groups/{group_id}/users',
                      'method': 'GET'},
                     {'path': '/v3/groups/{group_id}/users',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_list_users_in_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_user_from_group',
         check_str=base.RULE_ADMIN_REQUIRED,
@@ -87,13 +132,16 @@ group_policies = [
                      'method': 'DELETE'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_user_in_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='Check whether a user is a member of a group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'HEAD'},
                     {'path': '/v3/groups/{group_id}/users/{user_id}',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_check_user_in_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_user_to_group',
         check_str=base.RULE_ADMIN_REQUIRED,
