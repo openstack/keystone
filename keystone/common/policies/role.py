@@ -35,7 +35,7 @@ relying on overrides in your deployment for the role API.
 role_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role',
-        check_str='role:reader',
+        check_str=base.SYSTEM_READER,
         # FIXME(lbragstad): Roles should be considered a system-level resource.
         # The current RBAC design of OpenStack requires configuration
         # modification depending on the roles created in keystone. Once that is
@@ -52,7 +52,7 @@ role_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles',
-        check_str='role:reader',
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List roles.',
         operations=[{'path': '/v3/roles',
