@@ -29,8 +29,21 @@ RULE_REVOKE_EVENT_OR_ADMIN = 'rule:revoke_event_or_admin'
 RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT = 'rule:service_admin_or_token_subject'
 RULE_SERVICE_OR_ADMIN = 'rule:service_or_admin'
 RULE_TRUST_OWNER = 'user_id:%(trust.trustor_user_id)s'
-READER_ROLE = 'role:reader'
-ADMIN_ROLE = 'role:admin'
+
+# We are explicitly setting system_scope:all in these check strings because
+# they provide backwards compatibility in the event a deployment sets
+# ``keystone.conf [oslo_policy] enforce_scope = False``, which the default.
+# Otherwise, this might open up APIs to be more permissive unintentionally if a
+# deployment isn't enforcing scope. For example, the identity:get_endpoint
+# policy might be ``rule:admin_required`` today and eventually ``role:reader``
+# enforcing system scoped tokens. Until enforce_scope=True by default, it would
+# be possible for users with the ``reader`` role on a project to access an API
+# traditionally reserved for system administrators. Once keystone defaults
+# ``keystone.conf [oslo_policy] enforce_scope=True``, the ``system_scope:all``
+# bits of these check strings can be removed since that will be handled
+# automatically by scope_types in oslo.policy's RuleDefault objects.
+SYSTEM_READER = 'role:reader and system_scope:all'
+SYSTEM_ADMIN = 'role:admin and system_scope:all'
 
 
 rules = [
