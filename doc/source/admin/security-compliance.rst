@@ -1,6 +1,3 @@
-.. _identity_security_compliance:
-
-===============================
 Security compliance and PCI-DSS
 ===============================
 

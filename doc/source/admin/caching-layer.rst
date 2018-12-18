@@ -1,5 +1,5 @@
 Caching layer
-~~~~~~~~~~~~~
+=============
 
 OpenStack Identity supports a caching layer that is above the configurable
 subsystems (for example, token). This gives you the flexibility to setup

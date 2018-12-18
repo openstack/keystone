@@ -1,6 +1,3 @@
-.. _integrate-identity-with-ldap:
-
-============================
 Integrate Identity with LDAP
 ============================
 
@@ -31,10 +28,8 @@ providing user authentication through the LDAP directory.
     back ends are integrated with LDAP, the identity back end must also be
     integrated with LDAP.
 
-.. _identity_ldap_server_setup:
-
 Identity LDAP server set up
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 .. important::
 
@@ -52,8 +47,8 @@ Identity LDAP server set up
 The Identity configuration is split into two separate back ends; identity
 (back end for users and groups), and assignments (back end for domains,
 projects, roles, role assignments). To configure Identity, set options
-in the ``/etc/keystone/keystone.conf`` file. See
-:ref:`integrate-identity-backend-ldap` for Identity back end configuration
+in the ``/etc/keystone/keystone.conf`` file. See `Integrate Identity back end
+with LDAP`_ for Identity back end configuration
 examples. Modify these examples as needed.
 
 **To define the destination LDAP server**
@@ -175,10 +170,8 @@ service.
    During the service restart, authentication and authorization are
    unavailable.
 
-.. _integrate-identity-backend-ldap:
-
 Integrate Identity back end with LDAP
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 The Identity back end contains information for users, groups, and group
 member lists. Integrating the Identity back end with LDAP allows
@@ -189,7 +182,7 @@ administrators to use users and groups in LDAP.
    For OpenStack Identity service to access LDAP servers, you must
    define the destination LDAP server in the
    ``/etc/keystone/keystone.conf`` file. For more information,
-   see :ref:`identity_ldap_server_setup`.
+   see `Identity LDAP server set up`_.
 
 **To integrate one Identity back end with LDAP**
 
@@ -428,7 +421,7 @@ service.
    unavailable.
 
 Secure the OpenStack Identity service connection to an LDAP back end
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------------------
 
 We recommend securing all connections between OpenStack Identity and LDAP. The
 Identity service supports the use of TLS to encrypt LDAP traffic. Before

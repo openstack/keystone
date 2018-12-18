@@ -99,7 +99,7 @@ Administrator Guides
 ~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     admin/index.rst
 
