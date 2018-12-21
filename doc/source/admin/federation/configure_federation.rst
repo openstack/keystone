@@ -46,6 +46,15 @@ To enable federation, you'll need to:
 2. `Configure Apache to use a federation capable authentication method`_.
 3. `Configure Federation in Keystone`_.
 
+.. note::
+
+   In this guide, the keystone Service Provider is configured on a host called
+   sp.keystone.example.org listening on the standard HTTPS port. All keystone
+   paths will start with the keystone version prefix, ``/v3``. If you have
+   configured keystone to listen on port 5000, or to respond on the path
+   ``/identity`` (for example), take this into account in your own
+   configuration.
+
 .. _`SUSE`: ../../install/keystone-install-obs.html#configure-the-apache-http-server
 .. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
 .. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
@@ -349,7 +358,7 @@ SAML authentication procedure.
 
 .. code-block:: bash
 
-    $ curl -X GET -D - http://localhost:5000/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
+    $ curl -X GET -D - https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
 
 Determine accessible resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -371,7 +380,7 @@ Example
 
     $ export OS_IDENTITY_API_VERSION=3
     $ export OS_TOKEN=<unscoped token>
-    $ export OS_URL=http://localhost:5000/v3
+    $ export OS_URL=https://sp.keystone.example.org/v3
     $ openstack federation project list
 
 or
@@ -380,7 +389,7 @@ or
 
     $ export OS_IDENTITY_API_VERSION=3
     $ export OS_TOKEN=<unscoped token>
-    $ export OS_URL=http://localhost:5000/v3
+    $ export OS_URL=https://sp.keystone.example.org/v3
     $ openstack federation domain list
 
 Get a scoped token
@@ -402,7 +411,7 @@ Example
     $ export OS_AUTH_TYPE=token
     $ export OS_IDENTITY_API_VERSION=3
     $ export OS_TOKEN=<unscoped token>
-    $ export OS_AUTH_URL=http://localhost:5000/v3
+    $ export OS_AUTH_URL=https://sp.keystone.example.org/v3
     $ export OS_PROJECT_DOMAIN_NAME=federated_domain
     $ export OS_PROJECT_NAME=federated_project
     $ openstack token issue
@@ -428,6 +437,15 @@ Keystone as an Identity Provider (IdP)
 
             $ apt-get install xmlsec1
 
+.. note::
+
+   In this guide, the keystone Identity Provider is configured on a host called
+   idp.keystone.example.org listening on the standard HTTPS port. All keystone
+   paths will start with the keystone version prefix, ``/v3``. If you have
+   configured keystone to listen on port 5000, or to respond on the path
+   ``/identity`` (for example), take this into account in your own
+   configuration.
+
 Configuration Options
 ---------------------
 
@@ -440,8 +458,8 @@ example:
 .. code-block:: ini
 
     [saml]
-    idp_entity_id=https://myidp.example.com/v3/OS-FEDERATION/saml2/idp
-    idp_sso_endpoint=https://myidp.example.com/v3/OS-FEDERATION/saml2/sso
+    idp_entity_id=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/idp
+    idp_sso_endpoint=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/sso
 
 ``idp_entity_id`` is the unique identifier for the Identity Provider. It
 usually takes the form of a URI but it does not have to resolve to anything.
@@ -510,8 +528,8 @@ Create a Service Provider (SP)
 ------------------------------
 
 In this example we are creating a new Service Provider with an ID of ``mysp``,
-a ``sp_url`` of ``http://mysp.example.com/Shibboleth.sso/SAML2/ECP`` and a
-``auth_url`` of ``http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth``
+a ``sp_url`` of ``https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP`` and a
+``auth_url`` of ``https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth``
 . The ``sp_url`` will be used when creating a SAML assertion for ``mysp`` and
 signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
 token for ``mysp`` once the SAML assertion is sent. The auth_url has the format
@@ -519,7 +537,9 @@ described in `Get an unscoped token`_.
 
 .. code-block:: bash
 
-    $ openstack service provider create --service-provider-url 'http://mysp.example.com/Shibboleth.sso/SAML2/ECP' --auth-url http://mysp.example.com:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth mysp
+    $ openstack service provider create \
+    --service-provider-url 'https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP' \
+    --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth mysp
 
 Testing it all out
 ------------------
