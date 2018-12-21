@@ -60,7 +60,7 @@ If `mod_shib` is used, then use the following as an example:
          ShibRequireSession On
          ShibExportAssertion Off
        </Location>
-       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/saml2/websso">
          AuthType shibboleth
          Require valid-user
        </Location>
@@ -73,7 +73,7 @@ If `mod_auth_openidc` is used, then use the following as an example:
    <VirtualHost *:5000>
 
        OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/websso
-       OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso
+       OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/openid/websso
 
        ...
 
@@ -82,7 +82,7 @@ If `mod_auth_openidc` is used, then use the following as an example:
          Require valid-user
          ...
        </Location>
-       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso">
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/openid/websso">
          AuthType openid-connect
          Require valid-user
          ...
@@ -105,7 +105,7 @@ If `mod_auth_kerb` is used, then use the following as an example:
          Krb5Keytab /etc/apache2/http.keytab
          ...
        </Location>
-       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/kerberos/websso">
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/kerberos/websso">
          AuthType Kerberos
          AuthName "Acme Corporation"
          KrbMethodNegotiate on
@@ -129,7 +129,7 @@ If `mod_auth_mellon` is used, then use the following as an example:
          Require valid-user
          ...
        </Location>
-       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/saml2/websso">
          AuthType Mellon
          MellonEnable auth
          Require valid-user
@@ -206,8 +206,8 @@ identity backend.
        ("credentials", _("Keystone Credentials")),
        ("openid", _("OpenID Connect")),
        ("saml2", _("Security Assertion Markup Language")),
-       ("myidp_openid", "Acme Corporation - OpenID Connect"),
-       ("myidp_saml2", "Acme Corporation - SAML2")
+       ("acme_openid", "Acme Corporation - OpenID Connect"),
+       ("acme_saml2", "Acme Corporation - SAML2")
    )
 
 3. (Optional) Create a dictionary of specific identity provider and federation
@@ -223,8 +223,8 @@ protocol endpoint.
 .. code-block:: python
 
    WEBSSO_IDP_MAPPING = {
-       "myidp_openid": ("myidp", "openid"),
-       "myidp_saml2": ("myidp", "saml2")
+       "acme_openid": ("acme", "openid"),
+       "acme_saml2": ("acme", "saml2")
    }
 
 .. NOTE::

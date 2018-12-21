@@ -47,7 +47,7 @@ Shibboleth module and a *<Location>* directive for each identity provider
        SetHandler shib
    </Location>
 
-   <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth>
+   <Location /v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth>
        ShibRequestSetting requireSession 1
        AuthType shibboleth
        ShibExportAssertion Off
@@ -61,7 +61,7 @@ Shibboleth module and a *<Location>* directive for each identity provider
 
 .. NOTE::
     * ``saml2`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
-    * ``myidp`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
+    * ``samltest`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
     * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
       Apache 2.4+.
     * You are advised to carefully examine `Shibboleth Apache configuration
@@ -105,14 +105,7 @@ file. You will want to change five settings:
 
    <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth">
 
-* Set the IdP entity ID. This value is determined by the IdP. For example, if
-  Keystone is the IdP:
-
-.. code-block:: xml
-
-   <SSO entityID="https://myidp.example.com/v3/OS-FEDERATION/saml2/idp">
-
-Example if samltest.id is the IdP:
+* Set the entity ID of the Identity Provider:
 
 .. code-block:: xml
 
@@ -120,18 +113,20 @@ Example if samltest.id is the IdP:
 
 * Remove the discoveryURL lines unless you want to enable advanced IdP discovery.
 
-* Add a MetadataProvider block. The URI given here is a real URL that Shibboleth
-  will use to fetch metadata from the IdP. For example, if Keystone is the IdP:
+* Tell Shibboleth where to find the metadata of the Identity Provider. You could
+  either tell it to fetch it from a URI or point it to a local file. For
+  example, pointing to a local file:
 
 .. code-block:: xml
 
-   <MetadataProvider type="XML" uri="https://myidp.example.com:5000/v3/OS-FEDERATION/saml2/metadata"/>
+   <MetadataProvider type="XML" file="/etc/shibboleth/samltest-metadata.xml" />
 
-Example if samltest.id is the IdP:
+or pointing to a remote location:
 
 .. code-block:: xml
 
-   <MetadataProvider type="XML" uri="https://samltest.id/saml/idp" />
+   <MetadataProvider type="XML" url="https://samltest.id/saml/idp"
+       backingFile="samltest-metadata.xml" />
 
 You are advised to examine `Shibboleth Service Provider Configuration documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
 
@@ -182,7 +177,7 @@ to be used in a production environment):
                (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
                You can also override entityID on /Login query string, or in RequestMap/htaccess.
                -->
-               <SSO entityID="https://myidp.example.com/v3/OS-FEDERATION/saml2/idp">
+               <SSO entityID="https://samltest.id/saml/idp">
                  SAML2 SAML1
                </SSO>
 
@@ -222,7 +217,7 @@ to be used in a production environment):
            <!--
            <MetadataProvider type="XML" file="partner-metadata.xml"/>
            -->
-           <MetadataProvider type="XML" uri="https://myidp.example.com:5000/v3/OS-FEDERATION/saml2/metadata"/>
+           <MetadataProvider type="XML" uri="https://samltest.id/saml/idp"/>
 
            <!-- Map to extract attributes from SAML assertions. -->
            <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>

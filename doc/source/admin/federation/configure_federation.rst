@@ -36,6 +36,15 @@ responsible for authenticating users, and communicates the result of
 authentication to keystone using identity properties. Keystone maps these
 values to keystone user groups and assignments created in keystone.
 
+In this section, we will configure keystone as a Service Provider, consuming
+identity properties issued by an external Identity Provider, such as SAML
+assertions or OpenID Connect claims. For testing purposes, we recommend using
+`samltest.id`_  as a SAML Identity Provider, or Google as an OpenID Connect
+Identity Provider, and the examples here will references those providers. If you
+plan to set up `Keystone as an Identity Provider (IdP)`_, it is easiest to set
+up keystone with a dummy SAML provider first and then reconfigure it to point to
+the keystone Identity Provider later.
+
 The following configuration steps were performed on a machine running
 Ubuntu 14.04 and Apache 2.4.7.
 
@@ -55,6 +64,7 @@ To enable federation, you'll need to:
    ``/identity`` (for example), take this into account in your own
    configuration.
 
+.. _samltest.id: https://samltest.id
 .. _`SUSE`: ../../install/keystone-install-obs.html#configure-the-apache-http-server
 .. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
 .. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
@@ -168,7 +178,7 @@ Provider we will use to authenticate end users:
 
 .. code-block:: console
 
-   $ openstack identity provider create --remote-id https://myidp.example.com/v3/OS-FEDERATION/saml2/idp myidp
+   $ openstack identity provider create --remote-id https://samltest.id/saml/idp samltest
 
 The value for the ``remote-id`` option is the unique identifier provided by the
 IdP. For a SAML IdP it can found as the EntityDescriptor entityID in the IdP's
@@ -176,7 +186,7 @@ provided metadata. If the IdP is a keystone IdP, it is the value set in that
 keystone's ``[saml]/idp_entity_id`` option. For an OpenID Connect IdP, it is
 the IdP's Issuer Identifier. It will usually appear as a URI but there is no
 requirement for it to resolve to anything and may be arbitrarily decided by the
-administrator of the IdP. The local name, here called 'myidp', is decided by
+administrator of the IdP. The local name, here called 'samltest', is decided by
 you and will be used by the mapping and protocol, and later for authentication.
 
 A keystone identity provider may have multiple `remote_ids` specified, this
@@ -257,7 +267,7 @@ users to the group you already created:
        }
    ]
    EOF
-   $ openstack mapping create --rules rules.json myidp_mapping
+   $ openstack mapping create --rules rules.json samltest_mapping
 
 As another example, if Shibboleth is your IdP, the remote section should use REMOTE_USER as the remote type:
 
@@ -287,7 +297,7 @@ As another example, if Shibboleth is your IdP, the remote section should use REM
        }
    ]
    EOF
-   $ openstack mapping create --rules rules.json myidp_mapping
+   $ openstack mapping create --rules rules.json samltest_mapping
 
 Read more about `mapping
 <https://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
@@ -303,7 +313,7 @@ You can create a protocol like this:
 
 .. code-block:: console
 
-   $ openstack federation protocol create saml2 --mapping myidp_mapping --identity-provider myidp
+   $ openstack federation protocol create saml2 --mapping samltest_mapping --identity-provider samltest
 
 The name you give the protocol is not arbitrary. It must match the method name
 you gave in the ``[auth]/methods`` config option. When authenticating it will be
@@ -529,7 +539,7 @@ Create a Service Provider (SP)
 
 In this example we are creating a new Service Provider with an ID of ``mysp``,
 a ``sp_url`` of ``https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP`` and a
-``auth_url`` of ``https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth``
+``auth_url`` of ``https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth``
 . The ``sp_url`` will be used when creating a SAML assertion for ``mysp`` and
 signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
 token for ``mysp`` once the SAML assertion is sent. The auth_url has the format
@@ -539,7 +549,7 @@ described in `Get an unscoped token`_.
 
    $ openstack service provider create \
    --service-provider-url 'https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP' \
-   --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth mysp
+   --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth mysp
 
 Testing it all out
 ------------------

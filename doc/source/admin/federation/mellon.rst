@@ -49,11 +49,11 @@ a *<Location>* directive for each identity provider
        MellonSPCertFile /etc/apache2/mellon/sp.keystone.example.org.cert
        MellonSPMetadataFile /etc/apache2/mellon/sp-metadata.xml
        MellonIdPMetadataFile /etc/apache2/mellon/idp-metadata.xml
-       MellonEndpointPath /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
+       MellonEndpointPath /v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth/mellon
        MellonIdP "IDP"
    </Location>
 
-   <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth>
+   <Location /v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth>
        AuthType "Mellon"
        MellonEnable "auth"
    </Location>
@@ -62,7 +62,7 @@ a *<Location>* directive for each identity provider
     * See below for information about how to generate the values for the
       `MellonSPMetadataFile`, etc. directives.
     * ``saml2`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
-    * ``myidp`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
+    * ``samltest`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
     * You are advised to carefully examine `mod_auth_mellon Apache
       configuration documentation
       <https://github.com/UNINETT/mod_auth_mellon>`_
@@ -83,7 +83,7 @@ the values for the config directives `MellonSPPrivateKeyFile`,
 .. code-block:: console
 
    $ ./mellon_create_metadata.sh  https://sp.keystone.example.org/mellon\
-   https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
+   https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth/mellon
 
 The first parameter is used as the entity ID, a unique identifier for this
 Keystone SP.  You do not have to use the URL, but it is an easy way to uniquely
@@ -109,8 +109,7 @@ by the `MellonIdPMetadataFile` directive above. For example:
 
 .. code-block:: console
 
-   $ wget --cacert /path/to/ca.crt -O /etc/apache2/mellon/idp-metadata.xml \
-   https://myidp.example.com/idp/saml2/metadata
+   $ wget -O /etc/apache2/mellon/idp-metadata.xml https://samltest.id/saml/idp
 
 Once you are done, restart the Apache instance that is serving Keystone, for example:
 
