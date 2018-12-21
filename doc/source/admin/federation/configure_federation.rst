@@ -18,23 +18,11 @@ Configuring Keystone for Federation
 Keystone as a Service Provider (SP)
 -----------------------------------
 
-.. NOTE::
-
-    This feature is considered stable and supported as of the Juno release.
-
 Prerequisites
 -------------
 
-This approach to federation supports keystone as a Service Provider, consuming
-identity properties issued by an external Identity Provider, such as SAML
-assertions or OpenID Connect claims, or by using
-`Keystone as an Identity Provider (IdP)`_.
-
-Federated users are not mirrored in the keystone identity backend
-(for example, using the SQL driver). The external Identity Provider is
-responsible for authenticating users, and communicates the result of
-authentication to keystone using identity properties. Keystone maps these
-values to keystone user groups and assignments created in keystone.
+If you are not familiar with the idea of federated identity, see the
+`introduction`_ first.
 
 In this section, we will configure keystone as a Service Provider, consuming
 identity properties issued by an external Identity Provider, such as SAML
@@ -46,14 +34,29 @@ up keystone with a dummy SAML provider first and then reconfigure it to point to
 the keystone Identity Provider later.
 
 The following configuration steps were performed on a machine running
-Ubuntu 14.04 and Apache 2.4.7.
+Ubuntu 16.04 and Apache 2.4.18.
 
-To enable federation, you'll need to:
+To enable federation, you'll need to run keystone behind a web server such as
+Apache rather than running the WSGI application directly with uWSGI or Gunicorn.
+See the installation guide for `SUSE`_, `RedHat`_ or `Ubuntu`_ to configure
+the Apache web server for keystone.
 
-1. Run keystone under Apache for `SUSE`_, `RedHat`_ or `Ubuntu`_, rather than
-   using uwsgi command.
-2. `Configure Apache to use a federation capable authentication method`_.
-3. `Configure Federation in Keystone`_.
+Throughout the rest of the guide, you will need to decide on three pieces of
+information and use them consistently throughout your configuration:
+
+1. The protocol name. This must be a valid keystone auth method and must match
+   one of: ``saml2``, ``openid``, ``mapped`` or a `custom auth method`_ for which
+   you must `register as an external driver`_.
+
+2. The identity provider name. This can be arbitrary.
+
+3. The entity ID of the service provider. This should be a URN but need not
+   resolve to anything.
+
+You will also need to decide what HTTPD module to use as a Service Provider.
+This guide provides examples for ``mod_shib`` and ``mod_auth_mellon`` as SAML
+service providers, and ``mod_auth_openidc`` as an OpenID Connect Service
+Provider.
 
 .. note::
 
@@ -64,10 +67,13 @@ To enable federation, you'll need to:
    ``/identity`` (for example), take this into account in your own
    configuration.
 
+.. _introduction: introduction
 .. _samltest.id: https://samltest.id
-.. _`SUSE`: ../../install/keystone-install-obs.html#configure-the-apache-http-server
-.. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
-.. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
+.. _SUSE: ../../install/keystone-install-obs.html#configure-the-apache-http-server
+.. _RedHat: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
+.. _Ubuntu: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
+.. _custom auth method: ../../contributor/auth-plugins
+.. _register as an external driver: ../../contributor/developing-drivers
 
 Configure Apache to use a federation capable authentication method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
