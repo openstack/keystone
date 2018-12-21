@@ -100,10 +100,10 @@ Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
 Names should be equal to protocol names added via Identity API v3. Here we use
 examples ``saml2`` and ``openid``.
 
-.. code-block:: bash
+.. code-block:: ini
 
-       [auth]
-       methods = external,password,token,saml2,openid
+   [auth]
+   methods = external,password,token,saml2,openid
 
 Create keystone groups and assign roles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,23 +126,23 @@ both of which are exposed to the CLI via `python-openstackclient
 
 For example, create a new domain and project like this:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack domain create federated_domain
-    $ openstack project create federated_project --domain federated_domain
+   $ openstack domain create federated_domain
+   $ openstack project create federated_project --domain federated_domain
 
 And a new group like this:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack group create federated_users
+   $ openstack group create federated_users
 
 Add the group to the domain and project:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack role add --group federated_users --domain federated_domain Member
-    $ openstack role add --group federated_users --project federated_project Member
+   $ openstack role add --group federated_users --domain federated_domain Member
+   $ openstack role add --group federated_users --project federated_project Member
 
 We'll later add a mapping that makes all federated users a part of this group
 and therefore members of the new domain.
@@ -166,9 +166,9 @@ Identity Provider
 Create an Identity Provider object in keystone, which represents the Identity
 Provider we will use to authenticate end users:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack identity provider create --remote-id https://myidp.example.com/v3/OS-FEDERATION/saml2/idp myidp
+   $ openstack identity provider create --remote-id https://myidp.example.com/v3/OS-FEDERATION/saml2/idp myidp
 
 The value for the ``remote-id`` option is the unique identifier provided by the
 IdP. For a SAML IdP it can found as the EntityDescriptor entityID in the IdP's
@@ -224,70 +224,70 @@ Mapping objects can be used multiple times by different combinations of Identity
 As a simple example, if keystone is your IdP, you can map a few known remote
 users to the group you already created:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ cat > rules.json <<EOF
-    [
-        {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}"
-                    },
-                    "group": {
-                        "domain": {
-                            "name": "Default"
-                        },
-                        "name": "federated_users"
-                    }
-                }
-            ],
-            "remote": [
-                {
-                    "type": "openstack_user"
-                },
-                {
-                    "type": "openstack_user",
-                    "any_one_of": [
-                        "demo",
-                        "alt_demo"
-                    ]
-                }
-            ]
-        }
-    ]
-    EOF
-    $ openstack mapping create --rules rules.json myidp_mapping
+   $ cat > rules.json <<EOF
+   [
+       {
+           "local": [
+               {
+                   "user": {
+                       "name": "{0}"
+                   },
+                   "group": {
+                       "domain": {
+                           "name": "Default"
+                       },
+                       "name": "federated_users"
+                   }
+               }
+           ],
+           "remote": [
+               {
+                   "type": "openstack_user"
+               },
+               {
+                   "type": "openstack_user",
+                   "any_one_of": [
+                       "demo",
+                       "alt_demo"
+                   ]
+               }
+           ]
+       }
+   ]
+   EOF
+   $ openstack mapping create --rules rules.json myidp_mapping
 
 As another example, if Shibboleth is your IdP, the remote section should use REMOTE_USER as the remote type:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ cat > rules.json <<EOF
-    [
-        {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}"
-                    },
-                    "group": {
-                        "domain": {
-                            "name": "Default"
-                        },
-                        "name": "federated_users"
-                    }
-                }
-            ],
-            "remote": [
-                {
-                    "type": "REMOTE_USER"
-                }
-            ]
-        }
-    ]
-    EOF
-    $ openstack mapping create --rules rules.json myidp_mapping
+   $ cat > rules.json <<EOF
+   [
+       {
+           "local": [
+               {
+                   "user": {
+                       "name": "{0}"
+                   },
+                   "group": {
+                       "domain": {
+                           "name": "Default"
+                       },
+                       "name": "federated_users"
+                   }
+               }
+           ],
+           "remote": [
+               {
+                   "type": "REMOTE_USER"
+               }
+           ]
+       }
+   ]
+   EOF
+   $ openstack mapping create --rules rules.json myidp_mapping
 
 Read more about `mapping
 <https://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
@@ -301,9 +301,9 @@ request made by an IdP. An IdP may have multiple supported protocols.
 
 You can create a protocol like this:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack federation protocol create saml2 --mapping myidp_mapping --identity-provider myidp
+   $ openstack federation protocol create saml2 --mapping myidp_mapping --identity-provider myidp
 
 The name you give the protocol is not arbitrary. It must match the method name
 you gave in the ``[auth]/methods`` config option. When authenticating it will be
@@ -356,9 +356,9 @@ considered protected by ``mod_shib`` and Apache, as such a request made
 to the URL would be redirected to the Identity Provider, to start the
 SAML authentication procedure.
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ curl -X GET -D - https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
+   $ curl -X GET -D - https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
 
 Determine accessible resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -376,21 +376,21 @@ Read more about `listing resources
 Example
 ~~~~~~~
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ export OS_IDENTITY_API_VERSION=3
-    $ export OS_TOKEN=<unscoped token>
-    $ export OS_URL=https://sp.keystone.example.org/v3
-    $ openstack federation project list
+   $ export OS_IDENTITY_API_VERSION=3
+   $ export OS_TOKEN=<unscoped token>
+   $ export OS_URL=https://sp.keystone.example.org/v3
+   $ openstack federation project list
 
 or
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ export OS_IDENTITY_API_VERSION=3
-    $ export OS_TOKEN=<unscoped token>
-    $ export OS_URL=https://sp.keystone.example.org/v3
-    $ openstack federation domain list
+   $ export OS_IDENTITY_API_VERSION=3
+   $ export OS_TOKEN=<unscoped token>
+   $ export OS_URL=https://sp.keystone.example.org/v3
+   $ openstack federation domain list
 
 Get a scoped token
 ~~~~~~~~~~~~~~~~~~
@@ -406,15 +406,15 @@ Read more about `getting a scoped token
 Example
 ~~~~~~~
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ export OS_AUTH_TYPE=token
-    $ export OS_IDENTITY_API_VERSION=3
-    $ export OS_TOKEN=<unscoped token>
-    $ export OS_AUTH_URL=https://sp.keystone.example.org/v3
-    $ export OS_PROJECT_DOMAIN_NAME=federated_domain
-    $ export OS_PROJECT_NAME=federated_project
-    $ openstack token issue
+   $ export OS_AUTH_TYPE=token
+   $ export OS_IDENTITY_API_VERSION=3
+   $ export OS_TOKEN=<unscoped token>
+   $ export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   $ export OS_PROJECT_DOMAIN_NAME=federated_domain
+   $ export OS_PROJECT_NAME=federated_project
+   $ openstack token issue
 
 --------------------------------------
 Keystone as an Identity Provider (IdP)
@@ -433,9 +433,9 @@ Keystone as an Identity Provider (IdP)
 
     Example for apt:
 
-    .. code-block:: bash
+    .. code-block:: console
 
-            $ apt-get install xmlsec1
+       # apt-get install xmlsec1
 
 .. note::
 
@@ -457,9 +457,9 @@ example:
 
 .. code-block:: ini
 
-    [saml]
-    idp_entity_id=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/idp
-    idp_sso_endpoint=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/sso
+   [saml]
+   idp_entity_id=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/idp
+   idp_sso_endpoint=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/sso
 
 ``idp_entity_id`` is the unique identifier for the Identity Provider. It
 usually takes the form of a URI but it does not have to resolve to anything.
@@ -471,30 +471,30 @@ necessary:
 
 .. code-block:: ini
 
-    certfile=/etc/keystone/ssl/certs/signing_cert.pem
-    keyfile=/etc/keystone/ssl/private/signing_key.pem
-    idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
+   certfile=/etc/keystone/ssl/certs/signing_cert.pem
+   keyfile=/etc/keystone/ssl/private/signing_key.pem
+   idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
 
 Though not necessary, the follow Organization configuration options should
 also be setup. It is recommended that these values be URL safe.
 
 .. code-block:: ini
 
-    idp_organization_name=example_company
-    idp_organization_display_name=Example Corp.
-    idp_organization_url=example.com
+   idp_organization_name=example_company
+   idp_organization_display_name=Example Corp.
+   idp_organization_url=example.com
 
 As with the Organization options, the Contact options, are not necessary, but
 it's advisable to set these values too.
 
 .. code-block:: ini
 
-    idp_contact_company=example_company
-    idp_contact_name=John
-    idp_contact_surname=Smith
-    idp_contact_email=jsmith@example.com
-    idp_contact_telephone=555-555-5555
-    idp_contact_type=technical
+   idp_contact_company=example_company
+   idp_contact_name=John
+   idp_contact_surname=Smith
+   idp_contact_email=jsmith@example.com
+   idp_contact_telephone=555-555-5555
+   idp_contact_type=technical
 
 Generate Metadata
 -----------------
@@ -514,9 +514,9 @@ vhost::
 To create metadata for your keystone IdP, run the ``keystone-manage`` command
 and redirect the output to a file. For example:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ keystone-manage saml_idp_metadata > /etc/keystone/saml2_idp_metadata.xml
+   # keystone-manage saml_idp_metadata > /etc/keystone/saml2_idp_metadata.xml
 
 .. NOTE::
     The file location should match the value of the configuration option
@@ -535,11 +535,11 @@ signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
 token for ``mysp`` once the SAML assertion is sent. The auth_url has the format
 described in `Get an unscoped token`_.
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack service provider create \
-    --service-provider-url 'https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP' \
-    --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth mysp
+   $ openstack service provider create \
+   --service-provider-url 'https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP' \
+   --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth mysp
 
 Testing it all out
 ------------------
@@ -551,13 +551,13 @@ scoped token from the SP.
     ECP stands for Enhanced Client or Proxy, an extension from the SAML2
     protocol used in non-browser interfaces, like in the following example.
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ openstack \
-    --os-service-provider mysp \
-    --os-remote-project-name federated_project \
-    --os-remote-project-domain-name federated_domain \
-    token issue
+   $ openstack \
+   --os-service-provider mysp \
+   --os-remote-project-name federated_project \
+   --os-remote-project-domain-name federated_domain \
+   token issue
 
 
 .. include:: openidc.rst

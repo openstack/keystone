@@ -28,9 +28,9 @@ Configure keystone under Apache, following the steps in the install guide for
 You'll also need to install the Apache module `mod_auth_mellon
 <https://github.com/UNINETT/mod_auth_mellon>`_.  For example:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ apt-get install libapache2-mod-auth-mellon
+   # apt-get install libapache2-mod-auth-mellon
 
 Configure your Keystone virtual host and adjust the config to properly handle SAML2 workflow:
 
@@ -41,22 +41,22 @@ Add this *WSGIScriptAlias* directive to your public vhost configuration::
 Make sure the *wsgi-keystone.conf* contains a *<Location>* directive for the Mellon module and
 a *<Location>* directive for each identity provider
 
-.. code-block:: none
+.. code-block:: apache
 
-    <Location /v3>
-        MellonEnable "info"
-        MellonSPPrivateKeyFile /etc/apache2/mellon/sp.keystone.example.org.key
-        MellonSPCertFile /etc/apache2/mellon/sp.keystone.example.org.cert
-        MellonSPMetadataFile /etc/apache2/mellon/sp-metadata.xml
-        MellonIdPMetadataFile /etc/apache2/mellon/idp-metadata.xml
-        MellonEndpointPath /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
-        MellonIdP "IDP"
-    </Location>
+   <Location /v3>
+       MellonEnable "info"
+       MellonSPPrivateKeyFile /etc/apache2/mellon/sp.keystone.example.org.key
+       MellonSPCertFile /etc/apache2/mellon/sp.keystone.example.org.cert
+       MellonSPMetadataFile /etc/apache2/mellon/sp-metadata.xml
+       MellonIdPMetadataFile /etc/apache2/mellon/idp-metadata.xml
+       MellonEndpointPath /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
+       MellonIdP "IDP"
+   </Location>
 
-    <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth>
-        AuthType "Mellon"
-        MellonEnable "auth"
-    </Location>
+   <Location /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth>
+       AuthType "Mellon"
+       MellonEnable "auth"
+   </Location>
 
 .. NOTE::
     * See below for information about how to generate the values for the
@@ -69,9 +69,9 @@ a *<Location>* directive for each identity provider
 
 Enable the ``auth_mellon`` module, for example:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ a2enmod auth_mellon
+   # a2enmod auth_mellon
 
 Configuring the Mellon SP Metadata
 ----------------------------------
@@ -80,10 +80,10 @@ Mellon provides a script called `mellon_create_metadata.sh`_ which generates
 the values for the config directives `MellonSPPrivateKeyFile`,
 `MellonSPCertFile`, and `MellonSPMetadataFile`.  It is run like this:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ ./mellon_create_metadata.sh  https://sp.keystone.example.org/mellon\
-      https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
+   $ ./mellon_create_metadata.sh  https://sp.keystone.example.org/mellon\
+   https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
 
 The first parameter is used as the entity ID, a unique identifier for this
 Keystone SP.  You do not have to use the URL, but it is an easy way to uniquely
@@ -107,15 +107,15 @@ can upload the file, or you may be required to submit the file using `wget` or
 Fetch your Identity Provider's Metadata file and copy it to the path specified
 by the `MellonIdPMetadataFile` directive above. For example:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ wget --cacert /path/to/ca.crt -O /etc/apache2/mellon/idp-metadata.xml \
-      https://myidp.example.com/idp/saml2/metadata
+   $ wget --cacert /path/to/ca.crt -O /etc/apache2/mellon/idp-metadata.xml \
+   https://myidp.example.com/idp/saml2/metadata
 
 Once you are done, restart the Apache instance that is serving Keystone, for example:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ service apache2 restart
+   # service apache2 restart
 
 .. _`mellon_create_metadata.sh`: https://github.com/UNINETT/mod_auth_mellon/blob/master/mellon_create_metadata.sh
