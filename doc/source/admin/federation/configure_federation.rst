@@ -18,6 +18,8 @@ Configuring Keystone for Federation
 Keystone as a Service Provider (SP)
 -----------------------------------
 
+.. _sp-prerequisites:
+
 Prerequisites
 -------------
 
@@ -75,109 +77,22 @@ Provider.
 .. _custom auth method: ../../contributor/auth-plugins
 .. _register as an external driver: ../../contributor/developing-drivers
 
-Configure Apache to use a federation capable authentication method
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Creating federation resources in keystone
+-----------------------------------------
 
-There is currently support for two major federation protocols:
+You need to create three resources via the keystone API to identify the Identity
+Provider to keystone and align remote user attributes with keystone objects:
 
-* SAML - Keystone supports the following implementations:
+* `Create an Identity Provider`_
+* `Create a Mapping`_
+* `Create a Protocol`_
 
-  * Shibboleth - see `Setup Shibboleth`_.
-  * Mellon - see `Setup Mellon`_.
+See also the `keystone federation API reference`_.
 
-* OpenID Connect - see `Setup OpenID Connect`_.
+.. _keystone federation API reference: https://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api
 
-.. _`Setup Shibboleth`: shibboleth.html
-.. _`Setup OpenID Connect`: openidc.html
-.. _`Setup Mellon`: mellon.html
-
-Configure keystone and Horizon for Single Sign-On
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* To configure horizon to access a federated keystone,
-  follow the steps outlined at: `Keystone Federation and Horizon`_.
-
-.. _`Keystone Federation and Horizon`: websso.html
-
-Configure Federation in Keystone
---------------------------------
-
-Now that the Identity Provider and keystone are communicating we can start to
-configure ``federation``.
-
-1. `Configure authentication drivers in keystone.conf`_
-2. `Create keystone groups and assign roles`_
-3. `Add Identity Provider(s), Mapping(s), and Protocol(s)`_
-
-Configure authentication drivers in keystone.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
-Names should be equal to protocol names added via Identity API v3. Here we use
-examples ``saml2`` and ``openid``.
-
-.. code-block:: ini
-
-   [auth]
-   methods = external,password,token,saml2,openid
-
-Create keystone groups and assign roles
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As mentioned earlier, no new users will be added to the Identity backend, but
-the Identity Service requires group-based role assignments to authorize
-federated users. The federation mapping function will map the user into local
-Identity Service groups objects, and hence to local role assignments.
-
-Thus, it is required to create the necessary Identity Service groups that
-correspond to the Identity Provider's groups; additionally, these groups should
-be assigned roles on one or more projects or domains.
-
-You may be interested in more information on `group management
-<https://developer.openstack.org/api-ref/identity/v3/#create-group>`_
-and `role assignments
-<https://developer.openstack.org/api-ref/identity/v3/#assign-role-to-group-on-project>`_,
-both of which are exposed to the CLI via `python-openstackclient
-<https://pypi.org/project/python-openstackclient/>`_.
-
-For example, create a new domain and project like this:
-
-.. code-block:: console
-
-   $ openstack domain create federated_domain
-   $ openstack project create federated_project --domain federated_domain
-
-And a new group like this:
-
-.. code-block:: console
-
-   $ openstack group create federated_users
-
-Add the group to the domain and project:
-
-.. code-block:: console
-
-   $ openstack role add --group federated_users --domain federated_domain Member
-   $ openstack role add --group federated_users --project federated_project Member
-
-We'll later add a mapping that makes all federated users a part of this group
-and therefore members of the new domain.
-
-Add Identity Provider(s), Mapping(s), and Protocol(s)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To utilize federation the following must be created in the Identity Service:
-
-* `Identity Provider`_
-* `Mapping`_
-* `Protocol`_
-
-Read more about `federation in keystone
-<https://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api>`__.
-
-~~~~~~~~~~~~~~~~~
-Identity Provider
-~~~~~~~~~~~~~~~~~
+Create an Identity Provider
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create an Identity Provider object in keystone, which represents the Identity
 Provider we will use to authenticate end users:
@@ -187,95 +102,51 @@ Provider we will use to authenticate end users:
    $ openstack identity provider create --remote-id https://samltest.id/saml/idp samltest
 
 The value for the ``remote-id`` option is the unique identifier provided by the
-IdP. For a SAML IdP it can found as the EntityDescriptor entityID in the IdP's
-provided metadata. If the IdP is a keystone IdP, it is the value set in that
-keystone's ``[saml]/idp_entity_id`` option. For an OpenID Connect IdP, it is
-the IdP's Issuer Identifier. It will usually appear as a URI but there is no
-requirement for it to resolve to anything and may be arbitrarily decided by the
-administrator of the IdP. The local name, here called 'samltest', is decided by
-you and will be used by the mapping and protocol, and later for authentication.
-
-A keystone identity provider may have multiple `remote_ids` specified, this
-allows the same *keystone* identity provider resource to be used with multiple
-external identity providers. For example, an identity provider resource
-``university-idp``, may have the following `remote_ids`:
-``['university-x', 'university-y', 'university-z']``.
-This removes the need to configure N identity providers in keystone.
-
-.. NOTE::
-
-    Remote IDs are globally unique. Two identity providers cannot be
-    associated with the same remote ID. Once authenticated with the external
-    identity provider, keystone will determine which identity provider
-    and mapping to use based on the protocol and the value returned from the
-    `remote_id_attribute` key.
-
-    For example, if our identity provider is ``google``, the mapping used is
-    ``google_mapping`` and the protocol is ``openid``. The identity provider's
-    remote IDs  would be: [``https://accounts.google.com``].
-    The `remote_id_attribute` value may be set to ``HTTP_OIDC_ISS``, since
-    this value will always be ``https://accounts.google.com``.
-
-    The motivation for this approach is that there will always be some data
-    sent by the identity provider (in the assertion or claim) that uniquely
-    identifies the identity provider. This removes the requirement for horizon
-    to list all the identity providers that are trusted by keystone.
-
-Read more about `identity providers
-<https://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers>`__.
-
-~~~~~~~
-Mapping
-~~~~~~~
-A mapping is a list of rules. The only Identity API objects that will support mapping are groups
-and users.
-
-Mapping adds a set of rules to map federation protocol attributes to Identity API objects.
-There are many different ways to setup as well as combine these rules. More information on
-rules can be found on the :doc:`mapping_combinations` page.
-
-An Identity Provider has exactly one mapping specified per protocol.
-Mapping objects can be used multiple times by different combinations of Identity Provider and Protocol.
-
-As a simple example, if keystone is your IdP, you can map a few known remote
-users to the group you already created:
+Identity Provider, called the `entity ID` or the `remote ID`. For a SAML
+Identity Provider, it can found by querying its metadata endpoint:
 
 .. code-block:: console
 
-   $ cat > rules.json <<EOF
-   [
-       {
-           "local": [
-               {
-                   "user": {
-                       "name": "{0}"
-                   },
-                   "group": {
-                       "domain": {
-                           "name": "Default"
-                       },
-                       "name": "federated_users"
-                   }
-               }
-           ],
-           "remote": [
-               {
-                   "type": "openstack_user"
-               },
-               {
-                   "type": "openstack_user",
-                   "any_one_of": [
-                       "demo",
-                       "alt_demo"
-                   ]
-               }
-           ]
-       }
-   ]
-   EOF
-   $ openstack mapping create --rules rules.json samltest_mapping
+   $ curl -s https://samltest.id/saml/idp | grep -o 'entityID=".*"'
+   entityID="https://samltest.id/saml/idp"
 
-As another example, if Shibboleth is your IdP, the remote section should use REMOTE_USER as the remote type:
+For an OpenID Connect IdP, it is the Identity Provider's Issuer Identifier.
+A remote ID must be globally unique: two identity providers cannot be associated
+with the same remote ID. The remote ID will usually appear as a URN but but need
+not be a resolvable URL.
+
+The local name, called ``samltest`` in our example, is decided by you and will
+be used by the mapping and protocol, and later for authentication.
+
+.. note::
+
+   An identity provider keystone object may have multiple ``remote-ids``
+   specified, this allows the same *keystone* identity provider resource to be
+   used with multiple external identity providers. For example, an identity
+   provider resource ``university-idp``, may have the following ``remote_ids``:
+   ``['university-x', 'university-y', 'university-z']``.
+   This removes the need to configure N identity providers in keystone.
+
+See also the `API reference on identity providers`_.
+
+.. _API reference on identity providers: https://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers
+
+Create a Mapping
+~~~~~~~~~~~~~~~~
+
+Next, create a mapping. A mapping is a set of rules that link the attributes of
+a remote user to user properties that keystone understands. It is especially
+useful for granting remote users authorization to keystone resources, either by
+associating them with a local keystone group and inheriting its role
+assignments, or dynamically provisioning projects within keystone based on these
+rules.
+
+An Identity Provider has exactly one mapping specified per protocol.
+Mapping objects can be used multiple times by different combinations of Identity
+Provider and Protocol.
+
+As a simple example, create a mapping with a single rule to map all remote users
+to a local user in a single group in keystone:
 
 .. code-block:: console
 
@@ -305,28 +176,119 @@ As another example, if Shibboleth is your IdP, the remote section should use REM
    EOF
    $ openstack mapping create --rules rules.json samltest_mapping
 
-Read more about `mapping
-<https://developer.openstack.org/api-ref/identity/v3-ext/#mappings>`__.
+This mapping rule evaluates the ``REMOTE_USER`` variable set by the HTTPD auth
+module and uses it to fill in the name of the local user in keystone. It also
+ensures all remote users become effective members of the ``federated_users``
+group, thereby inheriting the group's role assignments.
 
-~~~~~~~~
-Protocol
-~~~~~~~~
+In this example, the ``federated_users`` group must exist in the keystone
+Identity backend and must have a role assignment on some project, domain, or
+system in order for federated users to have an authorization in keystone. For
+example, to create the group:
 
-A protocol contains information that dictates which Mapping rules to use for an incoming
-request made by an IdP. An IdP may have multiple supported protocols.
+.. code-block:: console
+
+   $ openstack group create federated_users
+
+Create a project these users should be assigned to:
+
+.. code-block:: console
+
+   $ openstack project create federated_project
+
+Assign the group a ``member`` role in the project:
+
+.. code-block:: console
+
+   $ openstack role add --group federated_users --project federated_project member
+
+Mappings can be quite complex. A detailed guide can be found on the
+:doc:`mapping_combinations` page.
+
+See also the `API reference on mapping rules`_.
+
+.. _API reference on mapping rules: https://developer.openstack.org/api-ref/identity/v3-ext/#mappings
+
+Create a Protocol
+~~~~~~~~~~~~~~~~~
+
+Now create a federation protocol. A federation protocol object links the
+Identity Provider to a mapping.
 
 You can create a protocol like this:
 
 .. code-block:: console
 
-   $ openstack federation protocol create saml2 --mapping samltest_mapping --identity-provider samltest
+   $ openstack federation protocol create saml2 \
+   --mapping samltest_mapping --identity-provider samltest
 
-The name you give the protocol is not arbitrary. It must match the method name
-you gave in the ``[auth]/methods`` config option. When authenticating it will be
-referred to as the ``protocol_id``.
+As mentioned in :ref:`sp-prerequisites`, the name you give the protocol is not
+arbitrary, it must be a valid auth method.
 
-Read more about `federation protocols
-<https://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__
+See also the `API reference for federation protocols`_.
+
+.. _API reference for federation protocols: https://developer.openstack.org/api-ref/identity/v3-ext/#protocols
+
+Configuring an HTTPD auth module
+--------------------------------
+
+This guide currently only includes examples for the Apache web server, but it
+possible to use SAML, OpenIDC, and other auth modules in other web servers. See
+the installation guides for running keystone behind Apache for `SUSE`_,
+`RedHat`_ or `Ubuntu`_.
+
+.. _`SUSE`: ../../install/keystone-install-obs.html#configure-the-apache-http-server
+.. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
+.. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
+
+If your Identity Provider is a SAML IdP, there are two main Apache modules that
+can be used as a SAML Service Provider: `mod_shib` and `mod_auth_mellon`. For
+an OpenID Connect Identity Provider, `mod_auth_openidc` is used. You can also
+use other auth modules such as kerberos, X.509, or others. Check the
+documentation for the provider you choose for detailed installation and
+configuration guidance.
+
+Depending on the Service Provider module you've chosen, you will need to install
+the applicable Apache module package and follow additional configuration steps.
+This guide contains examples for two major federation protocols:
+
+* SAML2.0 - see guides for the following implementations:
+
+  * `Set up mod_shib`_.
+  * `Set up mod_auth_mellon`_.
+
+* OpenID Connect: `Set up mod_auth_openidc`_.
+
+.. _`Set up mod_shib`: shibboleth.html
+.. _`Set up mod_auth_openidc`: openidc.html
+.. _`Set up mod_auth_mellon`: mellon.html
+
+
+Configuring Keystone
+--------------------
+
+While the Apache module does the majority of the heavy lifting, minor changes
+are needed to allow keystone to allow and understand federated authentication.
+
+Add the Auth Method
+~~~~~~~~~~~~~~~~~~~
+
+Add the authentication methods to the ``[auth]`` section in ``keystone.conf``.
+The auth method here must have the same name as the protocol you created in
+`Create a Protocol`_. You should also remove ``external`` as an allowable
+method.
+
+.. code-block:: console
+
+   [auth]
+   methods = password,token,saml2,openid
+
+When finished configuring keystone, restart the keystone WSGI process or the web
+server:
+
+.. code-block:: console
+
+   # systemctl restart apache2
 
 Authenticating
 --------------
@@ -348,8 +310,8 @@ To use the CLI tool, you must have the name of the Identity Provider
 resource in keystone, the name of the federation protocol configured in
 keystone, and the ECP endpoint for the Identity Provider. If you are the cloud
 administrator, the name of the Identity Provider and protocol was configured in
-`Identity Provider`_ and `Protocol`_ respectively. If you are not the
-administrator, you must obtain this information from the administrator.
+`Create an Identity Provider`_ and `Create a Protocol`_ respectively. If you are
+not the administrator, you must obtain this information from the administrator.
 
 The ECP endpoint for the Identity Provider can be obtained from its metadata
 without involving an administrator. This endpoint is the
