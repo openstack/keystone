@@ -375,7 +375,9 @@ is decided by the auth module choice:
 * For ``mod_auth_mellon``: the attribute name is configured with the
   ``MellonIdP`` parameter in the VirtualHost configuration, if set to e.g.
   ``IDP`` then use ``MELLON_IDP``
-* For ``mod_auth_openidc``: use ``HTTP_OIDC_ISS``
+* For ``mod_auth_openidc``: the attribute name is related to the
+  ``OIDCClaimPrefix`` parameter in the Apache configuration, if set to e.g.
+  ``OIDC-`` use ``HTTP_OIDC_ISS``
 
 It is recommended that this option be set on a per-protocol basis by creating a
 new section named after the protocol:

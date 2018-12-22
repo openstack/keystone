@@ -11,83 +11,114 @@
       License for the specific language governing permissions and limitations
       under the License.
 
---------------------
-Setup OpenID Connect
---------------------
+-------------------------
+Setting Up OpenID Connect
+-------------------------
 
-Configuring mod_auth_openidc
-----------------------------
+See :ref:`keystone-as-sp` before proceeding with these OpenIDC-specific
+instructions.
 
-Federate Keystone (SP) and an external IdP using OpenID Connect (`mod_auth_openidc`_)
+These examples use Google as an OpenID Connect Identity Provider. The Service
+Provider must be added to the Identity Provider in the `Google API console`_.
 
-.. _`mod_auth_openidc`: https://github.com/pingidentity/mod_auth_openidc
+.. _Google API console: https://console.developers.google.com/
 
-To install `mod_auth_openidc` on Ubuntu, perform the following:
+Configuring Apache HTTPD for mod_auth_openidc
+---------------------------------------------
+
+.. note::
+
+   You are advised to carefully examine the `mod_auth_openidc documentation`_.
+
+.. _mod_auth_openidc documentation: https://github.com/zmartzone/mod_auth_openidc#how-to-use-it
+
+Install the Module
+~~~~~~~~~~~~~~~~~~
+
+Install the Apache module package. For example, on Ubuntu:
 
 .. code-block:: console
 
    # apt-get install libapache2-mod-auth-openidc
 
-This module is available for other distributions (Fedora/CentOS/Red Hat) from:
-https://github.com/pingidentity/mod_auth_openidc/releases
+The package and module name will differ between distributions.
 
-Enable the auth_openidc module:
+Configure mod_auth_openidc
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: console
-
-   # a2enmod auth_openidc
-
-In the keystone vhost file, locate the virtual host entry and add the following
-entries for OpenID Connect:
+In the Apache configuration for the keystone VirtualHost, set the following OIDC
+options:
 
 .. code-block:: apache
 
-   <VirtualHost *:5000>
+   OIDCClaimPrefix "OIDC-"
+   OIDCResponseType "id_token"
+   OIDCScope "openid email profile"
+   OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
+   OIDCClientID <openid_client_id>
+   OIDCClientSecret <openid_client_secret>
+   OIDCCryptoPassphrase <random string>
+   OIDCRedirectURI https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/google/protocols/openid/auth
 
-       ...
+``OIDCScope`` is the list of attributes that the user will authorize the
+Identity Provider to send to the Service Provider. ``OIDCClientID`` and
+``OIDCClientSecret`` must be generated and obtained from the Identity Provider.
+``OIDCProviderMetadataURL`` is a URL from which the Service Provider will fetch
+the Identity Provider's metadata. ``OIDCRedirectURI`` is a vanity URL that must
+point to a protected path that does not have any content, such as an extension
+of the protected federated auth path.
 
-       OIDCClaimPrefix "OIDC-"
-       OIDCResponseType "id_token"
-       OIDCScope "openid email profile"
-       OIDCProviderMetadataURL <url_of_provider_metadata>
-       OIDCClientID <openid_client_id>
-       OIDCClientSecret <openid_client_secret>
-       OIDCCryptoPassphrase openstack
-       OIDCRedirectURI https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/<idp_id>/protocols/openid/auth
+.. note::
 
-       <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/openid/auth>
-         AuthType openid-connect
-         Require valid-user
-         LogLevel debug
-       </LocationMatch>
-   </VirtualHost>
+   If using a mod_wsgi version less than 4.3.0, then the `OIDCClaimPrefix` must
+   be specified to have only alphanumerics or a dash ("-"). This is because
+   `mod_wsgi blocks headers that do not fit this criteria`_.
 
-Note an example of an `OIDCProviderMetadataURL` instance is: https://accounts.google.com/.well-known/openid-configuration
-If not using `OIDCProviderMetadataURL`, then the following attributes
-must be specified: `OIDCProviderIssuer`, `OIDCProviderAuthorizationEndpoint`,
-`OIDCProviderTokenEndpoint`, `OIDCProviderTokenEndpointAuth`,
-`OIDCProviderUserInfoEndpoint`, and `OIDCProviderJwksUri`
+.. _mod_wsgi blocks headers that do not fit this criteria: http://modwsgi.readthedocs.org/en/latest/release-notes/version-4.3.0.html#bugs-fixed
 
-Note, if using a mod_wsgi version less than 4.3.0, then the `OIDCClaimPrefix`
-must be specified to have only alphanumerics or a dash ("-"). This is because
-mod_wsgi blocks headers that do not fit this criteria. See http://modwsgi.readthedocs.org/en/latest/release-notes/version-4.3.0.html#bugs-fixed
-for more details
+Configure Protected Endpoints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once you are done, restart your Apache daemon:
+Configure each protected path to use the ``openid-connect`` AuthType:
+
+.. code-block:: apache
+
+   <Location /v3/OS-FEDERATION/identity_providers/google/protocols/openid/auth>
+       Require valid-user
+       AuthType openid-connect
+   </Location>
+
+Do the same for the WebSSO auth paths if using horizon:
+
+.. code-block:: apache
+
+   <Location /v3/auth/OS-FEDERATION/websso/openid>
+       Require valid-user
+       AuthType openid-connect
+   </Location>
+   <Location /v3/auth/OS-FEDERATION/identity_providers/google/protocols/openid/websso>
+       Require valid-user
+       AuthType openid-connect
+   </Location>
+
+Remember to reload Apache after altering the VirtualHost:
 
 .. code-block:: console
 
-   # service apache2 restart
+   # systemctl reload apache2
 
-Tips
-----
+.. note::
 
-1. When creating a `mapping`_, note that the 'remote' attributes will be prefixed,
-   with `HTTP_`, so for instance, if you set OIDCClaimPrefix to `OIDC-`, then a
-   typical remote value to check for is: `HTTP_OIDC_ISS`.
+   When creating `mapping rules`_, in keystone, note that the 'remote'
+   attributes will be prefixed, with ``HTTP_``, so for instance, if you set
+   ``OIDCClaimPrefix`` to ``OIDC-``, then a typical remote value to check for
+   is: ``HTTP_OIDC_ISS``.
 
-2. Don't forget to add openid as an [auth] plugin in keystone.conf, see
-   `Configure authentication drivers in keystone.conf`_
+.. _`mapping rules`: configure_federation.html#mapping
 
-.. _`Configure authentication drivers in keystone.conf`: federated_identity.html#configure-authentication-drivers-in-keystone-conf
-.. _`mapping`: configure_federation.html#mapping
+Continue configuring keystone
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Continue configuring keystone`_
+
+.. _Continue configuring keystone: configure_federation.html#configuring-keystone
