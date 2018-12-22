@@ -450,14 +450,17 @@ packaging system (for instance apt or yum)
    ``/identity`` (for example), take this into account in your own
    configuration.
 
-Configuration Options
----------------------
+Configuring Metadata
+--------------------
 
-There are certain settings in ``keystone.conf`` that must be setup, prior to
-attempting to federate multiple keystone deployments.
+Since keystone is acting as a SAML Identity Provider, its metadata must be
+configured in the ``[saml]`` section of ``keystone.conf`` so that it can served
+by the `metadata API`_.
 
-Within ``keystone.conf``, assign values to the ``[saml]`` related fields, for
-example:
+.. _metadata API: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#retrieve-metadata-properties
+
+The two parameters that **must** be set in order for keystone to generate
+metadata are ``idp_entity_id`` and ``idp_sso_endpoint``:
 
 .. code-block:: ini
 
@@ -465,34 +468,24 @@ example:
    idp_entity_id=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/idp
    idp_sso_endpoint=https://idp.keystone.example.org/v3/OS-FEDERATION/saml2/sso
 
-``idp_entity_id`` is the unique identifier for the Identity Provider. It
-usually takes the form of a URI but it does not have to resolve to anything.
-``idp_sso_endpoint`` is required to generate valid metadata but its value is
-not important, though it may be in the future.
+``idp_entity_id`` sets the Identity Provider entity ID, which is a string of
+your choosing that uniquely identifies the Identity Provider to any Service
+Provider.
 
-Note the ``certfile``, ``keyfile``, and ``idp_metadata_path`` settings and adjust them if
-necessary:
+``idp_sso_endpoint`` is required to generate valid metadata, but its value is
+currently not used because keystone as an Identity Provider does not support the
+SAML2.0 WebSSO auth profile. This may change in the future which is why there is
+no default value provided and must be set by the operator.
 
-.. code-block:: ini
-
-   certfile=/etc/keystone/ssl/certs/signing_cert.pem
-   keyfile=/etc/keystone/ssl/private/signing_key.pem
-   idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
-
-Though not necessary, the follow Organization configuration options should
-also be setup. It is recommended that these values be URL safe.
+For completeness, the following Organization and Contact configuration options
+should also be updated to reflect your organization and administrator contact
+details.
 
 .. code-block:: ini
 
    idp_organization_name=example_company
    idp_organization_display_name=Example Corp.
    idp_organization_url=example.com
-
-As with the Organization options, the Contact options, are not necessary, but
-it's advisable to set these values too.
-
-.. code-block:: ini
-
    idp_contact_company=example_company
    idp_contact_name=John
    idp_contact_surname=Smith
@@ -500,20 +493,22 @@ it's advisable to set these values too.
    idp_contact_telephone=555-555-5555
    idp_contact_type=technical
 
-Generate Metadata
------------------
+It is important to take note of the default ``certfile`` and ``keyfile``
+options, and adjust them if necessary:
 
-In order to create a trust between the IdP and SP, metadata must be exchanged.
+.. code-block:: ini
 
-First, if you haven't already generated a PKI key pair, you need to do so and
-copy those files the locations designated by ``certfile`` and ``keyfile``
-options that were assigned in the previous section. Ensure that your apache
-vhost has SSL enabled and is using that keypair by adding the following to the
-vhost::
+   certfile=/etc/keystone/ssl/certs/signing_cert.pem
+   keyfile=/etc/keystone/ssl/private/signing_key.pem
 
-    SSLEngine on
-    SSLCertificateFile /etc/keystone/ssl/certs/signing_cert.pem
-    SSLCertificateKeyFile /etc/keystone/ssl/private/signing_key.pem
+You must generate a PKI key pair and copy the files to these paths. You can use
+the ``openssl`` tool to do so. Keystone does not provide a utility for this.
+
+Check the ``idp_metadata_path`` setting and adjust it if necessary:
+
+.. code-block:: ini
+
+   idp_metadata_path=/etc/keystone/saml2_idp_metadata.xml
 
 To create metadata for your keystone IdP, run the ``keystone-manage`` command
 and redirect the output to a file. For example:
@@ -522,27 +517,38 @@ and redirect the output to a file. For example:
 
    # keystone-manage saml_idp_metadata > /etc/keystone/saml2_idp_metadata.xml
 
-.. NOTE::
-    The file location should match the value of the configuration option
-    ``idp_metadata_path`` that was assigned in the previous section.
-
-Finally, restart apache.
-
-Create a Service Provider (SP)
-------------------------------
-
-In this example we are creating a new Service Provider with an ID of ``mysp``,
-a ``sp_url`` of ``https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP`` and a
-``auth_url`` of ``https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth``
-. The ``sp_url`` will be used when creating a SAML assertion for ``mysp`` and
-signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
-token for ``mysp`` once the SAML assertion is sent.
+Finally, restart the keystone WSGI service or the web server frontend:
 
 .. code-block:: console
 
-   $ openstack service provider create \
-   --service-provider-url 'https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP' \
-   --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth mysp
+   # systemctl restart apache2
+
+Creating a Service Provider Resource
+------------------------------------
+
+Create a Service Provider resource to represent your Service Provider as an
+object in keystone:
+
+.. code-block:: console
+
+   $ openstack service provider create keystonesp \
+   --service-provider-url https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP
+   --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/keystoneidp/protocols/saml2/auth
+
+The ``--auth-url`` is the `federated auth endpoint`_ for a specific Identity
+Provider and protocol name, here named ``keystoneidp`` and ``saml2``.
+
+The ``--service-provider-url`` is the
+``urn:oasis:names:tc:SAML:2.0:bindings:PAOS`` binding for the Assertion Consumer
+Service of the Service Provider. It can be obtained from the Service Provider
+metadata:
+
+.. code-block:: console
+
+   $ curl -s https://sp.keystone.example.org/Shibboleth.sso/Metadata | grep urn:oasis:names:tc:SAML:2.0:bindings:PAOS
+   <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP" index="4"/>
+
+.. _federated auth endpoint: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#request-an-unscoped-os-federation-token
 
 Authenticating
 --------------
