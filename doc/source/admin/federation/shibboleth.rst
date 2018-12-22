@@ -11,12 +11,28 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-----------------
-Setup Shibboleth
-----------------
+---------------------
+Setting up Shibboleth
+---------------------
 
-Configure Apache HTTPD for mod_shibboleth
------------------------------------------
+See :ref:`keystone-as-sp` before proceeding with these Shibboleth-specific
+instructions.
+
+.. note::
+
+   The examples below are for Ubuntu 16.04, for which only version 2 of the
+   Shibboleth Service Provider is available. Version 3 is available for other
+   distributions and the configuration should be identical to version 2.
+
+Configuring Apache HTTPD for mod_shib
+-------------------------------------
+
+.. note::
+
+   You are advised to carefully examine the `mod_shib Apache configuration
+   documentation`_.
+
+.. _mod_shib Apache configuration documentation: https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig
 
 Configure keystone under Apache, following the steps in the install guide for
 `SUSE`_, `RedHat`_ or `Ubuntu`_.
@@ -25,21 +41,22 @@ Configure keystone under Apache, following the steps in the install guide for
 .. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
 .. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
 
-You'll also need to install `Shibboleth <https://wiki.shibboleth.net/confluence/display/SHIB2/Home>`_, for
-example:
+Install the Module
+~~~~~~~~~~~~~~~~~~
+
+Install the Apache module package. For example, on Ubuntu:
 
 .. code-block:: console
 
    # apt-get install libapache2-mod-shib2
 
-Configure your Keystone virtual host and adjust the config to properly handle SAML2 workflow:
+The package and module name will differ between distributions.
 
-Add this *WSGIScriptAliasMatch* directive to your public vhost configuration::
+Configure Protected Endpoints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    WSGIScriptAliasMatch ^(/v3/OS-FEDERATION/identity_providers/.*?/protocols/.*?/auth)$ /usr/local/bin/keystone-wsgi-public/$1
-
-Make sure the keystone Apache virtual host configuration contains a *<Location>* directive for the
-Shibboleth module and a *<Location>* directive for each identity provider
+In the Apache configuration for the keystone VirtualHost, set an additional
+``<Location>`` which is not part of keystone's API:
 
 .. code-block:: apache
 
@@ -47,75 +64,118 @@ Shibboleth module and a *<Location>* directive for each identity provider
        SetHandler shib
    </Location>
 
-   <Location /v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth>
-       ShibRequestSetting requireSession 1
-       AuthType shibboleth
-       ShibExportAssertion Off
-       Require valid-user
+If you are using ``mod_proxy``, for example to proxy requests to the
+``/identity`` path to keystone's UWSGI service, you must exempt this Shibboleth
+endpoint from it:
 
+.. code-block:: apache
+
+   Proxypass Shibboleth.sso !
+
+Configure each protected path to use the ``shibboleth`` AuthType:
+
+.. code-block:: apache
+
+   <Location /v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth>
+       Require valid-user
+       AuthType shibboleth
+       ShibRequestSetting requireSession 1
+       ShibExportAssertion off
        <IfVersion < 2.4>
            ShibRequireSession On
            ShibRequireAll On
-      </IfVersion>
+       </IfVersion>
    </Location>
 
-.. NOTE::
-    * ``saml2`` is the name of the `protocol that you will configure <configure_federation.html#protocol>`_
-    * ``samltest`` is the name associated with the `IdP in Keystone <configure_federation.html#identity_provider>`_
-    * The ``ShibRequireSession`` and ``ShibRequireAll`` rules are invalid in
-      Apache 2.4+.
-    * You are advised to carefully examine `Shibboleth Apache configuration
-      documentation
-      <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApacheConfig>`_
+Do the same for the WebSSO auth paths if using horizon as a single sign-on
+frontend:
 
-Enable the ``shib2`` module, for example:
+.. code-block:: apache
+
+   <Location /v3/auth/OS-FEDERATION/websso/saml2>
+       Require valid-user
+       AuthType shibboleth
+       ShibRequestSetting requireSession 1
+       ShibExportAssertion off
+       <IfVersion < 2.4>
+           ShibRequireSession On
+           ShibRequireAll On
+       </IfVersion>
+   </Location>
+   <Location /v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/saml2/websso>
+       Require valid-user
+       AuthType shibboleth
+       ShibRequestSetting requireSession 1
+       ShibExportAssertion off
+       <IfVersion < 2.4>
+           ShibRequireSession On
+           ShibRequireAll On
+       </IfVersion>
+   </Location>
+
+Remember to reload Apache after altering the VirtualHost:
 
 .. code-block:: console
 
-   # a2enmod shib2
+   # systemctl reload apache2
 
-Restart Apache, for example:
+Configuring mod_shib
+--------------------
 
-.. code-block:: console
+.. note::
 
-   # service apache2 restart
+   You are advised to examine `Shibboleth Service Provider Configuration
+   documentation
+   <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
 
-Configuring shibboleth2.xml
----------------------------
+Generate a keypair
+~~~~~~~~~~~~~~~~~~
 
-Once you have your Keystone vhost (virtual host) ready, it's then time to
-configure Shibboleth and upload your Metadata to the Identity Provider.
-
-Create a new keypair for Shibboleth with:
+For all SAML Service Providers, a PKI key pair must be generated and exchanged
+with the Identity Provider. The ``mod_shib`` package on the Ubuntu distribution
+provides a utility to generate the key pair:
 
 .. code-block:: console
 
    # shib-keygen -y <number of years>
 
-The newly created key file will be stored under ``/etc/shibboleth/sp-key.pem``.
+which will generate a key pair under ``/etc/shibboleth``. In other cases, the
+package might generate the key pair automatically upon installation.
 
-Configure your Service Provider by editing ``/etc/shibboleth/shibboleth2.xml``
-file. You will want to change five settings:
+Configure metadata
+~~~~~~~~~~~~~~~~~~
 
-* Set the SP entity ID. This value usually has the form of a URI but it does not
-  have to resolve to anything. It must uniquely identify your Service Provider
-  to your Identity Provider.
+``mod_shib`` also has its own configuration file at
+``/etc/shibboleth/shibboleth2.xml`` that must be altered, as well
+as its own daemon. First, give the Service Provider an entity ID. This is a URN
+that you choose that must be globally unique to the Identity Provider:
 
 .. code-block:: xml
 
-   <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth">
+   <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth"
+       REMOTE_USER="eppn persistent-id targeted-id">
 
-* Set the entity ID of the Identity Provider:
+Depending on your Identity Provider, you may also want to change the REMOTE_USER
+setting, more on that in a moment.
+
+Set the entity ID of the Identity Provider (this is the same as the value you
+provided for ``--remote-id`` in `Identity Provider`):
 
 .. code-block:: xml
 
    <SSO entityID="https://samltest.id/saml/idp">
 
-* Remove the discoveryURL lines unless you want to enable advanced IdP discovery.
+Additionally, if you want to enable ECP (required for Keystone-to-Keystone),
+the SSO tag for this entity must also have the ECP flag set:
 
-* Tell Shibboleth where to find the metadata of the Identity Provider. You could
-  either tell it to fetch it from a URI or point it to a local file. For
-  example, pointing to a local file:
+
+.. code-block:: xml
+
+   <SSO entityID="https://samltest.id/saml/idp" ECP="true">
+
+Tell Shibboleth where to find the metadata of the Identity Provider. You could
+either tell it to fetch it from a URI or point it to a local file. For example,
+pointing to a local file:
 
 .. code-block:: xml
 
@@ -128,132 +188,47 @@ or pointing to a remote location:
    <MetadataProvider type="XML" url="https://samltest.id/saml/idp"
        backingFile="samltest-metadata.xml" />
 
-You are advised to examine `Shibboleth Service Provider Configuration documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
+When you are finished configuring ``shibboleth2.xml``, restart the ``shibd``
+daemon:
 
-The result should look like (The example shown below is for reference only, not
-to be used in a production environment):
+.. code-block:: console
+
+   # systemctl restart shibd
+
+Check the ``shibd`` logs in ``/var/log/shibboleth/shibd.log`` and
+``/var/log/shibboleth/shibd_warn.log`` for errors or warnings.
+
+Configure allowed attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   For more information see the `attributes documentation
+   <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
+
+By default, ``mod_shib`` does not pass all attributes received from the Identity
+Provider to keystone. If your Identity Provider does not use attributes known to
+``shibd``, you must configure them. For example, `samltest.id` uses a custom UID
+attribute.  It is not discoverable in the Identity Provider metadata, but the
+attribute name and type is logged in the ``mod_shib`` logs when an
+authentication attempt is made. To allow the attribute, add it to
+``/etc/shibboleth/attribute-map.xml``:
 
 .. code-block:: xml
 
-   <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
-       xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
-       xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-       xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-       xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
-       clockSkew="180">
+   <Attribute name="urn:oid:0.9.2342.19200300.100.1.1" id="uid" />
 
-       <!--
-       By default, in-memory StorageService, ReplayCache, ArtifactMap, and SessionCache
-       are used. See example-shibboleth2.xml for samples of explicitly configuring them.
-       -->
+You may also want to use that attribute as a value for the ``REMOTE_USER``
+variable, which will make the ``REMOTE_USER`` variable usable as a parameter to
+your mapping rules. To do so, add it to ``/etc/shibboleth/shibboleth2.xml``:
 
-       <!--
-       To customize behavior for specific resources on Apache, and to link vhosts or
-       resources to ApplicationOverride settings below, use web server options/commands.
-       See https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfigurationElements for help.
+.. code-block:: xml
 
-       For examples with the RequestMap XML syntax instead, see the example-shibboleth2.xml
-       file, and the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPRequestMapHowTo topic.
-       -->
+   <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth"
+       REMOTE_USER="uid">
 
-       <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
-       <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth">
-
-           <!--
-           Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
-           You MUST supply an effectively unique handlerURL value for each of your applications.
-           The value defaults to /Shibboleth.sso, and should be a relative path, with the SP computing
-           a relative value based on the virtual host. Using handlerSSL="true", the default, will force
-           the protocol to be https. You should also set cookieProps to "https" for SSL-only sites.
-           Note that while we default checkAddress to "false", this has a negative impact on the
-           security of your site. Stealing sessions via cookie theft is much easier with this disabled.
-           -->
-           <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
-                     checkAddress="false" handlerSSL="false" cookieProps="http">
-
-               <!--
-               Configures SSO for a default IdP. To allow for >1 IdP, remove
-               entityID property and adjust discoveryURL to point to discovery service.
-               (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
-               You can also override entityID on /Login query string, or in RequestMap/htaccess.
-               -->
-               <SSO entityID="https://samltest.id/saml/idp">
-                 SAML2 SAML1
-               </SSO>
-
-               <!-- SAML and local-only logout. -->
-               <Logout>SAML2 Local</Logout>
-
-               <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
-               <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
-
-               <!-- Status reporting service. -->
-               <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
-
-               <!-- Session diagnostic service. -->
-               <Handler type="Session" Location="/Session" showAttributeValues="false"/>
-
-               <!-- JSON feed of discovery information. -->
-               <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
-           </Sessions>
-           <!--
-           Allows overriding of error template information/filenames. You can
-           also add attributes with values that can be plugged into the templates.
-           -->
-           <Errors supportContact="root@localhost"
-               helpLocation="/about.html"
-               styleSheet="/shibboleth-sp/main.css"/>
-
-           <!-- Example of remotely supplied batch of signed metadata. -->
-           <!--
-           <MetadataProvider type="XML" uri="http://federation.org/federation-metadata.xml"
-                 backingFilePath="federation-metadata.xml" reloadInterval="7200">
-               <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
-               <MetadataFilter type="Signature" certificate="fedsigner.pem"/>
-           </MetadataProvider>
-           -->
-
-           <!-- Example of locally maintained metadata. -->
-           <!--
-           <MetadataProvider type="XML" file="partner-metadata.xml"/>
-           -->
-           <MetadataProvider type="XML" uri="https://samltest.id/saml/idp"/>
-
-           <!-- Map to extract attributes from SAML assertions. -->
-           <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
-
-           <!-- Use a SAML query if no attributes are supplied during SSO. -->
-           <AttributeResolver type="Query" subjectMatch="true"/>
-
-           <!-- Default filtering policy for recognized attributes, lets other data pass. -->
-           <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
-
-           <!-- Simple file-based resolver for using a single keypair. -->
-           <CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
-
-           <!--
-           The default settings can be overridden by creating ApplicationOverride elements (see
-           the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApplicationOverride topic).
-           Resource requests are mapped by web server commands, or the RequestMapper, to an
-           applicationId setting.
-           Example of a second application (for a second vhost) that has a different entityID.
-           Resources on the vhost would map to an applicationId of "admin":
-           -->
-           <!--
-           <ApplicationOverride id="admin" entityID="https://admin.example.org/shibboleth"/>
-           -->
-       </ApplicationDefaults>
-
-       <!-- Policies that determine how to process and authenticate runtime messages. -->
-       <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
-
-       <!-- Low-level configuration about protocols and bindings available for use. -->
-       <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
-
-   </SPConfig>
-
-If keystone is your IdP, you will need to examine your attributes map file
-``/etc/shibboleth/attribute-map.xml`` and add the following attributes:
+Similarly, if using keystone as your Identity Provider, several custom
+attributes will be needed in ``/etc/shibboleth/attribute-map.xml``:
 
 .. code-block:: xml
 
@@ -263,25 +238,36 @@ If keystone is your IdP, you will need to examine your attributes map file
    <Attribute name="openstack_user_domain" id="openstack_user_domain"/>
    <Attribute name="openstack_project_domain" id="openstack_project_domain"/>
 
-For more information see the
-`attributes documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAddAttribute>`_
+And update the ``REMOTE_USER`` variable in ``/etc/shibboleth/shibboleth2.xml``
+if desired:
 
-Once you are done, restart your Shibboleth daemon and apache:
+.. code-block:: xml
+
+   <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth"
+       REMOTE_USER="openstack_user">
+
+Restart the ``shibd`` daemon after making these changes:
 
 .. code-block:: console
 
-   # service shibd restart
-   # service apache2 restart
+   # systemctl restart shibd
 
-Check ``/var/log/shibboleth/shibd_warn.log`` for any ERROR or CRIT notices and
-correct them.
+Exchange Metadata
+~~~~~~~~~~~~~~~~~
 
-Upload your Service Provider's metadata file to your Identity Provider. You can
-fetch it with:
+Once configured, the Service Provider metadata is available to download:
 
 .. code-block:: console
 
    # wget https://sp.keystone.example.org/Shibboleth.sso/Metadata
 
-This step depends on your Identity Provider choice and is not covered here.
-If keystone is your Identity Provider you do not need to upload this file.
+Upload your Service Provider's metadata to your Identity Provider. This step
+depends on your Identity Provider choice and is not covered here. If keystone
+is your Identity Provider you do not need to upload this file.
+
+Continue configuring keystone
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Continue configuring keystone`_
+
+.. _Continue configuring keystone: configure_federation.html#configuring-keystone
