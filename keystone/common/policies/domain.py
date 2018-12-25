@@ -64,7 +64,7 @@ domain_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domains',
-        check_str=base.READER_ROLE,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List domains.',
         operations=[{'path': '/v3/domains',
@@ -74,7 +74,7 @@ domain_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain',
-        check_str=base.ADMIN_ROLE,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create domain.',
         operations=[{'path': '/v3/domains',
@@ -84,7 +84,7 @@ domain_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain',
-        check_str=base.ADMIN_ROLE,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
@@ -94,7 +94,7 @@ domain_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain',
-        check_str=base.ADMIN_ROLE,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
