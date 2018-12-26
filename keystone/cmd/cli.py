@@ -383,6 +383,33 @@ class BasePermissionsSetup(BaseApp):
 
         return keystone_user_id, keystone_group_id
 
+    @classmethod
+    def initialize_fernet_repository(
+            cls, keystone_user_id, keystone_group_id, config_group=None):
+        conf_group = getattr(CONF, config_group)
+        futils = fernet_utils.FernetUtils(
+            conf_group.key_repository,
+            conf_group.max_active_keys,
+            config_group
+        )
+
+        futils.create_key_directory(keystone_user_id, keystone_group_id)
+        if futils.validate_key_repository(requires_write=True):
+            futils.initialize_key_repository(
+                keystone_user_id, keystone_group_id)
+
+    @classmethod
+    def rotate_fernet_repository(
+            cls, keystone_user_id, keystone_group_id, config_group=None):
+        conf_group = getattr(CONF, config_group)
+        futils = fernet_utils.FernetUtils(
+            conf_group.key_repository,
+            conf_group.max_active_keys,
+            config_group
+        )
+        if futils.validate_key_repository(requires_write=True):
+            futils.rotate_keys(keystone_user_id, keystone_group_id)
+
 
 class FernetSetup(BasePermissionsSetup):
     """Setup key repositories for Fernet tokens and auth receipts.
@@ -397,30 +424,14 @@ class FernetSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        futils = fernet_utils.FernetUtils(
-            CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
-        )
-
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        futils.create_key_directory(keystone_user_id, keystone_group_id)
-        if futils.validate_key_repository(requires_write=True):
-            futils.initialize_key_repository(
-                keystone_user_id, keystone_group_id)
+        cls.initialize_fernet_repository(
+            keystone_user_id, keystone_group_id, 'fernet_tokens')
 
         if (os.path.abspath(CONF.fernet_tokens.key_repository) !=
                 os.path.abspath(CONF.fernet_receipts.key_repository)):
-            futils = fernet_utils.FernetUtils(
-                CONF.fernet_receipts.key_repository,
-                CONF.fernet_receipts.max_active_keys,
-                'fernet_receipts'
-            )
-
-            futils.create_key_directory(keystone_user_id, keystone_group_id)
-            if futils.validate_key_repository(requires_write=True):
-                futils.initialize_key_repository(
-                    keystone_user_id, keystone_group_id)
+            cls.initialize_fernet_repository(
+                keystone_user_id, keystone_group_id, 'fernet_receipts')
         elif(CONF.fernet_tokens.max_active_keys !=
                 CONF.fernet_receipts.max_active_keys):
             # WARNING(adriant): If the directories are the same,
@@ -458,26 +469,13 @@ class FernetRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        futils = fernet_utils.FernetUtils(
-            CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
-        )
-
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        if futils.validate_key_repository(requires_write=True):
-            futils.rotate_keys(keystone_user_id, keystone_group_id)
-
+        cls.rotate_fernet_repository(
+            keystone_user_id, keystone_group_id, 'fernet_tokens')
         if (os.path.abspath(CONF.fernet_tokens.key_repository) !=
                 os.path.abspath(CONF.fernet_receipts.key_repository)):
-            futils = fernet_utils.FernetUtils(
-                CONF.fernet_receipts.key_repository,
-                CONF.fernet_receipts.max_active_keys,
-                'fernet_receipts'
-            )
-
-            if futils.validate_key_repository(requires_write=True):
-                futils.rotate_keys(keystone_user_id, keystone_group_id)
+            cls.rotate_fernet_repository(
+                keystone_user_id, keystone_group_id, 'fernet_receipts')
 
 
 class TokenSetup(BasePermissionsSetup):
@@ -493,18 +491,9 @@ class TokenSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        futils = fernet_utils.FernetUtils(
-            # TODO(gagehugo) Change this to CONF.token
-            CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
-        )
-
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        futils.create_key_directory(keystone_user_id, keystone_group_id)
-        if futils.validate_key_repository(requires_write=True):
-            futils.initialize_key_repository(
-                keystone_user_id, keystone_group_id)
+        cls.initialize_fernet_repository(
+            keystone_user_id, keystone_group_id, 'fernet_tokens')
 
 
 class TokenRotate(BasePermissionsSetup):
@@ -529,16 +518,9 @@ class TokenRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        futils = fernet_utils.FernetUtils(
-            # TODO(gagehugo) Change this to CONF.token
-            CONF.fernet_tokens.key_repository,
-            CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
-        )
-
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        if futils.validate_key_repository(requires_write=True):
-            futils.rotate_keys(keystone_user_id, keystone_group_id)
+        cls.rotate_fernet_repository(
+            keystone_user_id, keystone_group_id, 'fernet_tokens')
 
 
 class ReceiptSetup(BasePermissionsSetup):
@@ -554,17 +536,9 @@ class ReceiptSetup(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        futils = fernet_utils.FernetUtils(
-            CONF.fernet_receipts.key_repository,
-            CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
-        )
-
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        futils.create_key_directory(keystone_user_id, keystone_group_id)
-        if futils.validate_key_repository(requires_write=True):
-            futils.initialize_key_repository(
-                keystone_user_id, keystone_group_id)
+        cls.initialize_fernet_repository(
+            keystone_user_id, keystone_group_id, 'fernet_receipts')
 
 
 class ReceiptRotate(BasePermissionsSetup):
@@ -589,15 +563,9 @@ class ReceiptRotate(BasePermissionsSetup):
 
     @classmethod
     def main(cls):
-        futils = fernet_utils.FernetUtils(
-            CONF.fernet_receipts.key_repository,
-            CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
-        )
-
         keystone_user_id, keystone_group_id = cls.get_user_group()
-        if futils.validate_key_repository(requires_write=True):
-            futils.rotate_keys(keystone_user_id, keystone_group_id)
+        cls.rotate_fernet_repository(
+            keystone_user_id, keystone_group_id, 'fernet_receipts')
 
 
 class CredentialSetup(BasePermissionsSetup):
