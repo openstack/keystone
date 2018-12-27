@@ -111,11 +111,11 @@ file. You will want to change five settings:
 
     <SSO entityID="https://myidp.example.com/v3/OS-FEDERATION/saml2/idp">
 
-Example if testshib.org is the IdP:
+Example if samltest.id is the IdP:
 
 .. code-block:: xml
 
-    <SSO entityID="https://idp.testshib.org/idp/shibboleth">
+    <SSO entityID="https://samltest.id/saml/idp">
 
 * Remove the discoveryURL lines unless you want to enable advanced IdP discovery.
 
@@ -126,11 +126,11 @@ Example if testshib.org is the IdP:
 
     <MetadataProvider type="XML" uri="https://myidp.example.com:5000/v3/OS-FEDERATION/saml2/metadata"/>
 
-Example if testshib.org is the IdP:
+Example if samltest.id is the IdP:
 
 .. code-block:: xml
 
-    <MetadataProvider type="XML" uri="http://www.testshib.org/metadata/testshib-providers.xml" />
+    <MetadataProvider type="XML" uri="https://samltest.id/saml/idp" />
 
 You are advised to examine `Shibboleth Service Provider Configuration documentation <https://wiki.shibboleth.net/confluence/display/SHIB2/Configuration>`_
 
