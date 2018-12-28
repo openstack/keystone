@@ -135,23 +135,12 @@ class TokenFormatter(object):
 
         return issued_at
 
-    def create_token(self, user_id, expires_at, audit_ids, methods=None,
-                     system=None, domain_id=None, project_id=None,
-                     trust_id=None, federated_group_ids=None,
+    def create_token(self, user_id, expires_at, audit_ids, payload_class,
+                     methods=None, system=None, domain_id=None,
+                     project_id=None, trust_id=None, federated_group_ids=None,
                      identity_provider_id=None, protocol_id=None,
                      access_token_id=None, app_cred_id=None):
         """Given a set of payload attributes, generate a Fernet token."""
-        for payload_class in PAYLOAD_CLASSES:
-            if payload_class.create_arguments_apply(
-                    project_id=project_id, domain_id=domain_id,
-                    system=system, trust_id=trust_id,
-                    federated_group_ids=federated_group_ids,
-                    identity_provider_id=identity_provider_id,
-                    protocol_id=protocol_id,
-                    access_token_id=access_token_id,
-                    app_cred_id=app_cred_id):
-                break
-
         version = payload_class.version
         payload = payload_class.assemble(
             user_id, methods, system, project_id, domain_id, expires_at,
@@ -186,7 +175,7 @@ class TokenFormatter(object):
         versioned_payload = msgpack.unpackb(serialized_payload)
         version, payload = versioned_payload[0], versioned_payload[1:]
 
-        for payload_class in PAYLOAD_CLASSES:
+        for payload_class in _PAYLOAD_CLASSES:
             if version == payload_class.version:
                 (user_id, methods, system, project_id, domain_id,
                  expires_at, audit_ids, trust_id, federated_group_ids,
@@ -222,17 +211,6 @@ class TokenFormatter(object):
 class BasePayload(object):
     # each payload variant should have a unique version
     version = None
-
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        """Check the arguments to see if they apply to this payload variant.
-
-        :returns: True if the arguments indicate that this payload class is
-                  needed for the token otherwise returns False.
-        :rtype: bool
-
-        """
-        raise NotImplementedError()
 
     @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
@@ -371,10 +349,6 @@ class UnscopedPayload(BasePayload):
     version = 0
 
     @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return True
-
-    @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
                  expires_at, audit_ids, trust_id, federated_group_ids,
                  identity_provider_id, protocol_id, access_token_id,
@@ -411,10 +385,6 @@ class UnscopedPayload(BasePayload):
 
 class DomainScopedPayload(BasePayload):
     version = 1
-
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['domain_id']
 
     @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
@@ -472,10 +442,6 @@ class ProjectScopedPayload(BasePayload):
     version = 2
 
     @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['project_id']
-
-    @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
                  expires_at, audit_ids, trust_id, federated_group_ids,
                  identity_provider_id, protocol_id, access_token_id,
@@ -515,10 +481,6 @@ class ProjectScopedPayload(BasePayload):
 
 class TrustScopedPayload(BasePayload):
     version = 3
-
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['trust_id']
 
     @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
@@ -563,10 +525,6 @@ class TrustScopedPayload(BasePayload):
 
 class FederatedUnscopedPayload(BasePayload):
     version = 4
-
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['federated_group_ids']
 
     @classmethod
     def pack_group_id(cls, group_dict):
@@ -678,25 +636,13 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
 class FederatedProjectScopedPayload(FederatedScopedPayload):
     version = 5
 
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['project_id'] and kwargs['federated_group_ids']
-
 
 class FederatedDomainScopedPayload(FederatedScopedPayload):
     version = 6
 
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['domain_id'] and kwargs['federated_group_ids']
-
 
 class OauthScopedPayload(BasePayload):
     version = 7
-
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['access_token_id']
 
     @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
@@ -746,10 +692,6 @@ class SystemScopedPayload(BasePayload):
     version = 8
 
     @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['system']
-
-    @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
                  expires_at, audit_ids, trust_id, federated_group_ids,
                  identity_provider_id, protocol_id, access_token_id,
@@ -786,10 +728,6 @@ class SystemScopedPayload(BasePayload):
 
 class ApplicationCredentialScopedPayload(BasePayload):
     version = 9
-
-    @classmethod
-    def create_arguments_apply(cls, **kwargs):
-        return kwargs['app_cred_id']
 
     @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
@@ -833,22 +771,15 @@ class ApplicationCredentialScopedPayload(BasePayload):
                 app_cred_id)
 
 
-# For now, the order of the classes in the following list is important. This
-# is because the way they test that the payload applies to them in
-# the create_arguments_apply method requires that the previous ones rejected
-# the payload arguments. For example, UnscopedPayload must be last since it's
-# the catch-all after all the other payloads have been checked.
-# TODO(blk-u): Clean up the create_arguments_apply methods so that they don't
-# depend on the previous classes then these can be in any order.
-PAYLOAD_CLASSES = [
-    OauthScopedPayload,
+_PAYLOAD_CLASSES = [
+    UnscopedPayload,
+    DomainScopedPayload,
+    ProjectScopedPayload,
     TrustScopedPayload,
+    FederatedUnscopedPayload,
     FederatedProjectScopedPayload,
     FederatedDomainScopedPayload,
-    FederatedUnscopedPayload,
-    ApplicationCredentialScopedPayload,
-    ProjectScopedPayload,
-    DomainScopedPayload,
+    OauthScopedPayload,
     SystemScopedPayload,
-    UnscopedPayload,
+    ApplicationCredentialScopedPayload,
 ]

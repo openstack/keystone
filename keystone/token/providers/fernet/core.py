@@ -44,11 +44,36 @@ class Provider(base.Provider):
 
         self.token_formatter = tf.TokenFormatter()
 
+    def _determine_payload_class_from_token(self, token):
+        if token.oauth_scoped:
+            return tf.OauthScopedPayload
+        elif token.trust_scoped:
+            return tf.TrustScopedPayload
+        elif token.is_federated:
+            if token.project_scoped:
+                return tf.FederatedProjectScopedPayload
+            elif token.domain_scoped:
+                return tf.FederatedDomainScopedPayload
+            elif token.unscoped:
+                return tf.FederatedUnscopedPayload
+        elif token.application_credential_id:
+            return tf.ApplicationCredentialScopedPayload
+        elif token.project_scoped:
+            return tf.ProjectScopedPayload
+        elif token.domain_scoped:
+            return tf.DomainScopedPayload
+        elif token.system_scoped:
+            return tf.SystemScopedPayload
+        else:
+            return tf.UnscopedPayload
+
     def generate_id_and_issued_at(self, token):
+        token_payload_class = self._determine_payload_class_from_token(token)
         token_id = self.token_formatter.create_token(
             token.user_id,
             token.expires_at,
             token.audit_ids,
+            token_payload_class,
             methods=token.methods,
             system=token.system,
             domain_id=token.domain_id,
