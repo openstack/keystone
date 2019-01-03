@@ -11,10 +11,10 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+----------------
 Setup Shibboleth
-================
+----------------
 
------------------------------------------
 Configure Apache HTTPD for mod_shibboleth
 -----------------------------------------
 
@@ -78,7 +78,6 @@ Restart Apache, for example:
 
     $ service apache2 restart
 
----------------------------
 Configuring shibboleth2.xml
 ---------------------------
 

@@ -11,10 +11,10 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+------------------------------
 Setup Web Single Sign-On (SSO)
-==============================
+------------------------------
 
-----------------
 Keystone Changes
 ----------------
 
@@ -171,7 +171,6 @@ Alternatively, a generic option may be set at the `[federation]` level.
 <https://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html>`__
 template into the location specified by `[federation]/sso_callback_template`.
 
----------------
 Horizon Changes
 ---------------
 

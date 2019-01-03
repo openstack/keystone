@@ -11,10 +11,10 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+------------
 Setup Mellon
-============
+------------
 
-------------------------------------------
 Configure Apache HTTPD for mod_auth_mellon
 ------------------------------------------
 
@@ -73,7 +73,6 @@ Enable the ``auth_mellon`` module, for example:
 
     $ a2enmod auth_mellon
 
-----------------------------------
 Configuring the Mellon SP Metadata
 ----------------------------------
 
