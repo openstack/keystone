@@ -10,9 +10,27 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
+
+deprecated_get_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_service_provider',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_service_providers',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the service provider API now understands default
+roles and system-scoped tokens, making the API more granular by default without
+compromising security. The new policy defaults account for these changes
+automatically. Be sure to take these new defaults into consideration if you are
+relying on overrides in your deployment for the service provider API.
+"""
 
 service_provider_policies = [
     policy.DocumentedRuleDefault(
@@ -31,7 +49,7 @@ service_provider_policies = [
                      'method': 'PUT'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_service_providers',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List federated service providers.',
         operations=[
@@ -43,11 +61,14 @@ service_provider_policies = [
                 'path': '/v3/OS-FEDERATION/service_providers',
                 'method': 'HEAD'
             }
-        ]
+        ],
+        deprecated_rule=deprecated_list_sp,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service_provider',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='Get federated service provider.',
         operations=[
@@ -61,7 +82,10 @@ service_provider_policies = [
                          '{service_provider_id}'),
                 'method': 'HEAD'
             }
-        ]
+        ],
+        deprecated_rule=deprecated_get_sp,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service_provider',
