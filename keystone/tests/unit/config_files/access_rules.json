@@ -1,0 +1,890 @@
+{
+    "identity": [
+        {
+            "path": "/v3/users/*/application_credentials",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/users/*/application_credentials",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/users/*/application_credentials/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/users/*/application_credentials/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/auth/catalog",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/auth/projects",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/auth/domains",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/auth/system",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/credentials",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/credentials",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/credentials/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/credentials/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/credentials/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/domains/config/default",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/config/*/default",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/config/*/*/default",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*/config/*/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*/config/*/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/domains/*/config/*/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/domains/*/config/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*/config/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/domains/*/config/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/domains/*/config",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/domains/*/config",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*/config",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/domains/*/config",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/domains",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/domains/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/domains/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/groups",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/groups",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/groups/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/groups/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/groups/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/groups/*/users",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/groups/*/users/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/groups/*/users/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/groups/*/users/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/users/*/roles/*/inherited_to_projects",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/groups/*/roles/*/inherited_to_projects",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/users/*/roles/inherited_to_projects",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/groups/*/roles/inherited_to_projects",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/users/*/roles/*/inherited_to_projects",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/groups/*/roles/*/inherited_to_projects",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/users/*/roles/*/inherited_to_projects",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/OS-INHERIT/domains/*/groups/*/roles/*/inherited_to_projects",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/OS-INHERIT/projects/*/users/*/roles/*/inherited_to_projects",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/OS-INHERIT/projects/*/groups/*/roles/*/inherited_to_projects",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/OS-INHERIT/projects/*/users/*/roles/*/inherited_to_projects",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/OS-INHERIT/projects/*/groups/*/roles/*/inherited_to_projects",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/OS-INHERIT/projects/*/users/*/roles/*/inherited_to_projects",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/OS-INHERIT/projects/*/groups/*/roles/*/inherited_to_projects",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/role_assignments",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/auth/tokens/OS-PKI/revoked",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/policies",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/policies",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/policies/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/policies/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/policies/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/projects/*/tags",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/projects/*/tags",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/projects/*/tags",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/projects/*/tags/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/projects/*/tags/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/projects/*/tags/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/projects",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/projects",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/projects/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/projects/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/projects/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/regions/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/regions/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/regions/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/regions",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/regions",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/roles",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/roles/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/roles/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/domains/*/groups/*/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*/groups/*/roles/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/domains/*/groups/*/roles/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/domains/*/groups/*/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/domains/*/users/*/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/domains/*/users/*/roles/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/domains/*/users/*/roles/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/domains/*/users/*/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/projects/*/groups/*/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/projects/*/groups/*/roles/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/projects/*/groups/*/roles/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/projects/*/groups/*/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/projects/*/users/*/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/projects/*/users/*/roles/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/projects/*/users/*/roles/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/projects/*/users/*/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/roles/*/implies",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/roles/*/implies/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/roles/*/implies/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/roles/*/implies/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/roles/*/implies/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/role_assignments",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/role_inferences",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/services",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/services",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/services/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/services/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/services/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/endpoints",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/endpoints",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/endpoints/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/endpoints/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/endpoints/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/system/users/*/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/system/users/*/roles/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/system/users/*/roles/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/system/users/*/roles/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/system/users/*/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/system/groups/*/roles",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/system/groups/*/roles/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v3/system/groups/*/roles/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v3/system/groups/*/roles/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/system/groups/*/roles/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/registered_limits",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/registered_limits",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/registered_limits/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/registered_limits/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/registered_limits/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/limits/model",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/limits",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/limits",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/limits/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/limits/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/limits/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/users",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/users",
+            "method": "POST"
+        },
+        {
+            "path": "/v3/users/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/users/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v3/users/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v3/users/*/groups",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/users/*/projects",
+            "method": "GET"
+        },
+        {
+            "path": "/v3/users/*/password",
+            "method": "POST"
+        }
+    ],
+    "image": [
+        {
+            "path": "/v1/images",
+            "method": "POST"
+        },
+        {
+            "path": "/v1/images",
+            "method": "GET"
+        },
+        {
+            "path": "/v1/images/detail",
+            "method": "GET"
+        },
+        {
+            "path": "/v1/images/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v1/images/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v1/images/*",
+            "method": "HEAD"
+        },
+        {
+            "path": "/v1/images/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v1/images/*/members/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v1/images/*/members",
+            "method": "PUT"
+        },
+        {
+            "path": "/v1/images/*/members/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v1/shared-images/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images/*/file",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/images/*/file",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/images/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images/*",
+            "method": "PATCH"
+        },
+        {
+            "path": "/v2/images/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/images/*/actions/deactivate",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/images/*/actions/reactivate",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/schemas/images",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/image",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/members",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/member",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images/*/members",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/images/*/members/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images/*/members",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/images/*/members/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/images/*/members/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/images/*/tags/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/images/*/tags/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/objects",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/objects",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/objects/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/objects/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/objects/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/properties",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/properties",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/properties/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/properties/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/properties/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags/*",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/tags",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/metadefs/namespaces",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/metadefs/namespaces",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*",
+            "method": "PUT"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/metadefs/resource_types",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/resource_types",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/resource_types",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/metadefs/namespaces/*/resource_types/*",
+            "method": "DELETE"
+        },
+        {
+            "path": "/v2/schemas/metadefs/namespace",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/namespaces",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/resource_type",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/resource_types",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/object",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/objects",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/property",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/properties",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/tag",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/metadefs/tags",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/tasks",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/schemas/task",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/tasks",
+            "method": "POST"
+        },
+        {
+            "path": "/v2/tasks",
+            "method": "GET"
+        },
+        {
+            "path": "/v2/tasks/*",
+            "method": "GET"
+        },
+        {
+            "path": "/versions",
+            "method": "GET"
+        },
+        {
+            "path": "/",
+            "method": "GET"
+        }
+    ],
+    "block-storage": [
+        {
+            "path": "/v3/**",
+            "method": "GET"
+        }
+    ],
+    "compute": [
+        {
+            "path": "**",
+            "method": "GET"
+        }
+    ]
+}
