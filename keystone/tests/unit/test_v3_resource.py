@@ -1091,6 +1091,11 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             expected_status=http_client.BAD_REQUEST)
 
     def test_get_project_with_include_limits(self):
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role_id
+        )
+        system_admin_token = self.get_system_scoped_token()
+
         parent, project, subproject = self._create_projects_hierarchy(2)
         # Assign a role for the user on all the created projects
         for proj in (parent, project, subproject):
@@ -1104,6 +1109,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.post(
             '/registered_limits',
             body={'registered_limits': [reg_limit]},
+            token=system_admin_token,
             expected_status=http_client.CREATED)
         limit1 = unit.new_limit_ref(project_id=parent['project']['id'],
                                     service_id=self.service_id,

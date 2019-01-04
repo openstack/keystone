@@ -84,6 +84,13 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
     def setUp(self):
         super(RegisteredLimitsTestCase, self).setUp()
 
+        # Most of these tests require system-scoped tokens. Let's have one on
+        # hand so that we can use it in tests when we need it.
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role_id
+        )
+        self.system_admin_token = self.get_system_scoped_token()
+
         # There is already a sample service and region created from
         # load_sample_data() but we're going to create another service and
         # region for specific testing purposes.
@@ -105,6 +112,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'region_id', 'resource_name',
@@ -116,6 +124,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'resource_name', 'default_limit']:
@@ -129,6 +138,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'region_id', 'resource_name',
@@ -145,6 +155,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'resource_name', 'default_limit']:
@@ -159,6 +170,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref1]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         self.assertEqual(1, len(registered_limits))
@@ -169,6 +181,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref2, ref3]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         registered_limits = r.result['registered_limits']
         self.assertEqual(2, len(registered_limits))
@@ -182,6 +195,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             self.post(
                 '/registered_limits',
                 body={'registered_limits': [input_limit]},
+                token=self.system_admin_token,
                 expected_status=http_client.BAD_REQUEST)
 
     def test_create_registered_limit_duplicate(self):
@@ -190,10 +204,12 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CONFLICT)
 
     def test_update_registered_limit(self):
@@ -204,6 +220,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         update_ref = {
             'service_id': self.service_id2,
@@ -215,6 +232,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.patch(
             '/registered_limits/%s' % r.result['registered_limits'][0]['id'],
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.OK)
         new_registered_limits = r.result['registered_limit']
 
@@ -233,6 +251,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         update_ref = {
             'region_id': self.region_id,
@@ -241,6 +260,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.patch(
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.OK)
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(self.region_id, new_registered_limits['region_id'])
@@ -249,6 +269,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.patch(
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.BAD_REQUEST)
 
     def test_update_registered_limit_description(self):
@@ -259,6 +280,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         update_ref = {
             'description': 'test description'
@@ -267,6 +289,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.patch(
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.OK)
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(new_registered_limits['description'],
@@ -276,6 +299,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.patch(
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.OK)
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(new_registered_limits['description'], '')
@@ -288,6 +312,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         update_ref = {
             'region_id': None
@@ -296,6 +321,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.patch(
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.OK)
         self.assertIsNone(r.result['registered_limit']['region_id'])
 
@@ -310,10 +336,12 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.post(
             '/registered_limits',
             body={'registered_limits': [ref1]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref2]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
 
         update_ref = {
@@ -326,6 +354,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.patch(
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.CONFLICT)
 
     def test_update_registered_limit_not_found(self):
@@ -338,6 +367,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.patch(
             '/registered_limits/%s' % uuid.uuid4().hex,
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.NOT_FOUND)
 
     def test_update_registered_limit_with_invalid_input(self):
@@ -348,6 +378,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         reg_id = r.result['registered_limits'][0]['id']
 
@@ -361,6 +392,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             self.patch(
                 '/registered_limits/%s' % reg_id,
                 body={'registered_limit': input_limit},
+                token=self.system_admin_token,
                 expected_status=http_client.BAD_REQUEST)
 
     def test_update_registered_limit_with_referenced_limit(self):
@@ -371,6 +403,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -391,6 +424,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         self.patch(
             '/registered_limits/%s' % r.result['registered_limits'][0]['id'],
             body={'registered_limit': update_ref},
+            token=self.system_admin_token,
             expected_status=http_client.FORBIDDEN)
 
     def test_list_registered_limit(self):
@@ -408,6 +442,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         id1 = r.result['registered_limits'][0]['id']
         r = self.get(
@@ -456,6 +491,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         id1 = r.result['registered_limits'][0]['id']
         self.get(
@@ -477,11 +513,14 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
         id1 = r.result['registered_limits'][0]['id']
         self.delete('/registered_limits/%s' % id1,
+                    token=self.system_admin_token,
                     expected_status=http_client.NO_CONTENT)
         self.delete('/registered_limits/fake_id',
+                    token=self.system_admin_token,
                     expected_status=http_client.NOT_FOUND)
         r = self.get(
             '/registered_limits',
@@ -497,6 +536,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -518,6 +558,13 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
         super(LimitsTestCase, self).setUp()
+
+        # Most of these tests require system-scoped tokens. Let's have one on
+        # hand so that we can use it in tests when we need it.
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role_id
+        )
+        self.system_admin_token = self.get_system_scoped_token()
 
         # There is already a sample service and region created from
         # load_sample_data() but we're going to create another service and
@@ -545,6 +592,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         self.post(
             '/registered_limits',
             body={'registered_limits': [ref1, ref2, ref3]},
+            token=self.system_admin_token,
             expected_status=http_client.CREATED)
 
     def test_create_limit(self):
