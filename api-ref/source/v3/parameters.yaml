@@ -738,8 +738,8 @@ domain_enabled_update_request_body:
     projects). In addition, users can only authenticate if the domain that owns
     them is also enabled. Disabling a domain prevents both of these things.
     When you disable a domain, all tokens that are authorized for that domain
-    become no longer valid. If you reenable the domain, these tokens
-    are not re-enabled.
+    become invalid. However, if you reenable the domain, these tokens become
+    valid again, providing that they haven't expired.
   in: body
   required: false
   type: string
