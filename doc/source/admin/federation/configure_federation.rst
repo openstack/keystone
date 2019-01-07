@@ -436,22 +436,29 @@ Example
 Keystone as an Identity Provider (IdP)
 --------------------------------------
 
-.. NOTE::
+Prerequisites
+-------------
 
-    This feature is experimental and unsupported in Juno (with several issues
-    that will not be backported). These issues have been fixed and this feature
-    is considered stable and supported as of the Kilo release.
+When keystone is configured as an Identity Provider, it is often referred to as
+`Keystone to Keystone`, because it enables federation between multiple OpenStack
+clouds using the SAML2.0 protocol.
 
-.. NOTE::
+If you are not familiar with the idea of federated identity, see the
+`introduction`_ first.
 
-    This feature requires installation of the xmlsec1 tool via your
-    distribution packaging system (for instance apt or yum)
+When setting up `Keystone to Keystone`, it is easiest to `configure a keystone
+Service Provider`_ first with a sandbox Identity Provider such as
+`samltest.id`_.
 
-    Example for apt:
+.. _configure a keystone Service Provider: :ref:`Keystone as a Service Provider (SP)`
+.. _samltest.id: https://samltest.id
 
-    .. code-block:: console
+This feature requires installation of the xmlsec1 tool via your distribution
+packaging system (for instance apt or yum)
 
-       # apt-get install xmlsec1
+.. code-block:: console
+
+   # apt-get install xmlsec1
 
 .. note::
 
