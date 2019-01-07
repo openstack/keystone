@@ -328,109 +328,90 @@ referred to as the ``protocol_id``.
 Read more about `federation protocols
 <https://developer.openstack.org/api-ref/identity/v3-ext/#protocols>`__
 
-Performing federated authentication
------------------------------------
+Authenticating
+--------------
 
-.. NOTE::
+Use the CLI to authenticate with a SAML2.0 Identity Provider
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Authentication with keystone-to-keystone federation does not follow these steps.
-    See `Testing it all out`_ to authenticate with keystone-to-keystone.
+.. FIXME(cmurphy): Include examples for OpenID Connect authentication with the CLI
 
-1. Authenticate externally and generate an unscoped token in keystone
-2. Determine accessible resources
-3. Get a scoped token
+The ``python-openstackclient`` can be used to authenticate a federated user in a
+SAML Identity Provider to keystone.
 
-Get an unscoped token
+.. note::
+
+   The SAML Identity Provider must be configured to support the ECP
+   authentication profile.
+
+To use the CLI tool, you must have the name of the Identity Provider
+resource in keystone, the name of the federation protocol configured in
+keystone, and the ECP endpoint for the Identity Provider. If you are the cloud
+administrator, the name of the Identity Provider and protocol was configured in
+`Identity Provider`_ and `Protocol`_ respectively. If you are not the
+administrator, you must obtain this information from the administrator.
+
+The ECP endpoint for the Identity Provider can be obtained from its metadata
+without involving an administrator. This endpoint is the
+``urn:oasis:names:tc:SAML:2.0:bindings:SOAP`` binding in the metadata document:
+
+.. code-block:: console
+
+   $ curl -s https://samltest.id/saml/idp | grep urn:oasis:names:tc:SAML:2.0:bindings:SOAP
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://samltest.id/idp/profile/SAML2/SOAP/ECP"/>
+
+~~~~~~~~~~~~~~~~~~~~~
+Find available scopes
 ~~~~~~~~~~~~~~~~~~~~~
 
-Unlike other authentication methods in the Identity Service, the user does not
-issue an HTTP POST request with authentication data in the request body. To
-start federated authentication a user must access the dedicated URL with
-Identity Provider's and Protocol's identifiers stored within a protected URL.
-The URL has a format of:
-``/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth``.
+If you are a new user and are not aware of what resources you have access to,
+you can use an unscoped query to list the projects or domains you have been
+granted a role assignment on:
 
-In this instance we follow a standard SAML2 authentication procedure, that is,
-the user will be redirected to the Identity Provider's authentication webpage
-and be prompted for credentials. After successfully authenticating the user
-will be redirected to the Service Provider's endpoint. If using a web browser,
-a token will be returned in JSON format, with the ID in the X-Subject-Token
-header.
+.. code-block:: bash
 
-In the returned unscoped token, a list of Identity Service groups the user
-belongs to will be included.
+   export OS_AUTH_TYPE=v3samlpassword
+   export OS_IDENTITY_PROVIDER=samltest
+   export OS_IDENTITY_PROVIDER_URL=https://samltest.id/idp/profile/SAML2/SOAP/ECP
+   export OS_PROTOCOL=saml2
+   export OS_USERNAME=morty
+   export OS_PASSWORD=panic
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   openstack federation project list
+   openstack federation domain list
 
-Read more about `getting an unscoped token
-<https://developer.openstack.org/api-ref/identity/v3-ext/#request-an-unscoped-os-federation-token>`__.
-
-~~~~~~~~~~~~
-Example cURL
-~~~~~~~~~~~~
-
-Note that the request does not include a body. The following url would be
-considered protected by ``mod_shib`` and Apache, as such a request made
-to the URL would be redirected to the Identity Provider, to start the
-SAML authentication procedure.
-
-.. code-block:: console
-
-   $ curl -X GET -D - https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth
-
-Determine accessible resources
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-By using the previously returned token, the user can issue requests to the list
-projects and domains that are accessible.
-
-* List projects a federated user can access: ``GET /OS-FEDERATION/projects``
-* List domains a federated user can access: ``GET /OS-FEDERATION/domains``
-
-Read more about `listing resources
-<https://developer.openstack.org/api-ref/identity/v3-ext/#list-projects-a-federated-user-can-access>`__.
-
-~~~~~~~
-Example
-~~~~~~~
-
-.. code-block:: console
-
-   $ export OS_IDENTITY_API_VERSION=3
-   $ export OS_TOKEN=<unscoped token>
-   $ export OS_URL=https://sp.keystone.example.org/v3
-   $ openstack federation project list
-
-or
-
-.. code-block:: console
-
-   $ export OS_IDENTITY_API_VERSION=3
-   $ export OS_TOKEN=<unscoped token>
-   $ export OS_URL=https://sp.keystone.example.org/v3
-   $ openstack federation domain list
-
+~~~~~~~~~~~~~~~~~~
 Get a scoped token
 ~~~~~~~~~~~~~~~~~~
 
-A federated user may request a scoped token, by using the unscoped token. A
-project or domain may be specified by either ``id`` or ``name``. An ``id`` is
-sufficient to uniquely identify a project or domain.
+If you already know the project, domain or system you wish to scope to, you can
+directly request a scoped token:
 
-Read more about `getting a scoped token
-<https://developer.openstack.org/api-ref/identity/v3-ext/#request-a-scoped-os-federation-token>`__.
+.. code-block:: bash
 
-~~~~~~~
-Example
-~~~~~~~
+   export OS_AUTH_TYPE=v3samlpassword
+   export OS_IDENTITY_PROVIDER=samltest
+   export OS_IDENTITY_PROVIDER_URL=https://samltest.id/idp/profile/SAML2/SOAP/ECP
+   export OS_PROTOCOL=saml2
+   export OS_USERNAME=morty
+   export OS_PASSWORD=panic
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_PROJECT_NAME=federated_project
+   export OS_PROJECT_DOMAIN_NAME=Default
+   openstack token issue
 
-.. code-block:: console
+Use horizon to authenticate with an external Identity Provider
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   $ export OS_AUTH_TYPE=token
-   $ export OS_IDENTITY_API_VERSION=3
-   $ export OS_TOKEN=<unscoped token>
-   $ export OS_AUTH_URL=https://sp.keystone.example.org/v3
-   $ export OS_PROJECT_DOMAIN_NAME=federated_domain
-   $ export OS_PROJECT_NAME=federated_project
-   $ openstack token issue
+When horizon is configured to enable WebSSO, a dropdown menu will appear on the
+login screen before the user has authenticated. Select an authentication method
+from the menu to be redirected to your Identity Provider for authentication.
+
+.. image:: ../../_static/horizon-login-sp.png
+   :height: 400px
+   :alt: Horizon login screen using external authentication
 
 --------------------------------------
 Keystone as an Identity Provider (IdP)
@@ -555,8 +536,7 @@ a ``sp_url`` of ``https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP`` and
 ``auth_url`` of ``https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth``
 . The ``sp_url`` will be used when creating a SAML assertion for ``mysp`` and
 signed by the current keystone IdP. The ``auth_url`` is used to retrieve the
-token for ``mysp`` once the SAML assertion is sent. The auth_url has the format
-described in `Get an unscoped token`_.
+token for ``mysp`` once the SAML assertion is sent.
 
 .. code-block:: console
 
@@ -564,24 +544,40 @@ described in `Get an unscoped token`_.
    --service-provider-url 'https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP' \
    --auth-url https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth mysp
 
-Testing it all out
-------------------
+Authenticating
+--------------
+
+Use the CLI to authenticate with Keystone-to-Keystone
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use ``python-openstackclient`` to authenticate with the IdP and then get a
 scoped token from the SP.
 
-.. NOTE::
-    ECP stands for Enhanced Client or Proxy, an extension from the SAML2
-    protocol used in non-browser interfaces, like in the following example.
-
 .. code-block:: console
 
-   $ openstack \
-   --os-service-provider mysp \
-   --os-remote-project-name federated_project \
-   --os-remote-project-domain-name federated_domain \
-   token issue
+   export OS_USERNAME=demo
+   export OS_PASSWORD=nomoresecret
+   export OS_AUTH_URL=https://idp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_PROJECT_NAME=federated_project
+   export OS_PROJECT_DOMAIN_NAME=Default
+   export OS_SERVICE_PROVIDER=keystonesp
+   export OS_REMOTE_PROJECT_NAME=federated_project
+   export OS_REMOTE_PROJECT_DOMAIN_NAME=Default
+   openstack token issue
 
+Use Horizon to switch clouds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+No additional configuration is necessary to enable horizon for
+Keystone to Keystone. Log into the horizon instance for the Identity Provider
+using your regular local keystone credentials. Once logged in, you will see a
+Service Provider dropdown menu which you can use to switch your dashboard view
+to another cloud.
+
+.. image:: ../../_static/horizon-login-idp.png
+   :height: 175px
+   :alt: Horizon dropdown menu for switching between keystone providers
 
 .. include:: openidc.rst
 .. include:: mellon.rst
