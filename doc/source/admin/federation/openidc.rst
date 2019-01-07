@@ -53,7 +53,7 @@ entries for OpenID Connect:
       OIDCClientID <openid_client_id>
       OIDCClientSecret <openid_client_secret>
       OIDCCryptoPassphrase openstack
-      OIDCRedirectURI http://localhost:5000/v3/OS-FEDERATION/identity_providers/<idp_id>/protocols/openid/auth
+      OIDCRedirectURI https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/<idp_id>/protocols/openid/auth
 
       <LocationMatch /v3/OS-FEDERATION/identity_providers/.*?/protocols/openid/auth>
         AuthType openid-connect

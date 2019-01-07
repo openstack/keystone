@@ -72,8 +72,8 @@ If `mod_auth_openidc` is used, then use the following as an example:
 
   <VirtualHost *:5000>
 
-      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/websso
-      OIDCRedirectURI http://localhost:5000/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso
+      OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/websso
+      OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso
 
       ...
 

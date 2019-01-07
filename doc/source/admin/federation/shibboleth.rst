@@ -101,7 +101,7 @@ file. You will want to change five settings:
 
 .. code-block:: xml
 
-    <ApplicationDefaults entityID="http://mysp.example.com/shibboleth">
+    <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth">
 
 * Set the IdP entity ID. This value is determined by the IdP. For example, if
   Keystone is the IdP:
@@ -160,7 +160,7 @@ to be used in a production environment):
         -->
 
         <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
-        <ApplicationDefaults entityID="https://mysp.example.com/shibboleth">
+        <ApplicationDefaults entityID="https://sp.keystone.example.org/shibboleth">
 
             <!--
             Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
@@ -284,7 +284,7 @@ fetch it with:
 
 .. code-block:: bash
 
-    $ wget http://mysp.example.com/Shibboleth.sso/Metadata
+    $ wget https://sp.keystone.example.org/Shibboleth.sso/Metadata
 
 This step depends on your Identity Provider choice and is not covered here.
 If keystone is your Identity Provider you do not need to upload this file.

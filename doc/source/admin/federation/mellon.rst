@@ -45,9 +45,9 @@ a *<Location>* directive for each identity provider
 
     <Location /v3>
         MellonEnable "info"
-        MellonSPPrivateKeyFile /etc/apache2/mellon/http_keystone.fqdn.key
-        MellonSPCertFile /etc/apache2/mellon/http_keystone.fqdn.cert
-        MellonSPMetadataFile /etc/apache2/mellon/http_keystone.fqdn.xml
+        MellonSPPrivateKeyFile /etc/apache2/mellon/sp.keystone.example.org.key
+        MellonSPCertFile /etc/apache2/mellon/sp.keystone.example.org.cert
+        MellonSPMetadataFile /etc/apache2/mellon/sp-metadata.xml
         MellonIdPMetadataFile /etc/apache2/mellon/idp-metadata.xml
         MellonEndpointPath /v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
         MellonIdP "IDP"
@@ -82,8 +82,8 @@ the values for the config directives `MellonSPPrivateKeyFile`,
 
 .. code-block:: bash
 
-    $ ./mellon_create_metadata.sh http://keystone.fqdn:5000 \
-      http://keystone.fqdn:5000/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
+    $ ./mellon_create_metadata.sh  https://sp.keystone.example.org/mellon\
+      https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/myidp/protocols/saml2/auth/mellon
 
 The first parameter is used as the entity ID, a unique identifier for this
 Keystone SP.  You do not have to use the URL, but it is an easy way to uniquely
@@ -110,7 +110,7 @@ by the `MellonIdPMetadataFile` directive above. For example:
 .. code-block:: bash
 
     $ wget --cacert /path/to/ca.crt -O /etc/apache2/mellon/idp-metadata.xml \
-      https://idp.fqdn/idp/saml2/metadata
+      https://myidp.example.com/idp/saml2/metadata
 
 Once you are done, restart the Apache instance that is serving Keystone, for example:
 
