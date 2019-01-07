@@ -375,9 +375,6 @@ class RBACEnforcer(object):
         # Generate the filter_attr dataset.
         policy_dict.update(cls._extract_filter_values(filters))
 
-        # Extract the cred data
-        ctxt = cls._get_oslo_req_context()
-        creds = ctxt.to_policy_values()
         flattened = utils.flatten_dict(policy_dict)
         if LOG.logger.getEffectiveLevel() <= log.DEBUG:
             # LOG the Args
@@ -388,21 +385,7 @@ class RBACEnforcer(object):
             LOG.debug('RBAC: Authorizing `%(action)s(%(args)s)`',
                       {'action': action, 'args': args_str})
 
-            # LOG the Cred Data
-            cred_str = ', '.join(['%s=%s' % (k, v) for k, v in creds.items()])
-            cred_str = strutils.mask_password(cred_str)
-            LOG.debug('RBAC: Policy Enforcement Cred Data '
-                      '`%(action)s creds(%(cred_str)s)`',
-                      {'action': action, 'cred_str': cred_str})
-
-            # Log the Target Data
-            target_str = ', '.join(
-                ['%s=%s' % (k, v) for k, v in flattened.items()])
-            target_str = strutils.mask_password(target_str)
-            LOG.debug('RBAC: Policy Enforcement Target Data '
-                      '`%(action)s => target(%(target_str)s)`',
-                      {'action': action, 'target_str': target_str})
-
+        ctxt = cls._get_oslo_req_context()
         # Instantiate the enforcer object if needed.
         enforcer_obj = enforcer or cls()
         enforcer_obj._enforce(
