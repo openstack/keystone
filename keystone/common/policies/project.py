@@ -35,6 +35,18 @@ deprecated_list_user_projects = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_user_projects',
     check_str=base.RULE_ADMIN_OR_OWNER
 )
+deprecated_create_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_project',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_update_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_project',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_project',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the project API understands how to handle
@@ -104,7 +116,7 @@ project_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): System administrators should be able to create
         # projects anywhere in the deployment. Domain administrators should
         # only be able to create projects within their domain. Project
@@ -115,25 +127,34 @@ project_policies = [
         scope_types=['system'],
         description='Create project.',
         operations=[{'path': '/v3/projects',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_project,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): See the above comment for create_project as to why
         # this is limited to only system-scope.
         scope_types=['system'],
         description='Update project.',
         operations=[{'path': '/v3/projects/{project_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_project,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): See the above comment for create_project as to why
         # this is limited to only system-scope.
         scope_types=['system'],
         description='Delete project.',
         operations=[{'path': '/v3/projects/{project_id}',
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_project,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_project_tags',
         check_str=base.RULE_ADMIN_OR_TARGET_PROJECT,
