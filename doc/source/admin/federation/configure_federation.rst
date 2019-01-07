@@ -241,6 +241,83 @@ the installation guides for running keystone behind Apache for `SUSE`_,
 .. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
 .. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
 
+Configure protected endpoints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a minimum of one endpoint that must be protected in the VirtualHost
+configuration for the keystone service:
+
+.. code-block:: apache
+
+   <Location /v3/OS-FEDERATION/identity_providers/IDENTITYPROVIDER/protocols/PROTOCOL/auth>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+
+This is the endpoint for federated users to request an unscoped token.
+
+If configuring WebSSO, you should also protect one or both of the following
+endpoints:
+
+.. code-block:: apache
+
+   <Location /v3/auth/OS-FEDERATION/websso/PROTOCOL>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+   <Location /v3/auth/OS-FEDERATION/identity_providers/IDENTITYPROVIDER/protocols/PROTOCOL/websso>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+
+The first example only specifies a protocol, and keystone will use the incoming
+remote ID to determine the Identity Provider. The second specifies the Identity
+Provider directly, which must then be supplied to horizon when configuring
+`horizon for WebSSO`_.
+
+The path must exactly match the path that will be used to access the keystone
+service. For example, if the identity provider you created in `Create an
+Identity Provider`_ is ``samltest`` and the protocol you created in `Create a
+Protocol`_ is ``saml2``, then the Locations will be:
+
+.. code-block:: apache
+
+   <Location /v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+   <Location /v3/auth/OS-FEDERATION/websso/saml2>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+   <Location /v3/auth/OS-FEDERATION/identity_providers/samltest/protocols/saml2/websso>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+
+However, if you have configured the keystone service to use a virtual path such as
+``/identity``, that part of the path should be included:
+
+.. code-block:: apache
+
+   <Location /identity/v3/OS-FEDERATION/identity_providers/samltest/protocols/saml2/auth>
+     Require valid-user
+     AuthType [...]
+     ...
+   </Location>
+   ...
+
+.. _horizon for WebSSO: websso.html
+
+Configure the auth module
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If your Identity Provider is a SAML IdP, there are two main Apache modules that
 can be used as a SAML Service Provider: `mod_shib` and `mod_auth_mellon`. For
 an OpenID Connect Identity Provider, `mod_auth_openidc` is used. You can also
