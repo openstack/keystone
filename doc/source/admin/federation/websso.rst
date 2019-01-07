@@ -27,9 +27,9 @@ prevent man-in-the-middle (MITM) attacks.
 
 .. code-block:: ini
 
-  [federation]
-  trusted_dashboard = http://acme.horizon.com/auth/websso/
-  trusted_dashboard = http://beta.horizon.com/auth/websso/
+   [federation]
+   trusted_dashboard = http://acme.horizon.com/auth/websso/
+   trusted_dashboard = http://beta.horizon.com/auth/websso/
 
 2. Update httpd vhost file with websso information.
 
@@ -47,95 +47,95 @@ is configured in keystone.
 
 If `mod_shib` is used, then use the following as an example:
 
-.. code-block:: none
+.. code-block:: apache
 
-  <VirtualHost *:5000>
+   <VirtualHost *:5000>
 
-      ...
+       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
-        AuthType shibboleth
-        Require valid-user
-        ShibRequestSetting requireSession 1
-        ShibRequireSession On
-        ShibExportAssertion Off
-      </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
-        AuthType shibboleth
-        Require valid-user
-      </Location>
-  </VirtualHost>
+       <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
+         AuthType shibboleth
+         Require valid-user
+         ShibRequestSetting requireSession 1
+         ShibRequireSession On
+         ShibExportAssertion Off
+       </Location>
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
+         AuthType shibboleth
+         Require valid-user
+       </Location>
+   </VirtualHost>
 
 If `mod_auth_openidc` is used, then use the following as an example:
 
-.. code-block:: none
+.. code-block:: apache
 
-  <VirtualHost *:5000>
+   <VirtualHost *:5000>
 
-      OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/websso
-      OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso
+       OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/websso
+       OIDCRedirectURI https://sp.keystone.example.org/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso
 
-      ...
+       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/openid">
-        AuthType openid-connect
-        Require valid-user
-        ...
-      </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso">
-        AuthType openid-connect
-        Require valid-user
-        ...
-      </Location>
-  </VirtualHost>
+       <Location ~ "/v3/auth/OS-FEDERATION/websso/openid">
+         AuthType openid-connect
+         Require valid-user
+         ...
+       </Location>
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/openid/websso">
+         AuthType openid-connect
+         Require valid-user
+         ...
+       </Location>
+   </VirtualHost>
 
 If `mod_auth_kerb` is used, then use the following as an example:
 
-.. code-block:: none
+.. code-block:: apache
 
-  <VirtualHost *:5000>
+   <VirtualHost *:5000>
 
-      ...
+       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/kerberos">
-        AuthType Kerberos
-        AuthName "Acme Corporation"
-        KrbMethodNegotiate on
-        KrbMethodK5Passwd off
-        Krb5Keytab /etc/apache2/http.keytab
-        ...
-      </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/kerberos/websso">
-        AuthType Kerberos
-        AuthName "Acme Corporation"
-        KrbMethodNegotiate on
-        KrbMethodK5Passwd off
-        Krb5Keytab /etc/apache2/http.keytab
-        ...
-      </Location>
-  </VirtualHost>
+       <Location ~ "/v3/auth/OS-FEDERATION/websso/kerberos">
+         AuthType Kerberos
+         AuthName "Acme Corporation"
+         KrbMethodNegotiate on
+         KrbMethodK5Passwd off
+         Krb5Keytab /etc/apache2/http.keytab
+         ...
+       </Location>
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/kerberos/websso">
+         AuthType Kerberos
+         AuthName "Acme Corporation"
+         KrbMethodNegotiate on
+         KrbMethodK5Passwd off
+         Krb5Keytab /etc/apache2/http.keytab
+         ...
+       </Location>
+   </VirtualHost>
 
 If `mod_auth_mellon` is used, then use the following as an example:
 
-.. code-block:: none
+.. code-block:: apache
 
-  <VirtualHost *:5000>
+   <VirtualHost *:5000>
 
-      ...
+       ...
 
-      <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
-        AuthType Mellon
-        MellonEnable auth
-        Require valid-user
-        ...
-      </Location>
-      <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
-        AuthType Mellon
-        MellonEnable auth
-        Require valid-user
-        ...
-      </Location>
-  </VirtualHost>
+       <Location ~ "/v3/auth/OS-FEDERATION/websso/saml2">
+         AuthType Mellon
+         MellonEnable auth
+         Require valid-user
+         ...
+       </Location>
+       <Location ~ "/v3/auth/OS-FEDERATION/identity_providers/myidp/protocols/saml2/websso">
+         AuthType Mellon
+         MellonEnable auth
+         Require valid-user
+         ...
+       </Location>
+   </VirtualHost>
 
 .. NOTE::
     If you are also using SSO via the API, don't forget to make the Location
@@ -155,17 +155,17 @@ It is recommended that this option be set on a per-protocol basis.
 
 .. code-block:: ini
 
-  [saml2]
-  remote_id_attribute = Shib-Identity-Provider
-  [openid]
-  remote_id_attribute = HTTP_OIDC_ISS
+   [saml2]
+   remote_id_attribute = Shib-Identity-Provider
+   [openid]
+   remote_id_attribute = HTTP_OIDC_ISS
 
 Alternatively, a generic option may be set at the `[federation]` level.
 
 .. code-block:: ini
 
-  [federation]
-  remote_id_attribute = HTTP_OIDC_ISS
+   [federation]
+   remote_id_attribute = HTTP_OIDC_ISS
 
 4. Copy the `sso_callback_template.html
 <https://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html>`__
@@ -188,7 +188,7 @@ this will provide users with an updated login screen for horizon.
 
 .. code-block:: python
 
-  WEBSSO_ENABLED = True
+   WEBSSO_ENABLED = True
 
 2. (Optional) Create a list of authentication methods with the
    `WEBSSO_CHOICES` option.
@@ -202,13 +202,13 @@ identity backend.
 
 .. code-block:: python
 
-  WEBSSO_CHOICES = (
-        ("credentials", _("Keystone Credentials")),
-        ("openid", _("OpenID Connect")),
-        ("saml2", _("Security Assertion Markup Language")),
-        ("myidp_openid", "Acme Corporation - OpenID Connect"),
-        ("myidp_saml2", "Acme Corporation - SAML2")
-      )
+   WEBSSO_CHOICES = (
+       ("credentials", _("Keystone Credentials")),
+       ("openid", _("OpenID Connect")),
+       ("saml2", _("Security Assertion Markup Language")),
+       ("myidp_openid", "Acme Corporation - OpenID Connect"),
+       ("myidp_saml2", "Acme Corporation - SAML2")
+   )
 
 3. (Optional) Create a dictionary of specific identity provider and federation
    protocol combinations.
@@ -222,10 +222,10 @@ protocol endpoint.
 
 .. code-block:: python
 
-  WEBSSO_IDP_MAPPING = {
-        "myidp_openid": ("myidp", "openid"),
-        "myidp_saml2": ("myidp", "saml2")
-      }
+   WEBSSO_IDP_MAPPING = {
+       "myidp_openid": ("myidp", "openid"),
+       "myidp_saml2": ("myidp", "saml2")
+   }
 
 .. NOTE::
 
@@ -240,10 +240,10 @@ automatically set that choice to be highlighted by default.
 
 .. code-block:: python
 
-  WEBSSO_INITIAL_CHOICE = "credentials"
+   WEBSSO_INITIAL_CHOICE = "credentials"
 
 7. Restart your web server:
 
-.. code-block:: bash
+.. code-block:: console
 
-   $ sudo service apache2 restart
+   # service apache2 restart

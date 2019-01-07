@@ -43,25 +43,25 @@ A mapping looks as follows:
 
 .. code-block:: none
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        <user>
-                        [<group>]
-                        [<project>]
-                    }
-                ],
-                "remote": [
-                    {
-                        <match>
-                        [<condition>]
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       <user>
+                       [<group>]
+                       [<project>]
+                   }
+               ],
+               "remote": [
+                   {
+                       <match>
+                       [<condition>]
+                   }
+               ]
+           }
+       ]
+   }
 
 * `mapping`: a JSON object containing a list of rules.
 * `rules`: a property in the mapping that contains the list of rules.
@@ -114,56 +114,56 @@ the `local` property is collapsed into a single JSON object. For example:
 
 .. code-block:: none
 
-    {
-        "local": [
-            {
-                "user": {...}
-            },
-            {
-                "projects": [...]
-            },
-        ]
-    }
+   {
+       "local": [
+           {
+               "user": {...}
+           },
+           {
+               "projects": [...]
+           },
+       ]
+   }
 
 becomes:
 
 .. code-block:: none
 
-    {
-        "local": {
-            "user": {...}
-            "projects": [...]
-        },
-    }
+   {
+       "local": {
+           "user": {...}
+           "projects": [...]
+       },
+   }
 
 when the same property exists in the local multiple times the first occurrence wins:
 
 .. code-block:: none
 
-    {
-        "local": [
-            {
-                "user": {#first#}
-            },
-            {
-                "projects": [...]
-            },
-            {
-                "user": {#second#}
-            },
-        ]
-    }
+   {
+       "local": [
+           {
+               "user": {#first#}
+           },
+           {
+               "projects": [...]
+           },
+           {
+               "user": {#second#}
+           },
+       ]
+   }
 
 becomes:
 
 .. code-block:: none
 
-    {
-        "local": {
-            "user": {#first#}
-            "projects": [...]
-        },
-    }
+   {
+       "local": {
+           "user": {#first#}
+           "projects": [...]
+       },
+   }
 
 We take this JSON object and then recursively process it in order to apply
 the direct mappings. This is simply looking for the pattern `{#}` and
@@ -180,9 +180,9 @@ Mapping Engine
 The mapping engine can be tested before creating a federated setup. It can be
 tested with the ``keystone-manage mapping_engine`` command:
 
-.. code-block:: bash
+.. code-block:: console
 
-    $ keystone-manage mapping_engine --rules <file> --input <file>
+   $ keystone-manage mapping_engine --rules <file> --input <file>
 
 .. NOTE::
     Although the rules file is formatted as JSON, the input file of assertion
@@ -232,40 +232,40 @@ empty condition
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0} {1}",
-                            "email": "{2}"
-                        },
-                        "group": {
-                            "name": "{3}",
-                            "domain": {
-                                "id": "0cd5e9"
-                            }
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "FirstName"
-                    },
-                    {
-                        "type": "LastName"
-                    },
-                    {
-                        "type": "Email"
-                    },
-                    {
-                        "type": "OIDC_GROUPS"
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0} {1}",
+                           "email": "{2}"
+                       },
+                       "group": {
+                           "name": "{3}",
+                           "domain": {
+                               "id": "0cd5e9"
+                           }
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "FirstName"
+                   },
+                   {
+                       "type": "LastName"
+                   },
+                   {
+                       "type": "Email"
+                   },
+                   {
+                       "type": "OIDC_GROUPS"
+                   }
+               ]
+           }
+       ]
+   }
 
 .. NOTE::
 
@@ -290,69 +290,69 @@ In ``<other_condition>`` shown below, please supply one of the following:
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        },
-                        "group": {
-                            "id": "0cd5e9"
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    },
-                    {
-                        "type": "HTTP_OIDC_GROUPIDS",
-                        "<other_condition>": [
-                            "HTTP_OIDC_EMAIL"
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       },
+                       "group": {
+                           "id": "0cd5e9"
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   },
+                   {
+                       "type": "HTTP_OIDC_GROUPIDS",
+                       "<other_condition>": [
+                           "HTTP_OIDC_EMAIL"
+                       ]
+                   }
+               ]
+           }
+       ]
+   }
 
 In ``<other_condition>`` shown below, please supply one of the following:
 ``blacklist``, or ``whitelist``.
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        }
-                    },
-                    {
-                        "groups": "{1}",
-                        "domain": {
-                            "id": "0cd5e9"
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    },
-                    {
-                        "type": "HTTP_OIDC_GROUPIDS",
-                        "<other_condition>": [
-                            "me@example.com"
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       }
+                   },
+                   {
+                       "groups": "{1}",
+                       "domain": {
+                           "id": "0cd5e9"
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   },
+                   {
+                       "type": "HTTP_OIDC_GROUPIDS",
+                       "<other_condition>": [
+                           "me@example.com"
+                       ]
+                   }
+               ]
+           }
+       ]
+   }
 
 .. NOTE::
 
@@ -364,45 +364,45 @@ Group ids and names can be provided in the local section:
 
 .. code-block:: json
 
-    {
-        "local": [
-            {
-                "group": {
-                    "id":"0cd5e9"
-                }
-            }
-        ]
-    }
+   {
+       "local": [
+           {
+               "group": {
+                   "id":"0cd5e9"
+               }
+           }
+       ]
+   }
 
 .. code-block:: json
 
-    {
-        "local": [
-            {
-                "group": {
-                    "name": "developer_group",
-                    "domain": {
-                        "id": "abc1234"
-                    }
-                }
-            }
-        ]
-    }
+   {
+       "local": [
+           {
+               "group": {
+                   "name": "developer_group",
+                   "domain": {
+                       "id": "abc1234"
+                   }
+               }
+           }
+       ]
+   }
 
 .. code-block:: json
 
-    {
-        "local": [
-            {
-                "group": {
-                    "name": "developer_group",
-                    "domain": {
-                        "name": "private_cloud"
-                    }
-                }
-            }
-        ]
-    }
+   {
+       "local": [
+           {
+               "group": {
+                   "name": "developer_group",
+                   "domain": {
+                       "name": "private_cloud"
+                   }
+               }
+           }
+       ]
+   }
 
 Users can be mapped to local users that already exist in keystone's identity
 backend by setting the ``type`` attribute of the user to ``local`` and providing
@@ -410,19 +410,19 @@ the domain to which the local user belongs:
 
 .. code-block:: json
 
-    {
-        "local": [
-            {
-                "user": {
-                    "name": "local_user",
-                    "type": "local",
-                    "domain": {
-                        "name": "local_domain"
-                    }
-                }
-            }
-        ]
-    }
+   {
+       "local": [
+           {
+               "user": {
+                   "name": "local_user",
+                   "type": "local",
+                   "domain": {
+                       "name": "local_domain"
+                   }
+               }
+           }
+       ]
+   }
 
 The user is then treated as existing in the local identity backend, and the
 server will attempt to fetch user details (id, name, roles, groups) from the
@@ -447,42 +447,42 @@ If a mapping is valid you will receive the following output:
 
 .. code-block:: none
 
-    {
-        "group_ids": "[<group-ids>]",
-        "user":
-            {
-                "domain":
-                    {
-                        "id": "Federated" or "<local-domain-id>"
-                    },
-                "type": "ephemeral" or "local",
-                "name": "<local-user-name>",
-                "id": "<local-user-id>"
-            },
-        "group_names":
-            [
-                {
-                    "domain":
-                        {
-                            "name": "<domain-name>"
-                        },
-                    "name":
-                        {
-                            "name": "[<groups-names>]"
-                        }
-                }
-                {
-                    "domain":
-                        {
-                            "name": "<domain-name>"
-                        },
-                    "name":
-                        {
-                            "name": "[<groups-names>]"
-                        }
-                }
-            ]
-    }
+   {
+       "group_ids": "[<group-ids>]",
+       "user":
+           {
+               "domain":
+                   {
+                       "id": "Federated" or "<local-domain-id>"
+                   },
+               "type": "ephemeral" or "local",
+               "name": "<local-user-name>",
+               "id": "<local-user-id>"
+           },
+       "group_names":
+           [
+               {
+                   "domain":
+                       {
+                           "name": "<domain-name>"
+                       },
+                   "name":
+                       {
+                           "name": "[<groups-names>]"
+                       }
+               },
+               {
+                   "domain":
+                       {
+                           "name": "<domain-name>"
+                       },
+                   "name":
+                       {
+                           "name": "[<groups-names>]"
+                       }
+               }
+           ]
+   }
 
 If the mapped user is local, mapping engine will discard further group
 assigning and return set of roles configured for the user.
@@ -495,34 +495,34 @@ setting it to ``true``.
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        },
-                        "group": {
-                            "id": "0cd5e9"
-                        }
-                    },
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    },
-                    {
-                        "type": "HTTP_OIDC_GROUPIDS",
-                        "any_one_of": [
-                            ".*@yeah.com$"
-                        ]
-                        "regex": true
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       },
+                       "group": {
+                           "id": "0cd5e9"
+                       }
+                   },
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   },
+                   {
+                       "type": "HTTP_OIDC_GROUPIDS",
+                       "any_one_of": [
+                           ".*@yeah.com$"
+                       ]
+                       "regex": true
+                   }
+               ]
+           }
+       ]
+   }
 
 This allows any user with a claim containing a key with any value in
 ``HTTP_OIDC_GROUPIDS`` to be mapped to group with id ``0cd5e9``.
@@ -539,41 +539,41 @@ but cannot be repeated within the same condition. ``any_one_of`` and
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        },
-                        "group": {
-                            "id": "0cd5e9"
-                        }
-                    },
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    },
-                    {
-                        "type": "cn=IBM_Canada_Lab",
-                        "not_any_of": [
-                            ".*@naww.com$"
-                        ],
-                        "regex": true
-                    },
-                    {
-                        "type": "cn=IBM_USA_Lab",
-                        "any_one_of": [
-                            ".*@yeah.com$"
-                        ]
-                        "regex": true
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       },
+                       "group": {
+                           "id": "0cd5e9"
+                       }
+                   },
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   },
+                   {
+                       "type": "cn=IBM_Canada_Lab",
+                       "not_any_of": [
+                           ".*@naww.com$"
+                       ],
+                       "regex": true
+                   },
+                   {
+                       "type": "cn=IBM_USA_Lab",
+                       "any_one_of": [
+                           ".*@yeah.com$"
+                       ]
+                       "regex": true
+                   }
+               ]
+           }
+       ]
+   }
 
 As before group names and users can also be provided in the local section.
 
@@ -582,9 +582,9 @@ group with id 0cd5e9.
 
 .. code-block:: json
 
-     {"UserName":"<any_name>@yeah.com"}
-     {"cn=IBM_USA_Lab":"<any_name>@yeah.com"}
-     {"cn=IBM_Canada_Lab":"<any_name>@yeah.com"}
+   {"UserName":"<any_name>@yeah.com"}
+   {"cn=IBM_USA_Lab":"<any_name>@yeah.com"}
+   {"cn=IBM_Canada_Lab":"<any_name>@yeah.com"}
 
 The following claims will be mapped:
 
@@ -599,64 +599,64 @@ Multiple rules can also be utilized in a mapping.
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        },
-                        "group": {
-                            "name": "non-contractors",
-                            "domain": {
-                                "id": "abc1234"
-                            }
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    },
-                    {
-                        "type": "orgPersonType",
-                        "not_any_of": [
-                            "Contractor",
-                            "SubContractor"
-                        ]
-                    }
-                ]
-            },
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        },
-                        "group": {
-                            "name": "contractors",
-                            "domain": {
-                                "id": "abc1234"
-                            }
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    },
-                    {
-                        "type": "orgPersonType",
-                        "any_one_of": [
-                            "Contractor",
-                            "SubContractor"
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       },
+                       "group": {
+                           "name": "non-contractors",
+                           "domain": {
+                               "id": "abc1234"
+                           }
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   },
+                   {
+                       "type": "orgPersonType",
+                       "not_any_of": [
+                           "Contractor",
+                           "SubContractor"
+                       ]
+                   }
+               ]
+           },
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       },
+                       "group": {
+                           "name": "contractors",
+                           "domain": {
+                               "id": "abc1234"
+                           }
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   },
+                   {
+                       "type": "orgPersonType",
+                       "any_one_of": [
+                           "Contractor",
+                           "SubContractor"
+                       ]
+                   }
+               ]
+           }
+       ]
+   }
 
 
 The above assigns groups membership basing on ``orgPersonType`` values:
@@ -738,52 +738,52 @@ For example, consider the following mapping:
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        }
-                    },
-                    {
-                        "projects": [
-                            {
-                                "name": "Production",
-                                "roles": [
-                                    {
-                                        "name": "reader"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Staging",
-                                "roles": [
-                                    {
-                                        "name": "member"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Project for {0}",
-                                "roles": [
-                                    {
-                                        "name": "admin"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       }
+                   },
+                   {
+                       "projects": [
+                           {
+                               "name": "Production",
+                               "roles": [
+                                   {
+                                       "name": "reader"
+                                   }
+                               ]
+                           },
+                           {
+                               "name": "Staging",
+                               "roles": [
+                                   {
+                                       "name": "member"
+                                   }
+                               ]
+                           },
+                           {
+                               "name": "Project for {0}",
+                               "roles": [
+                                   {
+                                       "name": "admin"
+                                   }
+                               ]
+                           }
+                       ]
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   }
+               ]
+           }
+       ]
+   }
 
 The semantics of the ``remote`` section have not changed. The difference
 between this mapping and the other examples is the addition of a ``projects``
@@ -827,52 +827,52 @@ and ``groups``, which allow for direct role assignments and group memberships.
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "user": {
-                            "name": "{0}"
-                        }
-                    },
-                    {
-                        "projects": [
-                            {
-                                "name": "Marketing",
-                                "roles": [
-                                    {
-                                        "name": "member"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Development project for {0}",
-                                "roles": [
-                                    {
-                                        "name": "admin"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "group": {
-                            "name": "Finance",
-                            "domain": {
-                                "id": "6fe767"
-                            }
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "UserName"
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "user": {
+                           "name": "{0}"
+                       }
+                   },
+                   {
+                       "projects": [
+                           {
+                               "name": "Marketing",
+                               "roles": [
+                                   {
+                                       "name": "member"
+                                   }
+                               ]
+                           },
+                           {
+                               "name": "Development project for {0}",
+                               "roles": [
+                                   {
+                                       "name": "admin"
+                                   }
+                               ]
+                           }
+                       ]
+                   },
+                   {
+                       "group": {
+                           "name": "Finance",
+                           "domain": {
+                               "id": "6fe767"
+                           }
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "UserName"
+                   }
+               ]
+           }
+       ]
+   }
 
 In the above example, a federated user will receive direct role assignments on
 the ``Marketing`` project, as well as a dedicated project specific to the
@@ -904,34 +904,34 @@ names we have in the Identity Provider. It will map any user with the name
 
 .. code-block:: json
 
-    {
-        "rules": [
-            {
-                "local": [
-                    {
-                        "group": {
-                            "id": "abc1234"
-                        }
-                    }
-                ],
-                "remote": [
-                    {
-                        "type": "openstack_user",
-                        "any_one_of": [
-                            "user1",
-                            "admin"
-                        ]
-                    },
-                    {
-                        "type":"openstack_user_domain",
-                        "any_one_of": [
-                            "Default"
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+   {
+       "rules": [
+           {
+               "local": [
+                   {
+                       "group": {
+                           "id": "abc1234"
+                       }
+                   }
+               ],
+               "remote": [
+                   {
+                       "type": "openstack_user",
+                       "any_one_of": [
+                           "user1",
+                           "admin"
+                       ]
+                   },
+                   {
+                       "type":"openstack_user_domain",
+                       "any_one_of": [
+                           "Default"
+                       ]
+                   }
+               ]
+           }
+       ]
+   }
 
 The possible attributes that can be used in a mapping are `openstack_user`,
 `openstack_user_domain`, `openstack_roles`, `openstack_project`, and
