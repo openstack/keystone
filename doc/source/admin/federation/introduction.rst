@@ -76,9 +76,11 @@ Glossary
 **Entity ID or Remote ID**
   An Entity ID or a Remote ID are both names for a unique identifier string for
   either a Service Provider or an Identity Provider. It usually takes the form
-  of a URN, but the URN does not need to be a resolvable URL. The only
-  requirement is that it uniquely identifies the IdP to the SP, or the SP to the
-  IdP.
+  of a URN, but the URN does not need to be a resolvable URL. Remote IDs are
+  globally unique. Two Identity Providers cannot be associated with the same
+  remote ID. Keystone uses the remote ID retrieved from the HTTPD environment
+  variables to match the incoming request with a trusted Identity Provider and
+  render the appropriate authorization mapping.
 
 **SAML2.0**
   `SAML2.0`_ is an XML-based federation protocol. It is commonly used in
