@@ -313,7 +313,7 @@ However, if you have configured the keystone service to use a virtual path such 
    </Location>
    ...
 
-.. _horizon for WebSSO: websso.html
+.. _horizon for WebSSO: `Configuring Horizon as a WebSSO Frontend`_
 
 Configure the auth module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -360,12 +360,138 @@ method.
    [auth]
    methods = password,token,saml2,openid
 
-When finished configuring keystone, restart the keystone WSGI process or the web
-server:
+Configure the Remote ID Attribute
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Keystone is mostly apathetic about what HTTPD auth module you choose to
+configure for your Service Provider, but must know what header key to look for
+from the auth module to determine the Identity Provider's remote ID so it can
+associate the incoming request with the Identity Provider resource. The key name
+is decided by the auth module choice:
+
+* For ``mod_shib``: use ``Shib-Identity-Provider``
+* For ``mod_auth_mellon``: use ``MELLON_IDP``
+* For ``mod_auth_openidc``: use ``HTTP_OIDC_ISS``
+
+It is recommended that this option be set on a per-protocol basis by creating a
+new section named after the protocol:
+
+.. code-block:: ini
+
+   [saml2]
+   remote_id_attribute = Shib-Identity-Provider
+   [openid]
+   remote_id_attribute = HTTP_OIDC_ISS
+
+Alternatively, a generic option may be set at the ``[federation]`` level.
+
+.. code-block:: ini
+
+  [federation]
+  remote_id_attribute = HTTP_OIDC_ISS
+
+Add a Trusted Dashboard (WebSSO)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you intend to configure horizon as a WebSSO frontend, you must specify the
+URLs of trusted horizon servers. This value may be repeated multiple times. This
+setting ensures that keystone only sends token data back to trusted servers.
+This is performed as a precaution, specifically to prevent man-in-the-middle
+(MITM) attacks. The value must exactly match the origin address sent by the
+horizon server, including any trailing slashes.
+
+.. code-block:: ini
+
+  [federation]
+  trusted_dashboard = https://horizon1.example.org/auth/websso/
+  trusted_dashboard = https://horizon2.example.org/auth/websso/
+
+Add the Callback Template (WebSSO)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you intend to configure horizon as a WebSSO frontend,  and if not already
+done for you by your distribution's keystone package, copy the
+`sso_callback_template.html`_ template into the location specified by the
+``[federation]/sso_callback_template`` option in ``keystone.conf``. You can also
+use this template as an example to create your own custom HTML redirect page.
+
+Restart the keystone WSGI service or the Apache frontend service after making
+changes to your keystone configuration.
 
 .. code-block:: console
 
    # systemctl restart apache2
+
+.. _sso_callback_template.html: https://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html
+
+.. _horizon-websso:
+
+Configuring Horizon as a WebSSO Frontend
+----------------------------------------
+
+.. note::
+
+   Consult `horizon's official documentation`_ for details on configuring
+   horizon.
+
+.. _horizon's official documentation: https://docs.openstack.org/horizon/latest/configuration/settings.html
+
+Keystone on its own is not capable of supporting a browser-based Single Sign-on
+authentication flow such as the SAML2.0 WebSSO profile, therefore we must enlist
+horizon's assistance. Horizon can be configured to support SSO by enabling it in
+horizon's ``local_settings.py`` configuration file and adding the possible
+authentication choices that will be presented to the user on the login screen.
+
+Ensure the `WEBSSO_ENABLED` option is set to `True` in horizon's local_settings.py file,
+this will provide users with an updated login screen for horizon.
+
+.. code-block:: python
+
+   WEBSSO_ENABLED = True
+
+Configure the options for authenticating that a user may choose from at the
+login screen. The pairs configured in this list map a user-friendly string to an
+authentication option, which may be one of:
+
+* The string ``credentials`` which forces horizon to present its own username
+  and password fields that the user will use to authenticate as a local keystone
+  user
+* The name of a protocol that you created in `Create a Protocol`_, such as
+  ``saml2`` or ``openid``, which will cause horizon to call keystone's `WebSSO
+  API without an Identity Provider`_ to authenticate the user
+* A string that maps to an Identity Provider and Protocol combination configured
+  in ``WEBSSO_IDP_MAPPING`` which will cause horizon to call keystone's `WebSSO
+  API specific to the given Identity Provider`_.
+
+.. code-block:: python
+
+   WEBSSO_CHOICES = (
+       ("credentials", _("Keystone Credentials")),
+       ("openid", _("OpenID Connect")),
+       ("saml2", _("Security Assertion Markup Language")),
+       ("myidp_openid", "Acme Corporation - OpenID Connect"),
+       ("myidp_saml2", "Acme Corporation - SAML2")
+   )
+
+   WEBSSO_IDP_MAPPING = {
+       "myidp_openid": ("myidp", "openid"),
+       "myidp_saml2": ("myidp", "saml2")
+   }
+
+The initial selection of the dropdown menu can also be configured:
+
+.. code-block:: python
+
+   WEBSSO_INITIAL_CHOICE = "credentials"
+
+Remember to restart the web server when finished configuring horizon:
+
+.. code-block:: console
+
+   # systemctl restart apache2
+
+.. _WebSSO API without an Identity Provider: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#web-single-sign-on-authentication-new-in-version-1-2
+.. _WebSSO API specific to the given Identity Provider: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#web-single-sign-on-authentication-new-in-version-1-3
 
 Authenticating
 --------------
@@ -493,8 +619,10 @@ Configuring Metadata
 --------------------
 
 Since keystone is acting as a SAML Identity Provider, its metadata must be
-configured in the ``[saml]`` section of ``keystone.conf`` so that it can served
-by the `metadata API`_.
+configured in the ``[saml]`` section (not to be confused with an optional
+``[saml2]`` section which you may have configured in `Configure the Remote Id
+Attribute`_ while setting up keystone as Service Provider) of ``keystone.conf``
+so that it can served by the `metadata API`_.
 
 .. _metadata API: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#retrieve-metadata-properties
 
@@ -627,4 +755,3 @@ to another cloud.
 .. include:: openidc.rst
 .. include:: mellon.rst
 .. include:: shibboleth.rst
-.. include:: websso.rst
