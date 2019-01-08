@@ -8,21 +8,6 @@ complete keystone configuration documentation and sample config files.
 
 .. _Configuration: ../configuration/index.html
 
-.. toctree::
-   :maxdepth: 1
-
-   troubleshoot
-   logging
-   domain-specific-config
-   integrate-with-ldap
-   caching-layer
-   security-compliance
-   performance
-   url-safe-naming
-   limit-list-size
-   endpoint-filtering
-   endpoint-policy
-
 .. include:: troubleshoot.rst
 .. include:: logging.rst
 .. include:: domain-specific-config.rst
