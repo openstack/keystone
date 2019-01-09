@@ -32,6 +32,20 @@ ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
 
+def _build_project_target_enforcement():
+    target = {}
+    try:
+        target['project'] = PROVIDERS.resource_api.get_project(
+            flask.request.view_args.get('project_id')
+        )
+    except exception.NotFound:  # nosec
+        # Defer existence in the event the project doesn't exist, we'll
+        # check this later anyway.
+        pass
+
+    return target
+
+
 class ProjectResource(ks_flask.ResourceBase):
     collection_key = 'projects'
     member_key = 'project'
@@ -86,7 +100,10 @@ class ProjectResource(ks_flask.ResourceBase):
 
         GET/HEAD /v3/projects/{project_id}
         """
-        ENFORCER.enforce_call(action='identity:get_project')
+        ENFORCER.enforce_call(
+            action='identity:get_project',
+            build_target=_build_project_target_enforcement
+        )
         project = PROVIDERS.resource_api.get_project(project_id)
         self._expand_project_ref(project)
         return self.wrap_member(project)
@@ -97,8 +114,7 @@ class ProjectResource(ks_flask.ResourceBase):
         GET/HEAD /v3/projects
         """
         filters = ('domain_id', 'enabled', 'name', 'parent_id', 'is_domain')
-        ENFORCER.enforce_call(action='identity:list_projects',
-                              filters=filters)
+        ENFORCER.enforce_call(action='identity:list_projects', filters=filters)
         hints = self.build_driver_hints(filters)
 
         # If 'is_domain' has not been included as a query, we default it to
@@ -155,7 +171,10 @@ class ProjectResource(ks_flask.ResourceBase):
 
         PATCH /v3/projects/{project_id}
         """
-        ENFORCER.enforce_call(action='identity:update_project')
+        ENFORCER.enforce_call(
+            action='identity:update_project',
+            build_target=_build_project_target_enforcement
+        )
         project = self.request_body_json.get('project', {})
         validation.lazy_validate(schema.project_update, project)
         self._require_matching_id(project)
@@ -170,7 +189,10 @@ class ProjectResource(ks_flask.ResourceBase):
 
         DELETE /v3/projects/{project_id}
         """
-        ENFORCER.enforce_call(action='identity:delete_project')
+        ENFORCER.enforce_call(
+            action='identity:delete_project',
+            build_target=_build_project_target_enforcement
+        )
         PROVIDERS.resource_api.delete_project(
             project_id,
             initiator=self.audit_initiator)
