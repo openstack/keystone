@@ -14,6 +14,8 @@
 Configuring Keystone for Federation
 ===================================
 
+.. _keystone-as-sp:
+
 -----------------------------------
 Keystone as a Service Provider (SP)
 -----------------------------------
