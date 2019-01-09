@@ -22,6 +22,28 @@ User Options
 The following options are available on user resources. If left undefined, they
 are assumed to be false or disabled.
 
+These can be set either in the initial user creation (``POST /v3/users``)
+or by updating an existing user to include new options
+(``PATCH /v3/users/{user_id}``):
+
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "ignore_lockout_failure_attempts": true
+           }
+       }
+   }
+
+.. note::
+
+    User options of the ``Boolean`` type can be set to ``True``, ``False``, or
+    ``None``; if the option is set to ``None``, it is removed from the user's
+    data structure.
+
+.. _ignore_change_password_upon_first_use:
+
 ignore_change_password_upon_first_use
 -------------------------------------
 
@@ -32,8 +54,20 @@ they log into keystone for the first time. This can be useful for deployments
 that auto-generate passwords but want to ensure a user picks a new password
 when they start using the deployment.
 
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "ignore_change_password_upon_first_use": true
+           }
+       }
+   }
+
 See the `security compliance documentation
 <security-compliance.html>`_ for more details.
+
+.. _ignore_password_expiry:
 
 ignore_password_expiry
 ----------------------
@@ -45,8 +79,20 @@ Opt into ignoring global password expiration settings defined in
 option to ``True`` will allow users to continue using passwords that may be
 expired according to global configuration values.
 
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "ignore_password_expiry": true
+           }
+       }
+   }
+
 See the `security compliance documentation
 <security-compliance.html>`_ for more details.
+
+.. _ignore_lockout_failure_attempts:
 
 ignore_lockout_failure_attempts
 -------------------------------
@@ -56,8 +102,20 @@ Type: ``Boolean``
 If ``True``, opt into ignoring the number of times a user has authenticated and
 locking out the user as a result.
 
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "ignore_lockout_failure_attempts": true
+           }
+       }
+   }
+
 See the `security compliance documentation
 <security-compliance.html>`_ for more details.
+
+.. _lock_password:
 
 lock_password
 -------------
@@ -67,8 +125,21 @@ Type: ``Boolean``
 If set to ``True``, this option disables the ability for users to change their
 password through self-service APIs.
 
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "lock_password": true
+           }
+       }
+   }
+
+
 See the `security compliance documentation
 <security-compliance.html>`_ for more details.
+
+.. _multi_factor_auth_enabled:
 
 multi_factor_auth_enabled
 -------------------------
@@ -80,6 +151,20 @@ This will result in different behavior at authentication time and the user may
 be presented with different authentication requirements based on multi-factor
 configuration.
 
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "multi_factor_auth_enabled": true
+           }
+       }
+   }
+
+See :ref:`multi_factor_authentication` for further details.
+
+.. _multi_factor_auth_rules:
+
 multi_factor_auth_rules
 -----------------------
 
@@ -87,3 +172,19 @@ Type: ``List of Lists of Strings``
 
 Define a list of strings that represent the methods required for a user to
 authenticate.
+
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "multi_factor_auth_rules": [
+                   ["password", "totp"],
+                   ["password", "u2f"]
+               ]
+           }
+       }
+   }
+
+
+See :ref:`multi_factor_authentication` for further details.

@@ -8,6 +8,7 @@ user and password method.
 .. toctree::
    :maxdepth: 2
 
+   multi-factor-authentication
    auth-totp
    federation/federated_identity
    external-authentication

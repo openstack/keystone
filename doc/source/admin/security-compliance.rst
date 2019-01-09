@@ -42,18 +42,7 @@ indefinitely until the user is explicitly enabled via the API.
 
 You can ensure specific users are never locked out. This can be useful for
 service accounts or administrative users. You can do this by setting
-``ignore_lockout_failure_attempts`` to ``true`` via a user update API
-(``PATCH /v3/users/{user_id}``):
-
-.. code-block:: json
-
-   {
-       "user": {
-           "options": {
-               "ignore_lockout_failure_attempts": true
-           }
-       }
-   }
+the user option for :ref:`ignore_lockout_failure_attempts`.
 
 Disabling inactive users
 ------------------------
@@ -85,18 +74,7 @@ authentication (first use), before being able to access any services.
 Prior to enabling this feature, you may want to exempt some users that you do
 not wish to be required to change their password. You can mark a user as
 exempt by setting the user options attribute
-``ignore_change_password_upon_first_use`` to ``true`` via a user update API
-(``PATCH /v3/users/{user_id}``):
-
-.. code-block:: json
-
-   {
-       "user": {
-           "options": {
-               "ignore_change_password_upon_first_use": true
-           }
-       }
-   }
+:ref:`ignore_change_password_upon_first_use`.
 
 .. WARNING::
 
@@ -131,18 +109,7 @@ expiration date, you would need to run a SQL script against the password table
 in the database to update the expires_at column.
 
 If there exists a user whose password you do not want to expire, keystone
-supports setting that user's option ``ignore_password_expiry`` to ``true``
-via user update API (``PATCH /v3/users/{user_id}``):
-
-.. code-block:: json
-
-   {
-       "user": {
-           "options": {
-               "ignore_password_expiry": true
-           }
-       }
-   }
+supports setting that via the user option :ref:`ignore_password_expiry`.
 
 Configuring password strength requirements
 ------------------------------------------
@@ -225,24 +192,11 @@ Prevent Self-Service Password Changes
 -------------------------------------
 
 If there exists a user who should not be able to change her own password via
-the keystone password change API, keystone supports setting that user's option
-``lock_password`` to ``True`` via the user update API
-(``PATCH /v3/users/{user_id}``):
+the keystone password change API, keystone supports setting that via the user
+option :ref:`lock_password`.
 
-.. code-block:: json
-
-   {
-       "user": {
-           "options": {
-               "lock_password": true
-           }
-       }
-   }
-
-The ``lock_password`` user-option is typically used in the case where passwords
-are managed externally to keystone. The ``lock_password`` option can be set to
-``True``, ``False``, or ``None``; if the option is set to ``None``, it is
-removed from the user's data structure.
+This is typically used in the case where passwords are managed externally to
+keystone.
 
 .. _Security Hardening PCI-DSS: https://specs.openstack.org/openstack/keystone-specs/specs/keystone/newton/pci-dss.html
 
