@@ -46,5 +46,5 @@ application_credential_create = {
     'type': 'object',
     'properties': _application_credential_properties,
     'required': ['name'],
-    'additionanlProperties': True
+    'additionalProperties': True
 }
