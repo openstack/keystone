@@ -20,7 +20,7 @@ RULE_ADMIN_OR_CREDENTIAL_OWNER = (
     '(rule:owner and user_id:%(target.credential.user_id)s)')
 RULE_ADMIN_OR_TARGET_DOMAIN = (
     'rule:admin_required or '
-    'token.project.domain.id:%(target.domain.id)s')
+    'project_domain_id:%(target.domain.id)s')
 RULE_ADMIN_OR_TARGET_PROJECT = (
     'rule:admin_required or '
     'project_id:%(target.project.id)s')

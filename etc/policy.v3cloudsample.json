@@ -41,7 +41,7 @@
     "identity:update_limit": "rule:admin_required",
     "identity:delete_limit": "rule:admin_required",
 
-    "identity:get_domain": "rule:cloud_admin or rule:admin_and_matching_domain_id or token.project.domain.id:%(target.domain.id)s",
+    "identity:get_domain": "rule:cloud_admin or rule:admin_and_matching_domain_id or project_domain_id:%(target.domain.id)s",
     "identity:list_domains": "rule:cloud_admin",
     "identity:create_domain": "rule:cloud_admin",
     "identity:update_domain": "rule:cloud_admin",

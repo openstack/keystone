@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    [`bug 1810983 <https://bugs.launchpad.net/keystone/+bug/1810983>`_]
+    With the removal of KeystoneToken from the token model, we longer
+    have the ability to use the token data syntax in the policy rules.
+    This change broke backward compatibility for anyone deploying
+    customized Keystone policies. Unfortunately, we can't go back
+    to KeystoneToken model as the change was tightly coupled with
+    the other refactored authorization functionalities.
+
+    Since the scope information is now available in the credential
+    dictionary, we can just make use of it instead. Those who have
+    custom policies must update their policy files accordingly.
