@@ -497,7 +497,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
             domain_id=mapping_fixtures.LOCAL_DOMAIN)
 
     def test_user_identifications_name(self):
-        """Test varius mapping options and how users are identified.
+        """Test various mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
@@ -522,7 +522,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual('jsmith', display_name)
 
     def test_user_identifications_name_and_federated_domain(self):
-        """Test varius mapping options and how users are identified.
+        """Test various mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
@@ -545,7 +545,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual('abc123%40example.com', unique_id)
 
     def test_user_identification_id(self):
-        """Test varius mapping options and how users are identified.
+        """Test various mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
@@ -585,7 +585,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertEqual('remote_user', display_name)
 
     def test_user_identification_id_and_name(self):
-        """Test varius mapping options and how users are identified.
+        """Test various mapping options and how users are identified.
 
         This test calls mapped.setup_username() for propagating user object.
 
