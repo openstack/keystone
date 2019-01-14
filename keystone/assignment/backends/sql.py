@@ -43,7 +43,7 @@ class AssignmentType(object):
 class Assignment(base.AssignmentDriverBase):
 
     @classmethod
-    def default_role_driver(self):
+    def default_role_driver(cls):
         return 'sql'
 
     def create_grant(self, role_id, user_id=None, group_id=None,

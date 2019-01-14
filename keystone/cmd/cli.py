@@ -252,7 +252,7 @@ class DbSync(BaseApp):
         return parser
 
     @classmethod
-    def check_db_sync_status(self):
+    def check_db_sync_status(cls):
         status = 0
         try:
             expand_version = upgrades.get_db_version(repo='expand_repo')
