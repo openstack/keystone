@@ -20,3 +20,8 @@ other:
     The ``keystone.conf [DEFAULT] secure_proxy_ssl_header`` configuration
     option was slated for removal in Pike and has now officially been removed.
     Please use ``oslo.middleware.http_proxy_to_wsgi`` instead.
+  - >
+    [`blueprint removed-as-of-stein <https://blueprints.launchpad.net/keystone/+spec/removed-as-of-stein>`_]
+    The interface ``create_arguments_apply`` in token formatter payload has
+    been removed. The token payload now doesn't need to be force ordered any
+    more.
