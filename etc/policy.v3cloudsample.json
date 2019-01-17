@@ -28,12 +28,6 @@
     "identity:update_endpoint": "rule:cloud_admin",
     "identity:delete_endpoint": "rule:cloud_admin",
 
-    "identity:get_registered_limit": "",
-    "identity:list_registered_limits": "",
-    "identity:create_registered_limits": "rule:admin_required",
-    "identity:update_registered_limit": "rule:admin_required",
-    "identity:delete_registered_limit": "rule:admin_required",
-
     "identity:get_limit_model": "",
     "identity:get_limit": "",
     "identity:list_limits": "",
