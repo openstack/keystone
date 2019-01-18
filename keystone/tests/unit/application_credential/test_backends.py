@@ -213,7 +213,7 @@ class ApplicationCredentialTests(object):
         app_cred_proj_B = self._new_app_cred_data(
             self.user_foo['id'], project_id=self.tenant_baz['id'], name='app3')
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            tenant_id=self.tenant_baz['id'],
+            project_id=self.tenant_baz['id'],
             user_id=self.user_foo['id'],
             role_id=self.role__member_['id'])
         self.app_cred_api.create_application_credential(app_cred_proj_A_1)
@@ -233,7 +233,7 @@ class ApplicationCredentialTests(object):
         # application credentials on project bar.
         PROVIDERS.assignment_api.remove_role_from_user_and_project(
             user_id=self.user_foo['id'],
-            tenant_id=self.tenant_bar['id'],
+            project_id=self.tenant_bar['id'],
             role_id=self.role__member_['id'])
         self.assertNotIn(app_cred_proj_A_1['id'],
                          self._list_ids(self.user_foo))

@@ -86,10 +86,10 @@ class Manager(manager.Manager):
         return [x['id'] for
                 x in PROVIDERS.identity_api.list_groups_for_user(user_id)]
 
-    def list_user_ids_for_project(self, tenant_id):
-        PROVIDERS.resource_api.get_project(tenant_id)
+    def list_user_ids_for_project(self, project_id):
+        PROVIDERS.resource_api.get_project(project_id)
         assignment_list = self.list_role_assignments(
-            project_id=tenant_id, effective=True)
+            project_id=project_id, effective=True)
         # Use set() to process the list to remove any duplicates
         return list(set([x['user_id'] for x in assignment_list]))
 
@@ -111,7 +111,7 @@ class Manager(manager.Manager):
                 )
 
     @MEMOIZE_COMPUTED_ASSIGNMENTS
-    def get_roles_for_user_and_project(self, user_id, tenant_id):
+    def get_roles_for_user_and_project(self, user_id, project_id):
         """Get the roles associated with a user within given project.
 
         This includes roles directly assigned to the user on the
@@ -123,9 +123,9 @@ class Manager(manager.Manager):
             exist.
 
         """
-        PROVIDERS.resource_api.get_project(tenant_id)
+        PROVIDERS.resource_api.get_project(project_id)
         assignment_list = self.list_role_assignments(
-            user_id=user_id, project_id=tenant_id, effective=True)
+            user_id=user_id, project_id=project_id, effective=True)
         # Use set() to process the list to remove any duplicates
         return list(set([x['role_id'] for x in assignment_list]))
 
@@ -200,9 +200,9 @@ class Manager(manager.Manager):
         PROVIDERS.role_api.get_role(role_id)
         self.driver.add_role_to_user_and_project(user_id, project_id, role_id)
 
-    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_project(self, user_id, project_id, role_id):
         self._add_role_to_user_and_project_adapter(
-            role_id, user_id=user_id, project_id=tenant_id)
+            role_id, user_id=user_id, project_id=project_id)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     # TODO(henry-nash): We might want to consider list limiting this at some
@@ -271,9 +271,9 @@ class Manager(manager.Manager):
             role_id, group_id, user_id, project_id, domain_id
         )
 
-    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
+    def remove_role_from_user_and_project(self, user_id, project_id, role_id):
         self._remove_role_from_user_and_project_adapter(
-            role_id, user_id=user_id, project_id=tenant_id)
+            role_id, user_id=user_id, project_id=project_id)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def _invalidate_token_cache(self, role_id, group_id, user_id, project_id,

@@ -163,7 +163,7 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         # Assign a role to the user on a project
         PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=self.user['id'],
-            tenant_id=self.project_id,
+            project_id=self.project_id,
             role_id=self.role_id)
 
         # Assign a role to the group on a project

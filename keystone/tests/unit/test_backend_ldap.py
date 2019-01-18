@@ -1682,11 +1682,11 @@ class LDAPIdentity(BaseLDAPIdentity):
 
         PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=user1['id'],
-            tenant_id=project1['id'],
+            project_id=project1['id'],
             role_id=role_list[0]['id'])
         PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=user1['id'],
-            tenant_id=project1['id'],
+            project_id=project1['id'],
             role_id=role_list[1]['id'])
 
         # Although list_grants are not yet supported, we can test the

@@ -30,8 +30,8 @@ class AssignmentDriverBase(object):
         return CONF.assignment.list_limit or CONF.list_limit
 
     @abc.abstractmethod
-    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
-        """Add a role to a user within given tenant.
+    def add_role_to_user_and_project(self, user_id, project_id, role_id):
+        """Add a role to a user within given project.
 
         :raises keystone.exception.Conflict: If a duplicate role assignment
             exists.
@@ -40,8 +40,8 @@ class AssignmentDriverBase(object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
-        """Remove a role from a user within given tenant.
+    def remove_role_from_user_and_project(self, user_id, project_id, role_id):
+        """Remove a role from a user within given project.
 
         :raises keystone.exception.RoleNotFound: If the role doesn't exist.
 

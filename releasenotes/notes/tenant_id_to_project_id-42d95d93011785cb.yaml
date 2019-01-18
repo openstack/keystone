@@ -1,0 +1,5 @@
+---
+upgrade:
+  - >
+    The assignment driver interface has changed to use the named parameter
+    'project_id' instead of 'tenant_id'.

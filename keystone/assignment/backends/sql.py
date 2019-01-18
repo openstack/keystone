@@ -113,23 +113,23 @@ class Assignment(base.AssignmentDriverBase):
                                                        actor_id=actor_id,
                                                        target_id=target_id)
 
-    def add_role_to_user_and_project(self, user_id, tenant_id, role_id):
+    def add_role_to_user_and_project(self, user_id, project_id, role_id):
         try:
             with sql.session_for_write() as session:
                 session.add(RoleAssignment(
                     type=AssignmentType.USER_PROJECT,
-                    actor_id=user_id, target_id=tenant_id,
+                    actor_id=user_id, target_id=project_id,
                     role_id=role_id, inherited=False))
         except sql.DBDuplicateEntry:
             msg = ('User %s already has role %s in tenant %s'
-                   % (user_id, role_id, tenant_id))
+                   % (user_id, role_id, project_id))
             raise exception.Conflict(type='role grant', details=msg)
 
-    def remove_role_from_user_and_project(self, user_id, tenant_id, role_id):
+    def remove_role_from_user_and_project(self, user_id, project_id, role_id):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=user_id)
-            q = q.filter_by(target_id=tenant_id)
+            q = q.filter_by(target_id=project_id)
             q = q.filter_by(role_id=role_id)
             if q.delete() == 0:
                 raise exception.RoleNotFound(message=_(
