@@ -3223,6 +3223,66 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
              'registered_limit_id', 'domain_id'])
         self.assertTrue(limit_table.c.project_id.nullable)
 
+    def test_migration_056_add_application_credential_access_rules(self):
+        self.expand(55)
+        self.migrate(55)
+        self.contract(55)
+
+        self.assertTableDoesNotExist('access_rule')
+        self.assertTableDoesNotExist('application_credential_access_rule')
+
+        self.expand(56)
+        self.migrate(56)
+        self.contract(56)
+
+        self.assertTableExists('access_rule')
+        self.assertTableExists('application_credential_access_rule')
+        self.assertTableColumns(
+            'access_rule',
+            ['id', 'service', 'path', 'method']
+        )
+        self.assertTableColumns(
+            'application_credential_access_rule',
+            ['application_credential_id', 'access_rule_id']
+        )
+        self.assertTrue(self.does_fk_exist('application_credential_access_rule',
+                                           'application_credential_id'))
+        self.assertTrue(self.does_fk_exist('application_credential_access_rule',
+                                           'access_rule_id'))
+
+        app_cred_table = sqlalchemy.Table(
+            'application_credential', self.metadata, autoload=True
+        )
+        access_rule_table = sqlalchemy.Table(
+            'access_rule', self.metadata, autoload=True
+        )
+        app_cred_access_rule_table = sqlalchemy.Table(
+            'application_credential_access_rule',
+            self.metadata, autoload=True
+        )
+        app_cred = {
+            'internal_id': 1,
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret_hash': uuid.uuid4().hex,
+            'user_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex
+        }
+        app_cred_table.insert().values(app_cred).execute()
+        access_rule = {
+            'id': 1,
+            'service': uuid.uuid4().hex,
+            'path': '/v2.1/servers',
+            'method': 'GET'
+        }
+        access_rule_table.insert().values(access_rule).execute()
+        app_cred_access_rule_rel = {
+            'application_credential_id': app_cred['internal_id'],
+            'access_rule_id': access_rule['id']
+        }
+        app_cred_access_rule_table.insert().values(
+            app_cred_access_rule_rel).execute()
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
