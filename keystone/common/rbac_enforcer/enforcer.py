@@ -193,6 +193,8 @@ class RBACEnforcer(object):
         # of the auth paths.
         target = 'token'
         subject_token = flask.request.headers.get('X-Subject-Token')
+        access_rules_support = flask.request.headers.get(
+            authorization.ACCESS_RULES_HEADER)
         if subject_token is not None:
             allow_expired = (strutils.bool_from_string(
                 flask.request.args.get('allow_expired', False),
@@ -201,7 +203,8 @@ class RBACEnforcer(object):
                 window_seconds = CONF.token.allow_expired_window
             token = PROVIDER_APIS.token_provider_api.validate_token(
                 subject_token,
-                window_seconds=window_seconds
+                window_seconds=window_seconds,
+                access_rules_support=access_rules_support
             )
             # TODO(morgan): Expand extracted data from the subject token.
             ret_dict[target] = {}

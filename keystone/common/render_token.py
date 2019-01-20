@@ -138,5 +138,9 @@ def render_token_response_from_model(token, include_catalog=True):
         )
         restricted = not token.application_credential['unrestricted']
         token_reference['token'][key]['restricted'] = restricted
+        if token.application_credential.get('access_rules'):
+            token_reference['token'][key]['access_rules'] = (
+                token.application_credential['access_rules']
+            )
 
     return token_reference

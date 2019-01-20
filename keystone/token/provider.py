@@ -51,6 +51,9 @@ UnsupportedTokenVersionException = exception.UnsupportedTokenVersionException
 V3 = token_model.V3
 VERSIONS = token_model.VERSIONS
 
+# minimum access rules support
+ACCESS_RULES_MIN_VERSION = token_model.ACCESS_RULES_MIN_VERSION
+
 
 def default_expire_time():
     """Determine when a fresh token should expire.
@@ -135,13 +138,15 @@ class Manager(manager.Manager):
     def check_revocation(self, token):
         return self.check_revocation_v3(token)
 
-    def validate_token(self, token_id, window_seconds=0):
+    def validate_token(self, token_id, window_seconds=0,
+                       access_rules_support=None):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
 
         try:
             token = self._validate_token(token_id)
             self._is_valid_token(token, window_seconds=window_seconds)
+            self._validate_token_access_rules(token, access_rules_support)
             return token
         except exception.Unauthorized as e:
             LOG.debug('Unable to validate token: %s', e)
@@ -198,6 +203,22 @@ class Manager(manager.Manager):
             return None
         else:
             raise exception.TokenNotFound(_('Failed to validate token'))
+
+    def _validate_token_access_rules(self, token, access_rules_support=None):
+        if token.application_credential_id:
+            app_cred_api = PROVIDERS.application_credential_api
+            app_cred = app_cred_api.get_application_credential(
+                token.application_credential_id)
+            if (app_cred.get('access_rules') is not None and
+                (not access_rules_support or
+                 (float(access_rules_support) < ACCESS_RULES_MIN_VERSION))):
+                LOG.exception('Attempted to use application credential'
+                              ' access rules with a middleware that does not'
+                              ' understand them. You must upgrade'
+                              ' keystonemiddleware on all services that'
+                              ' accept application credentials as an'
+                              ' authentication method.')
+                raise exception.TokenNotFound(_('Failed to validate token'))
 
     def issue_token(self, user_id, method_names, expires_at=None,
                     system=None, project_id=None, domain_id=None,

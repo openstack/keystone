@@ -32,3 +32,7 @@ SUBJECT_TOKEN_HEADER = 'X-Subject-Token'  # nosec
 # Environment variable used to convey the Keystone auth context,
 # the user credential used for policy enforcement.
 AUTH_CONTEXT_ENV = 'KEYSTONE_AUTH_CONTEXT'
+
+# Header set by versions of keystonemiddleware that understand application
+# credential access rules
+ACCESS_RULES_HEADER = 'OpenStack-Identity-Access-Rules'
