@@ -28,9 +28,9 @@ _DISCOVERY_BLUEPRINT = flask.Blueprint('Discovery', __name__)
 def _get_versions_list(identity_url):
     versions = {}
     versions['v3'] = {
-        'id': 'v3.11',
+        'id': 'v3.12',
         'status': 'stable',
-        'updated': '2018-10-15T00:00:00Z',
+        'updated': '2019-01-22T00:00:00Z',
         'links': [{
             'rel': 'self',
             'href': identity_url,

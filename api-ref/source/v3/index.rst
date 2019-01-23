@@ -26,9 +26,15 @@ For information about Identity API protection, see
 <https://docs.openstack.org/keystone/latest/admin/identity-service-api-protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
-===================================
+==================================
+What's New in Version 3.12 (Stein)
+==================================
+
+- New optional multi-factor auth process involving auth receipts
+
+==================================
 What's New in Version 3.11 (Rocky)
-===================================
+==================================
 
 - New endpoint /v3/limits-model for discovering the limit model in effect
 - New description field in registered and project limits
