@@ -23,7 +23,7 @@ contains the same headers and HTTP status code as the corresponding GET API.
 
 For information about Identity API protection, see
 `Identity API protection with role-based access control (RBAC)
-<https://docs.openstack.org/keystone/latest/admin/identity-service-api-protection.html>`_
+<https://docs.openstack.org/keystone/latest/admin/service-api-protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
 ==================================
