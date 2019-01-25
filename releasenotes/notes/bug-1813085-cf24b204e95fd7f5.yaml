@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1813085 <https://bugs.launchpad.net/keystone/+bug/1813085>`]
+    Validation of federated domain-scoped tokens scoped to the ``default``
+    domain no longer results in an ``HTTP 404 Domain Not Found`` due
+    to byte string conversion issues with msgpack in python 3.
