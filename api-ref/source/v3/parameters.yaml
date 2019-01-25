@@ -1,4 +1,12 @@
 # variables in header
+Openstack-Auth-Receipt:
+  description: |
+    The auth receipt.  A partially successful authentication
+    response returns the auth receipt ID in this header rather than in the
+    response body.
+  in: header
+  required: true
+  type: string
 X-Auth-Token:
   description: |
     A valid authentication token for an
@@ -477,8 +485,8 @@ auth_domain:
   type: object
 auth_methods:
   description: |
-    The authentication method, which is ``password``,
-    ``token``, or both methods.  Indicates the accumulated set of
+    The authentication methods, which are commonly ``password``,
+    ``token``, or other methods.  Indicates the accumulated set of
     authentication methods that were used to obtain the token. For
     example, if the token was obtained by password authentication, it
     contains ``password``. Later, if the token is exchanged by using
@@ -506,10 +514,30 @@ auth_methods_passwd:
   in: body
   required: true
   type: array
+auth_methods_receipt:
+  description: |
+    The authentication methods, which are commonly ``password``,
+    ``totp``, or other methods.  Indicates the accumulated set of
+    authentication methods that were used to obtain the receipt. For
+    example, if the receipt was obtained by password authentication, it
+    contains ``password``. Later, if the receipt is exchanged by using
+    another authentication method one or more times, the
+    subsequently created receipts could contain both ``password`` and
+    ``totp`` in their ``methods`` attribute.
+  in: body
+  required: true
+  type: array
 auth_methods_token:
   description: |
     The authentication method. For token
     authentication, specify ``token``.
+  in: body
+  required: true
+  type: array
+auth_methods_totp:
+  description: |
+    The authentication method. For totp
+    authentication, specify ``totp``.
   in: body
   required: true
   type: array
@@ -1433,6 +1461,38 @@ projects:
   in: body
   required: true
   type: array
+receipt_expires_at:
+  description: |
+    The date and time when the receipt expires.
+
+    The date and time stamp format is `ISO 8601
+    <https://en.wikipedia.org/wiki/ISO_8601>`_:
+
+    ::
+
+       CCYY-MM-DDThh:mm:ss.sssZ
+
+    For example, ``2015-08-27T09:49:58.000000Z``.
+
+    A ``null`` value indicates that the receipt never expires.
+  in: body
+  required: true
+  type: string
+receipt_issued_at:
+  description: |
+    The date and time when the receipt was issued.
+
+    The date and time stamp format is `ISO 8601
+    <https://en.wikipedia.org/wiki/ISO_8601>`_:
+
+    ::
+
+       CCYY-MM-DDThh:mm:ss.sssZ
+
+    For example, ``2015-08-27T09:49:58.000000Z``.
+  in: body
+  required: true
+  type: string
 region_id_not_required:
   description: |
     (Since v3.2) The ID of the region that contains
@@ -1604,6 +1664,13 @@ request_service_id_registered_limit_body_not_required:
   in: body
   required: false
   type: string
+required_auth_methods:
+  description: |
+    A list of authentication rules that may be used with the auth receipt
+    to complete the authentication process.
+  in: body
+  required: true
+  type: list of lists
 resource_limit:
   description: |
     The override limit.
@@ -1906,6 +1973,12 @@ system_scope_string:
 token:
   description: |
     A ``token`` object.
+  in: body
+  required: true
+  type: object
+totp:
+  description: |
+    The ``totp`` object, contains the authentication information.
   in: body
   required: true
   type: object

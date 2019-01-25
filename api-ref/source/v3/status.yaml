@@ -27,6 +27,14 @@
 401:
   default: |
     User must authenticate before making a request.
+  auth_failed: |
+    Authentication attempt has failed.
+  auth_receipt: |
+    User has successfully supplied some auth methods, but not enough for full
+    authentication.
+  auth_receipt_failure: |
+    Authentication attempt has failed. Either the auth receipt has expired, or
+    the additional auth methods supplied were invalid.
 403:
   default: |
     Policy does not allow current user to do this operation.
