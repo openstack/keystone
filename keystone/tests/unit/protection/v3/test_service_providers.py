@@ -173,3 +173,73 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _SystemUserServiceProviderTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_create_service_providers(self):
+        service_provider = PROVIDERS.federation_api.create_sp(
+            uuid.uuid4().hex, unit.new_service_provider_ref()
+        )
+
+        service_provider = unit.new_service_provider_ref()
+        create = {'service_provider': service_provider}
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                json=create,
+                expected_status_code=http_client.CREATED
+            )
+
+    def test_user_can_update_service_providers(self):
+        service_provider = PROVIDERS.federation_api.create_sp(
+            uuid.uuid4().hex, unit.new_service_provider_ref()
+        )
+
+        update = {'service_provider': {'enabled': False}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/OS-FEDERATION/service_providers/%s' %
+                service_provider['id'],
+                headers=self.headers,
+                json=update
+            )
+
+    def test_user_can_delete_service_providers(self):
+        service_provider = PROVIDERS.federation_api.create_sp(
+            uuid.uuid4().hex, unit.new_service_provider_ref()
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-FEDERATION/service_providers/%s' %
+                service_provider['id'],
+                headers=self.headers
+            )
