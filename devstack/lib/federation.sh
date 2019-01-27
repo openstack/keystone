@@ -66,10 +66,24 @@ function install_federation {
 
         # Enable the Shibboleth module for Apache
         sudo a2enmod shib2
-    else
+    elif is_fedora; then
         # NOTE(knikolla): For CentOS/RHEL, installing shibboleth is tricky
         # It requires adding a separate repo not officially supported
-        echo "Skipping installation of shibboleth for non ubuntu host"
+
+        # Add Shibboleth repository with curl
+        curl https://download.opensuse.org/repositories/security://shibboleth/CentOS_7/security:shibboleth.repo \
+        | sudo tee /etc/yum.repos.d/shibboleth.repo >/dev/null
+
+        # Install Shibboleth
+        install_package shibboleth
+
+        # Create a new keypair for Shibboleth
+        sudo /etc/shibboleth/keygen.sh -f -o /etc/shibboleth
+
+        # Start Shibboleth module
+        start_service shibd
+    else
+        echo "Skipping installation of shibboleth for non ubuntu nor fedora host"
     fi
 }
 
@@ -153,7 +167,12 @@ function configure_tests_settings {
 function uninstall_federation {
     if is_ubuntu; then
         uninstall_package libapache2-mod-shib2
+    elif is_fedora; then
+        uninstall_package shibboleth
+
+        # Remove Shibboleth repository
+        sudo rm /etc/yum.repos.d/shibboleth.repo
     else
-        echo "Skipping uninstallation of shibboleth for non ubuntu host"
+        echo "Skipping uninstallation of shibboleth for non ubuntu nor fedora host"
     fi
 }
