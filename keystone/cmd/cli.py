@@ -964,7 +964,7 @@ class DomainConfigUploadFiles(object):
         try:
             for group in sections:
                 for option in sections[group]:
-                        sections[group][option] = sections[group][option][0]
+                    sections[group][option] = sections[group][option][0]
             self.domain_config_manager.create_config(domain_ref['id'],
                                                      sections)
             return True
