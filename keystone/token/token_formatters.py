@@ -611,6 +611,23 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
         (is_stored_as_bytes, scope_id) = payload[2]
         if is_stored_as_bytes:
             scope_id = cls.convert_uuid_bytes_to_hex(scope_id)
+        else:
+            # NOTE(lbragstad): We assembled the token payload scope as a tuple
+            # (False, domain_id) for cases like (False, 'default'), since the
+            # default domain ID isn't converted to a byte string when it's not
+            # in UUID format. Despite the boolean indicator in the tuple that
+            # denotes if the value is stored as a byte string or not, msgpack
+            # apparently returns the serialized input as byte strings anyway.
+            # For example, this means what we though we were passing in as
+            # (False, 'default') during token creation actually comes out as
+            # (False, b'default') in token validation through msgpack, which
+            # clearly isn't correct according to our boolean indicator. This
+            # causes comparison issues due to different string types (e.g.,
+            # b'default' != 'default') with python 3. See bug 1813085 for
+            # details. We use this pattern for other strings in the payload
+            # like idp_id and protocol_id for the same reason.
+            if six.PY3 and isinstance(scope_id, six.binary_type):
+                scope_id = scope_id.decode('utf-8')
         project_id = (
             scope_id
             if cls.version == FederatedProjectScopedPayload.version else None)
@@ -621,7 +638,12 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
         (is_stored_as_bytes, idp_id) = payload[4]
         if is_stored_as_bytes:
             idp_id = cls.convert_uuid_bytes_to_hex(idp_id)
+        else:
+            if six.PY3 and isinstance(idp_id, six.binary_type):
+                idp_id = idp_id.decode('utf-8')
         protocol_id = payload[5]
+        if six.PY3 and isinstance(protocol_id, six.binary_type):
+            protocol_id = protocol_id.decode('utf-8')
         expires_at_str = cls._convert_float_to_time_string(payload[6])
         audit_ids = list(map(cls.base64_encode, payload[7]))
         system = None
