@@ -1256,6 +1256,8 @@ CMDS = [
     MappingPopulate,
     MappingPurge,
     MappingEngineTester,
+    ReceiptRotate,
+    ReceiptSetup,
     SamlIdentityProviderMetadata,
     TokenRotate,
     TokenSetup,
