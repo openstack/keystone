@@ -88,6 +88,20 @@
       - openstack/keystone
     nodeset: legacy-ubuntu-xenial-2-node
 
+# Experimental
+- job:
+    name: keystone-dsvm-functional-federation-centos7
+    parent: keystone-dsvm-functional
+    nodeset: devstack-single-node-centos-7
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+      devstack_services:
+        keystone-saml2-federation: true
+        tls-proxy: false
+      devstack_plugins:
+        keystone: git://git.openstack.org/openstack/keystone
+
 - project:
     templates:
       - openstack-cover-jobs
@@ -166,6 +180,9 @@
             irrelevant-files: *tempest-irrelevant-files
         - tempest-full-py3-opensuse150:
             irrelevant-files: *tempest-irrelevant-files
+        - keystone-dsvm-functional-federation-centos7:
+            voting: false
+            irrelevant-files: *irrelevant-files
     post:
       jobs:
         - publish-loci-keystone
