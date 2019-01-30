@@ -82,8 +82,17 @@ function install_federation {
 
         # Start Shibboleth module
         start_service shibd
+    elif is_suse; then
+        # Install Shibboleth
+        install_package shibboleth-sp
+
+        # Create a new keypair for Shibboleth
+        sudo /etc/shibboleth/keygen.sh -f -o /etc/shibboleth
+
+        # Start Shibboleth module
+        start_service shibd
     else
-        echo "Skipping installation of shibboleth for non ubuntu nor fedora host"
+        echo "Skipping installation of shibboleth for non ubuntu nor fedora nor suse host"
     fi
 }
 
@@ -125,6 +134,8 @@ function configure_federation {
     if [[ "$WSGI_MODE" == "uwsgi" ]]; then
         restart_service "devstack@keystone"
     fi
+
+    restart_apache_server
 
     # TODO(knikolla): We should not be relying on an external service. This
     # will be removed once we have an idp deployed during devstack install.
@@ -172,7 +183,9 @@ function uninstall_federation {
 
         # Remove Shibboleth repository
         sudo rm /etc/yum.repos.d/shibboleth.repo
+    elif is_suse; then
+        unistall_package shibboleth-sp
     else
-        echo "Skipping uninstallation of shibboleth for non ubuntu nor fedora host"
+        echo "Skipping uninstallation of shibboleth for non ubuntu nor fedora nor suse host"
     fi
 }
