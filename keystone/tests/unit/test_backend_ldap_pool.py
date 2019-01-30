@@ -231,15 +231,3 @@ class LDAPIdentity(LdapPoolCommonTestMixin,
         config_files = super(LDAPIdentity, self).config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_pool.conf'))
         return config_files
-
-    @mock.patch.object(common_ldap, 'utf8_encode')
-    def test_utf8_encoded_is_used_in_pool(self, mocked_method):
-        def side_effect(arg):
-            return arg
-        mocked_method.side_effect = side_effect
-        # invalidate the cache to get utf8_encode function called.
-        PROVIDERS.identity_api.get_user.invalidate(PROVIDERS.identity_api,
-                                                   self.user_foo['id'])
-        PROVIDERS.identity_api.get_user(self.user_foo['id'])
-        mocked_method.assert_any_call(CONF.ldap.user)
-        mocked_method.assert_any_call(CONF.ldap.password)
