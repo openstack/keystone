@@ -676,6 +676,12 @@ class MappingRuleEngineTests(unit.BaseTestCase):
                           mapping_utils.validate_mapping_structure,
                           mapping)
 
+    def test_mapping_validation_with_bad_local_type_user_in_assertion(self):
+        mapping = mapping_fixtures.MAPPING_BAD_LOCAL_TYPE_USER_IN_ASSERTION
+        self.assertRaises(exception.ValidationError,
+                          mapping_utils.validate_mapping_structure,
+                          mapping)
+
     def test_mapping_validation_no_local(self):
         mapping = mapping_fixtures.MAPPING_MISSING_LOCAL
         self.assertRaises(exception.ValidationError,

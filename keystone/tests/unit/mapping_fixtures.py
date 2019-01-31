@@ -1406,6 +1406,36 @@ MAPPING_BAD_LOCAL_SETUP = {
     ]
 }
 
+MAPPING_BAD_LOCAL_TYPE_USER_IN_ASSERTION = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "groups": "{1}"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "openstack_user"
+                },
+                {
+                    "type": "openstack_groups"
+
+                },
+                {
+                    "type": "openstack_roles",
+                    "any_one_of": [
+                        "Admin"
+                    ]
+                }
+            ]
+        },
+    ]
+}
+
 MAPPING_GROUPS_WITH_EMAIL = {
     "rules": [
         {
