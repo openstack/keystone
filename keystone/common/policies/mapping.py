@@ -10,9 +10,27 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
+
+deprecated_get_mapping = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_mapping',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_mappings = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_mappings',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+DEPRECATED_REASON = """
+As of the Stein release, the federated mapping API now understands default
+roles and system-scoped tokens, making the API more granular by default without
+compromising security. The new policy defaults account for these changes
+automatically. Be sure to take these new defaults into consideration if you are
+relying on overrides in your deployment for the federated mapping API.
+"""
 
 mapping_policies = [
     policy.DocumentedRuleDefault(
@@ -31,7 +49,7 @@ mapping_policies = [
                      'method': 'PUT'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_mapping',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='Get a federated mapping.',
         operations=[
@@ -43,11 +61,14 @@ mapping_policies = [
                 'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
                 'method': 'HEAD'
             }
-        ]
+        ],
+        deprecated_rule=deprecated_get_mapping,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_mappings',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List federated mappings.',
         operations=[
@@ -59,7 +80,10 @@ mapping_policies = [
                 'path': '/v3/OS-FEDERATION/mappings',
                 'method': 'HEAD'
             }
-        ]
+        ],
+        deprecated_rule=deprecated_get_mapping,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_mapping',
