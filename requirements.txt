@@ -35,6 +35,7 @@ oslo.upgradecheck>=0.1.0 # Apache-2.0
 oslo.utils>=3.33.0 # Apache-2.0
 oauthlib>=0.6.2 # BSD
 pysaml2>=4.5.0
+PyJWT>=1.6.1 # MIT
 dogpile.cache>=0.6.2 # BSD
 jsonschema<3.0.0,>=2.6.0 # MIT
 pycadf!=2.0.0,>=1.1.0 # Apache-2.0
