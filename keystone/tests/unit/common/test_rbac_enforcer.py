@@ -151,7 +151,7 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
                 },
                 'scope': {
                     'project': {
-                        'id': self.tenant_service['id']
+                        'id': self.project_service['id']
                     }
                 }
             }

@@ -458,25 +458,25 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
     def test_remove_role_grant_from_user_and_project(self):
         PROVIDERS.assignment_api.create_grant(
             user_id=self.user_foo['id'],
-            project_id=self.tenant_baz['id'],
+            project_id=self.project_baz['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
         roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
-            project_id=self.tenant_baz['id'])
+            project_id=self.project_baz['id'])
         self.assertDictEqual(self.role_member, roles_ref[0])
 
         PROVIDERS.assignment_api.delete_grant(
             user_id=self.user_foo['id'],
-            project_id=self.tenant_baz['id'],
+            project_id=self.project_baz['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
         roles_ref = PROVIDERS.assignment_api.list_grants(
             user_id=self.user_foo['id'],
-            project_id=self.tenant_baz['id'])
+            project_id=self.project_baz['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
                           PROVIDERS.assignment_api.delete_grant,
                           user_id=self.user_foo['id'],
-                          project_id=self.tenant_baz['id'],
+                          project_id=self.project_baz['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_role_grant_by_group_and_project(self):
@@ -491,32 +491,32 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
         roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         self.assertEqual([], roles_ref)
         self.assertEqual(0, len(roles_ref))
 
         PROVIDERS.assignment_api.create_grant(
             group_id=new_group['id'],
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
         roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         self.assertNotEmpty(roles_ref)
         self.assertDictEqual(self.role_member, roles_ref[0])
 
         PROVIDERS.assignment_api.delete_grant(
             group_id=new_group['id'],
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             role_id=default_fixtures.MEMBER_ROLE_ID)
         roles_ref = PROVIDERS.assignment_api.list_grants(
             group_id=new_group['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         self.assertEqual(0, len(roles_ref))
         self.assertRaises(exception.RoleAssignmentNotFound,
                           PROVIDERS.assignment_api.delete_grant,
                           group_id=new_group['id'],
-                          project_id=self.tenant_bar['id'],
+                          project_id=self.project_bar['id'],
                           role_id=default_fixtures.MEMBER_ROLE_ID)
 
     def test_get_and_remove_role_grant_by_group_and_domain(self):
@@ -571,14 +571,14 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         )
         self.assertThat(user_projects, matchers.HasLength(0))
 
-        # new grant(user1, role_member, tenant_bar)
+        # new grant(user1, role_member, project_bar)
         PROVIDERS.assignment_api.create_grant(
-            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            user_id=user1['id'], project_id=self.project_bar['id'],
             role_id=self.role_member['id']
         )
-        # new grant(user1, role_member, tenant_baz)
+        # new grant(user1, role_member, project_baz)
         PROVIDERS.assignment_api.create_grant(
-            user_id=user1['id'], project_id=self.tenant_baz['id'],
+            user_id=user1['id'], project_id=self.project_baz['id'],
             role_id=self.role_member['id']
         )
         user_projects = PROVIDERS.assignment_api.list_projects_for_user(
@@ -595,14 +595,14 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
         PROVIDERS.identity_api.add_user_to_group(user2['id'], group1['id'])
 
-        # new grant(group1(user2), role_member, tenant_bar)
+        # new grant(group1(user2), role_member, project_bar)
         PROVIDERS.assignment_api.create_grant(
-            group_id=group1['id'], project_id=self.tenant_bar['id'],
+            group_id=group1['id'], project_id=self.project_bar['id'],
             role_id=self.role_member['id']
         )
-        # new grant(group1(user2), role_member, tenant_baz)
+        # new grant(group1(user2), role_member, project_baz)
         PROVIDERS.assignment_api.create_grant(
-            group_id=group1['id'], project_id=self.tenant_baz['id'],
+            group_id=group1['id'], project_id=self.project_baz['id'],
             role_id=self.role_member['id']
         )
         user_projects = PROVIDERS.assignment_api.list_projects_for_user(
@@ -610,9 +610,9 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         )
         self.assertThat(user_projects, matchers.HasLength(2))
 
-        # new grant(group1(user2), role_other, tenant_bar)
+        # new grant(group1(user2), role_other, project_bar)
         PROVIDERS.assignment_api.create_grant(
-            group_id=group1['id'], project_id=self.tenant_bar['id'],
+            group_id=group1['id'], project_id=self.project_bar['id'],
             role_id=self.role_other['id']
         )
         user_projects = PROVIDERS.assignment_api.list_projects_for_user(
@@ -633,13 +633,13 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # Add user1 to group1
         PROVIDERS.identity_api.add_user_to_group(user1['id'], group1['id'])
 
-        # Now, add grant to user1 and group1 in tenant_bar
+        # Now, add grant to user1 and group1 in project_bar
         PROVIDERS.assignment_api.create_grant(
-            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            user_id=user1['id'], project_id=self.project_bar['id'],
             role_id=self.role_member['id']
         )
         PROVIDERS.assignment_api.create_grant(
-            group_id=group1['id'], project_id=self.tenant_bar['id'],
+            group_id=group1['id'], project_id=self.project_bar['id'],
             role_id=self.role_member['id']
         )
 
@@ -649,9 +649,9 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         )
         self.assertThat(user_projects, matchers.HasLength(1))
 
-        # Now, delete user1 grant into tenant_bar and check
+        # Now, delete user1 grant into project_bar and check
         PROVIDERS.assignment_api.delete_grant(
-            user_id=user1['id'], project_id=self.tenant_bar['id'],
+            user_id=user1['id'], project_id=self.project_bar['id'],
             role_id=self.role_member['id']
         )
 
@@ -685,7 +685,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         )
 
         PROVIDERS.assignment_api.create_grant(
-            user_id=new_user['id'], project_id=self.tenant_bar['id'],
+            user_id=new_user['id'], project_id=self.project_bar['id'],
             role_id=self.role_member['id']
         )
         PROVIDERS.assignment_api.create_grant(
@@ -761,7 +761,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         role_member = unit.new_role_ref()
         PROVIDERS.role_api.create_role(role_member['id'], role_member)
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            user['id'], self.tenant_baz['id'], role_member['id']
+            user['id'], self.project_baz['id'], role_member['id']
         )
         driver = PROVIDERS.identity_api._select_identity_driver(
             user['domain_id'])
@@ -898,7 +898,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.attribute_ignore = ['enabled', 'email',
-                                        'tenants', 'tenantId']
+                                        'projects', 'projectId']
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id,
                                  project_id='maps_to_none')
 
@@ -912,7 +912,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         driver = PROVIDERS.identity_api._select_identity_driver(
             CONF.identity.default_domain_id)
         driver.user.attribute_ignore = ['enabled', 'email',
-                                        'tenants', 'tenantId']
+                                        'projects', 'projectId']
 
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
 
@@ -995,7 +995,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         # Grant the user a role on a project.
 
         role_id = default_fixtures.MEMBER_ROLE_ID
-        project_id = self.tenant_baz['id']
+        project_id = self.project_baz['id']
 
         PROVIDERS.assignment_api.create_grant(
             role_id, user_id=public_user_id, project_id=project_id
@@ -1947,7 +1947,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
         super(LDAPIdentity, self).load_fixtures(fixtures)
-        for obj in [self.tenant_bar, self.tenant_baz, self.user_foo,
+        for obj in [self.project_bar, self.project_baz, self.user_foo,
                     self.user_two, self.user_badguy]:
             obj.setdefault('enabled', True)
 

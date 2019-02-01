@@ -191,9 +191,9 @@ def _subs(value):
     so subclasses need to be defined manually in the dictionary below.
 
     """
-    subs = {'groupOfNames': ['keystoneTenant',
+    subs = {'groupOfNames': ['keystoneProject',
                              'keystoneRole',
-                             'keystoneTenantRole']}
+                             'keystoneProjectRole']}
     if value in subs:
         return [value] + subs[value]
     return [value]

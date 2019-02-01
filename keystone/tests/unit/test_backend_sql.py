@@ -274,7 +274,7 @@ class SqlIdentity(SqlTests,
         role_member = unit.new_role_ref()
         PROVIDERS.role_api.create_role(role_member['id'], role_member)
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            user['id'], self.tenant_bar['id'], role_member['id']
+            user['id'], self.project_bar['id'], role_member['id']
         )
         PROVIDERS.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
@@ -315,11 +315,11 @@ class SqlIdentity(SqlTests,
         role_member = unit.new_role_ref()
         PROVIDERS.role_api.create_role(role_member['id'], role_member)
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            user['id'], self.tenant_bar['id'], role_member['id']
+            user['id'], self.project_bar['id'], role_member['id']
         )
-        PROVIDERS.resource_api.delete_project(self.tenant_bar['id'])
-        tenants = PROVIDERS.assignment_api.list_projects_for_user(user['id'])
-        self.assertEqual([], tenants)
+        PROVIDERS.resource_api.delete_project(self.project_bar['id'])
+        projects = PROVIDERS.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual([], projects)
 
     def test_update_project_returns_extra(self):
         """Test for backward compatibility with an essex/folsom bug.
@@ -762,7 +762,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
-        malformed_url = "http://192.168.1.104:8774/v2/$(tenant)s"
+        malformed_url = "http://192.168.1.104:8774/v2/$(project)s"
         endpoint = unit.new_endpoint_ref(service_id=service['id'],
                                          url=malformed_url,
                                          region_id=None)
@@ -770,7 +770,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         self.assertRaises(exception.ProjectNotFound,
                           PROVIDERS.catalog_api.get_v3_catalog,
                           'fake-user',
-                          'fake-tenant')
+                          'fake-project')
 
     def test_get_v3_catalog_with_empty_public_url(self):
         service = unit.new_service_ref()
@@ -781,7 +781,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
         catalog = PROVIDERS.catalog_api.get_v3_catalog(self.user_foo['id'],
-                                                       self.tenant_bar['id'])
+                                                       self.project_bar['id'])
         catalog_endpoint = catalog[0]
         self.assertEqual(service['name'], catalog_endpoint['name'])
         self.assertEqual(service['id'], catalog_endpoint['id'])
@@ -846,7 +846,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
                           region['id'])
 
     def test_v3_catalog_domain_scoped_token(self):
-        # test the case that tenant_id is None.
+        # test the case that project_id is None.
         srv_1 = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(srv_1['id'], srv_1)
         endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
@@ -884,10 +884,10 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         # create endpoint-project association.
         PROVIDERS.catalog_api.add_endpoint_to_project(
             endpoint_1['id'],
-            self.tenant_bar['id'])
+            self.project_bar['id'])
 
         catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(
-            uuid.uuid4().hex, self.tenant_bar['id']
+            uuid.uuid4().hex, self.project_bar['id']
         )
         self.assertThat(catalog_ref, matchers.HasLength(1))
         self.assertThat(catalog_ref[0]['endpoints'], matchers.HasLength(1))
@@ -909,7 +909,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         PROVIDERS.catalog_api.create_service(srv_2['id'], srv_2)
 
         catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(
-            uuid.uuid4().hex, self.tenant_bar['id']
+            uuid.uuid4().hex, self.project_bar['id']
         )
         self.assertThat(catalog_ref, matchers.HasLength(2))
         srv_id_list = [catalog_ref[0]['id'], catalog_ref[1]['id']]
