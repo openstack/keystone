@@ -31,6 +31,7 @@ from keystone.cmd import bootstrap
 from keystone.cmd import doctor
 from keystone.common import driver_hints
 from keystone.common import fernet_utils
+from keystone.common import jwt_utils
 from keystone.common import sql
 from keystone.common.sql import upgrades
 from keystone.common import utils
@@ -476,6 +477,43 @@ class FernetRotate(BasePermissionsSetup):
                 os.path.abspath(CONF.fernet_receipts.key_repository)):
             cls.rotate_fernet_repository(
                 keystone_user_id, keystone_group_id, 'fernet_receipts')
+
+
+class CreateJWSKeyPair(BasePermissionsSetup):
+    """Create a key pair for signing and validating JWS tokens.
+
+    This command creates a public and private key pair to use for signing and
+    validating JWS token signatures. The key pair is written to the directory
+    where the command is invoked.
+
+    """
+
+    name = 'create_jws_keypair'
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(CreateJWSKeyPair, cls).add_argument_parser(subparsers)
+
+        parser.add_argument(
+            '--force', action='store_true',
+            help=('Forcibly overwrite keys if they already exist')
+        )
+        return parser
+
+    @classmethod
+    def main(cls):
+        current_directory = os.getcwd()
+        private_key_path = os.path.join(current_directory, 'private.pem')
+        public_key_path = os.path.join(current_directory, 'public.pem')
+
+        if os.path.isfile(private_key_path) and not CONF.command.force:
+            raise SystemExit(_('Private key %(path)s already exists')
+                             % {'path': private_key_path})
+        if os.path.isfile(public_key_path) and not CONF.command.force:
+            raise SystemExit(_('Public key %(path)s already exists')
+                             % {'path': public_key_path})
+
+        jwt_utils.create_jws_keypair(private_key_path, public_key_path)
 
 
 class TokenSetup(BasePermissionsSetup):
@@ -1253,6 +1291,7 @@ CMDS = [
     DomainConfigUpload,
     FernetRotate,
     FernetSetup,
+    CreateJWSKeyPair,
     MappingPopulate,
     MappingPurge,
     MappingEngineTester,
