@@ -340,6 +340,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self.assertEqual(self.user_id, payload['initiator']['id'])
         self.assertEqual(self.project_id, payload['initiator']['project_id'])
         self.assertEqual(typeURI, payload['target']['typeURI'])
+        self.assertIn('request_id', payload['initiator'])
         action = '%s.%s' % (operation, resource_type)
         self.assertEqual(action, payload['action'])
 
@@ -899,6 +900,27 @@ class CADFNotificationsForEntities(NotificationsForEntities):
         self._assert_initiator_data_is_set(CREATED_OPERATION,
                                            'domain',
                                            cadftaxonomy.SECURITY_DOMAIN)
+
+    def test_initiator_request_and_global_request_id(self):
+        global_request_id = 'req-%s' % uuid.uuid4()
+
+        user_id = self.user_id
+        password = self.user['password']
+        data = self.build_authentication_request(user_id=user_id,
+                                                 password=password)
+        self.post(
+            '/auth/tokens', body=data,
+            headers={'X-OpenStack-Request-Id': global_request_id})
+        audit = self._audits[-1]
+        initiator = audit['payload']['initiator']
+        self.assertEqual(
+            initiator['global_request_id'], global_request_id)
+        self.assertIn('request_id', initiator)
+
+        self.post('/auth/tokens', body=data)
+        audit = self._audits[-1]
+        initiator = audit['payload']['initiator']
+        self.assertNotIn('global_request_id', initiator)
 
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
