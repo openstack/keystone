@@ -244,12 +244,13 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self._notifications = []
         self._audits = []
 
-        def fake_notify(operation, resource_type, resource_id,
+        def fake_notify(operation, resource_type, resource_id, initiator=None,
                         actor_dict=None, public=True):
             note = {
                 'resource_id': resource_id,
                 'operation': operation,
                 'resource_type': resource_type,
+                'initiator': initiator,
                 'send_notification_called': True,
                 'public': public}
             if actor_dict:
@@ -364,7 +365,8 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
             'send_notification_called': True,
             'public': public}
         for note in self._notifications:
-            if expected == note:
+            # compare only expected fields
+            if all(note.get(k) == v for k, v in expected.items()):
                 break
         else:
             self.fail("Notification not sent.")
@@ -716,6 +718,30 @@ class NotificationsForEntities(BaseNotificationTest):
         self._assert_last_note(group_ref['id'], UPDATED_OPERATION, 'group',
                                actor_id=user_ref['id'], actor_type='user',
                                actor_operation='removed')
+
+    def test_initiator_request_id(self):
+        ref = unit.new_domain_ref()
+        self.post('/domains', body={'domain': ref})
+        note = self._notifications[-1]
+        initiator = note['initiator']
+        self.assertIsNotNone(initiator.request_id)
+
+    def test_initiator_global_request_id(self):
+        global_request_id = 'req-%s' % uuid.uuid4()
+        ref = unit.new_domain_ref()
+        self.post('/domains', body={'domain': ref},
+                  headers={'X-OpenStack-Request-Id': global_request_id})
+        note = self._notifications[-1]
+        initiator = note['initiator']
+        self.assertEqual(
+            initiator.global_request_id, global_request_id)
+
+    def test_initiator_global_request_id_not_set(self):
+        ref = unit.new_domain_ref()
+        self.post('/domains', body={'domain': ref})
+        note = self._notifications[-1]
+        initiator = note['initiator']
+        self.assertFalse(hasattr(initiator, 'global_request_id'))
 
 
 class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):

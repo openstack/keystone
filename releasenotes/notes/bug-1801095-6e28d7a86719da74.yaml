@@ -2,4 +2,5 @@
 features:
   - >
     [`bug 1801095 <https://bugs.launchpad.net/keystone/+bug/1801095>`_]
-    Request ID and global request ID have been added to CADF notifications.
+    Request ID and global request ID have been added to both basic and CADF
+    notifications.
