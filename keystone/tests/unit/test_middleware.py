@@ -544,6 +544,26 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
 
+    def test_ephemeral_and_group_domain_name_mapping_success(self):
+        env = {}
+        env['SSL_CLIENT_I_DN'] = self.client_issuer
+        env['HTTP_X_PROJECT_NAME'] = self.project_name
+        env['HTTP_X_PROJECT_DOMAIN_NAME'] = self.domain_name
+        env['SSL_CLIENT_USER_NAME'] = self.user['name']
+        self.config_fixture.config(group='tokenless_auth',
+                                   protocol='ephemeral')
+        self.protocol_id = 'ephemeral'
+        mapping = copy.deepcopy(
+            mapping_fixtures.MAPPING_FOR_EPHEMERAL_USER_AND_GROUP_DOMAIN_NAME)
+        mapping['rules'][0]['local'][0]['group']['name'] = self.group['name']
+        mapping['rules'][0]['local'][0]['group']['domain']['name'] = \
+            self.domain['name']
+        self._load_mapping_rules(mapping)
+
+        req = self._do_middleware_request(extra_environ=env)
+        context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
+        self._assert_tokenless_auth_context(context, ephemeral_user=True)
+
     def test_ephemeral_with_default_user_type_success(self):
         env = {}
         env['SSL_CLIENT_I_DN'] = self.client_issuer

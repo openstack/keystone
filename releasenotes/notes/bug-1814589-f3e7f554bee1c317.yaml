@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1814589 <https://bugs.launchpad.net/keystone/+bug/1814589>`_]
+    Fixes incorrect parameters passed into
+    keystone.federation.utils.transform_to_group_ids() which resulted
+    in HTTP 500 internal error.
