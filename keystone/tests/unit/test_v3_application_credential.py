@@ -51,245 +51,310 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
         return {'application_credential': app_cred_data}
 
     def test_create_application_credential(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        resp = self.post('/users/%s/application_credentials' % self.user_id,
-                         body=app_cred_body,
-                         expected_status=http_client.CREATED)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                          json=app_cred_body,
+                          expected_status_code=http_client.CREATED,
+                          headers={'X-Auth-Token': token})
         # Create operation returns the secret
         self.assertIn('secret', resp.json['application_credential'])
         # But not the stored hash
         self.assertNotIn('secret_hash', resp.json['application_credential'])
 
     def test_create_application_credential_with_secret(self):
-        secret = 'supersecuresecret'
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles, secret=secret)
-        resp = self.post('/users/%s/application_credentials' % self.user_id,
-                         body=app_cred_body,
-                         expected_status=http_client.CREATED)
+        with self.test_client() as c:
+            secret = 'supersecuresecret'
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles, secret=secret)
+            token = self.get_scoped_token()
+            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                          json=app_cred_body,
+                          expected_status_code=http_client.CREATED,
+                          headers={'X-Auth-Token': token})
         self.assertEqual(secret, resp.json['application_credential']['secret'])
 
     def test_create_application_credential_roles_from_token(self):
-        app_cred_body = self._app_cred_body()
-        resp = self.post('/users/%s/application_credentials' % self.user_id,
-                         body=app_cred_body,
-                         expected_status=http_client.CREATED)
-        self.assertThat(resp.json['application_credential']['roles'],
-                        matchers.HasLength(1))
-        self.assertEqual(resp.json['application_credential']['roles'][0]['id'],
-                         self.role_id)
+        with self.test_client() as c:
+            app_cred_body = self._app_cred_body()
+            token = self.get_scoped_token()
+            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                          json=app_cred_body,
+                          expected_status_code=http_client.CREATED,
+                          headers={'X-Auth-Token': token})
+            self.assertThat(resp.json['application_credential']['roles'],
+                            matchers.HasLength(1))
+            self.assertEqual(resp.json['application_credential']['roles'][0]['id'],
+                             self.role_id)
 
     def test_create_application_credential_wrong_user(self):
         wrong_user = unit.create_user(PROVIDERS.identity_api,
                                       test_v3.DEFAULT_DOMAIN_ID)
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        self.post('/users/%s/application_credentials' % wrong_user['id'],
-                  body=app_cred_body,
-                  expected_status=http_client.FORBIDDEN)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            c.post('/v3/users/%s/application_credentials' % wrong_user['id'],
+                   json=app_cred_body,
+                   expected_status_code=http_client.FORBIDDEN,
+                   headers={'X-Auth-Token': token})
 
     def test_create_application_credential_bad_role(self):
-        roles = [{'id': uuid.uuid4().hex}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.BAD_REQUEST)
+        with self.test_client() as c:
+            roles = [{'id': uuid.uuid4().hex}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.BAD_REQUEST,
+                   headers={'X-Auth-Token': token})
 
     def test_create_application_credential_with_expiration(self):
-        roles = [{'id': self.role_id}]
-        expires = datetime.datetime.utcnow() + datetime.timedelta(days=365)
-        app_cred_body = self._app_cred_body(roles=roles, expires=expires)
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.CREATED)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            expires = datetime.datetime.utcnow() + datetime.timedelta(days=365)
+            expires = str(expires)
+            app_cred_body = self._app_cred_body(roles=roles, expires=expires)
+            token = self.get_scoped_token()
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.CREATED,
+                   headers={'X-Auth-Token': token})
 
     def test_create_application_credential_invalid_expiration_fmt(self):
-        roles = [{'id': self.role_id}]
-        expires = 'next tuesday'
-        app_cred_body = self._app_cred_body(roles=roles, expires=expires)
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.BAD_REQUEST)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            expires = 'next tuesday'
+            app_cred_body = self._app_cred_body(roles=roles, expires=expires)
+            token = self.get_scoped_token()
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.BAD_REQUEST,
+                   headers={'X-Auth-Token': token})
 
     def test_create_application_credential_already_expired(self):
-        roles = [{'id': self.role_id}]
-        expires = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
-        app_cred_body = self._app_cred_body(roles=roles, expires=expires)
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.BAD_REQUEST)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            expires = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+            app_cred_body = self._app_cred_body(roles=roles, expires=expires)
+            token = self.get_scoped_token()
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.BAD_REQUEST,
+                   headers={'X-Auth-Token': token})
 
     def test_create_application_credential_with_application_credential(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body_1 = self._app_cred_body(roles=roles)
-        app_cred_1 = self.post(
-            '/users/%s/application_credentials' % self.user_id,
-            body=app_cred_body_1,
-            expected_status=http_client.CREATED)
-        auth_data = self.build_authentication_request(
-            app_cred_id=app_cred_1.json['application_credential']['id'],
-            secret=app_cred_1.json['application_credential']['secret'])
-        token_data = self.v3_create_token(auth_data,
-                                          expected_status=http_client.CREATED)
-        app_cred_body_2 = self._app_cred_body(roles=roles)
-        self.post(
-            path='/users/%s/application_credentials' % self.user_id,
-            body=app_cred_body_2,
-            token=token_data.headers['x-subject-token'],
-            expected_status=http_client.FORBIDDEN)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body_1 = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            app_cred_1 = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                                json=app_cred_body_1,
+                                expected_status_code=http_client.CREATED,
+                                headers={'X-Auth-Token': token})
+            auth_data = self.build_authentication_request(
+                app_cred_id=app_cred_1.json['application_credential']['id'],
+                secret=app_cred_1.json['application_credential']['secret'])
+            token_data = self.v3_create_token(auth_data,
+                                              expected_status=http_client.CREATED)
+            app_cred_body_2 = self._app_cred_body(roles=roles)
+            token = token_data.headers['x-subject-token']
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body_2,
+                   expected_status_code=http_client.FORBIDDEN,
+                   headers={'X-Auth-Token': token})
 
     def test_create_application_credential_allow_recursion(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body_1 = self._app_cred_body(roles=roles)
-        app_cred_body_1['application_credential']['unrestricted'] = True
-        app_cred_1 = self.post(
-            '/users/%s/application_credentials' % self.user_id,
-            body=app_cred_body_1,
-            expected_status=http_client.CREATED)
-        auth_data = self.build_authentication_request(
-            app_cred_id=app_cred_1.json['application_credential']['id'],
-            secret=app_cred_1.json['application_credential']['secret'])
-        token_data = self.v3_create_token(auth_data,
-                                          expected_status=http_client.CREATED)
-        app_cred_body_2 = self._app_cred_body(roles=roles)
-        self.post(
-            path='/users/%s/application_credentials' % self.user_id,
-            body=app_cred_body_2,
-            token=token_data.headers['x-subject-token'],
-            expected_status=http_client.CREATED)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body_1 = self._app_cred_body(roles=roles)
+            app_cred_body_1['application_credential']['unrestricted'] = True
+            token = self.get_scoped_token()
+            app_cred_1 = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                                json=app_cred_body_1,
+                                expected_status_code=http_client.CREATED,
+                                headers={'X-Auth-Token': token})
+            auth_data = self.build_authentication_request(
+                app_cred_id=app_cred_1.json['application_credential']['id'],
+                secret=app_cred_1.json['application_credential']['secret'])
+            token_data = self.v3_create_token(auth_data,
+                                              expected_status=http_client.CREATED)
+            app_cred_body_2 = self._app_cred_body(roles=roles)
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body_2,
+                   expected_status_code=http_client.CREATED,
+                   headers={'x-Auth-Token': token_data.headers['x-subject-token']})
 
     def test_list_application_credentials(self):
-        resp = self.get('/users/%s/application_credentials' % self.user_id,
-                        expected_status=http_client.OK)
-        self.assertEqual([], resp.json['application_credentials'])
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.CREATED)
-        resp = self.get('/users/%s/application_credentials' % self.user_id,
-                        expected_status=http_client.OK)
-        self.assertEqual(1, len(resp.json['application_credentials']))
-        self.assertNotIn('secret', resp.json['application_credentials'][0])
-        self.assertNotIn('secret_hash',
-                         resp.json['application_credentials'][0])
-        app_cred_body['application_credential']['name'] = 'two'
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.CREATED)
-        resp = self.get('/users/%s/application_credentials' % self.user_id,
-                        expected_status=http_client.OK)
-        self.assertEqual(2, len(resp.json['application_credentials']))
-        for ac in resp.json['application_credentials']:
-            self.assertNotIn('secret', ac)
-            self.assertNotIn('secret_hash', ac)
+        with self.test_client() as c:
+            token = self.get_scoped_token()
+            resp = c.get('/v3/users/%s/application_credentials' % self.user_id,
+                         expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertEqual([], resp.json['application_credentials'])
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.CREATED,
+                   headers={'X-Auth-Token': token})
+            resp = c.get('/v3/users/%s/application_credentials' % self.user_id,
+                         expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertEqual(1, len(resp.json['application_credentials']))
+            self.assertNotIn('secret', resp.json['application_credentials'][0])
+            self.assertNotIn('secret_hash',
+                             resp.json['application_credentials'][0])
+            app_cred_body['application_credential']['name'] = 'two'
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.CREATED,
+                   headers={'X-Auth-Token': token})
+            resp = c.get('/v3/users/%s/application_credentials' % self.user_id,
+                         expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertEqual(2, len(resp.json['application_credentials']))
+            for ac in resp.json['application_credentials']:
+                self.assertNotIn('secret', ac)
+                self.assertNotIn('secret_hash', ac)
 
     def test_list_application_credentials_by_name(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        name = app_cred_body['application_credential']['name']
-        search_path = ('/users/%(user_id)s/application_credentials?'
-                       'name=%(name)s') % {'user_id': self.user_id,
-                                           'name': name}
-        resp = self.get(search_path, expected_status=http_client.OK)
-        self.assertEqual([], resp.json['application_credentials'])
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.CREATED)
-        resp = self.get(search_path, expected_status=http_client.OK)
-        self.assertEqual(1, len(resp.json['application_credentials']))
-        self.assertNotIn('secret', resp.json['application_credentials'][0])
-        self.assertNotIn('secret_hash',
-                         resp.json['application_credentials'][0])
-        app_cred_body['application_credential']['name'] = 'two'
-        self.post('/users/%s/application_credentials' % self.user_id,
-                  body=app_cred_body,
-                  expected_status=http_client.CREATED)
-        resp = self.get(search_path, expected_status=http_client.OK)
-        self.assertEqual(1, len(resp.json['application_credentials']))
-        self.assertEqual(resp.json['application_credentials'][0]['name'], name)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            name = app_cred_body['application_credential']['name']
+            search_path = ('/v3/users/%(user_id)s/application_credentials?'
+                           'name=%(name)s') % {'user_id': self.user_id,
+                                               'name': name}
+            resp = c.get(search_path,
+                         expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertEqual([], resp.json['application_credentials'])
+            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                          json=app_cred_body,
+                          expected_status_code=http_client.CREATED,
+                          headers={'X-Auth-Token': token})
+            resp = c.get(search_path, expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertEqual(1, len(resp.json['application_credentials']))
+            self.assertNotIn('secret', resp.json['application_credentials'][0])
+            self.assertNotIn('secret_hash',
+                             resp.json['application_credentials'][0])
+            app_cred_body['application_credential']['name'] = 'two'
+            c.post('/v3/users/%s/application_credentials' % self.user_id,
+                   json=app_cred_body,
+                   expected_status_code=http_client.CREATED,
+                   headers={'X-Auth-Token': token})
+            resp = c.get(search_path, expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertEqual(1, len(resp.json['application_credentials']))
+            self.assertEqual(resp.json['application_credentials'][0]['name'], name)
 
     def test_get_head_application_credential(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        resp = self.post('/users/%s/application_credentials' % self.user_id,
-                         body=app_cred_body,
-                         expected_status=http_client.CREATED)
-
-        app_cred_id = resp.json['application_credential']['id']
-        self.head(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                     'app_cred_id': app_cred_id},
-                  expected_status=http_client.OK)
-        expected_response = resp.json
-        expected_response['application_credential'].pop('secret')
-        resp = self.get(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                           'app_cred_id': app_cred_id},
-                        expected_status=http_client.OK)
-        self.assertDictEqual(resp.json, expected_response)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                          json=app_cred_body,
+                          expected_status_code=http_client.CREATED,
+                          headers={'X-Auth-Token': token})
+            app_cred_id = resp.json['application_credential']['id']
+            c.head('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
+                                                'app_cred_id': app_cred_id},
+                   expected_status_code=http_client.OK,
+                   headers={'X-Auth-Token': token})
+            expected_response = resp.json
+            expected_response['application_credential'].pop('secret')
+            resp = c.get('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
+                         'app_cred_id': app_cred_id},
+                         expected_status_code=http_client.OK,
+                         headers={'X-Auth-Token': token})
+            self.assertDictEqual(resp.json, expected_response)
 
     def test_get_head_application_credential_not_found(self):
-        self.head(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                     'app_cred_id': uuid.uuid4().hex},
-                  expected_status=http_client.NOT_FOUND)
-        self.get(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                    'app_cred_id': uuid.uuid4().hex},
-                 expected_status=http_client.NOT_FOUND)
+        with self.test_client() as c:
+            token = self.get_scoped_token()
+            c.head('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
+                   'app_cred_id': uuid.uuid4().hex},
+                   expected_status_code=http_client.NOT_FOUND,
+                   headers={'X-Auth-Token': token})
+            c.get('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
+                  'app_cred_id': uuid.uuid4().hex},
+                  expected_status_code=http_client.NOT_FOUND,
+                  headers={'X-Auth-Token': token})
 
     def test_delete_application_credential(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        resp = self.post('/users/%s/application_credentials' % self.user_id,
-                         body=app_cred_body,
-                         expected_status=http_client.CREATED)
-        app_cred_id = resp.json['application_credential']['id']
-        self.delete(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                       'app_cred_id': app_cred_id},
-                    expected_status=http_client.NO_CONTENT)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                          json=app_cred_body,
+                          expected_status_code=http_client.CREATED,
+                          headers={'X-Auth-Token': token})
+            app_cred_id = resp.json['application_credential']['id']
+            c.delete('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
+                     'app_cred_id': app_cred_id},
+                     expected_status_code=http_client.NO_CONTENT,
+                     headers={'X-Auth-Token': token})
 
     def test_delete_application_credential_not_found(self):
-        self.delete(MEMBER_PATH_FMT % {'user_id': self.user_id,
-                                       'app_cred_id': uuid.uuid4().hex},
-                    expected_status=http_client.NOT_FOUND)
+        with self.test_client() as c:
+            token = self.get_scoped_token()
+            c.delete('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
+                     'app_cred_id': uuid.uuid4().hex},
+                     expected_status_code=http_client.NOT_FOUND,
+                     headers={'X-Auth-Token': token})
 
     def test_delete_application_credential_with_application_credential(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        app_cred = self.post(
-            '/users/%s/application_credentials' % self.user_id,
-            body=app_cred_body,
-            expected_status=http_client.CREATED)
-        auth_data = self.build_authentication_request(
-            app_cred_id=app_cred.json['application_credential']['id'],
-            secret=app_cred.json['application_credential']['secret'])
-        token_data = self.v3_create_token(auth_data,
-                                          expected_status=http_client.CREATED)
-        self.delete(
-            path=MEMBER_PATH_FMT % {
-                'user_id': self.user_id,
-                'app_cred_id': app_cred.json['application_credential']['id']},
-            token=token_data.headers['x-subject-token'],
-            expected_status=http_client.FORBIDDEN)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            app_cred = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                              json=app_cred_body,
+                              expected_status_code=http_client.CREATED,
+                              headers={'X-Auth-Token': token})
+            auth_data = self.build_authentication_request(
+                app_cred_id=app_cred.json['application_credential']['id'],
+                secret=app_cred.json['application_credential']['secret'])
+            token_data = self.v3_create_token(auth_data,
+                                              expected_status=http_client.CREATED)
+            member_path = '/v3%s' % MEMBER_PATH_FMT % {
+                          'user_id': self.user_id,
+                          'app_cred_id': app_cred.json['application_credential']['id']}
+            token = token_data.headers['x-subject-token']
+            c.delete(member_path,
+                     json=app_cred_body,
+                     expected_status_code=http_client.FORBIDDEN,
+                     headers={'X-Auth-Token': token})
 
     def test_delete_application_credential_allow_recursion(self):
-        roles = [{'id': self.role_id}]
-        app_cred_body = self._app_cred_body(roles=roles)
-        app_cred_body['application_credential']['unrestricted'] = True
-        app_cred = self.post(
-            '/users/%s/application_credentials' % self.user_id,
-            body=app_cred_body,
-            expected_status=http_client.CREATED)
-        auth_data = self.build_authentication_request(
-            app_cred_id=app_cred.json['application_credential']['id'],
-            secret=app_cred.json['application_credential']['secret'])
-        token_data = self.v3_create_token(auth_data,
-                                          expected_status=http_client.CREATED)
-        self.delete(
-            path=MEMBER_PATH_FMT % {
-                'user_id': self.user_id,
-                'app_cred_id': app_cred.json['application_credential']['id']},
-            token=token_data.headers['x-subject-token'],
-            expected_status=http_client.NO_CONTENT)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            app_cred_body['application_credential']['unrestricted'] = True
+            token = self.get_scoped_token()
+            app_cred = c.post('/v3/users/%s/application_credentials' % self.user_id,
+                              json=app_cred_body,
+                              expected_status_code=http_client.CREATED,
+                              headers={'X-Auth-Token': token})
+            auth_data = self.build_authentication_request(
+                app_cred_id=app_cred.json['application_credential']['id'],
+                secret=app_cred.json['application_credential']['secret'])
+            token_data = self.v3_create_token(auth_data,
+                                              expected_status=http_client.CREATED)
+            member_path = '/v3%s' % MEMBER_PATH_FMT % {
+                          'user_id': self.user_id,
+                          'app_cred_id': app_cred.json['application_credential']['id']}
+            c.delete(member_path,
+                     json=app_cred_body,
+                     expected_status_code=http_client.NO_CONTENT,
+                     headers={'x-Auth-Token': token_data.headers['x-subject-token']})
 
     def test_update_application_credential(self):
         with self.test_client() as c:
