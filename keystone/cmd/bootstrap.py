@@ -215,7 +215,7 @@ class Bootstrapper(object):
         try:
             PROVIDERS.assignment_api.add_role_to_user_and_project(
                 user_id=self.admin_user_id,
-                tenant_id=self.project_id,
+                project_id=self.project_id,
                 role_id=self.admin_role_id
             )
             LOG.info('Granted %(role)s on %(project)s to user'

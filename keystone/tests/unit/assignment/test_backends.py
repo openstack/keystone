@@ -463,7 +463,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertNotIn(self.user_two['id'], user_ids)
 
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            tenant_id=self.tenant_bar['id'],
+            project_id=self.tenant_bar['id'],
             user_id=self.user_two['id'],
             role_id=self.role_other['id'])
         user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
@@ -471,7 +471,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertIn(self.user_two['id'], user_ids)
 
         PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            tenant_id=self.tenant_bar['id'],
+            project_id=self.tenant_bar['id'],
             user_id=self.user_two['id'],
             role_id=self.role_other['id'])
 
@@ -485,7 +485,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertRaises(exception.RoleNotFound,
                           PROVIDERS.assignment_api.
                           remove_role_from_user_and_project,
-                          tenant_id=self.tenant_bar['id'],
+                          project_id=self.tenant_bar['id'],
                           user_id=self.user_two['id'],
                           role_id=self.role_other['id'])
 
@@ -511,7 +511,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
             PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
             PROVIDERS.assignment_api.add_role_to_user_and_project(
                 user_id=user_ref['id'],
-                tenant_id=project_ref['id'],
+                project_id=project_ref['id'],
                 role_id=role_ref['id'])
         # Get the list of user_ids in project
         user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
@@ -727,7 +727,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
             PROVIDERS.assignment_api.add_role_to_user_and_project(
                 user_id=user_ref['id'],
-                tenant_id=project_ref['id'],
+                project_id=project_ref['id'],
                 role_id=role_ref['id'])
 
         role_list = PROVIDERS.assignment_api.get_roles_for_user_and_project(

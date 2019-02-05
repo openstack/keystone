@@ -83,7 +83,7 @@ class ResourceBase(ks_flask.ResourceBase):
         # Convert to the legacy format
         cred_data = dict(
             user_id=cred.get('user_id'),
-            tenant_id=cred.get('project_id'),
+            project_id=cred.get('project_id'),
             access=loaded.get('access'),
             secret=loaded.get('secret'),
             trust_id=loaded.get('trust_id')
@@ -92,7 +92,7 @@ class ResourceBase(ks_flask.ResourceBase):
         # validate the signature
         self._check_signature(cred_data, credentials)
         project_ref = PROVIDERS.resource_api.get_project(
-            cred_data['tenant_id'])
+            cred_data['project_id'])
         user_ref = PROVIDERS.identity_api.get_user(cred_data['user_id'])
 
         # validate that the auth info is valid and nothing is disabled

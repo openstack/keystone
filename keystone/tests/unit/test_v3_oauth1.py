@@ -871,7 +871,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         PROVIDERS.role_api.create_role(new_role['id'], new_role)
         PROVIDERS.assignment_api.add_role_to_user_and_project(
             user_id=self.user_id,
-            tenant_id=self.project_id,
+            project_id=self.project_id,
             role_id=new_role['id'])
 
         url, headers = self._create_request_token(consumer, self.project_id)
