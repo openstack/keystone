@@ -243,7 +243,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
           to Domain A - this should fail
         - Retry this for a user who is in Domain A, which should succeed.
         - Finally, try getting a user that does not exist, which should
-          still return UserNotFound
+          still return ForbiddenAction
 
         """
         new_policy = {'identity:get_user':
@@ -263,7 +263,7 @@ class IdentityTestProtectedCase(test_v3.RestfulTestCase):
 
         url_by_name = '/users/%s' % uuid.uuid4().hex
         r = self.get(url_by_name, auth=self.auth,
-                     expected_status=exception.UserNotFound.code)
+                     expected_status=exception.ForbiddenAction.code)
 
     def test_revoke_grant_protected_match_target(self):
         """DELETE /domains/{id}/users/{id}/roles/{id} (match target).
