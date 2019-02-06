@@ -1,3 +1,9 @@
+---
+features:
+  - |
+    [`bug 1805406 <https://bugs.launchpad.net/keystone/+bug/1805406>`_]
+    The user API now supports the ``admin``, ``member``, and
+    ``reader`` default roles.
 upgrade:
   - |
     [`bug 1805406 <https://bugs.launchpad.net/keystone/+bug/1805406>`_]
@@ -5,3 +11,28 @@ upgrade:
     403 Forbidden`` as opposed to ``HTTP 404 Not Found`` if the calling
     user doesn't have authorization to call the API. This applies consistent
     authorititive policy checks to the API.
+
+    The user API uses new default policies that make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides
+    user policies.
+deprecations:
+  - |
+    [`bug 1805406 <https://bugs.launchpad.net/keystone/+bug/1805406>`_]
+    The user policies have been deprecated. The ``identity:get_user`` now uses
+    ``(role:reader and system_scope:all) or user_id:%(target.user.id)s``
+    instead of ``rule:admin_or_owner``. The ``identity:list_users`` policy now
+    uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:create_user``,
+    ``identity:update_user``, and ``identity:delete_user`` policies now use
+    ``role:admin and system_scope:all`` instead of ``rule:admin_required``.
+    These new defaults automatically account
+    for system-scope and support a read-only role, making it easier
+    for system administrators to delegate subsets of responsibility
+    without compromising security. Please consider these new defaults
+    if your deployment overrides the user policies.
+security:
+  - |
+    [`bug 1805406 <https://bugs.launchpad.net/keystone/+bug/1805406>`_]
+    The user API now uses system-scope and default roles to
+    provide better accessibility to users in a secure way.

@@ -36,6 +36,18 @@ deprecated_list_users = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_users',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_create_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_user',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_update_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_user',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_user',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 user_policies = [
     policy.DocumentedRuleDefault(
@@ -97,7 +109,7 @@ user_policies = [
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_user',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): This can be considered either a system-level policy
         # or a project-level policy. System administrator should have the
         # ability to create users in any domain. Domain (or project)
@@ -108,25 +120,34 @@ user_policies = [
         scope_types=['system'],
         description='Create a user.',
         operations=[{'path': '/v3/users',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_user',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): See the above comment about adding support for
         # project scope_types in the future.
         scope_types=['system'],
         description='Update a user, including administrative password resets.',
         operations=[{'path': '/v3/users/{user_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_user',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): See the above comment about adding support for
         # project scope_types in the future.
         scope_types=['system'],
         description='Delete a user.',
         operations=[{'path': '/v3/users/{user_id}',
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN)
 ]
 
 
