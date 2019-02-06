@@ -901,13 +901,20 @@ class CADFNotificationsForEntities(NotificationsForEntities):
                                            'domain',
                                            cadftaxonomy.SECURITY_DOMAIN)
 
-    def test_initiator_request_and_global_request_id(self):
-        global_request_id = 'req-%s' % uuid.uuid4()
+    def test_initiator_request_id(self):
+        data = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.user['password'])
+        self.post('/auth/tokens', body=data)
+        audit = self._audits[-1]
+        initiator = audit['payload']['initiator']
+        self.assertIn('request_id', initiator)
 
-        user_id = self.user_id
-        password = self.user['password']
-        data = self.build_authentication_request(user_id=user_id,
-                                                 password=password)
+    def test_initiator_global_request_id(self):
+        global_request_id = 'req-%s' % uuid.uuid4()
+        data = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.user['password'])
         self.post(
             '/auth/tokens', body=data,
             headers={'X-OpenStack-Request-Id': global_request_id})
@@ -915,8 +922,11 @@ class CADFNotificationsForEntities(NotificationsForEntities):
         initiator = audit['payload']['initiator']
         self.assertEqual(
             initiator['global_request_id'], global_request_id)
-        self.assertIn('request_id', initiator)
 
+    def test_initiator_global_request_id_not_set(self):
+        data = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.user['password'])
         self.post('/auth/tokens', body=data)
         audit = self._audits[-1]
         initiator = audit['payload']['initiator']
