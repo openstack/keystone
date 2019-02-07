@@ -104,10 +104,21 @@ other role assignments.
 cache_on_issue = cfg.BoolOpt(
     'cache_on_issue',
     default=True,
+    deprecated_since=versionutils.deprecated.STEIN,
+    deprecated_reason=utils.fmt("""
+Keystone already exposes a configuration option for caching tokens. Having a
+separate configuration option to cache tokens when they are issued is
+redundant, unnecessarily complicated, and is misleading if token caching is
+disabled because tokens will still be pre-cached by default when they are
+issued. The ability to pre-cache tokens when they are issued is going to rely
+exclusively on the ``keystone.conf [token] caching`` option in the future.
+"""),
+    deprecated_for_removal=True,
     help=utils.fmt("""
 Enable storing issued token data to token validation cache so that first token
 validation doesn't actually cause full validation cycle. This option has no
-effect unless global caching and token caching are enabled.
+effect unless global caching is enabled and will still cache tokens even if
+`[token] caching = False`.
 """))
 
 allow_expired_window = cfg.IntOpt(
