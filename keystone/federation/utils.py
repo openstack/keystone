@@ -688,7 +688,7 @@ class RuleProcessor(object):
 
         Example direct_maps::
 
-            ['Bob', 'Thompson', 'bob@example.com']
+            [['Bob'], ['Thompson'], ['bob@example.com']]
 
         :returns: new local mapping reference with replaced values.
 
