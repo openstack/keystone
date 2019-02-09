@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1811605 <https://bugs.launchpad.net/keystone/+bug/1811605>`_]
+    Fixes X.509 tokenless auth by properly populating the request context
+    with the necessary credential information. Since Stein release, RBAC
+    has been using the credential information from the Keystone request
+    context instead of the authentication context. Therefore, we'll need
+    to populate the request context with the necessary credential
+    information from the X.509 tokenless authentication context.

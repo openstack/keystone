@@ -21,6 +21,7 @@ from six.moves import http_client
 import webtest
 
 from keystone.common import authorization
+from keystone.common import context as keystone_context
 from keystone.common import provider_api
 from keystone.common import tokenless_auth
 import keystone.conf
@@ -223,6 +224,14 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         else:
             self.assertEqual(self.user['id'], context['user_id'])
 
+    def _assert_tokenless_request_context(self, request_context,
+                                          ephemeral_user=False):
+        self.assertIsNotNone(request_context)
+        self.assertEqual(self.project_id, request_context.project_id)
+        self.assertIn(self.role_name, request_context.roles)
+        if not ephemeral_user:
+            self.assertEqual(self.user['id'], request_context.user_id)
+
     def test_context_already_exists(self):
         stub_value = uuid.uuid4().hex
         env = {authorization.AUTH_CONTEXT_ENV: stub_value}
@@ -317,6 +326,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_proj_scope_with_proj_id_only_success(self):
         env = {}
@@ -331,6 +342,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_proj_scope_with_proj_name_and_proj_dom_id_success(self):
         env = {}
@@ -346,6 +359,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_proj_scope_with_proj_name_and_proj_dom_name_success(self):
         env = {}
@@ -361,6 +376,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_proj_scope_with_proj_name_only_fail(self):
         env = {}
@@ -390,6 +407,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_mapping_with_userid_and_domainname_success(self):
         env = {}
@@ -405,6 +424,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_mapping_with_username_and_domainid_success(self):
         env = {}
@@ -420,6 +441,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_only_domain_name_fail(self):
         env = {}
@@ -474,6 +497,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context)
 
     def test_domain_disable_fail(self):
         env = {}
@@ -543,6 +568,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context,
+                                               ephemeral_user=True)
 
     def test_ephemeral_with_default_user_type_success(self):
         env = {}
@@ -564,6 +592,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context,
+                                               ephemeral_user=True)
 
     def test_ephemeral_any_user_success(self):
         """Verify ephemeral user does not need a specified user.
@@ -585,6 +616,9 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         req = self._do_middleware_request(extra_environ=env)
         context = req.environ.get(authorization.AUTH_CONTEXT_ENV)
         self._assert_tokenless_auth_context(context, ephemeral_user=True)
+        request_context = req.environ.get(keystone_context.REQUEST_CONTEXT_ENV)
+        self._assert_tokenless_request_context(request_context,
+                                               ephemeral_user=True)
 
     def test_ephemeral_invalid_scope_fail(self):
         env = {}
