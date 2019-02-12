@@ -1126,6 +1126,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.post(
             '/limits',
             body={'limits': [limit1, limit2, limit3]},
+            token=system_admin_token,
             expected_status=http_client.CREATED)
         # "include_limits" should work together with "parents_as_list" or
         # "subtree_as_list". Only using "include_limits" really does nothing.
