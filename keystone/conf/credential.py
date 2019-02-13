@@ -46,12 +46,29 @@ share this repository with the repository used to manage keys for Fernet
 tokens.
 """))
 
+caching = cfg.BoolOpt(
+    'caching',
+    default=True,
+    help=utils.fmt("""
+Toggle for caching only on retrieval of user credentials. This has no effect
+unless global caching is enabled.
+"""))
+
+cache_time = cfg.IntOpt(
+    'cache_time',
+    help=utils.fmt("""
+Time to cache credential data in seconds. This has no effect unless global
+caching is enabled.
+"""))
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     driver,
     provider,
-    key_repository
+    key_repository,
+    caching,
+    cache_time
 ]
 
 
