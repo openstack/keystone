@@ -24,6 +24,7 @@ Contributor Documentation
    how-can-i-help.rst
    set-up-keystone.rst
    http-api.rst
+   proposing-features.rst
    release-notes.rst
    testing-keystone.rst
    doctor-checks.rst
