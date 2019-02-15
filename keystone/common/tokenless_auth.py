@@ -135,7 +135,7 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
             group_ids.extend(
                 utils.transform_to_group_ids(
                     mapped_properties['group_names'], mapping_id,
-                    self.identity_api, self.assignment_api))
+                    self.identity_api, self.resource_api))
             roles = self.assignment_api.get_roles_for_groups(group_ids,
                                                              project_id,
                                                              domain_id)
