@@ -1,0 +1,29 @@
+---
+features:
+  - |
+    [`bug 1804446 <https://bugs.launchpad.net/keystone/+bug/1804446>`_]
+    The regions API now supports the ``admin``, ``member``, and
+    ``reader`` default roles.
+upgrade:
+  - |
+    [`bug 1804446 <https://bugs.launchpad.net/keystone/+bug/1804446>`_]
+    The regions API uses new default policies that make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides
+    region policies.
+deprecations:
+  - |
+    [`bug 1804446 <https://bugs.launchpad.net/keystone/+bug/1804446>`_]
+    The ``identity:create_region``, ``identity:update_region``, and
+    ``identity:delete_region`` policies now use ``role:admin and
+    system_scope:all`` instead of ``rule:admin_required``.  These new
+    defaults automatically account for system-scope and support a
+    read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please
+    consider these new defaults if your deployment overrides the region
+    policies.
+security:
+  - |
+    [`bug 1804446 <https://bugs.launchpad.net/keystone/+bug/1804446>`_]
+    The regions API now uses system-scope and default roles to
+    provide better accessibility to users in a secure way.
