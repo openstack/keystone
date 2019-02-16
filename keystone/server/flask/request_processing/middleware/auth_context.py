@@ -435,7 +435,29 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
 
         elif self._validate_trusted_issuer(request):
             auth_context = self._build_tokenless_auth_context(request)
-
+            # NOTE(gyee): we are no longer using auth_context when formulating
+            # the credentials for RBAC. Instead, we are using the (Oslo)
+            # request context. So we'll need to set all the necessary
+            # credential attributes in the request context here.
+            token_attributes = frozenset((
+                'user_id', 'project_id',
+                'domain_id', 'user_domain_id',
+                'project_domain_id', 'user_domain_name',
+                'project_domain_name', 'roles', 'is_admin',
+                'project_name', 'domain_name', 'system_scope',
+                'is_admin_project', 'service_user_id',
+                'service_user_name', 'service_project_id',
+                'service_project_name', 'service_user_domain_id'
+                'service_user_domain_name', 'service_project_domain_id',
+                'service_project_domain_name', 'service_roles'))
+            for attr in token_attributes:
+                if attr in auth_context:
+                    setattr(request_context, attr, auth_context[attr])
+            # NOTE(gyee): request_context.token_reference is always
+            # expecting a 'token' key regardless. But in the case of X.509
+            # tokenless auth, we don't need a token. So setting it to None
+            # should be suffice.
+            request_context.token_reference = {'token': None}
         else:
             # There is either no auth token in the request or the certificate
             # issuer is not trusted. No auth context will be set. This
