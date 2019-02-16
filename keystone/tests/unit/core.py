@@ -901,12 +901,12 @@ class TestCase(BaseTestCase):
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
 
-            for tenant in fixtures.TENANTS:
-                tenant_attr_name = 'tenant_%s' % tenant['name'].lower()
+            for project in fixtures.PROJECTS:
+                project_attr_name = 'project_%s' % project['name'].lower()
                 rv = PROVIDERS.resource_api.create_project(
-                    tenant['id'], tenant)
-                setattr(self, tenant_attr_name, rv)
-                fixtures_to_cleanup.append(tenant_attr_name)
+                    project['id'], project)
+                setattr(self, project_attr_name, rv)
+                fixtures_to_cleanup.append(project_attr_name)
 
             for role in fixtures.ROLES:
                 rv = PROVIDERS.role_api.create_role(role['id'], role)
@@ -916,7 +916,7 @@ class TestCase(BaseTestCase):
 
             for user in fixtures.USERS:
                 user_copy = user.copy()
-                tenants = user_copy.pop('tenants')
+                projects = user_copy.pop('projects')
 
                 # For users, the manager layer will generate the ID
                 user_copy = PROVIDERS.identity_api.create_user(user_copy)
@@ -926,9 +926,9 @@ class TestCase(BaseTestCase):
                 user_copy['password'] = user['password']
 
                 # fixtures.ROLES[2] is the _member_ role.
-                for tenant_id in tenants:
+                for project_id in projects:
                     PROVIDERS.assignment_api.add_role_to_user_and_project(
-                        user_copy['id'], tenant_id, fixtures.ROLES[2]['id'])
+                        user_copy['id'], project_id, fixtures.ROLES[2]['id'])
 
                 # Use the ID from the fixture as the attribute name, so
                 # that our tests can easily reference each user dict, while
@@ -940,10 +940,10 @@ class TestCase(BaseTestCase):
             for role_assignment in fixtures.ROLE_ASSIGNMENTS:
                 role_id = role_assignment['role_id']
                 user = role_assignment['user']
-                tenant_id = role_assignment['tenant_id']
+                project_id = role_assignment['project_id']
                 user_id = getattr(self, 'user_%s' % user)['id']
                 PROVIDERS.assignment_api.add_role_to_user_and_project(
-                    user_id, tenant_id, role_id)
+                    user_id, project_id, role_id)
 
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 

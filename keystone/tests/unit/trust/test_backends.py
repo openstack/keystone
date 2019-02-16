@@ -32,7 +32,7 @@ class TrustTests(object):
                       (new_id,
                        {'trustor_user_id': self.trustor['id'],
                         'trustee_user_id': self.user_two['id'],
-                        'project_id': self.tenant_bar['id'],
+                        'project_id': self.project_bar['id'],
                         'expires_at': expires_at,
                         'impersonation': True,
                         'remaining_uses': remaining_uses},
@@ -169,7 +169,7 @@ class TrustTests(object):
         self.trustee = self.user_two
         trust_data = {'trustor_user_id': self.trustor['id'],
                       'trustee_user_id': self.user_two['id'],
-                      'project_id': self.tenant_bar['id'],
+                      'project_id': self.project_bar['id'],
                       'expires_at': timeutils.parse_isotime(
                           '2032-02-18T18:10:00Z'),
                       'impersonation': True,
@@ -190,12 +190,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=1)
 
@@ -218,12 +218,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_foo['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=5)
 
@@ -235,7 +235,7 @@ class TrustTests(object):
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             trustor_user_id=self.user_foo['id'],
             trustee_user_id=self.user_two['id'],
             date=datetime.datetime.utcnow())
@@ -249,12 +249,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=1)
 
@@ -279,12 +279,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=1)
 
@@ -296,7 +296,7 @@ class TrustTests(object):
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             trustee_user_id=self.user_two['id'],
             date=datetime.datetime.utcnow())
         trusts = self.trust_api.list_trusts()
@@ -309,12 +309,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=1)
 
@@ -326,7 +326,7 @@ class TrustTests(object):
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             trustor_user_id=self.user_foo['id'],
             date=datetime.datetime.utcnow())
         trusts = self.trust_api.list_trusts()
@@ -339,7 +339,7 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
@@ -356,7 +356,7 @@ class TrustTests(object):
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             date=datetime.datetime.utcnow())
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -368,12 +368,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_foo['id'], self.user_foo['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=5)
 
@@ -396,12 +396,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=1)
         trust_ref2 = core.new_trust_ref(
             self.user_two['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=5)
 
@@ -425,12 +425,12 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=10)
         trust_ref2 = core.new_trust_ref(
             self.user_two['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=5)
 
@@ -454,17 +454,17 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=10)
         trust_ref2 = core.new_trust_ref(
             self.user_two['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=5)
         trust_ref3 = core.new_trust_ref(
             self.user_two['id'], self.user_foo['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref3['expires_at'] = None
 
         trust_data = PROVIDERS.trust_api.create_trust(trust_ref1['id'],
@@ -489,17 +489,17 @@ class TrustTests(object):
                  {"id": "browser"}]
         trust_ref1 = core.new_trust_ref(
             self.user_foo['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref1['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=10)
         trust_ref2 = core.new_trust_ref(
             self.user_two['id'], self.user_two['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref2['expires_at'] = \
             timeutils.utcnow() + datetime.timedelta(minutes=30)
         trust_ref3 = core.new_trust_ref(
             self.user_two['id'], self.user_foo['id'],
-            project_id=self.tenant_bar['id'])
+            project_id=self.project_bar['id'])
         trust_ref3['expires_at'] = \
             timeutils.utcnow() - datetime.timedelta(minutes=30)
 

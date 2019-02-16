@@ -36,8 +36,8 @@ class ResourceTests(object):
     domain_count = len(default_fixtures.DOMAINS)
 
     def test_get_project(self):
-        tenant_ref = PROVIDERS.resource_api.get_project(self.tenant_bar['id'])
-        self.assertDictEqual(self.tenant_bar, tenant_ref)
+        project_ref = PROVIDERS.resource_api.get_project(self.project_bar['id'])
+        self.assertDictEqual(self.project_bar, project_ref)
 
     def test_get_project_returns_not_found(self):
         self.assertRaises(exception.ProjectNotFound,
@@ -45,10 +45,10 @@ class ResourceTests(object):
                           uuid.uuid4().hex)
 
     def test_get_project_by_name(self):
-        tenant_ref = PROVIDERS.resource_api.get_project_by_name(
-            self.tenant_bar['name'],
+        project_ref = PROVIDERS.resource_api.get_project_by_name(
+            self.project_bar['name'],
             CONF.identity.default_domain_id)
-        self.assertDictEqual(self.tenant_bar, tenant_ref)
+        self.assertDictEqual(self.project_bar, project_ref)
 
     @unit.skip_if_no_multiple_domains_support
     def test_get_project_by_name_for_project_acting_as_a_domain(self):
@@ -229,9 +229,9 @@ class ResourceTests(object):
 
     def test_list_projects(self):
         project_refs = PROVIDERS.resource_api.list_projects()
-        project_count = len(default_fixtures.TENANTS) + self.domain_count
+        project_count = len(default_fixtures.PROJECTS) + self.domain_count
         self.assertEqual(project_count, len(project_refs))
-        for project in default_fixtures.TENANTS:
+        for project in default_fixtures.PROJECTS:
             self.assertIn(project, project_refs)
 
     def test_list_projects_with_multiple_filters(self):
@@ -269,11 +269,11 @@ class ResourceTests(object):
         # filtering by domain does not include any project that acts as a
         # domain.
         self.assertThat(
-            project_ids, matchers.HasLength(len(default_fixtures.TENANTS)))
-        self.assertIn(self.tenant_bar['id'], project_ids)
-        self.assertIn(self.tenant_baz['id'], project_ids)
-        self.assertIn(self.tenant_mtu['id'], project_ids)
-        self.assertIn(self.tenant_service['id'], project_ids)
+            project_ids, matchers.HasLength(len(default_fixtures.PROJECTS)))
+        self.assertIn(self.project_bar['id'], project_ids)
+        self.assertIn(self.project_baz['id'], project_ids)
+        self.assertIn(self.project_mtu['id'], project_ids)
+        self.assertIn(self.project_service['id'], project_ids)
 
     @unit.skip_if_no_multiple_domains_support
     def test_list_projects_acting_as_domain(self):

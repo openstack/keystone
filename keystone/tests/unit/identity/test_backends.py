@@ -81,7 +81,7 @@ class IdentityTests(object):
         PROVIDERS.role_api.create_role(role_member['id'], role_member)
 
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            new_user['id'], self.tenant_baz['id'], role_member['id']
+            new_user['id'], self.project_baz['id'], role_member['id']
         )
         with self.make_request():
             user_ref = PROVIDERS.identity_api.authenticate(
@@ -94,7 +94,7 @@ class IdentityTests(object):
         user.pop('password')
         self.assertDictContainsSubset(user, user_ref)
         role_list = PROVIDERS.assignment_api.get_roles_for_user_and_project(
-            new_user['id'], self.tenant_baz['id'])
+            new_user['id'], self.project_baz['id'])
         self.assertEqual(1, len(role_list))
         self.assertIn(role_member['id'], role_list)
 

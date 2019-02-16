@@ -1282,17 +1282,17 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         project_ref = unit.new_project_ref(self.domain_id)
         project = PROVIDERS.resource_api.create_project(
             project_ref['id'], project_ref)
-        tenant_id = project['id']
+        project_id = project['id']
 
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            self.user_id, tenant_id, self.role_id)
+            self.user_id, project_id, self.role_id)
 
         self.assertTrue(self._notifications)
         note = self._notifications[-1]
         self.assertEqual('created.role_assignment', note['action'])
         self.assertTrue(note['send_notification_called'])
 
-        self._assert_event(self.role_id, project=tenant_id, user=self.user_id)
+        self._assert_event(self.role_id, project=project_id, user=self.user_id)
 
     def test_remove_role_from_user_and_project(self):
         # A notification is sent when remove_role_from_user_and_project is

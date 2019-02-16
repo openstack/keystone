@@ -586,7 +586,7 @@ class CatalogTests(object):
         # should exist if we want to filter the catalog by the project or
         # replace the url with a valid project id.
         catalog = PROVIDERS.catalog_api.get_v3_catalog(
-            user_id, self.tenant_bar['id']
+            user_id, self.project_bar['id']
         )
 
         endpoint_ids = [x['id'] for x in catalog[0]['endpoints']]

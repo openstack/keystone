@@ -205,7 +205,7 @@ class RegisteredLimitTests(object):
         PROVIDERS.unified_limit_api.create_registered_limits(
             [registered_limit_1])
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -224,7 +224,7 @@ class RegisteredLimitTests(object):
         PROVIDERS.unified_limit_api.create_registered_limits(
             [registered_limit_2])
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         PROVIDERS.unified_limit_api.create_limits([limit_2])
@@ -366,7 +366,7 @@ class RegisteredLimitTests(object):
         PROVIDERS.unified_limit_api.create_registered_limits(
             [registered_limit_1])
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -382,7 +382,7 @@ class RegisteredLimitTests(object):
         PROVIDERS.unified_limit_api.create_registered_limits(
             [registered_limit_2])
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         PROVIDERS.unified_limit_api.create_limits([limit_2])
@@ -411,7 +411,7 @@ class LimitTests(object):
     def test_create_limit(self):
         # create one, return it.
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
@@ -421,12 +421,12 @@ class LimitTests(object):
 
         # create another two, return them.
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
         limit_3 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='backup', resource_limit=5, id=uuid.uuid4().hex)
@@ -440,7 +440,7 @@ class LimitTests(object):
 
     def test_create_limit_duplicate(self):
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -448,7 +448,7 @@ class LimitTests(object):
 
         # use different id but the same project_id, service_id and region_id
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -458,7 +458,7 @@ class LimitTests(object):
 
     def test_create_limit_with_invalid_service_raises_validation_error(self):
         limit = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=uuid.uuid4().hex,
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -468,7 +468,7 @@ class LimitTests(object):
 
     def test_create_limit_with_invalid_region_raises_validation_error(self):
         limit = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=uuid.uuid4().hex,
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -478,7 +478,7 @@ class LimitTests(object):
 
     def test_create_limit_without_reference_registered_limit(self):
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -488,7 +488,7 @@ class LimitTests(object):
 
     def test_create_limit_description_none(self):
         limit = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
@@ -498,7 +498,7 @@ class LimitTests(object):
 
     def test_create_limit_without_description(self):
         limit = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
@@ -509,12 +509,12 @@ class LimitTests(object):
     def test_update_limit(self):
         # create two limits
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
@@ -536,12 +536,12 @@ class LimitTests(object):
     def test_list_limits(self):
         # create two limits
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
@@ -549,7 +549,7 @@ class LimitTests(object):
 
         # list
         hints = driver_hints.Hints()
-        hints.add_filter('project_id', self.tenant_bar['id'])
+        hints.add_filter('project_id', self.project_bar['id'])
         limits = PROVIDERS.unified_limit_api.list_limits(hints)
         self.assertEqual(2, len(limits))
         for re in limits:
@@ -562,12 +562,12 @@ class LimitTests(object):
         self.config_fixture.config(list_limit=1)
         # create two limits
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
@@ -584,12 +584,12 @@ class LimitTests(object):
 
     def test_list_limit_by_filter(self):
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_baz['id'],
+            project_id=self.project_baz['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex)
@@ -612,18 +612,18 @@ class LimitTests(object):
         self.assertEqual(0, len(res))
 
         hints = driver_hints.Hints()
-        hints.add_filter('project_id', self.tenant_bar['id'])
+        hints.add_filter('project_id', self.project_bar['id'])
         res = PROVIDERS.unified_limit_api.list_limits(hints)
         self.assertEqual(1, len(res))
 
     def test_list_limit_by_multi_filter_with_project_id(self):
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_baz['id'],
+            project_id=self.project_baz['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex)
@@ -631,19 +631,19 @@ class LimitTests(object):
 
         hints = driver_hints.Hints()
         hints.add_filter('service_id', self.service_one['id'])
-        hints.add_filter('project_id', self.tenant_bar['id'])
+        hints.add_filter('project_id', self.project_bar['id'])
         res = PROVIDERS.unified_limit_api.list_limits(hints)
         self.assertEqual(1, len(res))
 
     def test_get_limit(self):
         # create two limits
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
@@ -661,12 +661,12 @@ class LimitTests(object):
     def test_delete_limit(self):
         # create two limits
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
@@ -686,23 +686,23 @@ class LimitTests(object):
     def test_delete_limit_project(self):
         # create two limits
         limit_1 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
             resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
         limit_2 = unit.new_limit_ref(
-            project_id=self.tenant_bar['id'],
+            project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
             resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # delete a unrelated project, the limits should still be there.
-        PROVIDERS.resource_api.delete_project(self.tenant_baz['id'])
+        PROVIDERS.resource_api.delete_project(self.project_baz['id'])
         ref = PROVIDERS.unified_limit_api.list_limits()
         self.assertEqual(2, len(ref))
 
         # delete the referenced project, the limits should be deleted as well.
-        PROVIDERS.resource_api.delete_project(self.tenant_bar['id'])
+        PROVIDERS.resource_api.delete_project(self.project_bar['id'])
         ref = PROVIDERS.unified_limit_api.list_limits()
         self.assertEqual([], ref)
