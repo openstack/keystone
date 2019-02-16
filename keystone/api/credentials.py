@@ -31,6 +31,20 @@ PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer
 
 
+def _build_target_enforcement():
+    target = {}
+    try:
+        target['credential'] = PROVIDERS.credential_api.get_credential(
+            flask.request.view_args.get('credential_id')
+        )
+    except exception.NotFound:  # nosec
+        # Defer existance in the event the credential doesn't exist, we'll
+        # check this later anyway.
+        pass
+
+    return target
+
+
 class CredentialResource(ks_flask.ResourceBase):
     collection_key = 'credentials'
     member_key = 'credential'
@@ -83,7 +97,10 @@ class CredentialResource(ks_flask.ResourceBase):
         return self.wrap_collection(refs, hints=hints)
 
     def _get_credential(self, credential_id):
-        ENFORCER.enforce_call(action='identity:get_credential')
+        ENFORCER.enforce_call(
+            action='identity:get_credential',
+            target_attr=_build_target_enforcement()
+        )
         ref = PROVIDERS.credential_api.get_credential(credential_id)
         return self.wrap_member(self._blob_to_json(ref))
 
@@ -108,7 +125,10 @@ class CredentialResource(ks_flask.ResourceBase):
 
     def patch(self, credential_id):
         # Update Credential
-        ENFORCER.enforce_call(action='identity:update_credential')
+        ENFORCER.enforce_call(
+            action='identity:update_credential',
+            target_attr=_build_target_enforcement()
+        )
         credential = flask.request.json.get('credential', {})
         validation.lazy_validate(schema.credential_update, credential)
         self._require_matching_id(credential)
@@ -118,7 +138,11 @@ class CredentialResource(ks_flask.ResourceBase):
 
     def delete(self, credential_id):
         # Delete credentials
-        ENFORCER.enforce_call(action='identity:delete_credential')
+        ENFORCER.enforce_call(
+            action='identity:delete_credential',
+            target_attr=_build_target_enforcement()
+        )
+
         return (PROVIDERS.credential_api.delete_credential(credential_id),
                 http_client.NO_CONTENT)
 

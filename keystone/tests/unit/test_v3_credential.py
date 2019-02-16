@@ -17,6 +17,7 @@ import json
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
+from oslo_serialization import jsonutils
 from six.moves import http_client
 from testtools import matchers
 
@@ -27,6 +28,7 @@ from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
+from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
 
 
@@ -345,6 +347,95 @@ class CredentialTestCase(CredentialBaseTestCase):
             body={'credential': ref},
             token=self.get_admin_token())
         self.assertValidCredentialResponse(r, ref)
+
+
+class CredentialSelfServiceTestCase(CredentialBaseTestCase):
+    """Test self-service credential CRUD."""
+
+    def _policy_fixture(self):
+        return ksfixtures.Policy(self.tmpfilename, self.config_fixture)
+
+    def _set_policy(self, new_policy):
+        with open(self.tmpfilename, "w") as policyfile:
+            policyfile.write(jsonutils.dumps(new_policy))
+
+    def setUp(self):
+        self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
+        self.tmpfilename = self.tempfile.file_name
+        super(CredentialSelfServiceTestCase, self).setUp()
+
+        # set the self-service credential policies
+        self_service_credential_policies = {
+            "identity:create_credential": "user_id:%(credential.user_id)s",
+            "identity:list_credentials": "user_id:%(user_id)s",
+            "identity:get_credential": "user_id:%(target.credential.user_id)s",
+            "identity:update_credential":
+                "user_id:%(target.credential.user_id)s",
+            "identity:delete_credential":
+                "user_id:%(target.credential.user_id)s"
+        }
+        self._set_policy(self_service_credential_policies)
+
+        # remove the 'admin' role from user and replace it with an
+        # arbitrary role
+        PROVIDERS.assignment_api.remove_role_from_user_and_project(
+            self.user_id, self.project_id, self.role_id)
+        self.arbitrary_role = unit.new_role_ref(name=uuid.uuid4().hex)
+        PROVIDERS.role_api.create_role(self.arbitrary_role['id'],
+                                       self.arbitrary_role)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user_id, self.project_id, self.arbitrary_role['id'])
+
+        self.credential = unit.new_credential_ref(user_id=self.user['id'],
+                                                  project_id=self.project_id)
+
+        PROVIDERS.credential_api.create_credential(
+            self.credential['id'],
+            self.credential)
+
+    def test_list_credentials_filtered_by_user_id(self):
+        """Call ``GET  /credentials?user_id={user_id}``."""
+        credential = unit.new_credential_ref(user_id=uuid.uuid4().hex)
+        PROVIDERS.credential_api.create_credential(
+            credential['id'], credential
+        )
+
+        r = self.get('/credentials?user_id=%s' % self.user['id'])
+        self.assertValidCredentialListResponse(r, ref=self.credential)
+        for cred in r.result['credentials']:
+            self.assertEqual(self.user['id'], cred['user_id'])
+
+    def test_create_credential(self):
+        """Call ``POST /credentials``."""
+        ref = unit.new_credential_ref(user_id=self.user['id'])
+        r = self.post(
+            '/credentials',
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+
+    def test_get_credential(self):
+        """Call ``GET /credentials/{credential_id}``."""
+        r = self.get(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': self.credential['id']})
+        self.assertValidCredentialResponse(r, self.credential)
+
+    def test_update_credential(self):
+        """Call ``PATCH /credentials/{credential_id}``."""
+        ref = unit.new_credential_ref(user_id=self.user['id'],
+                                      project_id=self.project_id)
+        del ref['id']
+        r = self.patch(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': self.credential['id']},
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+
+    def test_delete_credential(self):
+        """Call ``DELETE /credentials/{credential_id}``."""
+        self.delete(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': self.credential['id']})
 
 
 class TestCredentialTrustScoped(test_v3.RestfulTestCase):
