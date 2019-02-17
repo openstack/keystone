@@ -47,7 +47,7 @@ region_policies = [
         # pass these policies. Since the administrative policies of regions
         # require and administrator, it makes sense to isolate those to
         # `system` scope.
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description='Show region details.',
         operations=[{'path': '/v3/regions/{region_id}',
                      'method': 'GET'},
@@ -56,7 +56,7 @@ region_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_regions',
         check_str='',
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description='List regions.',
         operations=[{'path': '/v3/regions',
                      'method': 'GET'},
