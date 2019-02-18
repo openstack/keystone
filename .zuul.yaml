@@ -102,6 +102,29 @@
       devstack_plugins:
         keystone: git://git.openstack.org/openstack/keystone
 
+# Experimental
+- job:
+    name: keystone-dsvm-functional-federation-opensuse15
+    parent: keystone-dsvm-functional
+    nodeset: devstack-single-node-opensuse-150
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+      devstack_services:
+        keystone-saml2-federation: true
+        tls-proxy: false
+      devstack_plugins:
+        keystone: git://git.openstack.org/openstack/keystone
+
+# Experimental
+- job:
+    name: keystone-dsvm-py3-functional-federation-opensuse15
+    parent: keystone-dsvm-functional-federation-opensuse15
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        USE_PYTHON3: True
+
 - project:
     templates:
       - openstack-cover-jobs
@@ -183,6 +206,10 @@
             irrelevant-files: *tempest-irrelevant-files
         - keystone-dsvm-functional-federation-centos7:
             voting: false
+            irrelevant-files: *irrelevant-files
+        - keystone-dsvm-functional-federation-opensuse15:
+            irrelevant-files: *irrelevant-files
+        - keystone-dsvm-py3-functional-federation-opensuse15:
             irrelevant-files: *irrelevant-files
     post:
       jobs:
