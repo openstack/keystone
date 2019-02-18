@@ -145,7 +145,8 @@ class Audit(object):
             operation,
             resource_type,
             resource_id,
-            actor_dict,
+            initiator=initiator,
+            actor_dict=actor_dict,
             public=public)
 
         if CONF.notification_format == 'cadf' and public:
@@ -444,8 +445,8 @@ def _create_cadf_payload(operation, resource_type, resource_id,
                              target, event_type, reason=reason, **audit_kwargs)
 
 
-def _send_notification(operation, resource_type, resource_id, actor_dict=None,
-                       public=True):
+def _send_notification(operation, resource_type, resource_id, initiator=None,
+                       actor_dict=None, public=True):
     """Send notification to inform observers about the affected resource.
 
     This method doesn't raise an exception when sending the notification fails.
@@ -453,6 +454,7 @@ def _send_notification(operation, resource_type, resource_id, actor_dict=None,
     :param operation: operation being performed (created, updated, or deleted)
     :param resource_type: type of resource being operated on
     :param resource_id: ID of resource being operated on
+    :param initiator: representation of the user that created the request
     :param actor_dict: a dictionary containing the actor's ID and type
     :param public:  if True (default), the event will be sent
                     to the notifier API.
@@ -465,6 +467,12 @@ def _send_notification(operation, resource_type, resource_id, actor_dict=None,
         payload['actor_id'] = actor_dict['id']
         payload['actor_type'] = actor_dict['type']
         payload['actor_operation'] = actor_dict['actor_operation']
+
+    if initiator:
+        payload['request_id'] = initiator.request_id
+        global_request_id = getattr(initiator, 'global_request_id', None)
+        if global_request_id:
+            payload['global_request_id'] = global_request_id
 
     notify_event_callbacks(SERVICE, resource_type, operation, payload)
 
