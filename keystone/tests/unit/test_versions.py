@@ -17,7 +17,6 @@ import copy
 import functools
 import random
 
-import mock
 from oslo_serialization import jsonutils
 from six.moves import http_client
 from testtools import matchers as tt_matchers
@@ -761,7 +760,6 @@ class VersionTestCase(unit.TestCase):
             self._paste_in_port(expected['version'], 'http://localhost/v3/')
             self.assertEqual(expected, data)
 
-    @mock.patch.object(discovery, '_VERSIONS', ['v3'])
     def test_v2_disabled(self):
         # NOTE(morgan): This test should be kept, v2.0 is removed and should
         # never return, this prevents regression[s]/v2.0 discovery doc

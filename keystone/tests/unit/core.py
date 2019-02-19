@@ -859,8 +859,6 @@ class TestCase(BaseTestCase):
         self.addCleanup(notifications.clear_subscribers)
         self.addCleanup(notifications.reset_notifier)
 
-        self.addCleanup(setattr, keystone.api.discovery, '_VERSIONS', [])
-
     def config(self, config_files):
         sql.initialize()
         CONF(args=[], project='keystone', default_config_files=config_files)
