@@ -3202,6 +3202,27 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
              'created_at_int', 'created_at', 'expires_at_int', 'expires_at']
         )
 
+    def test_migration_055_add_domain_to_limit(self):
+        self.expand(54)
+        self.migrate(54)
+        self.contract(54)
+
+        limit_table_name = 'limit'
+        limit_table = sqlalchemy.Table(limit_table_name, self.metadata,
+                                       autoload=True)
+        self.assertFalse(hasattr(limit_table.c, 'domain_id'))
+
+        self.expand(55)
+        self.migrate(55)
+        self.contract(55)
+
+        self.assertTableColumns(
+            limit_table_name,
+            ['id', 'project_id', 'service_id', 'region_id', 'resource_name',
+             'resource_limit', 'description', 'internal_id',
+             'registered_limit_id', 'domain_id'])
+        self.assertTrue(limit_table.c.project_id.nullable)
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
