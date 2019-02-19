@@ -2968,6 +2968,27 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             token['user']['name'])
         self.assertNotEqual(token['user']['name'], token['user']['id'])
 
+    def test_issue_unscoped_token_with_remote_different_from_protocol(self):
+        protocol = PROVIDERS.federation_api.get_protocol(
+            self.IDP_WITH_REMOTE, self.PROTOCOL
+        )
+        protocol['remote_id_attribute'] = uuid.uuid4().hex
+        PROVIDERS.federation_api.update_protocol(
+            self.IDP_WITH_REMOTE, protocol['id'], protocol
+        )
+        self._issue_unscoped_token(
+            idp=self.IDP_WITH_REMOTE,
+            environment={
+                protocol['remote_id_attribute']: self.REMOTE_IDS[0]
+            }
+        )
+        self.assertRaises(
+            exception.Unauthorized,
+            self._issue_unscoped_token,
+            idp=self.IDP_WITH_REMOTE,
+            environment={uuid.uuid4().hex: self.REMOTE_IDS[0]}
+        )
+
 
 class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     AUTH_METHOD = 'token'
@@ -4894,6 +4915,28 @@ class WebSSOTests(FederatedTokenTests):
         # `resp.data` will be `str` in Python 2 and `bytes` in Python 3
         # which is why the expected value: `self.TRUSTED_DASHBOARD`
         # needs to be encoded
+        self.assertIn(self.TRUSTED_DASHBOARD.encode('utf-8'), resp.data)
+
+    def test_issue_unscoped_token_with_remote_from_protocol(self):
+        self.config_fixture.config(
+            group='federation', remote_id_attribute=None
+        )
+        self.config_fixture.config(
+            group=self.PROTOCOL, remote_id_attribute=None
+        )
+        protocol = PROVIDERS.federation_api.get_protocol(
+            self.IDP_WITH_REMOTE, self.PROTOCOL
+        )
+        protocol['remote_id_attribute'] = self.PROTOCOL_REMOTE_ID_ATTR
+        PROVIDERS.federation_api.update_protocol(
+            self.IDP_WITH_REMOTE, protocol['id'], protocol
+        )
+        environment = {self.PROTOCOL_REMOTE_ID_ATTR: self.REMOTE_IDS[0],
+                       'QUERY_STRING': 'origin=%s' % self.ORIGIN}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
+        with self.make_request(environ=environment):
+            resp = auth_api.AuthFederationWebSSOResource._perform_auth(
+                self.PROTOCOL)
         self.assertIn(self.TRUSTED_DASHBOARD.encode('utf-8'), resp.data)
 
 

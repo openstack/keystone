@@ -8,6 +8,13 @@ Provide the ability for users to manage Identity Providers (IdPs) and establish
 a set of rules to map federation protocol attributes to Identity API
 attributes. Requires v3.0+ of the Identity API.
 
+What's New in Version 1.4
+=========================
+
+Corresponding to Identity API v3.12 release.
+
+- Added `remote_id_attribute` as an attribute of a Protocol.
+
 What's New in Version 1.3
 =========================
 
@@ -116,6 +123,16 @@ Required attributes:
 
   Indicates which mapping should be used to process federated authentication
   requests.
+
+Optional attributes:
+
+- ``remote_id_attribute`` (string)
+
+  Key to obtain the entity ID of the Identity Provider from the HTTPD
+  environment. For `mod_shib`, this would be `Shib-Identity-Provider`. For
+  `mod_auth_openidc`, this could be `HTTP_OIDC_ISS`. For `mod_auth_mellon`,
+  this could be `MELLON_IDP`. This overrides the default value provided in
+  keystone.conf.
 
 Mappings
 --------

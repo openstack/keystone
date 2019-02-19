@@ -22,6 +22,7 @@ from oslo_log import log
 from oslo_utils import timeutils
 import six
 
+from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -29,6 +30,7 @@ from keystone.i18n import _
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class UserType(object):
@@ -277,23 +279,28 @@ def validate_expiration(token):
         raise exception.Unauthorized(_('Federation token is expired'))
 
 
-def get_remote_id_parameter(protocol):
+def get_remote_id_parameter(idp, protocol):
     # NOTE(marco-fargetta): Since we support any protocol ID, we attempt to
-    # retrieve the remote_id_attribute of the protocol ID. If it's not
-    # registered in the config, then register the option and try again.
-    # This allows the user to register protocols other than oidc and saml2.
-    remote_id_parameter = None
-    try:
-        remote_id_parameter = CONF[protocol]['remote_id_attribute']
-    except AttributeError:
-        # TODO(dolph): Move configuration registration to keystone.conf
-        CONF.register_opt(cfg.StrOpt('remote_id_attribute'),
-                          group=protocol)
+    # retrieve the remote_id_attribute of the protocol ID. It will look up first
+    # if the remote_id_attribute exists.
+    protocol_ref = PROVIDERS.federation_api.get_protocol(idp['id'], protocol)
+    remote_id_parameter = protocol_ref.get('remote_id_attribute')
+    if remote_id_parameter:
+        return remote_id_parameter
+    else:
+        # If it's not registered in the config, then register the option and try again.
+        # This allows the user to register protocols other than oidc and saml2.
         try:
             remote_id_parameter = CONF[protocol]['remote_id_attribute']
-        except AttributeError:  # nosec
-            # No remote ID attr, will be logged and use the default instead.
-            pass
+        except AttributeError:
+            # TODO(dolph): Move configuration registration to keystone.conf
+            CONF.register_opt(cfg.StrOpt('remote_id_attribute'),
+                              group=protocol)
+            try:
+                remote_id_parameter = CONF[protocol]['remote_id_attribute']
+            except AttributeError:  # nosec
+                # No remote ID attr, will be logged and use the default instead.
+                pass
     if not remote_id_parameter:
         LOG.debug('Cannot find "remote_id_attribute" in configuration '
                   'group %s. Trying default location in '
@@ -305,7 +312,7 @@ def get_remote_id_parameter(protocol):
 
 def validate_idp(idp, protocol, assertion):
     """The IdP providing the assertion should be registered for the mapping."""
-    remote_id_parameter = get_remote_id_parameter(protocol)
+    remote_id_parameter = get_remote_id_parameter(idp, protocol)
     if not remote_id_parameter or not idp['remote_ids']:
         LOG.debug('Impossible to identify the IdP %s ', idp['id'])
         # If nothing is defined, the administrator may want to

@@ -35,10 +35,12 @@ assertions. Matched variables are passed into the federated mapping engine.
 remote_id_attribute = cfg.StrOpt(
     'remote_id_attribute',
     help=utils.fmt("""
-Value to be used to obtain the entity ID of the Identity Provider from the
-environment. For `mod_shib`, this would be `Shib-Identity-Provider`. For
-`mod_auth_openidc`, this could be `HTTP_OIDC_ISS`. For `mod_auth_mellon`, this
-could be `MELLON_IDP`.
+Default value for all protocols to be used to obtain the entity ID of the
+Identity Provider from the environment. For `mod_shib`, this would be
+`Shib-Identity-Provider`. For `mod_auth_openidc`, this could be
+`HTTP_OIDC_ISS`. For `mod_auth_mellon`, this could be `MELLON_IDP`. This can be
+overridden on a per-protocol basis by providing a `remote_id_attribute` to the
+federation protocol using the API.
 """))
 
 federated_domain_name = cfg.StrOpt(
