@@ -271,7 +271,18 @@ and adding two. Better illustrated as::
     max_active_keys = (token_expiration / rotation_frequency) + 2
 
 The reason for adding two additional keys to the count is to include the staged
-key and a buffer key. This can be shown based on the previous example. We
+key and a buffer key.
+
+.. note::
+   If validating expired tokens is needed (for example when services are
+   configured to use ServiceToken auth), the value of
+   ``allow_expired_window`` option from the ``[token]`` config section
+   should also be taken into account, so that the formula to calculate the
+   max_active_keys is
+
+   max_active_keys = ((token_expiration + allow_expired_window) / rotation_frequency) + 2
+
+This can be shown based on the previous example. We
 initially setup the key repository at 6:00 AM on Monday, and the initial state
 looks like:
 
@@ -363,3 +374,4 @@ If keystone were to receive a token that was created between 6:00 AM and 12:00
 PM the day before, encrypted with the ``1`` key, it would not be valid because
 it was already expired. This makes it possible for us to remove the ``1`` key
 from the repository without negative validation side-effects.
+
