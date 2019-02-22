@@ -31,3 +31,16 @@ Fernet
 
     Fernet tokens are bearer tokens. They must be protected from unnecessary
     disclosure to prevent unauthorized access.
+
+JWS
+ ``jws`` tokens do not need to be persisted at all, but require that you
+ configure an asymmetric key pair to sign and validate tokens. The key pair can
+ be generated using ``keystone-manage create_jws_keypair`` or it can be
+ generated out-of-band manually so long as it is compatible with the JWT
+ ``ES256`` Elliptic Curve Digital Signature Algorithm (ECDSA) using a P-256
+ curve and a SHA-256 hash algorithm.
+
+.. warning::
+
+    JWS tokens are bearer tokens. They must be protected from unnecessary
+    disclosure to prevent unauthorized access.

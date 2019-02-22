@@ -9,4 +9,5 @@ Everything you need to know about keystone tokens.
 
    tokens-overview
    fernet-token-faq
+   jws-key-rotation
    token-provider

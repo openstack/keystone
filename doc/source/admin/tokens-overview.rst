@@ -77,8 +77,8 @@ Token providers
 ---------------
 
 The token type issued by keystone is configurable through the
-``/etc/keystone/keystone.conf`` file. Currently, the only supported token
-provider is ``fernet``.
+``/etc/keystone/keystone.conf`` file. Currently, there are two supported token
+providers, ``fernet`` and ``jws``.
 
 Fernet tokens
 ~~~~~~~~~~~~~
@@ -92,5 +92,37 @@ Identity service should have access to the keys used to encrypt and decrypt
 fernet tokens. Like UUID tokens, fernet tokens must be passed back to the
 Identity service in order to validate them. For more information on the fernet
 token type, see the :doc:`fernet-token-faq`.
+
+A deployment might consider using the fernet provider as opposed to JWS tokens
+if they are concerned about public expose of the payload used to build tokens.
+
+JWS tokens
+~~~~~~~~~~
+
+The JSON Web Signature (JWS) token format is a type of JSON Web Token (JWT) and
+it was implemented in the Stein release. JWS tokens are signed, meaning the
+information used to build the token ID is not opaque to users and can it can be
+decoded by anyone. JWS tokens are ephemeral, or non-persistent, which means
+they won't bloat the database or require replication across nodes. Since the
+JWS token provider uses asymmetric keys, the tokens are signed with private
+keys and validated with public keys. The JWS token provider implementation
+only supports the ``ES256`` JSON Web Algorithm (JWA), which is an Elliptic
+Curve Digital Signature Algorithm (ECDSA) using the P-256 curve and a SHA-256
+hash algorithm.
+
+A deployment might consider using JWS tokens as opposed to fernet tokens if
+there are security concerns about sharing symmetric encryption keys across
+hosts. Note that a major difference between the two providers is that JWS
+tokens are not opaque and can be decoded by anyone with the token ID. Fernet
+tokens are opaque in that the token ID is ciphertext. Despite the JWS token
+payload being readable by anyone, keystone reserves the right to make backwards
+incompatible changes to the token payload itself, which is not an API contract.
+We only recommend validating the token against keystone's authentication API to
+inspect its associated metadata. We strongly discourage relying on decoded
+payloads for information about tokens.
+
+More information about JWTs can be found in the `specification`_.
+
+.. _`specification`: https://tools.ietf.org/html/rfc7519
 
 .. support_matrix:: token-support-matrix.ini

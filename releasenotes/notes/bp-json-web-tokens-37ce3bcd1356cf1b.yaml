@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    [`blueprint json-web-tokens <https://blueprints.launchpad.net/keystone/+spec/json-web-tokens>`_]
+    Keystone now supports a JSON Web Signature (JWS) token provider in addition
+    to fernet tokens. Fernet token remain the default token provider. Full
+    details can be found in the `specification
+    <http://specs.openstack.org/openstack/keystone-specs/specs/keystone/stein/json-web-tokens.html>`_.
