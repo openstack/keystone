@@ -25,8 +25,80 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
+class _SystemUserServiceTests(object):
+    """Common default functionality for all system users."""
+
+    def test_user_can_list_services(self):
+        expected_service_ids = []
+        for _ in range(2):
+            s = unit.new_service_ref()
+            service = PROVIDERS.catalog_api.create_service(s['id'], s)
+            expected_service_ids.append(service['id'])
+
+        with self.test_client() as c:
+            r = c.get('/v3/services', headers=self.headers)
+
+            actual_service_ids = []
+            for service in r.json['services']:
+                actual_service_ids.append(service['id'])
+
+            for service_id in expected_service_ids:
+                self.assertIn(service_id, actual_service_ids)
+
+    def test_user_can_get_a_service(self):
+        service = unit.new_service_ref()
+        service = PROVIDERS.catalog_api.create_service(service['id'], service)
+
+        with self.test_client() as c:
+            r = c.get('/v3/services/%s' % service['id'], headers=self.headers)
+            self.assertEqual(r.json['service']['id'], service['id'])
+
+
+class _SystemReaderAndMemberUserServiceTests(object):
+    """Common default functionality for system readers and system members."""
+
+    def test_user_cannot_create_services(self):
+        create = {
+            'service': {
+                'type': uuid.uuid4().hex,
+                'name': uuid.uuid4().hex,
+            }
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/services', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_services(self):
+        service = unit.new_service_ref()
+        service = PROVIDERS.catalog_api.create_service(service['id'], service)
+
+        update = {'service': {'description': uuid.uuid4().hex}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/services/%s' % service['id'], json=update,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_services(self):
+        service = unit.new_service_ref()
+        service = PROVIDERS.catalog_api.create_service(service['id'], service)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/services/%s' % service['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin):
+                        common_auth.AuthTestMixin,
+                        _SystemUserServiceTests,
+                        _SystemReaderAndMemberUserServiceTests):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -56,64 +128,36 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
 
-    def test_user_cannot_create_services(self):
-        create = {
-            'service': {
-                'type': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex,
-            }
-        }
 
+class SystemMemberTests(base_classes.TestCaseWithBootstrap,
+                        common_auth.AuthTestMixin,
+                        _SystemUserServiceTests,
+                        _SystemReaderAndMemberUserServiceTests):
+
+    def setUp(self):
+        super(SystemMemberTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        system_member = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        self.user_id = PROVIDERS.identity_api.create_user(
+            system_member
+        )['id']
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.bootstrapper.member_role_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=system_member['password'],
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
         with self.test_client() as c:
-            c.post(
-                '/v3/services', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
-            )
-
-    def test_user_cannot_update_services(self):
-        service = unit.new_service_ref()
-        service = PROVIDERS.catalog_api.create_service(service['id'], service)
-
-        update = {'service': {'description': uuid.uuid4().hex}}
-
-        with self.test_client() as c:
-            c.patch(
-                '/v3/services/%s' % service['id'], json=update,
-                headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
-            )
-
-    def test_user_can_list_services(self):
-        expected_service_ids = []
-        for _ in range(2):
-            s = unit.new_service_ref()
-            service = PROVIDERS.catalog_api.create_service(s['id'], s)
-            expected_service_ids.append(service['id'])
-
-        with self.test_client() as c:
-            r = c.get('/v3/services', headers=self.headers)
-
-            actual_service_ids = []
-            for service in r.json['services']:
-                actual_service_ids.append(service['id'])
-
-            for service_id in expected_service_ids:
-                self.assertIn(service_id, actual_service_ids)
-
-    def test_user_can_get_a_service(self):
-        service = unit.new_service_ref()
-        service = PROVIDERS.catalog_api.create_service(service['id'], service)
-
-        with self.test_client() as c:
-            r = c.get('/v3/services/%s' % service['id'], headers=self.headers)
-            self.assertEqual(r.json['service']['id'], service['id'])
-
-    def test_user_cannot_delete_services(self):
-        service = unit.new_service_ref()
-        service = PROVIDERS.catalog_api.create_service(service['id'], service)
-
-        with self.test_client() as c:
-            c.delete(
-                '/v3/services/%s' % service['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
-            )
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
