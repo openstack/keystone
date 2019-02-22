@@ -1,0 +1,32 @@
+features:
+  - |
+    [`bug 1804516 <https://bugs.launchpad.net/keystone/+bug/1804516>`_]
+    The federated identity provider API now supports the ``admin``,
+    ``member``, and ``reader`` default roles.
+upgrade:
+  - |
+    [`bug 1804516 <https://bugs.launchpad.net/keystone/+bug/1804516>`_]
+    The federated identity provider API uses new default policies that
+    make it more accessible to end users and administrators in a
+    secure way. Please consider these new defaults if your deployment
+    overrides federated identity provider policies.
+deprecations:
+  - |
+    [`bug 1804516 <https://bugs.launchpad.net/keystone/+bug/1804516>`_]
+    The federated identity provider policies have been deprecated.
+    The ``identity:list_identity_providers`` and
+    ``identity:get_identity_provider`` policies now use ``role:reader
+    and system_scope:all`` instead of ``rule:admin_required``. The
+    ``identity:create_identity_provider``, ``identity:update_identity_provider``,
+    ``identity:delete_identity_provider`` policies now use ``role:admin and
+    system_scope:all`` instead of ``rule:admin_required``.
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to
+    delegate subsets of responsibility without compromising security.
+    Please consider these new defaults if your deployment overrides the
+    federated identity provider policies.
+security:
+  - |
+    [`bug 1804516 <https://bugs.launchpad.net/keystone/+bug/1804516>`_]
+    The federated identity provider API now uses system-scope and
+    default roles to provide better accessibility to users in a secure way.
