@@ -2985,6 +2985,68 @@ class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self._check_project_scoped_token_attributes(token_resp, project['id'])
 
 
+class JWSFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
+    AUTH_METHOD = 'token'
+
+    def load_fixtures(self, fixtures):
+        super(JWSFederatedTokenTests, self).load_fixtures(fixtures)
+        self.load_federation_sample_data()
+
+    def config_overrides(self):
+        super(JWSFederatedTokenTests, self).config_overrides()
+        self.config_fixture.config(group='token', provider='jws')
+        self.useFixture(ksfixtures.JWSKeyRepository(self.config_fixture))
+
+    def auth_plugin_config_override(self):
+        methods = ['saml2', 'token', 'password']
+        super(JWSFederatedTokenTests,
+              self).auth_plugin_config_override(methods)
+
+    def test_federated_unscoped_token(self):
+        token_model = self._issue_unscoped_token()
+        self.assertValidMappedUser(
+            render_token.render_token_response_from_model(token_model)['token']
+        )
+
+    def test_federated_unscoped_token_with_multiple_groups(self):
+        assertion = 'ANOTHER_CUSTOMER_ASSERTION'
+        token_model = self._issue_unscoped_token(assertion=assertion)
+        self.assertValidMappedUser(
+            render_token.render_token_response_from_model(token_model)['token']
+        )
+
+    def test_validate_federated_unscoped_token(self):
+        token_model = self._issue_unscoped_token()
+        unscoped_token = token_model.id
+        # assert that the token we received is valid
+        self.get('/auth/tokens/', headers={'X-Subject-Token': unscoped_token})
+
+    def test_jws_full_workflow(self):
+        """Test 'standard' workflow for granting JWS tokens.
+
+        * Issue unscoped token
+        * List available projects based on groups
+        * Scope token to one of available projects
+
+        """
+        token_model = self._issue_unscoped_token()
+        self.assertValidMappedUser(
+            render_token.render_token_response_from_model(token_model)['token']
+        )
+        unscoped_token = token_model.id
+        resp = self.get('/auth/projects', token=unscoped_token)
+        projects = resp.result['projects']
+        random_project = random.randint(0, len(projects) - 1)
+        project = projects[random_project]
+
+        v3_scope_request = self._scope_request(unscoped_token,
+                                               'project', project['id'])
+
+        resp = self.v3_create_token(v3_scope_request)
+        token_resp = resp.result['token']
+        self._check_project_scoped_token_attributes(token_resp, project['id'])
+
+
 class FederatedTokenTestsMethodToken(FederatedTokenTests):
     """Test federation operation with unified scoping auth method.
 
