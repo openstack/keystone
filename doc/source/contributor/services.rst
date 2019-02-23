@@ -17,13 +17,8 @@ Keystone for other services
 
 This document provides a summary of some things that other services need to
 know about how keystone works, and specifically about how they can take
-advantage of the v3 API.
-
-The v3 API was introduced as a stable API in the Grizzly release and included
-in the default pipeline ever since. Until recently, its use has been hidden
-from other services because the ``auth_token`` middleware translated the token
-format so that both versions look the same. Once the services need to make use
-of v3 features they need to know about how it works.
+advantage of the v3 API. The v3 API was introduced as a stable API in the
+Grizzly release.
 
 
 Glossary
