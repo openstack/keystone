@@ -205,7 +205,12 @@ class PolicyJsonTestCase(unit.TestCase):
             'identity:get_mapping',
             'identity:list_mappings',
             'identity:update_mapping',
-            'identity:delete_mapping'
+            'identity:delete_mapping',
+            'identity:create_identity_provider',
+            'identity:get_identity_provider',
+            'identity:list_identity_providers',
+            'identity:update_identity_provider',
+            'identity:delete_identity_provider'
         ]
         policy_keys = self._get_default_policy_rules()
         for p in removed_policies:
