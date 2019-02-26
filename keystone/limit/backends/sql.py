@@ -60,6 +60,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
         'internal_id',
         'id',
         'project_id',
+        'domain_id',
         'service_id',
         'region_id',
         'resource_name',
@@ -73,6 +74,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
     internal_id = sql.Column(sql.Integer, primary_key=True, nullable=False)
     id = sql.Column(sql.String(length=64), nullable=False, unique=True)
     project_id = sql.Column(sql.String(64))
+    domain_id = sql.Column(sql.String(64))
     _service_id = sql.Column('service_id', sql.String(255))
     _region_id = sql.Column('region_id', sql.String(64), nullable=True)
     _resource_name = sql.Column('resource_name', sql.String(255))
@@ -159,7 +161,12 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                                                         query,
                                                         hints).all()
         else:
-            hints.add_filter('project_id', unified_limit['project_id'])
+            is_project_limit = (True if unified_limit.get('project_id')
+                                else False)
+            if is_project_limit:
+                hints.add_filter('project_id', unified_limit['project_id'])
+            else:
+                hints.add_filter('domain_id', unified_limit['domain_id'])
             with sql.session_for_read() as session:
                 query = session.query(LimitModel)
                 old_unified_limits = sql.filter_limit_query(LimitModel,
@@ -167,15 +174,21 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                                                             hints).all()
                 query = session.query(
                     LimitModel).outerjoin(RegisteredLimitModel)
-                new_unified_limits = query.filter(
-                    LimitModel.project_id ==
-                    unified_limit['project_id'],
+                query = query.filter(
                     RegisteredLimitModel.service_id ==
                     unified_limit['service_id'],
                     RegisteredLimitModel.region_id ==
                     unified_limit.get('region_id'),
                     RegisteredLimitModel.resource_name ==
-                    unified_limit['resource_name']).all()
+                    unified_limit['resource_name'])
+                if is_project_limit:
+                    query = query.filter(
+                        LimitModel.project_id == unified_limit['project_id'])
+                else:
+                    query = query.filter(
+                        LimitModel.domain_id == unified_limit['domain_id'])
+                new_unified_limits = query.all()
+
                 unified_limits = old_unified_limits + new_unified_limits
 
         if unified_limits:
@@ -315,7 +328,8 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                                             hints)
             old_format_data = [s.to_dict() for s in limits]
             project_filter = hint_copy.get_exact_filter_by_name('project_id')
-            if hint_copy.filters and (not project_filter
+            domain_filter = hint_copy.get_exact_filter_by_name('domain_id')
+            if hint_copy.filters and (not (project_filter or domain_filter)
                                       or len(hint_copy.filters) > 1):
                 # If the hints contain "service_id", "region_id" or
                 # "resource_name", we should combine the registered_limit table
@@ -328,6 +342,9 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                 if project_filter:
                     limits = limits.filter(
                         LimitModel.project_id == project_filter['value'])
+                elif domain_filter:
+                    limits = limits.filter(
+                        LimitModel.domain_id == domain_filter['value'])
                 new_format_data = [s.to_dict() for s in limits]
             return old_format_data + new_format_data
 

@@ -55,10 +55,14 @@ class Manager(manager.Manager):
             project_id = unified_limit.get('project_id')
             if project_id is not None:
                 project = PROVIDERS.resource_api.get_project(project_id)
-                # Keystone now does not support domain-level limits. This
-                # check can be removed if it'll be supported in the future.
                 if project['is_domain']:
-                    raise exception.ProjectNotFound(project_id=project_id)
+                    # Treat the input limit as domain level limit.
+                    unified_limit['domain_id'] = unified_limit.pop(
+                        'project_id')
+            domain_id = unified_limit.get('domain_id')
+            if domain_id is not None:
+                PROVIDERS.resource_api.get_domain(domain_id)
+
         except exception.ServiceNotFound:
             raise exception.ValidationError(attribute='service_id',
                                             target=target)
@@ -67,6 +71,9 @@ class Manager(manager.Manager):
                                             target=target)
         except exception.ProjectNotFound:
             raise exception.ValidationError(attribute='project_id',
+                                            target=target)
+        except exception.DomainNotFound:
+            raise exception.ValidationError(attribute='domain_id',
                                             target=target)
 
     def get_model(self):
