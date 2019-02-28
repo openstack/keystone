@@ -43,6 +43,32 @@ class _CommonUtilities(object):
         return (protocol, mapping, identity_provider)
 
 
+class _SystemUserProtocolTests(object):
+    """Common default functionality for all system users."""
+
+    def test_user_can_list_protocols(self):
+        protocol, mapping, identity_provider = self._create_protocol_and_deps()
+
+        with self.test_client() as c:
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols' %
+                identity_provider['id']
+            )
+            r = c.get(path, headers=self.headers)
+            self.assertEqual(1, len(r.json['protocols']))
+            self.assertEqual(protocol['id'], r.json['protocols'][0]['id'])
+
+    def test_user_can_get_a_protocol(self):
+        protocol, mapping, identity_provider = self._create_protocol_and_deps()
+
+        with self.test_client() as c:
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
+                (identity_provider['id'], protocol['id'])
+            )
+            c.get(path, headers=self.headers)
+
+
 class _SystemReaderAndMemberProtocolTests(object):
 
     def test_user_cannot_create_protocols(self):
@@ -86,28 +112,6 @@ class _SystemReaderAndMemberProtocolTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_can_list_protocols(self):
-        protocol, mapping, identity_provider = self._create_protocol_and_deps()
-
-        with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols' %
-                identity_provider['id']
-            )
-            r = c.get(path, headers=self.headers)
-            self.assertEqual(1, len(r.json['protocols']))
-            self.assertEqual(protocol['id'], r.json['protocols'][0]['id'])
-
-    def test_user_can_get_a_protocol(self):
-        protocol, mapping, identity_provider = self._create_protocol_and_deps()
-
-        with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
-            )
-            c.get(path, headers=self.headers)
-
     def test_user_cannot_delete_protocol(self):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
@@ -125,6 +129,7 @@ class _SystemReaderAndMemberProtocolTests(object):
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _CommonUtilities,
+                        _SystemUserProtocolTests,
                         _SystemReaderAndMemberProtocolTests):
 
     def setUp(self):
@@ -159,6 +164,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
 class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _CommonUtilities,
+                        _SystemUserProtocolTests,
                         _SystemReaderAndMemberProtocolTests):
 
     def setUp(self):
@@ -188,3 +194,79 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _CommonUtilities,
+                       _SystemUserProtocolTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_create_protocols(self):
+        identity_provider = unit.new_identity_provider_ref()
+        identity_provider = PROVIDERS.federation_api.create_idp(
+            identity_provider['id'], identity_provider
+        )
+
+        mapping = PROVIDERS.federation_api.create_mapping(
+            uuid.uuid4().hex, unit.new_mapping_ref()
+        )
+
+        protocol_id = 'saml2'
+        create = {'protocol': {'mapping_id': mapping['id']}}
+
+        with self.test_client() as c:
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
+                (identity_provider['id'], protocol_id)
+            )
+            c.put(
+                path, json=create, headers=self.headers,
+                expected_status_code=http_client.CREATED
+            )
+
+    def test_user_can_update_protocols(self):
+        protocol, mapping, identity_provider = self._create_protocol_and_deps()
+
+        new_mapping = PROVIDERS.federation_api.create_mapping(
+            uuid.uuid4().hex, unit.new_mapping_ref()
+        )
+
+        update = {'protocol': {'mapping_id': new_mapping['id']}}
+        with self.test_client() as c:
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
+                (identity_provider['id'], protocol['id'])
+            )
+            c.patch(path, json=update, headers=self.headers)
+
+    def test_user_can_delete_protocol(self):
+        protocol, mapping, identity_provider = self._create_protocol_and_deps()
+
+        with self.test_client() as c:
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
+                (identity_provider['id'], protocol['id'])
+            )
+            c.delete(path, headers=self.headers)
