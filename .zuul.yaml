@@ -44,6 +44,8 @@
         tls-proxy: false
       devstack_plugins:
         keystone: git://git.openstack.org/openstack/keystone
+      zuul_copy_output:
+        /etc/shibboleth: logs
 
 - job:
     name: keystone-dsvm-py35-functional-federation
@@ -52,6 +54,8 @@
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
         USE_PYTHON3: True
+      zuul_copy_output:
+        /etc/shibboleth: logs
 
 # This job will execute 'tox -e upgrade' from the OSA
 # repo specified in 'osa_test_repo'.
@@ -101,6 +105,8 @@
         tls-proxy: false
       devstack_plugins:
         keystone: git://git.openstack.org/openstack/keystone
+      zuul_copy_output:
+        /etc/shibboleth: logs
 
 # Experimental
 - job:
@@ -115,6 +121,8 @@
         tls-proxy: false
       devstack_plugins:
         keystone: git://git.openstack.org/openstack/keystone
+      zuul_copy_output:
+        /etc/shibboleth: logs
 
 # Experimental
 - job:
@@ -124,6 +132,8 @@
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
         USE_PYTHON3: True
+      zuul_copy_output:
+        /etc/shibboleth: logs
 
 - project:
     templates:
@@ -205,7 +215,6 @@
         - tempest-full-py3-opensuse150:
             irrelevant-files: *tempest-irrelevant-files
         - keystone-dsvm-functional-federation-centos7:
-            voting: false
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-functional-federation-opensuse15:
             irrelevant-files: *irrelevant-files
