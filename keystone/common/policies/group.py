@@ -46,6 +46,26 @@ deprecated_check_user_in_group = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_user_in_group',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_create_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_update_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_delete_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_remove_user_from_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'remove_user_from_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_add_user_to_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'add_user_to_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 group_policies = [
     policy.DocumentedRuleDefault(
@@ -92,25 +112,34 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create group.',
         operations=[{'path': '/v3/groups',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update group.',
         operations=[{'path': '/v3/groups/{group_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete group.',
         operations=[{'path': '/v3/groups/{group_id}',
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users_in_group',
         check_str=base.SYSTEM_READER,
@@ -125,11 +154,14 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_user_from_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Remove user from group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_remove_user_from_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_user_in_group',
         check_str=base.SYSTEM_READER,
@@ -144,11 +176,14 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_user_to_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Add user to group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
-                     'method': 'PUT'}])
+                     'method': 'PUT'}],
+        deprecated_rule=deprecated_add_user_to_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN)
 ]
 
 
