@@ -12,6 +12,7 @@
 
 # This file handles all flask-restful resources for /v3/groups
 
+import flask
 import flask_restful
 import functools
 from six.moves import http_client
@@ -30,6 +31,20 @@ ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
 
+def _build_group_target_enforcement():
+    target = {}
+    try:
+        target['group'] = PROVIDERS.identity_api.get_group(
+            flask.request.view_args.get('group_id')
+        )
+    except exception.NotFound:  # nosec
+        # Defer existance in the event the group doesn't exist, we'll
+        # check this later anyway.
+        pass
+
+    return target
+
+
 class GroupsResource(ks_flask.ResourceBase):
     collection_key = 'groups'
     member_key = 'group'
@@ -46,7 +61,10 @@ class GroupsResource(ks_flask.ResourceBase):
 
         GET/HEAD /groups/{group_id}
         """
-        ENFORCER.enforce_call(action='identity:get_group')
+        ENFORCER.enforce_call(
+            action='identity:get_group',
+            build_target=_build_group_target_enforcement
+        )
         return self.wrap_member(PROVIDERS.identity_api.get_group(group_id))
 
     def _list_groups(self):
