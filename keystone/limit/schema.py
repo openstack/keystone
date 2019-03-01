@@ -51,8 +51,27 @@ registered_limit_update = {
     'additionalProperties': False,
 }
 
-_limit_create_properties = {
+_project_limit_create_properties = {
     'project_id': parameter_types.id_string,
+    'service_id': parameter_types.id_string,
+    'region_id': {
+        'type': 'string'
+    },
+    'resource_name': {
+        'type': 'string',
+        'minLength': 1,
+        'maxLength': 255
+    },
+    'resource_limit': {
+        'type': 'integer',
+        'minimum': -1,
+        'maximum': 0x7FFFFFFF  # The maximum value a signed INT may have
+    },
+    'description': validation.nullable(parameter_types.description)
+}
+
+_domain_limit_create_properties = {
+    'domain_id': parameter_types.id_string,
     'service_id': parameter_types.id_string,
     'region_id': {
         'type': 'string'
@@ -72,9 +91,18 @@ _limit_create_properties = {
 
 _limit_create = {
     'type': 'object',
-    'properties': _limit_create_properties,
-    'additionalProperties': False,
-    'required': ['project_id', 'service_id', 'resource_name', 'resource_limit']
+    'oneOf': [
+        {'properties': _project_limit_create_properties,
+         'required': ['project_id', 'service_id', 'resource_name',
+                      'resource_limit'],
+         'additionalProperties': False,
+         },
+        {'properties': _domain_limit_create_properties,
+         'required': ['domain_id', 'service_id', 'resource_name',
+                      'resource_limit'],
+         'additionalProperties': False,
+         },
+    ]
 }
 
 limit_create = {

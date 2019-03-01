@@ -20,8 +20,6 @@ from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone.common import validation
-from keystone import exception
-from keystone.i18n import _
 from keystone.limit import schema
 from keystone.server import flask as ks_flask
 
@@ -34,34 +32,34 @@ class LimitsResource(ks_flask.ResourceBase):
     collection_key = 'limits'
     member_key = 'limit'
     json_home_resource_status = json_home.Status.EXPERIMENTAL
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='unified_limit_api', method='get_limit')
 
     def _list_limits(self):
-        filters = ['service_id', 'region_id', 'resource_name', 'project_id']
+        filters = ['service_id', 'region_id', 'resource_name', 'project_id',
+                   'domain_id']
         ENFORCER.enforce_call(action='identity:list_limits', filters=filters)
         hints = self.build_driver_hints(filters)
         project_id_filter = hints.get_exact_filter_by_name('project_id')
-        if project_id_filter:
+        domain_id_filter = hints.get_exact_filter_by_name('domain_id')
+        if project_id_filter or domain_id_filter:
             if self.oslo_context.system_scope:
                 refs = PROVIDERS.unified_limit_api.list_limits(hints)
             else:
                 refs = []
         else:
             project_id = self.oslo_context.project_id
+            domain_id = self.oslo_context.domain_id
             if project_id:
                 hints.add_filter('project_id', project_id)
+            elif domain_id:
+                hints.add_filter('domain_id', domain_id)
             refs = PROVIDERS.unified_limit_api.list_limits(hints)
         return self.wrap_collection(refs, hints=hints)
 
     def _get_limit(self, limit_id):
         ENFORCER.enforce_call(action='identity:get_limit')
         ref = PROVIDERS.unified_limit_api.get_limit(limit_id)
-        if (not self.oslo_context.is_admin and
-                not ('admin' in self.oslo_context.roles)):
-            project_id = self.oslo_context.project_id
-            if project_id and project_id != ref['project_id']:
-                action = _('The authenticated project should match the '
-                           'project_id')
-                raise exception.Forbidden(action=action)
         return self.wrap_member(ref)
 
     def get(self, limit_id=None):

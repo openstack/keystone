@@ -26,14 +26,10 @@ limit_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_limit',
-        check_str='',
-        # Getting a single limit or listing all limits should be information
-        # accessible to everyone. By setting scope_types=['system', 'project']
-        # we're making it so that anyone with a role on the system or a project
-        # can obtain this information.  Making changes to a limit should be
-        # considered a protected system-level API, as noted below with
-        # scope_types=['system'].
-        scope_types=['system', 'project'],
+        check_str='(role:reader and system_scope:all) or '
+                  'project_id:%(target.limit.project_id)s or '
+                  'domain_id:%(target.limit.domain_id)s',
+        scope_types=['system', 'project', 'domain'],
         description='Show limit details.',
         operations=[{'path': '/v3/limits/{limit_id}',
                      'method': 'GET'},
