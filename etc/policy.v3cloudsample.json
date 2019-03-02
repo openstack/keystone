@@ -165,12 +165,6 @@
     "identity:add_endpoint_group_to_project": "rule:admin_required",
     "identity:remove_endpoint_group_from_project": "rule:admin_required",
 
-    "identity:create_protocol": "rule:cloud_admin",
-    "identity:update_protocol": "rule:cloud_admin",
-    "identity:get_protocol": "rule:cloud_admin",
-    "identity:list_protocols": "rule:cloud_admin",
-    "identity:delete_protocol": "rule:cloud_admin",
-
     "identity:get_auth_catalog": "",
     "identity:get_auth_projects": "",
     "identity:get_auth_domains": "",
