@@ -33,9 +33,9 @@
         USE_PYTHON3: True
 
 - job:
-    name: keystone-dsvm-functional-federation
+    name: keystone-dsvm-functional-federation-opensuse15
     parent: keystone-dsvm-functional
-    nodeset: openstack-single-node-xenial
+    nodeset: devstack-single-node-opensuse-150
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
@@ -48,8 +48,8 @@
         /etc/shibboleth: logs
 
 - job:
-    name: keystone-dsvm-py35-functional-federation
-    parent: keystone-dsvm-functional-federation
+    name: keystone-dsvm-py3-functional-federation-opensuse15
+    parent: keystone-dsvm-functional-federation-opensuse15
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
@@ -110,9 +110,9 @@
 
 # Experimental
 - job:
-    name: keystone-dsvm-functional-federation-opensuse15
+    name: keystone-dsvm-functional-federation-ubuntu-xenial
     parent: keystone-dsvm-functional
-    nodeset: devstack-single-node-opensuse-150
+    nodeset: openstack-single-node-xenial
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
@@ -126,14 +126,26 @@
 
 # Experimental
 - job:
-    name: keystone-dsvm-py3-functional-federation-opensuse15
-    parent: keystone-dsvm-functional-federation-opensuse15
+    name: keystone-dsvm-py35-functional-federation-ubuntu-xenial
+    parent: keystone-dsvm-functional-federation
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
         USE_PYTHON3: True
       zuul_copy_output:
         /etc/shibboleth: logs
+
+# Experimental
+# Transitional rename
+- job:
+    name: keystone-dsvm-functional-federation
+    parent: keystone-dsvm-functional-federation-ubuntu-xenial
+
+# Experimental
+# Transitional rename
+- job:
+    name: keystone-dsvm-py35-functional-federation
+    parent: keystone-dsvm-py35-functional-federation-ubuntu-xenial
 
 - project:
     templates:
@@ -161,10 +173,10 @@
               - ^releasenotes/.*$
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-functional-federation:
+        - keystone-dsvm-functional-federation-opensuse15:
             voting: false
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py35-functional-federation:
+        - keystone-dsvm-py3-functional-federation-opensuse15:
             voting: false
             irrelevant-files: *irrelevant-files
         - keystoneclient-devstack-functional:
@@ -216,9 +228,9 @@
             irrelevant-files: *tempest-irrelevant-files
         - keystone-dsvm-functional-federation-centos7:
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-functional-federation-opensuse15:
+        - keystone-dsvm-functional-federation-ubuntu-xenial:
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py3-functional-federation-opensuse15:
+        - keystone-dsvm-py35-functional-federation-ubuntu-xenial:
             irrelevant-files: *irrelevant-files
     post:
       jobs:
