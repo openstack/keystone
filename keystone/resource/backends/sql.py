@@ -278,52 +278,53 @@ class Resource(base.ResourceDriverBase):
             obj_list = []
             # Using db table self outerjoin to find the project descendants.
             #
-            # We'll only outerjoin the project table (max_depth + 1) times to
+            # We'll only outerjoin the project table `max_depth` times to
             # check whether current project tree exceed the max depth limit.
             #
-            # Note one more time here is for project act as domain.
+            # For example:
             #
-            # for example:
-            # If max_depth is 2, we will take the outerjoin 3 times, then the
+            # If max_depth is 2, we will take the outerjoin 2 times, then the
             # SQL result may be like:
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | No | project1_id | project2_id | project3_id | project4_id |
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | 1  |  project_a  |             |             |             |
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | 2  |  domain_x   |  project_a  |             |             |
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | 3  |  project_b  |  project_c  |             |             |
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | 4  |  domain_x   |  project_b  |  project_c  |             |
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | 5  |  project_d  |  project_e  |  project_f  |             |
-            #  +----+-------------+-------------+-------------+-------------+
-            #  | 6  |  domain_x   |  project_d  |  project_e  |  project_f  |
-            #  +----+-------------+-------------+-------------+-------------+
             #
-            # project1 is the root. It is a project or a domain. If project1 is
-            # a project, there must exist a line that project1 is its domain.
+            #  +---- +-------------+-------------+-------------+
+            #  | No. | project1_id | project2_id | project3_id |
+            #  +--- -+-------------+-------------+-------------+
+            #  |  1  |  domain_x   |             |             |
+            #  +- ---+-------------+-------------+-------------+
+            #  |  2  |  project_a  |             |             |
+            #  +- ---+-------------+-------------+-------------+
+            #  |  3  |  domain_y   |  project_a  |             |
+            #  +- ---+-------------+-------------+-------------+
+            #  |  4  |  project_b  |  project_c  |             |
+            #  +- ---+-------------+-------------+-------------+
+            #  |  5  |  domain_y   |  project_b  |  project_c  |
+            #  +- ---+-------------+-------------+-------------+
             #
-            # we got 6 lines here.
+            # `project1_id` column is the root. It is a project or a domain.
+            # If `project1_id` is a project, there must exist a line that
+            # `project1` is its domain.
             #
-            # 1). the 1, 2 line means project project_a has no child, the depth
-            #    is 1.
-            # 2). the 3, 4 line means project project_a has a child, the depth
-            #    is 2.
-            # 3). the 5, 6 line means project project_a has a grandchild, the
-            #    depth is 3. this tree hit the max depth.
-            # So we can see that if column "project4_id" has value, it means
+            # We got 5 lines here. It includes three scenarios:
+            #
+            # 1). The No.1 line means there is a domain `domain_x` which has no
+            #     children. The depth is 1.
+            #
+            # 2). The No.2 and No.3 lines mean project `project_a` has no child
+            # and its parent is domain `domain_y`. The depth is 2.
+            #
+            # 3). The No.4 and No.5 lines mean project `project_b` has a child
+            #     `project_c` and its parent is domain `domain_y`. The depth is
+            #     3. This tree hit the max depth
+            #
+            # So we can see that if column "project3_id" has value, it means
             # some trees hit the max depth limit.
 
-            outerjoin_obj_number = max_depth + 2
-            for _ in range(outerjoin_obj_number):
+            for _ in range(max_depth + 1):
                 obj_list.append(orm.aliased(Project))
 
             query = session.query(*obj_list)
 
-            outerjoin_count = max_depth + 1
-            for index in range(outerjoin_count):
+            for index in range(max_depth):
                 query = query.outerjoin(
                     obj_list[index + 1],
                     obj_list[index].id == obj_list[index + 1].parent_id)
@@ -331,7 +332,7 @@ class Resource(base.ResourceDriverBase):
                 obj_list[-1].id != expression.null())
 
             if exceeded_lines:
-                return [line[max_depth + 1].id for line in exceeded_lines]
+                return [line[max_depth].id for line in exceeded_lines]
 
 
 class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
