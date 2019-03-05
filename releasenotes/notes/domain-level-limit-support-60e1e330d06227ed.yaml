@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    [`blueprint domain-level-limit <https://blueprints.launchpad.net/keystone/+spec/domain-level-limit>`_]
+    Keystone now supports domain level unified limit. When creating a limit,
+    users can specify a ``domain_id`` instead of ``project_id``. For `flat`
+    model, the domain limit is still non-hierarchical. For `strict-two-level`
+    model, the domain limit is now considered as the first level, so that the
+    project limit is the second level and the project can't contain any child.
