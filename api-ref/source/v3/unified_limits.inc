@@ -367,6 +367,7 @@ Parameters
    - region_id: region_id_query
    - resource_name: resource_name_query
    - project_id: scope_project_id_query
+   - domain_id: scope_domain_id_query
 
 
 Response
@@ -381,6 +382,7 @@ Parameters
    - limits: limits
    - id: limit_id
    - project_id: project_id
+   - domain_id: response_limit_domain_id_body
    - service_id: service_id_limit
    - region_id: region_id_response_body
    - resource_name: resource_name
@@ -426,7 +428,8 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
    - limits: limits
-   - project_id: project_id
+   - project_id: request_limit_project_id_not_required
+   - domain_id: request_limit_domain_id_not_required
    - service_id: service_id_limit
    - region_id: region_id_request_body
    - resource_name: resource_name
@@ -452,6 +455,7 @@ Parameters
    - limits: limits
    - id: limit_id
    - project_id: project_id
+   - domain_id: response_limit_domain_id_body
    - service_id: service_id_limit
    - region_id: region_id_response_body
    - resource_name: resource_name
@@ -521,6 +525,7 @@ Parameters
    - limit: limit
    - id: limit_id
    - project_id: project_id
+   - domain_id: response_limit_domain_id_body
    - service_id: service_id_limit
    - region_id: region_id_response_body
    - resource_name: resource_name
@@ -581,6 +586,7 @@ Parameters
    - limit: limit
    - id: limit_id
    - project_id: project_id
+   - domain_id: response_limit_domain_id_body
    - service_id: service_id_limit
    - region_id: region_id_response_body
    - resource_name: resource_name
