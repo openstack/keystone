@@ -26,7 +26,6 @@ from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils
 
 
 CONF = keystone.conf.CONF
@@ -1338,8 +1337,8 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         collection_url = self.build_role_assignment_query_url(
             domain_id=self.domainB['id'])
-        self.get(collection_url, auth=self.auth,
-                 expected_status=http_client.FORBIDDEN)
+        r = self.get(collection_url, auth=self.auth)
+        self.assertEqual([], r.json_body['role_assignments'])
 
     def test_domain_user_list_assignments_of_domain_failed(self):
         self.auth = self.build_authentication_request(
@@ -1383,46 +1382,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
             user_id=self.project_admin_user['id'],
             password=self.project_admin_user['password'],
             project_id=self.project['id'])
-
-        collection_url = self.build_role_assignment_query_url(
-            project_id=self.project['id'])
-        r = self.get(collection_url, auth=self.auth)
-        self.assertValidRoleAssignmentListResponse(
-            r, expected_length=2, resource_url=collection_url)
-
-        project_admin_entity = self.build_role_assignment_entity(
-            project_id=self.project['id'],
-            user_id=self.project_admin_user['id'],
-            role_id=self.admin_role['id'],
-            inherited_to_projects=False)
-        project_user_entity = self.build_role_assignment_entity(
-            project_id=self.project['id'],
-            user_id=self.just_a_user['id'],
-            role_id=self.role['id'],
-            inherited_to_projects=False)
-
-        self.assertRoleAssignmentInListResponse(r, project_admin_entity)
-        self.assertRoleAssignmentInListResponse(r, project_user_entity)
-
-    def test_project_admin_list_assignments_of_another_project_failed(self):
-        projectB = unit.new_project_ref(domain_id=self.domainA['id'])
-        PROVIDERS.resource_api.create_project(projectB['id'], projectB)
-        admin_auth = self.build_authentication_request(
-            user_id=self.project_admin_user['id'],
-            password=self.project_admin_user['password'],
-            project_id=self.project['id'])
-
-        collection_url = self.build_role_assignment_query_url(
-            project_id=projectB['id'])
-        self.get(collection_url, auth=admin_auth,
-                 expected_status=exception.ForbiddenAction.code)
-
-    @utils.wip('waiting on bug #1437407')
-    def test_domain_admin_list_assignments_of_project(self):
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
 
         collection_url = self.build_role_assignment_query_url(
             project_id=self.project['id'])
