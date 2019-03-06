@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1819036 <https://bugs.launchpad.net/keystone/+bug/1819036>`_]
+    Middleware that processes requests in front of keystone now caches tokens
+    per request, eliminating unnecessary round trips to validate tokens on
+    every request. This change doesn't require the usage of any configuration
+    options to take effect. The fix for this bug improved performance ~20% during
+    testing and impacts most of keystone's API.
