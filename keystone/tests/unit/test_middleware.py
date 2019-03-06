@@ -17,9 +17,11 @@ import hashlib
 import uuid
 
 import fixtures
+import mock
 from six.moves import http_client
 import webtest
 
+from keystone.auth import core as auth_core
 from keystone.common import authorization
 from keystone.common import context as keystone_context
 from keystone.common import provider_api
@@ -730,3 +732,24 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
         headers = {authorization.AUTH_TOKEN_HEADER: 'NOT-ADMIN'}
         self._do_middleware_request(headers=headers)
         self.assertIn('Invalid user token', log_fix.output)
+
+    def test_token_is_cached(self):
+        # Make sure we only call PROVIDERS.token_provider_api.validate_token()
+        # once while in middleware so that we're mindful of performance
+        context = auth_core.AuthContext(
+            user_id=self.user['id'], methods=['password']
+        )
+        token = PROVIDERS.token_provider_api.issue_token(
+            context['user_id'], context['methods'], project_id=self.project_id,
+            auth_context=context
+        )
+        headers = {
+            authorization.AUTH_TOKEN_HEADER: token.id.encode('utf-8')
+        }
+        with mock.patch.object(PROVIDERS.token_provider_api,
+                               'validate_token',
+                               return_value=token) as token_mock:
+            self._do_middleware_request(
+                path='/v3/projects', method='get', headers=headers
+            )
+            token_mock.assert_called_once()
