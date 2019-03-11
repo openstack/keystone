@@ -95,6 +95,3 @@
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
               - ^setup.cfg$
-    post:
-      jobs:
-        - publish-loci-keystone
