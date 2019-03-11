@@ -39,6 +39,18 @@ class SQLModelTestCase(core_sql.BaseBackendSqlModels):
                 ('role_id', sql.String, 64))
         self.assertExpectedSchema('application_credential_role', cols)
 
+    def test_access_rule_model(self):
+        cols = (('id', sql.Integer, None),
+                ('service', sql.String, 64),
+                ('path', sql.String, 128),
+                ('method', sql.String, 16))
+        self.assertExpectedSchema('access_rule', cols)
+
+    def test_application_credential_access_rule_model(self):
+        cols = (('application_credential_id', sql.Integer, None),
+                ('access_rule_id', sql.Integer, None))
+        self.assertExpectedSchema('application_credential_access_rule', cols)
+
 
 class SQLDriverTestCase(core_sql.BaseBackendSqlTests,
                         test_backends.ApplicationCredentialTests):
