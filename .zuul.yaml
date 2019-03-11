@@ -231,6 +231,3 @@
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py35-functional-federation-ubuntu-xenial:
             irrelevant-files: *irrelevant-files
-    post:
-      jobs:
-        - publish-loci-keystone
