@@ -87,8 +87,8 @@ The :command:`keystone-manage` command line utility includes a key rotation
 mechanism. This mechanism will initialize and rotate keys but does not make
 an effort to distribute keys across keystone nodes. The distribution of keys
 across a keystone deployment is best handled through configuration management
-tooling. Use :command:`keystone-manage fernet_rotate` to rotate the key
-repository.
+tooling, however ensure that the new primary key is distributed first.
+Use :command:`keystone-manage fernet_rotate` to rotate the key repository.
 
 Do fernet tokens still expire?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
