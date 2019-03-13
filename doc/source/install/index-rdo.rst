@@ -20,8 +20,6 @@ are included.
    Please see the
    `OpenStack Training Labs <https://docs.openstack.org/training_labs/>`_.
 
-This guide documents the OpenStack Queens release.
-
 .. warning::
 
    This guide is a work-in-progress and is subject to updates frequently.
