@@ -90,7 +90,6 @@
       - openstack-dev/grenade
       - openstack-infra/devstack-gate
       - openstack/keystone
-    nodeset: legacy-ubuntu-xenial-2-node
 
 # Experimental
 - job:
