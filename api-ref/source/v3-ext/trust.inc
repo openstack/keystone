@@ -45,8 +45,7 @@ invalid and any tokens generated based on the trust are immediately revoked.
 Trusts can also be chained, meaning, a trust can be created by using a trust scoped
 token.
 
-For more information, see `Use trusts <https://docs.openstack.org
-/keystone/latest/admin/identity-use-trusts.html>`_.
+For more information, see `Use trusts <https://docs.openstack.org/keystone/latest/user/trusts.html>`_.
 
 Consuming a trust
 =================
