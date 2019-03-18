@@ -1,0 +1,18 @@
+---
+fixes:
+  - |
+    [`bug 1798184 <https://bugs.launchpad.net/keystone/+bug/1798184>`_]
+    [`bug 1820333 <https://bugs.launchpad.net/keystone/+bug/1820333>`_]
+    In Python 3, python-ldap no longer allows bytes for some fields (DNs,
+    RDNs, attribute names, queries). Instead, text values are represented
+    as str, the Unicode text type. Compatibility support is provided for
+    Python 2 by setting bytes_mode=False [1].
+
+    The keystone LDAP backend is updated to adhere to this behavior by using
+    bytes_mode=False for Python 2 and dropping UTF-8 encoding and decoding
+    fields that are now represented as text in python-ldap.
+
+    [1] More details about byte/str usage in python-ldap can be found at:
+    http://www.python-ldap.org/en/latest/bytes_mode.html#bytes-mode
+
+    Note that at a minimum python-ldappool 2.3.1 is required.
