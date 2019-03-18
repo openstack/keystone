@@ -172,11 +172,11 @@ class TrustResource(ks_flask.ResourceBase):
         action = _('Cannot list trusts for another user')
         if trustor_user_id:
             if trustor_user_id != self.oslo_context.user_id:
-                raise exception.Forbidden(action=action)
+                raise exception.ForbiddenAction(action=action)
 
         if trustee_user_id:
             if trustee_user_id != self.oslo_context.user_id:
-                raise exception.Forbidden(action=action)
+                raise exception.ForbiddenAction(action=action)
 
         trusts += PROVIDERS.trust_api.list_trusts_for_trustor(trustor_user_id)
         trusts += PROVIDERS.trust_api.list_trusts_for_trustee(trustee_user_id)
