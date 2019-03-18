@@ -98,6 +98,10 @@ def _build_user_target_enforcement():
         target['user'] = PROVIDERS.identity_api.get_user(
             flask.request.view_args.get('user_id')
         )
+        if flask.request.view_args.get('group_id'):
+            target['group'] = PROVIDERS.identity_api.get_group(
+                flask.request.view_args.get('group_id')
+            )
     except ks_exception.NotFound:  # nosec
         # Defer existence in the event the user doesn't exist, we'll
         # check this later anyway.
@@ -272,10 +276,15 @@ class UserGroupsResource(ks_flask.ResourceBase):
 
     @staticmethod
     def _built_target_attr_enforcement():
-        ref = {}
+        ref = None
         if flask.request.view_args:
-            ref['user'] = PROVIDERS.identity_api.get_user(
-                flask.request.view_args.get('user_id'))
+            try:
+                ref = {'user': PROVIDERS.identity_api.get_user(
+                    flask.request.view_args.get('user_id'))}
+            except ks_exception.NotFound:  # nosec
+                # Defer existence in the event the user doesn't exist, we'll
+                # check this later anyway.
+                pass
         return ref
 
     def get(self, user_id):
@@ -290,6 +299,12 @@ class UserGroupsResource(ks_flask.ResourceBase):
                               filters=filters)
         refs = PROVIDERS.identity_api.list_groups_for_user(user_id=user_id,
                                                            hints=hints)
+        if (self.oslo_context.domain_id):
+            filtered_refs = []
+            for ref in refs:
+                if ref['domain_id'] == self.oslo_context.domain_id:
+                    filtered_refs.append(ref)
+            refs = filtered_refs
         return self.wrap_collection(refs, hints=hints)
 
 
