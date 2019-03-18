@@ -66,6 +66,11 @@
       - ^keystone/tests/unit/.*$
       - ^releasenotes/.*$
 
+- job:
+    name: openstack-tox-cover-keystone-xenial
+    parent: openstack-tox-cover
+    nodeset: openstack-single-node-xenial
+
 # This job will execute 'tox -e upgrade' from the OSA
 # repo specified in 'osa_test_repo'.
 - job:
@@ -148,7 +153,7 @@
               - ^etc/.*$
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
-        - openstack-tox-cover
+        - openstack-tox-cover-keystone-xenial
         - legacy-tempest-dsvm-ldap-domain-specific-driver:
             voting: false
             irrelevant-files:
