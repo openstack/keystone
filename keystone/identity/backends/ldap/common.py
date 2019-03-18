@@ -26,7 +26,7 @@ import ldappool
 from oslo_log import log
 from oslo_utils import reflection
 import six
-from six.moves import map, zip
+from six.moves import zip
 from six import PY2
 
 from keystone.common import driver_hints
@@ -951,13 +951,9 @@ class KeystoneLDAPHandler(LDAPHandler):
             ldap_result = self._paged_search_s(base, scope,
                                                filterstr, attrlist)
         else:
-            if attrlist is None:
-                attrlist_utf8 = None
-            else:
-                attrlist_utf8 = list(map(utf8_encode, attrlist))
             try:
                 ldap_result = self.conn.search_s(base, scope, filterstr,
-                                                 attrlist_utf8, attrsonly)
+                                                 attrlist, attrsonly)
             except ldap.SIZELIMIT_EXCEEDED:
                 raise exception.LDAPSizeLimitExceeded()
 
@@ -1001,15 +997,10 @@ class KeystoneLDAPHandler(LDAPHandler):
                 cookie='')
             page_ctrl_oid = ldap.controls.SimplePagedResultsControl.controlType
 
-        if attrlist is None:
-            attrlist_utf8 = None
-        else:
-            attrlist = [attr for attr in attrlist if attr is not None]
-            attrlist_utf8 = list(map(utf8_encode, attrlist))
         msgid = self.conn.search_ext(base,
                                      scope,
                                      filterstr,
-                                     attrlist_utf8,
+                                     attrlist,
                                      serverctrls=[lc])
         # Endless loop request pages on ldap server until it has no data
         while True:
@@ -1033,7 +1024,7 @@ class KeystoneLDAPHandler(LDAPHandler):
                     msgid = self.conn.search_ext(base,
                                                  scope,
                                                  filterstr,
-                                                 attrlist_utf8,
+                                                 attrlist,
                                                  serverctrls=[lc])
                 else:
                     # Exit condition no more data on server

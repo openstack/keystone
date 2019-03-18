@@ -516,7 +516,7 @@ class FakeLdap(common.LDAPHandler):
                     raise AssertionError('No objectClass in search filter')
                 # filter the attributes by attrlist
                 attrs = {k: v for k, v in attrs.items()
-                         if not attrlist or k in common.utf8_decode(attrlist)}
+                         if not attrlist or k in attrlist}
                 objects.append((dn, attrs))
 
         return objects
