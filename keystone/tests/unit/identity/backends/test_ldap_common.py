@@ -404,7 +404,14 @@ class LDAPPagedResultsTest(unit.TestCase):
         conn = PROVIDERS.identity_api.user.get_connection()
         conn._paged_search_s('dc=example,dc=test',
                              ldap.SCOPE_SUBTREE,
-                             'objectclass=*')
+                             'objectclass=*',
+                             ['mail', 'userPassword'])
+        # verify search_ext() args - attrlist is tricky due to ordering
+        args, _ = mock_search_ext.call_args
+        self.assertEqual(
+            ('dc=example,dc=test', 2, 'objectclass=*'), args[0:3])
+        attrlist = sorted([attr for attr in args[3] if attr])
+        self.assertEqual(['mail', 'userPassword'], attrlist)
 
 
 class CommonLdapTestCase(unit.BaseTestCase):
