@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1810393 <https://bugs.launchpad.net/keystone/+bug/1810393>`_]
+    Now when an identity provider protocol is deleted, the cache info for the
+    related federated users will be invalidated as well.
