@@ -168,3 +168,57 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _SystemUserSystemAssignmentTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        self.user_id = self.bootstrapper.admin_user_id
+        self.expected = []
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_grant_system_assignments(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(CONF.identity.default_domain_id)
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/system/users/%s/roles/%s' % (
+                    user['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+            )
+
+    def test_user_can_revoke_system_assignments(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/system/users/%s/roles/%s' % (
+                    user['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers
+            )

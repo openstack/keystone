@@ -23,6 +23,14 @@ deprecated_list_system_grants_for_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_system_grants_for_user',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_create_system_grant_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_system_grant_for_user',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_revoke_system_grant_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'revoke_system_grant_for_user',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the system assignment API now understands default
@@ -163,7 +171,7 @@ grant_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_system_grant_for_user',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Grant a user a role on the system.',
         operations=[
@@ -171,11 +179,14 @@ grant_policies = [
                 'path': '/v3/system/users/{user_id}/roles/{role_id}',
                 'method': ['PUT']
             }
-        ]
+        ],
+        deprecated_rule=deprecated_create_system_grant_for_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_system_grant_for_user',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Remove a role from a user on the system.',
         operations=[
@@ -183,7 +194,10 @@ grant_policies = [
                 'path': '/v3/system/users/{user_id}/roles/{role_id}',
                 'method': ['DELETE']
             }
-        ]
+        ],
+        deprecated_rule=deprecated_revoke_system_grant_for_user,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_system_grants_for_group',
