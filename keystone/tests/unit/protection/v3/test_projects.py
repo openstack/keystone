@@ -262,7 +262,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_update_non_existant_project_not_found(self):
+    def test_user_can_update_non_existent_project_not_found(self):
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
@@ -281,7 +281,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete('/v3/projects/%s' % project['id'], headers=self.headers)
 
-    def test_user_can_delete_non_existant_project_not_found(self):
+    def test_user_can_delete_non_existent_project_not_found(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
