@@ -132,8 +132,8 @@ class _SystemMemberAndReaderUserTests(object):
             )
 
 
-class _DomainReaderUserTests(object):
-    """Functionality for all domain readers."""
+class _DomainMemberAndReaderUserTests(object):
+    """Functionality for all domain members and domain readers."""
 
     def test_user_can_get_user_within_domain(self):
         user = PROVIDERS.identity_api.create_user(
@@ -438,7 +438,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 class DomainReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _CommonUserTests,
-                        _DomainReaderUserTests):
+                        _DomainMemberAndReaderUserTests):
 
     def setUp(self):
         super(DomainReaderTests, self).setUp()
@@ -460,6 +460,41 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id, password=domain_reader['password'],
             domain_id=self.domain_id,
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
+class DomainMemberTests(base_classes.TestCaseWithBootstrap,
+                        common_auth.AuthTestMixin,
+                        _CommonUserTests,
+                        _DomainMemberAndReaderUserTests):
+
+    def setUp(self):
+        super(DomainMemberTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+        domain_user = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(domain_user)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id, user_id=self.user_id,
+            domain_id=self.domain_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=domain_user['password'],
+            domain_id=self.domain_id
         )
 
         # Grab a token using the persona we're testing and prepare headers
