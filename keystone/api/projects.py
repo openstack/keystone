@@ -157,8 +157,11 @@ class ProjectResource(ks_flask.ResourceBase):
 
         POST /v3/projects
         """
-        ENFORCER.enforce_call(action='identity:create_project')
         project = self.request_body_json.get('project', {})
+        target = {'project': project}
+        ENFORCER.enforce_call(
+            action='identity:create_project', target_attr=target
+        )
         validation.lazy_validate(schema.project_create, project)
         project = self._assign_unique_id(project)
         if not project.get('is_domain'):

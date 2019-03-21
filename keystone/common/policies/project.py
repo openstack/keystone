@@ -41,6 +41,11 @@ SYSTEM_READER_OR_DOMAIN_READER = (
     '(role:reader and domain_id:%(target.domain_id)s)'
 )
 
+SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
+    '(role:admin and system_scope:all) or '
+    '(role:admin and domain_id:%(target.project.domain_id)s)'
+)
+
 deprecated_list_projects = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_projects',
     check_str=base.RULE_ADMIN_REQUIRED
@@ -111,15 +116,8 @@ project_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): System administrators should be able to create
-        # projects anywhere in the deployment. Domain administrators should
-        # only be able to create projects within their domain. Project
-        # administrators should only be able to create children projects of the
-        # project they administer. Until keystone is smart enough to handle
-        # those checks in code, keep this as a system-level operation for
-        # backwards compatibility.
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+        scope_types=['system', 'domain'],
         description='Create project.',
         operations=[{'path': '/v3/projects',
                      'method': 'POST'}],
@@ -128,10 +126,8 @@ project_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): See the above comment for create_project as to why
-        # this is limited to only system-scope.
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+        scope_types=['system', 'domain'],
         description='Update project.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'PATCH'}],
@@ -140,10 +136,8 @@ project_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): See the above comment for create_project as to why
-        # this is limited to only system-scope.
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+        scope_types=['system', 'domain'],
         description='Delete project.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'DELETE'}],
