@@ -337,7 +337,7 @@ simplified check string expression:
    "service:foobar:update": "role:member"
    "service:foobar:delete": "role:admin"
 
-How to I incorporate authorization scopes into a service?
+How do I incorporate authorization scopes into a service?
 =========================================================
 
 Now that you understand the advantages of a shared approach to policy
