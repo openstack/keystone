@@ -80,16 +80,6 @@
     "identity:list_role_inference_rules": "rule:cloud_admin",
     "identity:check_implied_role": "rule:cloud_admin or rule:admin_and_matching_prior_role_domain_id",
 
-    "identity:list_system_grants_for_user": "rule:admin_required",
-    "identity:check_system_grant_for_user": "rule:admin_required",
-    "identity:create_system_grant_for_user": "rule:admin_required",
-    "identity:revoke_system_grant_for_user": "rule:admin_required",
-
-    "identity:list_system_grants_for_group": "rule:admin_required",
-    "identity:check_system_grant_for_group": "rule:admin_required",
-    "identity:create_system_grant_for_group": "rule:admin_required",
-    "identity:revoke_system_grant_for_group": "rule:admin_required",
-
     "identity:check_grant": "rule:cloud_admin or rule:domain_admin_for_grants or rule:project_admin_for_grants",
     "identity:list_grants": "rule:cloud_admin or rule:domain_admin_for_list_grants or rule:project_admin_for_list_grants",
     "identity:create_grant": "rule:cloud_admin or rule:domain_admin_for_grants or rule:project_admin_for_grants",
