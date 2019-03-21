@@ -237,11 +237,12 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
 
     def __init__(self, app):
         super(AuthContextMiddleware, self).__init__(app, log=LOG)
+        self.token = None
 
     def fetch_token(self, token, **kwargs):
         try:
-            token_model = self.token_provider_api.validate_token(token)
-            return render_token.render_token_response_from_model(token_model)
+            self.token = self.token_provider_api.validate_token(token)
+            return render_token.render_token_response_from_model(self.token)
         except exception.TokenNotFound:
             raise auth_token.InvalidToken(_('Could not find token'))
 
@@ -416,10 +417,11 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         elif request.token_auth.has_user_token:
             # Keystone enforces policy on some values that other services
             # do not, and should not, use.  This adds them in to the context.
-            token = PROVIDERS.token_provider_api.validate_token(
-                request.user_token
-            )
-            self._keystone_specific_values(token, request_context)
+            if not self.token:
+                self.token = PROVIDERS.token_provider_api.validate_token(
+                    request.user_token
+                )
+            self._keystone_specific_values(self.token, request_context)
             request_context.auth_token = request.user_token
             auth_context = request_context.to_policy_values()
             additional = {
@@ -429,7 +431,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
                 'domain_id': request_context._domain_id,
                 'domain_name': request_context.domain_name,
                 'group_ids': request_context.group_ids,
-                'token': token
+                'token': self.token
             }
             auth_context.update(additional)
 
