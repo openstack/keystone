@@ -19,10 +19,6 @@ SYSTEM_READER_OR_CRED_OWNER = (
     '(role:reader and system_scope:all) '
     'or user_id:%(target.credential.user_id)s'
 )
-SYSTEM_MEMBER_OR_CRED_OWNER = (
-    '(role:member and system_scope:all) '
-    'or user_id:%(target.credential.user_id)s'
-)
 SYSTEM_ADMIN_OR_CRED_OWNER = (
     '(role:admin and system_scope:all) '
     'or user_id:%(target.credential.user_id)s'
@@ -93,7 +89,7 @@ credential_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_credential',
-        check_str=SYSTEM_MEMBER_OR_CRED_OWNER,
+        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Update credential.',
         operations=[{'path': '/v3/credentials/{credential_id}',

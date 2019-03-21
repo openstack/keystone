@@ -768,7 +768,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_can_update_credentials_for_others(self):
+    def test_user_cannot_update_credentials_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user_password = user['password']
         user = PROVIDERS.identity_api.create_user(user)
@@ -803,16 +803,19 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             update = {'credential': {'blob': uuid.uuid4().hex}}
             path = '/v3/credentials/%s' % credential_id
-            c.patch(path, json=update, headers=self.headers)
+            c.patch(
+                path, json=update, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
 
-    def test_user_cannot_update_non_existant_credential_not_found(self):
+    def test_user_cannot_update_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
                 '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http_client.FORBIDDEN
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -1131,7 +1134,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
                 'identity:get_credential': cp.SYSTEM_READER_OR_CRED_OWNER,
                 'identity:list_credentials': cp.SYSTEM_READER_OR_CRED_OWNER,
                 'identity:create_credential': cp.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:update_credential': cp.SYSTEM_MEMBER_OR_CRED_OWNER,
+                'identity:update_credential': cp.SYSTEM_ADMIN_OR_CRED_OWNER,
                 'identity:delete_credential': cp.SYSTEM_ADMIN_OR_CRED_OWNER
             }
             f.write(jsonutils.dumps(overridden_policies))
