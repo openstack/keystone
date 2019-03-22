@@ -12,7 +12,7 @@
     under the License.
 
 ===========================
-Keystone for other services
+Keystone for Other Services
 ===========================
 
 This document provides a summary of some things that other services need to
