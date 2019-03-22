@@ -53,6 +53,12 @@ deprecated_list_grants = policy.DeprecatedRule(
 deprecated_check_grant = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_grant', check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_create_grant = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_grant', check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_revoke_grant = policy.DeprecatedRule(
+    name=base.IDENTITY % 'revoke_grant', check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the assignment API now understands default roles and
@@ -141,7 +147,7 @@ grant_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_grant',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): See the above comment about scope_types before
         # adding 'project' to scope_types below.
         scope_types=['system'],
@@ -151,10 +157,13 @@ grant_policies = [
                      'to the OS-INHERIT APIs, where grants on the target '
                      'are inherited to all projects in the subtree, if '
                      'applicable.'),
-        operations=list_operations(resource_paths, ['PUT'])),
+        operations=list_operations(resource_paths, ['PUT']),
+        deprecated_rule=deprecated_create_grant,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_grant',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         # FIXME(lbragstad): See the above comment about scope_types before
         # adding 'project' to scope_types below.
         scope_types=['system'],
@@ -166,7 +175,10 @@ grant_policies = [
                      'applicable. In that case, revoking the role grant in '
                      'the target would remove the logical effect of '
                      'inheriting it to the target\'s projects subtree.'),
-        operations=list_operations(resource_paths, ['DELETE'])),
+        operations=list_operations(resource_paths, ['DELETE']),
+        deprecated_rule=deprecated_revoke_grant,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_system_grants_for_user',
         check_str=base.SYSTEM_READER,
