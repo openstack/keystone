@@ -233,7 +233,7 @@ in your `devstack` `local.conf`` file:
 .. code-block:: bash
 
     [[local|localrc]]
-    enable_plugin keystone git://git.openstack.org/openstack/keystone
+    enable_plugin keystone https://git.openstack.org/openstack/keystone
     enable_service keystone-saml2-federation
 
 Clone and install keystone-tempest-plugin.
