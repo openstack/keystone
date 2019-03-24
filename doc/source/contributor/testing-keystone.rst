@@ -233,7 +233,7 @@ in your `devstack` `local.conf`` file:
 .. code-block:: bash
 
     [[local|localrc]]
-    enable_plugin keystone git://git.openstack.org/openstack/keystone
+    enable_plugin keystone https://git.openstack.org/openstack/keystone
     enable_service keystone-saml2-federation
 
 Finally, to run keystone's API and scenario tests, deploy `tempest`_ with
