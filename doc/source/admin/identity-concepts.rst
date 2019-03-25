@@ -298,7 +298,7 @@ special service project called ``service``.
 
 For information about how to create services and endpoints, see the
 `OpenStack Administrator Guide <https://docs.openstack.org/keystone/latest/
-admin/cli-keystone-manage-services.html>`__.
+admin/manage-services.html>`__.
 
 Groups
 ~~~~~~
