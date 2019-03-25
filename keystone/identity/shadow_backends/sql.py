@@ -16,6 +16,7 @@ import sqlalchemy
 import uuid
 
 from oslo_config import cfg
+from oslo_db import api as oslo_db_api
 
 from keystone.common import sql
 from keystone import exception
@@ -159,6 +160,17 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             new_user_ref.nonlocal_user = new_nonlocal_user_ref
             session.add(new_user_ref)
             return identity_base.filter_user(new_user_ref.to_dict())
+
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
+    def delete_user(self, user_id):
+        with sql.session_for_write() as session:
+            ref = self._get_user(session, user_id)
+
+            q = session.query(model.UserGroupMembership)
+            q = q.filter_by(user_id=user_id)
+            q.delete(False)
+
+            session.delete(ref)
 
     def get_user(self, user_id):
         with sql.session_for_read() as session:

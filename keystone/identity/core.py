@@ -502,14 +502,6 @@ class Manager(manager.Manager):
 
         driver = self._select_identity_driver(domain_id)
 
-        if not driver.is_sql:
-            # The LDAP driver does not support deleting users or groups.
-            # Moreover, we shouldn't destroy users and groups in an unknown
-            # driver. The only time when we should delete users and groups is
-            # when the backend is SQL because the foreign key in the SQL table
-            # forces us to.
-            return
-
         user_refs = self.list_users(domain_scope=domain_id)
         group_refs = self.list_groups(domain_scope=domain_id)
 
@@ -526,7 +518,10 @@ class Manager(manager.Manager):
         # And finally, delete the users themselves
         for user in user_refs:
             try:
-                self.delete_user(user['id'])
+                if not driver.is_sql:
+                    PROVIDERS.shadow_users_api.delete_user(user['id'])
+                else:
+                    self.delete_user(user['id'])
             except exception.UserNotFound:
                 LOG.debug(('User %(userid)s not found when deleting domain '
                            'contents for %(domainid)s, continuing with '
