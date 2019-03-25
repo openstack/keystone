@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1801873 <https://bugs.launchpad.net/keystone/+bug/1801873>`_]
+    This fixes an issue where an LDAP-backed domain could not be deleted due to
+    the existence of shadow users in the SQL database.
