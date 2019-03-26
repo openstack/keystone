@@ -34,4 +34,6 @@ Contributor Documentation
    id-manage.rst
    translated-responses.rst
    architecture.rst
-   external-dev.rst
+   services.rst
+   developing-drivers.rst
+   service-catalog.rst
