@@ -14,3 +14,15 @@
         ShibRequireAll On
    </IfVersion>
 </Location>
+
+<Location /identity/v3/OS-FEDERATION/identity_providers/keystone/protocols/mapped/auth>
+    ShibRequestSetting requireSession 1
+    AuthType shibboleth
+    ShibExportAssertion Off
+    Require valid-user
+
+    <IfVersion < 2.4>
+        ShibRequireSession On
+        ShibRequireAll On
+   </IfVersion>
+</Location>

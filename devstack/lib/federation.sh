@@ -23,6 +23,8 @@ IDP_REMOTE_ID=${IDP_REMOTE_ID:-https://samltest.id/saml/idp}
 IDP_ECP_URL=${IDP_ECP_URL:-https://samltest.id/idp/profile/SAML2/SOAP/ECP}
 IDP_METADATA_URL=${IDP_METADATA_URL:-https://samltest.id/saml/idp}
 
+KEYSTONE_IDP_METADATA_URL=${KEYSTONE_IDP_METADATA_URL:-"http://$HOST_IP/identity/v3/OS-FEDERATION/saml2/metadata"}
+
 MAPPING_REMOTE_TYPE=${MAPPING_REMOTE_TYPE:-uid}
 MAPPING_USER_NAME=${MAPPING_USER_NAME:-"{0}"}
 
@@ -57,9 +59,24 @@ function configure_apache {
     restart_apache_server
 }
 
+function configure_shibboleth {
+    # Copy a templated /etc/shibboleth/shibboleth2.xml file...
+    sudo cp $FEDERATION_FILES/shibboleth2.xml $SHIBBOLETH_XML
+    # ... and replace the %HOST_IP%, %IDP_REMOTE_ID%,and %IDP_METADATA_URL% placeholders
+    sudo sed -i -e "
+        s|%HOST_IP%|$HOST_IP|g;
+        s|%IDP_METADATA_URL%|$IDP_METADATA_URL|g;
+        s|%KEYSTONE_METADATA_URL%|$KEYSTONE_IDP_METADATA_URL|g;
+        " $SHIBBOLETH_XML
+
+    sudo cp "$FEDERATION_FILES/attribute-map.xml" $ATTRIBUTE_MAP
+
+    restart_service shibd
+}
+
 function install_federation {
     if is_ubuntu; then
-        install_package libapache2-mod-shib2
+        install_package libapache2-mod-shib2 xmlsec1
 
         # Create a new keypair for Shibboleth
         sudo shib-keygen -f
@@ -75,7 +92,7 @@ function install_federation {
         | sudo tee /etc/yum.repos.d/shibboleth.repo >/dev/null
 
         # Install Shibboleth
-        install_package shibboleth
+        install_package shibboleth xmlsec1-openssl
 
         # Create a new keypair for Shibboleth
         sudo /etc/shibboleth/keygen.sh -f -o /etc/shibboleth
@@ -94,6 +111,8 @@ function install_federation {
     else
         echo "Skipping installation of shibboleth for non ubuntu nor fedora nor suse host"
     fi
+
+    pip_install pysaml2
 }
 
 function upload_sp_metadata_to_samltest {
@@ -110,32 +129,35 @@ function upload_sp_metadata_to_samltest {
 }
 
 function configure_federation {
-    configure_apache
-
-    # Copy a templated /etc/shibboleth/shibboleth2.xml file...
-    sudo cp $FEDERATION_FILES/shibboleth2.xml $SHIBBOLETH_XML
-    # ... and replace the %HOST_IP%, %IDP_REMOTE_ID%,and %IDP_METADATA_URL% placeholders
-    sudo sed -i -e "
-        s|%HOST_IP%|$HOST_IP|g;
-        s|%IDP_REMOTE_ID%|$IDP_REMOTE_ID|g;
-        s|%IDP_METADATA_URL%|$IDP_METADATA_URL|g;
-        " $SHIBBOLETH_XML
-
-    sudo cp "$FEDERATION_FILES/attribute-map.xml" $ATTRIBUTE_MAP
-
-    restart_service shibd
-
-    # Enable the mapped auth method in /etc/keystone.conf
-    iniset $KEYSTONE_CONF auth methods "external,password,token,mapped"
-
     # Specify the header that contains information about the identity provider
     iniset $KEYSTONE_CONF mapped remote_id_attribute "Shib-Identity-Provider"
+
+    # Configure certificates and keys for Keystone as an IdP
+    if is_service_enabled tls-proxy; then
+        iniset $KEYSTONE_CONF saml certfile "$INT_CA_DIR/$DEVSTACK_CERT_NAME.crt"
+        iniset $KEYSTONE_CONF saml keyfile "$INT_CA_DIR/private/$DEVSTACK_CERT_NAME.key"
+    else
+        openssl genrsa -out /etc/keystone/ca.key 4096
+        openssl req -new -x509 -days 1826 -key /etc/keystone/ca.key -out /etc/keystone/ca.crt \
+            -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com"
+
+
+        iniset $KEYSTONE_CONF saml certfile "/etc/keystone/ca.crt"
+        iniset $KEYSTONE_CONF saml keyfile "/etc/keystone/ca.key"
+    fi
+
+    iniset $KEYSTONE_CONF saml idp_entity_id "$KEYSTONE_AUTH_URI/v3/OS-FEDERATION/saml2/idp"
+    iniset $KEYSTONE_CONF saml idp_sso_endpoint "$KEYSTONE_AUTH_URI/v3/OS-FEDERATION/saml2/sso"
+    iniset $KEYSTONE_CONF saml idp_metadata_path "/etc/keystone/keystone_idp_metadata.xml"
 
     if [[ "$WSGI_MODE" == "uwsgi" ]]; then
         restart_service "devstack@keystone"
     fi
 
-    restart_apache_server
+    keystone-manage saml_idp_metadata > /etc/keystone/keystone_idp_metadata.xml
+
+    configure_shibboleth
+    configure_apache
 
     # TODO(knikolla): We should not be relying on an external service. This
     # will be removed once we have an idp deployed during devstack install.
@@ -155,6 +177,9 @@ function register_federation {
 }
 
 function configure_tests_settings {
+    # Enable the mapped auth method in /etc/keystone.conf
+    iniset $KEYSTONE_CONF auth methods "external,password,token,mapped"
+
     # Here we set any settings that might be need by the fed_scenario set of tests
     iniset $TEMPEST_CONFIG identity-feature-enabled federation True
 
