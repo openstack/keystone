@@ -196,6 +196,7 @@ class PolicyJsonTestCase(unit.TestCase):
             'identity:list_service_providers',
             'identity:update_service_provider',
             'identity:delete_service_provider',
+            'identity:list_role_assignments',
             'identity:create_role',
             'identity:get_role',
             'identity:list_roles',
@@ -250,7 +251,11 @@ class PolicyJsonTestCase(unit.TestCase):
             'identity:list_services',
             'identity:update_service',
             'identity:delete_service',
-            'identity:list_role_assignments'
+            'identity:create_user',
+            'identity:get_user',
+            'identity:list_users',
+            'identity:update_user',
+            'identity:delete_user'
         ]
         policy_keys = self._get_default_policy_rules()
         for p in removed_policies:

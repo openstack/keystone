@@ -746,6 +746,28 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post('/v3/users', json=create, headers=self.headers)
 
+    def test_user_cannot_create_users_within_domain_hyphened_domain_id(self):
+        # Finally, show that we can create a new user without any surprises.
+        # But if we specify a 'domain-id' instead of a 'domain_id', we get a
+        # Forbidden response because we fail a policy check before
+        # normalization occurs.
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        create = {
+            'user': {
+                'domain-id': domain['id'],
+                'name': uuid.uuid4().hex
+            }
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/users', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
     def test_user_cannot_create_users_in_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
@@ -774,6 +796,26 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers
             )
+
+    def test_user_can_update_users_within_domain_hyphened_domain_id(self):
+        # If we try updating the user's 'domain_id' by specifying a
+        # 'domain-id', then it'll be stored into extras rather than normalized,
+        # and the user's actual 'domain_id' is not affected.
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+
+        update = {'user': {'domain-id': domain['id']}}
+        with self.test_client() as c:
+            r = c.patch(
+                '/v3/users/%s' % user['id'], json=update, headers=self.headers
+            )
+            self.assertEqual(domain['id'], r.json['user']['domain-id'])
+            self.assertEqual(self.domain_id, r.json['user']['domain_id'])
 
     def test_user_cannot_update_users_in_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
