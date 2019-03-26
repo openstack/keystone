@@ -37,14 +37,6 @@ role_assignment_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_assignments',
         check_str=SYSTEM_READER_OR_DOMAIN_READER,
-        # FIXME(lbragstad): This API will behave differently depending on the
-        # token scope used to call the API. A system administrator should be
-        # able to list all role assignment across the entire deployment. A
-        # project or domain administrator should be able to list role
-        # assignments within the domain or project they administer. Once we
-        # make keystone smart enough to handle those cases in code, we can add
-        # 'project' to the scope_types below. For now, this should be a system
-        # administrator only operation to maintain backwards compatibility.
         scope_types=['system', 'domain'],
         description='List role assignments.',
         operations=[{'path': '/v3/role_assignments',

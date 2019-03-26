@@ -10,14 +10,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from six.moves import http_client
 import uuid
 
+from oslo_serialization import jsonutils
+
+from keystone.common.policies import role_assignment as rp
 from keystone.common import provider_api
 import keystone.conf
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import base_classes
 from keystone.tests.unit import ksfixtures
+from keystone.tests.unit.ksfixtures import temporaryfile
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -918,6 +923,99 @@ class _DomainUserTests(object):
             self.assertEqual(0, len(r.json['role_assignments']))
 
 
+class _ProjectUserTests(object):
+
+    def test_user_cannot_list_all_assignments_in_their_project(self):
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments', headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_user_of_project(self):
+        assignments = self._setup_test_role_assignments()
+        user_id = assignments['user_id']
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?user.id=%s' % user_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_group_of_project(self):
+        assignments = self._setup_test_role_assignments()
+        group_id = assignments['group_id']
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?group.id=%s' % group_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_system(self):
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?scope.system=all',
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_domain(self):
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?scope.domain.id=%s'
+                % self.domain_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_other_project(self):
+        project1 = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=self.domain_id)
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?scope.project.id=%s'
+                % project1,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_other_project_user(self):
+        assignments = self._setup_test_role_assignments()
+
+        # This user doesn't have any role assignments on self.project_id, so the
+        # project user of self.project_id should only see an empty list of role
+        # assignments.
+        user_id = assignments['user_id']
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?user.id=%s' % user_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_filter_role_assignments_by_other_project_group(self):
+        assignments = self._setup_test_role_assignments()
+
+        # This group doesn't have any role assignments on self.project_id, so
+        # the project user of self.project_id should only see an empty list of
+        # role assignments.
+        group_id = assignments['group_id']
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments?group.id=%s' % group_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _AssignmentTestUtilities,
@@ -1153,3 +1251,172 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
+                         common_auth.AuthTestMixin,
+                         _AssignmentTestUtilities,
+                         _ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectReaderTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        self.project_id = project['id']
+
+        project_reader = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id, user_id=self.user_id,
+            project_id=self.project_id
+        )
+
+        self.expected = [
+            # assignment of the user running the test case
+            {
+                'user_id': self.user_id,
+                'project_id': self.project_id,
+                'role_id': self.bootstrapper.reader_role_id
+            }]
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=project_reader['password'],
+            project_id=self.project_id,
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
+class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
+                         common_auth.AuthTestMixin,
+                         _AssignmentTestUtilities,
+                         _ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectMemberTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        self.project_id = project['id']
+
+        project_member = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id, user_id=self.user_id,
+            project_id=self.project_id
+        )
+
+        self.expected = [
+            # assignment of the user running the test case
+            {
+                'user_id': self.user_id,
+                'project_id': self.project_id,
+                'role_id': self.bootstrapper.member_role_id
+            }]
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id, password=project_member['password'],
+            project_id=self.project_id,
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
+class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
+                        common_auth.AuthTestMixin,
+                        _AssignmentTestUtilities,
+                        _ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectAdminTests, self).setUp()
+        self.loadapp()
+        self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
+        self.policy_file_name = self.policy_file.file_name
+        self.useFixture(
+            ksfixtures.Policy(
+                self.config_fixture, policy_file=self.policy_file_name
+            )
+        )
+        self._override_policy()
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+
+        self.user_id = self.bootstrapper.admin_user_id
+
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        self.project_id = project['id']
+
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.admin_role_id, user_id=self.user_id,
+            project_id=self.project_id
+        )
+
+        self.expected = [
+            # assignment of the user running the test case
+            {
+                'user_id': self.user_id,
+                'project_id': self.project_id,
+                'role_id': self.bootstrapper.admin_role_id
+            }]
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.bootstrapper.project_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def _override_policy(self):
+        # TODO(lbragstad): Remove this once the deprecated policies in
+        # keystone.common.policies.role_assignment have been removed. This is
+        # only here to make sure we test the new policies instead of the
+        # deprecated ones. Oslo.policy will OR deprecated policies with new
+        # policies to maintain compatibility and give operators a chance to
+        # update permissions or update policies without breaking users. This
+        # will cause these specific tests to fail since we're trying to correct
+        # this broken behavior with better scope checking.
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {
+                'identity:list_role_assignments': (
+                    rp.SYSTEM_READER_OR_DOMAIN_READER
+                )
+            }
+            f.write(jsonutils.dumps(overridden_policies))
