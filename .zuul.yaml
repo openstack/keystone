@@ -43,7 +43,7 @@
         keystone-saml2-federation: true
         tls-proxy: false
       devstack_plugins:
-        keystone: git://git.openstack.org/openstack/keystone
+        keystone: https://git.openstack.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
 
@@ -103,7 +103,7 @@
         keystone-saml2-federation: true
         tls-proxy: false
       devstack_plugins:
-        keystone: git://git.openstack.org/openstack/keystone
+        keystone: https://git.openstack.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
 
@@ -119,7 +119,7 @@
         keystone-saml2-federation: true
         tls-proxy: false
       devstack_plugins:
-        keystone: git://git.openstack.org/openstack/keystone
+        keystone: https://git.openstack.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
 
