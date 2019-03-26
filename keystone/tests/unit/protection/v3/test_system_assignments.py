@@ -359,6 +359,34 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 ), headers=self.headers
             )
 
+    def test_user_can_grant_group_system_assignments(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(CONF.identity.default_domain_id)
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/system/groups/%s/roles/%s' % (
+                    group['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+            )
+
+    def test_user_can_revoke_group_system_assignments(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/system/groups/%s/roles/%s' % (
+                    group['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers
+            )
+
 
 class DomainUserTests(base_classes.TestCaseWithBootstrap,
                       common_auth.AuthTestMixin,
