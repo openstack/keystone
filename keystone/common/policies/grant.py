@@ -31,6 +31,14 @@ deprecated_revoke_system_grant_for_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'revoke_system_grant_for_user',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_check_system_grant_for_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_system_grant_for_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_system_grants_for_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_system_grants_for_group',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
 As of the Stein release, the system assignment API now understands default
@@ -201,7 +209,7 @@ grant_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_system_grants_for_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List all grants a specific group has on the system.',
         operations=[
@@ -209,11 +217,14 @@ grant_policies = [
                 'path': '/v3/system/groups/{group_id}/roles',
                 'method': ['HEAD', 'GET']
             }
-        ]
+        ],
+        deprecated_rule=deprecated_list_system_grants_for_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_system_grant_for_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='Check if a group has a role on the system.',
         operations=[
@@ -221,7 +232,10 @@ grant_policies = [
                 'path': '/v3/system/groups/{group_id}/roles/{role_id}',
                 'method': ['HEAD', 'GET']
             }
-        ]
+        ],
+        deprecated_rule=deprecated_check_system_grant_for_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_system_grant_for_group',
