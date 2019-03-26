@@ -142,7 +142,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                 user_id=self.user_id,
                 password=self.user['password'],
                 user_domain_id=self.domain_id,
-                passcode=totp._generate_totp_passcode(totp_cred['blob']))
+                passcode=totp._generate_totp_passcodes(totp_cred['blob'])[0])
             self.v3_create_token(auth_req)
 
     def test_MFA_single_method_rules_requirements_not_met_fails(self):
@@ -253,7 +253,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                 user_id=self.user_id,
                 password=self.user['password'],
                 user_domain_id=self.domain_id,
-                passcode=totp._generate_totp_passcode(totp_cred['blob']))
+                passcode=totp._generate_totp_passcodes(totp_cred['blob'])[0])
             r = self.v3_create_token(auth_data)
             auth_data = self.build_authentication_request(
                 token=r.headers.get('X-Subject-Token'),
@@ -311,7 +311,8 @@ class TestMFARules(test_v3.RestfulTestCase):
                     user_id=self.user_id,
                     user_domain_id=self.domain_id,
                     project_id=self.project_id,
-                    passcode=totp._generate_totp_passcode(totp_cred['blob'])),
+                    passcode=totp._generate_totp_passcodes(
+                        totp_cred['blob'])[0]),
                 expected_status=http_client.UNAUTHORIZED)
 
         self.assertIsNotNone(
@@ -345,7 +346,8 @@ class TestMFARules(test_v3.RestfulTestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id,
-                    passcode=totp._generate_totp_passcode(totp_cred['blob'])),
+                    passcode=totp._generate_totp_passcodes(
+                        totp_cred['blob'])[0]),
                 expected_status=http_client.UNAUTHORIZED)
 
         self.assertIsNotNone(
@@ -444,7 +446,8 @@ class TestMFARules(test_v3.RestfulTestCase):
                     user_id=self.user_id,
                     user_domain_id=self.domain_id,
                     project_id=self.project_id,
-                    passcode=totp._generate_totp_passcode(totp_cred['blob'])))
+                    passcode=totp._generate_totp_passcodes(
+                        totp_cred['blob'])[0]))
 
     def test_MFA_consuming_receipt_not_found(self):
         time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
@@ -5348,7 +5351,94 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.useFixture(fixture.TimeFixture())
 
         auth_data = self._make_auth_data_by_id(
-            totp._generate_totp_passcode(secret))
+            totp._generate_totp_passcodes(secret)[0])
+
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_with_an_expired_passcode(self):
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+
+        past = datetime.datetime.utcnow() - datetime.timedelta(minutes=2)
+        with freezegun.freeze_time(past):
+            auth_data = self._make_auth_data_by_id(
+                totp._generate_totp_passcodes(secret)[0])
+
+        # Stop the clock otherwise there is a chance of accidental success due
+        # to getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
+
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_with_an_expired_passcode_no_previous_windows(self):
+        self.config_fixture.config(group='totp',
+                                   included_previous_windows=0)
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+
+        past = datetime.datetime.utcnow() - datetime.timedelta(seconds=30)
+        with freezegun.freeze_time(past):
+            auth_data = self._make_auth_data_by_id(
+                totp._generate_totp_passcodes(secret)[0])
+
+        # Stop the clock otherwise there is a chance of accidental success due
+        # to getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
+
+        self.v3_create_token(auth_data,
+                             expected_status=http_client.UNAUTHORIZED)
+
+    def test_with_passcode_no_previous_windows(self):
+        self.config_fixture.config(group='totp',
+                                   included_previous_windows=0)
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+
+        auth_data = self._make_auth_data_by_id(
+            totp._generate_totp_passcodes(secret)[0])
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
+
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_with_passcode_in_previous_windows_default(self):
+        """Confirm previous window default of 1 works."""
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+
+        past = datetime.datetime.utcnow() - datetime.timedelta(seconds=30)
+        with freezegun.freeze_time(past):
+            auth_data = self._make_auth_data_by_id(
+                totp._generate_totp_passcodes(secret)[0])
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
+
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
+    def test_with_passcode_in_previous_windows_extended(self):
+        self.config_fixture.config(group='totp',
+                                   included_previous_windows=4)
+        creds = self._make_credentials('totp')
+        secret = creds[-1]['blob']
+
+        past = datetime.datetime.utcnow() - datetime.timedelta(minutes=2)
+        with freezegun.freeze_time(past):
+            auth_data = self._make_auth_data_by_id(
+                totp._generate_totp_passcodes(secret)[0])
+
+        # Stop the clock otherwise there is a chance of auth failure due to
+        # getting a different TOTP between the call here and the call in the
+        # auth plugin.
+        self.useFixture(fixture.TimeFixture())
 
         self.v3_create_token(auth_data, expected_status=http_client.CREATED)
 
@@ -5380,7 +5470,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.useFixture(fixture.TimeFixture())
 
         auth_data = self._make_auth_data_by_id(
-            totp._generate_totp_passcode(secret))
+            totp._generate_totp_passcodes(secret)[0])
         self.v3_create_token(auth_data, expected_status=http_client.CREATED)
 
     def test_with_multiple_users(self):
@@ -5403,7 +5493,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.useFixture(fixture.TimeFixture())
 
         auth_data = self._make_auth_data_by_id(
-            totp._generate_totp_passcode(secret), user_id=user['id'])
+            totp._generate_totp_passcodes(secret)[0], user_id=user['id'])
         self.v3_create_token(auth_data, expected_status=http_client.CREATED)
 
     def test_with_multiple_users_and_invalid_credentials(self):
@@ -5429,7 +5519,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         secret = user2_creds[-1]['blob']
 
         auth_data = self._make_auth_data_by_id(
-            totp._generate_totp_passcode(secret), user_id=user_id)
+            totp._generate_totp_passcodes(secret)[0], user_id=user_id)
         self.v3_create_token(auth_data,
                              expected_status=http_client.UNAUTHORIZED)
 
@@ -5443,7 +5533,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.useFixture(fixture.TimeFixture())
 
         auth_data = self._make_auth_data_by_name(
-            totp._generate_totp_passcode(secret),
+            totp._generate_totp_passcodes(secret)[0],
             username=self.default_domain_user['name'],
             user_domain_id=self.default_domain_user['domain_id'])
 
@@ -5451,7 +5541,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
     def test_generated_passcode_is_correct_format(self):
         secret = self._make_credentials('totp')[-1]['blob']
-        passcode = totp._generate_totp_passcode(secret)
+        passcode = totp._generate_totp_passcodes(secret)[0]
         reg = re.compile(r'^-?[0-9]+$')
         self.assertTrue(reg.match(passcode))
 

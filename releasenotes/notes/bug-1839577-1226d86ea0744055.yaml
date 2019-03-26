@@ -1,0 +1,7 @@
+---
+features:
+  - >
+    [`bug 1839577 <https://bugs.launchpad.net/keystone/+bug/1839577>`_]
+    TOTP now allows by default the code from the previous time window
+    to be considered valid as part of auth. This can be disabled, or
+    the extended up to ten previous windows.
