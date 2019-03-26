@@ -65,6 +65,42 @@ class _SystemUserSystemAssignmentTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
+    def test_user_can_list_group_system_role_assignments(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/system/groups/%s/roles' % group['id'],
+                headers=self.headers
+            )
+            self.assertEqual(1, len(r.json['roles']))
+            self.assertEqual(
+                self.bootstrapper.member_role_id, r.json['roles'][0]['id']
+            )
+
+    def test_user_can_check_group_system_role_assignments(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/system/groups/%s/roles/%s' % (
+                    group['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
+
 
 class _SystemMemberAndReaderSystemAssignmentTests(object):
 
@@ -94,6 +130,36 @@ class _SystemMemberAndReaderSystemAssignmentTests(object):
             c.delete(
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_grant_group_system_assignment(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(CONF.identity.default_domain_id)
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/system/groups/%s/roles/%s' % (
+                    group['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_revoke_group_system_assignment(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_group(
+            group['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/system/groups/%s/roles/%s' % (
+                    group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
