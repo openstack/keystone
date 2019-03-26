@@ -1,0 +1,25 @@
+---
+prelude: >
+    This release leverages oslo.policy's policy-in-code feature to modify the
+    default check strings and scope types for nearly all of keystone's API
+    policies. These changes make the policies more precise than they were
+    before, using the reader, member, and admin roles where previously only the
+    admin role and a catch-all rule was available. The changes also take
+    advantage of system, domain, and project scope, allowing you to create role
+    assignments for your users that are appropriate to the actions they need to
+    perform. Eventually this will allow you to set
+    ``[oslo_policy]/enforce_scope=true`` in your keystone configuration, which
+    simplifies access control management by ensuring that oslo.policy checks
+    both the role and the scope on API requests. However, please be aware that
+    not all policies have been converted in this release and some changes are
+    still under development.
+
+    During the transition phase, if you have not overridden a policy, the old
+    default and the new default will be OR'd together. This means that, for
+    example, where we have changed the policy rule from
+    ``'rule:admin_required'`` to ``'role:reader and system_scope:all'``, both
+    policy rules will be in effect. Please check your current policies and role
+    assignments before upgrading to ensure the policies will not be too
+    permissive for your deployment. To hide the deprecation warnings and opt
+    into the less permissive rules, you can override the policy configuration
+    to use the newer policy rule.
