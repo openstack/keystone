@@ -149,18 +149,18 @@ will perform proper invalidations of the cached methods listed above.
 For more information about the different back ends (and configuration
 options), see:
 
-- `dogpile.cache.memory <https://dogpilecache.readthedocs.io/en/latest/api.html#memory-backends>`__
+- `dogpile.cache.memory <https://dogpilecache.sqlalchemy.org/en/latest/api.html#memory-backends>`__
 
-- `dogpile.cache.memcached <https://dogpilecache.readthedocs.io/en/latest/api.html#memcached-backends>`__
+- `dogpile.cache.memcached <https://dogpilecache.sqlalchemy.org/en/latest/api.html#memcached-backends>`__
 
   .. note::
 
      The memory back end is not suitable for use in a production
      environment.
 
-- `dogpile.cache.redis <https://dogpilecache.readthedocs.io/en/latest/api.html#redis-backends>`__
+- `dogpile.cache.redis <https://dogpilecache.sqlalchemy.org/en/latest/api.html#redis-backends>`__
 
-- `dogpile.cache.dbm <https://dogpilecache.readthedocs.io/en/latest/api.html#file-backends>`__
+- `dogpile.cache.dbm <https://dogpilecache.sqlalchemy.org/en/latest/api.html#file-backends>`__
 
 Cache invalidation
 ------------------
