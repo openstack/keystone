@@ -10,6 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import uuid
+
 from six.moves import http_client
 
 from keystone.common import provider_api
@@ -62,6 +64,71 @@ class _SystemUserSystemAssignmentTests(object):
 
 
 class _SystemMemberAndReaderSystemAssignmentTests(object):
+
+    def test_user_cannot_grant_system_assignments(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(CONF.identity.default_domain_id)
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/system/users/%s/roles/%s' % (
+                    user['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_revoke_system_assignments(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/system/users/%s/roles/%s' % (
+                    user['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
+class _DomainAndProjectUserSystemAssignmentTests(object):
+
+    def test_user_cannot_list_system_role_assignments(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/system/users/%s/roles' % user['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_check_user_system_role_assignments(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(CONF.identity.default_domain_id)
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user['id'], self.bootstrapper.member_role_id
+        )
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/system/users/%s/roles/%s' % (
+                    user['id'], self.bootstrapper.member_role_id
+                ), headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
 
     def test_user_cannot_grant_system_assignments(self):
         user = PROVIDERS.identity_api.create_user(
@@ -222,3 +289,39 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers
             )
+
+
+class DomainUserTests(base_classes.TestCaseWithBootstrap,
+                      common_auth.AuthTestMixin,
+                      _DomainAndProjectUserSystemAssignmentTests):
+
+    def setUp(self):
+        super(DomainUserTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+        domain_user = unit.new_user_ref(domain_id=self.domain_id)
+        self.domain_user_id = PROVIDERS.identity_api.create_user(
+            domain_user
+        )['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id, user_id=self.domain_user_id,
+            domain_id=self.domain_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.domain_user_id, password=domain_user['password'],
+            domain_id=self.domain_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
