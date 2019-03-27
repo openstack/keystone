@@ -37,3 +37,4 @@ Contributor Documentation
    services.rst
    developing-drivers.rst
    service-catalog.rst
+   vision-reflection.rst
