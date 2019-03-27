@@ -1527,6 +1527,54 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                      validate=False,
                                      **kwargs)
 
+    def test_crud_protocol_without_protocol_id_in_url(self):
+        # NOTE(morgan): This test is redundant but is added to ensure
+        # the url routing error in bug 1817313 is explicitly covered.
+        # create a protocol, but do not put the ID in the URL
+        idp_id, _ = self._create_and_decapsulate_response()
+        mapping_id = uuid.uuid4().hex
+        self._create_mapping(mapping_id=mapping_id)
+        protocol = {
+            'id': uuid.uuid4().hex,
+            'mapping_id': mapping_id
+        }
+        with self.test_client() as c:
+            token = self.get_scoped_token()
+            # DELETE/PATCH/PUT on non-trailing `/` results in
+            # METHOD_NOT_ALLOWED
+            c.delete('/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
+                     '/protocols' % {'idp_id': idp_id},
+                     headers={'X-Auth-Token': token},
+                     expected_status_code=http_client.METHOD_NOT_ALLOWED)
+            c.patch('/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
+                    '/protocols/' % {'idp_id': idp_id},
+                    json={'protocol': protocol},
+                    headers={'X-Auth-Token': token},
+                    expected_status_code=http_client.METHOD_NOT_ALLOWED)
+            c.put('/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
+                  '/protocols' % {'idp_id': idp_id},
+                  json={'protocol': protocol},
+                  headers={'X-Auth-Token': token},
+                  expected_status_code=http_client.METHOD_NOT_ALLOWED)
+
+            # DELETE/PATCH/PUT should raise 405 with trailing '/', it is
+            # remapped to without the trailing '/' by the normalization
+            # middleware.
+            c.delete('/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
+                     '/protocols/' % {'idp_id': idp_id},
+                     headers={'X-Auth-Token': token},
+                     expected_status_code=http_client.METHOD_NOT_ALLOWED)
+            c.patch('/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
+                    '/protocols/' % {'idp_id': idp_id},
+                    json={'protocol': protocol},
+                    headers={'X-Auth-Token': token},
+                    expected_status_code=http_client.METHOD_NOT_ALLOWED)
+            c.put('/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
+                  '/protocols/' % {'idp_id': idp_id},
+                  json={'protocol': protocol},
+                  headers={'X-Auth-Token': token},
+                  expected_status_code=http_client.METHOD_NOT_ALLOWED)
+
     def test_get_head_protocol(self):
         """Create and later fetch protocol tied to IdP."""
         resp, idp_id, proto = self._assign_protocol_to_idp(

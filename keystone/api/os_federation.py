@@ -154,11 +154,10 @@ class IdentityProvidersResource(_ResourceBase):
         return None, http_client.NO_CONTENT
 
 
-class IdentityProvidersProtocolsResource(_ResourceBase):
+class _IdentityProvidersProtocolsResourceBase(_ResourceBase):
     collection_key = 'protocols'
     member_key = 'protocol'
     _public_parameters = frozenset(['id', 'mapping_id', 'links'])
-    api_prefix = '/OS-FEDERATION/identity_providers/<string:idp_id>'
     json_home_additional_parameters = {
         'idp_id': IDP_ID_PARAMETER_RELATION}
     json_home_collection_resource_name_override = 'identity_provider_protocols'
@@ -178,22 +177,10 @@ class IdentityProvidersProtocolsResource(_ResourceBase):
         ref['links']['identity_provider'] = ks_flask.base_url(
             path=ref['idp_id'])
 
-    def get(self, idp_id, protocol_id=None):
-        if protocol_id is not None:
-            return self._get_protocol(idp_id, protocol_id)
-        return self._list_protocols(idp_id)
 
-    def _get_protocol(self, idp_id, protocol_id):
-        """Get protocols for an IDP.
+class IDPProtocolsListResource(_IdentityProvidersProtocolsResourceBase):
 
-        HEAD/GET /OS-FEDERATION/identity_providers/
-                 {idp_id}/protocols/{protocol_id}
-        """
-        ENFORCER.enforce_call(action='identity:get_protocol')
-        ref = PROVIDERS.federation_api.get_protocol(idp_id, protocol_id)
-        return self.wrap_member(ref)
-
-    def _list_protocols(self, idp_id):
+    def get(self, idp_id):
         """List protocols for an IDP.
 
         HEAD/GET /OS-FEDERATION/identity_providers/{idp_id}/protocols
@@ -206,6 +193,19 @@ class IdentityProvidersProtocolsResource(_ResourceBase):
             # explicitly add related links
             self._add_related_links(r)
         return collection
+
+
+class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
+
+    def get(self, idp_id, protocol_id):
+        """Get protocols for an IDP.
+
+        HEAD/GET /OS-FEDERATION/identity_providers/
+                 {idp_id}/protocols/{protocol_id}
+        """
+        ENFORCER.enforce_call(action='identity:get_protocol')
+        ref = PROVIDERS.federation_api.get_protocol(idp_id, protocol_id)
+        return self.wrap_member(ref)
 
     def put(self, idp_id, protocol_id):
         """Create protocol for an IDP.
@@ -478,9 +478,31 @@ class OSFederationIdentityProvidersAPI(ks_flask.APIBase):
 class OSFederationIdentityProvidersProtocolsAPI(ks_flask.APIBase):
     _name = 'protocols'
     _import_name = __name__
-    _api_url_prefix = '/OS-FEDERATION/identity_providers/<string:idp_id>'
-    resources = [IdentityProvidersProtocolsResource]
-    resource_mapping = []
+    resources = []
+    resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=IDPProtocolsCRUDResource,
+            url=('/OS-FEDERATION/identity_providers/<string:idp_id>/protocols/'
+                 '<string:protocol_id>'),
+            resource_kwargs={},
+            rel='identity_provider_protocol',
+            resource_relation_func=_build_resource_relation,
+            path_vars={
+                'idp_id': IDP_ID_PARAMETER_RELATION,
+                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION
+            }
+        ),
+        ks_flask.construct_resource_map(
+            resource=IDPProtocolsListResource,
+            url='/OS-FEDERATION/identity_providers/<string:idp_id>/protocols',
+            resource_kwargs={},
+            rel='identity_provider_protocols',
+            resource_relation_func=_build_resource_relation,
+            path_vars={
+                'idp_id': IDP_ID_PARAMETER_RELATION
+            }
+        ),
+    ]
 
 
 class OSFederationMappingsAPI(ks_flask.APIBase):
