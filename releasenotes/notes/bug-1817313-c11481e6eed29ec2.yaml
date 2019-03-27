@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1817313 <https://bugs.launchpad.net/keystone/+bug/1817313>`_]
+    Raise METHOD NOT ALLOWED for OS-Federation protocols creation
+    if the protocol_id is not in the URL. The corrective action was to split
+    the LIST from CRUD resources so that the routing regexes can work as
+    expected.
