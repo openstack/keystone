@@ -919,31 +919,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self.post('/roles', auth=self.auth, body={'role': role_ref},
                   expected_status=status_created)
 
-    def test_group_management(self):
-        # First, authenticate with a user that does not have the domain
-        # admin role - shouldn't be able to do much.
-        self.auth = self.build_authentication_request(
-            user_id=self.just_a_user['id'],
-            password=self.just_a_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_group_management(
-            self.group1, expected=exception.ForbiddenAction.code)
-
-        # ...but should be able to list groups of which they are a member
-        url = '/users/%s/groups' % self.just_a_user['id']
-        self.get(url, auth=self.auth)
-
-        # Now, authenticate with a user that does have the domain admin role
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_group_management(self.group1)
-        self._test_group_management(self.group3,
-                                    expected=exception.ForbiddenAction.code)
-
     def test_group_management_by_cloud_admin(self):
         # Test groups management with a cloud admin. This user should
         # be able to manage groups in any domain.
