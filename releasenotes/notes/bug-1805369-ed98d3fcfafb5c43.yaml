@@ -4,6 +4,10 @@ features:
     [`bug 1805369 <https://bugs.launchpad.net/keystone/+bug/1805369>`_]
     The group API now supports the ``admin``, ``member``, and
     ``reader`` default roles.
+  - |
+    [`bug 1808859 <https://bugs.launchpad.net/keystone/+bug/1808859>`_]
+    The group API now supports using the ``domain`` scope type for performing
+    domain-specific actions on groups and group membership.
 upgrade:
   - |
     [`bug 1805369 <https://bugs.launchpad.net/keystone/+bug/1805369>`_]
@@ -17,20 +21,27 @@ deprecations:
     The group policies have been deprecated. The ``identity:get_group``,
     ``identity:list_groups``, ``identity:list_users_in_group``, and
     ``identity:check_user_in_group`` policies now use ``role:reader and
-    system_scope:all`` instead of ``rule:admin_required``. The
-    ``identity:list_groups_for_user`` policy now uses ``(role:reader and
-    system_scope:all) or user_id:%(user_id)s`` instead of
-    ``rule:admin_or_owner``. The ``identity:create_group``,
-    ``identity:update_group``, ``identity:delete_group``,
-    ``identity:remove_user_from_group``, and
+    system_scope:all or (role:reader and
+    domain_id:%(target.group.domain_id)s)`` instead of ``rule:admin_required``.
+    The ``identity:list_groups_for_user`` policy now uses ``(role:reader and
+    system_scope:all) or (role:reader and domain_id:%(target.user.domain_id)s)
+    or or user_id:%(user_id)s`` instead of ``rule:admin_or_owner``. The
+    ``identity:create_group``, ``identity:update_group``,
+    ``identity:delete_group``, ``identity:remove_user_from_group``, and
     ``identity:add_user_to_group`` policies now use ``role:admin and
-    system_scope:all`` instead of ``rule:admin_required``. These new defaults
-    automatically account for system-scope and support a read-only role, making
-    it easier for system administrators to delegate subsets of responsibility
-    without compromising security. Please consider these new defaults if your
-    deployment overrides group policies.
+    system_scope:all or (role:admin and domain_id:%(target.group.domain_id)s)``
+    instead of ``rule:admin_required``. These new defaults automatically
+    account for system-scope and domain-scope and support a read-only role,
+    making it easier for system administrators to delegate subsets of
+    responsibility without compromising security. Please consider these new
+    defaults if your deployment overrides group policies.
 security:
   - |
     [`bug 1805369 <https://bugs.launchpad.net/keystone/+bug/1805369>`_]
     The group API now uses system-scope and default roles to
     provide better accessibility to users in a secure way.
+  - |
+    [`bug 1808859 <https://bugs.launchpad.net/keystone/+bug/1808859>`_]
+    The group API now supports using the ``domain`` scope for the reader,
+    member, and admin role to provide better accessibility to users in a
+    secure way.
