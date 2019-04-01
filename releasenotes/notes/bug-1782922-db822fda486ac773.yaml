@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1782922 <https://bugs.launchpad.net/keystone/+bug/1782922>`_]
+    Fixed the problem where Keystone indiscriminately return the first RDN
+    as the user ID, regardless whether it matches the configured
+    'user_id_attribute' or not. This will break deployments where
+    'group_members_are_ids' are set to False and 'user_id_attribute' is not
+    in the DN. This patch will perform a lookup by DN if the first RND does
+    not match the configured 'user_id_attribute'.
