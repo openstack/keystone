@@ -174,7 +174,20 @@ class UserResource(ks_flask.ResourceBase):
             domain = self.oslo_context.domain_id
         refs = PROVIDERS.identity_api.list_users(
             domain_scope=domain, hints=hints)
-        return self.wrap_collection(refs, hints=hints)
+
+        # If the user making the request used a domain-scoped token, let's make
+        # sure we filter out users that are not in that domain. Otherwise, we'd
+        # be exposing users in other domains. This if statement is needed in
+        # case _get_domain_id_for_list_request() short-circuits due to
+        # configuration and protects against information from other domains
+        # leaking to people who shouldn't see it.
+        if self.oslo_context.domain_id:
+            domain_id = self.oslo_context.domain_id
+            users = [user for user in refs if user['domain_id'] == domain_id]
+        else:
+            users = refs
+
+        return self.wrap_collection(users, hints=hints)
 
     def post(self):
         """Create a user.
