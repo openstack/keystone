@@ -47,10 +47,16 @@ deprecated_revoke_system_grant_for_group = policy.DeprecatedRule(
     name=base.IDENTITY % 'revoke_system_grant_for_group',
     check_str=base.RULE_ADMIN_REQUIRED
 )
+deprecated_list_grants = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_grants', check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_check_grant = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_grant', check_str=base.RULE_ADMIN_REQUIRED
+)
 
 DEPRECATED_REASON = """
-As of the Stein release, the system assignment API now understands default
-roles and system-scoped tokens, making the API more granular by default without
+As of the Stein release, the assignment API now understands default roles and
+system-scoped tokens, making the API more granular by default without
 compromising security. The new policy defaults account for these changes
 automatically. Be sure to take these new defaults into consideration if you are
 relying on overrides in your deployment for the system assignment API.
@@ -99,7 +105,7 @@ list_grants_operations = (
 grant_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_grant',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         # FIXME(lbragstad): A system administrator should be able to grant role
         # assignments from any actor to any target in the deployment. Domain
         # administrators should only be able to grant access to the domain they
@@ -113,10 +119,13 @@ grant_policies = [
                      'to the OS-INHERIT APIs, where grants on the target '
                      'are inherited to all projects in the subtree, if '
                      'applicable.'),
-        operations=list_operations(resource_paths, ['HEAD', 'GET'])),
+        operations=list_operations(resource_paths, ['HEAD', 'GET']),
+        deprecated_rule=deprecated_check_grant,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_grants',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         # FIXME(lbragstad): See the above comment about scope_types before
         # adding 'project' to scope_types below.
         scope_types=['system'],
@@ -126,7 +135,10 @@ grant_policies = [
                      'is possible to list inherited role grants for actors on '
                      'domains, where grants are inherited to all projects '
                      'in the specified domain.'),
-        operations=list_grants_operations),
+        operations=list_grants_operations,
+        deprecated_rule=deprecated_list_grants,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_grant',
         check_str=base.RULE_ADMIN_REQUIRED,
