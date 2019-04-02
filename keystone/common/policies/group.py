@@ -15,8 +15,34 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-SYSTEM_READER_OR_OWNER = (
-    '(role:reader and system_scope:all) or user_id:%(user_id)s'
+SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_USER_OR_OWNER = (
+    '(role:reader and system_scope:all) or '
+    '(role:reader and domain_id:%(target.user.domain_id)s) or '
+    'user_id:%(user_id)s'
+)
+
+SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP_USER = (
+    '(role:reader and system_scope:all) or '
+    '(role:reader and '
+    'domain_id:%(target.group.domain_id)s and '
+    'domain_id:%(target.user.domain_id)s)'
+)
+
+SYSTEM_ADMIN_OR_DOMAIN_ADMIN_FOR_TARGET_GROUP_USER = (
+    '(role:admin and system_scope:all) or '
+    '(role:admin and '
+    'domain_id:%(target.group.domain_id)s and '
+    'domain_id:%(target.user.domain_id)s)'
+)
+
+SYSTEM_READER_OR_DOMAIN_READER = (
+    '(role:reader and system_scope:all) or '
+    '(role:reader and domain_id:%(target.group.domain_id)s)'
+)
+
+SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
+    '(role:admin and system_scope:all) or '
+    '(role:admin and domain_id:%(target.group.domain_id)s)'
 )
 
 DEPRECATED_REASON = """
@@ -70,14 +96,8 @@ deprecated_add_user_to_group = policy.DeprecatedRule(
 group_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_group',
-        check_str=base.SYSTEM_READER,
-        # FIXME(lbragstad): Groups have traditionally been a resource managed
-        # by system or cloud administrators. If, or when, keystone supports the
-        # ability for groups to be created or managed by project
-        # administrators, scope_types should also include 'project'. Until
-        # then, let's make sure these APIs are only accessible to system
-        # administrators.
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain'],
         description='Show group details.',
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'GET'},
@@ -88,8 +108,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_groups',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain'],
         description='List groups.',
         operations=[{'path': '/v3/groups',
                      'method': 'GET'},
@@ -100,8 +120,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_groups_for_user',
-        check_str=SYSTEM_READER_OR_OWNER,
-        scope_types=['system', 'project'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_USER_OR_OWNER,
+        scope_types=['system', 'domain', 'project'],
         description='List groups to which a user belongs.',
         operations=[{'path': '/v3/users/{user_id}/groups',
                      'method': 'GET'},
@@ -112,8 +132,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_group',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+        scope_types=['system', 'domain'],
         description='Create group.',
         operations=[{'path': '/v3/groups',
                      'method': 'POST'}],
@@ -122,8 +142,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_group',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+        scope_types=['system', 'domain'],
         description='Update group.',
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'PATCH'}],
@@ -132,8 +152,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_group',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
+        scope_types=['system', 'domain'],
         description='Delete group.',
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'DELETE'}],
@@ -142,8 +162,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users_in_group',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain'],
         description='List members of a specific group.',
         operations=[{'path': '/v3/groups/{group_id}/users',
                      'method': 'GET'},
@@ -154,8 +174,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_user_from_group',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_FOR_TARGET_GROUP_USER,
+        scope_types=['system', 'domain'],
         description='Remove user from group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'DELETE'}],
@@ -164,8 +184,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_user_in_group',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP_USER,
+        scope_types=['system', 'domain'],
         description='Check whether a user is a member of a group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'HEAD'},
@@ -176,8 +196,8 @@ group_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_user_to_group',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_FOR_TARGET_GROUP_USER,
+        scope_types=['system', 'domain'],
         description='Add user to group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'PUT'}],
