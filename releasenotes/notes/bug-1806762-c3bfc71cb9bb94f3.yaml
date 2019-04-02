@@ -10,6 +10,14 @@ upgrade:
     users with role assignments on a domain to retrieve that domain,
     as opposed to only allowing users with the ``admin`` role to access
     that policy.
+
+    All policies in ``policy.v3cloudsample.json`` that are redundant with the
+    defaults in code have been removed. This improves maintainability and
+    leaves the ``policy.v3cloudsample.json`` policy file with only
+    overrides. These overrides will eventually be moved into code or new
+    defaults in keystone directly. If you're using the policies removed
+    from ``policy.v3cloudsample.json`` please check to see if you can migrate
+    to the new defaults or continue maintaining the policy as an override.
 fixes:
   - |
     [`bug 1806762 <https://bugs.launchpad.net/keystone/+bug/1806762>`_]

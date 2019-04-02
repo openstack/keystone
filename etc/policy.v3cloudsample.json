@@ -1,8 +1,6 @@
 {
     "admin_required": "role:admin",
     "cloud_admin": "role:admin and (is_admin_project:True or domain_id:admin_domain_id)",
-    "service_role": "role:service",
-    "service_or_admin": "rule:admin_required or rule:service_role",
     "owner": "user_id:%(user_id)s or user_id:%(target.token.user_id)s",
     "admin_or_owner": "(rule:admin_required and domain_id:%(target.token.user.domain.id)s) or rule:owner",
     "admin_and_matching_domain_id": "rule:admin_required and domain_id:%(domain_id)s",
@@ -10,24 +8,16 @@
 
     "default": "rule:admin_required",
 
-    "identity:get_limit_model": "",
     "identity:get_limit": "",
-    "identity:list_limits": "",
     "identity:create_limits": "rule:admin_required",
     "identity:update_limit": "rule:admin_required",
     "identity:delete_limit": "rule:admin_required",
 
-    "identity:create_project_tag": "rule:admin_required",
-    "identity:delete_project_tag": "rule:admin_required",
     "identity:get_project_tag": "rule:admin_required",
     "identity:list_project_tags": "rule:admin_required",
-    "identity:delete_project_tags": "rule:admin_required",
-    "identity:update_project_tags": "rule:admin_required",
 
-    "identity:ec2_get_credential": "rule:admin_required or (rule:owner and user_id:%(target.credential.user_id)s)",
     "identity:ec2_list_credentials": "rule:admin_required or rule:owner",
     "identity:ec2_create_credential": "rule:admin_required or rule:owner",
-    "identity:ec2_delete_credential": "rule:admin_required or (rule:owner and user_id:%(target.credential.user_id)s)",
 
     "identity:get_domain_role": "rule:cloud_admin or rule:get_domain_roles",
     "identity:list_domain_roles": "rule:cloud_admin or rule:list_domain_roles",
@@ -78,56 +68,7 @@
     "identity:check_token": "rule:admin_or_owner",
     "identity:validate_token": "rule:service_admin_or_owner",
     "identity:validate_token_head": "rule:service_or_admin",
-    "identity:revocation_list": "rule:service_or_admin",
     "identity:revoke_token": "rule:admin_or_owner",
-
-    "identity:create_trust": "user_id:%(trust.trustor_user_id)s",
-    "identity:list_trusts": "",
-    "identity:list_roles_for_trust": "",
-    "identity:get_role_for_trust": "",
-    "identity:delete_trust": "",
-    "identity:get_trust": "",
-
-    "identity:create_consumer": "rule:admin_required",
-    "identity:get_consumer": "rule:admin_required",
-    "identity:list_consumers": "rule:admin_required",
-    "identity:delete_consumer": "rule:admin_required",
-    "identity:update_consumer": "rule:admin_required",
-
-    "identity:authorize_request_token": "rule:admin_required",
-    "identity:list_access_token_roles": "rule:admin_required",
-    "identity:get_access_token_role": "rule:admin_required",
-    "identity:list_access_tokens": "rule:admin_required",
-    "identity:get_access_token": "rule:admin_required",
-    "identity:delete_access_token": "rule:admin_required",
-
-    "identity:list_projects_for_endpoint": "rule:admin_required",
-    "identity:add_endpoint_to_project": "rule:admin_required",
-    "identity:check_endpoint_in_project": "rule:admin_required",
-    "identity:list_endpoints_for_project": "rule:admin_required",
-    "identity:remove_endpoint_from_project": "rule:admin_required",
-
-    "identity:create_endpoint_group": "rule:admin_required",
-    "identity:list_endpoint_groups": "rule:admin_required",
-    "identity:get_endpoint_group": "rule:admin_required",
-    "identity:update_endpoint_group": "rule:admin_required",
-    "identity:delete_endpoint_group": "rule:admin_required",
-    "identity:list_projects_associated_with_endpoint_group": "rule:admin_required",
-    "identity:list_endpoints_associated_with_endpoint_group": "rule:admin_required",
-    "identity:get_endpoint_group_in_project": "rule:admin_required",
-    "identity:list_endpoint_groups_for_project": "rule:admin_required",
-    "identity:add_endpoint_group_to_project": "rule:admin_required",
-    "identity:remove_endpoint_group_from_project": "rule:admin_required",
-
-    "identity:get_auth_catalog": "",
-    "identity:get_auth_projects": "",
-    "identity:get_auth_domains": "",
-    "identity:get_auth_system": "",
-
-    "identity:list_projects_for_user": "",
-    "identity:list_domains_for_user": "",
-
-    "identity:list_revoke_events": "rule:service_or_admin",
 
     "identity:create_policy_association_for_endpoint": "rule:cloud_admin",
     "identity:check_policy_association_for_endpoint": "rule:cloud_admin",
@@ -143,13 +84,7 @@
 
     "identity:create_domain_config": "rule:cloud_admin",
     "identity:get_domain_config": "rule:cloud_admin",
-    "identity:get_security_compliance_domain_config": "",
     "identity:update_domain_config": "rule:cloud_admin",
     "identity:delete_domain_config": "rule:cloud_admin",
-    "identity:get_domain_config_default": "rule:cloud_admin",
-
-    "identity:get_application_credential": "rule:admin_or_owner",
-    "identity:list_application_credentials": "rule:admin_or_owner",
-    "identity:create_application_credential": "rule:admin_or_owner",
-    "identity:delete_application_credential": "rule:admin_or_owner"
+    "identity:get_domain_config_default": "rule:cloud_admin"
 }
