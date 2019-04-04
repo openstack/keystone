@@ -4,15 +4,16 @@
 
 .. release-notes::
    :ignore-notes:
-     bp-allow-expired-f5d845b9601bc1ef.yaml,
-     bp-shadow-mapping-06fc7c71a401d707.yaml,
-     bp-support-federated-attr-94084d4073f50280.yaml,
-     integrate-osprofiler-ad0e16a542b12899.yaml,
-     bug-1561054-dbe88b552a936a05.yaml,
-     bug-1642687-5497fb56fe86806d.yaml,
-     bug-1642687-c7ab1c9be152db20.yaml,
-     bug-1642687-5497fb56fe86806d.yaml,
-     bug-1659995-f3e716de743b7291.yaml,
-     bug-1636950-8fa1a47fce440977.yaml,
-     bug-1659995-f3e716de743b7291.yaml,
-     bug-1652012-b3aea7c0d5affdb6.yaml
+     bug-1806762-c3bfc71cb9bb94f3.yaml,
+     bug-1817313-c11481e6eed29ec2.yaml,
+     bug-1806762-2092fee9f6c87dc3.yaml,
+     bug-1805369-ed98d3fcfafb5c43.yaml,
+     scope-and-default-roles-a733c235731bb558.yaml,
+     bug-1806762-09f414995924db23.yaml,
+     bug-1801873-0eb9a5ec3e801190.yaml,
+     bug-1750669-dfce859550126f03.yaml,
+     bug-1750673-b53f74944d767ae9.yaml,
+     bug-1748027-decc2e11154b97cf.yaml,
+     bug-1750660-e2a360ddd6790fc4.yaml,
+     bug-1819036-e2d24655c70d0aad.yaml,
+     bug-1805406-252b45d443af20b3.yaml,
