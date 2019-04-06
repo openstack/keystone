@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    A Federated user gets an entry in the shadow-users table. This
+    entry has a unique ID. It was generated using a UUID. This fix
+    changes to reuse the mechanism for LDAP, where the ID is generated
+    from the domain ID + the local id of the user (an attribute that
+    uniquely ids the user from the IdP). This generator is specified
+    by the configuration file. Now Both LDAP and Federated Ids are
+    generated the same way. It also means that Federated IDs can be
+    kept in sync between two independtent Keystone servers.
