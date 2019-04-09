@@ -607,6 +607,15 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
         (is_stored_as_bytes, user_id) = payload[0]
         if is_stored_as_bytes:
             user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        else:
+            # NOTE(cmurphy): The user ID of shadowed federated users is no
+            # longer a UUID but a sha256 hash string, and so it should not be
+            # converted to a byte string since it is not a UUID format.
+            # However. on python3 msgpack returns the serialized input as a
+            # byte string anyway. Similar to other msgpack'd values in the
+            # payload, we need to explicitly decode it to a string value.
+            if six.PY3 and isinstance(user_id, six.binary_type):
+                user_id = user_id.decode('utf-8')
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         (is_stored_as_bytes, scope_id) = payload[2]
         if is_stored_as_bytes:
