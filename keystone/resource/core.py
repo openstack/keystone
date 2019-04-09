@@ -186,8 +186,10 @@ class Manager(manager.Manager):
                      ) % project['name']
         else:
             return _('it is not permitted to have two projects '
-                     'with the same name in the same domain : %s'
-                     ) % project['name']
+                     'with either the same name or same id in '
+                     'the same domain: '
+                     'name is %(name)s, project id %(id)s'
+                     ) % project
 
     def create_project(self, project_id, project, initiator=None):
         project = project.copy()

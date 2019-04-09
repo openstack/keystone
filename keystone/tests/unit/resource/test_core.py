@@ -59,7 +59,8 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
 
         self.assertRaises(exception.Conflict,
                           PROVIDERS.resource_api.update_project,
-                          project['id'], {'name': project1['name']})
+                          project['id'], {'name': project1['name'],
+                                          'id': project['id']})
 
 
 class DomainConfigDriverTests(object):

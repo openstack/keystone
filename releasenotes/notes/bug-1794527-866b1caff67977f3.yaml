@@ -1,0 +1,21 @@
+---
+features:
+  - |
+    Allow the creating of a domain with the additional, optional
+    parameter of `explicit_domain_id` instead of auto-creating a
+    domain_id from a uuid.
+
+    When keeping two Keystone servers in sync, but avoiding Database
+    replication, it was often necessary to hack the database to update
+    the Domain ID so that entries match. Domain ID is then used for
+    LDAP mapped IDs, and if they don't match, the user IDs are
+    different. It should be possible to add a domain with an explicit
+    ID, so that the two servers can match User IDs.
+    The reason that the variable name is not simple `domain_id` is
+    twofold: First to keep people from thinking that this is a required, or
+    at least suggested field.  Second, to prevent copy errors when
+    creating a new domain, where the domain_id would be copied in from
+    the old one, and having spurious failures, or undesirecd domain_id
+    matching.
+
+    https://specs.openstack.org/openstack/keystone-specs/specs/keystone/stein/explicit-domains-ids.html
