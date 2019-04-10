@@ -20,7 +20,13 @@ import oslo_i18n
 from oslo_log import log
 from oslo_middleware import healthcheck
 import six
-import werkzeug.wsgi
+
+try:
+    # werkzeug 0.15.x
+    from werkzeug.middleware import dispatcher as wsgi_dispatcher
+except ImportError:
+    # werkzeug 0.14.x
+    import werkzeug.wsgi as wsgi_dispatcher
 
 import keystone.api
 from keystone import exception
@@ -167,7 +173,7 @@ def application_factory(name='public'):
     # Use the simple form of the dispatch middleware, no extra logic needed
     # for legacy dispatching. This is to mount /healthcheck at a consistent
     # place
-    app.wsgi_app = werkzeug.wsgi.DispatcherMiddleware(
+    app.wsgi_app = wsgi_dispatcher.DispatcherMiddleware(
         app.wsgi_app,
         {'/healthcheck': hc_app})
     return app
