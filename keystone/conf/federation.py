@@ -11,9 +11,15 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
+
+_DEPRECATED_MSG = utils.fmt("""
+This option has been superseded by ephemeral users existing in the domain
+of their identity provider.
+""")
 
 driver = cfg.StrOpt(
     'driver',
@@ -44,6 +50,9 @@ could be `MELLON_IDP`.
 federated_domain_name = cfg.StrOpt(
     'federated_domain_name',
     default='Federated',
+    deprecated_for_removal=True,
+    deprecated_reason=_DEPRECATED_MSG,
+    deprecated_since=versionutils.deprecated.TRAIN,
     help=utils.fmt("""
 An arbitrary domain name that is reserved to allow federated ephemeral users to
 have a domain concept. Note that an admin will not be able to create a domain
