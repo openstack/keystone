@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1779889 <https://bugs.launchpad.net/keystone/+bug/1779889>`_]
+    Adds documentation about service tokens and configuring services to use
+    service tokens for long running operations.
