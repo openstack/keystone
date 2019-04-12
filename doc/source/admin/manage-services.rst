@@ -233,3 +233,56 @@ Create service users
       | name  | admin                            |
       +-------+----------------------------------+
 
+Configuring service tokens
+--------------------------
+
+A lot of operations in OpenStack require communication between multiple
+services on behalf of the user. For example, the Image service storing the
+user's images in the Object Storage service. If the image is significantly
+large, the operation might fail due to the user's token having expired
+during upload.
+
+In the above scenarios, the Image service will attach both the user's token
+and its own token (called the service token), as per the diagram below.
+
+.. code-block:: console
+
+      +----------------+
+      |      User      |
+      +-------+--------+
+              | Access Image Data Request
+              | X-AUTH-TOKEN: <end user token>
+              |
+      +-------v---------+
+      |     Glance      |
+      +-------+---------+
+              | Access Image Data Request
+              | X-AUTH-TOKEN: <original end user token>
+              | X-SERVICE-TOKEN: <glance service user token>
+              |
+      +-------v---------+
+      |      Swift      |
+      +-----------------+
+
+
+When a service receives a call from another service, it validates that the
+token has the appropriate roles for a service user. This is configured in each
+individual service configuration, under the section ``[keystone_authtoken]``.
+
+If the service token is valid, the operation will be allowed even if the
+user's token has expired.
+
+The ``service_token_roles`` option is the list of roles that the service
+token must contain to be a valid service token. In the previous steps, we have
+assigned the `admin` role to service users, so set the option to that and set
+``service_token_roles_required`` to ``true``.
+
+.. code-block:: ini
+
+    [keystone_authtoken]
+    service_token_roles = admin
+    service_token_roles_required = true
+
+For more information regarding service tokens, please see the
+``keystonemiddleware`` `release notes
+<https://docs.openstack.org/releasenotes/keystonemiddleware/ocata.html>`_.
