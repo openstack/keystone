@@ -218,7 +218,7 @@ class Bootstrapper(object):
                 project_id=self.project_id,
                 role_id=self.admin_role_id
             )
-            LOG.info('Granted role %(role)s on project %(project)s to'
+            LOG.info('Granted role %(role)s on project %(project)s to '
                      'user %(username)s.',
                      {'role': self.admin_role_name,
                       'project': self.project_name,
