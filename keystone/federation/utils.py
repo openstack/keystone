@@ -591,12 +591,7 @@ class RuleProcessor(object):
                 raise exception.ValidationError(msg)
 
             if user_type is None:
-                user_type = user['type'] = UserType.EPHEMERAL
-
-            if user_type == UserType.EPHEMERAL:
-                user['domain'] = {
-                    'id': CONF.federation.federated_domain_name
-                }
+                user['type'] = UserType.EPHEMERAL
 
         # initialize the group_ids as a set to eliminate duplicates
         user = {}

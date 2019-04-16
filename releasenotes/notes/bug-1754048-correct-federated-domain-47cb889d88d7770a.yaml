@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1754048 <https://bugs.launchpad.net/keystone/+bug/1754048>`_]
+    The correct user domain is now reported when validating a federated token.
+    Previously, the domain would always be validated as "Federated."

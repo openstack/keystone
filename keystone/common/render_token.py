@@ -121,9 +121,6 @@ def render_token_response_from_model(token, include_catalog=True):
         token_reference['token']['user']['OS-FEDERATION'] = (
             federated_dict
         )
-        token_reference['token']['user']['domain'] = {
-            'id': 'Federated', 'name': 'Federated'
-        }
         del token_reference['token']['user']['password_expires_at']
     if token.access_token_id:
         token_reference['token']['OS-OAUTH1'] = {
