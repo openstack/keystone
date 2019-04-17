@@ -456,7 +456,7 @@ def check_endpoint_url(url):
     try:
         url.replace('$(', '%(') % substitutions
     except (KeyError, TypeError, ValueError):
-        raise exception.URLValidationError(url)
+        raise exception.URLValidationError(url=url)
 
 
 def create_directory(directory, keystone_user_id=None, keystone_group_id=None):
