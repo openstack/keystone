@@ -716,6 +716,7 @@ class SqlIdentity(SqlTests,
         # users fetched.
         self.assertNotEqual(len(first_call_users), len(second_call_users))
         self.assertEqual(first_call_counter, counter.calls)
+        self.assertEqual(3, counter.calls)
 
     def test_check_project_depth(self):
         # Create a 3 level project tree:

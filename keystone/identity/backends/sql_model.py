@@ -48,17 +48,17 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         backref='user',
         collection_class=collections.attribute_mapped_collection('option_id'))
     local_user = orm.relationship('LocalUser', uselist=False,
-                                  single_parent=True, lazy='subquery',
+                                  single_parent=True, lazy='joined',
                                   cascade='all,delete-orphan', backref='user')
     federated_users = orm.relationship('FederatedUser',
                                        single_parent=True,
-                                       lazy='subquery',
+                                       lazy='joined',
                                        cascade='all,delete-orphan',
                                        backref='user')
     nonlocal_user = orm.relationship('NonLocalUser',
                                      uselist=False,
                                      single_parent=True,
-                                     lazy='subquery',
+                                     lazy='joined',
                                      cascade='all,delete-orphan',
                                      backref='user')
     created_at = sql.Column(sql.DateTime, nullable=True)
@@ -268,7 +268,7 @@ class LocalUser(sql.ModelBase, sql.ModelDictMixin):
     passwords = orm.relationship('Password',
                                  single_parent=True,
                                  cascade='all,delete-orphan',
-                                 lazy='subquery',
+                                 lazy='joined',
                                  backref='local_user',
                                  order_by='Password.created_at_int')
     failed_auth_count = sql.Column(sql.Integer, nullable=True)
