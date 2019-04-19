@@ -14,12 +14,12 @@
           set -x
           cat > clonemap.yaml << EOF
           clonemap:
-            - name: openstack-infra/devstack-gate
+            - name: openstack/devstack-gate
               dest: devstack-gate
           EOF
           /usr/zuul-env/bin/zuul-cloner -m clonemap.yaml --cache-dir /opt/git \
-              https://git.openstack.org \
-              openstack-infra/devstack-gate
+              https://opendev.org \
+              openstack/devstack-gate
         executable: /bin/bash
         chdir: '{{ ansible_user_dir }}/workspace'
       environment: '{{ zuul | zuul_legacy_vars }}'
@@ -37,7 +37,7 @@
           disable_service s-object
           disable_service s-proxy
           ENABLE_IDENTITY_V2=False
-          enable_plugin keystone https://git.openstack.org/openstack/keystone
+          enable_plugin keystone https://opendev.org/openstack/keystone
 
           EOF
         executable: /bin/bash
