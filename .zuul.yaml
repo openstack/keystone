@@ -17,7 +17,7 @@
     post-run: playbooks/legacy/keystone-dsvm-functional/post.yaml
     timeout: 4200
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/keystone
       - openstack/keystone-tempest-plugin
     irrelevant-files:
@@ -36,7 +36,7 @@
     timeout: 4200
     voting: false
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/keystone
       - openstack/keystone-tempest-plugin
     irrelevant-files:
@@ -55,7 +55,7 @@
     timeout: 4200
     voting: false
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/keystone
       - openstack/keystone-tempest-plugin
     irrelevant-files:
@@ -123,8 +123,8 @@
       - ^keystone/tests/unit/.*$
       - ^releasenotes/.*$
     required-projects:
-      - openstack-dev/grenade
-      - openstack-infra/devstack-gate
+      - openstack/grenade
+      - openstack/devstack-gate
       - openstack/keystone
     nodeset: legacy-ubuntu-xenial-2-node
 
