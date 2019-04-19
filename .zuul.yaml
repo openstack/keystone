@@ -15,7 +15,7 @@
     parent: devstack-tempest
     timeout: 4200
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/keystone
       - openstack/keystone-tempest-plugin
     vars:
@@ -43,7 +43,7 @@
         keystone-saml2-federation: true
         tls-proxy: false
       devstack_plugins:
-        keystone: https://git.openstack.org/openstack/keystone
+        keystone: https://opendev.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
 
@@ -87,8 +87,8 @@
     post-run: playbooks/legacy/keystone-dsvm-grenade-multinode/post.yaml
     timeout: 10800
     required-projects:
-      - openstack-dev/grenade
-      - openstack-infra/devstack-gate
+      - openstack/grenade
+      - openstack/devstack-gate
       - openstack/keystone
 
 # Experimental
@@ -103,7 +103,7 @@
         keystone-saml2-federation: true
         tls-proxy: false
       devstack_plugins:
-        keystone: https://git.openstack.org/openstack/keystone
+        keystone: https://opendev.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
 
@@ -119,7 +119,7 @@
         keystone-saml2-federation: true
         tls-proxy: false
       devstack_plugins:
-        keystone: https://git.openstack.org/openstack/keystone
+        keystone: https://opendev.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
 
