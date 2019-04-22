@@ -64,10 +64,10 @@ Keystone on Launchpad
 
 Launchpad is a code hosting that OpenStack is using to track bugs, feature
 work, and releases of OpenStack. Like other OpenStack projects, Keystone source
-code is hosted on git.openstack.org
+code is hosted on opendev.org
 
 * `Keystone Project Page on Launchpad <https://launchpad.net/keystone>`_
-* `Keystone Source Repository <https://git.openstack.org/cgit/openstack/keystone>`_
+* `Keystone Source Repository <https://opendev.org/openstack/keystone>`_
 
 Within launchpad, we use
 `blueprints <https://blueprints.launchpad.net/keystone>`_, to track feature

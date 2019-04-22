@@ -89,4 +89,4 @@ Contract phase:
 For more information on writing individual migration scripts refer to
 `SQLAlchemy-migrate`_.
 
-.. _SQLAlchemy-migrate: https://git.openstack.org/cgit/openstack/sqlalchemy-migrate
+.. _SQLAlchemy-migrate: https://opendev.org/openstack/sqlalchemy-migrate

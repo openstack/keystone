@@ -233,14 +233,14 @@ in your `devstack` `local.conf`` file:
 .. code-block:: bash
 
     [[local|localrc]]
-    enable_plugin keystone https://git.openstack.org/openstack/keystone
+    enable_plugin keystone https://opendev.org/openstack/keystone
     enable_service keystone-saml2-federation
 
 Clone and install keystone-tempest-plugin.
 
 .. code-block:: bash
 
-    git clone https://git.openstack.org/openstack/keystone-tempest-plugin
+    git clone https://opendev.org/openstack/keystone-tempest-plugin
     sudo pip install ./keystone-tempest-plugin
 
 Finally, to run keystone's API and scenario tests, deploy `tempest`_ with
@@ -255,11 +255,11 @@ from the tempest directory:
    Most of keystone's API tests are implemented in `tempest`_ and it is usually
    the correct place to add new tests.
 
-.. _devstack: https://git.openstack.org/cgit/openstack-dev/devstack
+.. _devstack: https://opendev.org/openstack/devstack
 .. _devstack plugin: https://docs.openstack.org/devstack/latest/plugins.html
-.. _tempest: https://git.openstack.org/cgit/openstack/tempest
+.. _tempest: https://opendev.org/openstack/tempest
 .. _tempest plugin: https://docs.openstack.org/tempest/latest/plugin.html
-.. _repository: http://git.openstack.org/cgit/openstack/keystone-tempest-plugin
+.. _repository: http://opendev.org/openstack/keystone-tempest-plugin
 
 Writing new API & Scenario Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

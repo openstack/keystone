@@ -110,5 +110,5 @@ SEE ALSO
 SOURCE
 ======
 
-* Keystone is sourced on `git.openstack.org <https://git.openstack.org/cgit/openstack/keystone>`__
+* Keystone is sourced on `opendev.org <https://opendev.org/openstack/keystone>`__
 * Keystone bugs are managed at Launchpad `Keystone <https://bugs.launchpad.net/keystone>`__

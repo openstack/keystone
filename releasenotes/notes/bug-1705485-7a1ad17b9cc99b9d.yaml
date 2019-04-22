@@ -10,7 +10,7 @@ upgrade:
 fixes:
   - |
     [`bug 1705485 <https://bugs.launchpad.net/keystone/+bug/1705485>`_]
-    A `previous change <https://review.openstack.org/#/c/404022/>`_ removed
+    A `previous change <https://review.opendev.org/#/c/404022/>`_ removed
     policy from the self-service password API. Since a user is required to
     authenticate to change their password, protection via policy didn't
     necessarily make sense. This change removes the default policy from code,

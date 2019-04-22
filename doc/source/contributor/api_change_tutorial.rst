@@ -32,14 +32,14 @@ You need to create a blueprint, submit a specification against the
 `keystone-specs`_ repository and bring it up to discussion with the
 `keystone core team`_ for agreement.
 
-.. _`keystone-specs`: https://git.openstack.org/cgit/openstack/keystone-specs/
-.. _`keystone core team`: https://review.openstack.org/#/admin/groups/9,members
+.. _`keystone-specs`: https://opendev.org/openstack/keystone-specs/
+.. _`keystone core team`: https://review.opendev.org/#/admin/groups/9,members
 
 Create
 ~~~~~~
 
 #. `Create a blueprint`_ in launchpad;
-#. git clone https://git.openstack.org/openstack/keystone-specs;
+#. git clone https://opendev.org/openstack/keystone-specs;
 #. cp `specs/template.rst` `specs/backlog/<feature>.rst`;
 #. Write the spec based on the template. Ensure the BP link points to the one
    created in step 1;
@@ -50,7 +50,7 @@ Create
    who understands the subject can attend the meeting to answer questions.
 
 .. _`Create a blueprint`: https://blueprints.launchpad.net/keystone/+addspec
-.. _`template`: https://git.openstack.org/cgit/openstack/keystone-specs/tree/specs/template.rst
+.. _`template`: https://opendev.org/openstack/keystone-specs/src/branch/master/specs/template.rst
 .. _`keystone meeting`: https://wiki.openstack.org/wiki/Meetings/KeystoneMeeting
 
 Agreement

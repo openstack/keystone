@@ -2,4 +2,4 @@
 MOVED
 =====
 
-The keystone tempest plugin has moved to http://git.openstack.org/cgit/openstack/keystone-tempest-plugin
+The keystone tempest plugin has moved to http://opendev.org/openstack/keystone-tempest-plugin

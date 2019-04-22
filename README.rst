@@ -27,7 +27,7 @@ The API reference and documentation are available at:
 
 The canonical client library is available at:
 
-    https://git.openstack.org/cgit/openstack/python-keystoneclient
+    https://opendev.org/openstack/python-keystoneclient
 
 Documentation for cloud administrators is available at:
 
@@ -35,7 +35,7 @@ Documentation for cloud administrators is available at:
 
 The source of documentation for cloud administrators is available at:
 
-    https://git.openstack.org/cgit/openstack/openstack-manuals
+    https://opendev.org/openstack/openstack-manuals
 
 Information about our team meeting is available at:
 

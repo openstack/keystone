@@ -51,7 +51,7 @@ Need any help? `Reach out`_ to the keystone team.
 .. _keystoneauth: https://bugs.launchpad.net/keystoneauth/+bugs?field.tag=low-hanging-fruit
 .. _python-keystoneclient: https://bugs.launchpad.net/python-keystoneclient/+bugs?field.tag=low-hanging-fruit
 .. _devstack: https://docs.openstack.org/devstack/latest/
-.. _keystone maintainers: https://review.openstack.org/#/admin/groups/9,members
-.. _new changes: https://review.openstack.org/#/q/is:open+project:openstack/keystone+OR+project:openstack/keystonemiddleware+OR+project:openstack/keystoneauth+OR+project:openstack/python-keystoneclient
+.. _keystone maintainers: https://review.opendev.org/#/admin/groups/9,members
+.. _new changes: https://review.opendev.org/#/q/is:open+project:openstack/keystone+OR+project:openstack/keystonemiddleware+OR+project:openstack/keystoneauth+OR+project:openstack/python-keystoneclient
 .. _review guidelines: https://docs.openstack.org/project-team-guide/review-the-openstack-way.html
 .. _Reach out: ../getting-started/community.html
