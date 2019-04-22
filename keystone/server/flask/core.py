@@ -15,7 +15,13 @@ import os
 
 from oslo_log import log
 import stevedore
-from werkzeug.contrib import fixers
+
+try:
+    # werkzeug 0.15.x
+    from werkzeug.middleware import proxy_fix
+except ImportError:
+    # werkzeug 0.14.x
+    from werkzeug.contrib import fixers as proxy_fix
 
 from keystone.common import profiler
 import keystone.conf
@@ -126,8 +132,8 @@ def setup_app_middleware(app):
         factory_func = loaded.driver.factory({}, **mw.conf)
         app.wsgi_app = factory_func(app.wsgi_app)
 
-    # Apply werkzeug speficic middleware
-    app.wsgi_app = fixers.ProxyFix(app.wsgi_app)
+    # Apply werkzeug specific middleware
+    app.wsgi_app = proxy_fix.ProxyFix(app.wsgi_app)
     return app
 
 
