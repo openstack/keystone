@@ -195,16 +195,17 @@ class V3TokenDataHelper(provider_api.ProviderAPIMixin, object):
     def _get_app_cred_roles(self, app_cred, user_id, domain_id, project_id):
         roles = app_cred['roles']
         token_roles = []
+        assignment_list = PROVIDERS.assignment_api.list_role_assignments(
+            user_id=user_id, project_id=project_id, domain_id=domain_id,
+            effective=True
+        )
+        user_roles = list(set([x['role_id'] for x in assignment_list]))
+
         for role in roles:
-            try:
-                role_ref = PROVIDERS.assignment_api.get_grant(
-                    role['id'], user_id=user_id, domain_id=domain_id,
-                    project_id=project_id)
-                token_roles.append(role_ref)
-            except exception.RoleAssignmentNotFound:
-                pass
-        return [
-            PROVIDERS.role_api.get_role(role['id']) for role in token_roles]
+            if role['id'] in user_roles:
+                token_roles.append({'id': role['id'], 'name': role['name']})
+
+        return roles
 
     def populate_roles_for_federated_user(self, token_data, group_ids,
                                           project_id=None, domain_id=None,
