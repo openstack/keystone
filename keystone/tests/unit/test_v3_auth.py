@@ -5392,6 +5392,38 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
         self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
 
+    def test_application_credential_through_group_membership(self):
+        user1 = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+
+        group1 = unit.new_group_ref(domain_id=self.domain_id)
+        group1 = PROVIDERS.identity_api.create_group(group1)
+
+        PROVIDERS.identity_api.add_user_to_group(
+            user1['id'], group1['id']
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.role_id, group_id=group1['id'], project_id=self.project_id
+        )
+
+        app_cred = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'secret': uuid.uuid4().hex,
+            'user_id': user1['id'],
+            'project_id': self.project_id,
+            'description': uuid.uuid4().hex,
+            'roles': [{'id': self.role_id}]
+        }
+
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+
     def test_application_credential_cannot_scope(self):
         app_cred = self._make_app_cred()
         app_cred_ref = self.app_cred_api.create_application_credential(
