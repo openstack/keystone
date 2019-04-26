@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1828565 <https://bugs.launchpad.net/keystone/+bug/1828565>`_]
+    Fixes endpoint group listing by name. This allows the openstackclient
+    command to search endpoint groups by name.

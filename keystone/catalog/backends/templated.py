@@ -326,7 +326,7 @@ class Catalog(base.CatalogDriverBase):
     def get_endpoint_group_in_project(self, endpoint_group_id, project_id):
         raise exception.NotImplemented()
 
-    def list_endpoint_groups(self):
+    def list_endpoint_groups(self, hints):
         raise exception.NotImplemented()
 
     def list_endpoint_groups_for_project(self, project_id):
