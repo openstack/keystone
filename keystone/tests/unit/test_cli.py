@@ -404,6 +404,21 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
 
         self._do_test_bootstrap(self.bootstrap)
 
+    def test_endpoints_created_with_new_endpoints(self):
+        service = unit.new_service_ref(name=self.service_name, type='identity')
+        PROVIDERS.catalog_api.create_service(service['id'], service)
+        region = unit.new_region_ref(id=self.region_id)
+        PROVIDERS.catalog_api.create_region(region)
+        endpoint = unit.new_endpoint_ref(interface='public',
+                                         service_id=service['id'],
+                                         url=uuid.uuid4().hex,
+                                         region_id=self.region_id)
+        PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
+
+        self._do_test_bootstrap(self.bootstrap)
+        updated_endpoint = PROVIDERS.catalog_api.get_endpoint(endpoint['id'])
+        self.assertEqual(updated_endpoint['url'], self.bootstrap.public_url)
+
 
 class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
