@@ -1016,7 +1016,7 @@ class Manager(manager.Manager):
                 try:
                     filter_['comparator'] = operators[op]
                 except KeyError:
-                    raise exception.InvalidOperatorError(op)
+                    raise exception.InvalidOperatorError(_op=op)
         return hints
 
     def _handle_shadow_and_local_users(self, driver, hints):
