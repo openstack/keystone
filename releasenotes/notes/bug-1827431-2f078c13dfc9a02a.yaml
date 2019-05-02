@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    [`bug 1827431 <https://bugs.launchpad.net/keystone/+bug/1827431>`_]
+    Added a new user option 'ignore_user_inactivity' (defaults to False).
+    When set to True, it overrides disabling the user after being inactive
+    for certain time as set in
+    ``[security_compliance]disable_user_account_days_inactive`` option
+    in Keystone configuration file.

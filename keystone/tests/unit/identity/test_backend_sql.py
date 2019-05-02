@@ -342,6 +342,43 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         user_ref = self._get_user_ref(user['id'])
         self.assertTrue(user_ref.enabled)
 
+    def test_ignore_user_inactivity(self):
+        self.user_dict['options'] = {'ignore_user_inactivity': True}
+        user = PROVIDERS.identity_api.create_user(
+            self.user_dict)
+        # set last_active_at just beyond the max
+        last_active_at = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(self.max_inactive_days + 1)).date()
+        self._update_user_last_active_at(user['id'], last_active_at)
+        # get user and verify that the user is not disabled
+        user = PROVIDERS.identity_api.get_user(user['id'])
+        self.assertTrue(user['enabled'])
+
+    def test_ignore_user_inactivity_with_user_disabled(self):
+        user = PROVIDERS.identity_api.create_user(
+            self.user_dict)
+        # set last_active_at just beyond the max
+        last_active_at = (
+            datetime.datetime.utcnow() -
+            datetime.timedelta(self.max_inactive_days + 1)).date()
+        self._update_user_last_active_at(user['id'], last_active_at)
+        # get user and verify that the user is disabled
+        user = PROVIDERS.identity_api.get_user(user['id'])
+        self.assertFalse(user['enabled'])
+        # update disabled user with ignore_user_inactivity to true
+        user['options'] = {'ignore_user_inactivity': True}
+        user = PROVIDERS.identity_api.update_user(
+            user['id'], user)
+        # user is not enabled
+        user = PROVIDERS.identity_api.get_user(user['id'])
+        self.assertFalse(user['enabled'])
+        # Manually set enabled and test
+        user['enabled'] = True
+        PROVIDERS.identity_api.update_user(user['id'], user)
+        user = PROVIDERS.identity_api.get_user(user['id'])
+        self.assertTrue(user['enabled'])
+
     def _get_user_dict(self, password):
         user = {
             'name': uuid.uuid4().hex,
