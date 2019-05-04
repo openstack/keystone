@@ -116,7 +116,6 @@ Parameters
    - allow_redelegation: allow_redelegation
    - expires_at: trust_expires_at
    - project_id: trust_project_id
-   - redelegated_trust_id: redelegated_trust_id
    - redelegation_count: redelegation_count
    - remaining_uses: remaining_uses
    - roles: trust_roles
