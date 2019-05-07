@@ -6,7 +6,7 @@ deprecations:
     APIs. These APIs were originally marked as deprecated during the Juno
     release cycle, but we never deprecated using ``versionutils`` from oslo.
     More information regarding this deprecation can be found in the `patch
-    <https://review.openstack.org/#/c/115423/>`_ that proposed the deprecation.
+    <https://review.opendev.org/#/c/115423/>`_ that proposed the deprecation.
   - >
     [`bug 1728690 <https://bugs.launchpad.net/keystone/+bug/1728690>`_]
     The ``member_role_id`` and ``member_role_name`` config options were used to

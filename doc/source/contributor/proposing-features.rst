@@ -18,7 +18,7 @@ Proposing Features
 Requests for enhancements or new features must follow a process that requires
 using bug reports and specifications. We publish the contents of the
 `keystone-specs repository
-<https://git.openstack.org/cgit/openstack/keystone-specs>`_ at
+<https://opendev.org/openstack/keystone-specs>`_ at
 `specs.openstack.org <https://specs.openstack.org/openstack/keystone-specs/>`_.
 
 RFE Bug Reports

@@ -31,7 +31,7 @@ tree`_. Also see the :doc:`getting-started/community` page for other ways to int
 community.
 
 .. _`OpenStack's Identity API`: https://developer.openstack.org/api-ref/identity/index.html
-.. _`source tree`: https://git.openstack.org/cgit/openstack/keystone/tree/doc/source
+.. _`source tree`: https://opendev.org/openstack/keystone/src/branch/master/doc/source
 
 Related Projects
 ~~~~~~~~~~~~~~~~

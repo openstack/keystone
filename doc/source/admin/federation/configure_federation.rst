@@ -428,7 +428,7 @@ changes to your keystone configuration.
 
    # systemctl restart apache2
 
-.. _sso_callback_template.html: https://git.openstack.org/cgit/openstack/keystone/plain/etc/sso_callback_template.html
+.. _sso_callback_template.html: https://opendev.org/openstack/keystone/raw/branch/master/etc/sso_callback_template.html
 
 .. _horizon-websso:
 

@@ -53,7 +53,7 @@ Clone the keystone repository:
 
 .. code-block:: bash
 
-    $ git clone https://git.openstack.org/openstack/keystone.git
+    $ git clone https://opendev.org/openstack/keystone.git
     $ cd keystone
 
 Install the keystone web service:
@@ -218,5 +218,5 @@ keystone client library `python-keystoneclient`_ which interacts exclusively
 through the REST API, and a command-line interface `python-openstackclient`_
 command-line interface.
 
-.. _`python-keystoneclient`: https://git.openstack.org/cgit/openstack/python-keystoneclient
-.. _`python-openstackclient`: https://git.openstack.org/cgit/openstack/python-openstackclient
+.. _`python-keystoneclient`: https://opendev.org/openstack/python-keystoneclient
+.. _`python-openstackclient`: https://opendev.org/openstack/python-openstackclient

@@ -325,7 +325,7 @@ being checked for:
 Other systems wishing to use the policy engine will require additional styles
 of checks and will possibly write completely custom backends. By default,
 keystone leverages policy enforcement that is maintained in `oslo.policy
-<https://git.openstack.org/cgit/openstack/oslo.policy/>`_.
+<https://opendev.org/openstack/oslo.policy/>`_.
 
 
 Rules

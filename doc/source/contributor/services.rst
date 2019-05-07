@@ -408,8 +408,8 @@ personas where applicable in your service:
 
 .. _need: https://en.wikipedia.org/wiki/Principle_of_least_privilege
 .. _oslo.policy documentation: https://docs.openstack.org/oslo.policy/latest/user/usage.html#testing-default-policies
-.. _keystone: https://git.openstack.org/cgit/openstack/keystone/tree/keystone/tests/unit/protection/v3?id=77e50e49c5af37780b8b4cfe8721ba28e8a58183
-.. _cinder: https://review.openstack.org/#/c/602489/
+.. _keystone: https://opendev.org/openstack/keystone/src/commit/77e50e49c5af37780b8b4cfe8721ba28e8a58183/keystone/tests/unit/protection/v3
+.. _cinder: https://review.opendev.org/#/c/602489/
 
 Auditing the API
 ----------------
@@ -469,9 +469,9 @@ the `OpenStack Discuss mailing list`_ tagged with `[keystone]` or ask in
 
 .. _configurable: https://docs.openstack.org/oslo.policy/latest/configuration/index.html#oslo_policy.enforce_scope
 .. _documentation for setting scope: https://docs.openstack.org/oslo.policy/latest/user/usage.html#setting-scope
-.. _keystone examples: https://review.openstack.org/#/q/status:merged+project:openstack/keystone+branch:master+topic:add-scope-types
-.. _placement examples: https://review.openstack.org/#/c/571201/
-.. _patches: https://review.openstack.org/#/c/623319/
+.. _keystone examples: https://review.opendev.org/#/q/status:merged+project:openstack/keystone+branch:master+topic:add-scope-types
+.. _placement examples: https://review.opendev.org/#/c/571201/
+.. _patches: https://review.opendev.org/#/c/623319/
 .. _OpenStack Discuss mailing list: http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-discuss
 .. _IRC: https://wiki.openstack.org/wiki/IRC
 
@@ -488,7 +488,7 @@ deprecation tooling when you change policy names or check strings. You can
 refer to examples_ that show you how to build descriptive rule objects using
 all the default roles from keystone and consuming scopes.
 
-.. _examples: https://review.openstack.org/#/q/(status:open+OR+status:merged)+project:openstack/keystone+branch:master+topic:implement-default-roles
+.. _examples: https://review.opendev.org/#/q/(status:open+OR+status:merged)+project:openstack/keystone+branch:master+topic:implement-default-roles
 
 Communication
 -------------
