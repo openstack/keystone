@@ -80,7 +80,7 @@ CONF = keystone.conf.CONF
 
 # NOTE(morganfainberg): Special case notifications that are only used
 # internally for handling token persistence token deletions
-INVALIDATE_TOKEN_CACHE = 'invalidate_token_cache'
+INVALIDATE_TOKEN_CACHE = 'invalidate_token_cache'  # nosec
 PERSIST_REVOCATION_EVENT_FOR_USER = 'persist_revocation_event_for_user'
 REMOVE_APP_CREDS_FOR_USER = 'remove_application_credentials_for_user'
 DOMAIN_DELETED = 'domain_deleted'

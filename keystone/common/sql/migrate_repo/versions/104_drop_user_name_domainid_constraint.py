@@ -16,7 +16,7 @@ import sqlalchemy as sql
 _USER_TABLE_NAME = 'user'
 _USER_NAME_COLUMN_NAME = 'name'
 _USER_DOMAINID_COLUMN_NAME = 'domain_id'
-_USER_PASSWORD_COLUMN_NAME = 'password'
+_USER_PASSWORD_COLUMN_NAME = 'password'  # nosec
 
 
 def upgrade(migrate_engine):
