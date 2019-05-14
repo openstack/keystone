@@ -55,3 +55,28 @@ Need any help? `Reach out`_ to the keystone team.
 .. _new changes: https://review.opendev.org/#/q/is:open+project:openstack/keystone+OR+project:openstack/keystonemiddleware+OR+project:openstack/keystoneauth+OR+project:openstack/python-keystoneclient
 .. _review guidelines: https://docs.openstack.org/project-team-guide/review-the-openstack-way.html
 .. _Reach out: ../getting-started/community.html
+
+The Meaning of Low Hanging Fruit
+================================
+
+This section describes the intent behind bugs tagged as low hanging fruit.
+Current maintainers should apply the tag consistently while triaging bugs,
+using this document as a guide. This practice ensures newcomers to the project
+can expect each low hanging fruit bug to be of similar complexity.
+
+Bugs fit for the low hanging fruit tag:
+
+* Should require minimal python experience, someone new to OpenStack might also
+  be new to python
+* Should only require a basic understanding of the review workflow, complicated
+  changesets with dependencies between repositories coupled with CI testing
+  only raises the cognitive bar for new contributors
+* Can include documentation fixes so long it doesn't require an
+  in-depth understanding of complicated subsystems and features (e.g.,
+  overhauling the federated identity guide)
+* Should be something a newcomer can progress through in a week or less, long
+  wait times due to the discussion of complicated topics can deter new
+  contributors from participating
+* Shouldn't require a new contributor to understand copious amounts of
+  historical context, newcomers should eventually understand this information
+  but consuming that information is outside the scope of low hanging fruit
