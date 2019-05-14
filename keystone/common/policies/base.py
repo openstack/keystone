@@ -24,9 +24,10 @@ RULE_ADMIN_OR_TARGET_DOMAIN = (
 RULE_ADMIN_OR_TARGET_PROJECT = (
     'rule:admin_required or '
     'project_id:%(target.project.id)s')
-RULE_ADMIN_OR_TOKEN_SUBJECT = 'rule:admin_or_token_subject'
+RULE_ADMIN_OR_TOKEN_SUBJECT = 'rule:admin_or_token_subject'  # nosec
 RULE_REVOKE_EVENT_OR_ADMIN = 'rule:revoke_event_or_admin'
-RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT = 'rule:service_admin_or_token_subject'
+RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT = (
+    'rule:service_admin_or_token_subject')  # nosec
 RULE_SERVICE_OR_ADMIN = 'rule:service_or_admin'
 RULE_TRUST_OWNER = 'user_id:%(trust.trustor_user_id)s'
 

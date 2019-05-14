@@ -25,11 +25,11 @@ from keystone import exception
 
 
 # Header used to transmit the auth token
-AUTH_TOKEN_HEADER = 'X-Auth-Token'
+AUTH_TOKEN_HEADER = 'X-Auth-Token'  # nosec
 
 
 # Header used to transmit the subject token
-SUBJECT_TOKEN_HEADER = 'X-Subject-Token'
+SUBJECT_TOKEN_HEADER = 'X-Subject-Token'  # nosec
 
 
 CONF = conf.CONF

@@ -58,7 +58,7 @@ class Manager(manager.Manager):
     driver_namespace = 'keystone.assignment'
     _provides_api = 'assignment_api'
 
-    _SYSTEM_SCOPE_TOKEN = 'system'
+    _SYSTEM_SCOPE_TOKEN = 'system'  # nosec
     _USER_SYSTEM = 'UserSystem'
     _GROUP_SYSTEM = 'GroupSystem'
     _PROJECT = 'project'
