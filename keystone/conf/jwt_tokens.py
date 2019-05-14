@@ -24,7 +24,7 @@ directory must exist in order for keystone's server process to start. It must
 also be readable by keystone's server process. It must contain at least one
 public key that corresponds to a private key in `keystone.conf [jwt_tokens]
 jws_private_key_repository`. This option is only applicable in deployments
-issuing JWS tokens and setting `keystone.conf [tokens] provider = jws`.
+issuing JWS tokens and setting `keystone.conf [token] provider = jws`.
 """))
 jws_private_key_repository = cfg.StrOpt(
     'jws_private_key_repository',
@@ -39,7 +39,7 @@ this directory, keystone will use a key named `private.pem` to sign tokens. In
 the future, keystone may support the ability to sign tokens with multiple
 private keys. For now, only a key named `private.pem` within this directory is
 required to issue JWS tokens. This option is only applicable in deployments
-issuing JWS tokens and setting `keystone.conf [tokens] provider = jws`.
+issuing JWS tokens and setting `keystone.conf [token] provider = jws`.
 """))
 
 
