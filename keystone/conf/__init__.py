@@ -48,7 +48,6 @@ from keystone.conf import role
 from keystone.conf import saml
 from keystone.conf import security_compliance
 from keystone.conf import shadow_users
-from keystone.conf import signing
 from keystone.conf import token
 from keystone.conf import tokenless_auth
 from keystone.conf import trust
@@ -87,7 +86,6 @@ conf_modules = [
     saml,
     security_compliance,
     shadow_users,
-    signing,
     token,
     tokenless_auth,
     trust,
