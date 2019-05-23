@@ -646,8 +646,6 @@ class Manager(manager.Manager):
             indirect['role_id'] = prior_ref['role_id']
             return implied_ref
 
-        if not CONF.token.infer_roles:
-            return role_refs
         try:
             implied_roles_cache = {}
             role_refs_to_check = list(role_refs)
