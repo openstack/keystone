@@ -19,8 +19,6 @@ from keystone.common import driver_hints
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
-from keystone.tests import unit
-from keystone.tests.unit.ksfixtures import access_rules_config
 
 
 CONF = keystone.conf.CONF
@@ -106,40 +104,6 @@ class ApplicationCredentialTests(object):
         self.app_cred_api.create_application_credential(app_cred)
         app_cred['name'] = 'three'
         self.assertRaises(exception.ApplicationCredentialLimitExceeded,
-                          self.app_cred_api.create_application_credential,
-                          app_cred)
-
-    def test_create_application_credential_with_access_rules(self):
-        self.config_fixture.config(group='access_rules_config', permissive=True)
-        app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           project_id=self.project_bar['id'])
-        app_cred['access_rules'] = [{
-            'service': uuid.uuid4().hex,
-            'path': uuid.uuid4().hex,
-            'method': uuid.uuid4().hex[16:]
-        }]
-        resp = self.app_cred_api.create_application_credential(app_cred)
-        resp.pop('roles')
-        resp_access_rules = resp.pop('access_rules')
-        app_cred.pop('roles')
-        orig_access_rules = app_cred.pop('access_rules')
-        self.assertDictEqual(app_cred, resp)
-        for i, ar in enumerate(resp_access_rules):
-            self.assertDictEqual(orig_access_rules[i], ar)
-
-    def test_create_application_credential_with_invalid_access_rule(self):
-        rules_file = '%s/access_rules.json' % unit.TESTCONF
-        self.useFixture(access_rules_config.AccessRulesConfig(
-            self.config_fixture, rules_file=rules_file))
-        self.load_backends()
-        app_cred = self._new_app_cred_data(self.user_foo['id'],
-                                           project_id=self.project_bar['id'])
-        app_cred['access_rules'] = [{
-            'service': uuid.uuid4().hex,
-            'path': uuid.uuid4().hex,
-            'method': uuid.uuid4().hex[16:]
-        }]
-        self.assertRaises(exception.AccessRuleNotAllowed,
                           self.app_cred_api.create_application_credential,
                           app_cred)
 
