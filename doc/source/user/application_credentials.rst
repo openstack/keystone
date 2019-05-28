@@ -220,3 +220,18 @@ Rotating an application credential is a simple process:
 
 #. When your application is fully set up with the new application credential,
    delete the old one.
+
+Frequently Asked Questions
+==========================
+
+Why is the application credential owned by the user rather than the project?
+----------------------------------------------------------------------------
+
+Having application credentials be owned by a project rather than by an
+individual user would be convenient for cases where teams want applications to
+continue running after the creating user has left the team. However, this would
+open up a security hole by which the creating user could still gain access to
+the resources accessible by the application credential even after the user is
+disabled. Rather than relying on the application credential persisting after
+users are disabled, it is recommended to proactively rotate the application
+credential to another user prior to the original creating user being disabled.
