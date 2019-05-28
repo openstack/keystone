@@ -20,7 +20,6 @@ import oslo_messaging
 from oslo_middleware import cors
 from osprofiler import opts as profiler
 
-from keystone.conf import access_rules_config
 from keystone.conf import application_credential
 from keystone.conf import assignment
 from keystone.conf import auth
@@ -59,7 +58,6 @@ CONF = cfg.CONF
 
 
 conf_modules = [
-    access_rules_config,
     application_credential,
     assignment,
     auth,
