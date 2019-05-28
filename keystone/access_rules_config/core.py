@@ -12,18 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""List access rules config."""
+"""List access rules."""
 
 from keystone.common import cache
-from keystone.common import driver_hints
 from keystone.common import manager
-from keystone.common import provider_api
 import keystone.conf
 
 
 CONF = keystone.conf.CONF
 MEMOIZE = cache.get_memoization_decorator(group='access_rules_config')
-PROVIDERS = provider_api.ProviderAPIs
 
 
 class Manager(manager.Manager):
@@ -44,22 +41,6 @@ class Manager(manager.Manager):
                   HTTP method.
 
         """
-        if CONF.access_rules_config.permissive:
-            hints = driver_hints.Hints()
-            if service:
-                hints.add_filter('service', service)
-            rules = {}
-            services = PROVIDERS.catalog_api.list_services(hints=hints)
-            if service:
-                services = [svc for svc in services if svc['type'] == service]
-            for svc in services:
-                rules[svc['type']] = []
-                for method in ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
-                    rules[svc['type']].append({
-                        "path": "**",
-                        "method": method
-                    })
-            return rules
         return self.driver.list_access_rules_config(service)
 
     @MEMOIZE
@@ -74,7 +55,5 @@ class Manager(manager.Manager):
                   configured access rules
 
         """
-        if CONF.access_rules_config.permissive:
-            return True
         return self.driver.check_access_rule(service, request_path,
                                              request_method)
