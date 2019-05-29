@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1815771 <https://bugs.launchpad.net/keystone/+bug/1815771>`_]
+    Allows operators to cache credentials to avoid lookups on the database.
+    This operation can be turned on/off through the configuration parameter of
+    keystone.conf [credential] caching.
