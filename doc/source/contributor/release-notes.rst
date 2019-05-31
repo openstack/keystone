@@ -72,33 +72,33 @@ providing readers with additional resources:
         Changes the token_model to return is_admin_project False if the
         attribute is not defined. Returning True for this has the potential to
         be dangerous and the given reason for keeping it True was strictly for
-        backwards compatability.
+        backwards compatibility.
 
 
 Release Notes for Features
 ==========================
 
-Release notes detailing feature work follow the same basic format, but instead
-of using the bug number in the name of the release note, use the blueprint slug
-used to track the feature work:
+Release notes detailing feature work follow the same basic format, since features
+are also tracked as bugs.
 
 .. code-block:: bash
 
-    $ reno new bp-support-fizzbangs
-    Created new notes file in releasenotes/notes/bp-support-fizzbangs-d8f6a3d81c2a465f.yaml
+    $ reno new bug-1652012
+    Created new notes file in releasenotes/notes/bug-1652012-7c53b9702b10084d.yaml
 
 Just like release notes communicating bug fixes, release notes detailing
-feature work must contain a link back to the blueprint. Readers should be able
+feature work must contain a link back to the RFE bug report. Readers should be able
 to easily discover all patches that implement the feature, as well as find
-links to the full specification and documentation. All of this is typically
-found in the blueprint registered in Launchpad:
+links to the full specification and documentation. The release notes can be added to
+the last patch of the feature. All of this is typically found in the RFE bug report
+registered in Launchpad:
 
 .. code-block:: yaml
 
     ---
     features:
       - >
-        [`blueprint support-fizzbangs <https://blueprints.launchpad.net/keystone/+spec/support-fizzbangs>`_]
+        [`bug 1652012 <https://bugs.launchpad.net/keystone/+bug/1652012>`_]
         Keystone now fully supports the usage of fizzbangs.
 
 In the rare case there is a release note that does not pertain to a bug or
