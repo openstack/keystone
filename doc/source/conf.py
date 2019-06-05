@@ -53,6 +53,16 @@ apidoc_excluded_paths = [
     'test']
 apidoc_separate_modules = True
 
+autodoc_default_options = {
+    'exclude-members': 'Column,Index,String,Integer,Enum,ForeignKey,DateTime,'
+                       'Date,TIMESTAMP,IntegrityError,OperationalError,'
+                       'NotFound,Boolean,Text,UniqueConstraint,'
+                       'PrimaryKeyConstraint,joinedload,Unicode,'
+                       'RequestValidator,Client,AccessTokenEndpoint,'
+                       'ResourceEndpoint,AuthorizationEndpoint,SIG_HMAC,'
+                       'RequestTokenEndpoint,oRequest'
+}
+
 # sphinxcontrib.seqdiag options
 seqdiag_antialias = True
 seqdiag_html_image_format = 'SVG'
