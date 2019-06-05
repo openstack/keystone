@@ -331,13 +331,15 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
         table = sqlalchemy.Table(table_name, self.metadata, autoload=True)
         return index_name in [idx.name for idx in table.indexes]
 
-    def does_unique_constraint_exist(self, table_name, column_name):
+    def does_unique_constraint_exist(self, table_name, column_names):
         inspector = reflection.Inspector.from_engine(self.engine)
         constraints = inspector.get_unique_constraints(table_name)
         for c in constraints:
             if (len(c['column_names']) == 1 and
-                    column_name in c['column_names']):
+                    column_names in c['column_names']):
                 return True
+            if (len(c['column_names'])) > 1 and isinstance(column_names, list):
+                return set(c['column_names']) == set(column_names)
         return False
 
 
@@ -3406,6 +3408,31 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
             federation_protocol_table_name,
             ['id', 'idp_id', 'mapping_id', 'remote_id_attribute']
         )
+
+    def test_migration_065_add_user_external_id_to_access_rule(self):
+        self.expand(64)
+        self.migrate(64)
+        self.contract(64)
+
+        self.assertTableColumns(
+            'access_rule',
+            ['id', 'service', 'path', 'method']
+        )
+
+        self.expand(65)
+        self.migrate(65)
+        self.contract(65)
+
+        self.assertTableColumns(
+            'access_rule',
+            ['id', 'external_id', 'user_id', 'service', 'path', 'method']
+        )
+        self.assertTrue(self.does_index_exist('access_rule', 'external_id'))
+        self.assertTrue(self.does_index_exist('access_rule', 'user_id'))
+        self.assertTrue(self.does_unique_constraint_exist(
+            'access_rule', 'external_id'))
+        self.assertTrue(self.does_unique_constraint_exist(
+            'access_rule', ['user_id', 'service', 'path', 'method']))
 
 
 class MySQLOpportunisticFullMigration(FullMigration):

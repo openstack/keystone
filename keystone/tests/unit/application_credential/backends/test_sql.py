@@ -41,6 +41,8 @@ class SQLModelTestCase(core_sql.BaseBackendSqlModels):
 
     def test_access_rule_model(self):
         cols = (('id', sql.Integer, None),
+                ('external_id', sql.String, 64),
+                ('user_id', sql.String, 64),
                 ('service', sql.String, 64),
                 ('path', sql.String, 128),
                 ('method', sql.String, 16))
