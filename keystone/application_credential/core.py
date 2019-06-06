@@ -127,12 +127,13 @@ class Manager(manager.Manager):
         user_id = application_credential['user_id']
         project_id = application_credential['project_id']
         roles = application_credential.pop('roles', [])
+        access_rules = application_credential.pop('access_rules', None)
 
         self._assert_limit_not_exceeded(user_id)
         self._require_user_has_role_in_project(roles, user_id, project_id)
         unhashed_secret = application_credential['secret']
         ref = self.driver.create_application_credential(
-            application_credential, roles)
+            application_credential, roles, access_rules)
         ref['secret'] = unhashed_secret
         ref = self._process_app_cred(ref)
         notifications.Audit.created(
