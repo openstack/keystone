@@ -53,6 +53,9 @@ apidoc_excluded_paths = [
     'test']
 apidoc_separate_modules = True
 
+# NOTE(cmurphy) exclude these module constants from being autodoc'd, because
+# they pull in the documentation from external modules
+# https://github.com/sphinx-doc/sphinx/issues/6447
 autodoc_default_options = {
     'exclude-members': 'Column,Index,String,Integer,Enum,ForeignKey,DateTime,'
                        'Date,TIMESTAMP,IntegrityError,OperationalError,'
@@ -60,7 +63,8 @@ autodoc_default_options = {
                        'PrimaryKeyConstraint,joinedload,Unicode,'
                        'RequestValidator,Client,AccessTokenEndpoint,'
                        'ResourceEndpoint,AuthorizationEndpoint,SIG_HMAC,'
-                       'RequestTokenEndpoint,oRequest'
+                       'RequestTokenEndpoint,oRequest,'
+                       'CONF,LOG'
 }
 
 # sphinxcontrib.seqdiag options
