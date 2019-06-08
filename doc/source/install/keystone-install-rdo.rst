@@ -153,6 +153,8 @@ Configure the Apache HTTP server
 
    .. end
 
+   The ``ServerName`` entry will need to be added if it does not already exist.
+
 #. Create a link to the ``/usr/share/keystone/wsgi-keystone.conf`` file:
 
    .. code-block:: console
@@ -181,7 +183,7 @@ Finalize the installation
 
    .. end
 
-2. Configure the administrative account
+2. Configure the administrative account by setting the proper environmental variables:
 
    .. code-block:: console
 
@@ -194,6 +196,8 @@ Finalize the installation
       $ export OS_IDENTITY_API_VERSION=3
 
    .. end
+
+   These values shown here are the default ones created from ``keystone-manage bootstrap``.
 
    Replace ``ADMIN_PASS`` with the password used in the
    ``keystone-manage bootstrap`` command in `keystone-install-configure-rdo`_.
