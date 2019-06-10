@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -36,24 +35,6 @@ this does NOT affect how Keystone listens for connections). Defaults to the
 base host URL of the request. For example, if keystone receives a request to
 `http://server:5000/v3/users`, then this will option will be automatically
 treated as `http://server:5000`. You should only need to set option if either
-the value of the base URL contains a path that keystone does not automatically
-infer (`/prefix/v3`), or if the endpoint should be found on a different host.
-"""))
-
-admin_endpoint = cfg.URIOpt(
-    'admin_endpoint',
-    deprecated_since=versionutils.deprecated.ROCKY,
-    deprecated_for_removal=True,
-    deprecated_reason=utils.fmt("""
-With the removal of the 2.0 API keystone does not distinguish between admin
-and public endpoints.
-"""),
-    help=utils.fmt("""
-The base admin endpoint URL for Keystone that is advertised to clients (NOTE:
-this does NOT affect how Keystone listens for connections). Defaults to the
-base host URL of the request. For example, if keystone receives a request to
-`http://server:35357/v3/users`, then this will option will be automatically
-treated as `http://server:35357`. You should only need to set option if either
 the value of the base URL contains a path that keystone does not automatically
 infer (`/prefix/v3`), or if the endpoint should be found on a different host.
 """))
@@ -160,7 +141,6 @@ GROUP_NAME = 'DEFAULT'
 ALL_OPTS = [
     admin_token,
     public_endpoint,
-    admin_endpoint,
     max_project_tree_depth,
     max_param_size,
     max_token_size,
