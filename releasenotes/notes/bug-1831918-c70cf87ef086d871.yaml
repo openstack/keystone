@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1831918 <https://bugs.launchpad.net/keystone/+bug/1831918>`_]
+    Credentials now logs cadf audit messages.
+
