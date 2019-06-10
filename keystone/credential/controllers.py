@@ -86,7 +86,8 @@ class CredentialV3(controller.V3Controller):
                                      trust_id=trust_id,
                                      app_cred_id=app_cred_id,
                                      access_token_id=access_token_id)
-        ref = PROVIDERS.credential_api.create_credential(ref['id'], ref)
+        ref = PROVIDERS.credential_api.create_credential(
+            ref['id'], ref, initiator=request.audit_initiator)
         return CredentialV3.wrap_member(request.context_dict, ref)
 
     @staticmethod
@@ -147,4 +148,5 @@ class CredentialV3(controller.V3Controller):
 
     @controller.protected()
     def delete_credential(self, request, credential_id):
-        return PROVIDERS.credential_api.delete_credential(credential_id)
+        return (PROVIDERS.credential_api.delete_credential(credential_id,
+                initiator=request.audit_initiator))
