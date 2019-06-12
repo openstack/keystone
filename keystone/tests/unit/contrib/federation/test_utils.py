@@ -44,19 +44,18 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         """Check whether mapped properties object has 'user' within.
 
         According to today's rules, RuleProcessor does not have to issue user's
-        id or name. What's actually required is user's type and for ephemeral
-        users that would be service domain named 'Federated'.
+        id or name. What's actually required is user's type.
         """
         self.assertIn('user', mapped_properties,
                       message='Missing user object in mapped properties')
         user = mapped_properties['user']
         self.assertIn('type', user)
         self.assertEqual(user_type, user['type'])
-        self.assertIn('domain', user)
-        domain = user['domain']
-        domain_name_or_id = domain.get('id') or domain.get('name')
-        domain_ref = domain_id or 'Federated'
-        self.assertEqual(domain_ref, domain_name_or_id)
+
+        if domain_id:
+            domain = user['domain']
+            domain_name_or_id = domain.get('id') or domain.get('name')
+            self.assertEqual(domain_id, domain_name_or_id)
 
     def test_rule_engine_any_one_of_and_direct_mapping(self):
         """Should return user's name and group id EMPLOYEE_GROUP_ID.
@@ -912,7 +911,6 @@ class TestMappingLocals(unit.BaseTestCase):
         expected = {
             'user': {
                 'name': 'a_user',
-                'domain': {'id': 'Federated'},
                 'type': 'ephemeral'
             },
             'projects': [],
@@ -930,7 +928,6 @@ class TestMappingLocals(unit.BaseTestCase):
         expected = {
             'user': {
                 'name': 'test_a_user',
-                'domain': {'id': 'Federated'},
                 'type': 'ephemeral'
             },
             'projects': [],

@@ -1813,9 +1813,6 @@ class TestMappingEngineTester(unit.BaseTestCase):
                 "group_names": [],
                 "user": {
                     "type": "ephemeral",
-                    "domain": {
-                        "id": "Federated"
-                    },
                     "name": "me"
                 },
                 "projects": [],

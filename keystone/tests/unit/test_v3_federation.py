@@ -84,8 +84,9 @@ class FederatedSetupMixin(object):
     }
 
     def _check_domains_are_valid(self, token):
-        self.assertEqual('Federated', token['user']['domain']['id'])
-        self.assertEqual('Federated', token['user']['domain']['name'])
+        domain = PROVIDERS.resource_api.get_domain(self.idp['domain_id'])
+        self.assertEqual(domain['id'], token['user']['domain']['id'])
+        self.assertEqual(domain['name'], token['user']['domain']['name'])
 
     def _project(self, project):
         return (project['id'], project['name'])
