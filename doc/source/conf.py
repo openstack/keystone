@@ -42,7 +42,12 @@ extensions = ['sphinx.ext.coverage',
               'sphinxcontrib.apidoc',
               'sphinxcontrib.seqdiag',
               'sphinx_feature_classification.support_matrix',
+              'sphinxcontrib.blockdiag'
               ]
+
+blockdiag_html_image_format = 'SVG'
+
+blockdiag_fontpath = 'DejaVuSans.ttf'
 
 # sphinxcontrib.apidoc options
 apidoc_module_dir = '../../keystone'
