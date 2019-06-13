@@ -10,54 +10,74 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+DEPRECATED_REASON = """
+As of the Train release, the token API now understands how to handle
+system-scoped tokens, making the API more accessible to users without
+compromising security or manageability for administrators. This support
+includes a read-only role by default.
+"""
+
+deprecated_check_token = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_token',
+    check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT
+)
+deprecated_validate_token = policy.DeprecatedRule(
+    name=base.IDENTITY % 'validate_token',
+    check_str=base.RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT
+)
+deprecated_revoke_token = policy.DeprecatedRule(
+    name=base.IDENTITY % 'revoke_token',
+    check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT
+)
+
+SYSTEM_ADMIN_OR_TOKEN_SUBJECT = (
+    '(role:admin and system_scope:all) or rule:token_subject'  # nosec
+)
+SYSTEM_USER_OR_TOKEN_SUBJECT = (
+    '(role:reader and system_scope:all) or rule:token_subject'  # nosec
+)
+SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT = (
+    '(role:reader and system_scope:all) '  # nosec
+    'or rule:service_role or rule:token_subject'  # nosec
+)
+
+
 token_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_token',
-        check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT,
-        # FIXME(lbragstad): Token validation should be handled within keystone,
-        # but it makes sense to have this be a system-level operation and a
-        # project-level operation. If this API is called by a system-level
-        # administrator, they should be able to check any token. If this API
-        # is called by a project administrator, then the token should be
-        # checked with respect to the project the administrator has a role on.
-        # Otherwise it would be possible for administrators in one project to
-        # validate tokens scoped to another project, which is a security
-        # concern. Note the following line should be uncommented once keystone
-        # supports the ability for project administrators to validate tokens
-        # only within their project.
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_USER_OR_TOKEN_SUBJECT,
+        scope_types=['system', 'domain', 'project'],
         description='Check a token.',
         operations=[{'path': '/v3/auth/tokens',
-                     'method': 'HEAD'}]),
+                     'method': 'HEAD'}],
+        deprecated_rule=deprecated_check_token,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'validate_token',
-        check_str=base.RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT,
-        # FIXME(lbragstad): See the comment above about why this is commented
-        # out. If this weren't commented out and the `enforce_scope` were set
-        # to True, then users with project-scoped tokens would no longer be
-        # able to validate them by setting the same token as the X-Auth-Header
-        # and X-Subject-Token.
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT,
+        scope_types=['system', 'domain', 'project'],
         description='Validate a token.',
         operations=[{'path': '/v3/auth/tokens',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_validate_token,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_token',
-        check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT,
-        # FIXME(lbragstad): System administrators should be able to revoke any
-        # valid token. Project administrators should only be able to invalidate
-        # tokens scoped to the project they administer. Users should be able to
-        # invalidate their own tokens. If we uncommented this line without
-        # adding support for each of these cases in code, we'd be breaking the
-        # ability for users to invalidate their own tokens.
-        # scope_types=['system', 'project'],
+        check_str=SYSTEM_ADMIN_OR_TOKEN_SUBJECT,
+        scope_types=['system', 'domain', 'project'],
         description='Revoke a token.',
         operations=[{'path': '/v3/auth/tokens',
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_revoke_token,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN)
 ]
 
 
