@@ -3,3 +3,7 @@ other:
   - |
     [`bug 1829453 <https://bugs.launchpad.net/keystone/+bug/1829453>`_]
     The deprecated config option `infer_roles` is removed now.
+
+  - >
+    [`bug 1829453 <https://bugs.launchpad.net/keystone/+bug/1829453>`_]
+    The deprecated config option `admin_endpoint` is removed now.
