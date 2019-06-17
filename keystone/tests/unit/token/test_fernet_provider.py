@@ -352,21 +352,73 @@ class TestPayloads(unit.TestCase):
             actual_time_float)
         self.assertEqual(expected_time_str, actual_time_str)
 
+    def test_convert_or_decode_uuid_bytes(self):
+        payload_cls = token_formatters.BasePayload
+
+        expected_hex_uuid = uuid.uuid4().hex
+        uuid_obj = uuid.UUID(expected_hex_uuid)
+        expected_uuid_in_bytes = uuid_obj.bytes
+
+        actual_hex_uuid = payload_cls._convert_or_decode(
+            is_stored_as_bytes=True,
+            value=expected_uuid_in_bytes
+        )
+
+        self.assertEqual(expected_hex_uuid, actual_hex_uuid)
+
+    def test_convert_or_decode_binary_type(self):
+        payload_cls = token_formatters.BasePayload
+
+        expected_hex_uuid = uuid.uuid4().hex
+
+        actual_hex_uuid = payload_cls._convert_or_decode(
+            is_stored_as_bytes=False,
+            value=expected_hex_uuid.encode('utf-8')
+        )
+
+        self.assertEqual(expected_hex_uuid, actual_hex_uuid)
+
+    def test_convert_or_decode_text_type(self):
+        payload_cls = token_formatters.BasePayload
+
+        expected_hex_uuid = uuid.uuid4().hex
+
+        actual_hex_uuid = payload_cls._convert_or_decode(
+            is_stored_as_bytes=False,
+            value=expected_hex_uuid
+        )
+
+        self.assertEqual(expected_hex_uuid, actual_hex_uuid)
+
     def _test_payload(self, payload_class, exp_user_id=None, exp_methods=None,
                       exp_system=None, exp_project_id=None, exp_domain_id=None,
                       exp_trust_id=None, exp_federated_group_ids=None,
                       exp_identity_provider_id=None, exp_protocol_id=None,
-                      exp_access_token_id=None, exp_app_cred_id=None):
+                      exp_access_token_id=None, exp_app_cred_id=None,
+                      encode_ids=False):
+        def _encode_id(value):
+            if value is not None and six.text_type(value) and encode_ids:
+                return value.encode('utf-8')
+            return value
         exp_user_id = exp_user_id or uuid.uuid4().hex
         exp_methods = exp_methods or ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
         exp_audit_ids = [provider.random_urlsafe_str()]
 
         payload = payload_class.assemble(
-            exp_user_id, exp_methods, exp_system, exp_project_id,
-            exp_domain_id, exp_expires_at, exp_audit_ids, exp_trust_id,
-            exp_federated_group_ids, exp_identity_provider_id, exp_protocol_id,
-            exp_access_token_id, exp_app_cred_id)
+            _encode_id(exp_user_id),
+            exp_methods,
+            _encode_id(exp_system),
+            _encode_id(exp_project_id),
+            exp_domain_id,
+            exp_expires_at,
+            exp_audit_ids,
+            exp_trust_id,
+            _encode_id(exp_federated_group_ids),
+            _encode_id(exp_identity_provider_id),
+            exp_protocol_id,
+            _encode_id(exp_access_token_id),
+            _encode_id(exp_app_cred_id))
 
         (user_id, methods, system, project_id,
          domain_id, expires_at, audit_ids,
@@ -428,6 +480,12 @@ class TestPayloads(unit.TestCase):
         self._test_payload(token_formatters.ProjectScopedPayload,
                            exp_user_id='0123456789abcdef',
                            exp_project_id='0123456789abcdef')
+
+    def test_project_scoped_payload_with_binary_encoded_ids(self):
+        self._test_payload(token_formatters.ProjectScopedPayload,
+                           exp_user_id='someNonUuidUserId',
+                           exp_project_id='someNonUuidProjectId',
+                           encode_ids=True)
 
     def test_domain_scoped_payload_with_non_uuid_user_id(self):
         self._test_payload(token_formatters.DomainScopedPayload,
