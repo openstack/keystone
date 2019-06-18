@@ -28,8 +28,8 @@ vision`_ to initiate a discussion on the renewed vision for the project.
 Mission Statement
 =================
 
-Keystone's mission is to provide secure and user-friendly authentication and
-authorization for multi-tenant services.
+Keystone's mission is to provide secure, resilient, and user-friendly discovery,
+authentication, and authorization for multitenant services.
 
 Vision for OpenStack
 ====================
@@ -61,6 +61,17 @@ useful default roles which eliminate the need for inconsistently-named,
 operator-defined roles for similar access levels between clouds. Keystone is
 also capable of itself acting as a bridge between separate clouds through its
 Keystone-to-Keystone federated authentication functionality.
+
+Bidirectional Compatibility
+---------------------------
+
+To support clients operating across multiple clouds of potentially different
+versions, changes in keystone's major API are additive-only, and updates to
+the API are signaled by the minor version number, which allows clients to
+discover, to a reasonable degree, what capabilities are available in the
+keystone version they are connecting to. Keystone also provides a JSON-home
+document to aid clients in discovering the availability and status of features.
+Enhancements to the discoverability of keystone's APIs are a priority.
 
 Partitioning
 ------------
@@ -112,3 +123,11 @@ of how its APIs will be presented in dashboards. For some features, such as
 Single-Sign-On authentication, keystone may provide its own graphical user
 interface in order to provide a smooth web-login experience without requiring a
 dependency on another dashboard.
+
+Secure by Design
+----------------
+
+Keystone strives to be secure by design, by making opinionated choices about the
+default security configuration. Making it easier to administer fine-grained
+access control in support of the Principle of Least Privilege is an ongoing
+effort.
