@@ -22,4 +22,4 @@ for FILE in $CHANGED; do
     fi
 done
 
-diff -u --from-file /dev/null $CHECK | flake8 --diff --ignore=D100,D101,D102,D103,D104,E305,E402,E501,W503,W504,W605,E731
+diff -u --from-file /dev/null $CHECK | flake8 --diff --ignore=D100,D101,D102,D103,D104,E305,E402,E501,W503,W504,W605

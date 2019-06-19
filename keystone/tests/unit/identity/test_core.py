@@ -105,8 +105,8 @@ class TestDomainConfigs(unit.BaseTestCase):
                 name,
                 identity.DOMAIN_CONF_FTAIL)))
 
-        walk_fake = lambda *a, **kwa: (
-            ('/fake/keystone/domains/config', [], files), )
+        def walk_fake(*a, **kwa):
+            return ('/fake/keystone/domains/config', [], files),
 
         generic_driver = mock.Mock(is_sql=False)
 
