@@ -108,7 +108,7 @@ Customizable Integration
 
 In service of supporting customizable integration both between OpenStack
 services and from client applications, keystone has an ongoing mission to
-fulfill the Principle of Least Privilege and permit the cloud consumer to
+fulfill the `Principle of Least Privilege`_ and permit the cloud consumer to
 delegate only the minimum permissions needed to an application. Keystone works
 to provide this both through reforming OpenStack policy to make it easier to
 manage across services, and by providing new mechanisms such as application
@@ -129,5 +129,7 @@ Secure by Design
 
 Keystone strives to be secure by design, by making opinionated choices about the
 default security configuration. Making it easier to administer fine-grained
-access control in support of the Principle of Least Privilege is an ongoing
+access control in support of the `Principle of Least Privilege`_ is an ongoing
 effort.
+
+.. _Principle of Least Privilege: https://en.wikipedia.org/wiki/Principle_of_least_privilege
