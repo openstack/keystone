@@ -1,0 +1,35 @@
+---
+features:
+  - |
+    [`bug 1750676 <https://bugs.launchpad.net/keystone/+bug/1750676>`_]
+    [`bug 1818844 <https://bugs.launchpad.net/keystone/+bug/1818844>`_]
+    The token API now supports the ``admin``, ``member``, and ``reader``
+    default roles.
+upgrade:
+  - |
+    [`bug 1750676 <https://bugs.launchpad.net/keystone/+bug/1750676>`_]
+    [`bug 1818844 <https://bugs.launchpad.net/keystone/+bug/1818844>`_]
+    The token API uses new default policies that make it easier for system
+    users to delegate functionality in a secure way. Please consider the new
+    policies if your deployment overrides the token policies.
+deprecations:
+  - |
+    [`bug 1750676 <https://bugs.launchpad.net/keystone/+bug/1750676>`_]
+    [`bug 1818844 <https://bugs.launchpad.net/keystone/+bug/1818844>`_]
+    The ``identity:check_token`` policy now uses ``(role:reader and
+    system_scope:all) or rule:token_subject`` instead of ``rule:admin_required
+    or rule:token_subject``. The ``identity:validate_token`` policy now uses
+    ``(role:reader and system_scope:all) or rule:service_role or
+    rule:token_subject`` instead or ``rule:service_or_admin or
+    rule:token_subject``. The ``identity:revoke_token`` policy now uses
+    ``(role:admin and system_scope:all) or rule:token_subject`` instead of
+    ``rule:admin_or_token_subject``. These new defaults automatically account
+    for a read-only role by default and allow more granular access to the API.
+    Please consider these new defaults if your deployment overrides the token
+    policies.
+security:
+  - |
+    [`bug 1750676 <https://bugs.launchpad.net/keystone/+bug/1750676>`_]
+    [`bug 1818844 <https://bugs.launchpad.net/keystone/+bug/1818844>`_]
+    The token API now uses system-scope and default roles properly to provide
+    more granular access to the token API.
