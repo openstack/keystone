@@ -358,6 +358,13 @@ region_id_query:
   in: query
   required: false
   type: string
+request_nocatalog_unscoped_path_not_required:
+  description: |
+    (Since v3.1) nocatalog only works for scoped token. For unscoped token, the
+    authentication response always excludes the service catalog.
+  in: query
+  required: false
+  type: string
 resource_name_query:
   description: |
     Filters the response by a specified resource name.
