@@ -27,16 +27,16 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 # NOTE(lbragstad): Credential key rotation operates slightly different than
-# Fernet key rotation. Each credential holds a hash of the key that encrypted
+# token key rotation. Each credential holds a hash of the key that encrypted
 # it. This is important for credential key rotation because it helps us make
 # sure we don't over-rotate credential keys. During a rotation of credential
 # keys, if any credential has not been re-encrypted with the current primary
 # key, we can abandon the key rotation until all credentials have been migrated
 # to the new primary key. If we don't take this step, it is possible that we
-# could remove a key used to encrypt credentials, leaving them recoverable.
+# could remove a key used to encrypt credentials, leaving them unrecoverable.
 # This also means that we don't need to expose a `[credential] max_active_keys`
-# option through configuration. Instead we will use a global configuration and
-# share that across all places that need to use FernetUtils for credential
+# option through configuration. Instead we will use a global variable and share
+# that across all places that need to use FernetUtils for credential
 # encryption.
 MAX_ACTIVE_KEYS = 3
 
