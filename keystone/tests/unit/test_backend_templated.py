@@ -88,7 +88,8 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
             "Templated backend doesn't have disabled endpoints")
 
     def assert_catalogs_equal(self, expected, observed):
-        sort_key = lambda d: d['id']
+        def sort_key(d):
+            return d['id']
         for e, o in zip(sorted(expected, key=sort_key),
                         sorted(observed, key=sort_key)):
             expected_endpoints = e.pop('endpoints')
