@@ -68,12 +68,11 @@ class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
 class SqlModels(SqlTests):
 
-    def select_table(self, name):
+    def load_table(self, name):
         table = sqlalchemy.Table(name,
                                  sql.ModelBase.metadata,
                                  autoload=True)
-        s = sqlalchemy.select([table])
-        return s
+        return table
 
     def assertExpectedSchema(self, table, expected_schema):
         """Assert that a table's schema is what we expect.
@@ -107,14 +106,14 @@ class SqlModels(SqlTests):
             self.assertExpectedSchema('table_name', cols)
 
         """
-        table = self.select_table(table)
+        table = self.load_table(table)
 
         actual_schema = []
         for column in table.c:
             if isinstance(column.type, sql.Boolean):
                 default = None
-                if column._proxies[0].default:
-                    default = column._proxies[0].default.arg
+                if column.default:
+                    default = column.default.arg
                 actual_schema.append((column.name, type(column.type), default))
             elif (hasattr(column.type, 'length') and
                     not isinstance(column.type, sql.Enum)):

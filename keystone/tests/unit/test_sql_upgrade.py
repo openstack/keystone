@@ -251,16 +251,15 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
         """A collection of tables and their associated schemas."""
         return sqlalchemy.MetaData(self.engine)
 
-    def select_table(self, name):
+    def load_table(self, name):
         table = sqlalchemy.Table(name,
                                  self.metadata,
                                  autoload=True)
-        s = sqlalchemy.select([table])
-        return s
+        return table
 
     def assertTableExists(self, table_name):
         try:
-            self.select_table(table_name)
+            self.load_table(table_name)
         except sqlalchemy.exc.NoSuchTableError:
             raise AssertionError('Table "%s" does not exist' % table_name)
 
@@ -293,7 +292,7 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
 
     def assertTableColumns(self, table_name, expected_cols):
         """Assert that the table contains the expected set of columns."""
-        table = self.select_table(table_name)
+        table = self.load_table(table_name)
         actual_cols = [col.name for col in table.columns]
         # Check if the columns are equal, but allow for a different order,
         # which might occur after an upgrade followed by a downgrade
@@ -3326,7 +3325,9 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.insert_dict(session, 'trust', old_trust)
 
         # ensure redelegation data is in extra
-        stored_trust = list(self.select_table('trust').execute())[0]
+        stored_trust = list(
+            session.execute(self.load_table('trust').select())
+        )[0]
         self.assertDictEqual({
             'redelegated_trust_id': trust['redelegated_trust_id'],
             'redelegation_count': trust['redelegation_count'],
@@ -3355,7 +3356,9 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.assertTrue(trust_table.c.redelegation_count.nullable)
 
         # test target data layout
-        upgraded_trust = list(self.select_table('trust').execute())[0]
+        upgraded_trust = list(
+            session.execute(self.load_table('trust').select())
+        )[0]
         self.assertDictEqual({'other': trust['other']},
                              jsonutils.loads(upgraded_trust.extra))
         self.assertEqual(trust['redelegated_trust_id'],

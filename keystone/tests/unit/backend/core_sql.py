@@ -38,15 +38,14 @@ class BaseBackendSqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
 class BaseBackendSqlModels(BaseBackendSqlTests):
 
-    def select_table(self, name):
+    def load_table(self, name):
         table = sqlalchemy.Table(name,
                                  sql.ModelBase.metadata,
                                  autoload=True)
-        s = sqlalchemy.select([table])
-        return s
+        return table
 
     def assertExpectedSchema(self, table, cols):
-        table = self.select_table(table)
+        table = self.load_table(table)
         for col, type_, length in cols:
             self.assertIsInstance(table.c[col].type, type_)
             if length:
