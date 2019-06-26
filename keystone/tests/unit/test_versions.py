@@ -641,9 +641,7 @@ V3_JSON_HOME_RESOURCES = {
         'href-template': APPLICATION_CREDENTIAL,
         'href-vars': {
             'application_credential_id': APPLICATION_CREDENTIAL_RELATION,
-            'user_id': json_home.build_v3_parameter_relation('user_id')}},
-    json_home.build_v3_resource_relation('access_rules_config'): {
-        'href': '/access_rules_config'},
+            'user_id': json_home.build_v3_parameter_relation('user_id')}}
 }
 
 

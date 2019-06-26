@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from keystone.api import access_rules_config
 from keystone.api import auth
 from keystone.api import credentials
 from keystone.api import discovery
@@ -39,7 +38,6 @@ from keystone.api import trusts
 from keystone.api import users
 
 __all__ = (
-    'access_rules_config',
     'auth',
     'discovery',
     'credentials',
@@ -70,7 +68,6 @@ __all__ = (
 
 __apis__ = (
     discovery,
-    access_rules_config,
     auth,
     credentials,
     domains,
