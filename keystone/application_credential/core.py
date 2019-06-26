@@ -114,15 +114,6 @@ class Manager(manager.Manager):
             app_cred_ref['roles'])
         return app_cred_ref
 
-    def _validate_access_rules(self, access_rules):
-        for access_rule in access_rules:
-            valid = PROVIDERS.access_rules_config_api.check_access_rule(
-                access_rule['service'],
-                access_rule['path'],
-                access_rule['method'])
-            if not valid:
-                raise exception.AccessRuleNotAllowed
-
     def create_application_credential(self, application_credential,
                                       initiator=None):
         """Create a new application credential.
@@ -136,15 +127,12 @@ class Manager(manager.Manager):
         user_id = application_credential['user_id']
         project_id = application_credential['project_id']
         roles = application_credential.pop('roles', [])
-        access_rules = application_credential.pop('access_rules', None)
 
         self._assert_limit_not_exceeded(user_id)
         self._require_user_has_role_in_project(roles, user_id, project_id)
-        if access_rules:  # None or []
-            self._validate_access_rules(access_rules)
         unhashed_secret = application_credential['secret']
         ref = self.driver.create_application_credential(
-            application_credential, roles, access_rules)
+            application_credential, roles)
         ref['secret'] = unhashed_secret
         ref = self._process_app_cred(ref)
         notifications.Audit.created(
