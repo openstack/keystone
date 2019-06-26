@@ -964,28 +964,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         # other than its own domain or not
         self._test_project_management(self.domainA['id'])
 
-    def test_domain_grants(self):
-        self.auth = self.build_authentication_request(
-            user_id=self.just_a_user['id'],
-            password=self.just_a_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_grants('domains', self.domainA['id'],
-                          expected=exception.ForbiddenAction.code)
-
-        # Now, authenticate with a user that does have the domain admin role
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_grants('domains', self.domainA['id'])
-
-        # Check that with such a token we cannot modify grants on a
-        # different domain
-        self._test_grants('domains', self.domainB['id'],
-                          expected=exception.ForbiddenAction.code)
-
     def test_domain_grants_by_cloud_admin(self):
         # Test domain grants with a cloud admin. This user should be
         # able to manage roles on any domain.
@@ -1020,27 +998,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self._test_grants('domains', self.domainA['id'],
                           role_domain_id=self.domainB['id'],
                           expected=exception.ForbiddenAction.code)
-
-    def test_domain_grants_by_domain_admin_for_domain_specific_role(self):
-        # Authenticate with a user that does have the domain admin role,
-        # should not be able to assign a domain_specific role from another
-        # domain
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_grants('domains', self.domainA['id'],
-                          role_domain_id=self.domainB['id'],
-                          # List status will always be OK, since we are not
-                          # granting/checking/deleting assignments
-                          list_status_OK=True,
-                          expected=exception.ForbiddenAction.code)
-
-        # They should be able to assign a domain specific role from the same
-        # domain
-        self._test_grants('domains', self.domainA['id'],
-                          role_domain_id=self.domainA['id'])
 
     def test_project_grants(self):
         self.auth = self.build_authentication_request(
@@ -1083,48 +1040,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
         self._test_grants('projects', self.project['id'],
                           role_domain_id=self.domainB['id'],
                           expected=exception.ForbiddenAction.code)
-
-    def test_project_grants_by_project_admin_for_domain_specific_role(self):
-        # Authenticate with a user that does have the project admin role,
-        # should not be able to assign a domain_specific role from another
-        # domain
-        self.auth = self.build_authentication_request(
-            user_id=self.project_admin_user['id'],
-            password=self.project_admin_user['password'],
-            project_id=self.project['id'])
-
-        self._test_grants('projects', self.project['id'],
-                          role_domain_id=self.domainB['id'],
-                          # List status will always be OK, since we are not
-                          # granting/checking/deleting assignments
-                          list_status_OK=True,
-                          expected=exception.ForbiddenAction.code)
-
-        # They should be able to assign a domain specific role from the same
-        # domain
-        self._test_grants('projects', self.project['id'],
-                          role_domain_id=self.domainA['id'])
-
-    def test_project_grants_by_domain_admin_for_domain_specific_role(self):
-        # Authenticate with a user that does have the domain admin role,
-        # should not be able to assign a domain_specific role from another
-        # domain
-        self.auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        self._test_grants('projects', self.project['id'],
-                          role_domain_id=self.domainB['id'],
-                          # List status will always be OK, since we are not
-                          # granting/checking/deleting assignments
-                          list_status_OK=True,
-                          expected=exception.ForbiddenAction.code)
-
-        # They should be able to assign a domain specific role from the same
-        # domain
-        self._test_grants('projects', self.project['id'],
-                          role_domain_id=self.domainA['id'])
 
     def test_cloud_admin_list_assignments_of_domain(self):
         self.auth = self.build_authentication_request(
