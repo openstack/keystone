@@ -13,7 +13,6 @@ import sys
 
 from oslo_log import log
 
-from keystone import access_rules_config
 from keystone import application_credential
 from keystone import assignment
 from keystone import auth
@@ -49,8 +48,7 @@ def load_backends():
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
     cache.configure_invalidation_region()
 
-    managers = [access_rules_config.Manager,
-                application_credential.Manager, assignment.Manager,
+    managers = [application_credential.Manager, assignment.Manager,
                 catalog.Manager, credential.Manager,
                 credential.provider.Manager, resource.DomainConfigManager,
                 endpoint_policy.Manager, federation.Manager,
