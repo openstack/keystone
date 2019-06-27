@@ -549,11 +549,6 @@ class ApplicationCredentialNotFound(NotFound):
                        "%(application_credential_id)s.")
 
 
-class AccessRulesConfigNotFound(NotFound):
-    message_format = _(
-        "Could not find access rules config for service %(service)s.")
-
-
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s.")
@@ -714,8 +709,3 @@ class CacheDeserializationError(Exception):
                 'obj': obj, 'data': data
             }
         )
-
-
-class AccessRulesConfigFileError(UnexpectedError):
-    debug_message_format = _(
-        'Could not parse access rules config file: %(error)s')
