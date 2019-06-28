@@ -95,3 +95,40 @@ class ApplicationCredentialDriverBase(object):
 
         """
         raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_access_rule(self, access_rule_id):
+        """Get an access rule by its ID.
+
+        :param str access_rule_id: Access Rule ID
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def list_access_rules_for_user(self, user_id):
+        """List the access rules that a user has created.
+
+        Access rules are only created as attributes of application credentials,
+        they cannot be created independently.
+
+        :param str user_id: User ID
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_access_rule(self, access_rule_id):
+        """Delete one access rule.
+
+        :param str access_rule_id: Access Rule ID
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
+    @abc.abstractmethod
+    def delete_access_rules_for_user(self, user_id):
+        """Delete all access rules for user.
+
+        This is called when the user itself is deleted.
+
+        :param str user_id: User ID
+        """
+        raise exception.NotImplemented()  # pragma: no cover

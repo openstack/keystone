@@ -549,6 +549,10 @@ class ApplicationCredentialNotFound(NotFound):
                        "%(application_credential_id)s.")
 
 
+class AccessRuleNotFound(NotFound):
+    message_format = _("Could not find Access Rule: %(access_rule_id)s.")
+
+
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s.")

@@ -663,6 +663,57 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         return None, http_client.NO_CONTENT
 
 
+class UserAccessRuleListResource(ks_flask.ResourceBase):
+    collection_key = 'access_rules'
+    member_key = 'access_rule'
+
+    def get(self, user_id):
+        """List access rules for user.
+
+        GET/HEAD /v3/users/{user_id}/access_rules
+        """
+        filters = ('service', 'path', 'method',)
+        ENFORCER.enforce_call(action='identity:list_access_rules',
+                              filters=filters,
+                              build_target=_build_user_target_enforcement)
+        app_cred_api = PROVIDERS.application_credential_api
+        hints = self.build_driver_hints(filters)
+        refs = app_cred_api.list_access_rules_for_user(user_id, hints=hints)
+        hints = self.build_driver_hints(filters)
+        return self.wrap_collection(refs, hints=hints)
+
+
+class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
+    collection_key = 'access_rules'
+    member_key = 'access_rule'
+
+    def get(self, user_id, access_rule_id):
+        """Get access rule resource.
+
+        GET/HEAD /v3/users/{user_id}/access_rules/{access_rule_id}
+        """
+        ENFORCER.enforce_call(
+            action='identity:get_access_rule',
+            build_target=_build_user_target_enforcement
+        )
+        ref = PROVIDERS.application_credential_api.get_access_rule(
+            access_rule_id)
+        return self.wrap_member(ref)
+
+    def delete(self, user_id, access_rule_id):
+        """Delete access rule resource.
+
+        DELETE /v3/users/{user_id}/access_rules/{access_rule_id}
+        """
+        ENFORCER.enforce_call(
+            action='identity:delete_access_rule',
+            build_target=_build_user_target_enforcement
+        )
+        PROVIDERS.application_credential_api.delete_access_rule(
+            access_rule_id, initiator=self.audit_initiator)
+        return None, http_client.NO_CONTENT
+
+
 class UserAPI(ks_flask.APIBase):
     _name = 'users'
     _import_name = __name__
@@ -772,6 +823,24 @@ class UserAPI(ks_flask.APIBase):
                 'user_id': json_home.Parameters.USER_ID,
                 'application_credential_id':
                     json_home.Parameters.APPLICATION_CRED_ID}
+        ),
+        ks_flask.construct_resource_map(
+            resource=UserAccessRuleListResource,
+            url='/users/<string:user_id>/access_rules',
+            resource_kwargs={},
+            rel='access_rules',
+            path_vars={'user_id': json_home.Parameters.USER_ID}
+        ),
+        ks_flask.construct_resource_map(
+            resource=UserAccessRuleGetDeleteResource,
+            url=('/users/<string:user_id>/access_rules/'
+                 '<string:access_rule_id>'),
+            resource_kwargs={},
+            rel='access_rule',
+            path_vars={
+                'user_id': json_home.Parameters.USER_ID,
+                'access_rule_id':
+                    json_home.Parameters.ACCESS_RULE_ID}
         )
     ]
 

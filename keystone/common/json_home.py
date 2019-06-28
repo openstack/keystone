@@ -59,6 +59,8 @@ class Parameters(object):
     LIMIT_ID = build_v3_parameter_relation('limit_id')
     APPLICATION_CRED_ID = build_v3_parameter_relation(
         'application_credential_id')
+    ACCESS_RULE_ID = build_v3_parameter_relation(
+        'access_rule_id')
 
 
 class Status(object):

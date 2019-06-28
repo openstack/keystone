@@ -241,6 +241,11 @@ identity:get_application_credential                        GET /v3/users/{user_i
 identity:list_application_credentials                      GET /v3/users/{user_id}/application_credentials
 identity:create_application_credential                     POST /v3/users/{user_id}/application_credential
 identity:delete_application_credential                     DELETE /v3/users/{user_id}/application_credential/{application_credential_id}
+
+identity:get_access_rule                                   GET /v3/users/{user_id}/access_rules/{access_rule_id}
+identity:list_access_rules                                 GET /v3/users/{user_id}/access_rules
+identity:delete_access_rule                                DELETE /v3/users/{user_id}/access_rules/{access_rule_id}
+
 =========================================================  ===
 
 .. _grant_resources:
