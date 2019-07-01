@@ -41,7 +41,7 @@ def validate_password(password):
                     detail=pattern_desc)
         except re.error:
             msg = ("Unable to validate password due to invalid regular "
-                   "expression - password_regex: ")
+                   "expression - password_regex: %s")
             LOG.error(msg, pattern)
             detail = _("Unable to validate password due to invalid "
                        "configuration")
