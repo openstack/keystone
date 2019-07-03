@@ -38,3 +38,4 @@ Contributor Documentation
    developing-drivers.rst
    service-catalog.rst
    vision-reflection.rst
+   programming-exercises.rst
