@@ -3366,6 +3366,27 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.assertEqual(trust['redelegation_count'],
                          upgraded_trust.redelegation_count)
 
+    def test_migration_063_drop_limit_columns(self):
+        self.expand(62)
+        self.migrate(62)
+        self.contract(62)
+
+        limit_table = 'limit'
+        self.assertTableColumns(
+            limit_table,
+            ['id', 'project_id', 'service_id', 'region_id', 'resource_name',
+             'resource_limit', 'description', 'internal_id',
+             'registered_limit_id', 'domain_id'])
+
+        self.expand(63)
+        self.migrate(63)
+        self.contract(63)
+
+        self.assertTableColumns(
+            limit_table,
+            ['id', 'project_id', 'resource_limit', 'description',
+             'internal_id', 'registered_limit_id', 'domain_id'])
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture

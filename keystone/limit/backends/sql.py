@@ -69,15 +69,10 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
         'registered_limit_id'
     ]
 
-    # TODO(wxy): Drop "service_id", "region_id" and "resource_name" columns
-    # in T release.
     internal_id = sql.Column(sql.Integer, primary_key=True, nullable=False)
     id = sql.Column(sql.String(length=64), nullable=False, unique=True)
     project_id = sql.Column(sql.String(64))
     domain_id = sql.Column(sql.String(64))
-    _service_id = sql.Column('service_id', sql.String(255))
-    _region_id = sql.Column('region_id', sql.String(64), nullable=True)
-    _resource_name = sql.Column('resource_name', sql.String(255))
     resource_limit = sql.Column(sql.Integer, nullable=False)
     description = sql.Column(sql.Text())
     registered_limit_id = sql.Column(sql.String(64),
@@ -89,29 +84,21 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
     def service_id(self):
         if self.registered_limit:
             return self.registered_limit.service_id
-        return self._service_id
-
-    @service_id.setter
-    def service_id(self, value):
-        self._service_id = value
+        return None
 
     @service_id.expression
     def service_id(self):
-        return LimitModel._service_id
+        return RegisteredLimitModel.service_id
 
     @hybrid_property
     def region_id(self):
         if self.registered_limit:
             return self.registered_limit.region_id
-        return self._region_id
-
-    @region_id.setter
-    def region_id(self, value):
-        self._region_id = value
+        return None
 
     @region_id.expression
     def region_id(self):
-        return LimitModel._region_id
+        return RegisteredLimitModel.region_id
 
     @hybrid_property
     def resource_name(self):
@@ -119,25 +106,16 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
             return self.registered_limit.resource_name
         return self._resource_name
 
-    @resource_name.setter
-    def resource_name(self, value):
-        self._resource_name = value
-
     @resource_name.expression
     def resource_name(self):
-        return LimitModel._resource_name
-
-    @classmethod
-    def from_dict(cls, limit):
-        obj = super(LimitModel, cls).from_dict(limit)
-        with sql.session_for_read() as session:
-            query = session.query(RegisteredLimitModel).filter_by(
-                id=obj.registered_limit_id)
-            obj.registered_limit = query.first()
-        return obj
+        return RegisteredLimitModel.resource_name
 
     def to_dict(self):
         ref = super(LimitModel, self).to_dict()
+        if self.registered_limit:
+            ref['service_id'] = self.registered_limit.service_id
+            ref['region_id'] = self.registered_limit.region_id
+            ref['resource_name'] = self.registered_limit.resource_name
         ref.pop('internal_id')
         ref.pop('registered_limit_id')
         return ref
@@ -151,16 +129,18 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
         # current reference between registered limit and limit. i.e. We should
         # ensure that there is no duplicate entry.
         hints = driver_hints.Hints()
-        hints.add_filter('service_id', unified_limit['service_id'])
-        hints.add_filter('resource_name', unified_limit['resource_name'])
-        hints.add_filter('region_id', unified_limit.get('region_id'))
         if is_registered_limit:
+            hints.add_filter('service_id', unified_limit['service_id'])
+            hints.add_filter('resource_name', unified_limit['resource_name'])
+            hints.add_filter('region_id', unified_limit.get('region_id'))
             with sql.session_for_read() as session:
                 query = session.query(RegisteredLimitModel)
                 unified_limits = sql.filter_limit_query(RegisteredLimitModel,
                                                         query,
                                                         hints).all()
         else:
+            hints.add_filter('registered_limit_id',
+                             unified_limit['registered_limit_id'])
             is_project_limit = (True if unified_limit.get('project_id')
                                 else False)
             if is_project_limit:
@@ -169,27 +149,8 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
                 hints.add_filter('domain_id', unified_limit['domain_id'])
             with sql.session_for_read() as session:
                 query = session.query(LimitModel)
-                old_unified_limits = sql.filter_limit_query(LimitModel,
-                                                            query,
-                                                            hints).all()
-                query = session.query(
-                    LimitModel).outerjoin(RegisteredLimitModel)
-                query = query.filter(
-                    RegisteredLimitModel.service_id ==
-                    unified_limit['service_id'],
-                    RegisteredLimitModel.region_id ==
-                    unified_limit.get('region_id'),
-                    RegisteredLimitModel.resource_name ==
-                    unified_limit['resource_name'])
-                if is_project_limit:
-                    query = query.filter(
-                        LimitModel.project_id == unified_limit['project_id'])
-                else:
-                    query = query.filter(
-                        LimitModel.domain_id == unified_limit['domain_id'])
-                new_unified_limits = query.all()
-
-                unified_limits = old_unified_limits + new_unified_limits
+                unified_limits = sql.filter_limit_query(LimitModel, query,
+                                                        hints).all()
 
         if unified_limits:
             msg = _('Duplicate entry')
@@ -296,12 +257,16 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
             with sql.session_for_write() as session:
                 new_limits = []
                 for limit in limits:
-                    self._check_unified_limit_unique(limit,
-                                                     is_registered_limit=False)
                     target = self._check_and_fill_registered_limit_id(limit)
+                    self._check_unified_limit_unique(target,
+                                                     is_registered_limit=False)
                     ref = LimitModel.from_dict(target)
                     session.add(ref)
-                    new_limits.append(ref.to_dict())
+                    new_limit = ref.to_dict()
+                    new_limit['service_id'] = limit['service_id']
+                    new_limit['region_id'] = limit.get('region_id')
+                    new_limit['resource_name'] = limit['resource_name']
+                    new_limits.append(new_limit)
                 return new_limits
         except db_exception.DBReferenceError:
             raise exception.NoLimitReference()
@@ -310,43 +275,18 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
     def update_limit(self, limit_id, limit):
         with sql.session_for_write() as session:
             ref = self._get_limit(session, limit_id)
-            old_dict = ref.to_dict()
-            old_dict.update(limit)
-            new_limit = LimitModel.from_dict(old_dict)
-            ref.resource_limit = new_limit.resource_limit
-            ref.description = new_limit.description
+            if limit.get('resource_limit'):
+                ref.resource_limit = limit['resource_limit']
+            if limit.get('description'):
+                ref.description = limit['description']
             return ref.to_dict()
 
     @driver_hints.truncated
     def list_limits(self, hints):
-        hint_copy = copy.deepcopy(hints)
-        new_format_data = []
         with sql.session_for_read() as session:
-            query = session.query(LimitModel)
-            limits = sql.filter_limit_query(LimitModel,
-                                            query,
-                                            hints)
-            old_format_data = [s.to_dict() for s in limits]
-            project_filter = hint_copy.get_exact_filter_by_name('project_id')
-            domain_filter = hint_copy.get_exact_filter_by_name('domain_id')
-            if hint_copy.filters and (not (project_filter or domain_filter)
-                                      or len(hint_copy.filters) > 1):
-                # If the hints contain "service_id", "region_id" or
-                # "resource_name", we should combine the registered_limit table
-                # first to fetch these information.
-                query_new = session.query(
-                    LimitModel).outerjoin(RegisteredLimitModel)
-                limits = sql.filter_limit_query(RegisteredLimitModel,
-                                                query_new,
-                                                hint_copy)
-                if project_filter:
-                    limits = limits.filter(
-                        LimitModel.project_id == project_filter['value'])
-                elif domain_filter:
-                    limits = limits.filter(
-                        LimitModel.domain_id == domain_filter['value'])
-                new_format_data = [s.to_dict() for s in limits]
-            return old_format_data + new_format_data
+            query = session.query(LimitModel).outerjoin(RegisteredLimitModel)
+            limits = sql.filter_limit_query(LimitModel, query, hints)
+            return [limit.to_dict() for limit in limits]
 
     def _get_limit(self, session, limit_id):
         query = session.query(LimitModel).filter_by(id=limit_id)
