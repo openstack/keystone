@@ -21,7 +21,6 @@ import re
 import uuid
 
 import freezegun
-from keystoneclient.common import cms
 import mock
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
@@ -5457,91 +5456,30 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.assertTrue(reg.match(passcode))
 
 
-class TestFetchRevocationList(object):
+class TestFetchRevocationList(test_v3.RestfulTestCase):
     """Test fetch token revocation list on the v3 Identity API."""
 
     def config_overrides(self):
         super(TestFetchRevocationList, self).config_overrides()
         self.config_fixture.config(group='token', revoke_by_id=True)
 
-    def test_get_ids_no_tokens(self):
-        # When there's no revoked tokens the response is an empty list, and
-        # the response is signed.
-        res = self.get('/auth/tokens/OS-PKI/revoked')
-        signed = res.json['signed']
-        clear = cms.cms_verify(signed, CONF.signing.certfile,
-                               CONF.signing.ca_certs)
-        payload = json.loads(clear)
-        self.assertEqual({'revoked': []}, payload)
-
-    def test_head_ids_no_tokens(self):
-        self.head(
+    def test_get_ids_no_tokens_returns_forbidden(self):
+        # NOTE(vishakha): Since this API is deprecated and isn't supported.
+        # Returning a 403 till API is removed. If API is removed a 410
+        # can be returned.
+        self.get(
             '/auth/tokens/OS-PKI/revoked',
-            expected_status=http_client.OK
+            expected_status=http_client.FORBIDDEN
         )
 
-    def test_ids_token(self):
-        # When there's a revoked token, it's in the response, and the response
-        # is signed.
-        token_res = self.v3_create_token(
-            self.build_authentication_request(
-                user_id=self.user['id'],
-                password=self.user['password'],
-                project_id=self.project['id']))
-
-        token_id = token_res.headers.get('X-Subject-Token')
-        token_data = token_res.json['token']
-
-        self.delete('/auth/tokens', headers={'X-Subject-Token': token_id})
-
-        res = self.get('/auth/tokens/OS-PKI/revoked')
-        signed = res.json['signed']
-        clear = cms.cms_verify(signed, CONF.signing.certfile,
-                               CONF.signing.ca_certs)
-        payload = json.loads(clear)
-
-        def truncate(ts_str):
-            return ts_str[:19] + 'Z'  # 2016-01-21T15:53:52 == 19 chars.
-
-        exp_token_revoke_data = {
-            'id': token_id,
-            'audit_id': token_data['audit_ids'][0],
-            'expires': truncate(token_data['expires_at']),
-        }
-
-        self.assertEqual({'revoked': [exp_token_revoke_data]}, payload)
-
-    def test_audit_id_only_no_tokens(self):
-        # When there's no revoked tokens and ?audit_id_only is used, the
-        # response is an empty list and is not signed.
-        res = self.get('/auth/tokens/OS-PKI/revoked?audit_id_only')
-        self.assertEqual({'revoked': []}, res.json)
-
-    def test_audit_id_only_token(self):
-        # When there's a revoked token and ?audit_id_only is used, the
-        # response contains the audit_id of the token and is not signed.
-        token_res = self.v3_create_token(
-            self.build_authentication_request(
-                user_id=self.user['id'],
-                password=self.user['password'],
-                project_id=self.project['id']))
-
-        token_id = token_res.headers.get('X-Subject-Token')
-        token_data = token_res.json['token']
-
-        self.delete('/auth/tokens', headers={'X-Subject-Token': token_id})
-
-        res = self.get('/auth/tokens/OS-PKI/revoked?audit_id_only')
-
-        def truncate(ts_str):
-            return ts_str[:19] + 'Z'  # 2016-01-21T15:53:52 == 19 chars.
-
-        exp_token_revoke_data = {
-            'audit_id': token_data['audit_ids'][0],
-            'expires': truncate(token_data['expires_at']),
-        }
-
-        self.assertEqual({'revoked': [exp_token_revoke_data]}, res.json)
+    def test_head_ids_no_tokens_returns_forbidden(self):
+        # NOTE(vishakha): Since this API is deprecated and isn't supported.
+        # Returning a 403 till API is removed. If API is removed a 410
+        # can be returned.
+        self.head(
+            '/auth/tokens/OS-PKI/revoked',
+            expected_status=http_client.FORBIDDEN
+        )
 
 
 class ApplicationCredentialAuth(test_v3.RestfulTestCase):
