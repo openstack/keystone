@@ -124,7 +124,9 @@ class JsonBlob(sql_types.TypeDecorator):
         return jsonutils.dumps(value)
 
     def process_result_value(self, value, dialect):
-        return jsonutils.loads(value)
+        if value is not None:
+            value = jsonutils.loads(value)
+        return value
 
 
 class DateTimeInt(sql_types.TypeDecorator):
