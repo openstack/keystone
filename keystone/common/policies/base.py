@@ -14,6 +14,7 @@ from oslo_policy import policy
 
 IDENTITY = 'identity:%s'
 RULE_ADMIN_REQUIRED = 'rule:admin_required'
+RULE_OWNER = 'user_id:%(user_id)s'
 RULE_ADMIN_OR_OWNER = 'rule:admin_or_owner'
 RULE_ADMIN_OR_CREDENTIAL_OWNER = (
     'rule:admin_required or '
@@ -46,7 +47,8 @@ RULE_TRUST_OWNER = 'user_id:%(trust.trustor_user_id)s'
 SYSTEM_READER = 'role:reader and system_scope:all'
 SYSTEM_ADMIN = 'role:admin and system_scope:all'
 DOMAIN_READER = 'role:reader and domain_id:%(target.domain_id)s'
-
+RULE_SYSTEM_ADMIN_OR_OWNER = '(' + SYSTEM_ADMIN + ') or rule:owner'
+RULE_SYSTEM_READER_OR_OWNER = '(' + SYSTEM_READER + ') or rule:owner'
 
 rules = [
     policy.RuleDefault(
@@ -60,7 +62,7 @@ rules = [
         check_str='rule:admin_required or rule:service_role'),
     policy.RuleDefault(
         name='owner',
-        check_str='user_id:%(user_id)s'),
+        check_str=RULE_OWNER),
     policy.RuleDefault(
         name='admin_or_owner',
         check_str='rule:admin_required or rule:owner'),
