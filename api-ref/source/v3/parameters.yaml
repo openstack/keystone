@@ -111,6 +111,18 @@ registered_limit_id_path:
   in: path
   required: true
   type: string
+request_access_rule_id_path_required:
+  description: |
+    The ID of the access rule.
+  in: path
+  required: true
+  type: string
+request_access_rule_user_id_path_required:
+  description: |
+    The ID of the user who owns the access rule.
+  in: path
+  required: true
+  type: string
 request_application_credential_id_path_required:
   description: |
     The ID of the application credential.
@@ -1557,6 +1569,12 @@ registered_limits:
   in: body
   required: true
   type: array
+request_application_credential_access_rules_body_not_required:
+  description: |
+    A list of ``access_rules`` objects
+  in: body
+  required: false
+  type: list
 request_application_credential_auth_id_body_not_required:
   description: |
     The ID of the application credential used for authentication. If not
@@ -1702,6 +1720,48 @@ resource_name:
   in: body
   required: true
   type: string
+response_access_rules_body:
+  description: |
+    A list of ``access_rules`` objects
+  in: body
+  type: list
+  required: true
+response_access_rules_id_body:
+  description: |
+    The ID of the access rule
+  in: body
+  type: string
+  required: true
+response_access_rules_method_body:
+  description: |
+    The request method that the application credential is permitted to use for
+    a given API endpoint.
+  in: body
+  type: string
+  required: true
+response_access_rules_path_body:
+  description: |
+    The API path that the application credential is permitted to access. May
+    use named wildcards such as ``{tag}`` or the unnamed wildcard ``*`` to
+    match against any string in the path up to a ``/``, or the recursive
+    wildcard ``**`` to include ``/`` in the matched path.
+  in: body
+  type: string
+  required: true
+response_access_rules_service_body:
+  description: |
+    The service type identifier for the service that the application credential
+    is permitted to access. Must be a service type that is listed in the
+    service catalog and not a code name for a service.
+  in: body
+  type: string
+  required: true
+response_application_credential_access_rules_body:
+  description: |
+    A list of ``access_rules`` objects
+  in: body
+  type: list
+  required: true
 response_application_credential_body:
   description: |
     The application credential object.

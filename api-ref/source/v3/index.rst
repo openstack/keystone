@@ -27,6 +27,13 @@ For information about Identity API protection, see
 in the OpenStack Cloud Administrator Guide.
 
 ==================================
+What's New in Version 3.13 (Train)
+==================================
+
+- New parameter access_rules for application credentials
+- New read-only API /v3/users/{user_id}/access_rules for viewing access rules
+
+==================================
 What's New in Version 3.12 (Stein)
 ==================================
 
