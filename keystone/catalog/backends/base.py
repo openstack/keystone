@@ -441,7 +441,7 @@ class CatalogDriverBase(provider_api.ProviderAPIMixin, object):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_endpoint_groups(self):
+    def list_endpoint_groups(self, hints):
         """List all endpoint groups.
 
         :returns: None.

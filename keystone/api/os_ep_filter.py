@@ -66,9 +66,12 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
             PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id))
 
     def _list_endpoint_groups(self):
-        ENFORCER.enforce_call(action='identity:list_endpoint_groups')
-        return self.wrap_collection(
-            PROVIDERS.catalog_api.list_endpoint_groups())
+        filters = ('name')
+        ENFORCER.enforce_call(action='identity:list_endpoint_groups',
+                              filters=filters)
+        hints = self.build_driver_hints(filters)
+        refs = PROVIDERS.catalog_api.list_endpoint_groups(hints)
+        return self.wrap_collection(refs, hints=hints)
 
     def get(self, endpoint_group_id=None):
         if endpoint_group_id is not None:
