@@ -70,7 +70,7 @@ Install and configure components
 
    .. code-block:: console
 
-      # apt install keystone  apache2 libapache2-mod-wsgi
+      # apt install keystone
 
    .. end
 
