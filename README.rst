@@ -23,7 +23,7 @@ published at:
 
 The API reference and documentation are available at:
 
-    https://developer.openstack.org/api-ref/identity
+    https://docs.openstack.org/api-ref/identity
 
 The canonical client library is available at:
 

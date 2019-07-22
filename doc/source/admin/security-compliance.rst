@@ -89,7 +89,7 @@ password upon first use by setting ``change_password_upon_first_use``:
    [security_compliance]
    change_password_upon_first_use = True
 
-.. _`user API`: http://developer.openstack.org/api-ref/identity/v3/index.html#users
+.. _`user API`: https://docs.openstack.org/api-ref/identity/v3/index.html#users
 
 Configuring password expiration
 -------------------------------
@@ -200,4 +200,4 @@ keystone.
 
 .. _Security Hardening PCI-DSS: https://specs.openstack.org/openstack/keystone-specs/specs/keystone/newton/pci-dss.html
 
-.. _v3: https://developer.openstack.org/api-ref/identity/v3/index.html#update-user
+.. _v3: https://docs.openstack.org/api-ref/identity/v3/index.html#update-user

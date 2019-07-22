@@ -21,5 +21,5 @@ For example:
     [endpoint_filter]
     return_all_endpoints_if_no_filter = False
 
-See `API Specification for Endpoint Filtering <https://developer.openstack.org/
+See `API Specification for Endpoint Filtering <https://docs.openstack.org/
 api-ref/identity/v3-ext/#os-ep-filter-api>`_ for the details of API definition.

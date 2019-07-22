@@ -91,7 +91,7 @@ Provider to keystone and align remote user attributes with keystone objects:
 
 See also the `keystone federation API reference`_.
 
-.. _keystone federation API reference: https://developer.openstack.org/api-ref/identity/v3-ext/#os-federation-api
+.. _keystone federation API reference: https://docs.openstack.org/api-ref/identity/v3-ext/#os-federation-api
 
 Create an Identity Provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,7 +131,7 @@ be used by the mapping and protocol, and later for authentication.
 
 See also the `API reference on identity providers`_.
 
-.. _API reference on identity providers: https://developer.openstack.org/api-ref/identity/v3-ext/#identity-providers
+.. _API reference on identity providers: https://docs.openstack.org/api-ref/identity/v3-ext/#identity-providers
 
 Create a Mapping
 ~~~~~~~~~~~~~~~~
@@ -209,7 +209,7 @@ Mappings can be quite complex. A detailed guide can be found on the
 
 See also the `API reference on mapping rules`_.
 
-.. _API reference on mapping rules: https://developer.openstack.org/api-ref/identity/v3-ext/#mappings
+.. _API reference on mapping rules: https://docs.openstack.org/api-ref/identity/v3-ext/#mappings
 
 Create a Protocol
 ~~~~~~~~~~~~~~~~~
@@ -229,7 +229,7 @@ arbitrary, it must be a valid auth method.
 
 See also the `API reference for federation protocols`_.
 
-.. _API reference for federation protocols: https://developer.openstack.org/api-ref/identity/v3-ext/#protocols
+.. _API reference for federation protocols: https://docs.openstack.org/api-ref/identity/v3-ext/#protocols
 
 Configuring an HTTPD auth module
 --------------------------------
@@ -496,8 +496,8 @@ Remember to restart the web server when finished configuring horizon:
 
    # systemctl restart apache2
 
-.. _WebSSO API without an Identity Provider: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#web-single-sign-on-authentication-new-in-version-1-2
-.. _WebSSO API specific to the given Identity Provider: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#web-single-sign-on-authentication-new-in-version-1-3
+.. _WebSSO API without an Identity Provider: https://docs.openstack.org/api-ref/identity/v3-ext/index.html#web-single-sign-on-authentication-new-in-version-1-2
+.. _WebSSO API specific to the given Identity Provider: https://docs.openstack.org/api-ref/identity/v3-ext/index.html#web-single-sign-on-authentication-new-in-version-1-3
 
 Authenticating
 --------------
@@ -630,7 +630,7 @@ configured in the ``[saml]`` section (not to be confused with an optional
 Attribute`_ while setting up keystone as Service Provider) of ``keystone.conf``
 so that it can served by the `metadata API`_.
 
-.. _metadata API: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#retrieve-metadata-properties
+.. _metadata API: https://docs.openstack.org/api-ref/identity/v3-ext/index.html#retrieve-metadata-properties
 
 The two parameters that **must** be set in order for keystone to generate
 metadata are ``idp_entity_id`` and ``idp_sso_endpoint``:
@@ -721,7 +721,7 @@ metadata:
    $ curl -s https://sp.keystone.example.org/Shibboleth.sso/Metadata | grep urn:oasis:names:tc:SAML:2.0:bindings:PAOS
    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://sp.keystone.example.org/Shibboleth.sso/SAML2/ECP" index="4"/>
 
-.. _federated auth endpoint: https://developer.openstack.org/api-ref/identity/v3-ext/index.html#request-an-unscoped-os-federation-token
+.. _federated auth endpoint: https://docs.openstack.org/api-ref/identity/v3-ext/index.html#request-an-unscoped-os-federation-token
 
 Authenticating
 --------------
