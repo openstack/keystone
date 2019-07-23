@@ -1293,9 +1293,38 @@ class BaseLdap(object):
         else:
             return self._id_to_dn_string(object_id)
 
-    @staticmethod
-    def _dn_to_id(dn):
-        return ldap.dn.str2dn(dn)[0][0][1]
+    def _dn_to_id(self, dn):
+        # Check if the naming attribute in the DN is the same as keystone's
+        # configured 'id' attribute'.  If so, extract the ID value from the DN
+        if self.id_attr == utf8_decode(
+                ldap.dn.str2dn(utf8_encode(dn))[0][0][0].lower()):
+            return utf8_decode(ldap.dn.str2dn(utf8_encode(dn))[0][0][1])
+        else:
+            # The 'ID' attribute is NOT in the DN, so we need to perform an
+            # LDAP search to look it up from the user entry itself.
+            with self.get_connection() as conn:
+                search_result = conn.search_s(dn, ldap.SCOPE_BASE)
+
+            if search_result:
+                try:
+                    id_list = search_result[0][1][self.id_attr]
+                except KeyError:
+                    message = ('ID attribute %(id_attr)s not found in LDAP '
+                               'object %(dn)s.') % ({'id_attr': self.id_attr,
+                                                     'dn': search_result})
+                    LOG.warning(message)
+                    raise exception.NotFound(message=message)
+                if len(id_list) > 1:
+                    message = ('In order to keep backward compatibility, in '
+                               'the case of multivalued ids, we are '
+                               'returning the first id %(id_attr) in the '
+                               'DN.') % ({'id_attr': id_list[0]})
+                    LOG.warning(message)
+                return id_list[0]
+            else:
+                message = _('DN attribute %(dn)s not found in LDAP') % (
+                    {'dn': dn})
+                raise exception.NotFound(message=message)
 
     def _ldap_res_to_model(self, res):
         # LDAP attribute names may be returned in a different case than
