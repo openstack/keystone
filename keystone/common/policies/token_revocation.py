@@ -10,9 +10,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
+
+DEPRECATED_REASON = """
+The identity:revocation_list policy isn't used to protect any APIs in keystone
+now that the revocation list API has been deprecated and only returns a 410 or
+403 depending on how keystone is configured. This policy can be safely removed
+from policy files.
+"""
 
 token_revocation_policies = [
     policy.DocumentedRuleDefault(
@@ -25,7 +33,11 @@ token_revocation_policies = [
         scope_types=['system', 'project'],
         description='List revoked PKI tokens.',
         operations=[{'path': '/v3/auth/tokens/OS-PKI/revoked',
-                     'method': 'GET'}])
+                     'method': 'GET'}],
+        deprecated_for_removal=True,
+        deprecated_since=versionutils.deprecated.TRAIN,
+        deprecated_reason=DEPRECATED_REASON
+    )
 ]
 
 

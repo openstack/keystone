@@ -1,0 +1,9 @@
+---
+deprecations:
+  - |
+    [`bug 1818845 <https://bugs.launchpad.net/keystone/+bug/1818845>`_]
+    The ``identity:revocation_list`` policy has been deprecated for removal.
+    This policy didn't actually protect the revocation list API since that API
+    is unenforced and unprotected. It only returns an ``HTTP 410`` or ``HTTP
+    403`` depending on how keystone is configured. This policy can be safely
+    removed.
