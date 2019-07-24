@@ -26,7 +26,7 @@ Identity API v3 is a superset of all the functionality available in the
 Identity API v2.0 and several of its extensions, and provides a much more
 consistent developer experience.
 
-.. _`Identity API v3`: https://developer.openstack.org/api-ref/identity/v3/
+.. _`Identity API v3`: https://docs.openstack.org/api-ref/identity/v3/
 
 History
 =======
@@ -112,7 +112,7 @@ I have a non-Python client
 You'll likely need to heavily reference our `API documentation`_ to port your
 application to Identity API v3.
 
-.. _`API documentation`: https://developer.openstack.org/api-ref/identity/v3/
+.. _`API documentation`: https://docs.openstack.org/api-ref/identity/v3/
 
 The most common operation would be password-based authentication including a
 tenant name (i.e. project name) to specify an authorization scope. In Identity

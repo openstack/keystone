@@ -20,7 +20,7 @@ User Documentation
 
 An end user can find the specific API documentation here, `OpenStack's Identity API`_.
 
-.. _`OpenStack's Identity API`: https://developer.openstack.org/api-ref/identity/v3
+.. _`OpenStack's Identity API`: https://docs.openstack.org/api-ref/identity/v3
 
 .. toctree::
     :maxdepth: 1

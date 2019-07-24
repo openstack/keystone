@@ -31,7 +31,7 @@ single-signon system.
 See the `Identity API reference`_ for more information on authenticating with
 and managing application credentials.
 
-.. _`Identity API reference`: https://developer.openstack.org/api-ref/identity/v3/index.html#application-credentials
+.. _`Identity API reference`: https://docs.openstack.org/api-ref/identity/v3/index.html#application-credentials
 
 Managing Application Credentials
 ================================

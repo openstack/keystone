@@ -13,6 +13,6 @@ section. For example:
     [endpoint_policy]
     driver = sql
 
-See `API Specification for Endpoint Policy <https://developer.openstack.org/
+See `API Specification for Endpoint Policy <https://docs.openstack.org/
 api-ref/identity/v3-ext/index.html#os-endpoint-policy-api>`_
 for the details of API definition.

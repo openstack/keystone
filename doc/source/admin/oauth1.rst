@@ -31,6 +31,6 @@ To enable OAuth1:
 
     WSGIPassAuthorization On
 
-See `API Specification for OAuth 1.0a <https://developer.openstack.org/
+See `API Specification for OAuth 1.0a <https://docs.openstack.org/
 api-ref/identity/v3-ext/index.html#os-oauth1-api>`_ for the details of
 API definition.

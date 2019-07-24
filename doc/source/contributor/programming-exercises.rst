@@ -72,11 +72,11 @@ steps:
 
 #. Document the new parameter in the `api-ref`_
 
-.. _POST /v3/projects: https://developer.openstack.org/api-ref/identity/v3/#create-project
-.. _PATCH /v3/projects/{project_id}: https://developer.openstack.org/api-ref/identity/v3/#update-project
-.. _GET /v3/projects/{project_id}: https://developer.openstack.org/api-ref/identity/v3/#show-project-details
+.. _POST /v3/projects: https://docs.openstack.org/api-ref/identity/v3/#create-project
+.. _PATCH /v3/projects/{project_id}: https://docs.openstack.org/api-ref/identity/v3/#update-project
+.. _GET /v3/projects/{project_id}: https://docs.openstack.org/api-ref/identity/v3/#show-project-details
 .. _API Change tutorial: :doc:`api_change_tutorial`
-.. _api-ref: https://developer.openstack.org/api-ref/identity/
+.. _api-ref: https://docs.openstack.org/api-ref/identity/
 
 Write an External Driver
 ========================
@@ -115,6 +115,6 @@ add the plugin to `keystoneauth`_ so that Python clients can also use this auth
 method.
 
 .. _unscoped token: :doc:`../admin/tokens`
-.. _POST /v3/auth/tokens: https://developer.openstack.org/api-ref/identity/v3/#password-authentication-with-unscoped-authorization
+.. _POST /v3/auth/tokens: https://docs.openstack.org/api-ref/identity/v3/#password-authentication-with-unscoped-authorization
 .. _Authentication Plugins: :doc:`auth-plugins`
 .. _keystoneauth: https://docs.openstack.org/keystoneauth/latest/
