@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_config import cfg
+from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -26,6 +27,11 @@ This is used by the key value store system.
 socket_timeout = cfg.IntOpt(
     'socket_timeout',
     default=3,
+    deprecated_for_removal=True,
+    deprecated_reason='This option is duplicated with oslo.cache. '
+                      'Configure ``keystone.conf [cache] memcache_socket_timeout`` '
+                      'option to set the socket_timeout of memcached instead. ',
+    deprecated_since=versionutils.deprecated.TRAIN,
     help=utils.fmt("""
 Timeout in seconds for every call to a server. This is used by the key value
 store system.
