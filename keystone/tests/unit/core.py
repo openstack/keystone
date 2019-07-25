@@ -422,6 +422,34 @@ def new_totp_credential(user_id, project_id=None, blob=None):
     return credential
 
 
+def new_application_credential_ref(roles=None,
+                                   name=None,
+                                   expires=None,
+                                   secret=None):
+    ref = {
+        'id': uuid.uuid4().hex,
+        'name': uuid.uuid4().hex,
+        'description': uuid.uuid4().hex,
+    }
+    if roles:
+        ref['roles'] = roles
+    if secret:
+        ref['secret'] = secret
+
+    if isinstance(expires, six.string_types):
+        ref['expires_at'] = expires
+    elif isinstance(expires, dict):
+        ref['expires_at'] = (
+            timeutils.utcnow() + datetime.timedelta(**expires)
+        ).strftime(TIME_FORMAT)
+    elif expires is None:
+        pass
+    else:
+        raise NotImplementedError('Unexpected value for "expires"')
+
+    return ref
+
+
 def new_role_ref(**kwargs):
     ref = {
         'id': uuid.uuid4().hex,

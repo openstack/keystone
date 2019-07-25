@@ -1,0 +1,41 @@
+---
+features:
+  - |
+    [`bug 1818725 <https://bugs.launchpad.net/keystone/+bug/1818725>`_]
+    [`bug 1750615 <https://bugs.launchpad.net/keystone/+bug/1750615>`_]
+    The application credential API now supports the ``admin``, ``member``, and
+    ``reader`` default roles.
+
+upgrade:
+  - |
+    [`bug 1818725 <https://bugs.launchpad.net/keystone/+bug/1818725>`_]
+    [`bug 1750615 <https://bugs.launchpad.net/keystone/+bug/1750615>`_]
+    The application credential API uses new default policies to make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides application
+    credential policies.
+deprecations:
+  - |
+    [`bug 1818725 <https://bugs.launchpad.net/keystone/+bug/1818725>`_]
+    [`bug 1750615 <https://bugs.launchpad.net/keystone/+bug/1750615>`_]
+    The application credential policies have been deprecated. The
+    ``identity:get_application_credential`` policy now uses
+    ``(role:reader and system_scope:all) or user_id:%(user_id)s`` instead of
+    ``rule:admin_required or user_id:%(user_id)s``. The
+    ``identity:list_application_credentials`` policy now uses
+    ``(role:reader and system_scope:all) or user_id:%(user_id)s`` instead of
+    ``rule:admin_required or user_id:%(user_id)s``. The
+    ``identity:delete_application_credential`` policy now use
+    ``(role:admin and system_scope:all) or user_id:%(user_id)s`` instead of
+    ``rule:admin_required or user_id:%(user_id)s``.
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the application
+    credential policies.
+security:
+  - |
+    [`bug 1818725 <https://bugs.launchpad.net/keystone/+bug/1818725>`_]
+    [`bug 1750615 <https://bugs.launchpad.net/keystone/+bug/1750615>`_]
+    The application credential API now uses system-scope and default roles
+    to provide better accessibility to users in a secure manner.
