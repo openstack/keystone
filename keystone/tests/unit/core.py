@@ -791,10 +791,6 @@ class TestCase(BaseTestCase):
             driver='sql',
             template_file=dirs.tests('default_catalog.templates'))
         self.config_fixture.config(
-            group='signing', certfile=signing_certfile,
-            keyfile=signing_keyfile,
-            ca_certs='examples/pki/certs/cacert.pem')
-        self.config_fixture.config(
             group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
         self.config_fixture.config(
             default_log_levels=[

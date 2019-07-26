@@ -12,13 +12,12 @@
 
 # This file handles all flask-restful resources for /v3/OS-SIMPLE-CERT
 
-import flask
 import flask_restful
-from six.moves import http_client
 
 from keystone.api._shared import json_home_relations
 import keystone.conf
 from keystone import exception
+from keystone.i18n import _
 from keystone.server import flask as ks_flask
 
 
@@ -28,27 +27,22 @@ CONF = keystone.conf.CONF
 _build_resource_relation = json_home_relations.os_simple_cert_resource_rel_func
 
 
-def _get_certificate(name):
-    try:
-        with open(name, 'r') as f:
-            body = f.read()
-    except IOError:
-        raise exception.CertificateFilesUnavailable()
-    resp = flask.make_response(body, http_client.OK)
-    resp.headers['Content-Type'] = 'application/x-pem-file'
-    return resp
-
-
 class SimpleCertCAResource(flask_restful.Resource):
     @ks_flask.unenforced_api
     def get(self):
-        return _get_certificate(CONF.signing.ca_certs)
+        raise exception.Gone(
+            message=_('This API is no longer available due to the removal'
+                      'of support for PKI tokens. Returning a 410 instead'
+                      'of removing the API'))
 
 
 class SimpleCertListResource(flask_restful.Resource):
     @ks_flask.unenforced_api
     def get(self):
-        return _get_certificate(CONF.signing.certfile)
+        raise exception.Gone(
+            message=_('This API is no longer available due to the removal'
+                      'of support for PKI tokens. Returning a 410 instead'
+                      'of removing the API'))
 
 
 class SimpleCertAPI(ks_flask.APIBase):
