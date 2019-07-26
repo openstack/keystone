@@ -27,8 +27,10 @@ not be merged into keystone. However, you should still propose them to `Gerrit`_
 to get practice with the code review system and to get feedback from the team.
 This is a good way to get used to the development workflow and get acquainted
 with the benefits of working in a collaborative development environment. Also
-feel free to `talk to the keystone team`_ to get help with these exercises, and
-refer to the `contributor documentation`_ for more context on the architecture
+feel free to :doc:`talk to the keystone team
+<../getting-started/community>` to get help with these exercises, and
+refer to the :doc:`contributor documentation <index>` for more context
+on the architecture
 and contributing guidelines for keystone.
 
 The exercises provide some ideas of what you can do in keystone, but feel free
@@ -37,8 +39,6 @@ to get creative.
 .. _Outreachy: https://www.outreachy.org/
 .. _Google Summer of Code: https://summerofcode.withgoogle.com/
 .. _Gerrit: https://docs.openstack.org/contributors/common/setup-gerrit.html
-.. _talk to the keystone team: :doc:`../getting-started/community`
-.. _contributor documentation: :doc:`index`
 
 Add a Parameter to an API
 =========================
@@ -49,7 +49,7 @@ be that you can use the new parameter when you create a new project using the
 /v3/projects/{project_id}`_ API, and the value displayed using the `GET
 /v3/projects/{project_id}`_.
 
-Refer to the `API Change tutorial`_. In short, you will need to follow these
+Refer to the :doc:`API Change tutorial <api_change_tutorial>`. In short, you will need to follow these
 steps:
 
 #. Create a SQL migration to add the parameter to the database table
@@ -75,7 +75,6 @@ steps:
 .. _POST /v3/projects: https://docs.openstack.org/api-ref/identity/v3/#create-project
 .. _PATCH /v3/projects/{project_id}: https://docs.openstack.org/api-ref/identity/v3/#update-project
 .. _GET /v3/projects/{project_id}: https://docs.openstack.org/api-ref/identity/v3/#show-project-details
-.. _API Change tutorial: :doc:`api_change_tutorial`
 .. _api-ref: https://docs.openstack.org/api-ref/identity/
 
 Write an External Driver
@@ -87,14 +86,14 @@ to have keystone load a list of project names from a text file, and querying
 keystone for projects will return projects with those names in the default
 domain.
 
-Refer to the `Developing Keystone Drivers`_ tutorial. Your driver can start as
+Refer to the :doc:`Developing Keystone Drivers <developing-drivers>`
+tutorial. Your driver can start as
 an in-tree driver: create a class named ``Resource`` in
 `keystone/resource/backends/file.py` that implements
 :py:mod:`keystone.resource.backends.base.Resource`. Once you have that working,
 break it out into a separate repository and create a `Setuptools entrypoint`_
 to allow you to register it with keystone.
 
-.. _Developing Keystone Drivers: :doc:`developing-drivers`
 .. _Setuptools entrypoint: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 
 Write an Auth Plugin
@@ -104,17 +103,15 @@ Write an auth plugin named ``hacker`` that allows any existing user to
 authenticate if they provide a valid username and the password ``"hax0r"``. The
 end result will be that you can add ``hacker`` as an auth method in
 ``[auth]/methods`` in `keystone.conf`, and users will be able to get an
-`unscoped token`_ using `POST /v3/auth/tokens`_ and providing ``"hacker"`` as
+:doc:`unscoped token <../admin/tokens>` using `POST /v3/auth/tokens`_ and providing ``"hacker"`` as
 the auth method, a valid username as the username, and ``"hax0r"`` as the
 password.
 
-Refer to the `Authentication Plugins`_ documentation. You should create a class
+Refer to the :doc:`auth-plugins` documentation. You should create a class
 ``Hacker`` in `keystone/auth/plugins/hacker.py` that implements
 :py:mod:`keystone.auth.plugins.base.AuthMethodHandler`. For bonus points, also
 add the plugin to `keystoneauth`_ so that Python clients can also use this auth
 method.
 
-.. _unscoped token: :doc:`../admin/tokens`
 .. _POST /v3/auth/tokens: https://docs.openstack.org/api-ref/identity/v3/#password-authentication-with-unscoped-authorization
-.. _Authentication Plugins: :doc:`auth-plugins`
 .. _keystoneauth: https://docs.openstack.org/keystoneauth/latest/

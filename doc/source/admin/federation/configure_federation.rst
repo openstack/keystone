@@ -598,11 +598,11 @@ clouds using the SAML2.0 protocol.
 If you are not familiar with the idea of federated identity, see the
 `introduction`_ first.
 
-When setting up `Keystone to Keystone`, it is easiest to `configure a keystone
-Service Provider`_ first with a sandbox Identity Provider such as
+When setting up `Keystone to Keystone`, it is easiest to
+:ref:`configure a keystone Service Provider <keystone-as-sp>`  first
+with a sandbox Identity Provider such as
 `samltest.id`_.
 
-.. _configure a keystone Service Provider: :ref:`Keystone as a Service Provider (SP)`
 .. _samltest.id: https://samltest.id
 
 This feature requires installation of the xmlsec1 tool via your distribution
