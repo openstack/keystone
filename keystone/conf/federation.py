@@ -94,6 +94,15 @@ enabled. There is typically no reason to disable this.
 """))
 
 
+default_authorization_ttl = cfg.IntOpt(
+    'default_authorization_ttl',
+    default=0,
+    help=utils.fmt("""
+Default time in minutes for the validity of group memberships carried over
+from a mapping. Default is 0, which means disabled.
+"""))
+
+
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     driver,
@@ -103,6 +112,7 @@ ALL_OPTS = [
     trusted_dashboard,
     sso_callback_template,
     caching,
+    default_authorization_ttl,
 ]
 
 

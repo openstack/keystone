@@ -51,16 +51,25 @@ class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
 
 class IdentityProviderModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'identity_provider'
-    attributes = ['id', 'domain_id', 'enabled', 'description', 'remote_ids']
-    mutable_attributes = frozenset(['description', 'enabled', 'remote_ids'])
+    attributes = ['id', 'domain_id', 'enabled', 'description', 'remote_ids',
+                  'authorization_ttl']
+    mutable_attributes = frozenset(['description', 'enabled', 'remote_ids',
+                                    'authorization_ttl'])
 
     id = sql.Column(sql.String(64), primary_key=True)
     domain_id = sql.Column(sql.String(64), nullable=False)
     enabled = sql.Column(sql.Boolean, nullable=False)
     description = sql.Column(sql.Text(), nullable=True)
+    authorization_ttl = sql.Column(sql.Integer, nullable=True)
+
     remote_ids = orm.relationship('IdPRemoteIdsModel',
                                   order_by='IdPRemoteIdsModel.remote_id',
                                   cascade='all, delete-orphan')
+    expiring_user_group_memberships = orm.relationship(
+        'ExpiringUserGroupMembership',
+        cascade='all, delete-orphan',
+        backref="idp"
+    )
 
     @classmethod
     def from_dict(cls, dictionary):
