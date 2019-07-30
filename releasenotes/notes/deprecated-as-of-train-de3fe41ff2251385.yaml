@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    [`bug 1829454 <https://bugs.launchpad.net/keystone/+bug/1829454>`_]
+    The `[federation] federated_domain_name` option is deprecated. All users
+    live in the identity provider's domain now, and the option is no longer
+    used.
