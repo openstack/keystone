@@ -28,13 +28,14 @@ LOG = log.getLogger(__name__)
 
 class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'federation_protocol'
-    attributes = ['id', 'idp_id', 'mapping_id']
-    mutable_attributes = frozenset(['mapping_id'])
+    attributes = ['id', 'idp_id', 'mapping_id', 'remote_id_attribute']
+    mutable_attributes = frozenset(['mapping_id', 'remote_id_attribute'])
 
     id = sql.Column(sql.String(64), primary_key=True)
     idp_id = sql.Column(sql.String(64), sql.ForeignKey('identity_provider.id',
                         ondelete='CASCADE'), primary_key=True)
     mapping_id = sql.Column(sql.String(64), nullable=False)
+    remote_id_attribute = sql.Column(sql.String(64))
 
     @classmethod
     def from_dict(cls, dictionary):

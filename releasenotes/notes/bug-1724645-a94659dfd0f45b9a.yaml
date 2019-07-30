@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    [`bug 1724645 <https://bugs.launchpad.net/keystone/+bug/1724645>`_]
+    Adds a new attribute, ``remote_id_attribute``, to the federation protocol
+    object, which allows WebSSO authentication to forward authentication
+    requests through the right implementation for a federated protocol based on
+    the remote ID attribute in the authentication headers.
+fixes:
+  - |
+    [`bug 1724645 <https://bugs.launchpad.net/keystone/+bug/1724645>`_]
+    Fixes an issue where multiple implementations of a federation protocol,
+    such as Shibboleth and Mellon for the SAML2.0 protocol, could not be
+    differentiated from one another because they had to share the same globally
+    configured remote ID attribute. Now the remote ID attribute can be set on
+    the protocol object itself.

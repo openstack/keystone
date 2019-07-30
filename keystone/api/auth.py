@@ -334,11 +334,14 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
 class AuthFederationWebSSOResource(_AuthFederationWebSSOBase):
     @classmethod
     def _perform_auth(cls, protocol_id):
-        try:
+        idps = PROVIDERS.federation_api.list_idps()
+        for idp in idps:
             remote_id_name = federation_utils.get_remote_id_parameter(
-                protocol_id)
-            remote_id = flask.request.environ[remote_id_name]
-        except KeyError:
+                idp, protocol_id)
+            remote_id = flask.request.environ.get(remote_id_name)
+            if remote_id:
+                break
+        if not remote_id:
             msg = 'Missing entity ID from environment'
             tr_msg = _('Missing entity ID from environment')
             LOG.error(msg)
