@@ -32,8 +32,7 @@ class SimpleCertCAResource(flask_restful.Resource):
     def get(self):
         raise exception.Gone(
             message=_('This API is no longer available due to the removal'
-                      'of support for PKI tokens. Returning a 410 instead'
-                      'of removing the API'))
+                      'of support for PKI tokens.'))
 
 
 class SimpleCertListResource(flask_restful.Resource):
@@ -41,8 +40,7 @@ class SimpleCertListResource(flask_restful.Resource):
     def get(self):
         raise exception.Gone(
             message=_('This API is no longer available due to the removal'
-                      'of support for PKI tokens. Returning a 410 instead'
-                      'of removing the API'))
+                      'of support for PKI tokens.'))
 
 
 class SimpleCertAPI(ks_flask.APIBase):
