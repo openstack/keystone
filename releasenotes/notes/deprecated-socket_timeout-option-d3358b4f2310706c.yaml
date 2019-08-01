@@ -1,0 +1,12 @@
+---
+deprecations:
+  - |
+    The socket timeout configuration option for memcache of Keystone's
+    definition isn't actually used anywhere [0], it would appear to be
+    a broken knob. In fact oslo.cache has a duplicate option that appears
+    to be used instead [1].
+    We can deprecate the keystone-specific option and point people to the
+    oslo.cache option.
+
+    [0] https://opendev.org/openstack/keystone/src/commit/a0aa21c237f7b42077fc945f157844deb77be5ef/keystone/conf/memcache.py#L26-L32
+    [1] https://opendev.org/openstack/oslo.cache/src/commit/a5023ba2754dd537c802d4a59290ff6378bd6285/oslo_cache/_opts.py#L85-L89
