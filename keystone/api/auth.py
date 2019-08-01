@@ -336,8 +336,13 @@ class AuthFederationWebSSOResource(_AuthFederationWebSSOBase):
     def _perform_auth(cls, protocol_id):
         idps = PROVIDERS.federation_api.list_idps()
         for idp in idps:
-            remote_id_name = federation_utils.get_remote_id_parameter(
-                idp, protocol_id)
+            try:
+                remote_id_name = federation_utils.get_remote_id_parameter(
+                    idp, protocol_id)
+            except exception.FederatedProtocolNotFound:
+                # no protocol for this IdP, so this can't be the IdP we're
+                # looking for
+                continue
             remote_id = flask.request.environ.get(remote_id_name)
             if remote_id:
                 break

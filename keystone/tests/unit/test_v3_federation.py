@@ -736,6 +736,11 @@ class FederatedSetupMixin(object):
             ]
         }
 
+        # Add unused IdP first so it is indexed first (#1838592)
+        self.dummy_idp = self.idp_ref()
+        PROVIDERS.federation_api.create_idp(
+            self.dummy_idp['id'], self.dummy_idp
+        )
         # Add IDP
         self.idp = self.idp_ref(id=self.IDP)
         PROVIDERS.federation_api.create_idp(
@@ -761,6 +766,11 @@ class FederatedSetupMixin(object):
         # Add protocols IDP with remote
         PROVIDERS.federation_api.create_protocol(
             self.idp_with_remote['id'], self.proto_saml['id'], self.proto_saml
+        )
+        # Add unused protocol to go with unused IdP (#1838592)
+        self.proto_dummy = self.proto_ref(mapping_id=self.mapping['id'])
+        PROVIDERS.federation_api.create_protocol(
+            self.dummy_idp['id'], self.proto_dummy['id'], self.proto_dummy
         )
 
         with self.make_request():
