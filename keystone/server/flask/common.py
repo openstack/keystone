@@ -143,7 +143,7 @@ def _assert_rbac_enforcement_called(resp):
     # assert is intended to be used to ensure code during development works
     # as expected, it is fine to be optimized out with `python -O`
     msg = ('PROGRAMMING ERROR: enforcement (`keystone.common.rbac_enforcer.'
-           'enforcer.RBACKEnforcer.enforce_call()`) has not been called; API '
+           'enforcer.RBACEnforcer.enforce_call()`) has not been called; API '
            'is unenforced.')
     g = flask.g
     # NOTE(morgan): OPTIONS is a special case and is handled by flask
