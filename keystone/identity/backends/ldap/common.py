@@ -1316,7 +1316,7 @@ class BaseLdap(object):
                 if len(id_list) > 1:
                     message = ('In order to keep backward compatibility, in '
                                'the case of multivalued ids, we are '
-                               'returning the first id %(id_attr) in the '
+                               'returning the first id %(id_attr)s in the '
                                'DN.') % ({'id_attr': id_list[0]})
                     LOG.warning(message)
                 return id_list[0]
