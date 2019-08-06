@@ -1781,6 +1781,7 @@ class EnabledEmuMixIn(BaseLdap):
 
     DEFAULT_GROUP_OBJECTCLASS = 'groupOfNames'
     DEFAULT_MEMBER_ATTRIBUTE = 'member'
+    DEFAULT_GROUP_MEMBERS_ARE_IDS = False
 
     def __init__(self, conf):
         super(EnabledEmuMixIn, self).__init__(conf)
@@ -1797,9 +1798,11 @@ class EnabledEmuMixIn(BaseLdap):
         if not self.use_group_config:
             self.member_attribute = self.DEFAULT_MEMBER_ATTRIBUTE
             self.group_objectclass = self.DEFAULT_GROUP_OBJECTCLASS
+            self.group_members_are_ids = self.DEFAULT_GROUP_MEMBERS_ARE_IDS
         else:
             self.member_attribute = conf.ldap.group_member_attribute
             self.group_objectclass = conf.ldap.group_objectclass
+            self.group_members_are_ids = conf.ldap.group_members_are_ids
 
         if not self.enabled_emulation_dn:
             naming_attr_name = 'cn'
@@ -1815,8 +1818,13 @@ class EnabledEmuMixIn(BaseLdap):
                            naming_rdn[1])
         self.enabled_emulation_naming_attr = naming_attr
 
+    # TODO(yoctozepto): methods below use _id_to_dn which requests another LDAP connection - optimize it
+
     def _get_enabled(self, object_id, conn):
-        dn = self._id_to_dn(object_id)
+        if self.group_members_are_ids:
+            dn = object_id
+        else:
+            dn = self._id_to_dn(object_id)
         query = '(%s=%s)' % (self.member_attribute,
                              ldap.filter.escape_filter_chars(dn))
         try:
@@ -1829,24 +1837,33 @@ class EnabledEmuMixIn(BaseLdap):
             return bool(enabled_value)
 
     def _add_enabled(self, object_id):
+        if self.group_members_are_ids:
+            dn = object_id
+        else:
+            dn = self._id_to_dn(object_id)
         with self.get_connection() as conn:
+            # TODO(yoctozepto): _get_enabled potentially calls _id_to_dn 2nd time - optimize it
             if not self._get_enabled(object_id, conn):
                 modlist = [(ldap.MOD_ADD,
                             self.member_attribute,
-                            [self._id_to_dn(object_id)])]
+                            [dn])]
                 try:
                     conn.modify_s(self.enabled_emulation_dn, modlist)
                 except ldap.NO_SUCH_OBJECT:
                     attr_list = [('objectClass', [self.group_objectclass]),
                                  (self.member_attribute,
-                                  [self._id_to_dn(object_id)]),
+                                  [dn]),
                                  self.enabled_emulation_naming_attr]
                     conn.add_s(self.enabled_emulation_dn, attr_list)
 
     def _remove_enabled(self, object_id):
+        if self.group_members_are_ids:
+            dn = object_id
+        else:
+            dn = self._id_to_dn(object_id)
         modlist = [(ldap.MOD_DELETE,
                     self.member_attribute,
-                    [self._id_to_dn(object_id)])]
+                    [dn])]
         with self.get_connection() as conn:
             try:
                 conn.modify_s(self.enabled_emulation_dn, modlist)
