@@ -112,6 +112,13 @@ Install and configure components
 
 4. Initialize Fernet key repositories:
 
+   .. note::
+
+      The ``--keystone-user`` and ``--keystone-group`` flags are used to specify the
+      operating system's user/group that will be used to run keystone. These are provided
+      to allow running keystone under another operating system user/group. In the example
+      below, we call the user & group ``keystone``.
+
    .. code-block:: console
 
       # keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
