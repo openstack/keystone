@@ -41,13 +41,9 @@ deprecated_delete_domain_config = policy.DeprecatedRule(
 )
 
 
-DEPRECATED_REASON = """
-As of the Train release, the domain config API now understands default roles and
-system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the domain config API.
-"""
+DEPRECATED_REASON = (
+    "The domain config API is now aware of system scope and default roles."
+)
 
 domain_config_policies = [
     policy.DocumentedRuleDefault(

@@ -36,13 +36,9 @@ deprecated_delete_sp = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED
 )
 
-DEPRECATED_REASON = """
-As of the Stein release, the service provider API now understands default
-roles and system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the service provider API.
-"""
+DEPRECATED_REASON = (
+    "The service provider API is now aware of system scope and default roles."
+)
 
 service_provider_policies = [
     policy.DocumentedRuleDefault(

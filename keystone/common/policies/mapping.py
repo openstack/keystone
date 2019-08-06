@@ -36,13 +36,9 @@ deprecated_delete_mapping = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED
 )
 
-DEPRECATED_REASON = """
-As of the Stein release, the federated mapping API now understands default
-roles and system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the federated mapping API.
-"""
+DEPRECATED_REASON = (
+    "The federated mapping API is now aware of system scope and default roles."
+)
 
 mapping_policies = [
     policy.DocumentedRuleDefault(

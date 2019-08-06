@@ -25,13 +25,9 @@ deprecated_list_role_assignments = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED
 )
 
-DEPRECATED_REASON = """
-As of the Stein release, the role assignment API now understands how to
-handle system-scoped tokens in addition to project-scoped tokens, making
-the API more accessible to users without compromising security or
-manageability for administrators. The new default policies for this API
-account for these changes automatically.
-"""
+DEPRECATED_REASON = (
+    "The assignment API is now aware of system scope and default roles."
+)
 
 role_assignment_policies = [
     policy.DocumentedRuleDefault(

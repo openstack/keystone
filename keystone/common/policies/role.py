@@ -56,13 +56,9 @@ deprecated_delete_domain_role = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED
 )
 
-DEPRECATED_REASON = """
-As of the Stein release, the role API now understands default roles and
-system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the role API.
-"""
+DEPRECATED_REASON = (
+    "The role API is now aware of system scope and default roles."
+)
 
 role_policies = [
     policy.DocumentedRuleDefault(

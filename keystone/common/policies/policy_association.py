@@ -74,13 +74,9 @@ deprecated_delete_policy_association_for_region_and_service = policy.DeprecatedR
     check_str=base.RULE_ADMIN_REQUIRED,
 )
 
-DEPRECATED_REASON = """
-As of the Train release, the policy association API now understands default
-roles and system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the policy association API.
-"""
+DEPRECATED_REASON = (
+    "The policy association API is now aware of system scope and default roles."
+)
 
 policy_association_policies = [
     policy.DocumentedRuleDefault(
