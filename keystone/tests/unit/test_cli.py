@@ -219,6 +219,12 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             c.get('/v3/auth/tokens',
                   headers={'X-Auth-Token': r.headers['X-Subject-Token'],
                            'X-Subject-Token': token})
+        admin_role = PROVIDERS.role_api.get_role(self.bootstrap.role_id)
+        reader_role = PROVIDERS.role_api.get_role(self.bootstrap.reader_role_id)
+        member_role = PROVIDERS.role_api.get_role(self.bootstrap.member_role_id)
+        self.assertEqual(admin_role['options'], {})
+        self.assertEqual(member_role['options'], {})
+        self.assertEqual(reader_role['options'], {})
 
     def test_bootstrap_is_not_idempotent_when_password_does_change(self):
         # NOTE(lbragstad): Ensure bootstrap isn't idempotent when run with
@@ -291,6 +297,19 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             PROVIDERS.identity_api.authenticate(
                 user_id,
                 self.bootstrap.password)
+
+    def test_bootstrap_with_immutable_roles(self):
+        CONF(args=['bootstrap',
+                   '--bootstrap-password', uuid.uuid4().hex,
+                   '--immutable-roles'],
+             project='keystone')
+        self._do_test_bootstrap(self.bootstrap)
+        admin_role = PROVIDERS.role_api.get_role(self.bootstrap.role_id)
+        reader_role = PROVIDERS.role_api.get_role(self.bootstrap.reader_role_id)
+        member_role = PROVIDERS.role_api.get_role(self.bootstrap.member_role_id)
+        self.assertTrue(admin_role['options']['immutable'])
+        self.assertTrue(member_role['options']['immutable'])
+        self.assertTrue(reader_role['options']['immutable'])
 
 
 class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
