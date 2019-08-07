@@ -216,7 +216,7 @@ This page lists the Identity API operations in the following order:
 * `Unified Limits`_
 * `Users`_
 * `OS-INHERIT`_
-* `OS-PKI`_
+* `OS-PKI (DEPRECATED)`_
 
 .. rest_expand_all::
 
