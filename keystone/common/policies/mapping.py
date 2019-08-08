@@ -96,7 +96,7 @@ mapping_policies = [
                 'method': 'HEAD'
             }
         ],
-        deprecated_rule=deprecated_get_mapping,
+        deprecated_rule=deprecated_list_mappings,
         deprecated_reason=DEPRECATED_REASON,
         deprecated_since=versionutils.deprecated.STEIN
     ),
