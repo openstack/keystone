@@ -45,6 +45,31 @@ deprecated_list_endpoint_groups_for_project = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED,
 )
 
+deprecated_create_endpoint_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_endpoint_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_update_endpoint_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_endpoint_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_delete_endpoint_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_endpoint_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_add_endpoint_group_to_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'add_endpoint_group_to_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_remove_endpoint_group_from_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'remove_endpoint_group_from_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
 
 DEPRECATED_REASON = """
 As of the Train release, the endpoint groups API now understands default roles
@@ -58,11 +83,14 @@ relying on overrides in your deployment for the endpoint groups API.
 group_endpoint_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create endpoint group.',
         operations=[{'path': '/v3/OS-EP-FILTER/endpoint_groups',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_endpoint_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoint_groups',
         check_str=base.SYSTEM_READER,
@@ -89,20 +117,26 @@ group_endpoint_policies = [
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update endpoint group.',
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
                               '{endpoint_group_id}'),
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_endpoint_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_endpoint_group',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete endpoint group.',
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
                               '{endpoint_group_id}'),
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_endpoint_group,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_associated_with_endpoint_group',
         check_str=base.SYSTEM_READER,
@@ -154,20 +188,26 @@ group_endpoint_policies = [
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_endpoint_group_to_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Allow a project to access an endpoint group.',
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
                               '{endpoint_group_id}/projects/{project_id}'),
-                     'method': 'PUT'}]),
+                     'method': 'PUT'}],
+        deprecated_rule=deprecated_add_endpoint_group_to_project,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_endpoint_group_from_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Remove endpoint group from project.',
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
                               '{endpoint_group_id}/projects/{project_id}'),
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_remove_endpoint_group_from_project,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN)
 ]
 
 
