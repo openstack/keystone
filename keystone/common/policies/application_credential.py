@@ -43,14 +43,6 @@ application_credential_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_application_credential',
         check_str=base.RULE_SYSTEM_READER_OR_OWNER,
-        # FIXME(cmurphy) A system administrator should be able to manage any
-        # application credential. A user with a role on a project should be
-        # able to manage their own application credential. We don't currently
-        # have a way of describing how a project administrator should or should
-        # not be able to manage application credentials related to their
-        # project. scope_types will remain commented out for now and will be
-        # updated when we have an answer for this. The same applies to the
-        # other policies in this file.
         scope_types=['system', 'project'],
         description='Show application credential details.',
         operations=[{'path': resource_path,
