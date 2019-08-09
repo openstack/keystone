@@ -1870,6 +1870,7 @@ class TestMappingEngineTester(unit.BaseTestCase):
 class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
+        self.useFixture(database.Database())
         super(CliStatusTestCase, self).setUp()
         self.load_backends()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -1908,4 +1909,25 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
             overridden_policies = {}
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
+        self.assertEqual(upgradecheck.Code.SUCCESS, result.code)
+
+    def test_check_immutable_roles(self):
+        role_ref = unit.new_role_ref(name='admin')
+        PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
+        result = self.checks.check_default_roles_are_immutable()
+        self.assertEqual(upgradecheck.Code.FAILURE, result.code)
+        role_ref['options'] = {'immutable': True}
+        PROVIDERS.role_api.update_role(role_ref['id'], role_ref)
+        result = self.checks.check_default_roles_are_immutable()
+        self.assertEqual(upgradecheck.Code.SUCCESS, result.code)
+        # Check domain-specific roles are not reported
+        PROVIDERS.resource_api.create_domain(
+            default_fixtures.ROOT_DOMAIN['id'],
+            default_fixtures.ROOT_DOMAIN)
+        domain_ref = unit.new_domain_ref()
+        domain = PROVIDERS.resource_api.create_domain(
+            domain_ref['id'], domain_ref)
+        role_ref = unit.new_role_ref(name='admin', domain_id=domain['id'])
+        PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
+        result = self.checks.check_default_roles_are_immutable()
         self.assertEqual(upgradecheck.Code.SUCCESS, result.code)
