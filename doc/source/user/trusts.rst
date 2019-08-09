@@ -73,7 +73,6 @@ The delegation parameters are:
 
 .. note::
 
-   See the administrator guide on `removing expired trusts`_ for recommended
+   See the administrator guide on :doc:`removing expired trusts
+   </admin/manage-trusts>` for recommended
    maintenance procedures.
-
-.. _`removing expired trusts`: ../admin/manage-trusts.html

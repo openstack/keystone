@@ -30,9 +30,9 @@ Proposing a change
 
 You need to create a RFE bug report, submit a specification against the `keystone-specs`_
 repository and bring it up to discussion with the `keystone core team`_ for
-agreement. Please refer to the `guide for proposing features`_ to learn more about the process.
+agreement. Please refer to the :ref:`guide for proposing features
+<proposing_features>` to learn more about the process.
 
-.. _`guide for proposing features`: https://docs.openstack.org/keystone/latest/contributor/proposing-features.html
 .. _`keystone-specs`: https://opendev.org/openstack/keystone-specs/
 .. _`keystone core team`: https://review.opendev.org/#/admin/groups/9,members
 
