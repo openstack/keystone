@@ -499,8 +499,8 @@ you've made to policy enforcement in your service. Release notes are an
 excellent way to signal changes to operators. You can find examples when
 keystone implemented support for default roles. Additionally, you might have
 operators or users ask questions about the various scopes or what they mean.
-Don't hesitate to refer them to keystone's `scope documentation
-<https://docs.openstack.org/keystone/latest/admin/tokens-overview.html#authorization-scopes>`_.
+Don't hesitate to refer them to keystone's :ref:`scope documentation
+<authorization_scopes>`.
 
 Auth Token middleware
 =====================

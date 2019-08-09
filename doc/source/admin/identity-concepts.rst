@@ -297,8 +297,7 @@ service, such as, a user named ``nova`` for the Compute service, and a
 special service project called ``service``.
 
 For information about how to create services and endpoints, see the
-`OpenStack Administrator Guide <https://docs.openstack.org/keystone/latest/
-admin/manage-services.html>`__.
+:ref:`Administrator Guide <manage_services>`.
 
 Groups
 ~~~~~~

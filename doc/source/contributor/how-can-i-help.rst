@@ -44,7 +44,7 @@ while you learn the ropes:
 * Review `new changes`_. Keep OpenStack's `review guidelines`_ in mind. Ask
   questions when you don't understand a change.
 
-Need any help? `Reach out`_ to the keystone team.
+Need any help? :doc:`Reach out </getting-started/community>` to the keystone team.
 
 .. _keystone: https://bugs.launchpad.net/keystone/+bugs?field.tag=low-hanging-fruit
 .. _keystonemiddleware: https://bugs.launchpad.net/keystonemiddleware/+bugs?field.tag=low-hanging-fruit
@@ -54,4 +54,3 @@ Need any help? `Reach out`_ to the keystone team.
 .. _keystone maintainers: https://review.openstack.org/#/admin/groups/9,members
 .. _new changes: https://review.openstack.org/#/q/is:open+project:openstack/keystone+OR+project:openstack/keystonemiddleware+OR+project:openstack/keystoneauth+OR+project:openstack/python-keystoneclient
 .. _review guidelines: https://docs.openstack.org/project-team-guide/review-the-openstack-way.html
-.. _Reach out: ../getting-started/community.html

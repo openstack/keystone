@@ -26,11 +26,10 @@ keystone is deciding how you want keystone to source your identity data.
 Keystone supports several different choices that will substantially impact how
 you'll configure, deploy, and interact with keystone.
 
-You can also mix-and-match various sources of identity (see `Domain-specific
-Configuration`_ for an example). For example, you can store OpenStack service users
+You can also mix-and-match various sources of identity (see
+:ref:`Domain-specific Configuration <domain_specific_configuration>` for an
+example). For example, you can store OpenStack service users
 and their passwords in SQL, manage customers in LDAP, and authenticate employees
 via SAML federation.
 
-.. _Domain-specific Configuration: domain-specific-config.html
 .. support_matrix:: identity-support-matrix.ini
-

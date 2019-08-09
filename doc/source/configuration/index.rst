@@ -1,3 +1,5 @@
+.. _keystone_configuration_options:
+
 ==============================
 Keystone Configuration Options
 ==============================
