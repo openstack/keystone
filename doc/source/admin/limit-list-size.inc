@@ -1,3 +1,5 @@
+.. -*- rst -*-
+
 ..
       Copyright 2018 SUSE Linux GmbH
       All Rights Reserved.

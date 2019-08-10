@@ -44,11 +44,11 @@ enable a true self-service experience for end users in a shared-resource system.
 Application Control
 -------------------
 
-Keystone provides the ability for applications to have their own identity
-through `application credentials`_, in service of developers building
-applications that need to access cloud APIs and cloud-native applications.
-
-.. _application credentials: https://docs.openstack.org/keystone/latest/user/application_credentials.html
+Keystone provides the ability for applications to have their own
+identity through :ref:`application credentials
+<application_credentials>`, in service of developers building
+applications that need to access cloud APIs and cloud-native
+applications.
 
 Interoperability
 ----------------

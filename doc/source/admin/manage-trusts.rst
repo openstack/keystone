@@ -3,10 +3,9 @@ Managing trusts
 ===============
 
 A trust is an OpenStack Identity extension that enables delegation and,
-optionally, impersonation through ``keystone``. See the `user guide on using
-trusts`_.
+optionally, impersonation through ``keystone``. See the :doc:`user
+guide on using trusts </user/trusts>`.
 
-.. _user guide on using trusts: ../user/trusts.html
 
 Removing Expired Trusts
 ===========================================================

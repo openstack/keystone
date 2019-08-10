@@ -144,6 +144,8 @@ Install and configure components
 
    Replace ``ADMIN_PASS`` with a suitable password for an administrative user.
 
+.. _ubuntu_configure_apache:
+
 Configure the Apache HTTP server
 --------------------------------
 

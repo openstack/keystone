@@ -26,7 +26,7 @@ Prerequisites
 -------------
 
 If you are not familiar with the idea of federated identity, see the
-`introduction`_ first.
+:ref:`federation_introduction` first.
 
 In this section, we will configure keystone as a Service Provider, consuming
 identity properties issued by an external Identity Provider, such as SAML
@@ -42,15 +42,18 @@ Ubuntu 16.04 and Apache 2.4.18.
 
 To enable federation, you'll need to run keystone behind a web server such as
 Apache rather than running the WSGI application directly with uWSGI or Gunicorn.
-See the installation guide for `SUSE`_, `RedHat`_ or `Ubuntu`_ to configure
-the Apache web server for keystone.
+See the installation guide for :ref:`SUSE <suse_configure_apache>`,
+:ref:`RedHat <redhat_configure_apache>` or :ref:`Ubuntu
+<ubuntu_configure_apache>` to configure the Apache web server for
+keystone.
 
 Throughout the rest of the guide, you will need to decide on three pieces of
 information and use them consistently throughout your configuration:
 
 1. The protocol name. This must be a valid keystone auth method and must match
-   one of: ``saml2``, ``openid``, ``mapped`` or a `custom auth method`_ for which
-   you must `register as an external driver`_.
+   one of: ``saml2``, ``openid``, ``mapped`` or a :ref:`custom auth
+   method <auth_plugins>` for which
+   you must :ref:`register as an external driver <developing_drivers>`.
 
 2. The identity provider name. This can be arbitrary.
 
@@ -71,13 +74,8 @@ Provider.
    ``/identity`` (for example), take this into account in your own
    configuration.
 
-.. _introduction: introduction
+
 .. _samltest.id: https://samltest.id
-.. _SUSE: ../../install/keystone-install-obs.html#configure-the-apache-http-server
-.. _RedHat: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
-.. _Ubuntu: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
-.. _custom auth method: ../../contributor/auth-plugins
-.. _register as an external driver: ../../contributor/developing-drivers
 
 Creating federation resources in keystone
 -----------------------------------------
@@ -132,6 +130,8 @@ be used by the mapping and protocol, and later for authentication.
 See also the `API reference on identity providers`_.
 
 .. _API reference on identity providers: https://docs.openstack.org/api-ref/identity/v3-ext/#identity-providers
+
+.. _create_a_mapping:
 
 Create a Mapping
 ~~~~~~~~~~~~~~~~
@@ -236,12 +236,9 @@ Configuring an HTTPD auth module
 
 This guide currently only includes examples for the Apache web server, but it
 possible to use SAML, OpenIDC, and other auth modules in other web servers. See
-the installation guides for running keystone behind Apache for `SUSE`_,
-`RedHat`_ or `Ubuntu`_.
-
-.. _`SUSE`: ../../install/keystone-install-obs.html#configure-the-apache-http-server
-.. _`RedHat`: ../../install/keystone-install-rdo.html#configure-the-apache-http-server
-.. _`Ubuntu`: ../../install/keystone-install-ubuntu.html#configure-the-apache-http-server
+the installation guides for running keystone behind Apache for
+:ref:`SUSE <suse_configure_apache>`, :ref:`RedHat
+<redhat_configure_apache>` or :ref:`Ubuntu <ubuntu_configure_apache>`.
 
 Configure protected endpoints
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -333,15 +330,13 @@ This guide contains examples for two major federation protocols:
 
 * SAML2.0 - see guides for the following implementations:
 
-  * `Set up mod_shib`_.
-  * `Set up mod_auth_mellon`_.
+  * :ref:`Set up mod_shib <shibboleth>`.
+  * :ref:`Set up mod_auth_mellon <mellon>`.
 
-* OpenID Connect: `Set up mod_auth_openidc`_.
+* OpenID Connect: :ref:`Set up mod_auth_openidc <federation_openidc>`.
 
-.. _`Set up mod_shib`: shibboleth.html
-.. _`Set up mod_auth_openidc`: openidc.html
-.. _`Set up mod_auth_mellon`: mellon.html
 
+.. _federation_configuring_keystone:
 
 Configuring Keystone
 --------------------
@@ -584,6 +579,8 @@ from the menu to be redirected to your Identity Provider for authentication.
    :height: 400px
    :alt: Horizon login screen using external authentication
 
+.. _keystone_as_idp:
+
 --------------------------------------
 Keystone as an Identity Provider (IdP)
 --------------------------------------
@@ -596,7 +593,7 @@ When keystone is configured as an Identity Provider, it is often referred to as
 clouds using the SAML2.0 protocol.
 
 If you are not familiar with the idea of federated identity, see the
-`introduction`_ first.
+:ref:`introduction <federation_introduction>` first.
 
 When setting up `Keystone to Keystone`, it is easiest to
 :ref:`configure a keystone Service Provider <keystone-as-sp>`  first
@@ -758,6 +755,7 @@ to another cloud.
    :height: 175px
    :alt: Horizon dropdown menu for switching between keystone providers
 
-.. include:: openidc.rst
-.. include:: mellon.rst
-.. include:: shibboleth.rst
+.. include:: openidc.inc
+.. include:: mellon.inc
+.. include:: shibboleth.inc
+

@@ -1,3 +1,5 @@
+.. -*- rst -*-
+
 ..
       Licensed under the Apache License, Version 2.0 (the "License"); you may
       not use this file except in compliance with the License. You may obtain
@@ -10,6 +12,8 @@
       WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
       License for the specific language governing permissions and limitations
       under the License.
+
+.. _federation_openidc:
 
 -------------------------
 Setting Up OpenID Connect
@@ -109,16 +113,12 @@ Remember to reload Apache after altering the VirtualHost:
 
 .. note::
 
-   When creating `mapping rules`_, in keystone, note that the 'remote'
+   When creating :ref:`mapping rules <create_a_mapping>`, in keystone, note that the 'remote'
    attributes will be prefixed, with ``HTTP_``, so for instance, if you set
    ``OIDCClaimPrefix`` to ``OIDC-``, then a typical remote value to check for
    is: ``HTTP_OIDC_ISS``.
 
-.. _`mapping rules`: configure_federation.html#mapping
-
 Continue configuring keystone
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Continue configuring keystone`_
-
-.. _Continue configuring keystone: configure_federation.html#configuring-keystone
+:ref:`Continue configuring keystone <federation_configuring_keystone>`
