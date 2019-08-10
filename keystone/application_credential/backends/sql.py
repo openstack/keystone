@@ -65,11 +65,17 @@ class ApplicationCredentialRoleModel(sql.ModelBase, sql.ModelDictMixin):
 
 class AccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'access_rule'
-    attributes = ['service', 'path', 'method']
+    attributes = ['external_id', 'user_id', 'service', 'path', 'method']
     id = sql.Column(sql.Integer, primary_key=True, nullable=False)
+    external_id = sql.Column(sql.String(64), index=True, unique=True)
+    user_id = sql.Column(sql.String(64), index=True)
     service = sql.Column(sql.String(64))
     path = sql.Column(sql.String(128))
     method = sql.Column(sql.String(16))
+    __table_args__ = (
+        sql.UniqueConstraint('user_id', 'service', 'path', 'method',
+                             name='duplicate_access_rule_for_user_constraint'),
+    )
     application_credential = sqlalchemy.orm.relationship(
         'ApplicationCredentialAccessRuleModel',
         backref=sqlalchemy.orm.backref('access_rule'),
@@ -135,17 +141,25 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
                 session.add(app_cred_role)
             if access_rules:
                 for access_rule in access_rules:
-                    access_rule_ref = AccessRuleModel.from_dict(access_rule)
-                    session.add(access_rule_ref)
+                    access_rule_ref = session.query(AccessRuleModel).filter_by(
+                        external_id=access_rule['id']).first()
+                    if not access_rule_ref:
+                        access_rule_ref = session.query(AccessRuleModel).filter_by(
+                            user_id=app_cred['user_id'],
+                            service=access_rule['service'],
+                            path=access_rule['path'],
+                            method=access_rule['method']).first()
+                    if not access_rule_ref:
+                        access_rule_ref = AccessRuleModel.from_dict({
+                            k.replace('id', 'external_id'): v
+                            for k, v in access_rule.items()})
+                        access_rule_ref['user_id'] = app_cred['user_id']
+                        session.add(access_rule_ref)
                     app_cred_access_rule = ApplicationCredentialAccessRuleModel()
                     app_cred_access_rule.application_credential = ref
                     app_cred_access_rule.access_rule = access_rule_ref
                     session.add(app_cred_access_rule)
-            application_credential_dict = ref.to_dict()
-            application_credential_dict.pop('internal_id')
-            application_credential_dict['roles'] = roles
-            if access_rules is not None:
-                application_credential_dict['access_rules'] = access_rules
+            application_credential_dict = self._to_dict(ref)
             return application_credential_dict
 
     def _to_dict(self, ref):
@@ -154,7 +168,9 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
         app_cred['roles'] = roles
         if ref.access_rules:
             access_rules = [
-                {k: v for k, v in c.access_rule.to_dict().items() if k != 'id'}
+                {k.replace('external_id', 'id'): v
+                 for k, v in c.access_rule.to_dict().items()
+                 if k != 'user_id' and k != 'id'}
                 for c in ref.access_rules
             ]
             app_cred['access_rules'] = access_rules
