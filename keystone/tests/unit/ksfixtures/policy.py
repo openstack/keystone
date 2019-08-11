@@ -29,4 +29,5 @@ class Policy(fixtures.Fixture):
         opts.set_defaults(self._config_fixture.conf)
         self._config_fixture.config(group='oslo_policy',
                                     policy_file=self._policy_file)
+        policy._ENFORCER.suppress_deprecation_warnings = True
         self.addCleanup(policy.reset)
