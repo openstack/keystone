@@ -50,6 +50,9 @@
 409:
   default: |
     This operation conflicted with another operation on this resource.
+410:
+  default: |
+    The access request to the target resource is no longer available.
 413:
   default: |
     The request is larger than the server is willing or able to process.
