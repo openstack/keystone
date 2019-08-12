@@ -29,6 +29,28 @@ _role_properties = {
     }
 }
 
+_access_rules_properties = {
+    'type': 'array',
+    'items': {
+        'type': 'object',
+        'properties': {
+            'path': {
+                'type': 'string',
+                'minLength': 0,
+                'maxLength': 225,
+                'pattern': '^\/.*'
+            },
+            'method': {
+                'type': 'string',
+                'pattern': '^(POST|GET|HEAD|PATCH|PUT|DELETE)$'
+            },
+            'service': parameter_types.id_string,
+            'id': parameter_types.id_string,
+        },
+        'additionalProperties': False
+    }
+}
+
 _application_credential_properties = {
     'name': parameter_types.name,
     'description': validation.nullable(parameter_types.description),
@@ -39,7 +61,8 @@ _application_credential_properties = {
         'type': ['null', 'string']
     },
     'roles': _role_properties,
-    'unrestricted': parameter_types.boolean
+    'unrestricted': parameter_types.boolean,
+    'access_rules': _access_rules_properties
 }
 
 application_credential_create = {

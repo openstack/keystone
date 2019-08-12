@@ -545,7 +545,8 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         # secret is only exposed after create, it is not stored
         'secret',
         'links',
-        'unrestricted'
+        'unrestricted',
+        'access_rules'
     ])
 
     @staticmethod
@@ -608,6 +609,16 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         if app_cred_data.get('expires_at'):
             app_cred_data['expires_at'] = utils.parse_expiration_date(
                 app_cred_data['expires_at'])
+        if app_cred_data.get('access_rules'):
+            for access_rule in app_cred_data['access_rules']:
+                # If user provides an access rule by ID, it will be looked up
+                # by ID. If user provides an access rule that is identical to
+                # an existing one, the ID generated here will be ignored and
+                # the pre-existing access rule will be used.
+                if 'id' not in access_rule:
+                    # Generate directly, rather than using _assign_unique_id,
+                    # so that there is no deep copy made
+                    access_rule['id'] = uuid.uuid4().hex
         app_cred_data = self._normalize_dict(app_cred_data)
         app_cred_api = PROVIDERS.application_credential_api
 
