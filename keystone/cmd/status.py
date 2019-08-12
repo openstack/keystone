@@ -10,11 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_policy import _checks
+from oslo_policy import policy
 from oslo_upgradecheck import upgradecheck
 
+from keystone.common import rbac_enforcer
 import keystone.conf
 
 CONF = keystone.conf.CONF
+ENFORCER = rbac_enforcer.RBACEnforcer
 
 
 class Checks(upgradecheck.UpgradeCommands):
@@ -26,8 +30,31 @@ class Checks(upgradecheck.UpgradeCommands):
     policies actually exist within the roles backend.
     """
 
-    pass
+    def check_trust_policies_are_not_empty(self):
+        enforcer = policy.Enforcer(CONF)
+        ENFORCER.register_rules(enforcer)
+        enforcer.load_rules()
+        rule = enforcer.rules.get('identity:list_trusts')
+        if isinstance(rule, _checks.TrueCheck):
+            return upgradecheck.Result(
+                upgradecheck.Code.FAILURE,
+                "Policy check string for \"identity:list_trusts\" is "
+                "overridden to \"\", \"@\", or []. In the next release, "
+                "this will cause the \"identity:list_trusts\" action to be "
+                "fully permissive as hardcoded enforcement will be removed. "
+                "To correct this issue, either stop overriding this rule in "
+                "config to accept the defaults, or explicitly set a rule that "
+                "is not empty."
+            )
+        return upgradecheck.Result(
+            upgradecheck.Code.SUCCESS, "\"identity:list_trusts\" policy is safe")
+
+    _upgrade_checks = (
+        ("Check trust policies are not empty",
+         check_trust_policies_are_not_empty),
+    )
 
 
 def main():
+    keystone.conf.configure()
     return upgradecheck.main(CONF, 'keystone', Checks())

@@ -14,6 +14,9 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+RULE_TRUSTOR = 'user_id:%(target.trust.trustor_user_id)s'
+RULE_TRUSTEE = 'user_id:%(target.trust.trustee_user_id)s'
+
 trust_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_trust',
@@ -27,12 +30,30 @@ trust_policies = [
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts',
-        check_str='',
+        check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['project'],
         description='List trusts.',
         operations=[{'path': '/v3/OS-TRUST/trusts',
                      'method': 'GET'},
                     {'path': '/v3/OS-TRUST/trusts',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'list_trusts_for_trustor',
+        check_str=RULE_TRUSTOR,
+        scope_types=['project'],
+        description='List trusts for trustor.',
+        operations=[{'path': '/v3/OS-TRUST/trusts?trustor_user_id={trustor_user_id}',
+                     'method': 'GET'},
+                    {'path': '/v3/OS-TRUST/trusts?trustor_user_id={trustor_user_id}',
+                     'method': 'HEAD'}]),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'list_trusts_for_trustee',
+        check_str=RULE_TRUSTEE,
+        scope_types=['project'],
+        description='List trusts for trustee.',
+        operations=[{'path': '/v3/OS-TRUST/trusts?trustee_user_id={trustee_user_id}',
+                     'method': 'GET'},
+                    {'path': '/v3/OS-TRUST/trusts?trustee_user_id={trustee_user_id}',
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles_for_trust',

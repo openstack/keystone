@@ -26,6 +26,7 @@ import oslo_config.fixture
 from oslo_db.sqlalchemy import migration
 from oslo_log import log
 from oslo_serialization import jsonutils
+from oslo_upgradecheck import upgradecheck
 from six.moves import configparser
 from six.moves import http_client
 from six.moves import range
@@ -41,6 +42,7 @@ from keystone.cmd.doctor import ldap
 from keystone.cmd.doctor import security_compliance
 from keystone.cmd.doctor import tokens
 from keystone.cmd.doctor import tokens_fernet
+from keystone.cmd import status
 from keystone.common import provider_api
 from keystone.common.sql import upgrades
 import keystone.conf
@@ -51,6 +53,7 @@ from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
+from keystone.tests.unit.ksfixtures import policy
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import mapping_fixtures
 
@@ -1843,3 +1846,39 @@ class TestMappingEngineTester(unit.BaseTestCase):
         mapping_engine = cli.MappingEngineTester()
         self.assertRaises(exception.ValidationError,
                           mapping_engine.main)
+
+
+class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
+
+    def setUp(self):
+        super(CliStatusTestCase, self).setUp()
+        self.load_backends()
+        self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
+        self.policy_file_name = self.policy_file.file_name
+        self.useFixture(
+            policy.Policy(
+                self.config_fixture, policy_file=self.policy_file_name
+            )
+        )
+        self.checks = status.Checks()
+
+    def test_check_safe_trust_policies(self):
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {
+                'identity:list_trusts': ''
+            }
+            f.write(jsonutils.dumps(overridden_policies))
+        result = self.checks.check_trust_policies_are_not_empty()
+        self.assertEqual(upgradecheck.Code.FAILURE, result.code)
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {
+                'identity:list_trusts': 'rule:admin_required'
+            }
+            f.write(jsonutils.dumps(overridden_policies))
+        result = self.checks.check_trust_policies_are_not_empty()
+        self.assertEqual(upgradecheck.Code.SUCCESS, result.code)
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {}
+            f.write(jsonutils.dumps(overridden_policies))
+        result = self.checks.check_trust_policies_are_not_empty()
+        self.assertEqual(upgradecheck.Code.SUCCESS, result.code)

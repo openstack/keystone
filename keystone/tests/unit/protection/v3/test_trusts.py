@@ -12,6 +12,7 @@
 
 import uuid
 
+from oslo_serialization import jsonutils
 from six.moves import http_client
 
 from keystone.common import provider_api
@@ -20,6 +21,7 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import base_classes
 from keystone.tests.unit import ksfixtures
+from keystone.tests.unit.ksfixtures import temporaryfile
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -35,7 +37,13 @@ class TrustTests(base_classes.TestCaseWithBootstrap,
     def setUp(self):
         super(TrustTests, self).setUp()
         self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
+        self.policy_file_name = self.policy_file.file_name
+        self.useFixture(
+            ksfixtures.Policy(
+                self.config_fixture, policy_file=self.policy_file_name
+            )
+        )
 
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
@@ -91,6 +99,18 @@ class TrustTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.trustee_headers = {'X-Auth-Token': self.token_id}
+
+    def _override_policy_old_defaults(self):
+        # TODO(cmurphy): This is to simulate what would happen if the operator
+        # had generated a sample policy config, or had never removed their old
+        # policy files since we adopted policy in code, and had explicitly
+        # retained the old "" policy check strings. Remove this once the
+        # hardcoded enforcement is removed from the trusts API.
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {
+                'identity:list_trusts': '',
+            }
+            f.write(jsonutils.dumps(overridden_policies))
 
 
 class _AdminTestsMixin(object):
@@ -225,6 +245,18 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+    def test_admin_list_all_trusts_overridden_defaults(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts',
+                headers=self.headers
+            )
+        self.assertEqual(1, len(r.json['trusts']))
 
 
 class ProjectUserTests(TrustTests):
@@ -499,5 +531,69 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts/%s/roles/%s' %
                  (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.other_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_trustor_cannot_list_trusts_for_trustee_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
+                 self.trustee_user_id),
+                headers=self.trustor_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_trustee_cannot_list_trusts_for_trustor_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
+                 self.trustor_user_id),
+                headers=self.trustee_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_trusts_for_other_trustor_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
+                 self.trustor_user_id),
+                headers=self.other_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_trusts_for_other_trustee_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
+                 self.trustee_user_id),
+                headers=self.other_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_all_trusts_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts',
+                headers=self.trustee_headers,
                 expected_status_code=http_client.FORBIDDEN
             )

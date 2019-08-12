@@ -194,6 +194,8 @@ class PolicyJsonTestCase(unit.TestCase):
             'identity:revocation_list',
             'identity:create_trust',
             'identity:list_trusts',
+            'identity:list_trusts_for_trustor',
+            'identity:list_trusts_for_trustee',
             'identity:list_roles_for_trust',
             'identity:get_role_for_trust',
             'identity:delete_trust',

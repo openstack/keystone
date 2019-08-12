@@ -17,6 +17,8 @@
 
 import flask
 import flask_restful
+from oslo_log import log
+from oslo_policy import _checks as op_checks
 from six.moves import http_client
 
 from keystone.api._shared import json_home_relations
@@ -24,6 +26,7 @@ from keystone.common import context
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
+from keystone.common.rbac_enforcer import policy
 from keystone.common import utils
 from keystone.common import validation
 from keystone import exception
@@ -32,6 +35,7 @@ from keystone.server import flask as ks_flask
 from keystone.trust import schema
 
 
+LOG = log.getLogger(__name__)
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
@@ -156,32 +160,49 @@ class TrustResource(ks_flask.ResourceBase):
         return self.wrap_member(trust)
 
     def _list_trusts(self):
-        ENFORCER.enforce_call(action='identity:list_trusts')
-        trusts = []
         trustor_user_id = flask.request.args.get('trustor_user_id')
         trustee_user_id = flask.request.args.get('trustee_user_id')
+        if trustor_user_id:
+            target = {'trust': {'trustor_user_id': trustor_user_id}}
+            ENFORCER.enforce_call(action='identity:list_trusts_for_trustor',
+                                  target_attr=target)
+        elif trustee_user_id:
+            target = {'trust': {'trustee_user_id': trustee_user_id}}
+            ENFORCER.enforce_call(action='identity:list_trusts_for_trustee',
+                                  target_attr=target)
+        else:
+            ENFORCER.enforce_call(action='identity:list_trusts')
+
+        trusts = []
+
+        # NOTE(cmurphy) As of Train, the default policies enforce the
+        # identity:list_trusts rule and there are new policies in-code to
+        # enforce identity:list_trusts_for_trustor and
+        # identity:list_trusts_for_trustee. However, in case the
+        # identity:list_trusts rule has been locally overridden by the default
+        # that would have been produced by the sample config, we need to
+        # enforce it again and warn that the behavior is changing.
+        rules = policy._ENFORCER._enforcer.rules.get('identity:list_trusts')
+        # rule check_str is ""
+        if isinstance(rules, op_checks.TrueCheck):
+            LOG.warning(
+                "The policy check string for rule \"identity:list_trusts\" has been overridden"
+                "to \"always true\". In the next release, this will cause the"
+                "\"identity:list_trusts\" action to be fully permissive as hardcoded"
+                "enforcement will be removed. To correct this issue, either stop overriding the"
+                "\"identity:list_trusts\" rule in config to accept the defaults, or explicitly"
+                "set a rule that is not empty."
+            )
+            if not flask.request.args:
+                # NOTE(morgan): Admin can list all trusts.
+                ENFORCER.enforce_call(action='admin_required')
 
         if not flask.request.args:
-            # NOTE(morgan): Admin can list all trusts.
-            ENFORCER.enforce_call(action='admin_required')
             trusts += PROVIDERS.trust_api.list_trusts()
-
-        # TODO(morgan): Convert the trustor/trustee checks into policy
-        # checkstr we can enforce on. This is duplication of code
-        # behavior/design as the OS-TRUST controller for ease of review/
-        # comparison of previous code. Minor optimizations [checks before db
-        # hits] have been done.
-        action = _('Cannot list trusts for another user')
-        if trustor_user_id:
-            if trustor_user_id != self.oslo_context.user_id:
-                raise exception.ForbiddenAction(action=action)
-
-        if trustee_user_id:
-            if trustee_user_id != self.oslo_context.user_id:
-                raise exception.ForbiddenAction(action=action)
-
-        trusts += PROVIDERS.trust_api.list_trusts_for_trustor(trustor_user_id)
-        trusts += PROVIDERS.trust_api.list_trusts_for_trustee(trustee_user_id)
+        elif trustor_user_id:
+            trusts += PROVIDERS.trust_api.list_trusts_for_trustor(trustor_user_id)
+        elif trustee_user_id:
+            trusts += PROVIDERS.trust_api.list_trusts_for_trustee(trustee_user_id)
 
         for trust in trusts:
             # get_trust returns roles, list_trusts does not
