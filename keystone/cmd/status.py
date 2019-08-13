@@ -34,7 +34,11 @@ class Checks(upgradecheck.UpgradeCommands):
         enforcer = policy.Enforcer(CONF)
         ENFORCER.register_rules(enforcer)
         enforcer.load_rules()
-        rules = ['identity:list_trusts', 'identity:delete_trust']
+        rules = [
+            'identity:list_trusts',
+            'identity:delete_trust',
+            'identity:get_trust'
+        ]
         failed_rules = []
         for rule in rules:
             current_rule = enforcer.rules.get(rule)

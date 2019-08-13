@@ -1866,7 +1866,8 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
                 'identity:list_trusts': '',
-                'identity:delete_trust': ''
+                'identity:delete_trust': '',
+                'identity:get_trust': ''
             }
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
@@ -1874,7 +1875,8 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
                 'identity:list_trusts': 'rule:admin_required',
-                'identity:delete_trust': 'rule:admin_required'
+                'identity:delete_trust': 'rule:admin_required',
+                'identity:get_trust': 'rule:admin_required'
             }
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
