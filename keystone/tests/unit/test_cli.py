@@ -1865,14 +1865,16 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
     def test_check_safe_trust_policies(self):
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
-                'identity:list_trusts': ''
+                'identity:list_trusts': '',
+                'identity:delete_trust': ''
             }
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
         self.assertEqual(upgradecheck.Code.FAILURE, result.code)
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
-                'identity:list_trusts': 'rule:admin_required'
+                'identity:list_trusts': 'rule:admin_required',
+                'identity:delete_trust': 'rule:admin_required'
             }
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
