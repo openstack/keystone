@@ -66,7 +66,7 @@ trust_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role_for_trust',
-        check_str='',
+        check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
         scope_types=['project'],
         description='Check if trust delegates a particular role.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',

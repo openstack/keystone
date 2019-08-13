@@ -112,6 +112,7 @@ class TrustTests(base_classes.TestCaseWithBootstrap,
                 'identity:delete_trust': '',
                 'identity:get_trust': '',
                 'identity:list_roles_for_trust': '',
+                'identity:get_role_for_trust': '',
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -294,6 +295,19 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
         with self.test_client() as c:
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_admin_cannot_get_trust_role_for_other_user_overridden_defaults(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts/%s/roles/%s' %
+                 (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
@@ -730,6 +744,43 @@ class ProjectUserTests(TrustTests):
         with self.test_client() as c:
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.other_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_trustor_can_get_trust_role_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.head(
+                ('/v3/OS-TRUST/trusts/%s/roles/%s' %
+                 (self.trust_id, self.bootstrapper.member_role_id)),
+                headers=self.trustor_headers
+            )
+
+    def test_trustee_can_get_trust_role_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.head(
+                ('/v3/OS-TRUST/trusts/%s/roles/%s' %
+                 (self.trust_id, self.bootstrapper.member_role_id)),
+                headers=self.trustee_headers
+            )
+
+    def test_user_cannot_get_trust_role_other_user_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.head(
+                ('/v3/OS-TRUST/trusts/%s/roles/%s' %
+                 (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.other_headers,
                 expected_status_code=http_client.FORBIDDEN
             )
