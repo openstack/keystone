@@ -340,13 +340,48 @@ class TrustResource(ks_flask.ResourceBase):
 # URL additions and does not have a collection key/member_key, we use
 # the flask-restful Resource, not the keystone ResourceBase
 class RolesForTrustListResource(flask_restful.Resource):
+
+    @property
+    def oslo_context(self):
+        return flask.request.environ.get(context.REQUEST_CONTEXT_ENV, None)
+
     def get(self, trust_id):
-        ENFORCER.enforce_call(action='identity:list_roles_for_trust')
+        ENFORCER.enforce_call(action='identity:list_roles_for_trust',
+                              build_target=_build_trust_target_enforcement)
+
         # NOTE(morgan): This duplicates a little of the .get_trust from the
         # main resource, as it needs some of the same logic. However, due to
         # how flask-restful works, this should be fully encapsulated
+
+        if self.oslo_context.is_admin:
+            # policies are not loaded for the is_admin context, so need to
+            # block access here
+            raise exception.ForbiddenAction(
+                action=_('Requested user has no relation to this trust'))
+
         trust = PROVIDERS.trust_api.get_trust(trust_id)
-        _trustor_trustee_only(trust)
+
+        # NOTE(cmurphy) As of Train, the default policies enforce the
+        # identity:list_roles_for_trust rule. However, in case the
+        # identity:list_roles_for_trust rule has been locally overridden by the
+        # default that would have been produced by the sample config, we need
+        # to enforce it again and warn that the behavior is changing.
+        rules = policy._ENFORCER._enforcer.rules.get(
+            'identity:list_roles_for_trust')
+        # rule check_str is ""
+        if isinstance(rules, op_checks.TrueCheck):
+            LOG.warning(
+                "The policy check string for rule "
+                "\"identity:list_roles_for_trust\" has been overridden to "
+                "\"always true\". In the next release, this will cause the "
+                "\"identity:list_roles_for_trust\" action to be fully "
+                "permissive as hardcoded enforcement will be removed. To "
+                "correct this issue, either stop overriding the "
+                "\"identity:get_trust\" rule in config to accept the "
+                "defaults, or explicitly set a rule that is not empty."
+            )
+            _trustor_trustee_only(trust)
+
         _normalize_trust_expires_at(trust)
         _normalize_trust_roles(trust)
         return {'roles': trust['roles'],
