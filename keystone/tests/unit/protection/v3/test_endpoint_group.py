@@ -211,6 +211,170 @@ class _SystemReaderAndMemberUserEndpointGroupsTests(object):
                      )
 
 
+class _DomainAndProjectUserEndpointGroupTests(object):
+
+    def test_user_cannot_list_endpoint_groups(self):
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+
+        with self.test_client() as c:
+            c.get('/v3/OS-EP-FILTER/endpoint_groups', headers=self.headers,
+                  expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_get_an_endpoint_group(self):
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        with self.test_client() as c:
+            c.get('/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                  headers=self.headers, expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_list_projects_associated_with_endpoint_groups(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        PROVIDERS.catalog_api.add_endpoint_group_to_project(
+            endpoint_group['id'], project['id'])
+        with self.test_client() as c:
+            c.get('/v3/OS-EP-FILTER/endpoint_groups/%s/projects' % endpoint_group['id'],
+                  headers=self.headers, expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_list_endpoints_associated_with_endpoint_groups(self):
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+        endpoint = unit.new_endpoint_ref(service['id'], region_id=None)
+        endpoint = PROVIDERS.catalog_api.create_endpoint(
+            endpoint['id'], endpoint
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        with self.test_client() as c:
+            c.get('/v3/OS-EP-FILTER/endpoint_groups/%s/endpoints' % endpoint_group['id'],
+                  headers=self.headers, expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_get_endpoints_associated_with_endpoint_groups(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        PROVIDERS.catalog_api.add_endpoint_group_to_project(
+            endpoint_group['id'], project['id'])
+        with self.test_client() as c:
+            c.get('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
+                  % (endpoint_group['id'], project['id']),
+                  headers=self.headers, expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_list_endpoint_groups_with_their_projects(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        PROVIDERS.catalog_api.add_endpoint_group_to_project(
+            endpoint_group['id'], project['id'])
+        with self.test_client() as c:
+            c.get('/v3/OS-EP-FILTER/projects/%s/endpoint_groups' % project['id'],
+                  headers=self.headers, expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_create_endpoint_groups(self):
+        create = {
+            'endpoint_group': {
+                'id': uuid.uuid4().hex,
+                'description': uuid.uuid4().hex,
+                'filters': {'interface': 'public'},
+                'name': uuid.uuid4().hex
+            }
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/OS-EP-FILTER/endpoint_groups', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_endpoint_groups(self):
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+
+        update = {'endpoint_group': {'filters': {'interface': 'internal'}}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'], json=update,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_endpoint_groups(self):
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_add_endpoint_group_to_project(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        with self.test_client() as c:
+            c.put('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
+                  % (endpoint_group['id'], project['id']),
+                  headers=self.headers,
+                  expected_status_code=http_client.FORBIDDEN
+                  )
+
+    def test_cannot_remove_endpoint_group_from_project(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        with self.test_client() as c:
+            c.delete('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
+                     % (endpoint_group['id'], project['id']),
+                     headers=self.headers,
+                     expected_status_code=http_client.FORBIDDEN
+                     )
+
+
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _SystemUserEndpointGroupsTests,
@@ -376,3 +540,38 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                      % (endpoint_group['id'], project['id']),
                      headers=self.headers
                      )
+
+
+class DomainUserTests(base_classes.TestCaseWithBootstrap,
+                      common_auth.AuthTestMixin,
+                      _DomainAndProjectUserEndpointGroupTests):
+
+    def setUp(self):
+        super(DomainUserTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+        domain_admin = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.admin_role_id, user_id=self.user_id,
+            domain_id=self.domain_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=domain_admin['password'],
+            domain_id=self.domain_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
