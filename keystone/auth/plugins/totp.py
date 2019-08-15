@@ -34,9 +34,12 @@ import six
 from keystone.auth import plugins
 from keystone.auth.plugins import base
 from keystone.common import provider_api
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
+
+CONF = keystone.conf.CONF
 
 METHOD_NAME = 'totp'
 
@@ -44,7 +47,11 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-def _generate_totp_passcode(secret):
+PASSCODE_LENGTH = 6
+PASSCODE_TIME_PERIOD = 30
+
+
+def _generate_totp_passcodes(secret, included_previous_windows=0):
     """Generate TOTP passcode.
 
     :param bytes secret: A base32 encoded secret for the TOTP authentication
@@ -66,8 +73,18 @@ def _generate_totp_passcode(secret):
     # HMAC-SHA1 when generating the TOTP, which is currently not insecure but
     # will still trigger when scanned by bandit.
     totp = crypto_totp.TOTP(
-        decoded, 6, hashes.SHA1(), 30, backend=default_backend())  # nosec
-    return totp.generate(timeutils.utcnow_ts(microsecond=True)).decode('utf-8')
+        decoded, PASSCODE_LENGTH, hashes.SHA1(), PASSCODE_TIME_PERIOD,  # nosec
+        backend=default_backend())
+
+    passcode_ts = timeutils.utcnow_ts(microsecond=True)
+    passcodes = [totp.generate(passcode_ts).decode('utf-8')]
+
+    for i in range(included_previous_windows):
+        # NOTE(adriant): we move back the timestamp the number of seconds in
+        # PASSCODE_TIME_PERIOD each time.
+        passcode_ts -= PASSCODE_TIME_PERIOD
+        passcodes.append(totp.generate(passcode_ts).decode('utf-8'))
+    return passcodes
 
 
 class TOTP(base.AuthMethodHandler):
@@ -84,9 +101,9 @@ class TOTP(base.AuthMethodHandler):
         valid_passcode = False
         for credential in credentials:
             try:
-                generated_passcode = _generate_totp_passcode(
-                    credential['blob'])
-                if auth_passcode == generated_passcode:
+                generated_passcodes = _generate_totp_passcodes(
+                    credential['blob'], CONF.totp.included_previous_windows)
+                if auth_passcode in generated_passcodes:
                     valid_passcode = True
                     break
             except (ValueError, KeyError):
