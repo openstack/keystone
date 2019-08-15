@@ -26,9 +26,12 @@ You can also change quotas at the project level.
 Before you can delete a user account, you must remove the user account
 from its primary project.
 
-Before you can run client commands, you must download and
-source an OpenStack RC file. See `Download and source the OpenStack RC file
-<https://docs.openstack.org/user-guide/common/cli-set-environment-variables-using-openstack-rc.html#download-and-source-the-openstack-rc-file>`_.
+Before you can run client commands, you need to have a cloud config
+file or you can download and
+source an OpenStack RC file. See the
+:python-openstackclient-doc:`Configuration <configuration/index.html>`
+documentation from the python-openstackclient project for more details.
+
 
 Projects
 ~~~~~~~~

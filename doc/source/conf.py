@@ -276,3 +276,4 @@ texinfo_documents = [
 repository_name = 'openstack/keystone'
 bug_project = 'keystone'
 bug_tag = 'documentation'
+openstack_projects = ['python-openstackclient']
