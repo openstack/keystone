@@ -4,7 +4,7 @@ Manage projects, users, and roles
 
 As an administrator, you manage projects, users, and
 roles. Projects are organizational units in the cloud to which
-you can assign users. Projects are also known as *projects* or
+you can assign users. Projects are also known as *tenants* or
 *accounts*. Users can be members of one or more projects. Roles
 define which actions users can perform. You assign roles to
 user-project pairs.
@@ -77,6 +77,7 @@ Create a project named ``new-project``:
    | is_domain   | False                            |
    | name        | new-project                      |
    | parent_id   | e601210181f54843b51b3edff41d4980 |
+   | tags        | []                               |
    +-------------+----------------------------------+
 
 Update a project
@@ -112,10 +113,13 @@ description, and enabled status of a project.
       | Field       | Value                            |
       +-------------+----------------------------------+
       | description | my new project                   |
+      | domain_id   | e601210181f54843b51b3edff41d4980 |
       | enabled     | True                             |
       | id          | 0b0b995694234521bf93c792ed44247f |
+      | is_domain   | False                            |
       | name        | new-project                      |
-      | properties  |                                  |
+      | parent_id   | e601210181f54843b51b3edff41d4980 |
+      | tags        | []                               |
       +-------------+----------------------------------+
 
 Delete a project
@@ -222,9 +226,9 @@ List the available roles:
    +----------------------------------+---------------+
    | ID                               | Name          |
    +----------------------------------+---------------+
-   | 71ccc37d41c8491c975ae72676db687f | Member        |
+   | 71ccc37d41c8491c975ae72676db687f | member        |
    | 149f50a1fe684bfa88dae76a48d26ef7 | ResellerAdmin |
-   | 9fe2ff9ee4384b1894a90878d3e92bab | _member_      |
+   | 9fe2ff9ee4384b1894a90878d3e92bab | reader        |
    | 6ecf391421604da985db2f141e46a7c8 | admin         |
    | deb4fffd123c4d02a907c2c74559dccf | anotherrole   |
    +----------------------------------+---------------+
@@ -258,67 +262,16 @@ Assign a role
 -------------
 
 To assign a user to a project, you must assign the role to a
-user-project pair. To do this, you need the user, role, and project
-IDs.
-
-#. List users and note the user ID you want to assign to the role:
-
-   .. code-block:: console
-
-      $ openstack user list
-      +----------------------------------+----------+
-      | ID                               | Name     |
-      +----------------------------------+----------+
-      | 6ab5800949644c3e8fb86aaeab8275c8 | admin    |
-      | dfc484b9094f4390b9c51aba49a6df34 | demo     |
-      | 55389ff02f5e40cf85a053cc1cacb20c | alt_demo |
-      | bc52bcfd882f4d388485451c4a29f8e0 | nova     |
-      | 255388ffa6e54ec991f584cb03085e77 | glance   |
-      | 48b6e6dec364428da89ba67b654fac03 | cinder   |
-      | c094dd5a8e1d4010832c249d39541316 | neutron  |
-      | 6322872d9c7e445dbbb49c1f9ca28adc | new-user |
-      +----------------------------------+----------+
-
-#. List role IDs and note the role ID you want to assign:
-
-   .. code-block:: console
-
-      $ openstack role list
-      +----------------------------------+---------------+
-      | ID                               | Name          |
-      +----------------------------------+---------------+
-      | 71ccc37d41c8491c975ae72676db687f | Member        |
-      | 149f50a1fe684bfa88dae76a48d26ef7 | ResellerAdmin |
-      | 9fe2ff9ee4384b1894a90878d3e92bab | _member_      |
-      | 6ecf391421604da985db2f141e46a7c8 | admin         |
-      | deb4fffd123c4d02a907c2c74559dccf | anotherrole   |
-      | bef1f95537914b1295da6aa038ef4de6 | new-role      |
-      +----------------------------------+---------------+
-
-#. List projects and note the project ID you want to assign to the role:
-
-   .. code-block:: console
-
-      $ openstack project list
-      +----------------------------------+--------------------+
-      | ID                               | Name               |
-      +----------------------------------+--------------------+
-      | 0b0b995694234521bf93c792ed44247f | new-project        |
-      | 29c09e68e6f741afa952a837e29c700b | admin              |
-      | 3a7ab11d3be74d3c9df3ede538840966 | invisible_to_admin |
-      | 71a2c23bab884c609774c2db6fcee3d0 | service            |
-      | 87e48a8394e34d13afc2646bc85a0d8c | alt_demo           |
-      | fef7ae86615f4bf5a37c1196d09bcb95 | demo               |
-      +----------------------------------+--------------------+
+user-project pair.
 
 #. Assign a role to a user-project pair:
 
    .. code-block:: console
 
-      $ openstack role add --user USER_NAME --project TENANT_ID ROLE_NAME
+      $ openstack role add --user USER_NAME --project PROJECT_NAME ROLE_NAME
 
-   For example, assign the ``new-role`` role to the ``demo`` and
-   ``test-project`` pair:
+   For example, assign the ``new-role`` role to the ``demo`` user and
+   ``test-project`` project pair:
 
    .. code-block:: console
 
@@ -329,14 +282,14 @@ IDs.
    .. code-block:: console
 
       $ openstack role assignment list --user USER_NAME \
-        --project PROJECT_ID --names
-      +----------------------------------+-------------+---------+------+
-      | ID                               | Name        | Project | User |
-      +----------------------------------+-------------+---------+------+
-      | a34425c884c74c8881496dc2c2e84ffc | new-role    | demo    | demo |
-      | 04a7e3192c0745a2b1e3d2baf5a3ee0f | Member      | demo    | demo |
-      | 62bcf3e27eef4f648eb72d1f9920f6e5 | anotherrole | demo    | demo |
-      +----------------------------------+-------------+---------+------+
+        --project PROJECT_NAME --names
+      +-------------+--------------+-------+--------------+--------+--------+-----------+
+      | Role        | User         | Group | Project      | Domain | System | Inherited |
+      +-------------+--------------+-------+--------------+--------+--------+-----------+
+      | new-role    | demo@Default |       | demo@Default |        |        | False     |
+      | member      | demo@Default |       | demo@Default |        |        | False     |
+      | anotherrole | demo@Default |       | demo@Default |        |        | False     |
+      +-------------+--------------+-------+--------------+--------+--------+-----------+
 
 .. note::
 
@@ -370,13 +323,13 @@ Remove a role from a user-project pair:
 
    .. code-block:: console
 
-      $ openstack role remove --user USER_NAME --project TENANT_ID ROLE_NAME
+      $ openstack role remove --user USER_NAME --project PROJECT_NAME ROLE_NAME
 
 #. Verify the role removal:
 
    .. code-block:: console
 
-      $ openstack role assignment list --user USER_NAME --project TENANT_ID --names
+      $ openstack role assignment list --user USER_NAME --project PROJECT_NAME --names
 
    If the role was removed, the command output omits the removed role.
 
@@ -387,13 +340,13 @@ It is possible to build role hierarchies by having roles imply other roles.
 These are called implied roles, or role inference rules.
 
 To illustrate the capability, let's have the ``admin`` role imply the
-``Member`` role. In this example, if a user was assigned the prior role,
-which in this case is the ``admin`` role, they would also get the ``Member``
+``member`` role. In this example, if a user was assigned the prior role,
+which in this case is the ``admin`` role, they would also get the ``member``
 role that it implies.
 
 .. code-block:: console
 
-    $ openstack implied role create admin --implied-role Member
+    $ openstack implied role create admin --implied-role member
     +------------+----------------------------------+
     | Field      | Value                            |
     +------------+----------------------------------+
@@ -404,14 +357,14 @@ role that it implies.
 .. note::
 
     Role implications only go one way, from a "prior" role to an "implied"
-    role. Therefore assigning a user the ``Member`` will not grant them the
+    role. Therefore assigning a user the ``member`` will not grant them the
     ``admin`` role.
 
 This makes it easy to break up large roles into smaller pieces, allowing for
 fine grained permissions, while still having an easy way to assign all the
-pieces as if they were a single one. For example, you can have a ``Member``
+pieces as if they were a single one. For example, you can have a ``member``
 role imply ``compute_member``, ``network_member``, and ``volume_member``,
-and then assign either the full-blown ``Member`` role to users or any one of
+and then assign either the full-blown ``member`` role to users or any one of
 the subsets.
 
 Listing implied roles
@@ -425,7 +378,7 @@ To list implied roles:
     +----------------------------------+-----------------+----------------------------------+-------------------+
     | Prior Role ID                    | Prior Role Name | Implied Role ID                  | Implied Role Name |
     +----------------------------------+-----------------+----------------------------------+-------------------+
-    | 29c09e68e6f741afa952a837e29c700b | admin           | 71ccc37d41c8491c975ae72676db687f | Member            |
+    | 29c09e68e6f741afa952a837e29c700b | admin           | 71ccc37d41c8491c975ae72676db687f | member            |
     +----------------------------------+-----------------+----------------------------------+-------------------+
 
 Deleting implied roles
@@ -435,7 +388,7 @@ To delete a role inference rule:
 
 .. code-block:: console
 
-    $ openstack implied role delete admin --implied-role Member
+    $ openstack implied role delete admin --implied-role member
 
 .. note::
 
