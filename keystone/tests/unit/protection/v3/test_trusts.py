@@ -942,3 +942,136 @@ class ProjectUserTests(TrustTests):
                 headers=self.other_headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+
+class DomainUserTests(TrustTests):
+    """Tests for all domain users.
+
+    Domain users should not be able to interact with trusts at all.
+    """
+
+    def setUp(self):
+        super(DomainUserTests, self).setUp()
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+        domain_admin = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(
+            domain_admin)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.admin_role_id, user_id=self.user_id,
+            domain_id=self.domain_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=domain_admin['password'],
+            domain_id=self.domain_id
+        )
+        # Grab a token using another persona who has no trusts associated with
+        # them
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_trustor_cannot_list_trusts_for_trustee(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
+                 self.trustee_user_id),
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_trustee_cannot_list_trusts_for_trustor(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
+                 self.trustor_user_id),
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_all_trusts(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts',
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_get_trust(self):
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_can_get_non_existent_trust_not_found(self):
+        trust_id = uuid.uuid4().hex
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s' % trust_id,
+                headers=self.headers,
+                expected_status_code=http_client.NOT_FOUND
+            )
+
+    def test_user_cannot_create_trust(self):
+        trust_data = self.trust_data['trust']
+        trust_data['trustor_user_id'] = self.user_id
+        json = {'trust': trust_data}
+        json['trust']['roles'] = self.trust_data['roles']
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/OS-TRUST/trusts',
+                json=json,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_trust(self):
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_list_trust_roles(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_get_trust_role(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.head(
+                ('/v3/OS-TRUST/trusts/%s/roles/%s' %
+                 (self.trust_id, self.bootstrapper.member_role_id)),
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
