@@ -22,6 +22,5 @@ installed on an SQL or LDAP back end, and supports domain-specific
 Identity configuration options, which are stored in domain-specific
 configuration files. See the
 `Admin guide Identity Management Chapter
-<https://docs.openstack.org
-/keystone/latest/admin/identity-domain-specific-config.html>`_
+<https://docs.openstack.org/keystone/rocky/admin/identity-domain-specific-config.html>`_
 for more information.
