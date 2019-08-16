@@ -378,9 +378,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
-        # TODO(cmurphy) enable enforce_scope when trust policies become
-        # system-scope aware
-        # self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         self.user_id = self.bootstrapper.admin_user_id
         auth = self.build_authentication_request(
@@ -396,16 +394,14 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
 
-    def test_admin_cannot_delete_trust_for_other_user(self):
-        # only the is_admin admin can do this
+    def test_admin_can_delete_trust_for_other_user(self):
         ref = PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)
 
         with self.test_client() as c:
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
-                headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                headers=self.headers
             )
 
     def test_admin_cannot_delete_trust_for_user_overridden_defaults(self):

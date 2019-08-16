@@ -1,0 +1,41 @@
+---
+features:
+  - |
+    [`bug 1818846 <https://bugs.launchpad.net/keystone/+bug/1818846>`_]
+    The trusts API now supports the ``admin``, ``member``, and ``reader``
+    default roles. System users can now audit and clean up trusts using the
+    default policies.
+upgrade:
+  - |
+    [`bug 1818846 <https://bugs.launchpad.net/keystone/+bug/1818846>`_]
+    [`bug 1818850 <https://bugs.launchpad.net/keystone/+bug/1818850>`_]
+    The trusts API uses new default policies that make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides
+    trust policies.
+deprecations:
+  - |
+    [`bug 1818846 <https://bugs.launchpad.net/keystone/+bug/1818846>`_]
+    [`bug 1818850 <https://bugs.launchpad.net/keystone/+bug/1818850>`_]
+    The trust policies have been deprecated. The ``identity:list_trusts``
+    policy now uses ``(role:reader and system_scope:all)`` instead of
+    ``rule_admin_required``. The ``identity:list_roles_for_trust``,
+    ``identity:get_role_for_trust``, and ``identity:get_trust`` policies now
+    use ``(role:reader and system_scope:all) or
+    user_id:%(target.trust.trustor_user_id)s or
+    user_id:%(target.trust.trustee_user_id)s`` instead
+    of``user_id:%(target.trust.trustor_user_id)s or
+    user_id:%(target.trust.trustee_user_id)s``. The ``identity:delete_trust``
+    policy now uses ``(role:admin and system_scope:all) or
+    user_id:%(target.trust.trustor_user_id)s`` instead of
+    ``user_id:%(target.trust.trustor_user_id)s``. These new defaults
+    automatically account for system-scope and support a read-only role, making
+    it easier for system administrators to delegate subsets of responsibility
+    without compromising security. Please consider these new defaults if your
+    deployment overrides trust policies.
+security:
+  - |
+    [`bug 1818846 <https://bugs.launchpad.net/keystone/+bug/1818846>`_]
+    [`bug 1818850 <https://bugs.launchpad.net/keystone/+bug/1818850>`_]
+    The trusts API now uses system-scope and default roles to
+    provide better accessibility to users in a secure way.
