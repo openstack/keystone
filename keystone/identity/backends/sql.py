@@ -160,6 +160,13 @@ class Identity(base.IdentityDriverBase):
                          'password_expires_at']
         return query, hints
 
+    @staticmethod
+    def _apply_limits_to_list(collection, hints):
+        if not hints.limit:
+            return collection
+
+        return collection[:hints.limit['limit']]
+
     @driver_hints.truncated
     def list_users(self, hints):
         with sql.session_for_read() as session:
@@ -281,14 +288,28 @@ class Identity(base.IdentityDriverBase):
         with sql.session_for_read() as session:
             self.get_group(group_id)
             self.get_user(user_id)
+
+            # Note(knikolla): Check for normal group membership
             query = session.query(model.UserGroupMembership)
             query = query.filter_by(user_id=user_id)
             query = query.filter_by(group_id=group_id)
-            if not query.first():
-                raise exception.NotFound(_("User '%(user_id)s' not found in"
-                                           " group '%(group_id)s'") %
-                                         {'user_id': user_id,
-                                          'group_id': group_id})
+            if query.first():
+                return
+
+            # Note(knikolla): Check for expiring group membership
+            query = session.query(model.ExpiringUserGroupMembership)
+            query = query.filter(
+                model.ExpiringUserGroupMembership.user_id == user_id)
+            query = query.filter(
+                model.ExpiringUserGroupMembership.group_id == group_id)
+            active = [q for q in query.all() if not q.expired]
+            if active:
+                return
+
+            raise exception.NotFound(_("User '%(user_id)s' not found in"
+                                       " group '%(group_id)s'") %
+                                     {'user_id': user_id,
+                                      'group_id': group_id})
 
     def remove_user_from_group(self, user_id, group_id):
         # We don't check if user or group are still valid and let the remove
@@ -310,12 +331,33 @@ class Identity(base.IdentityDriverBase):
             session.delete(membership_ref)
 
     def list_groups_for_user(self, user_id, hints):
+        def row_to_group_dict(row):
+            group = row.group.to_dict()
+            group['membership_expires_at'] = row.expires
+            return group
+
         with sql.session_for_read() as session:
             self.get_user(user_id)
             query = session.query(model.Group).join(model.UserGroupMembership)
             query = query.filter(model.UserGroupMembership.user_id == user_id)
             query = sql.filter_limit_query(model.Group, query, hints)
-            return [g.to_dict() for g in query]
+            groups = [g.to_dict() for g in query]
+
+            # Note(knikolla): We must use the ExpiringGroupMembership model
+            # so that we can access the expired property.
+            query = session.query(model.ExpiringUserGroupMembership)
+            query = query.filter(
+                model.ExpiringUserGroupMembership.user_id == user_id)
+            query = sql.filter_limit_query(
+                model.UserGroupMembership, query, hints)
+            expiring_groups = [row_to_group_dict(r) for r in query.all()
+                               if not r.expired]
+
+            # Note(knikolla): I would have loved to be able to merge the two
+            # queries together and use filter_limit_query on the union, but
+            # I haven't found a generic way to express expiration in a SQL
+            # query, therefore we have to apply the limits here again.
+            return self._apply_limits_to_list(groups + expiring_groups, hints)
 
     def list_users_in_group(self, group_id, hints):
         with sql.session_for_read() as session:

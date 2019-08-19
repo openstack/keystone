@@ -343,6 +343,20 @@ Parameters
 Response
 --------
 
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - links: link_collection
+   - groups: groups
+   - description: group_description_response_body
+   - domain_id: group_domain_id_response_body
+   - id: group_id_response_body
+   - links: link_response_body
+   - name: group_name_response_body
+   - membership_expires_at: membership_expires_at_response_body
+
 Status Codes
 ~~~~~~~~~~~~
 
