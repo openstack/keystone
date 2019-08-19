@@ -85,6 +85,8 @@ class TrustResource(ks_flask.ResourceBase):
     json_home_parameter_rel_func = _build_parameter_relation
 
     def _check_unrestricted(self):
+        if self.oslo_context.is_admin:
+            return
         token = self.auth_context['token']
         if 'application_credential' in token.methods:
             if not token.application_credential['unrestricted']:
