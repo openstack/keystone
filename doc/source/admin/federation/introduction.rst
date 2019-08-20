@@ -37,7 +37,7 @@ but it requires keystone to handle passwords directly rather than offloading
 authentication to the external source.
 
 Keystone supports two configuration models for federated identity. The most
-common configuration is with `keystone as a Service Provider (SP)
+common configuration is with :ref:`keystone as a Service Provider (SP)
 <keystone-as-sp>`, using an
 external Identity Provider, such as a Keycloak or Google, as the identity source
 and authentication method. The second type of configuration is
