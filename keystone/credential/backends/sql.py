@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_db import api as oslo_db_api
+
 from keystone.common import driver_hints
 from keystone.common import sql
 from keystone.credential.backends import base
@@ -96,6 +98,7 @@ class Credential(base.CredentialDriverBase):
             query = query.filter_by(project_id=project_id)
             query.delete()
 
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_credentials_for_user(self, user_id):
         with sql.session_for_write() as session:
             query = session.query(CredentialModel)
