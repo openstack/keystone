@@ -56,7 +56,7 @@ class OAuth(base.AuthMethodHandler):
             url,
             http_method='POST',
             body=flask.request.args,
-            headers=flask.request.headers,
+            headers=dict(flask.request.headers),
             realms=None
         )
         if not result:
