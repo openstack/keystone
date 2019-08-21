@@ -1,0 +1,57 @@
+---
+features:
+  - |
+    [`bug 1818734 <https://bugs.launchpad.net/keystone/+bug/1818734>`_]
+    The endpoint groups API now supports the ``admin``, ``member``, and
+    ``reader`` default roles.
+
+upgrade:
+  - |
+    [`bug 1818734 <https://bugs.launchpad.net/keystone/+bug/1818734>`_]
+    The endpoint groups API uses new default policies to make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides endpoint
+    groups policies.
+deprecations:
+  - |
+    [`bug 1818734 <https://bugs.launchpad.net/keystone/+bug/1818734>`_]
+    The endpoint groups policies have been deprecated. The
+    ``identity:list_endpoint_groups`` policy now uses
+    ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:get_endpoint_group`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:update_endpoint_group`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.The ``identity:create_endpoint_group`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:delete_endpoint_group`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:list_projects_associated_with_endpoint_group`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:get_endpoint_group_in_project`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:list_endpoints_associated_with_endpoint_group`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:list_endpoint_groups_for_project`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:add_endpoint_group_to_project`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:remove_endpoint_group_from_project`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the endpoint group
+    policies.
+security:
+  - |
+    [`bug 1818734 <https://bugs.launchpad.net/keystone/+bug/1818734>`_]
+    The endpoint group API now uses system-scope and default roles
+    to provide better accessibility to users in a secure manner.
