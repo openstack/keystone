@@ -93,6 +93,64 @@ class _SystemReaderAndMemberPoliciesTests(object):
             )
 
 
+class _DomainAndProjectUserPolicyTests(object):
+
+    def test_user_cannot_list_policies(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+
+        with self.test_client() as c:
+            c.get('/v3/policies', headers=self.headers,
+                  expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_get_policy(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+
+        with self.test_client() as c:
+            c.get('/v3/policies/%s' % policy['id'], headers=self.headers,
+                  expected_status_code=http_client.FORBIDDEN)
+
+    def test_user_cannot_create_policy(self):
+        create = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+            'enabled': True,
+            # Store serialized JSON data as the blob to mimic real world usage.
+            'blob': json.dumps({'data': uuid.uuid4().hex, }),
+            'type': uuid.uuid4().hex,
+        }
+        with self.test_client() as c:
+            c.post(
+                '/v3/policies', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_policy(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+
+        update = {'policy': {'name': uuid.uuid4().hex}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/policies/%s' % policy['id'], json=update,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_policy(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/policies/%s' % policy['id'], headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
                         _SystemUserPoliciesTests,
@@ -224,3 +282,38 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete(
                 '/v3/policies/%s' % policy['id'], headers=self.headers
             )
+
+
+class DomainUserTests(base_classes.TestCaseWithBootstrap,
+                      common_auth.AuthTestMixin,
+                      _DomainAndProjectUserPolicyTests):
+
+    def setUp(self):
+        super(DomainUserTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        self.domain_id = domain['id']
+        domain_admin = unit.new_user_ref(domain_id=self.domain_id)
+        self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.admin_role_id, user_id=self.user_id,
+            domain_id=self.domain_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=domain_admin['password'],
+            domain_id=self.domain_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
