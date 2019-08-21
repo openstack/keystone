@@ -287,19 +287,6 @@ class UserGroupsResource(ks_flask.ResourceBase):
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
         api='identity_api', method='get_group')
 
-    @staticmethod
-    def _built_target_attr_enforcement():
-        ref = None
-        if flask.request.view_args:
-            try:
-                ref = {'user': PROVIDERS.identity_api.get_user(
-                    flask.request.view_args.get('user_id'))}
-            except ks_exception.NotFound:  # nosec
-                # Defer existence in the event the user doesn't exist, we'll
-                # check this later anyway.
-                pass
-        return ref
-
     def get(self, user_id):
         """Get groups for a user.
 
@@ -308,7 +295,7 @@ class UserGroupsResource(ks_flask.ResourceBase):
         filters = ('name',)
         hints = self.build_driver_hints(filters)
         ENFORCER.enforce_call(action='identity:list_groups_for_user',
-                              build_target=self._built_target_attr_enforcement,
+                              build_target=_build_user_target_enforcement,
                               filters=filters)
         refs = PROVIDERS.identity_api.list_groups_for_user(user_id=user_id,
                                                            hints=hints)
