@@ -277,3 +277,102 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _SystemUserEndpointGroupsTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_create_endpoint_group(self):
+        create = {
+            'endpoint_group': {
+                'id': uuid.uuid4().hex,
+                'description': uuid.uuid4().hex,
+                'filters': {'interface': 'public'},
+                'name': uuid.uuid4().hex
+            }
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/OS-EP-FILTER/endpoint_groups', json=create, headers=self.headers)
+
+    def test_user_can_update_endpoint_group(self):
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+
+        update = {'endpoint_group': {'filters': {'interface': 'internal'}}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'], json=update,
+                headers=self.headers)
+
+    def test_user_can_delete_endpoint_group(self):
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'], headers=self.headers
+            )
+
+    def test_user_add_endpoint_group_to_project(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        with self.test_client() as c:
+            c.put('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
+                  % (endpoint_group['id'], project['id']),
+                  headers=self.headers
+                  )
+
+    def test_remove_endpoint_group_from_project(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex, unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id
+            )
+        )
+        endpoint_group = unit.new_endpoint_group_ref(filters={'interface': 'public'})
+        endpoint_group = PROVIDERS.catalog_api.create_endpoint_group(
+            endpoint_group['id'], endpoint_group
+        )
+        PROVIDERS.catalog_api.add_endpoint_group_to_project(
+            endpoint_group['id'], project['id'])
+        with self.test_client() as c:
+            c.delete('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
+                     % (endpoint_group['id'], project['id']),
+                     headers=self.headers
+                     )
