@@ -12,17 +12,11 @@
 from oslo_db import exception as db_exception
 
 from keystone.assignment.role_backends import base
+from keystone.assignment.role_backends import sql_model
 from keystone.common import driver_hints
+from keystone.common import resource_options
 from keystone.common import sql
 from keystone import exception
-
-# NOTE(henry-nash): From the manager and above perspective, the domain_id
-# attribute of a role is nullable.  However, to ensure uniqueness in
-# multi-process configurations, it is better to still use a sql uniqueness
-# constraint. Since the support for a nullable component of a uniqueness
-# constraint across different sql databases is mixed, we instead store a
-# special value to represent null, as defined in NULL_DOMAIN_ID below.
-NULL_DOMAIN_ID = '<<null>>'
 
 
 class Role(base.RoleDriverBase):
@@ -30,8 +24,12 @@ class Role(base.RoleDriverBase):
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
         with sql.session_for_write() as session:
-            ref = RoleTable.from_dict(role)
+            ref = sql_model.RoleTable.from_dict(role)
             session.add(ref)
+            # Set resource options passed on creation
+            resource_options.resource_options_ref_to_mapper(
+                ref, sql_model.RoleOption
+            )
             return ref.to_dict()
 
     @driver_hints.truncated
@@ -44,11 +42,11 @@ class Role(base.RoleDriverBase):
         # hints (hence ensuring our substitution is not exposed to the caller).
         for f in hints.filters:
             if (f['name'] == 'domain_id' and f['value'] is None):
-                f['value'] = NULL_DOMAIN_ID
+                f['value'] = base.NULL_DOMAIN_ID
 
         with sql.session_for_read() as session:
-            query = session.query(RoleTable)
-            refs = sql.filter_limit_query(RoleTable, query, hints)
+            query = session.query(sql_model.RoleTable)
+            refs = sql.filter_limit_query(sql_model.RoleTable, query, hints)
             return [ref.to_dict() for ref in refs]
 
     def list_roles_from_ids(self, ids):
@@ -56,13 +54,13 @@ class Role(base.RoleDriverBase):
             return []
         else:
             with sql.session_for_read() as session:
-                query = session.query(RoleTable)
-                query = query.filter(RoleTable.id.in_(ids))
+                query = session.query(sql_model.RoleTable)
+                query = query.filter(sql_model.RoleTable.id.in_(ids))
                 role_refs = query.all()
                 return [role_ref.to_dict() for role_ref in role_refs]
 
     def _get_role(self, session, role_id):
-        ref = session.query(RoleTable).get(role_id)
+        ref = session.query(sql_model.RoleTable).get(role_id)
         if ref is None:
             raise exception.RoleNotFound(role_id=role_id)
         return ref
@@ -78,12 +76,20 @@ class Role(base.RoleDriverBase):
             old_dict = ref.to_dict()
             for k in role:
                 old_dict[k] = role[k]
-            new_role = RoleTable.from_dict(old_dict)
-            for attr in RoleTable.attributes:
+            new_role = sql_model.RoleTable.from_dict(old_dict)
+            for attr in sql_model.RoleTable.attributes:
                 if attr != 'id':
                     setattr(ref, attr, getattr(new_role, attr))
             ref.extra = new_role.extra
             ref.description = new_role.description
+            # Move the "_resource_options" attribute over to the real ref
+            # so that resource_options.resource_options_ref_to_mapper can
+            # handle the work.
+            setattr(ref, '_resource_options',
+                    getattr(new_role, '_resource_options', {}))
+            # Move options into the propper attribute mapper construct
+            resource_options.resource_options_ref_to_mapper(
+                ref, sql_model.RoleOption)
             return ref.to_dict()
 
     def delete_role(self, role_id):
@@ -92,10 +98,9 @@ class Role(base.RoleDriverBase):
             session.delete(ref)
 
     def _get_implied_role(self, session, prior_role_id, implied_role_id):
-        query = session.query(
-            ImpliedRoleTable).filter(
-                ImpliedRoleTable.prior_role_id == prior_role_id).filter(
-                    ImpliedRoleTable.implied_role_id == implied_role_id)
+        query = session.query(sql_model.ImpliedRoleTable).filter(
+            sql_model.ImpliedRoleTable.prior_role_id == prior_role_id).filter(
+            sql_model.ImpliedRoleTable.implied_role_id == implied_role_id)
         try:
             ref = query.one()
         except sql.NotFound:
@@ -109,7 +114,7 @@ class Role(base.RoleDriverBase):
         with sql.session_for_write() as session:
             inference = {'prior_role_id': prior_role_id,
                          'implied_role_id': implied_role_id}
-            ref = ImpliedRoleTable.from_dict(inference)
+            ref = sql_model.ImpliedRoleTable.from_dict(inference)
             try:
                 session.add(ref)
             except db_exception.DBReferenceError:
@@ -128,14 +133,14 @@ class Role(base.RoleDriverBase):
     def list_implied_roles(self, prior_role_id):
         with sql.session_for_read() as session:
             query = session.query(
-                ImpliedRoleTable).filter(
-                    ImpliedRoleTable.prior_role_id == prior_role_id)
+                sql_model.ImpliedRoleTable).filter(
+                    sql_model.ImpliedRoleTable.prior_role_id == prior_role_id)
             refs = query.all()
             return [ref.to_dict() for ref in refs]
 
     def list_role_inference_rules(self):
         with sql.session_for_read() as session:
-            query = session.query(ImpliedRoleTable)
+            query = session.query(sql_model.ImpliedRoleTable)
             refs = query.all()
             return [ref.to_dict() for ref in refs]
 
@@ -144,61 +149,3 @@ class Role(base.RoleDriverBase):
             ref = self._get_implied_role(session, prior_role_id,
                                          implied_role_id)
             return ref.to_dict()
-
-
-class ImpliedRoleTable(sql.ModelBase, sql.ModelDictMixin):
-    __tablename__ = 'implied_role'
-    attributes = ['prior_role_id', 'implied_role_id']
-    prior_role_id = sql.Column(
-        sql.String(64),
-        sql.ForeignKey('role.id', ondelete="CASCADE"),
-        primary_key=True)
-    implied_role_id = sql.Column(
-        sql.String(64),
-        sql.ForeignKey('role.id', ondelete="CASCADE"),
-        primary_key=True)
-
-    @classmethod
-    def from_dict(cls, dictionary):
-        new_dictionary = dictionary.copy()
-        return cls(**new_dictionary)
-
-    def to_dict(self):
-        """Return a dictionary with model's attributes.
-
-        overrides the `to_dict` function from the base class
-        to avoid having an `extra` field.
-        """
-        d = dict()
-        for attr in self.__class__.attributes:
-            d[attr] = getattr(self, attr)
-        return d
-
-
-class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
-
-    def to_dict(self, include_extra_dict=False):
-        d = super(RoleTable, self).to_dict(
-            include_extra_dict=include_extra_dict)
-        if d['domain_id'] == NULL_DOMAIN_ID:
-            d['domain_id'] = None
-        return d
-
-    @classmethod
-    def from_dict(cls, role_dict):
-        if 'domain_id' in role_dict and role_dict['domain_id'] is None:
-            new_dict = role_dict.copy()
-            new_dict['domain_id'] = NULL_DOMAIN_ID
-        else:
-            new_dict = role_dict
-        return super(RoleTable, cls).from_dict(new_dict)
-
-    __tablename__ = 'role'
-    attributes = ['id', 'name', 'domain_id', 'description']
-    id = sql.Column(sql.String(64), primary_key=True)
-    name = sql.Column(sql.String(255), nullable=False)
-    domain_id = sql.Column(sql.String(64), nullable=False,
-                           server_default=NULL_DOMAIN_ID)
-    description = sql.Column(sql.String(255), nullable=True)
-    extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint('name', 'domain_id'),)

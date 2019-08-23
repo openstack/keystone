@@ -12,6 +12,7 @@
 
 from keystone.common import validation
 from keystone.common.validation import parameter_types
+from keystone.resource.backends import resource_options as ro
 
 _name_properties = {
     'type': 'string',
@@ -47,7 +48,8 @@ _project_properties = {
     'is_domain': parameter_types.boolean,
     'parent_id': validation.nullable(parameter_types.id_string),
     'name': _name_properties,
-    'tags': _project_tags_list_properties
+    'tags': _project_tags_list_properties,
+    'options': ro.PROJECT_OPTIONS_REGISTRY.json_schema
 }
 
 # This is for updating a single project tag via the URL

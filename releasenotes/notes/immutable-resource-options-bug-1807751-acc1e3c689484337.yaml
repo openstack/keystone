@@ -1,0 +1,9 @@
+---
+features:
+  - >
+   [`bug 1807751 <https://bugs.launchpad.net/keystone/+bug/1807751>`_]
+   Keystone now implements the scaffolding for resource options in projects and
+   roles. Functionally new options (such as "immutable" flags) will appear in
+   returned JSON under the `options` field (dict) returned in the project, domain,
+   and role structures. The `options` field will be empty until resource options
+   are implemented for project, domain, and role.
