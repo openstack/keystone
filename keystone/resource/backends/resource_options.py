@@ -11,6 +11,7 @@
 # under the License.
 
 from keystone.common import resource_options
+from keystone.common.resource_options import options as ro_opt
 
 
 PROJECT_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('PROJECT')
@@ -20,7 +21,7 @@ PROJECT_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('PROJECT')
 # This is called on import by design.
 def register_role_options():
     for opt in [
-        # PLACEHOLDER for future options
+        ro_opt.IMMUTABLE_OPT,
     ]:
         PROJECT_OPTIONS_REGISTRY.register_option(opt)
 
