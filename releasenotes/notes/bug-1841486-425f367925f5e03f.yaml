@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1841486 <https://bugs.launchpad.net/keystone/+bug/1841486>`_]
+    The ``keystone-manage mapping_engine --engine-debug`` CLI tool now outputs
+    useful information about the direct mappings from an assertion after
+    processing mapping rules.
