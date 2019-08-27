@@ -25,6 +25,20 @@ deprecated_list_policies = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED,
 )
 
+deprecated_update_policy = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_policy',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_create_policy = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_policy',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_delete_policy = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_policy',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
 
 DEPRECATED_REASON = """
 As of the Train release, the policy API now understands default roles and
@@ -60,25 +74,34 @@ policy_policies = [
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create policy.',
         operations=[{'path': '/v3/policies',
-                     'method': 'POST'}]),
+                     'method': 'POST'}],
+        deprecated_rule=deprecated_create_policy,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_policy',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Update policy.',
         operations=[{'path': '/v3/policies/{policy_id}',
-                     'method': 'PATCH'}]),
+                     'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_policy,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete policy.',
         operations=[{'path': '/v3/policies/{policy_id}',
-                     'method': 'DELETE'}])
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_policy,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN)
 ]
 
 
