@@ -1296,9 +1296,8 @@ class BaseLdap(object):
     def _dn_to_id(self, dn):
         # Check if the naming attribute in the DN is the same as keystone's
         # configured 'id' attribute'.  If so, extract the ID value from the DN
-        if self.id_attr == utf8_decode(
-                ldap.dn.str2dn(utf8_encode(dn))[0][0][0].lower()):
-            return utf8_decode(ldap.dn.str2dn(utf8_encode(dn))[0][0][1])
+        if self.id_attr == ldap.dn.str2dn(dn)[0][0][0].lower():
+            return ldap.dn.str2dn(dn)[0][0][1]
         else:
             # The 'ID' attribute is NOT in the DN, so we need to perform an
             # LDAP search to look it up from the user entry itself.
