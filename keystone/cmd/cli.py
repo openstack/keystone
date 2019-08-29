@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import argparse
 import datetime
 import os
 import sys
@@ -1207,26 +1208,28 @@ class MappingEngineTester(BaseApp):
         parser = super(MappingEngineTester,
                        cls).add_argument_parser(subparsers)
 
+        parser.formatter_class = argparse.RawTextHelpFormatter
         parser.add_argument('--rules', default=None, required=True,
                             help=("Path to the file with "
                                   "rules to be executed. "
-                                  "Content must be a proper JSON structure, "
-                                  "with a top-level key 'rules' and "
+                                  "Content must be\na proper JSON structure, "
+                                  "with a top-level key 'rules' and\n"
                                   "corresponding value being a list."))
         parser.add_argument('--input', default=None, required=True,
                             help=("Path to the file with input attributes. "
-                                  "The content consists of ':' separated "
-                                  "parameter names and their values. "
-                                  "There is only one key-value pair per line. "
-                                  "A ';' in the value is a separator and then "
-                                  "a value is treated as a list. Example:\n "
-                                  "EMAIL: me@example.com\n"
-                                  "LOGIN: me\n"
-                                  "GROUPS: group1;group2;group3"))
+                                  "The content\nconsists of ':' separated "
+                                  "parameter names and their values.\nThere "
+                                  "is only one key-value pair per line. "
+                                  "A ';' in the\nvalue is a separator and "
+                                  "then a value is treated as a list.\n"
+                                  "Example:\n"
+                                  "\tEMAIL: me@example.com\n"
+                                  "\tLOGIN: me\n"
+                                  "\tGROUPS: group1;group2;group3"))
         parser.add_argument('--prefix', default=None,
                             help=("A prefix used for each environment "
-                                  "variable in the assertion. For example, "
-                                  "all environment variables may have the "
+                                  "variable in the\nassertion. For example, "
+                                  "all environment variables may have\nthe "
                                   "prefix ASDF_."))
         parser.add_argument('--engine-debug',
                             default=False, action="store_true",
