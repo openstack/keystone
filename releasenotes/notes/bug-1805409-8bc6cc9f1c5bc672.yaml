@@ -1,0 +1,72 @@
+---
+features:
+  - |
+    [`bug 1805409 <https://bugs.launchpad.net/keystone/+bug/1805409>`_]
+    The policy and policy associations API now supports the ``admin``,
+    ``member``, and ``reader`` default roles.
+
+upgrade:
+  - |
+    [`bug 1805409 <https://bugs.launchpad.net/keystone/+bug/1805409>`_]
+    The policy and policy associations API uses new default policies to
+    make it more accessible to end users and administrators in a secure way.
+    Please consider these new defaults if your deployment overrides policy
+    and policy associations policies.
+deprecations:
+  - |
+    [`bug 1805409 <https://bugs.launchpad.net/keystone/+bug/1805409>`_]
+    The policy and policy associations policies have been deprecated. The
+    ``identity:get_policy`` policy now uses
+    ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:list_policies`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:update_policy`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.The ``identity:create_policy`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:delete_policy`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:check_policy_association_for_endpoint`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:check_policy_association_for_service`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``role:reader and system_scope:all``.
+    The ``identity:check_policy_association_for_region_and_service`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:get_policy_for_endpoint`` policy
+    now uses ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:list_endpoints_for_policy`` policy
+    now use ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:create_policy_association_for_endpoint`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:delete_policy_association_for_endpoint`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:create_policy_association_for_service`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:delete_policy_association_for_service`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:create_policy_association_for_region_and_service`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:delete_policy_association_for_region_and_service`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the policy and policy
+    associations policies.
+security:
+  - |
+    [`bug 1805409 <https://bugs.launchpad.net/keystone/+bug/1805409>`_]
+    The policy and policy associations API now uses system-scope and default
+    roles to provide better accessibility to users in a secure manner.

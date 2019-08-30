@@ -292,3 +292,129 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _SystemUserPoliciesAssociationTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_create_policy_association_for_endpoint(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+        endpoint = unit.new_endpoint_ref(service['id'], region_id=None)
+        endpoint = PROVIDERS.catalog_api.create_endpoint(
+            endpoint['id'], endpoint
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
+                % (policy['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
+
+    def test_user_can_delete_policy_association_for_endpoint(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+        endpoint = unit.new_endpoint_ref(service['id'], region_id=None)
+        endpoint = PROVIDERS.catalog_api.create_endpoint(
+            endpoint['id'], endpoint
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
+                % (policy['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
+
+    def test_user_can_create_policy_association_for_service(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+        with self.test_client() as c:
+            c.put(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
+                % (policy['id'], service['id']),
+                headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
+
+    def test_user_can_delete_policy_association_for_service(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
+                % (policy['id'], service['id']),
+                headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
+
+    def test_user_can_create_policy_association_for_region_and_service(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+        region = PROVIDERS.catalog_api.create_region(unit.new_region_ref())
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
+                % (policy['id'], service['id'], region['id']),
+                headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
+
+    def test_user_can_delete_policy_association_for_region_and_service(self):
+        policy = unit.new_policy_ref()
+        policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+        region = PROVIDERS.catalog_api.create_region(unit.new_region_ref())
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
+                % (policy['id'], service['id'], region['id']),
+                headers=self.headers,
+                expected_status_code=http_client.NO_CONTENT
+            )
