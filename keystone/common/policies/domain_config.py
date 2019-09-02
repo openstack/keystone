@@ -10,10 +10,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+deprecated_get_domain_config = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_domain_config',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+deprecated_get_domain_config_default = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_domain_config_default',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+
+
+DEPRECATED_REASON = """
+As of the Train release, the domain config API now understands default roles and
+system-scoped tokens, making the API more granular by default without
+compromising security. The new policy defaults account for these changes
+automatically. Be sure to take these new defaults into consideration if you are
+relying on overrides in your deployment for the domain config API.
+"""
 
 domain_config_policies = [
     policy.DocumentedRuleDefault(
@@ -38,7 +57,7 @@ domain_config_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description=('Get the entire domain configuration for a domain, an '
                      'option group within a domain, or a specific '
@@ -68,7 +87,10 @@ domain_config_policies = [
                 'path': '/v3/domains/{domain_id}/config/{group}/{option}',
                 'method': 'HEAD'
             }
-        ]
+        ],
+        deprecated_rule=deprecated_get_domain_config,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_security_compliance_domain_config',
@@ -97,7 +119,7 @@ domain_config_policies = [
                          'security_compliance/{option}'),
                 'method': 'HEAD'
             }
-        ]
+        ],
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain_config',
@@ -143,7 +165,7 @@ domain_config_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config_default',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description=('Get domain configuration default for either a domain, '
                      'specific group or a specific option in a group.'),
@@ -172,7 +194,10 @@ domain_config_policies = [
                 'path': '/v3/domains/config/{group}/{option}/default',
                 'method': 'HEAD'
             }
-        ]
+        ],
+        deprecated_rule=deprecated_get_domain_config_default,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN
     )
 ]
 
