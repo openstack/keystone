@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1844207 <https://bugs.launchpad.net/keystone/+bug/1844207>`_]
+    Fixes an issue with WebSSO auth where a server error was raised if a remote
+    ID can't be found for the requested federation protocol, now correctly
+    raises an Unauthorized client error.
