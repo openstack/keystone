@@ -115,7 +115,7 @@ domain_config_policies = [
         check_str='',
         # This should be accessible to anyone with a valid token, regardless of
         # system-scope or project-scope.
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description=('Get security compliance domain configuration for '
                      'either a domain or a specific option in a domain.'),
         operations=[
