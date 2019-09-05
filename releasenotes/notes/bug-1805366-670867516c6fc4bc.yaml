@@ -1,0 +1,41 @@
+---
+features:
+  - |
+    [`bug 1805366 <https://bugs.launchpad.net/keystone/+bug/1805366>`_]
+    The Domain Config API now supports the ``admin``, ``member``, and ``reader``
+    default roles.
+
+upgrade:
+  - |
+    [`bug 1805366 <https://bugs.launchpad.net/keystone/+bug/1805366>`_]
+    The Domain Config API uses new default policies to make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides Domain Config
+    policies.
+deprecations:
+  - |
+    [`bug 1805366 <https://bugs.launchpad.net/keystone/+bug/1805366>`_]
+    The Domain Config API policies have been deprecated. The
+    ``identity:get_domain_config`` policy now uses
+    ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:get_domain_config_default`` policy
+    now use ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.The ``identity:create_domain_config`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:update_domain_config`` policy
+    now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    The ``identity:delete_domain_config`` policy
+    now uses ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the domain config policies.
+security:
+  - |
+    [`bug 1805366 <https://bugs.launchpad.net/keystone/+bug/1805366>`_]
+    The domain config API now uses system-scope and default roles to
+    provide better accessibility to users in a secure manner.

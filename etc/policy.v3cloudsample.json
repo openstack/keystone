@@ -51,11 +51,5 @@
     "identity:check_token": "rule:admin_or_owner",
     "identity:validate_token": "rule:service_admin_or_owner",
     "identity:validate_token_head": "rule:service_or_admin",
-    "identity:revoke_token": "rule:admin_or_owner",
-
-    "identity:create_domain_config": "rule:cloud_admin",
-    "identity:get_domain_config": "rule:cloud_admin",
-    "identity:update_domain_config": "rule:cloud_admin",
-    "identity:delete_domain_config": "rule:cloud_admin",
-    "identity:get_domain_config_default": "rule:cloud_admin"
+    "identity:revoke_token": "rule:admin_or_owner"
 }
