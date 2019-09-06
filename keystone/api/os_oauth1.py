@@ -227,7 +227,7 @@ class AccessTokenResource(_OAuth1ResourceBase):
                 url,
                 http_method='POST',
                 body=flask.request.args,
-                headers=flask.request.headers)
+                headers=dict(flask.request.headers))
         except NotImplementedError:
             # Client key or request token validation failed, since keystone
             # does not yet support dummy client or dummy request token,
