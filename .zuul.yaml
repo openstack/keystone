@@ -68,6 +68,14 @@
       tox_env: upgrade
       osa_test_repo: openstack/openstack-ansible-os_keystone
 
+- job:
+     name: keystone-tox-protection
+     parent: openstack-tox-py37
+     vars:
+       tox_envlist: protection
+       bindep_profile: test py37
+       python_version: 3.7
+
 # Experimental
 - job:
     name: keystone-tox-patch_cover
@@ -211,6 +219,7 @@
             irrelevant-files: *tempest-irrelevant-files
         - tempest-ipv6-only:
             irrelevant-files: *tempest-irrelevant-files
+        - keystone-tox-protection
     gate:
       jobs:
         # Override tox timeouts
@@ -236,6 +245,7 @@
             irrelevant-files: *tempest-irrelevant-files
         - tempest-ipv6-only:
             irrelevant-files: *tempest-irrelevant-files
+        - keystone-tox-protection
     experimental:
       jobs:
         - keystone-tox-patch_cover
