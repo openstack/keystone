@@ -1,0 +1,33 @@
+---
+features:
+  - |
+    [`bug 1805371 <https://bugs.launchpad.net/keystone/+bug/1805371>`_]
+    The implied roles API now supports the ``admin``, ``member``, and
+    ``reader`` default roles.
+
+upgrade:
+  - |
+    [`bug 1805371 <https://bugs.launchpad.net/keystone/+bug/1805371>`_]
+    The implied roles API uses new default policies to
+    make it more accessible to end users and administrators in a secure way.
+    Please consider these new defaults if your deployment overrides implied
+    roles policies.
+deprecations:
+  - |
+    [`bug 1805371 <https://bugs.launchpad.net/keystone/+bug/1805371>`_]
+    The implied roles policies have been deprecated. The
+    ``identity:get_implied_role``, ``identity:list_implied_roles``,
+    ``identity:list_role_inference_rules``, and ``identity:check_implied_role``
+    policies now use ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``. The ``identity:create_implied_role`` and
+    ``identity:delete_implied_role`` policies now use ``role:admin and
+    system_scope:all`` instead of ``rule:admin_required``.
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the implied roles policies.
+security:
+  - |
+    [`bug 1805371 <https://bugs.launchpad.net/keystone/+bug/1805371>`_]
+    The implied role API now uses system-scope and default
+    roles to provide better accessibility to users in a secure manner.
