@@ -10,25 +10,49 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_log import versionutils
 from oslo_policy import policy
 
 from keystone.common.policies import base
 
+deprecated_get_consumer = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_consumer',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+deprecated_list_consumers = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_consumers',
+    check_str=base.RULE_ADMIN_REQUIRED
+)
+
+DEPRECATED_REASON = """
+As of the Train release, the OAUTH1 consumer API understands how to
+handle system-scoped tokens in addition to project tokens, making the API
+more accessible to users without compromising security or manageability for
+administrators. The new default policies for this API account for these changes
+automatically.
+"""
+
 consumer_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_consumer',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='Show OAUTH1 consumer details.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_get_consumer,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_consumers',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_READER,
         scope_types=['system'],
         description='List OAUTH1 consumers.',
         operations=[{'path': '/v3/OS-OAUTH1/consumers',
-                     'method': 'GET'}]),
+                     'method': 'GET'}],
+        deprecated_rule=deprecated_list_consumers,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
