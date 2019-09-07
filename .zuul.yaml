@@ -160,6 +160,15 @@
       - release-notes-jobs-python3
     check:
       jobs:
+        # Override tox timeouts
+        - openstack-tox-py37:
+            timeout: 3600
+        - openstack-tox-py36:
+            timeout: 3600
+        - openstack-tox-py27:
+            timeout: 3600
+        - openstack-tox-cover:
+            timeout: 3600
         - keystone-dsvm-functional:
             irrelevant-files: &irrelevant-files
               - ^.*\.rst$
@@ -202,6 +211,15 @@
             irrelevant-files: *tempest-irrelevant-files
     gate:
       jobs:
+        # Override tox timeouts
+        - openstack-tox-py37:
+            timeout: 3600
+        - openstack-tox-py36:
+            timeout: 3600
+        - openstack-tox-py27:
+            timeout: 3600
+        - openstack-tox-cover:
+            timeout: 3600
         - keystone-dsvm-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional:
