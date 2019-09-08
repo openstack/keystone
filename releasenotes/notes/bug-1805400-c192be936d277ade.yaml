@@ -1,0 +1,32 @@
+---
+features:
+  - |
+    [`bug 1805400 <https://bugs.launchpad.net/keystone/+bug/1805400>`_]
+    The domain roles API now supports system scope using the ``admin``,
+    ``member``, and ``reader`` default roles.
+upgrade:
+  - |
+    [`bug 1805400 <https://bugs.launchpad.net/keystone/+bug/1805400>`_]
+    The domain role API uses new default policies that make it more
+    accessible to end users and administrators in a secure way. Please
+    consider these new defaults if your deployment overrides role
+    policies.
+deprecations:
+  - |
+    [`bug 1805400 <https://bugs.launchpad.net/keystone/+bug/1805400>`_]
+    The domain role policies have been deprecated. The
+    ``identity:get_domain_role`` and ``identity:list_domain_roles`` policies
+    now use ``role:reader and system_scope:all`` instead of
+    ``rule:admin_required``.  The ``identity:create_domain_role``,
+    ``identity:update_domain_role``, and ``identity:delete_role`` policies now
+    use ``role:admin and system_scope:all`` instead of ``rule:admin_required``.
+    These new defaults automatically account for system-scope and support a
+    read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the domain role policies.
+security:
+  - |
+    [`bug 1805400 <https://bugs.launchpad.net/keystone/+bug/1805400>`_]
+    The domain role API now uses system-scope and default roles to provide
+    better accessibility to users in a secure way.
+
