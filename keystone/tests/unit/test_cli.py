@@ -1868,7 +1868,8 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 'identity:list_trusts': '',
                 'identity:delete_trust': '',
                 'identity:get_trust': '',
-                'identity:list_roles_for_trust': ''
+                'identity:list_roles_for_trust': '',
+                'identity:get_role_for_trust': ''
             }
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
@@ -1878,7 +1879,8 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 'identity:list_trusts': 'rule:admin_required',
                 'identity:delete_trust': 'rule:admin_required',
                 'identity:get_trust': 'rule:admin_required',
-                'identity:list_roles_for_trust': 'rule:admin_required'
+                'identity:list_roles_for_trust': 'rule:admin_required',
+                'identity:get_role_for_trust': 'rule:admin_required'
             }
             f.write(jsonutils.dumps(overridden_policies))
         result = self.checks.check_trust_policies_are_not_empty()
