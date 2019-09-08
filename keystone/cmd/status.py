@@ -34,20 +34,25 @@ class Checks(upgradecheck.UpgradeCommands):
         enforcer = policy.Enforcer(CONF)
         ENFORCER.register_rules(enforcer)
         enforcer.load_rules()
-        rule = enforcer.rules.get('identity:list_trusts')
-        if isinstance(rule, _checks.TrueCheck):
+        rules = ['identity:list_trusts', 'identity:delete_trust']
+        failed_rules = []
+        for rule in rules:
+            current_rule = enforcer.rules.get(rule)
+            if isinstance(current_rule, _checks.TrueCheck):
+                failed_rules.append(rule)
+        if any(failed_rules):
             return upgradecheck.Result(
                 upgradecheck.Code.FAILURE,
-                "Policy check string for \"identity:list_trusts\" is "
-                "overridden to \"\", \"@\", or []. In the next release, "
-                "this will cause the \"identity:list_trusts\" action to be "
-                "fully permissive as hardcoded enforcement will be removed. "
-                "To correct this issue, either stop overriding this rule in "
-                "config to accept the defaults, or explicitly set a rule that "
-                "is not empty."
+                "Policy check string for rules \"%s\" are overridden to "
+                "\"\", \"@\", or []. In the next release, this will cause "
+                "these rules to be fully permissive as hardcoded enforcement "
+                "will be removed. To correct this issue, either stop "
+                "overriding these rules in config to accept the defaults, or "
+                "explicitly set check strings that are not empty." %
+                "\", \"".join(failed_rules)
             )
         return upgradecheck.Result(
-            upgradecheck.Code.SUCCESS, "\"identity:list_trusts\" policy is safe")
+            upgradecheck.Code.SUCCESS, 'Trust policies are safe.')
 
     _upgrade_checks = (
         ("Check trust policies are not empty",

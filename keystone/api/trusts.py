@@ -46,6 +46,18 @@ TRUST_ID_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='trust_id')
 
 
+def _build_trust_target_enforcement():
+    target = {}
+    # NOTE(cmurphy) unlike other APIs, in the event the trust doesn't exist or
+    # has 0 remaining uses, we actually do expect it to return a 404 and not a
+    # 403, so don't catch NotFound here (lp#1840288)
+    target['trust'] = PROVIDERS.trust_api.get_trust(
+        flask.request.view_args.get('trust_id')
+    )
+
+    return target
+
+
 def _trustor_trustee_only(trust):
     user_id = flask.request.environ.get(context.REQUEST_CONTEXT_ENV).user_id
     if user_id not in [trust.get('trustee_user_id'),
@@ -263,18 +275,32 @@ class TrustResource(ks_flask.ResourceBase):
         return self.wrap_member(return_trust), http_client.CREATED
 
     def delete(self, trust_id):
-        ENFORCER.enforce_call(action='identity:delete_trust')
+        ENFORCER.enforce_call(action='identity:delete_trust',
+                              build_target=_build_trust_target_enforcement)
         self._check_unrestricted()
 
-        trust = PROVIDERS.trust_api.get_trust(trust_id)
-
-        # TODO(morgan): convert this check to an oslo_policy checkstr that
-        # can be referenced/enforced on.
-        if (self.oslo_context.user_id != trust.get('trustor_user_id') and
-                not self.oslo_context.is_admin):
-            action = _('Only admin or trustor can delete a trust')
-            raise exception.ForbiddenAction(action=action)
-
+        # NOTE(cmurphy) As of Train, the default policies enforce the
+        # identity:delete_trust rule. However, in case the
+        # identity:delete_trust rule has been locally overridden by the
+        # default that would have been produced by the sample config, we need
+        # to enforce it again and warn that the behavior is changing.
+        rules = policy._ENFORCER._enforcer.rules.get('identity:delete_trust')
+        # rule check_str is ""
+        if isinstance(rules, op_checks.TrueCheck):
+            LOG.warning(
+                "The policy check string for rule \"identity:delete_trust\" "
+                "has been overridden to \"always true\". In the next release, "
+                "this will cause the" "\"identity:delete_trust\" action to "
+                "be fully permissive as hardcoded enforcement will be "
+                "removed. To correct this issue, either stop overriding the "
+                "\"identity:delete_trust\" rule in config to accept the "
+                "defaults, or explicitly set a rule that is not empty."
+            )
+            trust = PROVIDERS.trust_api.get_trust(trust_id)
+            if (self.oslo_context.user_id != trust.get('trustor_user_id') and
+                    not self.oslo_context.is_admin):
+                action = _('Only admin or trustor can delete a trust')
+                raise exception.ForbiddenAction(action=action)
         PROVIDERS.trust_api.delete_trust(trust_id,
                                          initiator=self.audit_initiator)
         return '', http_client.NO_CONTENT

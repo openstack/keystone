@@ -109,6 +109,7 @@ class TrustTests(base_classes.TestCaseWithBootstrap,
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
                 'identity:list_trusts': '',
+                'identity:delete_trust': '',
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -257,6 +258,19 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
                 headers=self.headers
             )
         self.assertEqual(1, len(r.json['trusts']))
+
+    def test_admin_cannot_delete_trust_for_user_overridden_defaults(self):
+        # only the is_admin admin can do this
+        self._override_policy_old_defaults()
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
 
 
 class ProjectUserTests(TrustTests):
@@ -573,7 +587,7 @@ class ProjectUserTests(TrustTests):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_trusts_for_other_trustee_overridden_default(self):
+    def test_user_cannot_list_trusts_for_trustee_overridden_default(self):
         self._override_policy_old_defaults()
         PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)
@@ -595,5 +609,40 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts',
                 headers=self.trustee_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_trustor_can_delete_trust_overridden_default(self):
+        self._override_policy_old_defaults()
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.trustor_headers
+            )
+
+    def test_trustee_cannot_delete_trust_overridden_default(self):
+        self._override_policy_old_defaults()
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.trustee_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_trust_for_other_user_overridden_default(self):
+        self._override_policy_old_defaults()
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.other_headers,
                 expected_status_code=http_client.FORBIDDEN
             )
