@@ -110,6 +110,7 @@ class TrustTests(base_classes.TestCaseWithBootstrap,
             overridden_policies = {
                 'identity:list_trusts': '',
                 'identity:delete_trust': '',
+                'identity:get_trust': '',
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -268,6 +269,18 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
         with self.test_client() as c:
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_admin_cannot_get_trust_for_other_user_overridden_defaults(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s' % self.trust_id,
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
@@ -646,3 +659,26 @@ class ProjectUserTests(TrustTests):
                 headers=self.other_headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+    def test_user_can_get_trust_of_whom_they_are_the_trustor_overridden_default(self):
+        self._override_policy_old_defaults()
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.trustor_headers
+            )
+
+    def test_user_can_get_trust_delegated_to_them_overridden_default(self):
+        self._override_policy_old_defaults()
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.trustee_headers
+            )
+        self.assertEqual(r.json['trust']['id'], self.trust_id)

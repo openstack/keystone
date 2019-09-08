@@ -82,7 +82,7 @@ trust_policies = [
                      'method': 'DELETE'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_trust',
-        check_str='',
+        check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
         scope_types=['project'],
         description='Get trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
