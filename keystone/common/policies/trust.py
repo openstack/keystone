@@ -57,7 +57,7 @@ trust_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles_for_trust',
-        check_str='',
+        check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
         scope_types=['project'],
         description='List roles delegated by a trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',

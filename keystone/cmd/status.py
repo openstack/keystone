@@ -37,7 +37,8 @@ class Checks(upgradecheck.UpgradeCommands):
         rules = [
             'identity:list_trusts',
             'identity:delete_trust',
-            'identity:get_trust'
+            'identity:get_trust',
+            'identity:list_roles_for_trust'
         ]
         failed_rules = []
         for rule in rules:

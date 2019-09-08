@@ -111,6 +111,7 @@ class TrustTests(base_classes.TestCaseWithBootstrap,
                 'identity:list_trusts': '',
                 'identity:delete_trust': '',
                 'identity:get_trust': '',
+                'identity:list_roles_for_trust': '',
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -281,6 +282,18 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
         with self.test_client() as c:
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % self.trust_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_admin_cannot_list_roles_for_other_user_overridden_defaults(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
@@ -682,3 +695,41 @@ class ProjectUserTests(TrustTests):
                 headers=self.trustee_headers
             )
         self.assertEqual(r.json['trust']['id'], self.trust_id)
+
+    def test_trustor_can_list_trust_roles_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.trustor_headers
+            )
+        self.assertEqual(r.json['roles'][0]['id'],
+                         self.bootstrapper.member_role_id)
+
+    def test_trustee_can_list_trust_roles_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.trustee_headers
+            )
+        self.assertEqual(r.json['roles'][0]['id'],
+                         self.bootstrapper.member_role_id)
+
+    def test_user_cannot_list_trust_roles_other_user_overridden_default(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.other_headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
