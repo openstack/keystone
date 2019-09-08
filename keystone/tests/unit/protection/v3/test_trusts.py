@@ -284,7 +284,34 @@ class _SystemUserTests(object):
             )
 
 
-class SystemReaderTests(TrustTests, _SystemUserTests):
+class _SystemReaderMemberTests(_SystemUserTests):
+    """Tests for system readers and members."""
+
+    def test_user_cannot_create_trust(self):
+        json = {'trust': self.trust_data['trust']}
+        json['trust']['roles'] = self.trust_data['roles']
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/OS-TRUST/trusts',
+                json=json,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_trust(self):
+        ref = PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
+class SystemReaderTests(TrustTests, _SystemReaderMemberTests):
     """Tests for system reader users."""
 
     def setUp(self):
@@ -314,28 +341,36 @@ class SystemReaderTests(TrustTests, _SystemUserTests):
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
 
-    def test_user_cannot_create_trust(self):
-        json = {'trust': self.trust_data['trust']}
-        json['trust']['roles'] = self.trust_data['roles']
 
+class SystemMemberTests(TrustTests, _SystemReaderMemberTests):
+    """Tests for system member users."""
+
+    def setUp(self):
+        super(SystemMemberTests, self).setUp()
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        system_member = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        self.user_id = PROVIDERS.identity_api.create_user(
+            system_member
+        )['id']
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.bootstrapper.member_role_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
         with self.test_client() as c:
-            c.post(
-                '/v3/OS-TRUST/trusts',
-                json=json,
-                headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
-            )
-
-    def test_user_cannot_delete_trust(self):
-        ref = PROVIDERS.trust_api.create_trust(
-            self.trust_id, **self.trust_data)
-
-        with self.test_client() as c:
-            c.delete(
-                '/v3/OS-TRUST/trusts/%s' % ref['id'],
-                headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
-            )
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
 
 
 class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
