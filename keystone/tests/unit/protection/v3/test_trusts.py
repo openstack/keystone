@@ -147,15 +147,28 @@ class _AdminTestsMixin(object):
             )
         self.assertEqual(1, len(r.json['trusts']))
 
-    def test_admin_cannot_get_trust_for_other_user(self):
-        PROVIDERS.trust_api.create_trust(
+
+class AdminTokenTests(TrustTests, _AdminTestsMixin):
+    """Tests for the is_admin user.
+
+    The Trusts API has hardcoded is_admin checks that we need to ensure are
+    preserved through the system-scope transition.
+    """
+
+    def setUp(self):
+        super(AdminTokenTests, self).setUp()
+        self.config_fixture.config(admin_token='ADMIN')
+        self.headers = {'X-Auth-Token': 'ADMIN'}
+
+    def test_admin_can_delete_trust_for_other_user(self):
+        ref = PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)
 
         with self.test_client() as c:
-            c.get(
-                '/v3/OS-TRUST/trusts/%s' % self.trust_id,
+            c.delete(
+                '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http_client.NO_CONTENT
             )
 
     def test_admin_can_get_non_existent_trust_not_found(self):
@@ -165,6 +178,17 @@ class _AdminTestsMixin(object):
                 '/v3/OS-TRUST/trusts/%s' % trust_id,
                 headers=self.headers,
                 expected_status_code=http_client.NOT_FOUND
+            )
+
+    def test_admin_cannot_get_trust_for_other_user(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s' % self.trust_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
             )
 
     def test_admin_cannot_list_trust_roles_for_other_user(self):
@@ -191,19 +215,118 @@ class _AdminTestsMixin(object):
             )
 
 
-class AdminTokenTests(TrustTests, _AdminTestsMixin):
-    """Tests for the is_admin user.
+class _SystemUserTests(object):
+    """Tests for system admin, member, and reader."""
 
-    The Trusts API has hardcoded is_admin checks that we need to ensure are
-    preserved through the system-scope transition.
-    """
+    def test_user_can_get_non_existent_trust(self):
+        trust_id = uuid.uuid4().hex
+        with self.test_client() as c:
+            c.get(
+                '/v3/OS-TRUST/trusts/%s' % trust_id,
+                headers=self.headers,
+                expected_status_code=http_client.NOT_FOUND
+            )
+
+    def test_user_can_get_trust_for_other_user(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts/%s' % self.trust_id,
+                headers=self.headers
+            )
+        self.assertEqual(r.json['trust']['id'], self.trust_id)
+
+    def test_user_can_list_trusts_for_trustee(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
+                 self.trustee_user_id),
+                headers=self.headers
+            )
+
+    def test_user_can_list_trusts_for_trustor(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
+                 self.trustor_user_id),
+                headers=self.headers
+            )
+
+    def test_user_can_list_trust_roles_for_other_user(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
+                headers=self.headers
+            )
+        self.assertEqual(r.json['roles'][0]['id'],
+                         self.bootstrapper.member_role_id)
+
+    def test_user_can_get_trust_role_for_other_user(self):
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            c.get(
+                ('/v3/OS-TRUST/trusts/%s/roles/%s' %
+                 (self.trust_id, self.bootstrapper.member_role_id)),
+                headers=self.headers
+            )
+
+
+class SystemReaderTests(TrustTests, _SystemUserTests):
+    """Tests for system reader users."""
 
     def setUp(self):
-        super(AdminTokenTests, self).setUp()
-        self.config_fixture.config(admin_token='ADMIN')
-        self.headers = {'X-Auth-Token': 'ADMIN'}
+        super(SystemReaderTests, self).setUp()
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
-    def test_admin_can_delete_trust_for_other_user(self):
+        system_reader = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        self.user_id = PROVIDERS.identity_api.create_user(
+            system_reader
+        )['id']
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.bootstrapper.reader_role_id
+        )
+
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_cannot_create_trust(self):
+        json = {'trust': self.trust_data['trust']}
+        json['trust']['roles'] = self.trust_data['roles']
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/OS-TRUST/trusts',
+                json=json,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_trust(self):
         ref = PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)
 
@@ -211,11 +334,11 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http_client.FORBIDDEN
             )
 
 
-class SystemAdminTests(TrustTests, _AdminTestsMixin):
+class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
     """Tests for system admin users."""
 
     def setUp(self):
@@ -249,18 +372,6 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
-
-    def test_admin_list_all_trusts_overridden_defaults(self):
-        self._override_policy_old_defaults()
-        PROVIDERS.trust_api.create_trust(
-            self.trust_id, **self.trust_data)
-
-        with self.test_client() as c:
-            r = c.get(
-                '/v3/OS-TRUST/trusts',
-                headers=self.headers
-            )
-        self.assertEqual(1, len(r.json['trusts']))
 
     def test_admin_cannot_delete_trust_for_user_overridden_defaults(self):
         # only the is_admin admin can do this
@@ -311,6 +422,18 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin):
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+    def test_user_list_all_trusts_overridden_defaults(self):
+        self._override_policy_old_defaults()
+        PROVIDERS.trust_api.create_trust(
+            self.trust_id, **self.trust_data)
+
+        with self.test_client() as c:
+            r = c.get(
+                '/v3/OS-TRUST/trusts',
+                headers=self.headers
+            )
+        self.assertEqual(1, len(r.json['trusts']))
 
 
 class ProjectUserTests(TrustTests):
