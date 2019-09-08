@@ -138,6 +138,8 @@ identity:revocation_list                                   GET /v3/auth/tokens/O
 identity:revoke_token                                      DELETE /v3/auth/tokens
 identity:create_trust                                      POST /v3/OS-TRUST/trusts
 identity:list_trusts                                       GET /v3/OS-TRUST/trusts
+identity:list_trusts_for_trustor                           GET /v3/OS-TRUST/trusts?trustor_user_id={trustor_user_id}
+identity:list_trusts_for_trustee                           GET /v3/OS-TRUST/trusts?trustee_user_id={trustee_user_id}
 identity:list_roles_for_trust                              GET /v3/OS-TRUST/trusts/{trust_id}/roles
 identity:get_role_for_trust                                GET /v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}
 identity:delete_trust                                      DELETE /v3/OS-TRUST/trusts/{trust_id}
