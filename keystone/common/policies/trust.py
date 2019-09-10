@@ -22,6 +22,7 @@ SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE = (
 )
 SYSTEM_READER_OR_TRUSTOR = base.SYSTEM_READER + ' or ' + RULE_TRUSTOR
 SYSTEM_READER_OR_TRUSTEE = base.SYSTEM_READER + ' or ' + RULE_TRUSTEE
+SYSTEM_ADMIN_OR_TRUSTOR = base.SYSTEM_ADMIN + ' or ' + RULE_TRUSTOR
 
 deprecated_list_trusts = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_trusts',
@@ -34,6 +35,10 @@ deprecated_list_roles_for_trust = policy.DeprecatedRule(
 deprecated_get_role_for_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_role_for_trust',
     check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE
+)
+deprecated_delete_trust = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_trust',
+    check_str=RULE_TRUSTOR
 )
 deprecated_get_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_trust',
@@ -115,11 +120,14 @@ trust_policies = [
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_trust',
-        check_str=RULE_TRUSTOR,
-        scope_types=['project'],
+        check_str=SYSTEM_ADMIN_OR_TRUSTOR,
+        scope_types=['system', 'project'],
         description='Revoke trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
-                     'method': 'DELETE'}]),
+                     'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_trust,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_trust',
         check_str=SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE,
