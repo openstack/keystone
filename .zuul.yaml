@@ -169,6 +169,8 @@
             timeout: 3600
         - openstack-tox-cover:
             timeout: 3600
+        - openstack-tox-lower-constraints:
+            timeout: 3600
         - keystone-dsvm-functional:
             irrelevant-files: &irrelevant-files
               - ^.*\.rst$
