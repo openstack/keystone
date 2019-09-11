@@ -162,15 +162,15 @@
       jobs:
         # Override tox timeouts
         - openstack-tox-py37:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-py36:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-py27:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-cover:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-lower-constraints:
-            timeout: 3600
+            timeout: 5400
         - keystone-dsvm-functional:
             irrelevant-files: &irrelevant-files
               - ^.*\.rst$
@@ -215,13 +215,13 @@
       jobs:
         # Override tox timeouts
         - openstack-tox-py37:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-py36:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-py27:
-            timeout: 3600
+            timeout: 5400
         - openstack-tox-lower-constraints:
-            timeout: 3600
+            timeout: 5400
         - keystone-dsvm-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional:
