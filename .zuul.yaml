@@ -220,7 +220,7 @@
             timeout: 3600
         - openstack-tox-py27:
             timeout: 3600
-        - openstack-tox-cover:
+        - openstack-tox-lower-constraints:
             timeout: 3600
         - keystone-dsvm-functional:
             irrelevant-files: *irrelevant-files
