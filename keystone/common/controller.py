@@ -505,6 +505,8 @@ class V3Controller(provider_api.ProviderAPIMixin, wsgi.Application):
             return token_ref.domain_id
         elif token_ref.project_scoped:
             return token_ref.project_domain_id
+        elif token_ref.system_scoped:
+            return
         else:
             msg = _('No domain information specified as part of list request')
             LOG.warning(msg)

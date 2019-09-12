@@ -2440,6 +2440,18 @@ class TokenAPITests(object):
                                  allow_expired=True,
                                  expected_status=http_client.NOT_FOUND)
 
+    def test_system_scoped_token_works_with_domain_specific_drivers(self):
+        self.config_fixture.config(
+            group='identity', domain_specific_drivers_enabled=True
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user['id'], self.role['id']
+        )
+
+        token_id = self.get_system_scoped_token()
+        self.admin_request(method='GET', path='/v3/users', token=token_id)
+
 
 class TokenDataTests(object):
     """Test the data in specific token types."""
