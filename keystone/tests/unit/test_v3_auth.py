@@ -2612,6 +2612,22 @@ class TokenAPITests(object):
                                  allow_expired=True,
                                  expected_status=http_client.NOT_FOUND)
 
+    def test_system_scoped_token_works_with_domain_specific_drivers(self):
+        self.config_fixture.config(
+            group='identity', domain_specific_drivers_enabled=True
+        )
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user['id'], self.role['id']
+        )
+
+        token_id = self.get_system_scoped_token()
+        headers = {'X-Auth-Token': token_id}
+
+        app = self.loadapp()
+        with app.test_client() as c:
+            c.get('/v3/users', headers=headers)
+
 
 class TokenDataTests(object):
     """Test the data in specific token types."""
