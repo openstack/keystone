@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1833739 <https://bugs.launchpad.net/keystone/+bug/1833739>`_]
+    Fix PostgreSQL specifc issue with storing encrypted credentials. In
+    Python 3 the psycopg2 module treats bytes strings as binary data. This
+    causes issues when storing encrypted credentials in the Database.
+    To fix this isseu the credentials sql backend is updated to encode the
+    credential into a text string before handing it over to the database.
