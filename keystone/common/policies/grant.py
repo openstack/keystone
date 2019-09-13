@@ -15,6 +15,35 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+# Two of the three portions of this check string are specific to domain
+# readers. The first catches domain readers who are checking or listing grants
+# for users. The second does the same for groups. We have to overload the check
+# string to handle both cases because `identity:check_grant` is used to protect
+# both user and group grant APIs. If the `identity:check_grant` policy is every
+# broken apart, we can write specific check strings that are tailored to either
+# users or groups (e.g., `identity:check_group_grant` or
+# `identity:check_user_grant`) and prevent overloading like this.
+DOMAIN_MATCHES_USER_DOMAIN = 'domain_id:%(target.user.domain_id)s'
+DOMAIN_MATCHES_GROUP_DOMAIN = 'domain_id:%(target.group.domain_id)s'
+DOMAIN_MATCHES_PROJECT_DOMAIN = 'domain_id:%(target.project.domain_id)s'
+DOMAIN_MATCHES_TARGET_DOMAIN = 'domain_id:%(target.domain.id)s'
+DOMAIN_MATCHES_ROLE = 'domain_id:%(target.role.domain_id)s or None:%(target.role.domain_id)s'
+GRANTS_DOMAIN_READER = (
+    '(role:reader and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:reader and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and ' + DOMAIN_MATCHES_TARGET_DOMAIN + ') or '
+    '(role:reader and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:reader and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
+)
+SYSTEM_READER_OR_DOMAIN_READER = (
+    '(' + base.SYSTEM_READER + ') or '
+    '(' + GRANTS_DOMAIN_READER + ') and '
+    '(' + DOMAIN_MATCHES_ROLE + ')'
+)
+
+SYSTEM_READER_OR_DOMAIN_READER_LIST = (
+    '(' + base.SYSTEM_READER + ') or ' + GRANTS_DOMAIN_READER
+)
+
 deprecated_check_system_grant_for_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_system_grant_for_user',
     check_str=base.RULE_ADMIN_REQUIRED
@@ -111,14 +140,14 @@ list_grants_operations = (
 grant_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_grant',
-        check_str=base.SYSTEM_READER,
+        check_str=SYSTEM_READER_OR_DOMAIN_READER,
         # FIXME(lbragstad): A system administrator should be able to grant role
         # assignments from any actor to any target in the deployment. Domain
         # administrators should only be able to grant access to the domain they
         # administer or projects within that domain. Once keystone is smart
         # enough to enforce those checks in code, we can add 'project' to the
         # list of scope_types below.
-        scope_types=['system'],
+        scope_types=['system', 'domain'],
         description=('Check a role grant between a target and an actor. A '
                      'target can be either a domain or a project. An actor '
                      'can be either a user or a group. These terms also apply '
@@ -131,10 +160,8 @@ grant_policies = [
         deprecated_since=versionutils.deprecated.STEIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_grants',
-        check_str=base.SYSTEM_READER,
-        # FIXME(lbragstad): See the above comment about scope_types before
-        # adding 'project' to scope_types below.
-        scope_types=['system'],
+        check_str=SYSTEM_READER_OR_DOMAIN_READER_LIST,
+        scope_types=['system', 'domain'],
         description=('List roles granted to an actor on a target. A target '
                      'can be either a domain or a project. An actor can be '
                      'either a user or a group. For the OS-INHERIT APIs, it '
