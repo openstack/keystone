@@ -308,3 +308,126 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class SystemAdminTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin,
+                       _SystemUserDomainConfigTests):
+
+    def setUp(self):
+        super(SystemAdminTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_create_domain_config(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        with self.test_client() as c:
+            c.put('/v3/domains/%s/config'
+                  % domain['id'], json={'config': unit.new_domain_config_ref()},
+                  headers=self.headers, expected_status_code=http_client.CREATED)
+
+    def test_user_cannot_create_invalid_domain_config(self):
+        invalid_domain_id = uuid.uuid4().hex
+        with self.test_client() as c:
+            c.put('/v3/domains/%s/config'
+                  % invalid_domain_id, json={'config': unit.new_domain_config_ref()},
+                  headers=self.headers, expected_status_code=http_client.NOT_FOUND)
+
+    def test_user_can_update_domain_config(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        new_config = {'ldap': {'url': uuid.uuid4().hex},
+                      'identity': {'driver': uuid.uuid4().hex}}
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        with self.test_client() as c:
+            c.patch('/v3/domains/%s/config'
+                    % domain['id'], json={'config': new_config},
+                    headers=self.headers)
+
+    def test_user_can_update_domain_group_config(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        new_config = {'ldap': {'url': uuid.uuid4().hex,
+                               'user_filter': uuid.uuid4().hex}}
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        with self.test_client() as c:
+            c.patch('/v3/domains/%s/config/ldap'
+                    % domain['id'], json={'config': new_config},
+                    headers=self.headers)
+
+    def test_user_can_update_domain_config_option(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        new_config = {'url': uuid.uuid4().hex}
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        with self.test_client() as c:
+            c.patch('/v3/domains/%s/config/ldap/url'
+                    % domain['id'], json={'config': new_config},
+                    headers=self.headers)
+
+    def test_user_can_delete_domain_config(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        with self.test_client() as c:
+            c.delete('/v3/domains/%s/config' % domain['id'],
+                     headers=self.headers)
+
+    def test_user_can_delete_domain_group_config(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        with self.test_client() as c:
+            c.delete('/v3/domains/%s/config/ldap'
+                     % domain['id'], headers=self.headers)
+
+    def test_user_can_delete_domain_config_option(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        with self.test_client() as c:
+            c.delete('/v3/domains/%s/config/ldap/url'
+                     % domain['id'], headers=self.headers)
+
+    def test_user_cannot_delete_invalid_domain_config(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        PROVIDERS.domain_config_api.create_config(
+            domain['id'], unit.new_domain_config_ref())
+        invalid_domain_id = uuid.uuid4().hex
+        with self.test_client() as c:
+            c.delete('/v3/domains/%s/config' % invalid_domain_id,
+                     headers=self.headers,
+                     expected_status_code=http_client.NOT_FOUND)
