@@ -31,6 +31,14 @@ deprecated_check_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
 )
+deprecated_create_implied_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_implied_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
+deprecated_delete_implied_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_implied_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+)
 
 DEPRECATED_REASON = """
 As of the Train release, the implied role API understands how to
@@ -78,7 +86,7 @@ implied_role_policies = [
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_implied_role',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Create an association between two roles. When a '
                     'relationship exists between a prior role and an implied '
@@ -86,10 +94,13 @@ implied_role_policies = [
                     'also assumes the implied role.',
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
-             'method': 'PUT'}]),
+             'method': 'PUT'}],
+        deprecated_rule=deprecated_create_implied_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_implied_role',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=base.SYSTEM_ADMIN,
         scope_types=['system'],
         description='Delete the association between two roles. When a '
                     'relationship exists between a prior role and an implied '
@@ -98,7 +109,10 @@ implied_role_policies = [
                     'will cause that effect to be eliminated.',
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
-             'method': 'DELETE'}]),
+             'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_implied_role,
+        deprecated_reason=DEPRECATED_REASON,
+        deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_inference_rules',
         check_str=base.SYSTEM_READER,
