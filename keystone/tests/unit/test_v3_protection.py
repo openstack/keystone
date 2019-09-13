@@ -1775,32 +1775,3 @@ class IdentityTestImpliedDomainSpecificRoles(IdentityTestv3CloudPolicySample):
         self.delete('/roles/%s/implies/%s'
                     % (self.appadmin_role['id'], self.appdev_role['id']),
                     token=self.admin_token)
-
-    def test_forbidden_role_implication_from_different_domain(self):
-        domain2 = unit.new_domain_ref(domain_id=uuid.uuid4().hex)
-        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
-
-        role2 = unit.new_role_ref(domain_id=domain2['id'])
-        implied = PROVIDERS.role_api.create_role(role2['id'], role2)
-
-        self.put('/roles/%s/implies/%s'
-                 % (self.appdev_role['id'], implied['id']),
-                 token=self.admin_token,
-                 expected_status=http_client.FORBIDDEN)
-
-    def test_allowed_role_implication_different_domains_as_cloud_admin(self):
-        self.auth = self.build_authentication_request(
-            user_id=self.cloud_admin_user['id'],
-            password=self.cloud_admin_user['password'],
-            project_id=self.admin_project['id'])
-
-        domain2 = unit.new_domain_ref(domain_id=uuid.uuid4().hex)
-        PROVIDERS.resource_api.create_domain(domain2['id'], domain2)
-
-        role2 = unit.new_role_ref(domain_id=domain2['id'])
-        implied = PROVIDERS.role_api.create_role(role2['id'], role2)
-
-        self.put('/roles/%s/implies/%s'
-                 % (self.appdev_role['id'], implied['id']),
-                 auth=self.auth,
-                 expected_status=http_client.CREATED)
