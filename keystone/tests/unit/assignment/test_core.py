@@ -87,6 +87,7 @@ class RoleTests(object):
             'id': uuid.uuid4().hex,
             'name': uuid.uuid4().hex,
             'domain_id': None,
+            'options': {}
         }
         self.role_api.create_role(role['id'], role)
         role_ref = self.role_api.get_role(role['id'])

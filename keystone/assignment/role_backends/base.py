@@ -20,6 +20,14 @@ import keystone.conf
 from keystone import exception
 
 
+# NOTE(henry-nash): From the manager and above perspective, the domain_id
+# attribute of a role is nullable.  However, to ensure uniqueness in
+# multi-process configurations, it is better to still use a sql uniqueness
+# constraint. Since the support for a nullable component of a uniqueness
+# constraint across different sql databases is mixed, we instead store a
+# special value to represent null, as defined in NULL_DOMAIN_ID below.
+NULL_DOMAIN_ID = '<<null>>'
+
 CONF = keystone.conf.CONF
 
 

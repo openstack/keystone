@@ -86,7 +86,7 @@ class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
     def test_domain_specific_separation(self):
         domain1 = unit.new_domain_ref()
         role1 = unit.new_role_ref(domain_id=domain1['id'])
-        role_ref1 = PROVIDERS.role_api.create_role(role1['id'], role1)
+        role_ref1 = PROVIDERS.role_api.create_role(role1['id'], role1.copy())
         self.assertDictEqual(role1, role_ref1)
         # Check we can have the same named role in a different domain
         domain2 = unit.new_domain_ref()

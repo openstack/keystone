@@ -1288,6 +1288,10 @@ class RoleManager(manager.Manager):
                                            name=role_name)
 
     def create_role(self, role_id, role, initiator=None):
+        # Shallow copy to help mitigate in-line changes that might impact
+        # testing. This mirrors create_user, specifically relevant for
+        # resource options.
+        role = role.copy()
         ret = self.driver.create_role(role_id, role)
         notifications.Audit.created(self._ROLE, role_id, initiator)
         if MEMOIZE.should_cache(ret):

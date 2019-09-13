@@ -34,7 +34,8 @@ PROJECTS = [
         'enabled': True,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
-        'tags': []
+        'tags': [],
+        'options': {}
     }, {
         'id': BAZ_PROJECT_ID,
         'name': 'BAZ',
@@ -43,7 +44,8 @@ PROJECTS = [
         'enabled': True,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
-        'tags': []
+        'tags': [],
+        'options': {}
     }, {
         'id': MTU_PROJECT_ID,
         'name': 'MTU',
@@ -52,7 +54,8 @@ PROJECTS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
-        'tags': []
+        'tags': [],
+        'options': {}
     }, {
         'id': SERVICE_PROJECT_ID,
         'name': 'service',
@@ -61,7 +64,8 @@ PROJECTS = [
         'domain_id': DEFAULT_DOMAIN_ID,
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
-        'tags': []
+        'tags': [],
+        'options': {}
     }
 ]
 

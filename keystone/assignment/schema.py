@@ -10,13 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystone.assignment.role_backends import resource_options as ro
 from keystone.common.validation import parameter_types
 
 # Schema for Identity v3 API
 
 _role_properties = {
     'name': parameter_types.name,
-    'description': parameter_types.description
+    'description': parameter_types.description,
+    'options': ro.ROLE_OPTIONS_REGISTRY.json_schema
 }
 
 role_create = {
