@@ -1,0 +1,39 @@
+---
+features:
+  - |
+    [`bug 1805368 <https://bugs.launchpad.net/keystone/+bug/1805368>`_]
+    [`bug 1750669 <https://bugs.launchpad.net/keystone/+bug/1750669>`_]
+    The grant API now supports the ``admin``, ``member``, and ``reader``
+    default roles for domain users (e.g., domain-scoped tokens).
+upgrade:
+  - |
+    [`bug 1805368 <https://bugs.launchpad.net/keystone/+bug/1805368>`_]
+    [`bug 1750669 <https://bugs.launchpad.net/keystone/+bug/1750669>`_]
+    The grant APIs use new default policies that make it more accessible to
+    domain users in a safe and secure way. Please consider these new defaults
+    if your deployment overrides the grant APIs.
+deprecations:
+  - |
+    [`bug 1805368 <https://bugs.launchpad.net/keystone/+bug/1805368>`_]
+    [`bug 1750669 <https://bugs.launchpad.net/keystone/+bug/1750669>`_]
+    The grant policies have been deprecated and replaced with new policies that
+    expose grant APIs to domain users. This allows deployments to delegate more
+    functionality to domain owners by default. The ``identity:check_grant`` and
+    ``identity:list_grants`` policies now use ``(role:reader and
+    system_scope:all) or (role:reader and domain_id:%(target.user.domain_id)s)
+    or (role:reader and domain_id:%(target.group.domain_id)s)`` instead of
+    ``role:reader and system_scope:all``.  The ``identity:create_grant`` and
+    ``identity:revoke_grant`` policies now use ``(role:admin and
+    system_scope:all) or (role:admin and domain_id:%(target.user.domain_id)s)
+    or (role:admin and domain_id:%(target.group.domain_id)s)`` instead of
+    ``role:admin and system_scope:all``.  These new defaults automatically
+    include support for domain reader and domain administrator roles, making it
+    easier for system administrator to delegate functionality down to domain
+    users to manage grants within their domains. Please consider these new
+    defaults if your deployment overrides the grant APIs.
+security:
+  - |
+    [`bug 1805368 <https://bugs.launchpad.net/keystone/+bug/1805368>`_]
+    [`bug 1750669 <https://bugs.launchpad.net/keystone/+bug/1750669>`_]
+    The grant API now supports domain-scoped default roles to provide better
+    accessbility grants for domain users.
