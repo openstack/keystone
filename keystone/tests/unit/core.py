@@ -487,6 +487,20 @@ def new_policy_ref(**kwargs):
     return ref
 
 
+def new_domain_config_ref(**kwargs):
+    ref = {
+        "identity": {
+            "driver": "ldap"
+        },
+        "ldap": {
+            "url": "ldap://myldap.com:389/",
+            "user_tree_dn": "ou=Users,dc=my_new_root,dc=org"
+        }
+    }
+    ref.update(kwargs)
+    return ref
+
+
 def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
                   impersonation=None, expires=None, role_ids=None,
                   role_names=None, remaining_uses=None,
