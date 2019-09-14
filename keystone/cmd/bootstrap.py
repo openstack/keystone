@@ -56,6 +56,8 @@ class Bootstrapper(object):
         self.default_domain_id = None
         self.admin_user_id = None
 
+        self.immutable_roles = False
+
     def bootstrap(self):
         # NOTE(morganfainberg): Ensure the default domain is in-fact created
         self._bootstrap_default_domain()
@@ -114,8 +116,18 @@ class Bootstrapper(object):
         try:
             role_id = uuid.uuid4().hex
             role = {'name': role_name, 'id': role_id}
+            if self.immutable_roles:
+                role['options'] = {'immutable': True}
             role = PROVIDERS.role_api.create_role(role_id, role)
             LOG.info('Created role %s', role_name)
+            if not self.immutable_roles:
+                LOG.warning("Role %(role)s was created as a mutable role. It "
+                            "is recommended to make this role immutable, "
+                            "which will become the default behavior of the "
+                            "bootstrap command in the future.You can opt into "
+                            "this behavior by using the --immutable-role "
+                            "flag, or update role %(role)s with the "
+                            "'immutable' resource option.", {'role': role_name})
             return role
         except exception.Conflict:
             LOG.info('Role %s exists, skipping creation.', role_name)

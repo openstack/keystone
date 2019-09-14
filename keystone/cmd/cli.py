@@ -111,6 +111,14 @@ class BootStrap(BaseApp):
                             help=('The initial region_id endpoints will be '
                                   'placed in during the keystone bootstrap '
                                   'process.'))
+        parser.add_argument('--immutable-roles',
+                            default=False,
+                            action='store_true',
+                            help=('Whether default roles (admin, member, and '
+                                  'reader) should be immutable. Immutable '
+                                  'default roles is currently an opt-in '
+                                  'behavior, but will become the default in '
+                                  'future releases.'))
         return parser
 
     def do_bootstrap(self):
@@ -166,6 +174,7 @@ class BootStrap(BaseApp):
         self.bootstrapper.public_url = self.public_url
         self.bootstrapper.internal_url = self.internal_url
         self.bootstrapper.region_id = self.region_id
+        self.bootstrapper.immutable_roles = CONF.command.immutable_roles
 
         self.bootstrapper.bootstrap()
         self.reader_role_id = self.bootstrapper.reader_role_id
