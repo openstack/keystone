@@ -16,6 +16,7 @@ import copy
 import uuid
 
 from keystone.common import provider_api
+from keystone.common.resource_options import options as ro_opt
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
@@ -163,3 +164,138 @@ class RoleTests(object):
         self.assertRaises(exception.RoleNotFound,
                           PROVIDERS.role_api.get_role,
                           role_id)
+
+    def test_create_role_immutable(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        role['options'][ro_opt.IMMUTABLE_OPT.option_name] = True
+        role_created = PROVIDERS.role_api.create_role(role_id, role)
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue('options' in role_created)
+        self.assertTrue('options' in role_via_manager)
+        self.assertTrue(
+            role_via_manager['options'][ro_opt.IMMUTABLE_OPT.option_name])
+        self.assertTrue(
+            role_created['options'][ro_opt.IMMUTABLE_OPT.option_name])
+
+    def test_cannot_update_immutable_role(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        role['options'][ro_opt.IMMUTABLE_OPT.option_name] = True
+        PROVIDERS.role_api.create_role(role_id, role)
+        update_role = {'name': uuid.uuid4().hex}
+        self.assertRaises(exception.ResourceUpdateForbidden,
+                          PROVIDERS.role_api.update_role,
+                          role_id,
+                          update_role)
+
+    def test_cannot_update_immutable_role_while_unsetting_immutable(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        role['options'][ro_opt.IMMUTABLE_OPT.option_name] = True
+        PROVIDERS.role_api.create_role(role_id, role)
+        update_role = {
+            'name': uuid.uuid4().hex,
+            'options': {
+                ro_opt.IMMUTABLE_OPT.option_name: True
+            }
+        }
+        self.assertRaises(exception.ResourceUpdateForbidden,
+                          PROVIDERS.role_api.update_role,
+                          role_id,
+                          update_role)
+
+    def test_cannot_delete_immutable_role(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        role['options'][ro_opt.IMMUTABLE_OPT.option_name] = True
+        PROVIDERS.role_api.create_role(role_id, role)
+        self.assertRaises(exception.ResourceDeleteForbidden,
+                          PROVIDERS.role_api.delete_role,
+                          role_id)
+
+    def test_update_role_set_immutable(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        PROVIDERS.role_api.create_role(role_id, role)
+        update_role = {
+            'options': {
+                ro_opt.IMMUTABLE_OPT.option_name: True
+            }
+        }
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue('options' in role_via_manager)
+        self.assertFalse(
+            ro_opt.IMMUTABLE_OPT.option_name in role_via_manager['options'])
+        role_update = PROVIDERS.role_api.update_role(role_id, update_role)
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue(
+            ro_opt.IMMUTABLE_OPT.option_name in role_update['options'])
+        self.assertTrue(
+            role_update['options'][ro_opt.IMMUTABLE_OPT.option_name])
+        self.assertTrue(
+            ro_opt.IMMUTABLE_OPT.option_name in role_via_manager['options'])
+        self.assertTrue(
+            role_via_manager['options'][ro_opt.IMMUTABLE_OPT.option_name])
+
+    def test_update_role_set_immutable_with_additional_updates(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        PROVIDERS.role_api.create_role(role_id, role)
+        update_role = {
+            'name': uuid.uuid4().hex,
+            'options': {
+                ro_opt.IMMUTABLE_OPT.option_name: True
+            }
+        }
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue('options' in role_via_manager)
+        self.assertFalse(
+            ro_opt.IMMUTABLE_OPT.option_name in role_via_manager['options'])
+        role_update = PROVIDERS.role_api.update_role(role_id, update_role)
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertEqual(role_update['name'], update_role['name'])
+        self.assertEqual(role_via_manager['name'], update_role['name'])
+        self.assertTrue(
+            ro_opt.IMMUTABLE_OPT.option_name in role_update['options'])
+        self.assertTrue(
+            role_update['options'][ro_opt.IMMUTABLE_OPT.option_name])
+        self.assertTrue(
+            ro_opt.IMMUTABLE_OPT.option_name in role_via_manager['options'])
+        self.assertTrue(
+            role_via_manager['options'][ro_opt.IMMUTABLE_OPT.option_name])
+
+    def test_update_role_unset_immutable(self):
+        role = unit.new_role_ref()
+        role_id = role['id']
+        role['options'][ro_opt.IMMUTABLE_OPT.option_name] = True
+        PROVIDERS.role_api.create_role(role_id, role)
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue('options' in role_via_manager)
+        self.assertTrue(
+            role_via_manager['options'][ro_opt.IMMUTABLE_OPT.option_name])
+        update_role = {
+            'options': {
+                ro_opt.IMMUTABLE_OPT.option_name: False
+            }
+        }
+        PROVIDERS.role_api.update_role(role_id, update_role)
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue('options' in role_via_manager)
+        self.assertTrue(
+            ro_opt.IMMUTABLE_OPT.option_name in role_via_manager['options'])
+        self.assertFalse(
+            role_via_manager['options'][ro_opt.IMMUTABLE_OPT.option_name])
+        update_role = {
+            'options': {
+                ro_opt.IMMUTABLE_OPT.option_name: None
+            }
+        }
+        role_updated = PROVIDERS.role_api.update_role(role_id, update_role)
+        role_via_manager = PROVIDERS.role_api.get_role(role_id)
+        self.assertTrue('options' in role_updated)
+        self.assertTrue('options' in role_via_manager)
+        self.assertFalse(
+            ro_opt.IMMUTABLE_OPT.option_name in role_updated['options'])
+        self.assertFalse(
+            ro_opt.IMMUTABLE_OPT.option_name in role_via_manager['options'])

@@ -20,6 +20,7 @@ from keystone.common import cache
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.common import provider_api
+from keystone.common.resource_options import options as ro_opt
 from keystone.common import utils
 import keystone.conf
 from keystone import exception
@@ -292,6 +293,10 @@ class Manager(manager.Manager):
                     _('Cannot enable project %s since it has disabled '
                       'parents') % project_id)
 
+    def _is_immutable(self, project_ref):
+        return project_ref['options'].get(
+            ro_opt.IMMUTABLE_OPT.option_name, False)
+
     def _check_whole_subtree_is_disabled(self, project_id, subtree_list=None):
         if not subtree_list:
             subtree_list = self.list_projects_in_subtree(project_id)
@@ -306,11 +311,23 @@ class Manager(manager.Manager):
         self._require_matching_domain_id(project, original_project)
 
         if original_project['is_domain']:
+            # prevent updates to immutable domains
+            ro_opt.check_immutable_update(
+                original_resource_ref=original_project,
+                new_resource_ref=project,
+                type='domain',
+                resource_id=project_id)
             domain = self._get_domain_from_project(original_project)
             self.assert_domain_not_federated(project_id, domain)
             url_safe_option = CONF.resource.domain_name_url_safe
             exception_entity = 'Domain'
         else:
+            # prevent updates to immutable projects
+            ro_opt.check_immutable_update(
+                original_resource_ref=original_project,
+                new_resource_ref=project,
+                type='project',
+                resource_id=project_id)
             url_safe_option = CONF.resource.project_name_url_safe
             exception_entity = 'Project'
 
@@ -473,6 +490,11 @@ class Manager(manager.Manager):
             self._delete_project(project, initiator, cascade)
 
     def _delete_project(self, project, initiator=None, cascade=False):
+        # Prevent deletion of immutable projects
+        ro_opt.check_immutable_delete(
+            resource_ref=project,
+            resource_type='project',
+            resource_id=project['id'])
         project_id = project['id']
         if project['is_domain'] and project['enabled']:
             raise exception.ValidationError(
@@ -788,6 +810,11 @@ class Manager(manager.Manager):
         self._delete_domain(domain, initiator)
 
     def _delete_domain(self, domain, initiator=None):
+        # Disallow deletion of immutable domains
+        ro_opt.check_immutable_delete(
+            resource_ref=domain,
+            resource_type='domain',
+            resource_id=domain['id'])
         # To help avoid inadvertent deletes, we insist that the domain
         # has been previously disabled.  This also prevents a user deleting
         # their own domain since, once it is disabled, they won't be able
@@ -912,6 +939,12 @@ class Manager(manager.Manager):
         :returns: The value of the created tag
         """
         project = self.driver.get_project(project_id)
+        if ro_opt.check_resource_immutable(resource_ref=project):
+            raise exception.ResourceUpdateForbidden(
+                message=_(
+                    'Cannot create project tags for %(project_id)s, project '
+                    'is immutable. Set "immutable" option to false before '
+                    'creating project tags.') % {'project_id': project_id})
         tag_name = tag.strip()
         project['tags'].append(tag_name)
         self.update_project(project_id, {'tags': project['tags']})
@@ -953,7 +986,13 @@ class Manager(manager.Manager):
 
         :returns: A list of tags
         """
-        self.driver.get_project(project_id)
+        project = self.driver.get_project(project_id)
+        if ro_opt.check_resource_immutable(resource_ref=project):
+            raise exception.ResourceUpdateForbidden(
+                message=_(
+                    'Cannot update project tags for %(project_id)s, project '
+                    'is immutable. Set "immutable" option to false before '
+                    'creating project tags.') % {'project_id': project_id})
         tag_list = [t.strip() for t in tags]
         project = {'tags': tag_list}
         self.update_project(project_id, project)
@@ -969,6 +1008,12 @@ class Manager(manager.Manager):
             does not exist on the project
         """
         project = self.driver.get_project(project_id)
+        if ro_opt.check_resource_immutable(resource_ref=project):
+            raise exception.ResourceUpdateForbidden(
+                message=_(
+                    'Cannot delete project tags for %(project_id)s, project '
+                    'is immutable. Set "immutable" option to false before '
+                    'creating project tags.') % {'project_id': project_id})
         try:
             project['tags'].remove(tag)
         except ValueError:

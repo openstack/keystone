@@ -703,3 +703,15 @@ class CacheDeserializationError(Exception):
                 'obj': obj, 'data': data
             }
         )
+
+
+class ResourceUpdateForbidden(ForbiddenNotSecurity):
+    message_format = _('Unable to update immutable %(type)s resource: '
+                       '`%(resource_id)s. Set resource option "immutable" '
+                       'to false first.')
+
+
+class ResourceDeleteForbidden(ForbiddenNotSecurity):
+    message_format = _('Unable to delete immutable %(type)s resource: '
+                       '`%(resource_id)s. Set resource option "immutable" '
+                       'to false first.')

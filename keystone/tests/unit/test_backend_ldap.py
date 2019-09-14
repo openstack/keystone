@@ -116,6 +116,24 @@ def _assert_backends(testcase, **kwargs):
 
 class IdentityTests(identity_tests.IdentityTests):
 
+    def test_update_domain_set_immutable(self):
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
+    def test_cannot_delete_disabled_domain_with_immutable(self):
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
+    def test_delete_immutable_domain(self):
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
+    def test_create_domain_immutable(self):
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
+    def test_update_domain_unset_immutable(self):
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
+    def test_cannot_update_immutable_domain(self):
+        self.skip_test_overrides('N/A: LDAP does not support multiple domains')
+
     def test_delete_user_with_group_project_domain_links(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 

@@ -47,6 +47,13 @@ def ref_mapper_to_dict_options(ref):
     return options
 
 
+def get_resource_option(model, option_id):
+    """Get the resource option information from the model's mapper."""
+    if option_id in model._resource_option_mapper.keys():
+        return model._resource_option_mapper[option_id]
+    return None
+
+
 def resource_options_ref_to_mapper(ref, option_class):
     """Convert the _resource_options property-dict to options attr map.
 

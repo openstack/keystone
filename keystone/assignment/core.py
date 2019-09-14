@@ -23,6 +23,7 @@ from keystone.common import cache
 from keystone.common import driver_hints
 from keystone.common import manager
 from keystone.common import provider_api
+from keystone.common.resource_options import options as ro_opt
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -1302,8 +1303,19 @@ class RoleManager(manager.Manager):
     def list_roles(self, hints=None):
         return self.driver.list_roles(hints or driver_hints.Hints())
 
+    def _is_immutable(self, role):
+        return role['options'].get(ro_opt.IMMUTABLE_OPT.option_name, False)
+
     def update_role(self, role_id, role, initiator=None):
         original_role = self.driver.get_role(role_id)
+        # Prevent the update of immutable set roles unless the update is
+        # exclusively used for
+        ro_opt.check_immutable_update(
+            original_resource_ref=original_role,
+            new_resource_ref=role,
+            type='role',
+            resource_id=role_id)
+
         if ('domain_id' in role and
                 role['domain_id'] != original_role['domain_id']):
             raise exception.ValidationError(
@@ -1315,6 +1327,11 @@ class RoleManager(manager.Manager):
         return ret
 
     def delete_role(self, role_id, initiator=None):
+        role = self.driver.get_role(role_id)
+        # Prevent deletion of immutable roles.
+        ro_opt.check_immutable_delete(resource_ref=role,
+                                      resource_type='role',
+                                      resource_id=role_id)
         PROVIDERS.assignment_api.delete_role_assignments(role_id)
         PROVIDERS.assignment_api._send_app_cred_notification_for_role_removal(
             role_id

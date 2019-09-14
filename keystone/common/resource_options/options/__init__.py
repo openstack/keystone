@@ -15,6 +15,17 @@
 # in their individual registry. Each entry is imported from it's own
 # module directly to allow for custom implementation details as needed.
 
+from keystone.common.resource_options.options import immutable
 
 __all__ = (
+    'IMMUTABLE_OPT',
+    'check_resource_immutable',
+    'check_immutable_update',
+    'check_immutable_delete',
 )
+
+# Immutable Option and helper functions
+IMMUTABLE_OPT = immutable.IMMUTABLE_OPT
+check_resource_immutable = immutable.check_resource_immutable
+check_immutable_update = immutable.check_immutable_update
+check_immutable_delete = immutable.check_immutable_delete
