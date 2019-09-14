@@ -19,11 +19,6 @@
     "identity:ec2_list_credentials": "rule:admin_required or rule:owner",
     "identity:ec2_create_credential": "rule:admin_required or rule:owner",
 
-    "identity:get_domain_role": "rule:cloud_admin or rule:get_domain_roles",
-    "identity:list_domain_roles": "rule:cloud_admin or rule:list_domain_roles",
-    "identity:create_domain_role": "rule:cloud_admin or rule:domain_admin_matches_domain_role",
-    "identity:update_domain_role": "rule:cloud_admin or rule:domain_admin_matches_target_domain_role",
-    "identity:delete_domain_role": "rule:cloud_admin or rule:domain_admin_matches_target_domain_role",
     "domain_admin_matches_domain_role": "rule:admin_required and domain_id:%(role.domain_id)s",
     "get_domain_roles": "rule:domain_admin_matches_target_domain_role or rule:project_admin_matches_target_domain_role",
     "domain_admin_matches_target_domain_role": "rule:admin_required and domain_id:%(target.role.domain_id)s",
