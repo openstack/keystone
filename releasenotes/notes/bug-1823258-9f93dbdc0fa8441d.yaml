@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    [`bug 1823258 <https://bugs.launchpad.net/keystone/+bug/1823258>`_]
+    Adds support for an "immutable" resource option for roles, which when
+    enabled prevents accidental harmful modification or deletion of roles. Also
+    adds a new flag ``--immutable-roles`` to the ``keystone-manage bootstrap``
+    command to make the default roles (admin, member, and reader) immutable by
+    default, as well as a check in the ``keystone-status upgrade check``
+    command to check that these roles have been made immutable. In a future
+    release, these three roles will be immutable by default.
