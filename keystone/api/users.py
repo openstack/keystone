@@ -361,7 +361,10 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
 
         POST /v3/users/{user_id}/credentials/OS-EC2
         """
-        ENFORCER.enforce_call(action='identity:ec2_create_credential')
+        target = {}
+        target['credential'] = {'user_id': user_id}
+        ENFORCER.enforce_call(action='identity:ec2_create_credential',
+                              target_attr=target)
         PROVIDERS.identity_api.get_user(user_id)
         tenant_id = self.request_body_json.get('tenant_id')
         PROVIDERS.resource_api.get_project(tenant_id)
