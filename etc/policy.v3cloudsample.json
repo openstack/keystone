@@ -16,9 +16,6 @@
     "identity:get_project_tag": "rule:admin_required",
     "identity:list_project_tags": "rule:admin_required",
 
-    "identity:ec2_list_credentials": "rule:admin_required or rule:owner",
-    "identity:ec2_create_credential": "rule:admin_required or rule:owner",
-
     "domain_admin_matches_domain_role": "rule:admin_required and domain_id:%(role.domain_id)s",
     "get_domain_roles": "rule:domain_admin_matches_target_domain_role or rule:project_admin_matches_target_domain_role",
     "domain_admin_matches_target_domain_role": "rule:admin_required and domain_id:%(target.role.domain_id)s",
