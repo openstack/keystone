@@ -78,8 +78,7 @@ class AccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
     )
     application_credential = sqlalchemy.orm.relationship(
         'ApplicationCredentialAccessRuleModel',
-        backref=sqlalchemy.orm.backref('access_rule'),
-        cascade='all, delete-orphan')
+        backref=sqlalchemy.orm.backref('access_rule'))
 
 
 class ApplicationCredentialAccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
@@ -168,14 +167,20 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
         app_cred['roles'] = roles
         if ref.access_rules:
             access_rules = [
-                {k.replace('external_id', 'id'): v
-                 for k, v in c.access_rule.to_dict().items()
-                 if k != 'user_id' and k != 'id'}
+                self._access_rule_to_dict(c.access_rule)
                 for c in ref.access_rules
             ]
             app_cred['access_rules'] = access_rules
         app_cred.pop('internal_id')
         return app_cred
+
+    def _access_rule_to_dict(self, ref):
+        access_rule = ref.to_dict()
+        return {
+            k.replace('external_id', 'id'): v
+            for k, v in access_rule.items()
+            if k != 'user_id' and k != 'id'
+        }
 
     def get_application_credential(self, application_credential_id):
         with sql.session_for_read() as session:
@@ -219,4 +224,38 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
             query = session.query(ApplicationCredentialModel)
             query = query.filter_by(user_id=user_id)
             query = query.filter_by(project_id=project_id)
+            query.delete()
+
+    def get_access_rule(self, access_rule_id):
+        with sql.session_for_read() as session:
+            query = session.query(AccessRuleModel).filter_by(
+                external_id=access_rule_id)
+            ref = query.first()
+            if not ref:
+                raise exception.AccessRuleNotFound(
+                    access_rule_id=access_rule_id)
+            access_rule = self._access_rule_to_dict(ref)
+            return access_rule
+
+    def list_access_rules_for_user(self, user_id, hints):
+        with sql.session_for_read() as session:
+            query = session.query(AccessRuleModel).filter_by(user_id=user_id)
+            refs = sql.filter_limit_query(AccessRuleModel, query, hints)
+            return [self._access_rule_to_dict(ref) for ref in refs]
+
+    def delete_access_rule(self, access_rule_id):
+        try:
+            with sql.session_for_write() as session:
+                query = session.query(AccessRuleModel)
+                ref = query.filter_by(external_id=access_rule_id).first()
+                if not ref:
+                    raise exception.AccessRuleNotFound(
+                        access_rule_id=access_rule_id)
+                session.delete(ref)
+        except AssertionError:
+            raise exception.ForbiddenNotSecurity("May not delete access rule in use")
+
+    def delete_access_rules_for_user(self, user_id):
+        with sql.session_for_write() as session:
+            query = session.query(AccessRuleModel).filter_by(user_id=user_id)
             query.delete()

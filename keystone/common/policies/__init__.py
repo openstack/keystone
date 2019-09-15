@@ -12,6 +12,7 @@
 
 import itertools
 
+from keystone.common.policies import access_rule
 from keystone.common.policies import access_token
 from keystone.common.policies import application_credential
 from keystone.common.policies import auth
@@ -50,8 +51,9 @@ from keystone.common.policies import user
 def list_rules():
     return itertools.chain(
         base.list_rules(),
-        application_credential.list_rules(),
+        access_rule.list_rules(),
         access_token.list_rules(),
+        application_credential.list_rules(),
         auth.list_rules(),
         consumer.list_rules(),
         credential.list_rules(),
