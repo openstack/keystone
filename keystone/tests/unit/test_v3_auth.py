@@ -5583,7 +5583,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         self.auth_plugin_config_override(
             methods=['application_credential', 'password', 'token'])
 
-    def _make_app_cred(self, expires=None):
+    def _make_app_cred(self, expires=None, access_rules=None):
         roles = [{'id': self.role_id}]
         data = {
             'id': uuid.uuid4().hex,
@@ -5596,7 +5596,18 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         }
         if expires:
             data['expires_at'] = expires
+        if access_rules:
+            data['access_rules'] = access_rules
         return data
+
+    def _validate_token(self, token, headers=None, expected_status=http_client.OK):
+        path = '/v3/auth/tokens'
+        headers = headers or {}
+        headers.update({'X-Auth-Token': token, 'X-Subject-Token': token})
+        with self.test_client() as c:
+            resp = c.get(path, headers=headers,
+                         expected_status_code=expected_status)
+        return resp
 
     def test_valid_application_credential_succeeds(self):
         app_cred = self._make_app_cred()
@@ -5780,3 +5791,42 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             project_id=new_project['id'])
         self.v3_create_token(app_cred_auth,
                              expected_status=http_client.UNAUTHORIZED)
+
+    def test_application_credential_with_access_rules(self):
+        access_rules = [
+            {
+                'id': uuid.uuid4().hex,
+                'path': '/v2.1/servers',
+                'method': 'POST',
+                'service': uuid.uuid4().hex,
+            }
+        ]
+        app_cred = self._make_app_cred(access_rules=access_rules)
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        resp = self.v3_create_token(auth_data,
+                                    expected_status=http_client.CREATED)
+        token = resp.headers.get('X-Subject-Token')
+        headers = {'OpenStack-Identity-Access-Rules': '1.0'}
+        self._validate_token(token, headers=headers)
+
+    def test_application_credential_access_rules_without_header_fails(self):
+        access_rules = [
+            {
+                'id': uuid.uuid4().hex,
+                'path': '/v2.1/servers',
+                'method': 'POST',
+                'service': uuid.uuid4().hex,
+            }
+        ]
+        app_cred = self._make_app_cred(access_rules=access_rules)
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        resp = self.v3_create_token(auth_data,
+                                    expected_status=http_client.CREATED)
+        token = resp.headers.get('X-Subject-Token')
+        self._validate_token(token, expected_status=http_client.NOT_FOUND)

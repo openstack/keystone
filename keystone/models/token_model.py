@@ -29,6 +29,9 @@ PROVIDERS = provider_api.ProviderAPIs
 V3 = 'v3.0'
 VERSIONS = frozenset([V3])
 
+# minimum access rules support
+ACCESS_RULES_MIN_VERSION = 1.0
+
 
 class TokenModel(object):
     """An object that represents a token emitted by keystone.

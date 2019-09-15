@@ -286,12 +286,15 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
 
         token_id = flask.request.headers.get(
             authorization.SUBJECT_TOKEN_HEADER)
+        access_rules_support = flask.request.headers.get(
+            authorization.ACCESS_RULES_HEADER)
         allow_expired = strutils.bool_from_string(
             flask.request.args.get('allow_expired'))
         window_secs = CONF.token.allow_expired_window if allow_expired else 0
         include_catalog = 'nocatalog' not in flask.request.args
         token = PROVIDERS.token_provider_api.validate_token(
-            token_id, window_seconds=window_secs)
+            token_id, window_seconds=window_secs,
+            access_rules_support=access_rules_support)
         token_resp = render_token.render_token_response_from_model(
             token, include_catalog=include_catalog)
         resp_body = jsonutils.dumps(token_resp)
