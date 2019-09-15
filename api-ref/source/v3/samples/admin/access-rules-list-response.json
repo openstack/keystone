@@ -1,0 +1,18 @@
+{
+  "links": {
+    "self": "https://example.com/identity/v3/users/3e0716aefcad4b129a0f19f95ec9489e/access_rules",
+    "previous": null,
+    "next": null
+  },
+  "access_rules": [
+    {
+      "path": "/v2.0/metrics",
+      "links": {
+        "self": "https://example.com/identity/v3/access_rules/07d719df00f349ef8de77d542edf010c"
+      },
+      "id": "07d719df00f349ef8de77d542edf010c",
+      "service": "monitoring",
+      "method": "GET"
+    }
+  ]
+}

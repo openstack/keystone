@@ -1,0 +1,18 @@
+---
+prelude: >
+    [`blueprint whitelist-extension-for-app-creds <https://blueprints.launchpad.net/keystone/+spec/whitelist-extension-for-app-creds>`_]
+    This release adds support for delegating fine-grained privileges to
+    application credentials via access rules. Access rules act as a whitelist
+    of APIs that an application credential is allowed to use. Regular RBAC is
+    still enforced by oslo.policy. See the `API reference
+    <https://developer.openstack.org/api-ref/identity/v3/#application-credentials>`_
+    for details.
+features:
+  - |
+    [`blueprint whitelist-extension-for-app-creds <https://blueprints.launchpad.net/keystone/+spec/whitelist-extension-for-app-creds>`_]
+    This release adds support for delegating fine-grained privileges to
+    application credentials via access rules. Access rules act as a whitelist
+    of APIs that an application credential is allowed to use. Regular RBAC is
+    still enforced by oslo.policy. See the `API reference
+    <https://developer.openstack.org/api-ref/identity/v3/#application-credentials>`_
+    for details.

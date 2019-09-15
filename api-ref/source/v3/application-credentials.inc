@@ -21,6 +21,87 @@ Application credentials are limited by the lifespan of the user that created
 them. If the user is deleted, disabled, or loses a role assignment on a
 project, the application credential is deleted.
 
+Application credentials can have their privileges limited in two ways. First,
+the owner may specify a subset of their own roles that the application
+credential may assume when getting a token for a project. For example, if a
+user has the ``member`` role on a project, they also have the implied role
+``reader`` and can grant the application credential only the ``reader`` role
+for the project:
+
+::
+
+    "roles": [
+        {"name": "reader"}
+    ]
+
+Users also have the option of delegating more fine-grained access control to
+their application credentials by using access rules. For example, to create an
+application credential that is constricted to creating servers in nova, the
+user can add the following access rules:
+
+::
+
+    "access_rules": [
+        {
+            "path": "/v2.1/servers",
+            "method": "POST",
+            "service": "compute"
+        }
+    ]
+
+The ``"path"`` attribute of application credential access rules uses a wildcard
+syntax to make it more flexible. For example, to create an application
+credential that is constricted to listing server IP addresses, you could use
+either of the following access rules:
+
+::
+
+    "access_rules": [
+        {
+            "path": "/v2.1/servers/*/ips",
+            "method": "GET",
+            "service": "compute"
+        }
+    ]
+
+or equivalently:
+
+::
+
+    "access_rules": [
+        {
+            "path": "/v2.1/servers/{server_id}/ips",
+            "method": "GET",
+            "service": "compute"
+        }
+    ]
+
+In both cases, a request path containing any server ID will match the access
+rule. For even more flexibility, the recursive wildcard ``**`` indicates that
+request paths containing any number of ``/`` will be matched. For example:
+
+::
+
+    "access_rules": [
+        {
+            "path": "/v2.1/**",
+            "method": "GET",
+            "service": "compute"
+        }
+    ]
+
+will match any nova API for version 2.1.
+
+An access rule created for one application credential can be re-used by providing its ID to another application credential, for example:
+
+::
+
+    "access_rules": [
+        {
+            "id": "abcdef"
+        }
+    ]
+
 Authenticating with an Application Credential
 =============================================
 
@@ -119,6 +200,7 @@ Parameters
    - expires_at: request_application_credential_expires_at_body_not_required
    - roles: request_application_credential_roles_body_not_required
    - unrestricted: request_application_credential_unrestricted_body_not_required
+   - access_rules: request_application_credential_access_rules_body_not_required
 
 Example
 ~~~~~~~
@@ -154,6 +236,7 @@ Parameters
    - expires_at: response_application_credential_expires_at_body
    - project_id: response_application_credential_project_id_body
    - roles: response_application_credential_roles_body
+   - access_rules: response_application_credential_access_rules_body
    - unrestricted: response_application_credential_unrestricted_body
    - links: link_response_body
 
@@ -207,6 +290,7 @@ Parameters
    - expires_at: response_application_credential_expires_at_body
    - project_id: response_application_credential_project_id_body
    - roles: response_application_credential_roles_body
+   - access_rules: response_application_credential_access_rules_body
    - unrestricted: response_application_credential_unrestricted_body
    - links: link_collection
 
@@ -261,6 +345,7 @@ Parameters
    - expires_at: response_application_credential_expires_at_body
    - project_id: response_application_credential_project_id_body
    - roles: response_application_credential_roles_body
+   - access_rules: response_application_credential_access_rules_body
    - unrestricted: response_application_credential_unrestricted_body
    - links: link_response_body
 
@@ -289,6 +374,141 @@ Parameters
 
    - user_id: request_application_credential_user_id_path_required
    - application_credential_id: request_application_credential_id_path_required
+
+Response
+--------
+
+.. rest_status_code:: success status.yaml
+
+   - 204
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 403
+   - 404
+
+List access rules
+=================
+
+.. rest_method::  GET /v3/users/{user_id}/access_rules
+
+List all access rules for a user.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/access_rules``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+    - user_id: request_access_rule_user_id_path_required
+
+Response
+--------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 403
+   - 404
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - access_rules: response_access_rules_body
+   - id: response_access_rules_id_body
+   - path: response_access_rules_path_body
+   - method: response_access_rules_method_body
+   - service: response_access_rules_service_body
+   - links: link_collection
+
+Example
+~~~~~~~
+
+.. literalinclude:: samples/admin/access-rules-list-response.json
+   :language: javascript
+
+Show access rule details
+========================
+
+.. rest_method::  GET /v3/users/{user_id}/access_rules/{access_rule_id}
+
+Show details of an access rule.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/access_rules``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: request_access_rule_user_id_path_required
+   - access_rule_id: request_access_rule_id_path_required
+
+Response
+--------
+
+.. rest_status_code:: success status.yaml
+
+   - 200
+
+.. rest_status_code:: error status.yaml
+
+   - 401
+   - 403
+   - 404
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - access_rules: response_access_rules_body
+   - id: response_access_rules_id_body
+   - path: response_access_rules_path_body
+   - method: response_access_rules_method_body
+   - service: response_access_rules_service_body
+   - links: link_collection
+
+Example
+~~~~~~~
+
+.. literalinclude:: samples/admin/access-rule-get-response.json
+   :language: javascript
+
+Delete access rule
+==================
+
+.. rest_method::  DELETE /v3/users/{user_id}/access_rules/{access_rule_id}
+
+Delete an access rule. An access rule that is still in use by an application
+credential cannot be deleted.
+
+Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/access_rules``
+
+Request
+-------
+
+Parameters
+~~~~~~~~~~
+
+.. rest_parameters:: parameters.yaml
+
+   - user_id: request_access_rule_user_id_path_required
+   - access_rule_id: request_access_rule_id_path_required
 
 Response
 --------
