@@ -643,12 +643,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
                                       test_v3.AssignmentTestMixin):
     """Test policy enforcement of the sample v3 cloud policy file."""
 
-    def _policy_fixture(self):
-        return ksfixtures.Policy(
-            self.config_fixture,
-            policy_file=unit.dirs.etc('policy.v3cloudsample.json')
-        )
-
     def setUp(self):
         """Setup for v3 Cloud Policy Sample Test Cases.
 
@@ -1166,55 +1160,6 @@ class IdentityTestv3CloudPolicySample(test_v3.RestfulTestCase,
 
         self.assertRoleAssignmentInListResponse(r, project_admin_entity)
         self.assertRoleAssignmentInListResponse(r, project_user_entity)
-
-    def test_domain_admin_list_assignment_tree(self):
-        # Add a child project to the standard test data
-        sub_project = unit.new_project_ref(domain_id=self.domainA['id'],
-                                           parent_id=self.project['id'])
-        PROVIDERS.resource_api.create_project(sub_project['id'], sub_project)
-        PROVIDERS.assignment_api.create_grant(
-            self.role['id'], user_id=self.just_a_user['id'],
-            project_id=sub_project['id']
-        )
-
-        collection_url = self.build_role_assignment_query_url(
-            project_id=self.project['id'])
-        collection_url += '&include_subtree=True'
-
-        # The domain admin should be able to list the assignment tree
-        auth = self.build_authentication_request(
-            user_id=self.domain_admin_user['id'],
-            password=self.domain_admin_user['password'],
-            domain_id=self.domainA['id'])
-
-        r = self.get(collection_url, auth=auth)
-        self.assertValidRoleAssignmentListResponse(
-            r, expected_length=3, resource_url=collection_url)
-
-        # A project admin should not be able to
-        auth = self.build_authentication_request(
-            user_id=self.project_admin_user['id'],
-            password=self.project_admin_user['password'],
-            project_id=self.project['id'])
-
-        r = self.get(collection_url, auth=auth,
-                     expected_status=http_client.FORBIDDEN)
-
-        # A neither should a domain admin from a different domain
-        domainB_admin_user = unit.create_user(
-            PROVIDERS.identity_api,
-            domain_id=self.domainB['id'])
-        PROVIDERS.assignment_api.create_grant(
-            self.admin_role['id'], user_id=domainB_admin_user['id'],
-            domain_id=self.domainB['id']
-        )
-        auth = self.build_authentication_request(
-            user_id=domainB_admin_user['id'],
-            password=domainB_admin_user['password'],
-            domain_id=self.domainB['id'])
-
-        r = self.get(collection_url, auth=auth,
-                     expected_status=http_client.FORBIDDEN)
 
     def test_domain_user_list_assignments_of_project_failed(self):
         self.auth = self.build_authentication_request(

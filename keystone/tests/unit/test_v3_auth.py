@@ -2906,12 +2906,6 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
             domain_id=self.domainA['id']
         )
 
-    def _policy_fixture(self):
-        return ksfixtures.Policy(
-            self.config_fixture,
-            policy_file=unit.dirs.etc('policy.v3cloudsample.json')
-        )
-
     def test_user_revokes_own_token(self):
         user_token = self.get_requested_token(
             self.build_authentication_request(
@@ -2987,37 +2981,6 @@ class TestTokenRevokeSelfAndAdmin(test_v3.RestfulTestCase):
         self.head('/auth/tokens', headers=headers,
                   expected_status=http_client.NOT_FOUND,
                   token=adminA_token)
-
-    def test_adminB_fails_revoking_userA_token(self):
-        # DomainB setup
-        self.domainB = unit.new_domain_ref()
-        PROVIDERS.resource_api.create_domain(self.domainB['id'], self.domainB)
-        userAdminB = unit.create_user(PROVIDERS.identity_api,
-                                      domain_id=self.domainB['id'])
-        PROVIDERS.assignment_api.create_grant(
-            self.role['id'], user_id=userAdminB['id'],
-            domain_id=self.domainB['id']
-        )
-
-        user_token = self.get_requested_token(
-            self.build_authentication_request(
-                user_id=self.userNormalA['id'],
-                password=self.userNormalA['password'],
-                user_domain_id=self.domainA['id']))
-        headers = {'X-Subject-Token': user_token}
-
-        adminB_token = self.get_requested_token(
-            self.build_authentication_request(
-                user_id=userAdminB['id'],
-                password=userAdminB['password'],
-                domain_name=self.domainB['name']))
-
-        self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.FORBIDDEN,
-                  token=adminB_token)
-        self.delete('/auth/tokens', headers=headers,
-                    expected_status=http_client.FORBIDDEN,
-                    token=adminB_token)
 
 
 class TestTokenRevokeById(test_v3.RestfulTestCase):
