@@ -15,15 +15,6 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-SYSTEM_READER_OR_CRED_OWNER = (
-    '(role:reader and system_scope:all) '
-    'or user_id:%(target.credential.user_id)s'
-)
-SYSTEM_ADMIN_OR_CRED_OWNER = (
-    '(role:admin and system_scope:all) '
-    'or user_id:%(target.credential.user_id)s'
-)
-
 DEPRECATED_REASON = (
     'As of the Stein release, the credential API now understands how to '
     'handle system-scoped tokens in addition to project-scoped tokens, making '
@@ -56,7 +47,7 @@ deprecated_delete_credential = policy.DeprecatedRule(
 credential_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_credential',
-        check_str=SYSTEM_READER_OR_CRED_OWNER,
+        check_str=base.SYSTEM_READER_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Show credentials details.',
         operations=[{'path': '/v3/credentials/{credential_id}',
@@ -67,7 +58,7 @@ credential_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_credentials',
-        check_str=SYSTEM_READER_OR_CRED_OWNER,
+        check_str=base.SYSTEM_READER_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='List credentials.',
         operations=[{'path': '/v3/credentials',
@@ -78,7 +69,7 @@ credential_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_credential',
-        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
+        check_str=base.SYSTEM_ADMIN_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Create credential.',
         operations=[{'path': '/v3/credentials',
@@ -89,7 +80,7 @@ credential_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_credential',
-        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
+        check_str=base.SYSTEM_ADMIN_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Update credential.',
         operations=[{'path': '/v3/credentials/{credential_id}',
@@ -100,7 +91,7 @@ credential_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_credential',
-        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
+        check_str=base.SYSTEM_ADMIN_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Delete credential.',
         operations=[{'path': '/v3/credentials/{credential_id}',

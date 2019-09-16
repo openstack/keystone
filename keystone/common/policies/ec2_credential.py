@@ -15,15 +15,6 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-SYSTEM_READER_OR_CRED_OWNER = (
-    '(role:reader and system_scope:all) '
-    'or user_id:%(target.credential.user_id)s'
-)
-SYSTEM_ADMIN_OR_CRED_OWNER = (
-    '(role:admin and system_scope:all) '
-    'or user_id:%(target.credential.user_id)s'
-)
-
 deprecated_ec2_get_credential = policy.DeprecatedRule(
     name=base.IDENTITY % 'ec2_get_credential',
     check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER
@@ -52,7 +43,7 @@ automatically.
 ec2_credential_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_get_credential',
-        check_str=SYSTEM_READER_OR_CRED_OWNER,
+        check_str=base.SYSTEM_READER_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Show ec2 credential details.',
         operations=[{'path': ('/v3/users/{user_id}/credentials/OS-EC2/'
@@ -86,7 +77,7 @@ ec2_credential_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_delete_credential',
-        check_str=SYSTEM_ADMIN_OR_CRED_OWNER,
+        check_str=base.SYSTEM_ADMIN_OR_CRED_OWNER,
         scope_types=['system', 'project'],
         description='Delete ec2 credential.',
         operations=[{'path': ('/v3/users/{user_id}/credentials/OS-EC2/'

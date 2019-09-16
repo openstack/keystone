@@ -50,6 +50,16 @@ DOMAIN_READER = 'role:reader and domain_id:%(target.domain_id)s'
 RULE_SYSTEM_ADMIN_OR_OWNER = '(' + SYSTEM_ADMIN + ') or rule:owner'
 RULE_SYSTEM_READER_OR_OWNER = '(' + SYSTEM_READER + ') or rule:owner'
 
+# Credential and EC2 Credential policies
+SYSTEM_READER_OR_CRED_OWNER = (
+    '(' + SYSTEM_READER + ') '
+    'or user_id:%(target.credential.user_id)s'
+)
+SYSTEM_ADMIN_OR_CRED_OWNER = (
+    '(' + SYSTEM_ADMIN + ') '
+    'or user_id:%(target.credential.user_id)s'
+)
+
 rules = [
     policy.RuleDefault(
         name='admin_required',
