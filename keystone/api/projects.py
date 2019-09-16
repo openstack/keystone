@@ -236,7 +236,10 @@ class ProjectTagsResource(_ProjectTagResourceBase):
 
         GET /v3/projects/{project_id}/tags
         """
-        ENFORCER.enforce_call(action='identity:list_project_tags')
+        ENFORCER.enforce_call(
+            action='identity:list_project_tags',
+            build_target=_build_project_target_enforcement
+        )
         ref = PROVIDERS.resource_api.list_project_tags(project_id)
         return self.wrap_member(ref)
 
@@ -245,7 +248,10 @@ class ProjectTagsResource(_ProjectTagResourceBase):
 
         PUT /v3/projects/{project_id}/tags
         """
-        ENFORCER.enforce_call(action='identity:update_project_tags')
+        ENFORCER.enforce_call(
+            action='identity:update_project_tags',
+            build_target=_build_project_target_enforcement
+        )
         tags = self.request_body_json.get('tags', {})
         validation.lazy_validate(schema.project_tags_update, tags)
         ref = PROVIDERS.resource_api.update_project_tags(
@@ -257,7 +263,10 @@ class ProjectTagsResource(_ProjectTagResourceBase):
 
         DELETE /v3/projects/{project_id}/tags
         """
-        ENFORCER.enforce_call(action='identity:delete_project_tags')
+        ENFORCER.enforce_call(
+            action='identity:delete_project_tags',
+            build_target=_build_project_target_enforcement
+        )
         PROVIDERS.resource_api.update_project_tags(project_id, [])
         return None, http_client.NO_CONTENT
 
@@ -268,7 +277,10 @@ class ProjectTagResource(_ProjectTagResourceBase):
 
         GET /v3/projects/{project_id}/tags/{value}
         """
-        ENFORCER.enforce_call(action='identity:get_project_tag')
+        ENFORCER.enforce_call(
+            action='identity:get_project_tag',
+            build_target=_build_project_target_enforcement,
+        )
         PROVIDERS.resource_api.get_project_tag(project_id, value)
         return None, http_client.NO_CONTENT
 
@@ -277,7 +289,10 @@ class ProjectTagResource(_ProjectTagResourceBase):
 
         PUT /v3/projects/{project_id}/tags/{value}
         """
-        ENFORCER.enforce_call(action='identity:create_project_tag')
+        ENFORCER.enforce_call(
+            action='identity:create_project_tag',
+            build_target=_build_project_target_enforcement
+        )
         validation.lazy_validate(schema.project_tag_create, value)
         # Check if we will exceed the max number of tags on this project
         tags = PROVIDERS.resource_api.list_project_tags(project_id)
@@ -298,7 +313,10 @@ class ProjectTagResource(_ProjectTagResourceBase):
 
         /v3/projects/{project_id}/tags/{value}
         """
-        ENFORCER.enforce_call(action='identity:delete_project_tag')
+        ENFORCER.enforce_call(
+            action='identity:delete_project_tag',
+            build_target=_build_project_target_enforcement
+        )
         PROVIDERS.resource_api.delete_project_tag(project_id, value)
         return None, http_client.NO_CONTENT
 

@@ -19,6 +19,16 @@ Tags for projects have the following restrictions:
    - Each project can have a maximum of 80 tags
    - Each tag can be a maximum of 255 characters in length
 
+.. warning::
+
+   We discourage the use of project tags for sensitive information like billing or
+   account codes. By default, access to project tags isn't exclusive to system
+   administrators or users. Domain and project administrators are allowed to
+   tag projects they have authorization to access. Domain and project users
+   (e.g., users with the ``member`` or ``reader`` roles) can view all project
+   tags on all projects within their domain or on projects they are
+   authorized to access.
+
 
 List tags for a project
 =======================
