@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import os
 import subprocess
 import uuid
@@ -21,7 +20,6 @@ import uuid
 import mock
 from oslo_policy import policy as common_policy
 import six
-from testtools import matchers
 
 from keystone.common import policies
 from keystone.common.rbac_enforcer import policy
@@ -177,215 +175,6 @@ class PolicyJsonTestCase(unit.TestCase):
             rules[rule.name] = rule.check_str
         return rules
 
-    def test_json_examples_have_matching_entries(self):
-        # TODO(lbragstad): Once all policies have been removed from
-        # policy.v3cloudsample.json, remove this test.
-        removed_policies = [
-            'identity:add_endpoint_group_to_project',
-            'identity:add_endpoint_to_project',
-            'identity:add_user_to_group',
-            'identity:authorize_request_token',
-            'identity:check_grant',
-            'identity:check_endpoint_in_project',
-            'identity:check_implied_role',
-            'identity:check_policy_association_for_endpoint',
-            'identity:check_policy_association_for_region_and_service',
-            'identity:check_policy_association_for_service',
-            'identity:check_system_grant_for_group',
-            'identity:check_system_grant_for_user',
-            'identity:check_user_in_group',
-            'identity:create_application_credential',
-            'identity:create_consumer',
-            'identity:create_credential',
-            'identity:create_domain',
-            'identity:create_domain_config',
-            'identity:create_domain_role',
-            'identity:create_endpoint',
-            'identity:create_endpoint_group',
-            'identity:create_grant',
-            'identity:create_group',
-            'identity:create_identity_provider',
-            'identity:create_implied_role',
-            'identity:create_limits',
-            'identity:create_mapping',
-            'identity:create_policy',
-            'identity:create_policy_association_for_endpoint',
-            'identity:create_policy_association_for_region_and_service',
-            'identity:create_policy_association_for_service',
-            'identity:create_project',
-            'identity:create_project_tag',
-            'identity:create_protocol',
-            'identity:create_region',
-            'identity:create_registered_limits',
-            'identity:create_role',
-            'identity:create_service',
-            'identity:create_service_provider',
-            'identity:create_system_grant_for_group',
-            'identity:create_system_grant_for_user',
-            'identity:create_trust',
-            'identity:create_user',
-            'identity:delete_access_rule',
-            'identity:delete_access_token',
-            'identity:delete_application_credential',
-            'identity:delete_consumer',
-            'identity:delete_credential',
-            'identity:delete_domain',
-            'identity:delete_domain_config',
-            'identity:delete_domain_role',
-            'identity:delete_endpoint',
-            'identity:delete_endpoint_group',
-            'identity:delete_group',
-            'identity:delete_identity_provider',
-            'identity:delete_implied_role',
-            'identity:delete_mapping',
-            'identity:delete_limit',
-            'identity:delete_policy',
-            'identity:delete_policy_association_for_endpoint',
-            'identity:delete_policy_association_for_region_and_service',
-            'identity:delete_policy_association_for_service',
-            'identity:delete_project',
-            'identity:delete_project_tag',
-            'identity:delete_project_tags',
-            'identity:delete_protocol',
-            'identity:delete_region',
-            'identity:delete_registered_limit',
-            'identity:delete_role',
-            'identity:delete_service',
-            'identity:delete_service_provider',
-            'identity:delete_trust',
-            'identity:delete_user',
-            'identity:ec2_create_credential',
-            'identity:ec2_delete_credential',
-            'identity:ec2_get_credential',
-            'identity:ec2_list_credentials',
-            'identity:get_access_rule',
-            'identity:get_access_token',
-            'identity:get_access_token_role',
-            'identity:get_application_credential',
-            'identity:get_auth_catalog',
-            'identity:get_auth_domains',
-            'identity:get_auth_projects',
-            'identity:get_auth_system',
-            'identity:get_consumer',
-            'identity:get_credential',
-            'identity:get_domain',
-            'identity:get_domain_config',
-            'identity:get_domain_config_default',
-            'identity:get_domain_role',
-            'identity:get_endpoint',
-            'identity:get_endpoint_group',
-            'identity:get_endpoint_group_in_project',
-            'identity:get_group',
-            'identity:get_identity_provider',
-            'identity:get_implied_role',
-            'identity:get_limit',
-            'identity:get_limit_model',
-            'identity:get_mapping',
-            'identity:get_policy',
-            'identity:get_policy_for_endpoint',
-            'identity:get_project_tag',
-            'identity:get_project',
-            'identity:get_protocol',
-            'identity:get_region',
-            'identity:get_registered_limit',
-            'identity:get_role',
-            'identity:get_role_for_trust',
-            'identity:get_security_compliance_domain_config',
-            'identity:get_service',
-            'identity:get_service_provider',
-            'identity:get_trust',
-            'identity:get_user',
-            'identity:list_access_rules',
-            'identity:list_access_token_roles',
-            'identity:list_access_tokens',
-            'identity:list_application_credentials',
-            'identity:list_consumers',
-            'identity:list_credentials',
-            'identity:list_domain_roles',
-            'identity:list_domains',
-            'identity:list_domains_for_user',
-            'identity:list_endpoint_groups',
-            'identity:list_endpoint_groups_for_project',
-            'identity:list_endpoints',
-            'identity:list_endpoints_associated_with_endpoint_group',
-            'identity:list_endpoints_for_policy',
-            'identity:list_endpoints_for_project',
-            'identity:list_grants',
-            'identity:list_groups',
-            'identity:list_groups_for_user',
-            'identity:list_identity_providers',
-            'identity:list_implied_roles',
-            'identity:list_limits',
-            'identity:list_mappings',
-            'identity:list_policies',
-            'identity:list_projects',
-            'identity:list_projects_associated_with_endpoint_group',
-            'identity:list_projects_for_endpoint',
-            'identity:list_projects_for_user',
-            'identity:list_project_tags',
-            'identity:list_protocols',
-            'identity:list_regions',
-            'identity:list_registered_limits',
-            'identity:list_revoke_events',
-            'identity:list_role_assignments',
-            'identity:list_role_inference_rules',
-            'identity:list_roles',
-            'identity:list_roles_for_trust',
-            'identity:list_service_providers',
-            'identity:list_services',
-            'identity:list_system_grants_for_group',
-            'identity:list_system_grants_for_user',
-            'identity:list_trusts',
-            'identity:list_trusts_for_trustee',
-            'identity:list_trusts_for_trustor',
-            'identity:list_user_projects',
-            'identity:list_users',
-            'identity:list_users_in_group',
-            'identity:remove_endpoint_from_project',
-            'identity:remove_endpoint_group_from_project',
-            'identity:remove_user_from_group',
-            'identity:revocation_list',
-            'identity:revoke_grant',
-            'identity:revoke_system_grant_for_group',
-            'identity:revoke_system_grant_for_user',
-            'identity:update_consumer',
-            'identity:update_credential',
-            'identity:update_domain',
-            'identity:update_domain_config',
-            'identity:update_domain_role',
-            'identity:update_endpoint',
-            'identity:update_endpoint_group',
-            'identity:update_group',
-            'identity:update_identity_provider',
-            'identity:update_limit',
-            'identity:update_mapping',
-            'identity:update_policy',
-            'identity:update_project',
-            'identity:update_project_tags',
-            'identity:update_protocol',
-            'identity:update_region',
-            'identity:update_registered_limit',
-            'identity:update_role',
-            'identity:update_service',
-            'identity:update_service_provider',
-            'identity:update_user',
-            'service_or_admin',
-            'service_role',
-        ]
-        policy_keys = self._get_default_policy_rules()
-        for p in removed_policies:
-            del policy_keys[p]
-        cloud_policy_keys = set(
-            json.load(open(unit.dirs.etc('policy.v3cloudsample.json'))))
-
-        policy_extra_keys = ['admin_or_token_subject',
-                             'service_admin_or_token_subject',
-                             'token_subject', ]
-        expected_policy_keys = list(cloud_policy_keys) + policy_extra_keys
-        diffs = set(policy_keys).difference(set(expected_policy_keys))
-
-        self.assertThat(diffs, matchers.Equals(set()))
-
     def test_policies_loads(self):
         action = 'identity:list_projects'
         target = {'user_id': uuid.uuid4().hex,
@@ -404,11 +193,6 @@ class PolicyJsonTestCase(unit.TestCase):
         # default policies.
         result = policy._ENFORCER._enforcer.enforce(action, target,
                                                     credentials)
-        self.assertTrue(result)
-
-        domain_policy = unit.dirs.etc('policy.v3cloudsample.json')
-        enforcer = common_policy.Enforcer(CONF, policy_file=domain_policy)
-        result = enforcer.enforce(action, target, credentials)
         self.assertTrue(result)
 
     def test_all_targets_documented(self):
