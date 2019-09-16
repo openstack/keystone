@@ -231,8 +231,9 @@ def offline_sync_database_to_version(version=None):
 
 def get_db_version(repo=LEGACY_REPO):
     with sql.session_for_read() as session:
+        repo = find_repo(repo)
         return migration.db_version(
-            session.get_bind(), find_repo(repo), get_init_version())
+            session.get_bind(), repo, get_init_version(repo))
 
 
 def validate_upgrade_order(repo_name, target_repo_version=None):
