@@ -2596,11 +2596,15 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
     def test_project_id_specified_if_include_subtree_specified(self):
         """When using include_subtree, you must specify a project ID."""
-        self.get('/role_assignments?include_subtree=True',
-                 expected_status=http_client.BAD_REQUEST)
-        self.get('/role_assignments?scope.project.id&'
-                 'include_subtree=True',
-                 expected_status=http_client.BAD_REQUEST)
+        r = self.get('/role_assignments?include_subtree=True',
+                     expected_status=http_client.BAD_REQUEST)
+        error_msg = ("scope.project.id must be specified if include_subtree "
+                     "is also specified")
+        self.assertEqual(error_msg, r.result['error']['message'])
+        r = self.get('/role_assignments?scope.project.id&'
+                     'include_subtree=True',
+                     expected_status=http_client.BAD_REQUEST)
+        self.assertEqual(error_msg, r.result['error']['message'])
 
     def test_get_role_assignments_for_project_tree(self):
         """Get role_assignment?scope.project.id=X&include_subtree``.
