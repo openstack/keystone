@@ -935,6 +935,8 @@ class ResourceBase(flask_restful.Resource):
             return token_ref.domain_id
         elif token_ref.project_scoped:
             return token_ref.project_domain['id']
+        elif token_ref.system_scoped:
+            return
         else:
             msg = 'No domain information specified as part of list request'
             tr_msg = _('No domain information specified as part of list '
