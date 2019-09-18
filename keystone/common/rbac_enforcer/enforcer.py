@@ -53,6 +53,40 @@ class RBACEnforcer(object):
         # BORG pattern.
         self.__dict__ = self.__shared_state__
 
+    def _check_deprecated_rule(self, action):
+        def _name_is_changing(rule):
+            deprecated_rule = rule.deprecated_rule
+            return (deprecated_rule and
+                    deprecated_rule.name != rule.name and
+                    deprecated_rule.name in self._enforcer.file_rules)
+
+        def _check_str_is_changing(rule):
+            deprecated_rule = rule.deprecated_rule
+            return (deprecated_rule and
+                    deprecated_rule.check_str != rule.check_str and
+                    rule.name not in self._enforcer.file_rules)
+
+        def _is_deprecated_for_removal(rule):
+            return (rule.deprecated_for_removal and
+                    rule.name in self._enforcer.file_rules)
+
+        def _emit_warning():
+            if not self._enforcer._warning_emitted:
+                LOG.warning("Deprecated policy rules found. Use "
+                            "oslopolicy-policy-generator and "
+                            "oslopolicy-policy-upgrade to detect and resolve "
+                            "deprecated policies in your configuration.")
+                self._enforcer._warning_emitted = True
+
+        registered_rule = self._enforcer.registered_rules.get(action)
+
+        if not registered_rule:
+            return
+        if (_name_is_changing(registered_rule) or
+                _check_str_is_changing(registered_rule) or
+                _is_deprecated_for_removal(registered_rule)):
+            _emit_warning()
+
     def _enforce(self, credentials, action, target, do_raise=True):
         """Verify that the action is valid on the target in this context.
 
@@ -80,8 +114,10 @@ class RBACEnforcer(object):
                          do_raise=do_raise)
 
         try:
-            return self._enforcer.enforce(
+            result = self._enforcer.enforce(
                 rule=action, target=target, creds=credentials, **extra)
+            self._check_deprecated_rule(action)
+            return result
         except common_policy.InvalidScope:
             raise exception.ForbiddenAction(action=action)
 
@@ -94,9 +130,22 @@ class RBACEnforcer(object):
         # The raw oslo-policy enforcer object
         if self.__ENFORCER is None:
             self.__ENFORCER = common_policy.Enforcer(CONF)
+            # NOTE(cmurphy) when running in the keystone server, suppress
+            # deprecation warnings for individual policy rules. Instead, we log
+            # a single notification at enforcement time indicating the
+            # oslo.policy tools the operator can use to detect and resolve
+            # deprecated policies. If there is no request context here, that
+            # means external tooling such as the oslo.policy tools are running
+            # this code, in which case we do want the full deprecation warnings
+            # emitted for individual polcy rules.
+            if flask.has_request_context():
+                self.__ENFORCER.suppress_deprecation_warnings = True
+            # NOTE(cmurphy) Tests may explicitly disable these warnings to
+            # prevent an explosion of test logs
             if self.suppress_deprecation_warnings:
                 self.__ENFORCER.suppress_deprecation_warnings = True
             self.register_rules(self.__ENFORCER)
+            self.__ENFORCER._warning_emitted = False
         return self.__ENFORCER
 
     @staticmethod
