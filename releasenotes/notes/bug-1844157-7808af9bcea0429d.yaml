@@ -1,0 +1,13 @@
+---
+fixes:
+  - >
+    [`bug 1844157 <https://bugs.launchpad.net/keystone/+bug/1844157>`_]
+    When performing `keystone-manage db_sync --check` if the legacy repo
+    started at the same version number as the expand/contract/migrate
+    repos the check to see if the db was under version control failed
+    indicating that the db was up-to-date. This was due to the function
+    `get_init_version` never receiving the path for the repo queried for
+    version information. The fix is to ensure the repo path is always
+    passed to get_init_version from the
+    `keystone.common.sql.upgrade.get_db_version` function.
+
