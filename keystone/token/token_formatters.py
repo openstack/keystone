@@ -313,9 +313,11 @@ class BasePayload(object):
         """
         try:
             return (True, cls.convert_uuid_hex_to_bytes(value))
-        except ValueError:
-            # this might not be a UUID, depending on the situation (i.e.
-            # federation)
+        except (ValueError, TypeError):
+            # ValueError: this might not be a UUID, depending on the
+            # situation (i.e. federation)
+            # TypeError: the provided value may be binary encoded
+            # in which case just return the value (i.e. Python 3)
             return (False, value)
 
     @classmethod
@@ -344,6 +346,22 @@ class BasePayload(object):
         # restore the padding (==) at the end of the string
         return base64.urlsafe_b64decode(s + '==')
 
+    @classmethod
+    def _convert_or_decode(cls, is_stored_as_bytes, value):
+        """Convert a value to text type, translating uuid -> hex if required.
+
+        :param is_stored_as_bytes: whether value is already bytes
+        :type is_stored_as_bytes: six.boolean
+        :param value: value to attempt to convert to bytes
+        :type value: six.text_type or six.binary_type
+        :rtype: six.text_type
+        """
+        if is_stored_as_bytes:
+            return cls.convert_uuid_bytes_to_hex(value)
+        elif isinstance(value, six.binary_type):
+            return value.decode('utf-8')
+        return value
+
 
 class UnscopedPayload(BasePayload):
     version = 0
@@ -363,8 +381,7 @@ class UnscopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         expires_at_str = cls._convert_float_to_time_string(payload[2])
         audit_ids = list(map(cls.base64_encode, payload[3]))
@@ -409,8 +426,7 @@ class DomainScopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         try:
             domain_id = cls.convert_uuid_bytes_to_hex(payload[2])
@@ -457,12 +473,10 @@ class ProjectScopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         (is_stored_as_bytes, project_id) = payload[2]
-        if is_stored_as_bytes:
-            project_id = cls.convert_uuid_bytes_to_hex(project_id)
+        project_id = cls._convert_or_decode(is_stored_as_bytes, project_id)
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(cls.base64_encode, payload[4]))
         system = None
@@ -501,12 +515,10 @@ class TrustScopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         (is_stored_as_bytes, project_id) = payload[2]
-        if is_stored_as_bytes:
-            project_id = cls.convert_uuid_bytes_to_hex(project_id)
+        project_id = cls._convert_or_decode(is_stored_as_bytes, project_id)
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(cls.base64_encode, payload[4]))
         trust_id = cls.convert_uuid_bytes_to_hex(payload[5])
@@ -533,8 +545,7 @@ class FederatedUnscopedPayload(BasePayload):
     @classmethod
     def unpack_group_id(cls, group_id_in_bytes):
         (is_stored_as_bytes, group_id) = group_id_in_bytes
-        if is_stored_as_bytes:
-            group_id = cls.convert_uuid_bytes_to_hex(group_id)
+        group_id = cls._convert_or_decode(is_stored_as_bytes, group_id)
         return {'id': group_id}
 
     @classmethod
@@ -556,24 +567,11 @@ class FederatedUnscopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
-        else:
-            # NOTE(cmurphy): The user ID of shadowed federated users is no
-            # longer a UUID but a sha256 hash string, and so it should not be
-            # converted to a byte string since it is not a UUID format.
-            # However. on python3 msgpack returns the serialized input as a
-            # byte string anyway. Similar to other msgpack'd values in the
-            # payload, we need to explicitly decode it to a string value.
-            if six.PY3 and isinstance(user_id, six.binary_type):
-                user_id = user_id.decode('utf-8')
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         group_ids = list(map(cls.unpack_group_id, payload[2]))
         (is_stored_as_bytes, idp_id) = payload[3]
-        if is_stored_as_bytes:
-            idp_id = cls.convert_uuid_bytes_to_hex(idp_id)
-        else:
-            idp_id = idp_id.decode('utf-8')
+        idp_id = cls._convert_or_decode(is_stored_as_bytes, idp_id)
         protocol_id = payload[4]
         if isinstance(protocol_id, six.binary_type):
             protocol_id = protocol_id.decode('utf-8')
@@ -614,38 +612,10 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
-        else:
-            # NOTE(cmurphy): The user ID of shadowed federated users is no
-            # longer a UUID but a sha256 hash string, and so it should not be
-            # converted to a byte string since it is not a UUID format.
-            # However. on python3 msgpack returns the serialized input as a
-            # byte string anyway. Similar to other msgpack'd values in the
-            # payload, we need to explicitly decode it to a string value.
-            if six.PY3 and isinstance(user_id, six.binary_type):
-                user_id = user_id.decode('utf-8')
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         (is_stored_as_bytes, scope_id) = payload[2]
-        if is_stored_as_bytes:
-            scope_id = cls.convert_uuid_bytes_to_hex(scope_id)
-        else:
-            # NOTE(lbragstad): We assembled the token payload scope as a tuple
-            # (False, domain_id) for cases like (False, 'default'), since the
-            # default domain ID isn't converted to a byte string when it's not
-            # in UUID format. Despite the boolean indicator in the tuple that
-            # denotes if the value is stored as a byte string or not, msgpack
-            # apparently returns the serialized input as byte strings anyway.
-            # For example, this means what we though we were passing in as
-            # (False, 'default') during token creation actually comes out as
-            # (False, b'default') in token validation through msgpack, which
-            # clearly isn't correct according to our boolean indicator. This
-            # causes comparison issues due to different string types (e.g.,
-            # b'default' != 'default') with python 3. See bug 1813085 for
-            # details. We use this pattern for other strings in the payload
-            # like idp_id and protocol_id for the same reason.
-            if six.PY3 and isinstance(scope_id, six.binary_type):
-                scope_id = scope_id.decode('utf-8')
+        scope_id = cls._convert_or_decode(is_stored_as_bytes, scope_id)
         project_id = (
             scope_id
             if cls.version == FederatedProjectScopedPayload.version else None)
@@ -654,11 +624,7 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
             if cls.version == FederatedDomainScopedPayload.version else None)
         group_ids = list(map(cls.unpack_group_id, payload[3]))
         (is_stored_as_bytes, idp_id) = payload[4]
-        if is_stored_as_bytes:
-            idp_id = cls.convert_uuid_bytes_to_hex(idp_id)
-        else:
-            if six.PY3 and isinstance(idp_id, six.binary_type):
-                idp_id = idp_id.decode('utf-8')
+        idp_id = cls._convert_or_decode(is_stored_as_bytes, idp_id)
         protocol_id = payload[5]
         if six.PY3 and isinstance(protocol_id, six.binary_type):
             protocol_id = protocol_id.decode('utf-8')
@@ -703,15 +669,13 @@ class OauthScopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         (is_stored_as_bytes, project_id) = payload[2]
-        if is_stored_as_bytes:
-            project_id = cls.convert_uuid_bytes_to_hex(project_id)
+        project_id = cls._convert_or_decode(is_stored_as_bytes, project_id)
         (is_stored_as_bytes, access_token_id) = payload[3]
-        if is_stored_as_bytes:
-            access_token_id = cls.convert_uuid_bytes_to_hex(access_token_id)
+        access_token_id = cls._convert_or_decode(is_stored_as_bytes,
+                                                 access_token_id)
         expires_at_str = cls._convert_float_to_time_string(payload[4])
         audit_ids = list(map(cls.base64_encode, payload[5]))
         system = None
@@ -746,8 +710,7 @@ class SystemScopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         system = payload[2]
         expires_at_str = cls._convert_float_to_time_string(payload[3])
@@ -787,12 +750,10 @@ class ApplicationCredentialScopedPayload(BasePayload):
     @classmethod
     def disassemble(cls, payload):
         (is_stored_as_bytes, user_id) = payload[0]
-        if is_stored_as_bytes:
-            user_id = cls.convert_uuid_bytes_to_hex(user_id)
+        user_id = cls._convert_or_decode(is_stored_as_bytes, user_id)
         methods = auth_plugins.convert_integer_to_method_list(payload[1])
         (is_stored_as_bytes, project_id) = payload[2]
-        if is_stored_as_bytes:
-            project_id = cls.convert_uuid_bytes_to_hex(project_id)
+        project_id = cls._convert_or_decode(is_stored_as_bytes, project_id)
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(cls.base64_encode, payload[4]))
         system = None
@@ -803,8 +764,7 @@ class ApplicationCredentialScopedPayload(BasePayload):
         protocol_id = None
         access_token_id = None
         (is_stored_as_bytes, app_cred_id) = payload[5]
-        if is_stored_as_bytes:
-            app_cred_id = cls.convert_uuid_bytes_to_hex(app_cred_id)
+        app_cred_id = cls._convert_or_decode(is_stored_as_bytes, app_cred_id)
         return (user_id, methods, system, project_id, domain_id,
                 expires_at_str, audit_ids, trust_id, federated_group_ids,
                 identity_provider_id, protocol_id, access_token_id,
