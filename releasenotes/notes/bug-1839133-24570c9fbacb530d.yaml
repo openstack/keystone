@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [`bug 1839133 <https://bugs.launchpad.net/keystone/+bug/1839133>`_]
+    Makes user_enabled_emulation_use_group_config honor group_members_are_ids.
