@@ -21,6 +21,8 @@ from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 
+from keystone.credential.backends import sql as credential_sql
+
 PROVIDERS = provider_api.ProviderAPIs
 
 
@@ -90,3 +92,15 @@ class SqlCredential(SqlTests):
     def test_backend_credential_sql_no_hints(self):
         credentials = PROVIDERS.credential_api.list_credentials()
         self._validate_credential_list(credentials, self.user_credentials)
+
+    def test_backend_credential_sql_encrypted_string(self):
+        cred_dict = {
+            'id': uuid.uuid4().hex,
+            'type': uuid.uuid4().hex,
+            'hash': uuid.uuid4().hex,
+            'encrypted_blob': b'randomdata'
+        }
+        ref = credential_sql.CredentialModel.from_dict(cred_dict)
+        # Make sure CredentialModel is handing over a text string
+        # to the database. To avoid encoding issues
+        self.assertIsInstance(ref.encrypted_blob, str)
