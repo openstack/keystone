@@ -1866,6 +1866,32 @@ class TestMappingEngineTester(unit.BaseTestCase):
         self.assertRaises(exception.ValidationError,
                           mapping_engine.main)
 
+    def test_mapping_engine_tester_logs_direct_maps(self):
+        tempfilejson = self.useFixture(temporaryfile.SecureTempFile())
+        tmpfilejsonname = tempfilejson.file_name
+        updated_mapping = copy.deepcopy(mapping_fixtures.MAPPING_SMALL)
+        with open(tmpfilejsonname, 'w') as f:
+            f.write(jsonutils.dumps(updated_mapping))
+        self.command_rules = tmpfilejsonname
+        tempfile = self.useFixture(temporaryfile.SecureTempFile())
+        tmpfilename = tempfile.file_name
+        with open(tmpfilename, 'w') as f:
+            f.write("\n")
+            f.write("UserName:me\n")
+            f.write("orgPersonType:NoContractor\n")
+            f.write("LastName:Bo\n")
+            f.write("FirstName:Jill\n")
+        self.command_input = tmpfilename
+        self.command_prefix = None
+        self.command_engine_debug = True
+        self.useFixture(fixtures.MockPatchObject(
+            CONF, 'command', self.FakeConfCommand(self)))
+        mapping_engine = cli.MappingEngineTester()
+        logging = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
+        mapping_engine.main()
+        expected_msg = "direct_maps: [['me']]"
+        self.assertThat(logging.output, matchers.Contains(expected_msg))
+
 
 class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
 

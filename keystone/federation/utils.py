@@ -243,6 +243,10 @@ class DirectMaps(object):
     def __init__(self):
         self._matches = []
 
+    def __str__(self):
+        """return the direct map array as a string."""
+        return '%s' % self._matches
+
     def add(self, values):
         """Add a matched value to the list of matches.
 
