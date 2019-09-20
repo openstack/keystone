@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1836568 <https://bugs.launchpad.net/keystone/+bug/1836568>`_
+    Addresses a side effect of the large series of policy migrations in which
+    the volume of deprecation warnings that were emitted had become too massive
+    to be helpful. Instead of emitting warnings for individual policy rules,
+    the keystone server now emits a single warning indicating problematic rules
+    were found. Operators can use oslopolicy-policy-generator and
+    oslopolicy-policy-upgrade to find and resolve deprecated policies.
