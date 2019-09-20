@@ -338,6 +338,7 @@ class AuthFederationWebSSOResource(_AuthFederationWebSSOBase):
     @classmethod
     def _perform_auth(cls, protocol_id):
         idps = PROVIDERS.federation_api.list_idps()
+        remote_id = None
         for idp in idps:
             try:
                 remote_id_name = federation_utils.get_remote_id_parameter(

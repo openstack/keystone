@@ -4886,6 +4886,16 @@ class WebSSOTests(FederatedTokenTests):
                 auth_api.AuthFederationWebSSOResource._perform_auth,
                 self.PROTOCOL)
 
+    def test_federated_sso_auth_protocol_not_found(self):
+        environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
+                       'QUERY_STRING': 'origin=%s' % self.ORIGIN}
+        environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
+        with self.make_request(environ=environment):
+            self.assertRaises(
+                exception.Unauthorized,
+                auth_api.AuthFederationWebSSOResource._perform_auth,
+                'no_this_protocol')
+
     def test_federated_sso_untrusted_dashboard(self):
         environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
                        'QUERY_STRING': 'origin=%s' % uuid.uuid4().hex}
