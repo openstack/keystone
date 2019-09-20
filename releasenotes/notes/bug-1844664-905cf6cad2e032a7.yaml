@@ -1,0 +1,36 @@
+---
+features:
+  - |
+    [`bug 1844664 <https://bugs.launchpad.net/keystone/+bug/1844664>`_]
+    The Project Endpoints API now supports the ``admin``,
+    ``member``, and ``reader`` default roles.
+
+upgrade:
+  - |
+    [`bug 1844664 <https://bugs.launchpad.net/keystone/+bug/1844664>`_]
+    The Project Endpoints API uses new default policies to
+    make it more accessible to end users and administrators in a secure way.
+    Please consider these new defaults if your deployment overrides Project
+    Endpoints policies.
+deprecations:
+  - |
+    [`bug 1844664 <https://bugs.launchpad.net/keystone/+bug/1844664>`_]
+    The Project Endpoints policies have been deprecated. The
+    ``identity:list_projects_for_endpoint`` now use  ``(role:reader and system_scope:all)``
+    ``identity:check_endpoint_in_project`` policies now use
+    ``role:reader and system_scope:all`` and ``identity:list_endpoints_for_project``
+    now use  ``(role:reader and system_scope:all)`` instead of
+    ``rule:admin_required``. The ``identity:add_endpoint_to_project`` now use
+    ``(role:admin and system_scope:all)``
+    instead of ``rule:admin_required``and ``identity:remove_endpoint_from_project``
+    policies now use ``role:admin and system_scope:all`` instead of
+    ``rule:admin_required``.
+    These new defaults automatically account for system-scope and support
+    a read-only role, making it easier for system administrators to delegate
+    subsets of responsibility without compromising security. Please consider
+    these new defaults if your deployment overrides the Project Endpoints policies.
+security:
+  - |
+    [`bug 1844664 <https://bugs.launchpad.net/keystone/+bug/1844664>`_]
+    The Project Endpoints API now uses system-scope and default
+    roles to provide better accessibility to users in a secure manner.
