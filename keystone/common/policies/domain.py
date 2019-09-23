@@ -15,13 +15,9 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-DEPRECATED_REASON = """
-As of the Stein release, the domain API now understands how to handle
-system-scoped tokens in addition to project-scoped tokens, making the API more
-accessible to users without compromising security or manageability for
-administrators. The new default policies for this API account for these changes
-automatically
-"""
+DEPRECATED_REASON = (
+    "The domain API is now aware of system scope and default roles."
+)
 
 deprecated_list_domains = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_domains',

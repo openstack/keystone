@@ -36,13 +36,10 @@ deprecated_delete_protocol = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED
 )
 
-DEPRECATED_REASON = """
-As of the Stein release, the federated protocol API now understands default
-roles and system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the protocol API.
-"""
+DEPRECATED_REASON = (
+    "The federated protocol API is now aware of system scope and default "
+    "roles."
+)
 
 protocol_policies = [
     policy.DocumentedRuleDefault(

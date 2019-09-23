@@ -15,12 +15,9 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-DEPRECATED_REASON = """
-As of the Train release, the token API now understands how to handle
-system-scoped tokens, making the API more accessible to users without
-compromising security or manageability for administrators. This support
-includes a read-only role by default.
-"""
+DEPRECATED_REASON = (
+    "The token API is now aware of system scope and default roles."
+)
 
 deprecated_check_token = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_token',

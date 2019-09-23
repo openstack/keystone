@@ -40,13 +40,9 @@ deprecated_delete_implied_role = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED,
 )
 
-DEPRECATED_REASON = """
-As of the Train release, the implied role API understands how to
-handle system-scoped tokens in addition to project tokens, making the API
-more accessible to users without compromising security or manageability for
-administrators. The new default policies for this API account for these changes
-automatically.
-"""
+DEPRECATED_REASON = (
+    "The implied role API is now aware of system scope and default roles."
+)
 
 
 implied_role_policies = [

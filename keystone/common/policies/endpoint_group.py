@@ -71,13 +71,9 @@ deprecated_remove_endpoint_group_from_project = policy.DeprecatedRule(
 )
 
 
-DEPRECATED_REASON = """
-As of the Train release, the endpoint groups API now understands default roles
-and system-scoped tokens, making the API more granular by default without
-compromising security. The new policy defaults account for these changes
-automatically. Be sure to take these new defaults into consideration if you are
-relying on overrides in your deployment for the endpoint groups API.
-"""
+DEPRECATED_REASON = (
+    "The endpoint groups API is now aware of system scope and default roles."
+)
 
 
 group_endpoint_policies = [
