@@ -67,6 +67,7 @@ class TestCaseWithBootstrap(core.BaseTestCase):
         self.bootstrapper.admin_role_name = 'admin'
         self.bootstrapper.service_name = 'keystone'
         self.bootstrapper.public_url = 'http://localhost/identity/'
+        self.bootstrapper.immutable_roles = True
 
         try:
             PROVIDERS.resource_api.create_domain(
