@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
 from six.moves import http_client
 import uuid
 
@@ -653,6 +654,49 @@ class _SystemUserTests(object):
             for assignment in actual:
                 self.assertIn(assignment, expected)
 
+    def test_user_can_list_assignments_for_subtree(self):
+        assignments = self._setup_test_role_assignments()
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        )
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id,
+                                 parent_id=assignments['project_id'])
+        )
+        PROVIDERS.assignment_api.create_grant(
+            assignments['role_id'],
+            user_id=user['id'],
+            project_id=project['id']
+        )
+        expected = [
+            {
+                'user_id': assignments['user_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id']
+            },
+            {
+                'group_id': assignments['group_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id']
+            },
+            {
+                'user_id': user['id'],
+                'project_id': project['id'],
+                'role_id': assignments['role_id']
+            }
+        ]
+        with self.test_client() as c:
+            r = c.get(
+                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
+                 assignments['project_id']),
+                headers=self.headers
+            )
+            self.assertEqual(len(expected), len(r.json['role_assignments']))
+            actual = self._extract_role_assignments_from_response_body(r)
+            for assignment in actual:
+                self.assertIn(assignment, expected)
+
 
 class _DomainUserTests(object):
     """Common functionality for domain users."""
@@ -922,6 +966,60 @@ class _DomainUserTests(object):
             )
             self.assertEqual(0, len(r.json['role_assignments']))
 
+    def test_user_can_list_assignments_for_subtree_in_their_domain(self):
+        assignments = self._setup_test_role_assignments()
+        domain_assignments = self._setup_test_role_assignments_for_domain()
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=self.domain_id,
+                                 parent_id=domain_assignments['project_id'])
+        )
+        PROVIDERS.assignment_api.create_grant(
+            assignments['role_id'],
+            user_id=user['id'],
+            project_id=project['id']
+        )
+        expected = [
+            {
+                'user_id': domain_assignments['user_id'],
+                'project_id': domain_assignments['project_id'],
+                'role_id': assignments['role_id']
+            },
+            {
+                'group_id': domain_assignments['group_id'],
+                'project_id': domain_assignments['project_id'],
+                'role_id': assignments['role_id']
+            },
+            {
+                'user_id': user['id'],
+                'project_id': project['id'],
+                'role_id': assignments['role_id']
+            }
+        ]
+        with self.test_client() as c:
+            r = c.get(
+                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
+                 domain_assignments['project_id']),
+                headers=self.headers
+            )
+            self.assertEqual(len(expected), len(r.json['role_assignments']))
+            actual = self._extract_role_assignments_from_response_body(r)
+            for assignment in actual:
+                self.assertIn(assignment, expected)
+
+    def test_user_cannot_list_assignments_for_subtree_in_other_domain(self):
+        assignments = self._setup_test_role_assignments()
+        with self.test_client() as c:
+            c.get(
+                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
+                 assignments['project_id']),
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
 
 class _ProjectUserTests(object):
 
@@ -1011,6 +1109,30 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
+class _ProjectReaderMemberTests(object):
+    def test_user_cannot_list_assignments_for_subtree(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=self.domain_id,
+                                 parent_id=self.project_id)
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id']
+        )
+        with self.test_client() as c:
+            c.get(
+                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
+                 self.project_id),
                 headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
@@ -1216,10 +1338,37 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                        _AssignmentTestUtilities,
                        _DomainUserTests):
 
+    def _override_policy(self):
+        # TODO(lbragstad): Remove this once the deprecated policies in
+        # keystone.common.policies.role_assignment have been removed. This is
+        # only here to make sure we test the new policies instead of the
+        # deprecated ones. Oslo.policy will OR deprecated policies with new
+        # policies to maintain compatibility and give operators a chance to
+        # update permissions or update policies without breaking users. This
+        # will cause these specific tests to fail since we're trying to correct
+        # this broken behavior with better scope checking.
+        with open(self.policy_file_name, 'w') as f:
+            overridden_policies = {
+                'identity:list_role_assignments': (
+                    rp.SYSTEM_READER_OR_DOMAIN_READER
+                ),
+                'identity:list_role_assignments_for_tree': (
+                    rp.SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN
+                )
+            }
+            f.write(jsonutils.dumps(overridden_policies))
+
     def setUp(self):
         super(DomainAdminTests, self).setUp()
         self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
+        self.policy_file_name = self.policy_file.file_name
+        self.useFixture(
+            ksfixtures.Policy(
+                self.config_fixture, policy_file=self.policy_file_name
+            )
+        )
+        self._override_policy()
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain = PROVIDERS.resource_api.create_domain(
@@ -1256,7 +1405,8 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
 class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
                          common_auth.AuthTestMixin,
                          _AssignmentTestUtilities,
-                         _ProjectUserTests):
+                         _ProjectUserTests,
+                         _ProjectReaderMemberTests):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -1304,7 +1454,8 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
 class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
                          common_auth.AuthTestMixin,
                          _AssignmentTestUtilities,
-                         _ProjectUserTests):
+                         _ProjectUserTests,
+                         _ProjectReaderMemberTests):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -1394,7 +1545,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.project_id
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1417,6 +1568,61 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
             overridden_policies = {
                 'identity:list_role_assignments': (
                     rp.SYSTEM_READER_OR_DOMAIN_READER
+                ),
+                'identity:list_role_assignments_for_tree': (
+                    rp.SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN
                 )
             }
             f.write(jsonutils.dumps(overridden_policies))
+
+    def test_user_can_list_assignments_for_subtree_on_own_project(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=self.domain_id,
+                                 parent_id=self.project_id)
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id']
+        )
+        expected = copy.copy(self.expected)
+        expected.append({
+            'project_id': project['id'],
+            'user_id': user['id'],
+            'role_id': self.bootstrapper.reader_role_id
+        })
+        with self.test_client() as c:
+            r = c.get(
+                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
+                 self.project_id),
+                headers=self.headers
+            )
+            self.assertEqual(len(expected), len(r.json['role_assignments']))
+            actual = self._extract_role_assignments_from_response_body(r)
+            for assignment in actual:
+                self.assertIn(assignment, expected)
+
+    def test_user_cannot_list_assignments_for_subtree_on_other_project(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=self.domain_id)
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id']
+        )
+        with self.test_client() as c:
+            c.get(
+                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
+                 project['id']),
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )

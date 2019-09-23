@@ -1,0 +1,31 @@
+---
+features:
+  - |
+    [`bug 1844461 <https://bugs.launchpad.net/keystone/+bug/1844461>`_]
+    Listing role assignments for a project subtree is now allowed by system
+    readers and domain readers in addition to project admins.
+upgrade:
+  - |
+    [`bug 1844461 <https://bugs.launchpad.net/keystone/+bug/1844461>`_]
+    The ``identity:list_role_assignments_for_subtree`` policy now allows system
+    and domain readers to list role assignments for a project subtree and
+    deprecates the old ``rule:admin_required`` policy check string.  Please
+    consider the new policies if your deployment overrides role
+    assignment policies.
+deprecations:
+  - |
+    [`bug 1844461 <https://bugs.launchpad.net/keystone/+bug/1844461>`_]
+    The role assignment ``identity:list_role_assignments_for_subtree`` policy
+    now uses ``(role:reader and system_scope:all) or (role:reader and
+    domain_id:%(target.project.domain_id)s) or (role:admin and
+    project_id:%(target.project.id)s)`` instead of ``rule:admin_required``.
+    This new default automatically includes support for a read-only role
+    and allows for more granular access to the role assignment API. Please
+    consider this new default if your deployment overrides the role
+    assignment policies.
+security:
+  - |
+    [`bug 1844461 <https://bugs.launchpad.net/keystone/+bug/1844461>`_]
+    Listing role assignments for a project subtree now uses system-scope,
+    domain-scope, project-scope, and default roles to provide better
+    accessbility to users in a secure way.
