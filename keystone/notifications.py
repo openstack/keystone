@@ -66,6 +66,7 @@ CADF_TYPE_MAP = {
     'OS-OAUTH1:access_token': taxonomy.SECURITY_CREDENTIAL,
     'OS-OAUTH1:request_token': taxonomy.SECURITY_CREDENTIAL,
     'OS-OAUTH1:consumer': taxonomy.SECURITY_ACCOUNT,
+    'application_credential': taxonomy.SECURITY_CREDENTIAL,
 }
 
 SAML_AUDIT_TYPE = 'http://docs.oasis-open.org/security/saml/v2.0'
