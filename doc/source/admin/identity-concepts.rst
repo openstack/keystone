@@ -297,7 +297,7 @@ service, such as, a user named ``nova`` for the Compute service, and a
 special service project called ``service``.
 
 For information about how to create services and endpoints, see the
-`Administrator Guide <manage_services>`__.
+:ref:`Administrator Guide <manage_services>`.
 
 Groups
 ~~~~~~
