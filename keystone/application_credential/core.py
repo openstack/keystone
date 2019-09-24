@@ -205,7 +205,8 @@ class Manager(manager.Manager):
         notifications.Audit.deleted(
             self._APP_CRED, application_credential_id, initiator)
 
-    def _delete_application_credentials_for_user(self, user_id):
+    def _delete_application_credentials_for_user(self, user_id,
+                                                 initiator=None):
         """Delete all application credentials for a user.
 
         :param str user_id: User ID
@@ -217,6 +218,8 @@ class Manager(manager.Manager):
         self.driver.delete_application_credentials_for_user(user_id)
         for app_cred in app_creds:
             self.get_application_credential.invalidate(self, app_cred['id'])
+            notifications.Audit.deleted(self._APP_CRED, app_cred['id'],
+                                        initiator)
 
     def _delete_application_credentials_for_user_on_project(self, user_id,
                                                             project_id):
