@@ -14,7 +14,6 @@ from oslo_serialization import jsonutils
 from six.moves import http_client
 
 from keystone.common.policies import base as bp
-from keystone.common.policies import ec2_credential as ec
 from keystone.common import provider_api
 import keystone.conf
 from keystone.tests.common import auth as common_auth
@@ -398,11 +397,11 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         # this broken behavior with better scope checking.
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
-                'identity:ec2_get_credential': ec.SYSTEM_READER_OR_CRED_OWNER,
+                'identity:ec2_get_credential': bp.SYSTEM_READER_OR_CRED_OWNER,
                 'identity:ec2_list_credentials': bp.RULE_SYSTEM_READER_OR_OWNER,
-                'identity:ec2_create_credential': ec.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:ec2_update_credential': ec.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:ec2_delete_credential': ec.SYSTEM_ADMIN_OR_CRED_OWNER
+                'identity:ec2_create_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER,
+                'identity:ec2_update_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER,
+                'identity:ec2_delete_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER
             }
             f.write(jsonutils.dumps(overridden_policies))
 
