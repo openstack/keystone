@@ -228,11 +228,11 @@ class TrustResource(ks_flask.ResourceBase):
         # rule check_str is ""
         if isinstance(rules, op_checks.TrueCheck):
             LOG.warning(
-                "The policy check string for rule \"identity:list_trusts\" has been overridden"
-                "to \"always true\". In the next release, this will cause the"
-                "\"identity:list_trusts\" action to be fully permissive as hardcoded"
-                "enforcement will be removed. To correct this issue, either stop overriding the"
-                "\"identity:list_trusts\" rule in config to accept the defaults, or explicitly"
+                "The policy check string for rule \"identity:list_trusts\" has been overridden "
+                "to \"always true\". In the next release, this will cause the "
+                "\"identity:list_trusts\" action to be fully permissive as hardcoded "
+                "enforcement will be removed. To correct this issue, either stop overriding the "
+                "\"identity:list_trusts\" rule in config to accept the defaults, or explicitly "
                 "set a rule that is not empty."
             )
             if not flask.request.args:
