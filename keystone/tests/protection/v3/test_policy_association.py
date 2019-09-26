@@ -118,10 +118,11 @@ class _SystemUserPoliciesAssociationTests(object):
             policy['id'], endpoint['id']
         )
         with self.test_client() as c:
-            r = c.get('/v3/endpoints/%s/OS-ENDPOINT-POLICY/policy'
-                      % (endpoint['id']),
+            r = c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints'
+                      % (policy['id']),
                       headers=self.headers)
-            self.assertIn(policy['id'], r.json['policy']['id'])
+            for endpoint_itr in r.json['endpoints']:
+                self.assertIn(endpoint['id'], endpoint_itr['id'])
 
 
 class _SystemReaderAndMemberPoliciesAssociationTests(object):
