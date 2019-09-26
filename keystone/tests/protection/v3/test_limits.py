@@ -636,3 +636,173 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
+
+
+class ProjectUserTests(base_classes.TestCaseWithBootstrap,
+                       common_auth.AuthTestMixin):
+
+    def setUp(self):
+        super(ProjectUserTests, self).setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.bootstrapper.project_id
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+    def test_user_can_get_project_limit(self):
+        project_limit_id, _ = _create_limits_and_dependencies()
+
+        limit = PROVIDERS.unified_limit_api.get_limit(project_limit_id)
+        # NOTE(lbragstad): Project users are only allowed to list limits for a
+        # project if they actually have a role assignment on the project and
+        # call the API with a project-scoped token.
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id, user_id=self.user_id,
+            project_id=limit['project_id']
+        )
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=limit['project_id']
+        )
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            token_id = r.headers['X-Subject-Token']
+            headers = {'X-Auth-Token': token_id}
+
+        with self.test_client() as c:
+            r = c.get('/v3/limits/%s' % project_limit_id, headers=headers)
+
+    def test_user_cannot_get_project_limit_without_role_assignment(self):
+        project_limit_id, _ = _create_limits_and_dependencies()
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/limits/%s' % project_limit_id, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_get_domain_limit(self):
+        _, domain_limit_id = _create_limits_and_dependencies()
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/limits/%s' % domain_limit_id, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_can_list_limits(self):
+        project_limit_id, _ = _create_limits_and_dependencies()
+
+        limit = PROVIDERS.unified_limit_api.get_limit(project_limit_id)
+        # NOTE(lbragstad): Project users are only allowed to list limits for a
+        # project if they actually have a role assignment on the project and
+        # call the API with a project-scoped token.
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id, user_id=self.user_id,
+            project_id=limit['project_id']
+        )
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=limit['project_id']
+        )
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            token_id = r.headers['X-Subject-Token']
+            headers = {'X-Auth-Token': token_id}
+
+        with self.test_client() as c:
+            r = c.get('/v3/limits', headers=headers)
+            self.assertTrue(len(r.json['limits']) == 1)
+            self.assertEqual(project_limit_id, r.json['limits'][0]['id'])
+
+    def test_user_cannot_list_limits_without_project_role_assignment(self):
+        _create_limits_and_dependencies()
+
+        with self.test_client() as c:
+            r = c.get('/v3/limits', headers=self.headers)
+            self.assertEqual(0, len(r.json['limits']))
+
+    def test_user_can_get_limit_model(self):
+        with self.test_client() as c:
+            c.get('/v3/limits/model', headers=self.headers)
+
+    def test_user_cannot_create_limits(self):
+        service = PROVIDERS.catalog_api.create_service(
+            uuid.uuid4().hex, unit.new_service_ref()
+        )
+
+        registered_limit = unit.new_registered_limit_ref(
+            service_id=service['id'], id=uuid.uuid4().hex
+        )
+        registered_limits = (
+            PROVIDERS.unified_limit_api.create_registered_limits(
+                [registered_limit]
+            )
+        )
+        registered_limit = registered_limits[0]
+
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+        )
+
+        create = {
+            'limits': [
+                unit.new_limit_ref(
+                    project_id=project['id'], service_id=service['id'],
+                    resource_name=registered_limit['resource_name'],
+                    resource_limit=5
+                )
+            ]
+        }
+
+        with self.test_client() as c:
+            c.post(
+                '/v3/limits', json=create, headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_update_limits(self):
+        limit_id, _ = _create_limits_and_dependencies()
+
+        update = {'limits': {'description': uuid.uuid4().hex}}
+
+        with self.test_client() as c:
+            c.patch(
+                '/v3/limits/%s' % limit_id, json=update,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_delete_limits(self):
+        limit_id, _ = _create_limits_and_dependencies()
+
+        with self.test_client() as c:
+            c.delete(
+                '/v3/limits/%s' % limit_id,
+                headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+
+class ProjectUserTestsWithoutEnforceScope(ProjectUserTests):
+
+    def setUp(self):
+        super(ProjectUserTestsWithoutEnforceScope, self).setUp()
+        self.config_fixture.config(group='oslo_policy', enforce_scope=False)
