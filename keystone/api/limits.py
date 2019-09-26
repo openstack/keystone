@@ -20,12 +20,34 @@ from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone.common import validation
+from keystone import exception
 from keystone.limit import schema
 from keystone.server import flask as ks_flask
 
 
 PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer
+
+
+def _build_limit_enforcement_target():
+    target = {}
+    try:
+        limit = PROVIDERS.unified_limit_api.get_limit(
+            flask.request.view_args.get('limit_id')
+        )
+        target['limit'] = limit
+        if limit.get('project_id'):
+            project = PROVIDERS.resource_api.get_project(limit['project_id'])
+            target['limit']['project'] = project
+        elif limit.get('domain_id'):
+            domain = PROVIDERS.resource_api.get_domain(limit['domain_id'])
+            target['limit']['domain'] = domain
+    except exception.NotFound:  # nosec
+        # Defer the existence check in the event the limit doesn't exist, this
+        # is checked later anyway.
+        pass
+
+    return target
 
 
 class LimitsResource(ks_flask.ResourceBase):
@@ -38,27 +60,38 @@ class LimitsResource(ks_flask.ResourceBase):
     def _list_limits(self):
         filters = ['service_id', 'region_id', 'resource_name', 'project_id',
                    'domain_id']
+
         ENFORCER.enforce_call(action='identity:list_limits', filters=filters)
+
         hints = self.build_driver_hints(filters)
-        project_id_filter = hints.get_exact_filter_by_name('project_id')
-        domain_id_filter = hints.get_exact_filter_by_name('domain_id')
-        if project_id_filter or domain_id_filter:
-            if self.oslo_context.system_scope:
-                refs = PROVIDERS.unified_limit_api.list_limits(hints)
-            else:
-                refs = []
-        else:
-            project_id = self.oslo_context.project_id
-            domain_id = self.oslo_context.domain_id
-            if project_id:
-                hints.add_filter('project_id', project_id)
-            elif domain_id:
-                hints.add_filter('domain_id', domain_id)
+
+        filtered_refs = []
+        if self.oslo_context.system_scope:
             refs = PROVIDERS.unified_limit_api.list_limits(hints)
-        return self.wrap_collection(refs, hints=hints)
+            filtered_refs = refs
+        elif self.oslo_context.domain_id:
+            refs = PROVIDERS.unified_limit_api.list_limits(hints)
+            projects = PROVIDERS.resource_api.list_projects_in_domain(
+                self.oslo_context.domain_id
+            )
+            project_ids = [project['id'] for project in projects]
+            for limit in refs:
+                if limit.get('project_id'):
+                    if limit['project_id'] in project_ids:
+                        filtered_refs.append(limit)
+                elif limit.get('domain_id'):
+                    if limit['domain_id'] == self.oslo_context.domain_id:
+                        filtered_refs.append(limit)
+        elif self.oslo_context.project_id:
+            hints.add_filter('project_id', self.oslo_context.project_id)
+            refs = PROVIDERS.unified_limit_api.list_limits(hints)
+            filtered_refs = refs
+
+        return self.wrap_collection(filtered_refs, hints=hints)
 
     def _get_limit(self, limit_id):
-        ENFORCER.enforce_call(action='identity:get_limit')
+        ENFORCER.enforce_call(action='identity:get_limit',
+                              build_target=_build_limit_enforcement_target)
         ref = PROVIDERS.unified_limit_api.get_limit(limit_id)
         return self.wrap_member(ref)
 
