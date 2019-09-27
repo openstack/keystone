@@ -80,12 +80,12 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
             'group.id', 'role.id', 'scope.domain.id', 'scope.project.id',
             'scope.OS-INHERIT:inherited_to', 'user.id'
         ]
-        target = {}
+        target = None
         if 'scope.project.id' in flask.request.args:
             project_id = flask.request.args['scope.project.id']
             if project_id:
-                target['project'] = PROVIDERS.resource_api.get_project(
-                    project_id)
+                target = {'project': PROVIDERS.resource_api.get_project(
+                    project_id)}
         ENFORCER.enforce_call(action='identity:list_role_assignments_for_tree',
                               filters=filters, target_attr=target)
         if not flask.request.args.get('scope.project.id'):
