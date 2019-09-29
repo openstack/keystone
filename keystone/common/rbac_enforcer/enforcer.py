@@ -325,7 +325,7 @@ class RBACEnforcer(object):
         :type member_target: dict
         :param filters: A variable number of optional string filters, these are
                         used to extract values from the query params. The
-                        filters are added to the reques data that is passed to
+                        filters are added to the request data that is passed to
                         the enforcer and may be used to determine policy
                         action. In practice these are mainly supplied in the
                         various "list" APIs and are un-used in the default
