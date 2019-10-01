@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-08-08 22:57+0000\n"
+"POT-Creation-Date: 2019-09-30 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -55,37 +55,8 @@ msgstr ""
 "션 저장소 경로가 %(path)s에 존재하지 않거나 디렉토리가 아닙니다."
 
 #, python-format
-msgid "%(property_name)s cannot be less than %(min_length)s characters."
-msgstr "%(property_name)s은(는) %(min_length)s자 미만일 수 없습니다. "
-
-#, python-format
-msgid "%(property_name)s is not a %(display_expected_type)s"
-msgstr "%(property_name)s이(가) %(display_expected_type)s이(가) 아님"
-
-#, python-format
-msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s은(는) %(max_length)s자 이하여야 합니다. "
-
-#, python-format
-msgid "%s cannot be empty."
-msgstr "%s은(는) 공백일 수 없습니다. "
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "%s 필드가 필요하며 비어 있을 수 없음"
-
-#, python-format
-msgid "%s field(s) cannot be empty"
-msgstr "%s 필드는 비어 있을 수 없음"
-
-#, python-format
-msgid ""
-"%s for the LDAP identity backend has been deprecated in the Mitaka release "
-"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
-"release."
-msgstr ""
-"Mitaka 릴리스에서는 읽기 전용 ID LDAP 액세스를 사용하기 위해 LDAP ID 백엔드"
-"의 %s이(가) 더 이상 사용되지 않으므로, \"O\" 릴리스에서 제거됩니다."
 
 msgid "(Disable insecure_debug mode to suppress these details.)"
 msgstr ""
@@ -189,10 +160,6 @@ msgstr ""
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "위임을 통해 발행된 토큰으로 요청 토큰을 나열할 수 없습니다."
-
-#, python-format
-msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
-msgstr "%(cert_file)s 인증서를 열수 없습니다. 이유: %(reason)s"
 
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -318,10 +285,6 @@ msgstr "EC2 액세스 키를 찾을 수 없습니다."
 msgid "EC2 signature not supplied."
 msgstr "EC2 서명이 제공되지 않았습니다."
 
-msgid ""
-"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
-msgstr "--bootstrap-password 인수나 OS_BOOTSTRAP_PASSWORD를 설정해야 합니다."
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr "%(endpoint_id)s 엔드포인트가 %(project_id)s 프로젝트에 없음 "
@@ -362,12 +325,6 @@ msgstr ""
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "예상된 사전 또는 목록: %s"
-
-msgid ""
-"Expected signing certificates are not available on the server. Please check "
-"Keystone configuration."
-msgstr ""
-"예상 서명 인증서를 서버에서 사용할 수 없습니다. 키스톤 구성을 확인하십시오."
 
 #, python-format
 msgid ""
@@ -572,9 +529,6 @@ msgstr "프로젝트를 사용 안함: %s"
 msgid "Project name cannot contain reserved characters."
 msgstr "프로젝트 이름에 예약된 문자가 포함될 수 없습니다."
 
-msgid "Query string is not UTF-8 encoded"
-msgstr "조회 문자열이 UTF-8로 인코딩되어 있지 않음"
-
 #, python-format
 msgid ""
 "Reading the default for option %(option)s in group %(group)s is not supported"
@@ -630,12 +584,6 @@ msgid "Specify a domain or project, not both"
 msgstr "도메인 또는 프로젝트 중 하나 지정"
 
 msgid "Specify a user or group, not both"
-msgstr "사용자 또는 그룹 중 하나 지정"
-
-msgid "Specify one of domain or project"
-msgstr "도메인 또는 프로젝트 중 하나 지정"
-
-msgid "Specify one of user or group"
 msgstr "사용자 또는 그룹 중 하나 지정"
 
 #, python-format
@@ -709,10 +657,6 @@ msgstr "구성에 지정된 %(group)s 그룹의 값은 옵션의 사전이어야
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "인식되는 Fernet 페이로드 버전이 아님: %s"
-
-#, python-format
-msgid "This is not a recognized Fernet token %s"
-msgstr "인식되는 Fernet 토큰 %s이(가) 아님"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -799,10 +743,6 @@ msgstr "JSON 홈 응답에 대해 예상치 못한 상태가 요청됨. %s"
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "--domain-name으로 알 수 없는 도메인 '%(name)s'을(를) 지정했음"
 
-#, python-format
-msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr "등록되지 않은 종속성: %(targets)s의 %(name)s"
-
 msgid "Update of `domain_id` is not allowed."
 msgstr "`domain_id` 업데이트는 허용되지 않습니다."
 
@@ -811,9 +751,6 @@ msgstr "`is_domain`의 업데이트는 허용되지 않습니다. "
 
 msgid "Update of `parent_id` is not allowed."
 msgstr "`parent_id` 업데이트가 허용되지 않습니다."
-
-msgid "Use a project scoped token when attempting to create a SAML assertion"
-msgstr "SAML 어설션을 작성할 때 프로젝트 범위 지정 토큰 사용"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -849,9 +786,6 @@ msgstr "사용자를 사용 안함: %s"
 
 msgid "User is not a trustee."
 msgstr "사용자는 trustee가 아닙니다."
-
-msgid "User not valid for tenant."
-msgstr "테넌트의 사용자가 올바르지 않습니다."
 
 #, python-format
 msgid "User type %s not supported"

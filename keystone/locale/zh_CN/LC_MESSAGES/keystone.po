@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-08-08 22:57+0000\n"
+"POT-Creation-Date: 2019-09-30 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -58,37 +58,8 @@ msgstr ""
 "录。"
 
 #, python-format
-msgid "%(property_name)s cannot be less than %(min_length)s characters."
-msgstr "%(property_name)s 不能少于 %(min_length)s 个字符。"
-
-#, python-format
-msgid "%(property_name)s is not a %(display_expected_type)s"
-msgstr "%(property_name)s 不在 %(display_expected_type)s 之中"
-
-#, python-format
-msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s 不应该超过 %(max_length)s 个字符。"
-
-#, python-format
-msgid "%s cannot be empty."
-msgstr "%s 不能为空。"
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "%s 字段是必填字段，不能为空"
-
-#, python-format
-msgid "%s field(s) cannot be empty"
-msgstr "%s 字段不能为空"
-
-#, python-format
-msgid ""
-"%s for the LDAP identity backend has been deprecated in the Mitaka release "
-"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
-"release."
-msgstr ""
-"在 Mitaka 发行版中，已不推荐使用 LDAP 身份后端的 %s （以支持只读身份 LDAP 访"
-"问）。它将在“O”发行版中移除。"
 
 msgid "(Disable insecure_debug mode to suppress these details.)"
 msgstr "（禁用 insecure_debug 方式以避免显示这些详细信息。）"
@@ -183,10 +154,6 @@ msgstr "无法列示源自若干组并按用户标识过滤的分配。"
 
 msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "无法列示带有通过代理发出的令牌的请求令牌。"
-
-#, python-format
-msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
-msgstr "无法打开证书 %(cert_file)s。原因：%(reason)s"
 
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -307,10 +274,6 @@ msgstr "找不到 EC2 访问密钥。"
 msgid "EC2 signature not supplied."
 msgstr "未提供 EC2 签名。"
 
-msgid ""
-"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
-msgstr "必须设置 --bootstrap-password 自变量或 OS_BOOTSTRAP_PASSWORD。"
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr "在项目 %(project_id)s 中找不到端点 %(endpoint_id)s"
@@ -348,11 +311,6 @@ msgstr ""
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "期望字典或者列表: %s"
-
-msgid ""
-"Expected signing certificates are not available on the server. Please check "
-"Keystone configuration."
-msgstr "在服务器上，期望的签名证书不可用。请检查 Keystone 配置。"
 
 msgid "Failed to validate token"
 msgstr "token验证失败"
@@ -530,9 +488,6 @@ msgstr "项目已禁用：%s"
 msgid "Project name cannot contain reserved characters."
 msgstr "项目名称不能包含保留字符。"
 
-msgid "Query string is not UTF-8 encoded"
-msgstr "查询字符串不是采用 UTF-8 编码"
-
 #, python-format
 msgid ""
 "Reading the default for option %(option)s in group %(group)s is not supported"
@@ -587,12 +542,6 @@ msgstr "请指定域或项目，但不是同时指定这两者"
 
 msgid "Specify a user or group, not both"
 msgstr "请指定用户或组，但不是同时指定这两者"
-
-msgid "Specify one of domain or project"
-msgstr "请指定域或项目"
-
-msgid "Specify one of user or group"
-msgstr "请指定用户或组"
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
@@ -654,10 +603,6 @@ msgstr "在配置中指定的组 %(group)s 的值应该是选项的字典"
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "这不是可识别的 Fernet 有效内容版本：%s"
-
-#, python-format
-msgid "This is not a recognized Fernet token %s"
-msgstr "这不是可识别的 Fernet 令牌 %s"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -738,10 +683,6 @@ msgstr "请求 JSON 主页响应时处于意外状态，%s"
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "--domain-name 指定的“%(name)s”是未知域"
 
-#, python-format
-msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr "已针对 %(targets)s 注销依赖关系 %(name)s"
-
 msgid "Update of `domain_id` is not allowed."
 msgstr "不允许更新“domain_id”。"
 
@@ -750,9 +691,6 @@ msgstr "不允许更新“is_domain”。"
 
 msgid "Update of `parent_id` is not allowed."
 msgstr "不允许更新“parent_id”。"
-
-msgid "Use a project scoped token when attempting to create a SAML assertion"
-msgstr "当尝试创建 SAML 断言时，请使用项目范围的令牌"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -786,9 +724,6 @@ msgstr "用户已禁用：%s"
 
 msgid "User is not a trustee."
 msgstr "用户不是受托人。"
-
-msgid "User not valid for tenant."
-msgstr "用户做为租户是无效的。"
 
 #, python-format
 msgid "User type %s not supported"

@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-08-08 22:57+0000\n"
+"POT-Creation-Date: 2019-09-30 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,38 +61,8 @@ msgstr ""
 "repositorio de migración en %(path)s no existe o no es un directorio."
 
 #, python-format
-msgid "%(property_name)s cannot be less than %(min_length)s characters."
-msgstr "%(property_name)s no puede tener menos de %(min_length)s caracteres."
-
-#, python-format
-msgid "%(property_name)s is not a %(display_expected_type)s"
-msgstr "%(property_name)s no es una %(display_expected_type)s"
-
-#, python-format
-msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s no debe tener más de %(max_length)s caracteres."
-
-#, python-format
-msgid "%s cannot be empty."
-msgstr "%s no puede estar vacío."
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "campo %s es necesario y no puede estar vacío"
-
-#, python-format
-msgid "%s field(s) cannot be empty"
-msgstr "%s campo(s) no puede estar vacío"
-
-#, python-format
-msgid ""
-"%s for the LDAP identity backend has been deprecated in the Mitaka release "
-"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
-"release."
-msgstr ""
-"El programa de fondo de identidad LDAP %s se ha dejado en desuso en el "
-"release de Mitaka, sustituyéndolo por un acceso LDAP de identidad de solo "
-"lectura. Se eliminará en el release \"O\"."
 
 msgid "(Disable insecure_debug mode to suppress these details.)"
 msgstr "(Inhabilite la modalidad insecure_debug para suprimir estos detalles.)"
@@ -199,10 +169,6 @@ msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
 "No se pueden listar las señales de solicitud con una señal emitida mediante "
 "delegación."
-
-#, python-format
-msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
-msgstr "No se puede abrir el certificado %(cert_file)s. Razón: %(reason)s"
 
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -345,11 +311,6 @@ msgstr "No se ha encontrado la clave de acceso de EC2."
 msgid "EC2 signature not supplied."
 msgstr "No se ha proporcionado la firma de EC2."
 
-msgid ""
-"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
-msgstr ""
-"Se debe definir el argumento bootstrap-password o bien OS_BOOTSTRAP_PASSWORD."
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr ""
@@ -396,13 +357,6 @@ msgstr ""
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "Se espera un diccionario o una lista: %s"
-
-msgid ""
-"Expected signing certificates are not available on the server. Please check "
-"Keystone configuration."
-msgstr ""
-"Los certificados para firmas esperados no están disponibles en el servidor. "
-"Compruebe la configuración de Keystone."
 
 msgid "Failed to validate token"
 msgstr "Ha fallado la validación del token"
@@ -604,9 +558,6 @@ msgstr "El proyecto está inhabilitado: %s"
 msgid "Project name cannot contain reserved characters."
 msgstr "El nombre de proyecto no puede contener caracteres reservados."
 
-msgid "Query string is not UTF-8 encoded"
-msgstr "La serie de consulta no tiene codificación UTF-8"
-
 #, python-format
 msgid ""
 "Reading the default for option %(option)s in group %(group)s is not supported"
@@ -668,12 +619,6 @@ msgstr "Especifique un dominio o proyecto, no ambos"
 
 msgid "Specify a user or group, not both"
 msgstr "Especifique un usuario o grupo, no ambos"
-
-msgid "Specify one of domain or project"
-msgstr "Especifique un dominio o proyecto"
-
-msgid "Specify one of user or group"
-msgstr "Especifique un usuario o grupo"
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
@@ -745,10 +690,6 @@ msgstr ""
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "Esta no es una versión de carga útil Fernet reconocida: %s"
-
-#, python-format
-msgid "This is not a recognized Fernet token %s"
-msgstr "Este no es un token Fernet reconocido %s"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -838,10 +779,6 @@ msgstr "Estado inesperado solicitado para la respuesta de JSON Home, %s"
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "Dominio desconocido '%(name)s' especificado por --domain-name"
 
-#, python-format
-msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr "Dependencia no registrada: %(name)s para %(targets)s"
-
 msgid "Update of `domain_id` is not allowed."
 msgstr "No se permite la actualización de `domain_id`."
 
@@ -850,10 +787,6 @@ msgstr "No se permite la actualización de `is_domain`."
 
 msgid "Update of `parent_id` is not allowed."
 msgstr "No se permite la actualización de `parent_id`."
-
-msgid "Use a project scoped token when attempting to create a SAML assertion"
-msgstr ""
-"Utilice un token de ámbito de proyecto cuando intente crear una aserción SAML"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -888,9 +821,6 @@ msgstr "El usuario está inhabilitado: %s"
 
 msgid "User is not a trustee."
 msgstr "El usuario no es de confianza."
-
-msgid "User not valid for tenant."
-msgstr "Usuario no válido para este inquilino."
 
 #, python-format
 msgid "User type %s not supported"

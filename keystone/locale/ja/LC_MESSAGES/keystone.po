@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2018-08-08 22:57+0000\n"
+"POT-Creation-Date: 2019-09-30 20:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -55,38 +55,8 @@ msgstr ""
 "ずれかです。"
 
 #, python-format
-msgid "%(property_name)s cannot be less than %(min_length)s characters."
-msgstr "%(property_name)s は %(min_length)s 文字より短くできません。"
-
-#, python-format
-msgid "%(property_name)s is not a %(display_expected_type)s"
-msgstr "%(property_name)s が %(display_expected_type)s ではありません。"
-
-#, python-format
-msgid "%(property_name)s should not be greater than %(max_length)s characters."
-msgstr "%(property_name)s は %(max_length)s 文字より長くできません。"
-
-#, python-format
-msgid "%s cannot be empty."
-msgstr "%s は空にはできません。"
-
-#, python-format
 msgid "%s field is required and cannot be empty"
 msgstr "フィールド %s は必須フィールドであるため、空にできません"
-
-#, python-format
-msgid "%s field(s) cannot be empty"
-msgstr "フィールド %s を空にすることはできません"
-
-#, python-format
-msgid ""
-"%s for the LDAP identity backend has been deprecated in the Mitaka release "
-"in favor of read-only identity LDAP access. It will be removed in the \"O\" "
-"release."
-msgstr ""
-"LDAP ID バックエンドの %s は Mitaka リリースにおいて読み取り専用の ID LDAP ア"
-"クセスを選択したため、提供を終了しています。これは \"O\" リリースで削除される"
-"予定です。"
 
 msgid "(Disable insecure_debug mode to suppress these details.)"
 msgstr "(これらの詳細を抑制するには、insecure_debug モードを無効にします。)"
@@ -192,10 +162,6 @@ msgid "Cannot list request tokens with a token issued via delegation."
 msgstr ""
 "委任によって発行されたトークンを使用して要求トークンをリストすることはできま"
 "せん。"
-
-#, python-format
-msgid "Cannot open certificate %(cert_file)s. Reason: %(reason)s"
-msgstr "証明書 %(cert_file)s を開くことができません。理由: %(reason)s"
 
 #, python-format
 msgid "Cannot remove role that has not been granted, %s"
@@ -334,12 +300,6 @@ msgstr "EC2 アクセスキーが見つかりません。"
 msgid "EC2 signature not supplied."
 msgstr "EC2 の署名が提供されていません。"
 
-msgid ""
-"Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be set."
-msgstr ""
-"--bootstrap-password 引数または OS_BOOTSTRAP_PASSWORD いずれかを設定する必要"
-"があります。"
-
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
 msgstr ""
@@ -381,13 +341,6 @@ msgstr ""
 #, python-format
 msgid "Expected dict or list: %s"
 msgstr "期待される辞書またはリスト: %s"
-
-msgid ""
-"Expected signing certificates are not available on the server. Please check "
-"Keystone configuration."
-msgstr ""
-"想定された署名証明書がサーバーにありません。Keystone の設定を確認してくださ"
-"い。"
 
 msgid "Failed to validate token"
 msgstr "トークンの検証に失敗しました"
@@ -589,9 +542,6 @@ msgstr "プロジェクト %s が無効になっています"
 msgid "Project name cannot contain reserved characters."
 msgstr "プロジェクト名に予約済み文字が含まれていてはなりません。"
 
-msgid "Query string is not UTF-8 encoded"
-msgstr "照会文字列は、UTF-8 でエンコードされていません"
-
 #, python-format
 msgid ""
 "Reading the default for option %(option)s in group %(group)s is not supported"
@@ -652,12 +602,6 @@ msgstr "ドメインかプロジェクトを指定してください。両方は
 
 msgid "Specify a user or group, not both"
 msgstr "ユーザーかグループを指定してください。両方は指定しないでください"
-
-msgid "Specify one of domain or project"
-msgstr "ドメインまたはプロジェクトのいずれかを指定してください"
-
-msgid "Specify one of user or group"
-msgstr "ユーザーまたはグループのいずれかを指定してください"
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
@@ -725,10 +669,6 @@ msgstr ""
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "これは認識可能な Fernet ペイロードバージョンではありません: %s"
-
-#, python-format
-msgid "This is not a recognized Fernet token %s"
-msgstr "これは認識可能な Fernet トークン %s ではありません"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -820,10 +760,6 @@ msgstr "JSON Home 応答に対して予期しない状況が要求されまし�
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "不明なドメイン '%(name)s' が --domain-name で指定されました"
 
-#, python-format
-msgid "Unregistered dependency: %(name)s for %(targets)s"
-msgstr "未登録の依存関係: %(targets)s に対する %(name)s"
-
 msgid "Update of `domain_id` is not allowed."
 msgstr "`domain_id` の更新は許可されていません。"
 
@@ -832,11 +768,6 @@ msgstr "`is_domain` の更新は許可されません。"
 
 msgid "Update of `parent_id` is not allowed."
 msgstr "\"parent_id\" の更新は許可されていません。"
-
-msgid "Use a project scoped token when attempting to create a SAML assertion"
-msgstr ""
-"SAML アサーションの作成を行うときは、プロジェクトにスコープが設定されたトーク"
-"ンを使用してください"
 
 #, python-format
 msgid "User %(user_id)s has no access to domain %(domain_id)s"
@@ -874,9 +805,6 @@ msgstr "ユーザーが無効になっています: %s"
 #, fuzzy
 msgid "User is not a trustee."
 msgstr "ユーザーは受託者ではありません。"
-
-msgid "User not valid for tenant."
-msgstr "ユーザーはテナントに対して無効です。"
 
 #, fuzzy, python-format
 msgid "User type %s not supported"
