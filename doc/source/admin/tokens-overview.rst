@@ -2,21 +2,21 @@
 Keystone tokens
 ===============
 
-Tokens are used to authenticate and authorize your interactions with the
-various OpenStack APIs. Tokens come in many scopes, representing various
-authorization and sources of identity.
+Tokens are used to authenticate and authorize your interactions with OpenStack
+APIs. Tokens come in many scopes, representing various authorization and
+sources of identity.
 
 .. _authorization_scopes:
 
 Authorization scopes
 --------------------
 
-Tokens are used to relay information about your user's role assignments. It's
-not uncommon for a user to have multiple role assignments, sometimes spanning
+Tokens are used to relay information about your role assignments. It's not
+uncommon for a user to have multiple role assignments, sometimes spanning
 projects, domains, or the entire system. These are referred to as authorization
-scopes, where a token has a single scope of operation. For example, a token
-scoped to a project can't be reused to do something else in a different
-project.
+scopes, where a token has a single scope of operation (e.g., a project, domain,
+or the system). For example, a token scoped to a project can't be reused to do
+something else in a different project.
 
 Each level of authorization scope is useful for certain types of operations in
 certain OpenStack services, and are not interchangeable.
@@ -24,10 +24,11 @@ certain OpenStack services, and are not interchangeable.
 Unscoped tokens
 ~~~~~~~~~~~~~~~
 
-An unscoped token contains neither a service catalog, any roles, a project
-scope, nor a domain scope. Their primary use case is simply to prove your
-identity to keystone at a later time (usually to generate scoped tokens),
-without repeatedly presenting your original credentials.
+An unscoped token does not contain a service catalog, roles, or authorization
+scope (e.g., project, domain, or system attributes within the token). Their
+primary use case is simply to prove your identity to keystone at a later time
+(usually to generate scoped tokens), without repeatedly presenting your
+original credentials.
 
 The following conditions must be met to receive an unscoped token:
 
@@ -41,39 +42,49 @@ The following conditions must be met to receive an unscoped token:
 Project-scoped tokens
 ~~~~~~~~~~~~~~~~~~~~~
 
+Projects are containers for resources, like volumes or instances.
 Project-scoped tokens express your authorization to operate in a specific
-tenancy of the cloud and are useful to authenticate yourself when working with
-most other services.
+tenancy of the cloud and are useful for things like spinning up compute
+resources or carving off block storage. They contain a service catalog, a set
+of roles, and information about the project.
 
-They contain a service catalog, a set of roles, and details of the project upon
-which you have authorization.
+Most end-users need role assignments on projects to consume resources in a
+deployment.
 
 Domain-scoped tokens
 ~~~~~~~~~~~~~~~~~~~~
 
-Domain-scoped tokens have limited use cases in OpenStack. They express your
-authorization to operate a domain-level, above that of the user and projects
-contained therein (typically as a domain-level administrator).  Depending on
-Keystone's configuration, they are useful for working with a single domain in
-Keystone.
+Domains are namespaces for projects, users, and groups. A domain-scoped token
+expresses your authorization to operate on the contents of a domain or the
+domain itself.
 
-They contain a limited service catalog (only those services which do not
-explicitly require per-project endpoints), a set of roles, and details of the
-project upon which you have authorization.
+While some OpenStack services are still adopting the domain concept, domains
+are fully supported in keystone. This means users with authorization on a
+domain have the ability to manage things within the domain. For example, a
+domain administrator can create new users and projects within that domain.
 
-They can also be used to work with domain-level concerns in other services,
-such as to configure domain-wide quotas that apply to all users or projects in
-a specific domain.
+Domain-scoped tokens contain a service catalog, roles, and information about
+the domain.
+
+People who need to manage users and projects typically need domain-level
+access.
 
 System-scoped tokens
 ~~~~~~~~~~~~~~~~~~~~
 
-There are APIs across OpenStack that fit nicely within the concept of a project
-or domain, but there are also APIs that affect the entire deployment system
-(e.g. modifying endpoints, service management, or listing information about
-hypervisors). These operations require the use of a system-scoped token, which
+Some OpenStack APIs fit nicely within the concept of projects (e.g.,
+creating an instance) or domains (e.g., creating a new user), but there are also
+APIs that affect the entire deployment system (e.g. modifying endpoints,
+service management, or listing information about hypervisors). These operations
+are typically reserved for operators and require system-scoped tokens, which
 represents the role assignments a user has to operate on the deployment as a
-whole.
+whole. The term *system* refers to the deployment system, which is a collection
+of hardware (e.g., compute nodes) and services (e.g., nova, cinder, neutron,
+barbican, keystone) that provide Infrastructure-as-a-Service.
+
+System-scoped tokens contain a service catalog, roles, and information about
+the *system*. System role assignments and system-scoped tokens are typically
+reserved for operators and cloud administrators.
 
 Token providers
 ---------------
