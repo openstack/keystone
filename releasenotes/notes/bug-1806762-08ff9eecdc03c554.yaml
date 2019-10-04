@@ -1,0 +1,21 @@
+---
+upgrade:
+  - |
+    [`bug 1806762 <https://bugs.launchpad.net/keystone/+bug/1806762>`_]
+    [`bug 1630434 <https://bugs.launchpad.net/keystone/+bug/1630434>`_]
+    The entire ``policy.v3cloudsample.json`` file has been removed. If you
+    were using this policy file to supply overrides in your deployment, you
+    should consider using the defaults in code and setting ``keystone.conf
+    [oslo_policy] enforce_scope=True``. The new policy defaults are more
+    flexible, they're tested extensively, and they solve all the problems the
+    ``policy.v3cloudsample.json`` file was trying to solve.
+fixes:
+  - |
+    [`bug 1806762 <https://bugs.launchpad.net/keystone/+bug/1806762>`_]
+    [`bug 1630434 <https://bugs.launchpad.net/keystone/+bug/1630434>`_]
+    The entire ``policy.v3cloudsample.json`` file has been removed. If you
+    were using this policy file to supply overrides in your deployment, you
+    should consider using the defaults in code and setting ``keystone.conf
+    [oslo_policy] enforce_scope=True``. The new policy defaults are more
+    flexible, they're tested extensively, and they solve all the problems the
+    ``policy.v3cloudsample.json`` file was trying to solve.
