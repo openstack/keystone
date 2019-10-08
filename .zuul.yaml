@@ -1,3 +1,13 @@
+- job:
+    name: keystone-dsvm-ldap-domain-specific-driver
+    parent: devstack-tempest
+    vars:
+      devstack_localrc:
+        KEYSTONE_CLEAR_LDAP: 'yes'
+        LDAP_PASSWORD: 'nomoresecret'
+      devstack_services:
+        ldap: true
+
 - project:
     templates:
       - openstack-python-jobs
@@ -20,7 +30,7 @@
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
         - openstack-tox-cover
-        - legacy-tempest-dsvm-ldap-domain-specific-driver:
+        - keystone-dsvm-ldap-domain-specific-driver:
             voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
