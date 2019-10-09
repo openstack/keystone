@@ -3458,6 +3458,21 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
             role_option,
             ['role_id', 'option_id', 'option_value'])
 
+    def test_migration_072_drop_domain_id_fk(self):
+        self.expand(71)
+        self.migrate(71)
+        self.contract(71)
+
+        self.assertTrue(self.does_fk_exist('user', 'domain_id'))
+        self.assertTrue(self.does_fk_exist('identity_provider', 'domain_id'))
+
+        self.expand(72)
+        self.migrate(72)
+        self.contract(72)
+
+        self.assertFalse(self.does_fk_exist('user', 'domain_id'))
+        self.assertFalse(self.does_fk_exist('identity_provider', 'domain_id'))
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
