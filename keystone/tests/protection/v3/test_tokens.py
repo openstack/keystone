@@ -362,6 +362,11 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = self.token_id
             c.get('/v3/auth/tokens', headers=self.headers)
 
+    def test_user_can_revoke_their_own_tokens(self):
+        with self.test_client() as c:
+            self.headers['X-Subject-Token'] = self.token_id
+            c.delete('/v3/auth/tokens', headers=self.headers)
+
     def test_user_cannot_validate_system_scoped_token(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user['id'] = PROVIDERS.identity_api.create_user(user)['id']
@@ -382,6 +387,30 @@ class _DomainAndProjectUserTests(object):
         with self.test_client() as c:
             self.headers['X-Subject-Token'] = system_token
             c.get(
+                '/v3/auth/tokens', headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_revoke_system_scoped_token(self):
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user['id'] = PROVIDERS.identity_api.create_user(user)['id']
+
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            user['id'], self.bootstrapper.reader_role_id
+        )
+
+        system_auth = self.build_authentication_request(
+            user_id=user['id'], password=user['password'],
+            system=True
+        )
+
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=system_auth)
+            system_token = r.headers['X-Subject-Token']
+
+        with self.test_client() as c:
+            self.headers['X-Subject-Token'] = system_token
+            c.delete(
                 '/v3/auth/tokens', headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
@@ -414,7 +443,35 @@ class _DomainAndProjectUserTests(object):
                 '/v3/auth/tokens', headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
-        pass
+
+    def test_user_cannot_revoke_domain_scoped_token(self):
+        domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        user = unit.new_user_ref(domain_id=domain['id'])
+        user['id'] = PROVIDERS.identity_api.create_user(user)['id']
+
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id, user_id=user['id'],
+            domain_id=domain['id']
+        )
+
+        domain_auth = self.build_authentication_request(
+            user_id=user['id'], password=user['password'],
+            domain_id=domain['id']
+        )
+
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=domain_auth)
+            domain_token = r.headers['X-Subject-Token']
+
+        with self.test_client() as c:
+            self.headers['X-Subject-Token'] = domain_token
+            c.delete(
+                '/v3/auth/tokens', headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
 
     def test_user_cannot_validate_project_scoped_token(self):
         project = PROVIDERS.resource_api.create_project(
@@ -442,6 +499,36 @@ class _DomainAndProjectUserTests(object):
         with self.test_client() as c:
             self.headers['X-Subject-Token'] = project_token
             c.get(
+                '/v3/auth/tokens', headers=self.headers,
+                expected_status_code=http_client.FORBIDDEN
+            )
+
+    def test_user_cannot_revoke_project_scoped_token(self):
+        project = PROVIDERS.resource_api.create_project(
+            uuid.uuid4().hex,
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+        )
+
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user['id'] = PROVIDERS.identity_api.create_user(user)['id']
+
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id, user_id=user['id'],
+            project_id=project['id']
+        )
+
+        project_auth = self.build_authentication_request(
+            user_id=user['id'], password=user['password'],
+            project_id=project['id']
+        )
+
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=project_auth)
+            project_token = r.headers['X-Subject-Token']
+
+        with self.test_client() as c:
+            self.headers['X-Subject-Token'] = project_token
+            c.delete(
                 '/v3/auth/tokens', headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
