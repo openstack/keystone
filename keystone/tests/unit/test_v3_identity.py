@@ -396,6 +396,26 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group_id, 'user_id': self.user['id']})
 
+    def test_update_ephemeral_user(self):
+        federated_user_a = model.FederatedUser()
+        federated_user_b = model.FederatedUser()
+        federated_user_a.idp_id = 'a_idp'
+        federated_user_b.idp_id = 'b_idp'
+        federated_user_a.display_name = 'federated_a'
+        federated_user_b.display_name = 'federated_b'
+        federated_users = [federated_user_a, federated_user_b]
+
+        user_a = model.User()
+        user_a.federated_users = federated_users
+
+        self.assertEqual(federated_user_a.display_name, user_a.name)
+        self.assertIsNone(user_a.password)
+
+        user_a.name = 'new_federated_a'
+
+        self.assertEqual('new_federated_a', user_a.name)
+        self.assertIsNone(user_a.local_user)
+
     def test_update_user(self):
         """Call ``PATCH /users/{user_id}``."""
         user = unit.new_user_ref(domain_id=self.domain_id)

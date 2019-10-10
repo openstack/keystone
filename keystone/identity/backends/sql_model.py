@@ -82,9 +82,13 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
     @name.setter
     def name(self, value):
-        if not self.local_user:
+        if self.federated_users:
+            self.federated_users[0].display_name = value
+        elif self.local_user:
+            self.local_user.name = value
+        else:
             self.local_user = LocalUser()
-        self.local_user.name = value
+            self.local_user.name = value
 
     @name.expression
     def name(cls):
