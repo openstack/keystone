@@ -1124,7 +1124,8 @@ class LDAPIdentity(BaseLDAPIdentity):
     def assert_backends(self):
         _assert_backends(self,
                          assignment='sql',
-                         identity='ldap')
+                         identity='ldap',
+                         resource='sql')
 
     def test_list_domains(self):
         domains = PROVIDERS.resource_api.list_domains()
@@ -1988,7 +1989,8 @@ class LDAPLimitTests(unit.TestCase, identity_tests.LimitTests):
         identity_tests.LimitTests.setUp(self)
         _assert_backends(self,
                          assignment='sql',
-                         identity='ldap')
+                         identity='ldap',
+                         resource='sql')
 
     def config_overrides(self):
         super(LDAPLimitTests, self).config_overrides()
@@ -2493,7 +2495,8 @@ class MultiLDAPandSQLIdentity(BaseLDAPIdentity, unit.SQLDriverOverrides,
                              self.domain_default['id']: 'ldap',
                              self.domains['domain1']['id']: 'ldap',
                              self.domains['domain2']['id']: 'ldap',
-                         })
+                         },
+                         resource='sql')
 
     def config_overrides(self):
         super(MultiLDAPandSQLIdentity, self).config_overrides()
@@ -2816,7 +2819,8 @@ class MultiLDAPandSQLIdentityDomainConfigsInSQL(MultiLDAPandSQLIdentity):
                              self.domain_default['id']: 'ldap',
                              self.domains['domain1']['id']: 'ldap',
                              self.domains['domain2']['id']: 'ldap',
-                         })
+                         },
+                         resource='sql')
 
     def enable_multi_domain(self):
         # The values below are the same as in the domain_configs_multi_ldap
@@ -3062,7 +3066,8 @@ class DomainSpecificLDAPandSQLIdentity(
                 None: 'ldap',
                 'default': 'ldap',
                 self.domains['domain1']['id']: 'sql',
-            })
+            },
+            resource='sql')
 
     def config_overrides(self):
         super(DomainSpecificLDAPandSQLIdentity, self).config_overrides()
@@ -3236,7 +3241,8 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
     def assert_backends(self):
         _assert_backends(self,
                          assignment='sql',
-                         identity='ldap')
+                         identity='ldap',
+                         resource='sql')
 
     def config_overrides(self):
         super(DomainSpecificSQLIdentity, self).config_overrides()
