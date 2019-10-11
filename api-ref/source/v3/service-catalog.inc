@@ -331,7 +331,7 @@ Parameters
    - url: endpoint_url
    - region: endpoint_region
    - enabled: endpoint_enabled
-   - interface: endpoint_region
+   - interface: endpoint_interface
    - service_id: service_id
    - endpoints: endpoints
    - id: endpoint_id
