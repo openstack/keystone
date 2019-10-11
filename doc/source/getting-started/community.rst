@@ -29,7 +29,7 @@ Our community welcomes all people interested in open source cloud computing,
 and there are no formal membership requirements. The best way to join the
 community is to talk with others online or at a meetup and offer contributions
 through Launchpad_, the wiki_, or blogs. We welcome all types of contributions,
-from blueprint designs to documentation to testing to deployment scripts.
+from feature designs to documentation to testing to deployment scripts.
 
 .. _Launchpad: https://launchpad.net/keystone
 .. _wiki: https://wiki.openstack.org/
@@ -47,18 +47,6 @@ later. Logs for the #openstack IRC channels are stored at
 For more information regarding OpenStack IRC channels please visit the
 `OpenStack IRC Wiki <https://wiki.openstack.org/wiki/IRC>`_.
 
-OpenStack Wiki
---------------
-
-The wiki is a living source of knowledge. It is edited by the community, and
-has collections of links and other sources of information. Typically the pages
-are a good place to write drafts for specs or documentation, describe a
-blueprint, or collaborate with others.
-
-`OpenStack Wiki <https://wiki.openstack.org/>`_
-
-* `useful Keystone project links <https://wiki.openstack.org/Keystone>`_
-
 Keystone on Launchpad
 ---------------------
 
@@ -69,11 +57,10 @@ code is hosted on opendev.org
 * `Keystone Project Page on Launchpad <https://launchpad.net/keystone>`_
 * `Keystone Source Repository <https://opendev.org/openstack/keystone>`_
 
-Within launchpad, we use
-`blueprints <https://blueprints.launchpad.net/keystone>`_, to track feature
-work, and track `bugs <https://bugs.launchpad.net/keystone>`_ as well. If
-you are looking for a place to get started contributing to keystone, please
-look at any bugs for Keystone that are tagged as `low-hanging-fruit
+Within launchpad, we use `bugs <https://bugs.launchpad.net/keystone>`_ to report
+issues as well as to track feature work. If you are looking for a place to get
+started contributing to keystone, please look at any bugs for Keystone that are
+tagged as `low-hanging-fruit
 <https://bugs.launchpad.net/keystone/+bugs?field.tag=low-hanging-fruit>`_.
 
 OpenStack Blog
