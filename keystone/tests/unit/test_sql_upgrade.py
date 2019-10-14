@@ -39,6 +39,7 @@ WARNING::
 """
 
 import datetime
+import glob
 import json
 import os
 import uuid
@@ -1674,22 +1675,22 @@ class VersionTests(SqlMigrateBase):
         """
         versions_path = '/versions'
         # test for expand prefix, e.g. 001_expand_new_fk_constraint.py
-        expand_list = os.listdir(
-            self.repos[EXPAND_REPO].repo_path + versions_path)
+        expand_list = glob.glob(
+            self.repos[EXPAND_REPO].repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(expand_list, 'expand')
         # test for migrate prefix, e.g. 001_migrate_new_fk_constraint.py
-        migrate_list = os.listdir(
-            self.repos[DATA_MIGRATION_REPO].repo_path + versions_path)
+        migrate_list = glob.glob(
+            self.repos[DATA_MIGRATION_REPO].repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(migrate_list, 'migrate')
         # test for contract prefix, e.g. 001_contract_new_fk_constraint.py
-        contract_list = os.listdir(
-            self.repos[CONTRACT_REPO].repo_path + versions_path)
+        contract_list = glob.glob(
+            self.repos[CONTRACT_REPO].repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(contract_list, 'contract')
 
     def assertRepoFileNamePrefix(self, repo_list, prefix):
         if len(repo_list) > 1:
             # grab the file name for the max version
-            file_name = sorted(repo_list)[-2]
+            file_name = os.path.basename(sorted(repo_list)[-2])
             # pattern for the prefix standard, ignoring placeholder, init files
             pattern = (
                 '^[0-9]{3,}_PREFIX_|^[0-9]{3,}_placeholder.py|^__init__.py')
