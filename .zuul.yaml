@@ -77,6 +77,17 @@
        bindep_profile: test py37
        python_version: 3.7
 
+- job:
+    name: keystone-dsvm-ldap-domain-specific-driver
+    parent: devstack-tempest
+    vars:
+      devstack_localrc:
+        KEYSTONE_CLEAR_LDAP: 'yes'
+        LDAP_PASSWORD: 'nomoresecret'
+        USE_PYTHON3: True
+      devstack_services:
+        ldap: true
+
 # Experimental
 - job:
     name: keystone-tox-patch_cover
@@ -188,7 +199,7 @@
         - keystoneclient-devstack-functional:
             voting: false
             irrelevant-files: *irrelevant-files
-        - legacy-tempest-dsvm-ldap-domain-specific-driver:
+        - keystone-dsvm-ldap-domain-specific-driver:
             voting: false
             irrelevant-files: &tempest-irrelevant-files
               - ^(test-|)requirements.txt$
