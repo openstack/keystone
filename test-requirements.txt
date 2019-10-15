@@ -4,7 +4,6 @@
 
 hacking>=1.1.0,<1.2.0 # Apache-2.0
 pep257==0.7.0 # MIT License
-pycodestyle>=2.0.0 # MIT License
 flake8-docstrings==0.2.1.post1 # MIT
 bashate>=0.5.1 # Apache-2.0
 os-testr>=1.0.0 # Apache-2.0
