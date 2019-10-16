@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [bug 1848238 <https://bugs.launchpad.net/keystone/+bug/1848238>]
+    Allow deleting a domain when using the ldap driver for a domain. There was
+    an attempt to delete the group on the ldap whereas this one is read-only.

@@ -500,20 +500,21 @@ class Manager(manager.Manager):
 
         driver = self._select_identity_driver(domain_id)
 
-        user_refs = self.list_users(domain_scope=domain_id)
-        group_refs = self.list_groups(domain_scope=domain_id)
-
-        for group in group_refs:
-            # Cleanup any existing groups.
-            try:
-                self.delete_group(group['id'])
-            except exception.GroupNotFound:
-                LOG.debug(('Group %(groupid)s not found when deleting domain '
-                           'contents for %(domainid)s, continuing with '
-                           'cleanup.'),
-                          {'groupid': group['id'], 'domainid': domain_id})
+        if driver.is_sql:
+            group_refs = self.list_groups(domain_scope=domain_id)
+            for group in group_refs:
+                # Cleanup any existing groups.
+                try:
+                    self.delete_group(group['id'])
+                except exception.GroupNotFound:
+                    LOG.debug(('Group %(groupid)s not found when deleting '
+                               'domain contents for %(domainid)s, continuing '
+                               'with cleanup.'),
+                              {'groupid': group['id'], 'domainid': domain_id})
 
         # And finally, delete the users themselves
+        user_refs = self.list_users(domain_scope=domain_id)
+
         for user in user_refs:
             try:
                 if not driver.is_sql:
