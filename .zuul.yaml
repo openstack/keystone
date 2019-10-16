@@ -90,6 +90,17 @@
       tox_env: upgrade
       osa_test_repo: openstack/openstack-ansible-os_keystone
 
+- job:
+    name: keystone-dsvm-ldap-domain-specific-driver
+    parent: devstack-tempest
+    vars:
+      devstack_localrc:
+        KEYSTONE_CLEAR_LDAP: 'yes'
+        LDAP_PASSWORD: 'nomoresecret'
+        USE_PYTHON3: True
+      devstack_services:
+        ldap: true
+
 # Experimental
 - job:
     name: keystone-tox-patch_cover
@@ -154,7 +165,7 @@
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
         - openstack-tox-cover-keystone-xenial
-        - legacy-tempest-dsvm-ldap-domain-specific-driver:
+        - keystone-dsvm-ldap-domain-specific-driver:
             voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
