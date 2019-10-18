@@ -77,18 +77,22 @@ trust_policies = [
         check_str=SYSTEM_READER_OR_TRUSTOR,
         scope_types=['system', 'project'],
         description='List trusts for trustor.',
-        operations=[{'path': '/v3/OS-TRUST/trusts?trustor_user_id={trustor_user_id}',
+        operations=[{'path': '/v3/OS-TRUST/trusts?'
+                             'trustor_user_id={trustor_user_id}',
                      'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts?trustor_user_id={trustor_user_id}',
+                    {'path': '/v3/OS-TRUST/trusts?'
+                             'trustor_user_id={trustor_user_id}',
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts_for_trustee',
         check_str=SYSTEM_READER_OR_TRUSTEE,
         scope_types=['system', 'project'],
         description='List trusts for trustee.',
-        operations=[{'path': '/v3/OS-TRUST/trusts?trustee_user_id={trustee_user_id}',
+        operations=[{'path': '/v3/OS-TRUST/trusts?'
+                             'trustee_user_id={trustee_user_id}',
                      'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts?trustee_user_id={trustee_user_id}',
+                    {'path': '/v3/OS-TRUST/trusts?'
+                             'trustee_user_id={trustee_user_id}',
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles_for_trust',

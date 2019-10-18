@@ -25,12 +25,12 @@ deprecated_get_endpoint_group = policy.DeprecatedRule(
     check_str=base.RULE_ADMIN_REQUIRED,
 )
 
-deprecated_list_projects_associated_with_endpoint_group = policy.DeprecatedRule(
+deprecated_list_projects_assoc_with_endpoint_group = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_projects_associated_with_endpoint_group',
     check_str=base.RULE_ADMIN_REQUIRED,
 )
 
-deprecated_list_endpoints_associated_with_endpoint_group = policy.DeprecatedRule(
+deprecated_list_endpoints_assoc_with_endpoint_group = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_endpoints_associated_with_endpoint_group',
     check_str=base.RULE_ADMIN_REQUIRED,
 )
@@ -142,7 +142,7 @@ group_endpoint_policies = [
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
                               '{endpoint_group_id}/projects'),
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_projects_associated_with_endpoint_group,
+        deprecated_rule=deprecated_list_projects_assoc_with_endpoint_group,
         deprecated_reason=DEPRECATED_REASON,
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(
@@ -153,7 +153,7 @@ group_endpoint_policies = [
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoint_groups/'
                               '{endpoint_group_id}/endpoints'),
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_endpoints_associated_with_endpoint_group,
+        deprecated_rule=deprecated_list_endpoints_assoc_with_endpoint_group,
         deprecated_reason=DEPRECATED_REASON,
         deprecated_since=versionutils.deprecated.TRAIN),
     policy.DocumentedRuleDefault(

@@ -37,7 +37,8 @@ class ResourceTests(object):
     domain_count = len(default_fixtures.DOMAINS)
 
     def test_get_project(self):
-        project_ref = PROVIDERS.resource_api.get_project(self.project_bar['id'])
+        project_ref = PROVIDERS.resource_api.get_project(
+            self.project_bar['id'])
         self.assertDictEqual(self.project_bar, project_ref)
 
     def test_get_project_returns_not_found(self):

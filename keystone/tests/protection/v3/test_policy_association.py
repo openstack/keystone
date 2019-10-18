@@ -194,7 +194,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_policy_association_for_region_and_service(self):
+    def test_user_cannot_create_policy_assoc_for_region_and_service(self):
         policy = unit.new_policy_ref()
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
         service = PROVIDERS.catalog_api.create_service(
@@ -210,7 +210,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_delete_policy_association_for_region_and_service(self):
+    def test_user_cannot_delete_policy_assoc_for_region_and_service(self):
         policy = unit.new_policy_ref()
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
         service = PROVIDERS.catalog_api.create_service(
@@ -392,7 +392,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_policy_association_for_region_and_service(self):
+    def test_user_cannot_create_policy_assoc_for_region_and_service(self):
         policy = unit.new_policy_ref()
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
         service = PROVIDERS.catalog_api.create_service(
@@ -408,7 +408,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_delete_policy_association_for_region_and_service(self):
+    def test_user_cannot_delete_policy_assoc_for_region_and_service(self):
         policy = unit.new_policy_ref()
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
         service = PROVIDERS.catalog_api.create_service(

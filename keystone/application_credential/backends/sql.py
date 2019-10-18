@@ -143,7 +143,8 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
                     access_rule_ref = session.query(AccessRuleModel).filter_by(
                         external_id=access_rule['id']).first()
                     if not access_rule_ref:
-                        access_rule_ref = session.query(AccessRuleModel).filter_by(
+                        query = session.query(AccessRuleModel)
+                        access_rule_ref = query.filter_by(
                             user_id=app_cred['user_id'],
                             service=access_rule['service'],
                             path=access_rule['path'],
@@ -154,7 +155,8 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
                             for k, v in access_rule.items()})
                         access_rule_ref['user_id'] = app_cred['user_id']
                         session.add(access_rule_ref)
-                    app_cred_access_rule = ApplicationCredentialAccessRuleModel()
+                    app_cred_access_rule = (
+                        ApplicationCredentialAccessRuleModel())
                     app_cred_access_rule.application_credential = ref
                     app_cred_access_rule.access_rule = access_rule_ref
                     session.add(app_cred_access_rule)
@@ -253,7 +255,8 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
                         access_rule_id=access_rule_id)
                 session.delete(ref)
         except AssertionError:
-            raise exception.ForbiddenNotSecurity("May not delete access rule in use")
+            raise exception.ForbiddenNotSecurity(
+                "May not delete access rule in use")
 
     def delete_access_rules_for_user(self, user_id):
         with sql.session_for_write() as session:

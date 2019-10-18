@@ -17,6 +17,7 @@ def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
 
-    federation_protocol_table = sql.Table('federation_protocol', meta, autoload=True)
+    federation_protocol_table = sql.Table(
+        'federation_protocol', meta, autoload=True)
     remote_id_attribute = sql.Column('remote_id_attribute', sql.String(64))
     federation_protocol_table.create_column(remote_id_attribute)

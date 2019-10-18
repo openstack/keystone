@@ -30,7 +30,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class _SystemUserGrantTests(object):
 
-    def test_user_can_list_grants_for_user_on_project(self):
+    def test_can_list_grants_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -53,7 +53,7 @@ class _SystemUserGrantTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_list_grants_for_user_on_domain(self):
+    def test_can_list_grants_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -74,7 +74,7 @@ class _SystemUserGrantTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_list_grants_for_group_on_project(self):
+    def test_can_list_grants_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -98,7 +98,7 @@ class _SystemUserGrantTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_list_grants_for_group_on_domain(self):
+    def test_can_list_grants_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -119,7 +119,7 @@ class _SystemUserGrantTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_check_grant_for_user_on_project(self):
+    def test_can_check_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -144,7 +144,7 @@ class _SystemUserGrantTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_can_check_grant_for_user_on_domain(self):
+    def test_can_check_grant_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -167,7 +167,7 @@ class _SystemUserGrantTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_can_check_grant_for_group_on_project(self):
+    def test_can_check_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -194,7 +194,7 @@ class _SystemUserGrantTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_can_check_grant_for_group_on_domain(self):
+    def test_can_check_grant_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -220,7 +220,7 @@ class _SystemUserGrantTests(object):
 
 class _SystemMemberAndReaderGrantTests(object):
 
-    def test_user_cannot_create_grant_for_user_on_project(self):
+    def test_cannot_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -240,7 +240,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_user_on_domain(self):
+    def test_cannot_create_grant_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -258,7 +258,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_on_project(self):
+    def test_cannot_create_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -280,7 +280,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_on_domain(self):
+    def test_cannot_create_grant_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -298,7 +298,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_on_project(self):
+    def test_cannot_revoke_grant_from_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -323,7 +323,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_on_domain(self):
+    def test_cannot_revoke_grant_from_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -346,7 +346,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_on_project(self):
+    def test_cannot_revoke_grant_from_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -373,7 +373,7 @@ class _SystemMemberAndReaderGrantTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_on_domain(self):
+    def test_cannot_revoke_grant_from_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -399,7 +399,7 @@ class _SystemMemberAndReaderGrantTests(object):
 
 class _DomainUserTests(object):
 
-    def test_user_can_list_grants_for_user_on_project(self):
+    def test_can_list_grants_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -420,7 +420,7 @@ class _DomainUserTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_list_grants_for_user_on_domain(self):
+    def test_can_list_grants_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -437,7 +437,7 @@ class _DomainUserTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_list_grants_for_group_on_project(self):
+    def test_can_list_grants_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -459,7 +459,7 @@ class _DomainUserTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_list_grants_for_group_on_domain(self):
+    def test_can_list_grants_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -477,7 +477,7 @@ class _DomainUserTests(object):
             )
             self.assertEqual(1, len(r.json['roles']))
 
-    def test_user_can_check_grant_for_user_on_project(self):
+    def test_can_check_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -502,7 +502,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_can_check_grant_for_user_on_domain(self):
+    def test_can_check_grant_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -522,7 +522,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_can_check_grant_for_group_on_project(self):
+    def test_can_check_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -547,7 +547,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_can_check_grant_for_group_on_domain(self):
+    def test_can_check_grant_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -567,7 +567,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.NO_CONTENT
             )
 
-    def test_user_cannot_list_grants_for_user_other_domain_on_project_own_domain(self):
+    def test_cannot_list_grants_for_user_other_domain_on_project_own_domain(self):  # noqa: E501
         user_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -591,7 +591,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_user_own_domain_on_project_other_domain(self):
+    def test_cannot_list_grants_for_user_own_domain_on_project_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -616,7 +616,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_user_own_domain_on_other_domain(self):
+    def test_cannot_list_grants_for_user_own_domain_on_other_domain(self):
         user_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -636,7 +636,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_user_other_domain_on_own_domain(self):
+    def test_cannot_list_grants_for_user_other_domain_on_own_domain(self):
         user_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -656,7 +656,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_group_other_domain_on_project_own_domain(self):
+    def test_cannot_list_grants_for_group_other_domain_on_project_own_domain(self):  # noqa: E501
         group_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -681,7 +681,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_group_own_domain_on_project_other_domain(self):
+    def test_cannot_list_grants_for_group_own_domain_on_project_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -707,7 +707,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_group_own_domain_on_other_domain(self):
+    def test_cannot_list_grants_for_group_own_domain_on_other_domain(self):
         group_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -728,7 +728,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_grants_for_group_other_domain_on_own_domain(self):
+    def test_cannot_list_grants_for_group_other_domain_on_own_domain(self):
         group_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -749,7 +749,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_user_other_domain_on_project_own_domain(self):
+    def test_cannot_check_grant_for_user_other_domain_on_project_own_domain(self):  # noqa: E501
         user_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -775,7 +775,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_user_own_domain_on_project_other_domain(self):
+    def test_cannot_check_grant_for_user_own_domain_on_project_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -802,7 +802,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_user_own_domain_on_project_own_domain_with_role_other_domain(self):
+    def test_cannot_check_grant_for_user_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         project_domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -833,7 +833,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_user_own_domain_on_other_domain(self):
+    def test_cannot_check_grant_for_user_own_domain_on_other_domain(self):
         user_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -856,7 +856,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_user_other_domain_on_own_domain(self):
+    def test_cannot_check_grant_for_user_other_domain_on_own_domain(self):
         user_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -879,7 +879,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_user_own_domain_on_own_domain_with_role_other_domain(self):
+    def test_cannot_check_grant_for_user_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -907,7 +907,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_group_other_domain_on_project_own_domain(self):
+    def test_cannot_check_grant_for_group_other_domain_on_project_own_domain(self):  # noqa: E501
         group_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -933,7 +933,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_group_own_domain_on_project_other_domain(self):
+    def test_cannot_check_grant_for_group_own_domain_on_project_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -959,7 +959,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_group_own_domain_on_project_own_domain_with_role_other_domain(self):
+    def test_cannot_check_grant_for_group_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -990,7 +990,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_group_own_domain_on_other_domain(self):
+    def test_cannot_check_grant_for_group_own_domain_on_other_domain(self):
         group_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -1012,7 +1012,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_group_other_domain_on_own_domain(self):
+    def test_cannot_check_grant_for_group_other_domain_on_own_domain(self):
         group_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -1034,12 +1034,13 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_check_grant_for_group_own_domain_on_own_domain_with_role_other_domain(self):
+    def test_cannot_check_grant_for_group_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
 
-        role = PROVIDERS.role_api.create_role(uuid.uuid4().hex, unit.new_role_ref(domain_id=role_domain_id))
+        role = PROVIDERS.role_api.create_role(
+            uuid.uuid4().hex, unit.new_role_ref(domain_id=role_domain_id))
 
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=group_domain_id)
@@ -1059,7 +1060,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_user_other_domain_on_project_own_domain(self):
+    def test_cannot_create_grant_for_user_other_domain_on_project_own_domain(self):  # noqa: E501
         user_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -1082,7 +1083,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_user_own_domain_on_project_other_domain(self):
+    def test_cannot_create_grant_for_user_own_domain_on_project_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -1105,7 +1106,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_cannot_create_grant_for_user_own_domain_on_project_own_domain_with_role_other_domain(self):
+    def test_cannot_create_grant_for_user_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         project_domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -1131,7 +1132,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_user_other_domain_on_own_domain(self):
+    def test_cannot_create_grant_for_user_other_domain_on_own_domain(self):
         user_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -1148,7 +1149,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_user_own_domain_on_other_domain(self):
+    def test_cannot_create_grant_for_user_own_domain_on_other_domain(self):
         user_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -1165,7 +1166,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_cannot_create_grant_for_user_own_domain_on_own_domain_with_role_other_domain(self):
+    def test_cannot_create_grant_for_user_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -1186,7 +1187,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_other_domain_on_project_own_domain(self):
+    def test_cannot_create_grant_for_group_other_domain_on_project_own_domain(self):  # noqa: E501
         group_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -1211,7 +1212,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_own_domain_on_project_other_domain(self):
+    def test_cannot_create_grant_for_group_own_domain_on_project_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -1236,7 +1237,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_cannot_create_grant_for_group_own_domain_on_project_own_domain_with_role_other_domain(self):
+    def test_cannot_create_grant_for_group_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         project_domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -1265,7 +1266,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_other_domain_on_own_domain(self):
+    def test_cannot_create_grant_for_group_other_domain_on_own_domain(self):
         group_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -1282,7 +1283,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_own_domain_on_other_domain(self):
+    def test_cannot_create_grant_for_group_own_domain_on_other_domain(self):
         group_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -1299,7 +1300,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_own_domain_on_own_domain_with_role_other_domain(self):
+    def test_cannot_create_grant_for_group_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -1320,7 +1321,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_other_domain_on_project_own_domain(self):
+    def test_cannot_revoke_grant_from_user_other_domain_on_project_own_domain(self):  # noqa: E501
         user_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -1348,7 +1349,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_own_domain_on_project_other_domain(self):
+    def test_cannot_revoke_grant_from_user_own_domain_on_project_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -1376,7 +1377,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_other_domain_on_own_domain(self):
+    def test_cannot_revoke_grant_from_user_other_domain_on_own_domain(self):
         user_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -1398,7 +1399,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_own_domain_on_other_domain(self):
+    def test_cannot_revoke_grant_from_user_own_domain_on_other_domain(self):
         user_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -1420,7 +1421,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_own_domain_on_own_domain_with_role_other_domain(self):
+    def test_cannot_revoke_grant_from_user_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
         user_domain_id = self.domain_id
         domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -1446,7 +1447,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_other_domain_on_project_own_domain(self):
+    def test_cannot_revoke_grant_from_group_other_domain_on_project_own_domain(self):  # noqa: E501
         group_domain_id = CONF.identity.default_domain_id
         project_domain_id = self.domain_id
 
@@ -1476,7 +1477,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_own_domain_on_project_other_domain(self):
+    def test_cannot_revoke_grant_from_group_own_domain_on_project_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         project_domain_id = CONF.identity.default_domain_id
 
@@ -1506,7 +1507,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_other_domain_on_own_domain(self):
+    def test_cannot_revoke_grant_from_group_other_domain_on_own_domain(self):
         group_domain_id = CONF.identity.default_domain_id
         domain_id = self.domain_id
 
@@ -1528,7 +1529,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_own_domain_on_other_domain(self):
+    def test_cannot_revoke_grant_from_group_own_domain_on_other_domain(self):
         group_domain_id = self.domain_id
         domain_id = CONF.identity.default_domain_id
 
@@ -1550,7 +1551,7 @@ class _DomainUserTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_own_domain_on_own_domain_with_role_other_domain(self):
+    def test_cannot_revoke_grant_from_group_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
         group_domain_id = self.domain_id
         domain_id = self.domain_id
         role_domain_id = CONF.identity.default_domain_id
@@ -1670,7 +1671,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
 
-    def test_user_can_create_grant_for_user_on_project(self):
+    def test_can_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1689,7 +1690,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_create_grant_for_user_on_domain(self):
+    def test_can_create_grant_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1706,7 +1707,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_create_grant_for_group_on_project(self):
+    def test_can_create_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1727,7 +1728,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_create_grant_for_group_on_domain(self):
+    def test_can_create_grant_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1744,7 +1745,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_revoke_grant_from_user_on_project(self):
+    def test_can_revoke_grant_from_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1768,7 +1769,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_revoke_grant_from_user_on_domain(self):
+    def test_can_revoke_grant_from_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1790,7 +1791,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_revoke_grant_from_group_on_project(self):
+    def test_can_revoke_grant_from_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1816,7 +1817,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_revoke_grant_from_group_on_domain(self):
+    def test_can_revoke_grant_from_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )
@@ -1841,7 +1842,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
 class _DomainMemberAndReaderTests(object):
 
-    def test_user_cannot_create_grant_for_user_on_project(self):
+    def test_cannot_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -1861,7 +1862,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_user_on_domain(self):
+    def test_cannot_create_grant_for_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -1879,7 +1880,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_on_project(self):
+    def test_cannot_create_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -1899,7 +1900,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_create_grant_for_group_on_domain(self):
+    def test_cannot_create_grant_for_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -1917,7 +1918,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_on_project(self):
+    def test_cannot_revoke_grant_from_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -1940,7 +1941,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_user_on_domain(self):
+    def test_cannot_revoke_grant_from_user_on_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -1963,7 +1964,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_on_project(self):
+    def test_cannot_revoke_grant_from_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -1990,7 +1991,7 @@ class _DomainMemberAndReaderTests(object):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_revoke_grant_from_group_on_domain(self):
+    def test_cannot_revoke_grant_from_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -2142,7 +2143,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             }
             f.write(jsonutils.dumps(overridden_policies))
 
-    def test_user_can_create_grant_for_user_on_project(self):
+    def test_can_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -2159,7 +2160,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_create_grant_for_group_on_project(self):
+    def test_can_create_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -2178,7 +2179,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_revoke_grant_from_user_on_project(self):
+    def test_can_revoke_grant_from_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
         )
@@ -2200,7 +2201,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_can_revoke_grant_from_group_on_project(self):
+    def test_can_revoke_grant_from_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
         )
@@ -2224,7 +2225,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
-    def test_user_cannot_revoke_grant_from_group_on_domain(self):
+    def test_cannot_revoke_grant_from_group_on_domain(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=CONF.identity.default_domain_id)
         )

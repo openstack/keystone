@@ -1679,8 +1679,8 @@ class VersionTests(SqlMigrateBase):
             self.repos[EXPAND_REPO].repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(expand_list, 'expand')
         # test for migrate prefix, e.g. 001_migrate_new_fk_constraint.py
-        migrate_list = glob.glob(
-            self.repos[DATA_MIGRATION_REPO].repo_path + versions_path + '/*.py')
+        repo_path = self.repos[DATA_MIGRATION_REPO].repo_path
+        migrate_list = glob.glob(repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(migrate_list, 'migrate')
         # test for contract prefix, e.g. 001_contract_new_fk_constraint.py
         contract_list = glob.glob(
@@ -3250,10 +3250,10 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
             'application_credential_access_rule',
             ['application_credential_id', 'access_rule_id']
         )
-        self.assertTrue(self.does_fk_exist('application_credential_access_rule',
-                                           'application_credential_id'))
-        self.assertTrue(self.does_fk_exist('application_credential_access_rule',
-                                           'access_rule_id'))
+        self.assertTrue(self.does_fk_exist(
+            'application_credential_access_rule', 'application_credential_id'))
+        self.assertTrue(self.does_fk_exist(
+            'application_credential_access_rule', 'access_rule_id'))
 
         app_cred_table = sqlalchemy.Table(
             'application_credential', self.metadata, autoload=True
@@ -3392,7 +3392,7 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
             ['id', 'project_id', 'resource_limit', 'description',
              'internal_id', 'registered_limit_id', 'domain_id'])
 
-    def test_migration_064_add_remote_id_attribute_to_federation_protocol(self):
+    def test_migration_064_add_remote_id_attribute_federation_protocol(self):
         self.expand(63)
         self.migrate(63)
         self.contract(63)

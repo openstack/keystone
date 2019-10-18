@@ -45,9 +45,11 @@ class _SystemUserProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
 
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
-            r = c.get('/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
+            r = c.get('/v3/OS-EP-FILTER/endpoints/%s/projects'
+                      % endpoint['id'],
                       headers=self.headers)
             for project_itr in r.json['projects']:
                 self.assertIn(project['id'], project_itr['id'])
@@ -66,7 +68,8 @@ class _SystemUserProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
 
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                   % (project['id'], endpoint['id']),
@@ -87,7 +90,8 @@ class _SystemUserProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
 
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
             r = c.get('/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
                       headers=self.headers)
@@ -152,7 +156,8 @@ class _DomainAndProjectUserProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
 
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
                   headers=self.headers,
@@ -172,7 +177,8 @@ class _DomainAndProjectUserProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
 
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                   % (project['id'], endpoint['id']),
@@ -193,7 +199,8 @@ class _DomainAndProjectUserProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
 
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
                   headers=self.headers,
@@ -326,7 +333,8 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         endpoint = PROVIDERS.catalog_api.create_endpoint(
             endpoint['id'], endpoint
         )
-        PROVIDERS.catalog_api.add_endpoint_to_project(endpoint['id'], project['id'])
+        PROVIDERS.catalog_api.add_endpoint_to_project(
+            endpoint['id'], project['id'])
         with self.test_client() as c:
             c.delete('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                      % (project['id'], endpoint['id']),

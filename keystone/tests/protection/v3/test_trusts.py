@@ -441,7 +441,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_admin_cannot_get_trust_role_for_other_user_overridden_defaults(self):
+    def test_admin_cannot_get_trust_role_for_other_user_overridden(self):
         self._override_policy_old_defaults()
         PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)
@@ -768,7 +768,7 @@ class ProjectUserTests(TrustTests):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_list_trusts_for_other_trustor_overridden_default(self):
+    def test_user_cannot_list_trusts_for_other_trustor_overridden(self):
         self._override_policy_old_defaults()
         PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)
@@ -841,7 +841,7 @@ class ProjectUserTests(TrustTests):
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_can_get_trust_of_whom_they_are_the_trustor_overridden_default(self):
+    def test_user_can_get_trust_of_whom_they_are_the_trustor_overridden(self):
         self._override_policy_old_defaults()
         ref = PROVIDERS.trust_api.create_trust(
             self.trust_id, **self.trust_data)

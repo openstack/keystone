@@ -5475,7 +5475,8 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             data['access_rules'] = access_rules
         return data
 
-    def _validate_token(self, token, headers=None, expected_status=http_client.OK):
+    def _validate_token(self, token, headers=None,
+                        expected_status=http_client.OK):
         path = '/v3/auth/tokens'
         headers = headers or {}
         headers.update({'X-Auth-Token': token, 'X-Subject-Token': token})

@@ -44,9 +44,11 @@ class _UserAccessRuleTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (self.user_id, app_cred['access_rules'][0]['id'])
+            path = '/v3/users/%s/access_rules/%s' % (
+                self.user_id, app_cred['access_rules'][0]['id'])
             c.get(path, headers=self.headers)
 
     def test_user_can_list_their_access_rules(self):
@@ -63,9 +65,11 @@ class _UserAccessRuleTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
         with self.test_client() as c:
-            r = c.get('/v3/users/%s/access_rules' % self.user_id, headers=self.headers)
+            r = c.get('/v3/users/%s/access_rules' % self.user_id,
+                      headers=self.headers)
             self.assertEqual(len(r.json['access_rules']), 1)
 
     def test_user_can_delete_their_access_rules(self):
@@ -83,10 +87,13 @@ class _UserAccessRuleTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
-        PROVIDERS.application_credential_api.delete_application_credential(app_cred['id'])
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
+        PROVIDERS.application_credential_api.delete_application_credential(
+            app_cred['id'])
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (self.user_id, access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                self.user_id, access_rule_id)
             c.delete(path, headers=self.headers)
 
 
@@ -119,9 +126,11 @@ class _ProjectUsersTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (user['id'], access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                user['id'], access_rule_id)
             c.get(
                 path, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
@@ -136,7 +145,7 @@ class _ProjectUsersTests(object):
                 expected_status_code=http_client.NOT_FOUND
             )
 
-    def test_user_cannot_get_non_existent_access_rule_other_user_forbidden(self):
+    def test_cannot_get_non_existent_access_rule_other_user_forbidden(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
@@ -171,7 +180,8 @@ class _ProjectUsersTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
 
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules' % user['id']
@@ -203,16 +213,19 @@ class _ProjectUsersTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
-        PROVIDERS.application_credential_api.delete_application_credential(app_cred['id'])
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
+        PROVIDERS.application_credential_api.delete_application_credential(
+            app_cred['id'])
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (user['id'], access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
 
-    def test_user_cannot_delete_non_existent_access_rule_other_user_forbidden(self):
+    def test_cannot_delete_non_existent_access_rule_other_user_forbidden(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
@@ -252,7 +265,8 @@ class _SystemUserAccessRuleTests(object):
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
 
         with self.test_client() as c:
             r = c.get('/v3/users/%s/access_rules' % user['id'],
@@ -329,10 +343,13 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
-        PROVIDERS.application_credential_api.delete_application_credential(app_cred['id'])
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
+        PROVIDERS.application_credential_api.delete_application_credential(
+            app_cred['id'])
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (user['id'], access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
@@ -408,17 +425,21 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
-        PROVIDERS.application_credential_api.delete_application_credential(app_cred['id'])
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
+        PROVIDERS.application_credential_api.delete_application_credential(
+            app_cred['id'])
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (user['id'], access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
 
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (user['id'], access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
@@ -487,11 +508,14 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 'method': uuid.uuid4().hex[16:]
             }]
         }
-        PROVIDERS.application_credential_api.create_application_credential(app_cred)
-        PROVIDERS.application_credential_api.delete_application_credential(app_cred['id'])
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred)
+        PROVIDERS.application_credential_api.delete_application_credential(
+            app_cred['id'])
 
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (user['id'], access_rule_id)
+            path = '/v3/users/%s/access_rules/%s' % (
+                user['id'], access_rule_id)
             c.delete(path, headers=self.headers)
 
     def test_user_cannot_delete_non_existent_access_rule_not_found(self):

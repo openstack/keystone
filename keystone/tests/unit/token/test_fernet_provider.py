@@ -231,18 +231,20 @@ class TestTokenFormatter(unit.TestCase):
         exp_protocol_id = uuid.uuid4().hex
 
         token_formatter = token_formatters.TokenFormatter()
-        token = token_formatter.create_token(user_id=exp_user_id,
-                                             expires_at=exp_expires_at,
-                                             audit_ids=exp_audit_ids,
-                                             payload_class=token_formatters.FederatedUnscopedPayload,
-                                             methods=exp_methods,
-                                             federated_group_ids=exp_federated_group_ids,
-                                             identity_provider_id=exp_idp_id,
-                                             protocol_id=exp_protocol_id)
+        token = token_formatter.create_token(
+            user_id=exp_user_id,
+            expires_at=exp_expires_at,
+            audit_ids=exp_audit_ids,
+            payload_class=token_formatters.FederatedUnscopedPayload,
+            methods=exp_methods,
+            federated_group_ids=exp_federated_group_ids,
+            identity_provider_id=exp_idp_id,
+            protocol_id=exp_protocol_id)
 
         (user_id, methods, audit_ids, system, domain_id, project_id, trust_id,
          federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id, issued_at, expires_at) = token_formatter.validate_token(token)
+         access_token_id, app_cred_id, issued_at,
+         expires_at) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertTrue(isinstance(user_id, six.string_types))
@@ -263,19 +265,21 @@ class TestTokenFormatter(unit.TestCase):
         exp_project_id = uuid.uuid4().hex
 
         token_formatter = token_formatters.TokenFormatter()
-        token = token_formatter.create_token(user_id=exp_user_id,
-                                             expires_at=exp_expires_at,
-                                             audit_ids=exp_audit_ids,
-                                             payload_class=token_formatters.FederatedProjectScopedPayload,
-                                             methods=exp_methods,
-                                             federated_group_ids=exp_federated_group_ids,
-                                             identity_provider_id=exp_idp_id,
-                                             protocol_id=exp_protocol_id,
-                                             project_id=exp_project_id)
+        token = token_formatter.create_token(
+            user_id=exp_user_id,
+            expires_at=exp_expires_at,
+            audit_ids=exp_audit_ids,
+            payload_class=token_formatters.FederatedProjectScopedPayload,
+            methods=exp_methods,
+            federated_group_ids=exp_federated_group_ids,
+            identity_provider_id=exp_idp_id,
+            protocol_id=exp_protocol_id,
+            project_id=exp_project_id)
 
         (user_id, methods, audit_ids, system, domain_id, project_id, trust_id,
          federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id, issued_at, expires_at) = token_formatter.validate_token(token)
+         access_token_id, app_cred_id, issued_at,
+         expires_at) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertTrue(isinstance(user_id, six.string_types))
