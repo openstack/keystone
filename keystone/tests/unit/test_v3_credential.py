@@ -17,6 +17,8 @@ import json
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
+import mock
+from oslo_db import exception as oslo_db_exception
 from oslo_serialization import jsonutils
 from six.moves import http_client
 from testtools import matchers
@@ -251,6 +253,38 @@ class CredentialTestCase(CredentialBaseTestCase):
         self.delete(
             '/credentials/%(credential_id)s' % {
                 'credential_id': self.credential['id']})
+
+    def test_delete_credential_retries_on_deadlock(self):
+        patcher = mock.patch('sqlalchemy.orm.query.Query.delete',
+                             autospec=True)
+
+        class FakeDeadlock(object):
+            def __init__(self, mock_patcher):
+                self.deadlock_count = 2
+                self.mock_patcher = mock_patcher
+                self.patched = True
+
+            def __call__(self, *args, **kwargs):
+                if self.deadlock_count > 1:
+                    self.deadlock_count -= 1
+                else:
+                    self.mock_patcher.stop()
+                    self.patched = False
+                raise oslo_db_exception.DBDeadlock
+
+        sql_delete_mock = patcher.start()
+        side_effect = FakeDeadlock(patcher)
+        sql_delete_mock.side_effect = side_effect
+
+        try:
+            PROVIDERS.credential_api.delete_credentials_for_user(
+                user_id=self.user['id'])
+        finally:
+            if side_effect.patched:
+                patcher.stop()
+
+        # initial attempt + 1 retry
+        self.assertEqual(sql_delete_mock.call_count, 2)
 
     def test_create_ec2_credential(self):
         """Call ``POST /credentials`` for creating ec2 credential."""
