@@ -2091,9 +2091,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         self.assertIs(True, user_ref['enabled'])
 
         # Ensure state matches the group config
-        group_ref = PROVIDERS.identity_api.get_group_by_name(group_name,
-                                                             CONF.identity.default_domain_id)
-        PROVIDERS.identity_api.check_user_in_group(user_ref['id'], group_ref['id'])
+        group_ref = PROVIDERS.identity_api.get_group_by_name(
+            group_name, CONF.identity.default_domain_id)
+        PROVIDERS.identity_api.check_user_in_group(
+            user_ref['id'], group_ref['id'])
 
     def test_user_enabled_use_group_config_with_ids(self):
         # Establish enabled-emulation group name to later query its members
@@ -2124,9 +2125,10 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         self.assertIs(True, user_ref['enabled'])
 
         # Ensure state matches the group config
-        group_ref = PROVIDERS.identity_api.get_group_by_name(group_name,
-                                                             CONF.identity.default_domain_id)
-        PROVIDERS.identity_api.check_user_in_group(user_ref['id'], group_ref['id'])
+        group_ref = PROVIDERS.identity_api.get_group_by_name(
+            group_name, CONF.identity.default_domain_id)
+        PROVIDERS.identity_api.check_user_in_group(
+            user_ref['id'], group_ref['id'])
 
     def test_user_enabled_invert(self):
         self.config_fixture.config(group='ldap', user_enabled_invert=True,
