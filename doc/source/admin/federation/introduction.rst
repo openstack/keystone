@@ -309,6 +309,8 @@ Keystone to Keystone
                                 SAMLResponse in SOAP envelope"];
      useragent -> sp [label = "POST /PAOS-url"];
      sp -> sp [label = "Validate"];
+     useragent <- sp [label = "HTTP 302"];
+     useragent -> sp [label = "GET /v3/OS-FED/.../auth"];
      useragent <- sp [label = "HTTP 201
                                X-Subject-Token: unscoped token"];
      useragent -> sp [label = "POST /v3/auth/tokens
