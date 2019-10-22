@@ -404,6 +404,32 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             })
         return r.headers.get('X-Subject-Token')
 
+    def get_system_scoped_token(self):
+        """Convenience method for requesting system scoped tokens."""
+        r = self.admin_request(
+            method='POST',
+            path='/v3/auth/tokens',
+            body={
+                'auth': {
+                    'identity': {
+                        'methods': ['password'],
+                        'password': {
+                            'user': {
+                                'name': self.user['name'],
+                                'password': self.user['password'],
+                                'domain': {
+                                    'id': self.user['domain_id']
+                                }
+                            }
+                        }
+                    },
+                    'scope': {
+                        'system': {'all': True}
+                    }
+                }
+            })
+        return r.headers.get('X-Subject-Token')
+
     def get_domain_scoped_token(self):
         """Convenience method for requesting domain scoped token."""
         r = self.admin_request(
