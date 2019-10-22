@@ -35,7 +35,7 @@
 - job:
     name: keystone-dsvm-functional-federation-opensuse15
     parent: keystone-dsvm-functional
-    nodeset: devstack-single-node-opensuse-150
+    nodeset: devstack-single-node-opensuse-15
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
@@ -233,7 +233,7 @@
             irrelevant-files: *irrelevant-files
         - tempest-pg-full:
             irrelevant-files: *tempest-irrelevant-files
-        - tempest-full-py3-opensuse150:
+        - tempest-full-py3-opensuse15:
             irrelevant-files: *tempest-irrelevant-files
         - keystone-dsvm-functional-federation-centos7:
             irrelevant-files: *irrelevant-files
