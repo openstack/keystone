@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1843609 <https://bugs.launchpad.net/keystone/+bug/1843609>`]
+    Fixed an issue where system-scoped tokens couldn't be used to list users
+    and groups (e.g., GET /v3/users or GET /v3/groups) if ``keystone.conf
+    [identity] domain_specific_drivers_enabled=True`` and the API would
+    return an ``HTTP 401 Unauthorized``. These APIs now recognize
+    system-scoped tokens when using domain-specific drivers.
