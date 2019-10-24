@@ -240,7 +240,8 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/groups/%s/roles' % group['id'], headers=self.headers,
+                '/v3/system/groups/%s/roles' % group['id'],
+                headers=self.headers,
                 expected_status_code=http_client.FORBIDDEN
             )
 

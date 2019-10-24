@@ -285,15 +285,16 @@ def validate_expiration(token):
 
 def get_remote_id_parameter(idp, protocol):
     # NOTE(marco-fargetta): Since we support any protocol ID, we attempt to
-    # retrieve the remote_id_attribute of the protocol ID. It will look up first
-    # if the remote_id_attribute exists.
+    # retrieve the remote_id_attribute of the protocol ID. It will look up
+    # first if the remote_id_attribute exists.
     protocol_ref = PROVIDERS.federation_api.get_protocol(idp['id'], protocol)
     remote_id_parameter = protocol_ref.get('remote_id_attribute')
     if remote_id_parameter:
         return remote_id_parameter
     else:
-        # If it's not registered in the config, then register the option and try again.
-        # This allows the user to register protocols other than oidc and saml2.
+        # If it's not registered in the config, then register the option and
+        # try again. This allows the user to register protocols other than
+        # oidc and saml2.
         try:
             remote_id_parameter = CONF[protocol]['remote_id_attribute']
         except AttributeError:
@@ -303,7 +304,8 @@ def get_remote_id_parameter(idp, protocol):
             try:
                 remote_id_parameter = CONF[protocol]['remote_id_attribute']
             except AttributeError:  # nosec
-                # No remote ID attr, will be logged and use the default instead.
+                # No remote ID attr, will be logged and use the default
+                # instead.
                 pass
     if not remote_id_parameter:
         LOG.debug('Cannot find "remote_id_attribute" in configuration '

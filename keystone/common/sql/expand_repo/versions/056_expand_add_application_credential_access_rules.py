@@ -19,7 +19,8 @@ def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
 
-    application_credential = sql.Table('application_credential', meta, autoload=True)
+    application_credential = sql.Table(
+        'application_credential', meta, autoload=True)
     access_rule = sql.Table(
         'access_rule', meta,
         sql.Column('id', sql.Integer, primary_key=True, nullable=False),

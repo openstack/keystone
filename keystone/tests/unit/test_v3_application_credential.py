@@ -58,10 +58,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             roles = [{'id': self.role_id}]
             app_cred_body = self._app_cred_body(roles=roles)
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED,
-                          headers={'X-Auth-Token': token})
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
         # Create operation returns the secret
         self.assertIn('secret', resp.json['application_credential'])
         # But not the stored hash
@@ -73,24 +74,27 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             roles = [{'id': self.role_id}]
             app_cred_body = self._app_cred_body(roles=roles, secret=secret)
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED,
-                          headers={'X-Auth-Token': token})
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
         self.assertEqual(secret, resp.json['application_credential']['secret'])
 
     def test_create_application_credential_roles_from_token(self):
         with self.test_client() as c:
             app_cred_body = self._app_cred_body()
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED,
-                          headers={'X-Auth-Token': token})
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             self.assertThat(resp.json['application_credential']['roles'],
                             matchers.HasLength(1))
-            self.assertEqual(resp.json['application_credential']['roles'][0]['id'],
-                             self.role_id)
+            self.assertEqual(
+                resp.json['application_credential']['roles'][0]['id'],
+                self.role_id)
 
     def test_create_application_credential_wrong_user(self):
         wrong_user = unit.create_user(PROVIDERS.identity_api,
@@ -153,15 +157,16 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             roles = [{'id': self.role_id}]
             app_cred_body_1 = self._app_cred_body(roles=roles)
             token = self.get_scoped_token()
-            app_cred_1 = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                                json=app_cred_body_1,
-                                expected_status_code=http_client.CREATED,
-                                headers={'X-Auth-Token': token})
+            app_cred_1 = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body_1,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             auth_data = self.build_authentication_request(
                 app_cred_id=app_cred_1.json['application_credential']['id'],
                 secret=app_cred_1.json['application_credential']['secret'])
-            token_data = self.v3_create_token(auth_data,
-                                              expected_status=http_client.CREATED)
+            token_data = self.v3_create_token(
+                auth_data, expected_status=http_client.CREATED)
             app_cred_body_2 = self._app_cred_body(roles=roles)
             token = token_data.headers['x-subject-token']
             c.post('/v3/users/%s/application_credentials' % self.user_id,
@@ -175,20 +180,22 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             app_cred_body_1 = self._app_cred_body(roles=roles)
             app_cred_body_1['application_credential']['unrestricted'] = True
             token = self.get_scoped_token()
-            app_cred_1 = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                                json=app_cred_body_1,
-                                expected_status_code=http_client.CREATED,
-                                headers={'X-Auth-Token': token})
+            app_cred_1 = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body_1,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             auth_data = self.build_authentication_request(
                 app_cred_id=app_cred_1.json['application_credential']['id'],
                 secret=app_cred_1.json['application_credential']['secret'])
-            token_data = self.v3_create_token(auth_data,
-                                              expected_status=http_client.CREATED)
+            token_data = self.v3_create_token(
+                auth_data, expected_status=http_client.CREATED)
             app_cred_body_2 = self._app_cred_body(roles=roles)
             c.post('/v3/users/%s/application_credentials' % self.user_id,
                    json=app_cred_body_2,
                    expected_status_code=http_client.CREATED,
-                   headers={'x-Auth-Token': token_data.headers['x-subject-token']})
+                   headers={
+                       'x-Auth-Token': token_data.headers['x-subject-token']})
 
     def test_create_application_credential_with_access_rules(self):
         roles = [{'id': self.role_id}]
@@ -203,12 +210,14 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                                             access_rules=access_rules)
         with self.test_client() as c:
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          headers={'X-Auth-Token': token},
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED)
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                headers={'X-Auth-Token': token},
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED)
             app_cred_id = resp.json['application_credential']['id']
-            resp_access_rules = resp.json['application_credential']['access_rules']
+            resp_access_rules = (
+                resp.json['application_credential']['access_rules'])
             access_rule_id = resp_access_rules[0].pop('id')
             self.assertEqual(access_rules[0], resp_access_rules[0])
             resp = c.get('/v3/users/%s/access_rules' % self.user_id,
@@ -248,10 +257,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                                               access_rules=access_rules)
         with self.test_client() as c:
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          headers={'X-Auth-Token': token},
-                          json=app_cred_body_1,
-                          expected_status_code=http_client.CREATED)
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                headers={'X-Auth-Token': token},
+                json=app_cred_body_1,
+                expected_status_code=http_client.CREATED)
         resp_access_rules = resp.json['application_credential']['access_rules']
         self.assertIn('id', resp_access_rules[0])
         access_rule_id = resp_access_rules[0].pop('id')
@@ -261,10 +271,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                                               access_rules=access_rules)
         with self.test_client() as c:
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          headers={'X-Auth-Token': token},
-                          json=app_cred_body_2,
-                          expected_status_code=http_client.CREATED)
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                headers={'X-Auth-Token': token},
+                json=app_cred_body_2,
+                expected_status_code=http_client.CREATED)
         resp_access_rules = resp.json['application_credential']['access_rules']
         self.assertEqual(access_rule_id, resp_access_rules[0]['id'])
 
@@ -281,10 +292,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                                               access_rules=access_rules)
         with self.test_client() as c:
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          headers={'X-Auth-Token': token},
-                          json=app_cred_body_1,
-                          expected_status_code=http_client.CREATED)
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                headers={'X-Auth-Token': token},
+                json=app_cred_body_1,
+                expected_status_code=http_client.CREATED)
         resp_access_rules = resp.json['application_credential']['access_rules']
         access_rule_id = resp_access_rules
         self.assertIn('id', resp_access_rules[0])
@@ -296,10 +308,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                                               access_rules=access_rules)
         with self.test_client() as c:
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          headers={'X-Auth-Token': token},
-                          json=app_cred_body_2,
-                          expected_status_code=http_client.CREATED)
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                headers={'X-Auth-Token': token},
+                json=app_cred_body_2,
+                expected_status_code=http_client.CREATED)
         resp_access_rules = resp.json['application_credential']['access_rules']
         self.assertEqual(access_rule_id, resp_access_rules[0]['id'])
 
@@ -349,10 +362,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                          expected_status_code=http_client.OK,
                          headers={'X-Auth-Token': token})
             self.assertEqual([], resp.json['application_credentials'])
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED,
-                          headers={'X-Auth-Token': token})
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             resp = c.get(search_path, expected_status_code=http_client.OK,
                          headers={'X-Auth-Token': token})
             self.assertEqual(1, len(resp.json['application_credentials']))
@@ -367,17 +381,19 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             resp = c.get(search_path, expected_status_code=http_client.OK,
                          headers={'X-Auth-Token': token})
             self.assertEqual(1, len(resp.json['application_credentials']))
-            self.assertEqual(resp.json['application_credentials'][0]['name'], name)
+            self.assertEqual(resp.json['application_credentials'][0]['name'],
+                             name)
 
     def test_get_head_application_credential(self):
         with self.test_client() as c:
             roles = [{'id': self.role_id}]
             app_cred_body = self._app_cred_body(roles=roles)
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED,
-                          headers={'X-Auth-Token': token})
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             app_cred_id = resp.json['application_credential']['id']
             c.head('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
                                                 'app_cred_id': app_cred_id},
@@ -408,10 +424,11 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             roles = [{'id': self.role_id}]
             app_cred_body = self._app_cred_body(roles=roles)
             token = self.get_scoped_token()
-            resp = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                          json=app_cred_body,
-                          expected_status_code=http_client.CREATED,
-                          headers={'X-Auth-Token': token})
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             app_cred_id = resp.json['application_credential']['id']
             c.delete('/v3%s' % MEMBER_PATH_FMT % {'user_id': self.user_id,
                      'app_cred_id': app_cred_id},
@@ -431,18 +448,19 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             roles = [{'id': self.role_id}]
             app_cred_body = self._app_cred_body(roles=roles)
             token = self.get_scoped_token()
-            app_cred = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                              json=app_cred_body,
-                              expected_status_code=http_client.CREATED,
-                              headers={'X-Auth-Token': token})
+            app_cred = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             auth_data = self.build_authentication_request(
                 app_cred_id=app_cred.json['application_credential']['id'],
                 secret=app_cred.json['application_credential']['secret'])
-            token_data = self.v3_create_token(auth_data,
-                                              expected_status=http_client.CREATED)
+            token_data = self.v3_create_token(
+                auth_data, expected_status=http_client.CREATED)
             member_path = '/v3%s' % MEMBER_PATH_FMT % {
-                          'user_id': self.user_id,
-                          'app_cred_id': app_cred.json['application_credential']['id']}
+                'user_id': self.user_id,
+                'app_cred_id': app_cred.json['application_credential']['id']}
             token = token_data.headers['x-subject-token']
             c.delete(member_path,
                      json=app_cred_body,
@@ -455,22 +473,25 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             app_cred_body = self._app_cred_body(roles=roles)
             app_cred_body['application_credential']['unrestricted'] = True
             token = self.get_scoped_token()
-            app_cred = c.post('/v3/users/%s/application_credentials' % self.user_id,
-                              json=app_cred_body,
-                              expected_status_code=http_client.CREATED,
-                              headers={'X-Auth-Token': token})
+            app_cred = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http_client.CREATED,
+                headers={'X-Auth-Token': token})
             auth_data = self.build_authentication_request(
                 app_cred_id=app_cred.json['application_credential']['id'],
                 secret=app_cred.json['application_credential']['secret'])
-            token_data = self.v3_create_token(auth_data,
-                                              expected_status=http_client.CREATED)
+            token_data = self.v3_create_token(
+                auth_data, expected_status=http_client.CREATED)
             member_path = '/v3%s' % MEMBER_PATH_FMT % {
-                          'user_id': self.user_id,
-                          'app_cred_id': app_cred.json['application_credential']['id']}
+                'user_id': self.user_id,
+                'app_cred_id': app_cred.json['application_credential']['id']}
             c.delete(member_path,
                      json=app_cred_body,
                      expected_status_code=http_client.NO_CONTENT,
-                     headers={'x-Auth-Token': token_data.headers['x-subject-token']})
+                     headers={
+                         'x-Auth-Token': token_data.headers['x-subject-token']
+                     })
 
     def test_update_application_credential(self):
         with self.test_client() as c:

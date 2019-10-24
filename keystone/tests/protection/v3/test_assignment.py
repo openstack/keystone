@@ -1086,9 +1086,9 @@ class _ProjectUserTests(object):
     def test_user_cannot_filter_role_assignments_by_other_project_user(self):
         assignments = self._setup_test_role_assignments()
 
-        # This user doesn't have any role assignments on self.project_id, so the
-        # project user of self.project_id should only see an empty list of role
-        # assignments.
+        # This user doesn't have any role assignments on self.project_id, so
+        # the project user of self.project_id should only see an empty list of
+        # role assignments.
         user_id = assignments['user_id']
 
         with self.test_client() as c:

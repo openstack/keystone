@@ -248,14 +248,16 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
     def test_user_can_create_roles(self):
-        create = {'role': unit.new_role_ref(domain_id=CONF.identity.default_domain_id)}
+        create = {'role': unit.new_role_ref(
+            domain_id=CONF.identity.default_domain_id)}
 
         with self.test_client() as c:
             c.post('/v3/roles', json=create, headers=self.headers)
 
     def test_user_can_update_roles(self):
         role = PROVIDERS.role_api.create_role(
-            uuid.uuid4().hex, unit.new_role_ref(domain_id=CONF.identity.default_domain_id)
+            uuid.uuid4().hex,
+            unit.new_role_ref(domain_id=CONF.identity.default_domain_id)
         )
 
         update = {'role': {'description': uuid.uuid4().hex}}
@@ -267,7 +269,8 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
     def test_user_can_delete_roles(self):
         role = PROVIDERS.role_api.create_role(
-            uuid.uuid4().hex, unit.new_role_ref(domain_id=CONF.identity.default_domain_id)
+            uuid.uuid4().hex,
+            unit.new_role_ref(domain_id=CONF.identity.default_domain_id)
         )
 
         with self.test_client() as c:

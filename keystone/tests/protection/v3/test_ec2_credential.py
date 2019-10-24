@@ -44,7 +44,8 @@ class _UserEC2CredentialTests(object):
 
             credential_id = r.json['credential']['access']
 
-            path = '/v3/users/%s/credentials/OS-EC2/%s' % (self.user_id, credential_id)
+            path = '/v3/users/%s/credentials/OS-EC2/%s' % (
+                self.user_id, credential_id)
             r = c.get(path, headers=self.headers)
             self.assertEqual(
                 self.user_id, r.json['credential']['user_id']
@@ -101,7 +102,8 @@ class _UserEC2CredentialTests(object):
                        json={'tenant_id': project['id']}, headers=self.headers)
             credential_id = r.json['credential']['access']
 
-            c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (self.user_id, credential_id),
+            c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (
+                     self.user_id, credential_id),
                      headers=self.headers)
 
     def test_user_cannot_create_ec2_credentials_for_others(self):
@@ -147,8 +149,10 @@ class _UserEC2CredentialTests(object):
                        json={'tenant_id': project['id']}, headers=headers)
             credential_id = r.json['credential']['access']
 
-            c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (self.user_id, credential_id),
-                     headers=self.headers, expected_status_code=http_client.FORBIDDEN)
+            c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (
+                     self.user_id, credential_id),
+                     headers=self.headers,
+                     expected_status_code=http_client.FORBIDDEN)
 
 
 class _SystemUserTests(object):
@@ -178,8 +182,10 @@ class _SystemUserTests(object):
                        json={'tenant_id': project['id']}, headers=headers)
             credential_id = r.json['credential']['access']
 
-            path = '/v3/users/%s/credentials/OS-EC2/%s' % (self.user_id, credential_id)
-            c.get(path, headers=self.headers, expected_status_code=http_client.OK)
+            path = '/v3/users/%s/credentials/OS-EC2/%s' % (
+                self.user_id, credential_id)
+            c.get(path, headers=self.headers,
+                  expected_status_code=http_client.OK)
 
 
 class _SystemReaderAndMemberTests(object):
@@ -377,7 +383,8 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                        json={'tenant_id': project['id']}, headers=headers)
             credential_id = r.json['credential']['access']
 
-            c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (self.user_id, credential_id),
+            c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (
+                     self.user_id, credential_id),
                      headers=self.headers)
 
 
@@ -395,13 +402,16 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         # update permissions or update policies without breaking users. This
         # will cause these specific tests to fail since we're trying to correct
         # this broken behavior with better scope checking.
+        reader_or_cred_owner = bp.SYSTEM_READER_OR_CRED_OWNER
+        reader_or_owner = bp.RULE_SYSTEM_READER_OR_OWNER
+        admin_or_cred_owner = bp.SYSTEM_ADMIN_OR_CRED_OWNER
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
-                'identity:ec2_get_credential': bp.SYSTEM_READER_OR_CRED_OWNER,
-                'identity:ec2_list_credentials': bp.RULE_SYSTEM_READER_OR_OWNER,
-                'identity:ec2_create_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:ec2_update_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:ec2_delete_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER
+                'identity:ec2_get_credential': reader_or_cred_owner,
+                'identity:ec2_list_credentials': reader_or_owner,
+                'identity:ec2_create_credential': admin_or_cred_owner,
+                'identity:ec2_update_credential': admin_or_cred_owner,
+                'identity:ec2_delete_credential': admin_or_cred_owner
             }
             f.write(jsonutils.dumps(overridden_policies))
 

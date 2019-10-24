@@ -127,7 +127,8 @@ class Bootstrapper(object):
                             "bootstrap command in the future.You can opt into "
                             "this behavior by using the --immutable-role "
                             "flag, or update role %(role)s with the "
-                            "'immutable' resource option.", {'role': role_name})
+                            "'immutable' resource option.",
+                            {'role': role_name})
             return role
         except exception.Conflict:
             LOG.info('Role %s exists, skipping creation.', role_name)

@@ -27,12 +27,18 @@ DOMAIN_MATCHES_USER_DOMAIN = 'domain_id:%(target.user.domain_id)s'
 DOMAIN_MATCHES_GROUP_DOMAIN = 'domain_id:%(target.group.domain_id)s'
 DOMAIN_MATCHES_PROJECT_DOMAIN = 'domain_id:%(target.project.domain_id)s'
 DOMAIN_MATCHES_TARGET_DOMAIN = 'domain_id:%(target.domain.id)s'
-DOMAIN_MATCHES_ROLE = 'domain_id:%(target.role.domain_id)s or None:%(target.role.domain_id)s'
+DOMAIN_MATCHES_ROLE = (
+    'domain_id:%(target.role.domain_id)s or None:%(target.role.domain_id)s'
+)
 GRANTS_DOMAIN_READER = (
-    '(role:reader and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
-    '(role:reader and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and ' + DOMAIN_MATCHES_TARGET_DOMAIN + ') or '
-    '(role:reader and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
-    '(role:reader and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
+    '(role:reader and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:reader and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ') or '
+    '(role:reader and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:reader and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
 )
 SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.SYSTEM_READER + ') or '
@@ -45,10 +51,14 @@ SYSTEM_READER_OR_DOMAIN_READER_LIST = (
 )
 
 GRANTS_DOMAIN_ADMIN = (
-    '(role:admin and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
-    '(role:admin and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and ' + DOMAIN_MATCHES_TARGET_DOMAIN + ') or '
-    '(role:admin and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
-    '(role:admin and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
+    '(role:admin and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:admin and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ') or '
+    '(role:admin and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:admin and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
 )
 SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
     '(' + base.SYSTEM_ADMIN + ') or '

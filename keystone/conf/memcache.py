@@ -29,8 +29,9 @@ socket_timeout = cfg.IntOpt(
     default=3,
     deprecated_for_removal=True,
     deprecated_reason='This option is duplicated with oslo.cache. '
-                      'Configure ``keystone.conf [cache] memcache_socket_timeout`` '
-                      'option to set the socket_timeout of memcached instead. ',
+                      'Configure ``keystone.conf [cache] '
+                      'memcache_socket_timeout`` option to set the '
+                      'socket_timeout of memcached instead. ',
     deprecated_since=versionutils.deprecated.TRAIN,
     help=utils.fmt("""
 Timeout in seconds for every call to a server. This is used by the key value

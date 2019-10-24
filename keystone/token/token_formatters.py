@@ -334,7 +334,7 @@ class BasePayload(object):
 
     @classmethod
     def random_urlsafe_str_to_bytes(cls, s):
-        """Convert a string from :func:`random_urlsafe_str()` to six.binary_type.
+        """Convert string from :func:`random_urlsafe_str()` to six.binary_type.
 
         :type s: six.text_type
         :rtype: six.binary_type

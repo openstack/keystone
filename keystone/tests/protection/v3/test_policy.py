@@ -252,7 +252,8 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 'name': uuid.uuid4().hex,
                 'description': uuid.uuid4().hex,
                 'enabled': True,
-                # Store serialized JSON data as the blob to mimic real world usage.
+                # Store serialized JSON data as the blob to mimic real world
+                # usage.
                 'blob': json.dumps({'data': uuid.uuid4().hex, }),
                 'type': uuid.uuid4().hex
             }
