@@ -102,6 +102,8 @@ function install_federation {
     elif is_suse; then
         # Install Shibboleth
         install_package shibboleth-sp
+        # Install xmlsec dependency needed only for opensuse
+        install_package libxmlsec1-openssl1
 
         # Create a new keypair for Shibboleth
         sudo /etc/shibboleth/keygen.sh -f -o /etc/shibboleth
@@ -113,6 +115,9 @@ function install_federation {
     fi
 
     pip_install pysaml2
+
+    # xmlsec1 needed for k2k
+    install_package xmlsec1
 }
 
 function upload_sp_metadata_to_samltest {
@@ -182,6 +187,10 @@ function configure_tests_settings {
 
     # Here we set any settings that might be need by the fed_scenario set of tests
     iniset $TEMPEST_CONFIG identity-feature-enabled federation True
+    # If not using samltest as an external IdP, tell tempest not to test that scenario
+    if [[ "$IDP_ID" != "samltest" ]] ; then
+        iniset $TEMPEST_CONFIG identity-feature-enabled external_idp false
+    fi
 
     # Identity provider settings
     iniset $TEMPEST_CONFIG fed_scenario idp_id $IDP_ID

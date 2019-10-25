@@ -57,6 +57,13 @@
       zuul_copy_output:
         /etc/shibboleth: logs
 
+- job:
+    name: keystone-dsvm-py3-functional-federation-opensuse15-k2k
+    parent: keystone-dsvm-py3-functional-federation-opensuse15
+    vars:
+      devstack_localrc:
+        IDP_ID: k2k
+
 # This job will execute 'tox -e upgrade' from the OSA
 # repo specified in 'osa_test_repo'.
 - job:
@@ -196,6 +203,8 @@
         - keystone-dsvm-py3-functional-federation-opensuse15:
             voting: false
             irrelevant-files: *irrelevant-files
+        - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
+            irrelevant-files: *irrelevant-files
         - keystoneclient-devstack-functional:
             voting: false
             irrelevant-files: *irrelevant-files
@@ -226,6 +235,8 @@
         - keystone-dsvm-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional:
+            irrelevant-files: *irrelevant-files
+        - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
             irrelevant-files: *irrelevant-files
         - tempest-full:
             irrelevant-files: *tempest-irrelevant-files
