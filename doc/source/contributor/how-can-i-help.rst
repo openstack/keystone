@@ -18,20 +18,47 @@
 How Can I Help?
 ===============
 
-Are you new to OpenStack or keystone? Are you interested in contributing, but
-not sure where to start? Here are some easy ways that you can make a difference
-while you learn the ropes:
+Are you interested in contributing to the keystone project? Whether you're a
+software developer, a technical writer, an OpenStack operator or an OpenStack
+user, there are many reasons to get involved with the keystone project:
+
+* You can help shape the direction of the project, ensuring it meets your
+  organization's needs in the future
+* You can help maintain the project's health and get your bugs fixed faster
+* You can collaborate with other people to find common solutions that will help
+  you and your organization
+* You can hack on a fun, security-related Python project with interesting
+  challenges
+
+Here are some easy ways to make a big difference to the keystone project and
+become part of the team:
 
 * Read the documentation, starting with the rest of this contributor guide, and
   try to follow it to set up keystone and try out different features. Does it
   make sense? Is something out of date? Is something misleading or incorrect?
-  Submit a patch to fix it.
-* Check out the low hanging fruit bugs:
+  Submit a patch or bug report to fix it.
+* Monitor incoming bug reports, try to reproduce the bug in a test environment,
+  ask the bug reporter for more information, answer support questions and close
+  invalid bugs. Follow the `bug triage guide`_. New bugs can be found with the
+  "New" status:
 
-  * `keystone`_
-  * `keystonemiddleware`_
-  * `keystoneauth`_
-  * `python-keystoneclient`_
+  * `keystone <https://bugs.launchpad.net/keystone/+bugs?field.status=New>`__
+  * `keystonemiddleware <https://bugs.launchpad.net/keystonemiddleware/+bugs?field.status=New>`__
+  * `keystoneauth <https://bugs.launchpad.net/keystoneauth/+bugs?field.status=New>`__
+  * `python-keystoneclient <https://bugs.launchpad.net/python-keystoneclient/+bugs?field.status=New>`__
+
+  You can also subscribe to email notifications for new bugs.
+* Subscribe to the openstack-discuss@lists.openstack.org mailing list (filter on
+  subject tag ``[keystone]``) and join the #openstack-keystone IRC channel on
+  freenode. Help answer user support questions if you or your organization has
+  faced and solved a similar problem, or chime in on design discussions that
+  will affect you and your organization.
+* Check out the low hanging fruit bugs, submit patches to fix them:
+
+  * `keystone <https://bugs.launchpad.net/keystone/+bugs?field.tag=low-hanging-fruit>`__
+  * `keystonemiddleware <https://bugs.launchpad.net/keystonemiddleware/+bugs?field.tag=low-hanging-fruit>`__
+  * `keystoneauth <https://bugs.launchpad.net/keystoneauth/+bugs?field.tag=low-hanging-fruit>`__
+  * `python-keystoneclient <https://bugs.launchpad.net/python-keystoneclient/+bugs?field.tag=low-hanging-fruit>`__
 
 * Look for deprecation warnings in the unit tests and in the keystone logs of a
   running keystone installation and submit patches to make them go away.
@@ -46,10 +73,7 @@ while you learn the ropes:
 
 Need any help? :doc:`Reach out </getting-started/community>` to the keystone team.
 
-.. _keystone: https://bugs.launchpad.net/keystone/+bugs?field.tag=low-hanging-fruit
-.. _keystonemiddleware: https://bugs.launchpad.net/keystonemiddleware/+bugs?field.tag=low-hanging-fruit
-.. _keystoneauth: https://bugs.launchpad.net/keystoneauth/+bugs?field.tag=low-hanging-fruit
-.. _python-keystoneclient: https://bugs.launchpad.net/python-keystoneclient/+bugs?field.tag=low-hanging-fruit
+.. _bug triage guide: https://wiki.openstack.org/wiki/BugTriage
 .. _devstack: https://docs.openstack.org/devstack/latest/
 .. _keystone maintainers: https://review.opendev.org/#/admin/groups/9,members
 .. _new changes: https://review.opendev.org/#/q/is:open+project:openstack/keystone+OR+project:openstack/keystonemiddleware+OR+project:openstack/keystoneauth+OR+project:openstack/python-keystoneclient
