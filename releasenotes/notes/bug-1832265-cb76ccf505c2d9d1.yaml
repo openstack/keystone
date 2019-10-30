@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1832265 <https://bugs.launchpad.net/keystone/+bug/1832265>`_]
+    Binary msgpack payload types are now consistently and correctly decoded
+    when running Keystone under Python 3, avoiding any TypeErrors when
+    attempting to convert binary encoded strings into UUID's.
