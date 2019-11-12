@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    The foreign key constraint between the ``user.domain_id`` column and the
+    ``project.id`` column and between the ``identity_provider.domain_id``
+    column and the ``project.id`` column will be dropped upon running the
+    keystone db_sync contraction step. These constraints are enforced in code
+    and do not need to be enforced by the database. This should have no impact
+    on users.
