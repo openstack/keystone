@@ -214,8 +214,6 @@
               - ^setup.cfg$
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files
-        - neutron-grenade:
-            irrelevant-files: *tempest-irrelevant-files
         - grenade-py3:
             irrelevant-files: *tempest-irrelevant-files
         - tempest-ipv6-only:
@@ -232,8 +230,6 @@
         - tempest-full:
             irrelevant-files: *tempest-irrelevant-files
         - tempest-full-py3:
-            irrelevant-files: *tempest-irrelevant-files
-        - neutron-grenade:
             irrelevant-files: *tempest-irrelevant-files
         - grenade-py3:
             irrelevant-files: *tempest-irrelevant-files
