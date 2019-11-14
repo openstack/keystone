@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`bug 1773967 <https://bugs.launchpad.net/keystone/+bug/1773967>`_]
+    Fixes an issue where users who had role assignments only via a group
+    membership and not via direct assignment could create but not use
+    application credentials. It is important to note that federated users who
+    only have role assignments via a mapped group membership still cannot
+    create application credentials.
