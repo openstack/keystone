@@ -177,17 +177,15 @@
     templates:
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
-      - openstack-python-jobs
       - openstack-python3-ussuri-jobs
       - publish-openstack-docs-pti
       - periodic-stable-jobs
       - check-requirements
-      - integrated-gate
       - integrated-gate-py3
       - release-notes-jobs-python3
     check:
       jobs:
-        - keystone-dsvm-functional:
+        - keystone-dsvm-py3-functional:
             irrelevant-files: &irrelevant-files
               - ^.*\.rst$
               - ^api-ref/.*$
@@ -195,11 +193,6 @@
               - ^etc/.*$
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
-        - keystone-dsvm-py3-functional:
-            irrelevant-files: *irrelevant-files
-        - keystone-dsvm-functional-federation-opensuse15:
-            voting: false
-            irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-opensuse15:
             voting: false
             irrelevant-files: *irrelevant-files
@@ -219,8 +212,6 @@
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
               - ^setup.cfg$
-        - tempest-full:
-            irrelevant-files: *tempest-irrelevant-files
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files
         - neutron-grenade:

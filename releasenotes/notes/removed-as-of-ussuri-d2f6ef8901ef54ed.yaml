@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Dropping the Python2 support in OpenStack Ussuri according to
+    `the TC deprecation timeline
+    <https://governance.openstack.org/tc/resolutions/20180529-python2-deprecation-timeline.html>`_
