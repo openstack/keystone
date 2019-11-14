@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Restores the configurability of the resource driver, so it is now possible
+    to create a custom resource driver if the built-in sql driver does not meet
+    business requirements.

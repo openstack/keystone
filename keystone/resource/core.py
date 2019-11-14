@@ -27,7 +27,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 from keystone.resource.backends import base
-from keystone.resource.backends import sql as resource_sql
 from keystone.token import provider as token_provider
 
 CONF = keystone.conf.CONF
@@ -55,14 +54,8 @@ class Manager(manager.Manager):
     _PROJECT_TAG = 'project tag'
 
     def __init__(self):
-        # NOTE(morgan): The resource driver must be SQL. This is because there
-        # is a FK between identity and resource. Almost every deployment uses
-        # SQL Identity in some form. Even if SQL Identity is not used, there
-        # is almost no reason to have non-SQL Resource. Keystone requires
-        # SQL in a number of ways, this simply codifies it plainly for resource
-        # the driver_name = None simply implies we don't need to load a driver.
-        self.driver = resource_sql.Resource()
-        super(Manager, self).__init__(driver_name=None)
+        resource_driver = CONF.resource.driver
+        super(Manager, self).__init__(resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):
         return len(parents_list) + 1

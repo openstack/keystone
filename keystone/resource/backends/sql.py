@@ -26,8 +26,6 @@ LOG = log.getLogger(__name__)
 
 
 class Resource(base.ResourceDriverBase):
-    # TODO(morgan): Merge all of this code into the manager, Resource backend
-    # is only SQL. There is no configurable driver.
 
     def _encode_domain_id(self, ref):
         if 'domain_id' in ref and ref['domain_id'] is None:

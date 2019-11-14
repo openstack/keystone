@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-from oslo_log import versionutils
 
 from keystone.conf import utils
 
@@ -19,13 +18,6 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    deprecated_for_removal=True,
-    deprecated_reason='Non-SQL resource cannot be used with SQL Identity and '
-                      'has been unable to be used since Ocata. SQL Resource '
-                      'backend is a requirement as of Pike. Setting this '
-                      'option no longer has an effect on how Keystone '
-                      'operates.',
-    deprecated_since=versionutils.deprecated.PIKE,
     help=utils.fmt("""
 Entry point for the resource driver in the `keystone.resource` namespace. Only
 a `sql` driver is supplied by keystone. Unless you are writing proprietary
