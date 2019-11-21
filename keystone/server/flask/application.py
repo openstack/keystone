@@ -78,6 +78,9 @@ def _handle_keystone_exception(error):
     elif isinstance(error, exception.OAuth2Error):
         return oauth2_handlers.build_response(error)
 
+    if isinstance(error, exception.RedirectRequired):
+        return flask.redirect(error.redirect_url)
+
     # Handle logging
     if isinstance(error, exception.Unauthorized):
         LOG.warning(
