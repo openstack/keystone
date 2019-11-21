@@ -719,3 +719,26 @@ class ResourceDeleteForbidden(ForbiddenNotSecurity):
     message_format = _('Unable to delete immutable %(type)s resource: '
                        '`%(resource_id)s. Set resource option "immutable" '
                        'to false first.')
+
+@six.add_metaclass(_KeystoneExceptionMeta)
+class RedirectRequired(Exception):
+    """Error class for redirection.
+
+    Child classes should define an HTTP redirect url
+    message_format.
+
+    """
+    redirect_url = None
+
+    def __init__(self, redirect_url, **kwargs):
+        try:
+            LOG.info('Redirect URL %s' % redirect_url)
+            self.redirect_url = redirect_url
+        except KeyError:
+            # if you see this warning in your logs, please raise a bug report
+            if _FATAL_EXCEPTION_FORMAT_ERRORS:
+                raise
+            else:
+                LOG.warning('missing exception kwargs (programmer error)')
+
+        super(RedirectRequired, self).__init__(redirect_url)

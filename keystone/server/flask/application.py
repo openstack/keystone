@@ -79,6 +79,9 @@ def _handle_keystone_exception(error):
     if isinstance(error, exception.InsufficientAuthMethods):
         return receipt_handlers.build_receipt(error)
 
+    if isinstance(error, exception.RedirectRequired):
+        return flask.redirect(error.redirect_url,code=302)
+    
     # Handle logging
     if isinstance(error, exception.Unauthorized):
         LOG.warning(
