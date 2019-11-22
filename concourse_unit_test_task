@@ -5,6 +5,6 @@ apt-get update && \
 apt-get install -y build-essential python-pip libpq-dev postgresql-client python3.7 python3.7-dev python3-distutils python3-psycopg2  git libpcre++-dev gettext libsqlite3-dev libsasl2-dev libldap2-dev libssl-dev libldap-2.4-2 memcached && \
 pip install tox && \
 /etc/init.d/memcached start && \
-git clone -b stable/victoria-m3 --single-branch https://github.com/sapcc/keystone.git && \
+git clone -b stable/victoria-m3 --single-branch https://github.com/sapcc/keystone.git --depth=1 && \
 cd keystone && \
 tox -e py37
