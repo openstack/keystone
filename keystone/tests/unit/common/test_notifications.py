@@ -144,6 +144,8 @@ class NotificationsTestCase(unit.BaseTestCase):
     def setUp(self):
         super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        # ccloud: fix random notification test failures
+        oslo_messaging.get_notification_transport(CONF, url='rabbit://')
         self.config_fixture.config(
             group='oslo_messaging_notifications', transport_url='rabbit://'
         )
