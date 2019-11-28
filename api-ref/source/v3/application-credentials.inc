@@ -264,6 +264,7 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
    - user_id: request_application_credential_user_id_path_required
+   - name: request_application_credential_name_query_not_required
 
 Response
 --------
