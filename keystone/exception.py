@@ -729,11 +729,12 @@ class RedirectRequired(Exception):
 
     """
     redirect_url = None
+    code = None
 
     def __init__(self, redirect_url, **kwargs):
         try:
-            LOG.info('Redirect URL %s' % redirect_url)
             self.redirect_url = redirect_url
+            self.code = http_client.FOUND
         except KeyError:
             # if you see this warning in your logs, please raise a bug report
             if _FATAL_EXCEPTION_FORMAT_ERRORS:
