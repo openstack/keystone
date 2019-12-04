@@ -1,0 +1,23 @@
+---
+critical:
+  - |
+    [`bug 1855080 <https://bugs.launchpad.net/keystone/+bug/1855080>`_]
+    An error in the policy target filtering inadvertently allowed any user to
+    list any credential object with the /v3/credentials API when
+    ``[oslo_policy]/enforce_scope`` was set to false, which is the default.
+    This has been addressed: users with non-admin roles on a project may not
+    list other users' credentials. However, users with the admin role on a
+    project may still list any users credentials when
+    ``[oslo_policy]/enforce_scope`` is false due to `bug 968696
+    <https://bugs.launchpad.net/keystone/+bug/968696>`_.
+security:
+  - |
+    [`bug 1855080 <https://bugs.launchpad.net/keystone/+bug/1855080>`_]
+    An error in the policy target filtering inadvertently allowed any user to
+    list any credential object with the /v3/credentials API when
+    ``[oslo_policy]/enforce_scope`` was set to false, which is the default.
+    This has been addressed: users with non-admin roles on a project may not
+    list other users' credentials. However, users with the admin role on a
+    project may still list any users credentials when
+    ``[oslo_policy]/enforce_scope`` is false due to `bug 968696
+    <https://bugs.launchpad.net/keystone/+bug/968696>`_.

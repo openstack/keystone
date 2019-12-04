@@ -101,13 +101,22 @@ class CredentialResource(ks_flask.ResourceBase):
         # If the request was filtered, make sure to return only the
         # credentials specific to that user. This makes it so that users with
         # roles on projects can't see credentials that aren't theirs.
-        if (not self.oslo_context.system_scope and
-                CONF.oslo_policy.enforce_scope):
-            filtered_refs = []
-            for ref in refs:
-                if ref['user_id'] == target['credential']['user_id']:
-                    filtered_refs.append(ref)
-            refs = filtered_refs
+        filtered_refs = []
+        for ref in refs:
+            # Check each credential again to make sure the user has access to
+            # it, either by owning it, being a project admin with
+            # enforce_scope=false, being a system user, or having some other
+            # custom policy that allows access.
+            try:
+                cred = PROVIDERS.credential_api.get_credential(ref['id'])
+                ENFORCER.enforce_call(
+                    action='identity:get_credential',
+                    target_attr={'credential': cred}
+                )
+                filtered_refs.append(ref)
+            except exception.Forbidden:
+                pass
+        refs = filtered_refs
         refs = [self._blob_to_json(r) for r in refs]
         return self.wrap_collection(refs, hints=hints)
 
