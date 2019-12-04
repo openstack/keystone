@@ -38,7 +38,7 @@ and managing application credentials.
 Managing Application Credentials
 ================================
 
-Create an application credential using python-keystoneclient:
+Create an application credential using python-openstackclient:
 
 .. code-block:: console
 
