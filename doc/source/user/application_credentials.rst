@@ -120,6 +120,9 @@ invalidate the user's application credentials for that project.
    | unrestricted | False                                                                                  |
    +--------------+----------------------------------------------------------------------------------------+
 
+An alternative way to limit the application credential's privileges is to use
+:ref:`access_rules`.
+
 You can provide an expiration date for application credentials:
 
 .. code-block:: console
@@ -164,6 +167,89 @@ involved, you can disable this protection:
    | secret       | ArOy6DYcLeLTRlTmfvF1TH1QmRzYbmD91cbVPOHL3ckyRaLXlaq5pTGJqvCvqg6leEvTI1SQeX3QK-3iwmdPxg |
    | unrestricted | True                                                                                   |
    +--------------+----------------------------------------------------------------------------------------+
+
+.. _access_rules:
+
+Access Rules
+============
+
+In addition to delegating a subset of roles to an application credential, you
+may also delegate more fine-grained access control by using access rules. For
+example, to create an application credential that is constricted to creating
+servers in nova, the user can add the following access rules:
+
+.. code-block:: console
+
+   openstack application credential create scaler-upper --access-rules '[
+       {
+           "path": "/v2.1/servers",
+           "method": "POST",
+           "service": "compute"
+       }
+   ]'
+
+The ``"path"`` attribute of application credential access rules uses a wildcard
+syntax to make it more flexible. For example, to create an application
+credential that is constricted to listing server IP addresses, you could use
+either of the following access rules:
+
+::
+
+    [
+        {
+            "path": "/v2.1/servers/*/ips",
+            "method": "GET",
+            "service": "compute"
+        }
+    ]
+
+or equivalently:
+
+::
+
+    [
+        {
+            "path": "/v2.1/servers/{server_id}/ips",
+            "method": "GET",
+            "service": "compute"
+        }
+    ]
+
+In both cases, a request path containing any server ID will match the access
+rule. For even more flexibility, the recursive wildcard ``**`` indicates that
+request paths containing any number of ``/`` will be matched. For example:
+
+::
+
+    [
+        {
+            "path": "/v2.1/**",
+            "method": "GET",
+            "service": "compute"
+        }
+    ]
+
+will match any nova API for version 2.1.
+
+An access rule created for one application credential can be re-used by
+providing its ID to another application credential. You can list existing access
+rules:
+
+.. code-block:: console
+
+   $ openstack access rule list
+   +--------+---------+--------+---------------+
+   | ID     | Service | Method | Path          |
+   +--------+---------+--------+---------------+
+   | abcdef | compute | POST   | /v2.1/servers |
+   +--------+---------+--------+---------------+
+
+and create an application credential using that rule:
+
+.. code-block:: console
+
+   $ openstack application credential create scaler-upper-02 \
+    --access-rules '[{"id": "abcdef"}]'
 
 Using Application Credentials
 =============================
