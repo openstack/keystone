@@ -133,7 +133,7 @@ Parameters
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
-   - description: role_description_response_body
+   - description: role_description_response_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -202,7 +202,7 @@ Parameters
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
-   - description: role_description_response_body
+   - description: role_description_response_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -251,7 +251,7 @@ Parameters
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
-   - description: role_description_response_body
+   - description: role_description_response_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -315,7 +315,7 @@ Parameters
    - id: role_id_response_body
    - links: link_response_body
    - name: role_name_response_body
-   - description: role_description_response_body
+   - description: role_description_response_body_required
 
 Status Codes
 ~~~~~~~~~~~~

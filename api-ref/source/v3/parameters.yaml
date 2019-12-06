@@ -1860,11 +1860,11 @@ role_description_create_body:
   in: body
   required: false
   type: string
-role_description_response_body:
+role_description_response_body_required:
   description: |
     The role description.
   in: body
-  required: false
+  required: true
   type: string
 role_description_update_body:
   description: |
