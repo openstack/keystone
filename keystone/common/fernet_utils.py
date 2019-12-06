@@ -36,8 +36,8 @@ NULL_KEY = base64.urlsafe_b64encode(b'\x00' * 32)
 
 class FernetUtils(object):
 
-    def __init__(self, key_repository=None, max_active_keys=None,
-                 config_group=None):
+    def __init__(self, key_repository, max_active_keys,
+                 config_group):
         self.key_repository = key_repository
         self.max_active_keys = max_active_keys
         self.config_group = config_group
