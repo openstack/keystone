@@ -25,6 +25,7 @@ except ImportError:
 
 from keystone.common import profiler
 import keystone.conf
+from keystone import exception
 import keystone.server
 from keystone.server.flask import application
 from keystone.server.flask.request_processing.middleware import auth_context
@@ -179,8 +180,12 @@ def setup_app_middleware(app):
 
     # CCloud
     if os.environ.get('SENTRY_DSN', None):
-        sentry = Sentry(app, logging=True, level=logging.ERROR)
-        sentry.init_app(app)
+        app.config['SENTRY_CONFIG'] = {
+            'ignore_exceptions': [exception.NotFound],
+        }
+
+        sentry = Sentry()
+        sentry.init_app(app, logging=True, level=logging.ERROR)
 
     return app
 
