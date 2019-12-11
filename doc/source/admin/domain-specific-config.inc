@@ -1,3 +1,7 @@
+.. -*- rst -*-
+
+.. _domain_specific_configuration:
+
 Domain-specific configuration
 =============================
 

@@ -64,8 +64,8 @@ when they start using the deployment.
        }
    }
 
-See the `security compliance documentation
-<security-compliance.html>`_ for more details.
+See the :ref:`security compliance documentation
+<security_compliance>` for more details.
 
 .. _ignore_password_expiry:
 
@@ -89,8 +89,8 @@ expired according to global configuration values.
        }
    }
 
-See the `security compliance documentation
-<security-compliance.html>`_ for more details.
+See the :ref:`security compliance documentation
+<security_compliance>` for more details.
 
 .. _ignore_lockout_failure_attempts:
 
@@ -112,8 +112,8 @@ locking out the user as a result.
        }
    }
 
-See the `security compliance documentation
-<security-compliance.html>`_ for more details.
+See the :ref:`security compliance documentation
+<security_compliance>` for more details.
 
 .. _lock_password:
 
@@ -136,8 +136,8 @@ password through self-service APIs.
    }
 
 
-See the `security compliance documentation
-<security-compliance.html>`_ for more details.
+See the :ref:`security compliance documentation
+<security_compliance>` for more details.
 
 .. _multi_factor_auth_enabled:
 

@@ -1,3 +1,7 @@
+.. -*- rst -*-
+
+.. _integrate_with_ldap:
+
 Integrate Identity with LDAP
 ============================
 

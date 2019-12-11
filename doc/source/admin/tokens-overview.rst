@@ -6,6 +6,8 @@ Tokens are used to authenticate and authorize your interactions with the
 various OpenStack APIs. Tokens come in many scopes, representing various
 authorization and sources of identity.
 
+.. _authorization_scopes:
+
 Authorization scopes
 --------------------
 

@@ -14,6 +14,8 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+.. _federation_introduction:
+
 Introduction to Keystone Federation
 ===================================
 
@@ -28,32 +30,31 @@ identity source and then provides keystone with a set of user attributes. This
 is useful if your organization already has a primary identity source since it
 means users don't need a separate set of credentials for the cloud. It is also
 useful for connecting multiple clouds together, as we can use a keystone in
-another cloud as an identity source. Using `LDAP as an identity backend`_ is
+another cloud as an identity source. Using :ref:`LDAP as an identity
+backend <integrate_with_ldap>` is
 another way for keystone to obtain identity information from an external source,
 but it requires keystone to handle passwords directly rather than offloading
 authentication to the external source.
 
 Keystone supports two configuration models for federated identity. The most
-common configuration is with `keystone as a Service Provider (SP)`_, using an
+common configuration is with :ref:`keystone as a Service Provider (SP)
+<keystone-as-sp>`, using an
 external Identity Provider, such as a Keycloak or Google, as the identity source
-and authentication method. The second type of configuration is "`Keystone to
-Keystone`_", where two keystones are linked with one acting as the identity
-source.
+and authentication method. The second type of configuration is
+":ref:`Keystone to Keystone <keystone_as_idp>`", where two keystones
+are linked with one acting as the identity source.
 
 This document discusses identity federation involving a secondary identity
 management that acts as the source of truth concerning the users it contains,
 specifically covering the SAML2.0 and OpenID Connect protocols, although
-keystone can work with other protocols. A similar concept is `external
-authentication`_ whereby keystone is still the source of truth about its users
+keystone can work with other protocols. A similar concept is :doc:`external
+authentication </admin/external-authentication>` whereby keystone is
+still the source of truth about its users
 but authentication is handled externally. Yet another closely related topic is
-`tokenless authentication`_ which uses some of the same constructs as described
+:doc:`tokenless authentication </admin/configure_tokenless_x509>`
+which uses some of the same constructs as described
 here but allows services to validate users without using keystone tokens.
 
-.. _LDAP as an identity backend: ../../admin/identity-integrate-with-ldap.html
-.. _keystone as a Service Provider (SP): configure_federation.html#keystone-as-a-service-provider-sp
-.. _Keystone to Keystone: configure_federation.html#keystone-as-an-identity-provider-idp
-.. _external authentication: ../external-authentication.html
-.. _tokenless authentication: ../configure_tokenless_x509.html
 
 --------
 Glossary

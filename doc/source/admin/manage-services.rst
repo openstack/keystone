@@ -1,3 +1,5 @@
+.. _manage_services:
+
 ============================================
 Create and manage services and service users
 ============================================

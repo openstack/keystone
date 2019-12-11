@@ -1,3 +1,5 @@
+.. -*- rst -*-
+
 Troubleshoot the Identity service
 =================================
 

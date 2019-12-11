@@ -1,3 +1,5 @@
+.. -*- rst -*-
+
 URL safe naming of projects and domains
 =======================================
 
