@@ -370,6 +370,12 @@ region_id_query:
   in: query
   required: false
   type: string
+request_application_credential_name_query_not_required:
+  description: |
+    The name of the application credential. Must be unique to a user.
+  in: query
+  required: false
+  type: string
 request_nocatalog_unscoped_path_not_required:
   description: |
     (Since v3.1) nocatalog only works for scoped token. For unscoped token, the
