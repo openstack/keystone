@@ -73,6 +73,7 @@ SAML_AUDIT_TYPE = 'http://docs.oasis-open.org/security/saml/v2.0'
 _SUBSCRIBERS = {}
 _notifier = None
 SERVICE = 'identity'
+PROVIDERS = provider_api.ProviderAPIs
 
 ROOT_DOMAIN = '<<keystone.domain.root>>'
 
@@ -528,6 +529,7 @@ def _get_request_audit_info(context, user_id=None):
     if user_id:
         initiator.user_id = user_id
         initiator.id = utils.resource_uuid(user_id)
+        initiator = _add_username_to_initiator(initiator)
 
     if project_id:
         initiator.project_id = project_id
@@ -564,6 +566,7 @@ class CadfNotificationWrapper(object):
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             initiator = build_audit_initiator()
             initiator.user_id = user_id
+            initiator = _add_username_to_initiator(initiator)
             initiator.id = utils.resource_uuid(user_id)
             try:
                 result = f(wrapped_self, user_id, *args, **kwargs)
@@ -762,6 +765,8 @@ def _send_audit_notification(action, initiator, outcome, target,
             service_id = i['id']
             break
 
+    initiator = _add_username_to_initiator(initiator)
+
     event = eventfactory.EventFactory().new_event(
         eventType=cadftype.EVENTTYPE_ACTIVITY,
         outcome=outcome,
@@ -818,6 +823,19 @@ def _check_notification_opt_out(event_type, outcome):
 
     return False
 
+
+def _add_username_to_initiator(initiator):
+    """Add the username to the initiator if missing."""
+    if hasattr(initiator, 'username'):
+        return initiator
+    try:
+        user_ref = PROVIDERS.identity_api.get_user(initiator.user_id)
+        initiator.username = user_ref['name']
+    except (exception.UserNotFound, AttributeError):
+        # Either user not found or no user_id, move along
+        pass
+
+    return initiator
 
 emit_event = CadfNotificationWrapper
 
