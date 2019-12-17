@@ -53,4 +53,8 @@ Contributors are encouraged to join IRC (``#openstack-keystone`` on freenode):
 
     https://wiki.openstack.org/wiki/IRC
 
+Source for the project:
+
+    https://opendev.org/openstack/keystone
+
 For information on contributing to Keystone, see ``CONTRIBUTING.rst``.
