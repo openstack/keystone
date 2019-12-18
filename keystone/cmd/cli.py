@@ -275,6 +275,11 @@ class BootStrap(BaseApp):
             # name instead.
             hints = driver_hints.Hints()
             hints.add_filter('name', self.role_name)
+            hints.add_filter('domain_id', None)
+
+            # NOTE(lbragstad): Global roles are unique based on name. At this
+            # point we should be safe to assume the first, and only, element in
+            # the list.
             role = self.role_manager.list_roles(hints)
             self.role_id = role[0]['id']
 
