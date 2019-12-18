@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1856881 <https://bugs.launchpad.net/keystone/+bug/1856881>`_]
+    ``keystone-manage bootstrap`` can be run in upgrade scenarios where
+    pre-existing domain-specific roles exist named ``admin``, ``member``, and
+    ``reader``.
