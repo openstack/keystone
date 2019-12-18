@@ -311,6 +311,30 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         self.assertTrue(member_role['options']['immutable'])
         self.assertTrue(reader_role['options']['immutable'])
 
+    def test_bootstrap_with_ambiguous_role_names(self):
+        # bootstrap system to create the default admin role
+        self._do_test_bootstrap(self.bootstrap)
+
+        # create a domain-specific roles that share the same names as the
+        # default roles created by keystone-manage bootstrap
+        domain = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        domain = PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        domain_roles = {}
+
+        for name in ['admin', 'member', 'reader']:
+            domain_role = {
+                'domain_id': domain['id'],
+                'id': uuid.uuid4().hex,
+                'name': name
+            }
+            domain_roles[name] = PROVIDERS.role_api.create_role(
+                domain_role['id'], domain_role
+            )
+
+            # ensure subsequent bootstrap attempts don't fail because of
+            # ambiguity
+            self._do_test_bootstrap(self.bootstrap)
+
 
 class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
 

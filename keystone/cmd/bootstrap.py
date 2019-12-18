@@ -136,6 +136,14 @@ class Bootstrapper(object):
             # name instead.
             hints = driver_hints.Hints()
             hints.add_filter('name', role_name)
+            # Only return global roles, domain-specific roles can't be used in
+            # system assignments and bootstrap isn't designed to work with
+            # domain-specific roles.
+            hints.add_filter('domain_id', None)
+
+            # NOTE(lbragstad): Global roles are unique based on name. At this
+            # point we should be safe to return the first, and only, element in
+            # the list.
             return PROVIDERS.role_api.list_roles(hints)[0]
 
     def _ensure_implied_role(self, prior_role_id, implied_role_id):
