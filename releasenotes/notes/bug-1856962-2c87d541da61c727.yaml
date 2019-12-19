@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1856962 <https://bugs.launchpad.net/keystone/+bug/1856962>`_]
+    Fixes an issue where federated users could not authenticate if their
+    mapped group membership was empty.
