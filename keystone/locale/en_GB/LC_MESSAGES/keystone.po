@@ -6,15 +6,16 @@
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 # Andi Chandler <andi@gowling.com>, 2017. #zanata
 # Andi Chandler <andi@gowling.com>, 2018. #zanata
+# Andi Chandler <andi@gowling.com>, 2019. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2019-09-30 20:17+0000\n"
+"POT-Creation-Date: 2019-12-17 16:21+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-08-08 08:58+0000\n"
+"PO-Revision-Date: 2019-12-21 02:36+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -77,6 +78,30 @@ msgstr ""
 #, python-format
 msgid "%(prior_role_id)s does not imply %(implied_role_id)s."
 msgstr "%(prior_role_id)s does not imply %(implied_role_id)s."
+
+#, python-format
+msgid ""
+"%(private_key)s does not exist. You can generate a key pair using `keystone-"
+"manage create_jws_keypair`."
+msgstr ""
+"%(private_key)s does not exist. You can generate a key pair using `keystone-"
+"manage create_jws_keypair`."
+
+#, python-format
+msgid ""
+"%(public_key_repo)s does not exist. Please make sure the directory exists "
+"and is readable by the process running keystone."
+msgstr ""
+"%(public_key_repo)s does not exist. Please make sure the directory exists "
+"and is readable by the process running Keystone."
+
+#, python-format
+msgid ""
+"%(public_key_repo)s must contain at least one public key but it is empty. "
+"You can generate a key pair using `keystone-manage create_jws_keypair`."
+msgstr ""
+"%(public_key_repo)s must contain at least one public key but it is empty. "
+"You can generate a key pair using `keystone-manage create_jws_keypair`."
 
 #, python-format
 msgid "%(role_id)s cannot be an implied roles."
@@ -173,9 +198,20 @@ msgstr "Cannot change user ID"
 msgid "Cannot change user name"
 msgstr "Cannot change user name"
 
+msgid "Cannot create an application credential for another user."
+msgstr "Cannot create an application credential for another user."
+
 #, python-format
 msgid "Cannot create an endpoint with an invalid URL: %(url)s."
 msgstr "Cannot create an endpoint with an invalid URL: %(url)s."
+
+#, python-format
+msgid ""
+"Cannot create project tags for %(project_id)s, project is immutable. Set "
+"\"immutable\" option to false before creating project tags."
+msgstr ""
+"Cannot create project tags for %(project_id)s, project is immutable. Set "
+"\"immutable\" option to false before creating project tags."
 
 #, python-format
 msgid ""
@@ -206,6 +242,14 @@ msgstr ""
 
 #, python-format
 msgid ""
+"Cannot delete project tags for %(project_id)s, project is immutable. Set "
+"\"immutable\" option to false before creating project tags."
+msgstr ""
+"Cannot delete project tags for %(project_id)s, project is immutable. Set "
+"\"immutable\" option to false before creating project tags."
+
+#, python-format
+msgid ""
 "Cannot delete the project %s since it is not a leaf in the hierarchy. Use "
 "the cascade option if you want to delete a whole subtree."
 msgstr ""
@@ -231,6 +275,10 @@ msgid "Cannot list request tokens with a token issued via delegation."
 msgstr "Cannot list request tokens with a token issued via delegation."
 
 #, python-format
+msgid "Cannot open certificate %(cert_file)s.Reason: %(reason)s"
+msgstr "Cannot open certificate %(cert_file)s.Reason: %(reason)s"
+
+#, python-format
 msgid "Cannot remove role that has not been granted, %s"
 msgstr "Cannot remove role that has not been granted, %s"
 
@@ -240,6 +288,14 @@ msgid ""
 msgstr ""
 "Cannot truncate a driver call without hints list as first parameter after "
 "self "
+
+#, python-format
+msgid ""
+"Cannot update project tags for %(project_id)s, project is immutable. Set "
+"\"immutable\" option to false before creating project tags."
+msgstr ""
+"Cannot update project tags for %(project_id)s, project is immutable. Set "
+"\"immutable\" option to false before creating project tags."
 
 msgid ""
 "Cannot use parents_as_list and parents_as_ids query params at the same time."
@@ -298,6 +354,10 @@ msgstr ""
 "%(domain_id)s."
 
 #, python-format
+msgid "Could not find Access Rule: %(access_rule_id)s."
+msgstr "Could not find Access Rule: %(access_rule_id)s."
+
+#, python-format
 msgid "Could not find Application Credential: %(application_credential_id)s."
 msgstr "Could not find Application Credential: %(application_credential_id)s."
 
@@ -315,6 +375,14 @@ msgstr "Could not find Identity Provider: %(idp_id)s."
 #, python-format
 msgid "Could not find Service Provider: %(sp_id)s."
 msgstr "Could not find Service Provider: %(sp_id)s."
+
+#, python-format
+msgid "Could not find application credential: %s"
+msgstr "Could not find application credential: %s"
+
+#, python-format
+msgid "Could not find auth receipt: %(receipt_id)s."
+msgstr "Could not find auth receipt: %(receipt_id)s."
 
 #, python-format
 msgid "Could not find credential: %(credential_id)s."
@@ -426,6 +494,9 @@ msgstr ""
 "rules must specify user id/name or REMOTE_USER environment variable must be "
 "set."
 
+msgid "Could not recognize Fernet token"
+msgstr "Could not recognise Fernet token"
+
 msgid "Could not validate the access token"
 msgstr "Could not validate the access token"
 
@@ -439,10 +510,17 @@ msgstr "Credential could not be encrypted: %s"
 msgid "Credential signature mismatch"
 msgstr "Credential signature mismatch"
 
+#, python-format
+msgid "DN attribute %(dn)s not found in LDAP"
+msgstr "DN attribute %(dn)s not found in LDAP"
+
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
+
+msgid "Domain ID does not conform to required UUID format."
+msgstr "Domain ID does not conform to required UUID format."
 
 #, python-format
 msgid "Domain cannot be named %s"
@@ -505,6 +583,13 @@ msgstr "EC2 access key not found."
 
 msgid "EC2 signature not supplied."
 msgstr "EC2 signature not supplied."
+
+msgid ""
+"ERROR: Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be "
+"set."
+msgstr ""
+"ERROR: Either --bootstrap-password argument or OS_BOOTSTRAP_PASSWORD must be "
+"set."
 
 #, python-format
 msgid "Endpoint %(endpoint_id)s not found in project %(project_id)s"
@@ -574,6 +659,9 @@ msgstr ""
 #, python-format
 msgid "Failed to deserialize %(obj)s. Data is %(data)s"
 msgstr "Failed to deserialise %(obj)s. Data is %(data)s"
+
+msgid "Failed to validate receipt"
+msgstr "Failed to validate receipt"
 
 msgid "Failed to validate token"
 msgstr "Failed to validate token"
@@ -857,6 +945,9 @@ msgstr "No options specified"
 msgid "No policy is associated with endpoint %(endpoint_id)s."
 msgstr "No policy is associated with endpoint %(endpoint_id)s."
 
+msgid "No receipt in the request"
+msgstr "No receipt in the request"
+
 #, python-format
 msgid "No remaining uses for trust: %(trust_id)s."
 msgstr "No remaining uses for trust: %(trust_id)s."
@@ -912,6 +1003,10 @@ msgstr "Password must be a string type"
 msgid "Password validation error: %(detail)s."
 msgstr "Password validation error: %(detail)s."
 
+#, python-format
+msgid "Private key %(path)s already exists"
+msgstr "Private key %(path)s already exists"
+
 msgid "Programming Error: Invalid arguments supplied to build scope."
 msgstr "Programming Error: Invalid arguments supplied to build scope."
 
@@ -944,6 +1039,10 @@ msgstr "Provided consumer key does not match stored consumer key."
 
 msgid "Provided verifier does not match stored verifier"
 msgstr "Provided verifier does not match stored verifier"
+
+#, python-format
+msgid "Public key %(path)s already exists"
+msgstr "Public key %(path)s already exists"
 
 msgid ""
 "Reading security compliance information for any domain other than the "
@@ -1095,6 +1194,14 @@ msgstr ""
 "'eq', 'neq', 'lt', 'lte', 'gt', or 'gte'."
 
 #, python-format
+msgid ""
+"The new password cannot be identical to a previous password. The total "
+"number which includes the new password must be unique is %(unique_count)s."
+msgstr ""
+"The new password cannot be identical to a previous password. The total "
+"number which includes the new password must be unique is %(unique_count)s."
+
+#, python-format
 msgid "The password does not match the requirements: %(detail)s."
 msgstr "The password does not match the requirements: %(detail)s."
 
@@ -1112,6 +1219,16 @@ msgstr ""
 
 msgid "The request you have made requires authentication."
 msgstr "The request you have made requires authentication."
+
+#, python-format
+msgid ""
+"The resource limit (%(level)s: %(id)s, resource_name: %(resource_name)s, "
+"resource_limit: %(resource_limit)s, service_id: %(service_id)s, region_id: "
+"%(region_id)s) doesn't satisfy current hierarchy model."
+msgstr ""
+"The resource limit (%(level)s: %(id)s, resource_name: %(resource_name)s, "
+"resource_limit: %(resource_limit)s, service_id: %(service_id)s, region_id: "
+"%(region_id)s) doesn't satisfy current hierarchy model."
 
 msgid ""
 "The revoke call must not have both domain_id and project_id. This is a bug "
@@ -1141,15 +1258,32 @@ msgstr ""
 
 #, python-format
 msgid ""
+"The value of the limit which project is %(project_id)s should not bigger "
+"than its parent domain %(domain_id)s."
+msgstr ""
+"The value of the limit which project is %(project_id)s should not bigger "
+"than its parent domain %(domain_id)s."
+
+#, python-format
+msgid ""
 "There are multiple %(resource)s entities named '%(name)s'. Please use ID "
 "instead of names to resolve the ambiguity."
 msgstr ""
 "There are multiple %(resource)s entities named '%(name)s'. Please use ID "
 "instead of names to resolve the ambiguity."
 
+msgid ""
+"This API is no longer available due to the removal of support for PKI tokens."
+msgstr ""
+"This API is no longer available due to the removal of support for PKI tokens."
+
 #, python-format
 msgid "This is not a recognized Fernet payload version: %s"
 msgstr "This is not a recognised Fernet payload version: %s"
+
+#, python-format
+msgid "This is not a recognized Fernet receipt %s"
+msgstr "This is not a recognised Fernet receipt %s"
 
 msgid ""
 "Timestamp not in expected format. The server could not comply with the "
@@ -1230,6 +1364,14 @@ msgstr ""
 
 #, python-format
 msgid ""
+"Unable to delete immutable %(type)s resource: `%(resource_id)s. Set resource "
+"option \"immutable\" to false first."
+msgstr ""
+"Unable to delete immutable %(type)s resource: `%(resource_id)s. Set resource "
+"option \"immutable\" to false first."
+
+#, python-format
+msgid ""
 "Unable to delete region %(region_id)s because it or its child regions have "
 "associated endpoints."
 msgstr ""
@@ -1246,6 +1388,14 @@ msgstr "Unable to establish a connection to LDAP Server (%(url)s)."
 #, python-format
 msgid "Unable to find %(name)r driver in %(namespace)r."
 msgstr "Unable to find %(name)r driver in %(namespace)r."
+
+#, python-format
+msgid ""
+"Unable to locate %(binary)s binary on the system. Check to make sure it is "
+"installed."
+msgstr ""
+"Unable to locate %(binary)s binary on the system. Check to make sure it is "
+"installed."
 
 #, python-format
 msgid "Unable to locate domain config directory: %s"
@@ -1281,6 +1431,14 @@ msgstr ""
 "Unable to sign SAML assertion. It is likely that this server does not have "
 "xmlsec1 installed or this is the result of misconfiguration. Reason "
 "%(reason)s."
+
+#, python-format
+msgid ""
+"Unable to update immutable %(type)s resource: `%(resource_id)s. Set resource "
+"option \"immutable\" to false first."
+msgstr ""
+"Unable to update immutable %(type)s resource: `%(resource_id)s. Set resource "
+"option \"immutable\" to false first."
 
 #, python-format
 msgid ""
@@ -1320,6 +1478,9 @@ msgstr "Unexpected status requested for JSON Home response, %s"
 #, python-format
 msgid "Unknown domain '%(name)s' specified by --domain-name"
 msgstr "Unknown domain '%(name)s' specified by --domain-name"
+
+msgid "Unknown parameters found,please provide only oauth parameters."
+msgstr "Unknown parameters found,please provide only oauth parameters."
 
 #, python-format
 msgid "Unsupported password hashing algorithm ident: %s"
@@ -1513,6 +1674,14 @@ msgstr ""
 "it is not permitted to have two projects acting as domains with the same "
 "name: %s"
 
+#, python-format
+msgid ""
+"it is not permitted to have two projects with either the same name or same "
+"id in the same domain: name is %(name)s, project id %(id)s"
+msgstr ""
+"it is not permitted to have two projects with either the same name or same "
+"id in the same domain: name is %(name)s, project id %(id)s"
+
 msgid "only root projects are allowed to act as domains."
 msgstr "only root projects are allowed to act as domains."
 
@@ -1536,6 +1705,9 @@ msgstr ""
 
 msgid "rescope a scoped token"
 msgstr "rescope a scoped token"
+
+msgid "resulting JSON load was not a dict"
+msgstr "resulting JSON load was not a dict"
 
 #, python-format
 msgid ""
