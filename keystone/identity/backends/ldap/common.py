@@ -1818,7 +1818,8 @@ class EnabledEmuMixIn(BaseLdap):
                            naming_rdn[1])
         self.enabled_emulation_naming_attr = naming_attr
 
-    # TODO(yoctozepto): methods below use _id_to_dn which requests another LDAP connection - optimize it
+    # TODO(yoctozepto): methods below use _id_to_dn which requests another
+    # LDAP connection - optimize it
 
     def _get_enabled(self, object_id, conn):
         if self.group_members_are_ids:
@@ -1842,7 +1843,8 @@ class EnabledEmuMixIn(BaseLdap):
         else:
             dn = self._id_to_dn(object_id)
         with self.get_connection() as conn:
-            # TODO(yoctozepto): _get_enabled potentially calls _id_to_dn 2nd time - optimize it
+            # TODO(yoctozepto): _get_enabled potentially calls
+            # _id_to_dn 2nd time - optimize it
             if not self._get_enabled(object_id, conn):
                 modlist = [(ldap.MOD_ADD,
                             self.member_attribute,
