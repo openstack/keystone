@@ -1435,6 +1435,8 @@ class AssignmentTestMixin(object):
         """
         if attribs.get('domain_id'):
             link = '/domains/' + attribs['domain_id']
+        elif attribs.get('system'):
+            link = '/system'
         else:
             link = '/projects/' + attribs['project_id']
 
@@ -1462,6 +1464,8 @@ class AssignmentTestMixin(object):
 
         if attribs.get('domain_id'):
             entity['scope'] = {'domain': {'id': attribs['domain_id']}}
+        elif attribs.get('system'):
+            entity['scope'] = {'system': {'all': True}}
         else:
             entity['scope'] = {'project': {'id': attribs['project_id']}}
 
