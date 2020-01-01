@@ -920,7 +920,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.role2 = unit.new_role_ref()
         PROVIDERS.role_api.create_role(self.role2['id'], self.role2)
 
-        # Now add one of each of the four types of assignment
+        # Now add one of each of the six types of assignment
 
         gd_entity = self.build_role_assignment_entity(
             domain_id=self.domain_id, group_id=group1['id'],
@@ -943,6 +943,22 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             user_id=user1['id'],
             role_id=self.role2['id'])
         self.put(up_entity['links']['assignment'])
+
+        gs_entity = self.build_role_assignment_entity(
+            system='all',
+            group_id=group1['id'],
+            role_id=self.role1['id'])
+        self.put(gs_entity['links']['assignment'])
+        us_entity = self.build_role_assignment_entity(
+            system='all',
+            user_id=user1['id'],
+            role_id=self.role2['id'])
+        self.put(us_entity['links']['assignment'])
+        us2_entity = self.build_role_assignment_entity(
+            system='all',
+            user_id=user2['id'],
+            role_id=self.role2['id'])
+        self.put(us2_entity['links']['assignment'])
 
         # Now list by various filters to make sure we get back the right ones
 
@@ -970,7 +986,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url, expected_status=http_client.OK)
         self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
-                                                   expected_length=2,
+                                                   expected_length=3,
                                                    resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, up_entity)
         self.assertRoleAssignmentInListResponse(r, ud_entity)
@@ -979,7 +995,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url, expected_status=http_client.OK)
         self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
-                                                   expected_length=2,
+                                                   expected_length=3,
                                                    resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity)
         self.assertRoleAssignmentInListResponse(r, gp_entity)
@@ -988,10 +1004,21 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(collection_url, expected_status=http_client.OK)
         self.head(collection_url, expected_status=http_client.OK)
         self.assertValidRoleAssignmentListResponse(r,
-                                                   expected_length=2,
+                                                   expected_length=3,
                                                    resource_url=collection_url)
         self.assertRoleAssignmentInListResponse(r, gd_entity)
         self.assertRoleAssignmentInListResponse(r, gp_entity)
+        self.assertRoleAssignmentInListResponse(r, gs_entity)
+
+        collection_url = '/role_assignments?role.id=%s' % self.role2['id']
+        r = self.get(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http_client.OK)
+        self.assertValidRoleAssignmentListResponse(r,
+                                                   expected_length=4,
+                                                   resource_url=collection_url)
+        self.assertRoleAssignmentInListResponse(r, ud_entity)
+        self.assertRoleAssignmentInListResponse(r, up_entity)
+        self.assertRoleAssignmentInListResponse(r, us_entity)
 
         # Let's try combining two filers together....
 

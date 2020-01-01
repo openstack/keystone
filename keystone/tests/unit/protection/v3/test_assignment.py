@@ -384,6 +384,8 @@ class _SystemUserTests(object):
 
     def test_user_can_filter_role_assignments_by_role(self):
         assignments = self._setup_test_role_assignments()
+        self.expected = [ra for ra in self.expected
+                         if ra['role_id'] == assignments['role_id']]
         self.expected.append({
             'user_id': assignments['user_id'],
             'project_id': assignments['project_id'],
@@ -483,6 +485,8 @@ class _SystemUserTests(object):
 
     def test_user_can_filter_role_assignments_by_system_and_role(self):
         assignments = self._setup_test_role_assignments()
+        self.expected = [ra for ra in self.expected
+                         if ra['role_id'] == assignments['role_id']]
         self.expected.append({
             'user_id': assignments['user_id'],
             'system': 'all',

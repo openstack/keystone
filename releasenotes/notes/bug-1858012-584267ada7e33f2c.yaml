@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1858012 <https://bugs.launchpad.net/keystone/+bug/1858012>`_]
+    Fixes a bug in the /v3/role_assignments filtering where the `role.id` query
+    parameter didn't properly filter role assignments by role in cases where
+    there were multiple system role assignments.
