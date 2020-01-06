@@ -456,7 +456,7 @@ class Manager(manager.Manager):
             }
 
             Once expanded, it should be returned as a list of entities like the
-            one below, one for each each user_id in the provided group_id.
+            one below, one for each user_id in the provided group_id.
 
             ::
 
@@ -520,7 +520,7 @@ class Manager(manager.Manager):
             }
 
             Once expanded, it should be returned as a list of entities like the
-            one below, one for each each user_id in the provided group_id and
+            one below, one for each user_id in the provided group_id and
             for each subproject_id in the project_id subtree.
 
             ::

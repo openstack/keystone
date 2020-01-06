@@ -112,7 +112,7 @@ Identity Provider, it can found by querying its metadata endpoint:
 
 For an OpenID Connect IdP, it is the Identity Provider's Issuer Identifier.
 A remote ID must be globally unique: two identity providers cannot be associated
-with the same remote ID. The remote ID will usually appear as a URN but but need
+with the same remote ID. The remote ID will usually appear as a URN but need
 not be a resolvable URL.
 
 The local name, called ``samltest`` in our example, is decided by you and will
