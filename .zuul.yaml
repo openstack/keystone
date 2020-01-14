@@ -46,6 +46,7 @@
         keystone: https://opendev.org/openstack/keystone
       zuul_copy_output:
         /etc/shibboleth: logs
+        /var/log/shibboleth: logs
 
 - job:
     name: keystone-dsvm-py3-functional-federation-opensuse15
@@ -56,6 +57,7 @@
         USE_PYTHON3: True
       zuul_copy_output:
         /etc/shibboleth: logs
+        /var/log/shibboleth: logs
 
 - job:
     name: keystone-dsvm-py3-functional-federation-opensuse15-k2k
