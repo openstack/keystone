@@ -249,7 +249,7 @@ from the tempest directory:
 
 .. code-block:: bash
 
-    tox -e all-plugin -- keystone_tempest_plugin
+    tox -e all -- keystone_tempest_plugin
 
 .. NOTE::
    Most of keystone's API tests are implemented in `tempest`_ and it is usually
