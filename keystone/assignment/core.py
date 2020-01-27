@@ -925,9 +925,11 @@ class Manager(manager.Manager):
                     a['system'] = {'all': True}
                     system_assignments.append(a)
 
-            for i, assignment in enumerate(system_assignments):
-                if role_id and role_id != assignment['role_id']:
-                    system_assignments.pop(i)
+            if role_id:
+                system_assignments = [
+                    sa for sa in system_assignments
+                    if role_id == sa['role_id']
+                ]
 
         assignments = []
         for assignment in itertools.chain(
